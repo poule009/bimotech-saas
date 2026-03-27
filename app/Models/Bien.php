@@ -1,18 +1,30 @@
 <?php
+
 namespace App\Models;
 
+use App\Models\Scopes\AgencyScope;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Auth;
 
 class Bien extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'proprietaire_id', 'reference', 'type', 'adresse', 'ville',
-        'surface_m2', 'nombre_pieces', 'loyer_mensuel',
-        'taux_commission', 'statut', 'description'
+        'agency_id',
+        'proprietaire_id',
+        'reference',
+        'type',
+        'adresse',
+        'ville',
+        'surface_m2',
+        'nombre_pieces',
+        'loyer_mensuel',
+        'taux_commission',
+        'statut',
+        'description',
     ];
 
     protected $casts = [
@@ -20,32 +32,48 @@ class Bien extends Model
         'taux_commission' => 'decimal:2',
     ];
 
-    // Un bien appartient à UN propriétaire (User)
-    public function proprietaire()
+    // ── Global Scope ──────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AgencyScope());
+
+        static::creating(function (Bien $bien) {
+            if (empty($bien->agency_id) && Auth::check()) {
+                $bien->agency_id = Auth::user()->agency_id;
+            }
+        });
+    }
+
+    // ── Relations ─────────────────────────────────────────────────────────
+
+    public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    public function proprietaire(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'proprietaire_id');
     }
 
-    // Un bien peut avoir plusieurs contrats (historique)
-    public function contrats()
+    public function contrats(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Contrat::class);
     }
 
-    // Le contrat actif en cours
-    public function contratActif()
+    public function contratActif(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Contrat::class)->where('statut', 'actif');
     }
-    // Toutes les photos
-public function photos()
-{
-    return $this->hasMany(BienPhoto::class)->orderBy('ordre');
-}
 
-// Photo principale
-public function photoPrincipale()
-{
-    return $this->hasOne(BienPhoto::class)->where('est_principale', true);
-}
+    public function photos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BienPhoto::class)->orderBy('ordre');
+    }
+
+    public function photoPrincipale(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BienPhoto::class)->where('est_principale', true);
+    }
 }

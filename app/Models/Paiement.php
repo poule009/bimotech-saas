@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Scopes\AgencyScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+
 class Paiement extends Model
 {
     use HasFactory;
+
     protected $fillable = [
+        'agency_id',
         'contrat_id',
         'periode',
         'montant_encaisse',
@@ -26,67 +31,57 @@ class Paiement extends Model
     ];
 
     protected $casts = [
-        'periode'             => 'date',
-        'date_paiement'       => 'date',
-        'montant_encaisse'    => 'decimal:2',
-        'commission_agence'   => 'decimal:2',
-        'tva_commission'      => 'decimal:2',
-        'commission_ttc'      => 'decimal:2',
-        'net_proprietaire'    => 'decimal:2',
-        'caution_percue'      => 'decimal:2',
-        'est_premier_paiement'=> 'boolean',
+        'periode'              => 'date',
+        'date_paiement'        => 'date',
+        'est_premier_paiement' => 'boolean',
+        'montant_encaisse'     => 'decimal:2',
+        'commission_agence'    => 'decimal:2',
+        'tva_commission'       => 'decimal:2',
+        'commission_ttc'       => 'decimal:2',
+        'net_proprietaire'     => 'decimal:2',
+        'caution_percue'       => 'decimal:2',
     ];
 
-    // ─── Relations ───────────────────────────────────────────────────────────
+    // ── Global Scope ──────────────────────────────────────────────────────
 
-    public function contrat()
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new AgencyScope());
+
+        static::creating(function (Paiement $paiement) {
+            if (empty($paiement->agency_id) && Auth::check()) {
+                $paiement->agency_id = Auth::user()->agency_id;
+            }
+        });
+    }
+
+    // ── Relations ─────────────────────────────────────────────────────────
+
+    public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    public function contrat(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Contrat::class);
     }
 
-    // Accès rapide au bien via le contrat
-    public function bien()
+    // ── Calcul des montants avec TVA ──────────────────────────────────────
+
+    public static function calculerMontants(float $montant, float $tauxCommission, float $tauxTva = 18.0): array
     {
-        return $this->hasOneThrough(Bien::class, Contrat::class, 'id', 'id', 'contrat_id', 'bien_id');
-    }
-
-    // ─── Constantes métier ───────────────────────────────────────────────────
-
-    const TAUX_TVA = 18.0;   // TVA Sénégal en %
-    const TAUX_TVA_FACTEUR = 0.18;
-
-    // ─── Calculs métier (méthodes statiques réutilisables) ───────────────────
-
-    /**
-     * Calcule l'ensemble des montants à partir du loyer brut et du taux de commission.
-     * Centraliser ici évite de dupliquer la logique dans le Controller et les tests.
-     *
-     * @return array ['commission_ht', 'tva', 'commission_ttc', 'net_proprietaire']
-     */
-    public static function calculerMontants(float $montantEncaisse, float $tauxCommission): array
-    {
-        $commissionHT  = round($montantEncaisse * ($tauxCommission / 100), 2);
-        $tva           = round($commissionHT * self::TAUX_TVA_FACTEUR, 2);
-        $commissionTTC = round($commissionHT + $tva, 2);
-        $netProprietaire = round($montantEncaisse - $commissionTTC, 2);
+        $commissionHt  = round($montant * $tauxCommission / 100, 2);
+        $tva           = round($commissionHt * $tauxTva / 100, 2);
+        $commissionTtc = round($commissionHt + $tva, 2);
+        $netProprietaire = round($montant - $commissionTtc, 2);
 
         return [
-            'commission_ht'    => $commissionHT,
-            'tva'              => $tva,
-            'commission_ttc'   => $commissionTTC,
-            'net_proprietaire' => $netProprietaire,
+            'commission_agence'    => $commissionHt,
+            'tva_commission'       => $tva,
+            'commission_ttc'       => $commissionTtc,
+            'net_proprietaire'     => $netProprietaire,
+            'taux_commission_applique' => $tauxCommission,
         ];
-    }
-
-    // ─── Accesseurs pratiques ────────────────────────────────────────────────
-
-    public function getPeriodeLabelAttribute(): string
-    {
-        return $this->periode->translatedFormat('F Y');
-    }
-
-    public function getReferencePaiementGenereeAttribute(): string
-    {
-        return 'QUITT-' . $this->contrat_id . '-' . $this->periode->format('Ym') . '-' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
     }
 }
