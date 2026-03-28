@@ -1,136 +1,171 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">
-            Dashboard Admin — BIMO-Tech
-        </h2>
-    </x-slot>
+    <x-slot name="header">Dashboard Admin — {{ $currentAgency?->name ?? 'BIMO-Tech' }}</x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    {{-- ── KPI principaux ── --}}
+    <div class="kpi-grid section-gap">
 
-            {{-- KPI Cards --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="text-sm text-gray-500">Loyers encaissés</span>
-                        <span class="text-xl">🏠</span>
-                    </div>
-                    <div class="text-2xl font-bold text-gray-900">
-                        {{ number_format($stats['total_loyers'], 0, ',', ' ') }}
-                        <span class="text-sm font-normal text-gray-400">FCFA</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-1">{{ $stats['nb_contrats'] }} contrats actifs</div>
-                </div>
+        <div class="kpi">
+            <div class="kpi-icon" style="background:#eff6ff;">💰</div>
+            <div class="kpi-label">Loyers encaissés</div>
+            <div class="kpi-value text-money">{{ number_format($stats['total_loyers'], 0, ',', ' ') }} <span style="font-size:13px;font-weight:500;color:var(--text-3);">FCFA</span></div>
+            <div class="kpi-sub">{{ $stats['nb_contrats'] }} contrat(s) actif(s)</div>
+        </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="text-sm text-gray-500">Commission BIMO-Tech</span>
-                        <span class="text-xl">💼</span>
-                    </div>
-                    <div class="text-2xl font-bold text-indigo-600">
-                        {{ number_format($stats['total_commissions'], 0, ',', ' ') }}
-                        <span class="text-sm font-normal text-gray-400">FCFA HT</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-1">
-                        TTC : {{ number_format($stats['total_commission_ttc'], 0, ',', ' ') }} FCFA
-                    </div>
-                </div>
+        <div class="kpi">
+            <div class="kpi-icon" style="background:#f5f3ff;">💼</div>
+            <div class="kpi-label">Commission agence</div>
+            <div class="kpi-value text-money" style="color:var(--agency);">{{ number_format($stats['total_commissions'], 0, ',', ' ') }} <span style="font-size:13px;font-weight:500;color:var(--text-3);">HT</span></div>
+            <div class="kpi-sub">TTC : {{ number_format($stats['total_commission_ttc'], 0, ',', ' ') }} FCFA</div>
+        </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="text-sm text-gray-500">TVA collectée 18%</span>
-                        <span class="text-xl">🧾</span>
-                    </div>
-                    <div class="text-2xl font-bold text-amber-600">
-                        {{ number_format($stats['total_tva'], 0, ',', ' ') }}
-                        <span class="text-sm font-normal text-gray-400">FCFA</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-1">À reverser à la DGI</div>
-                </div>
+        <div class="kpi">
+            <div class="kpi-icon" style="background:#fffbeb;">🧾</div>
+            <div class="kpi-label">TVA collectée 18%</div>
+            <div class="kpi-value text-money" style="color:#d97706;">{{ number_format($stats['total_tva'], 0, ',', ' ') }} <span style="font-size:13px;font-weight:500;color:var(--text-3);">FCFA</span></div>
+            <div class="kpi-sub">À reverser à la DGI</div>
+        </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="text-sm text-gray-500">Taux d'occupation</span>
-                        <span class="text-xl">📊</span>
-                    </div>
-                    <div class="text-2xl font-bold text-emerald-600">{{ $stats['taux_occupation'] }}%</div>
-                    <div class="w-full bg-gray-100 rounded-full h-2 mt-3">
-                        <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ $stats['taux_occupation'] }}%"></div>
-                    </div>
-                    <div class="text-xs text-gray-400 mt-1">
-                        {{ $stats['nb_biens_loues'] }}/{{ $stats['nb_biens'] }} biens loués
-                    </div>
-                </div>
-            </div>
+        <div class="kpi">
+            <div class="kpi-icon" style="background:#f0fdf4;">📊</div>
+            <div class="kpi-label">Taux d'occupation</div>
+            <div class="kpi-value text-money" style="color:#16a34a;">{{ $stats['taux_occupation'] }}%</div>
+            <div class="progress"><div class="progress-bar" style="width:{{ $stats['taux_occupation'] }}%;background:#16a34a;"></div></div>
+            <div class="kpi-sub">{{ $stats['nb_biens_loues'] }}/{{ $stats['nb_biens'] }} biens loués</div>
+        </div>
 
-            {{-- Compteurs --}}
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-blue-700">{{ $stats['nb_proprietaires'] }}</div>
-                    <div class="text-xs text-blue-500 mt-1">Propriétaires</div>
-                </div>
-                <div class="bg-purple-50 border border-purple-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-purple-700">{{ $stats['nb_locataires'] }}</div>
-                    <div class="text-xs text-purple-500 mt-1">Locataires</div>
-                </div>
-                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-indigo-700">{{ $stats['nb_biens'] }}</div>
-                    <div class="text-xs text-indigo-500 mt-1">Biens</div>
-                </div>
-                <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-emerald-700">
-                        {{ number_format($stats['total_net_proprio'], 0, ',', ' ') }} F
-                    </div>
-                    <div class="text-xs text-emerald-500 mt-1">Net reversé</div>
-                </div>
-            </div>
+    </div>
 
-            {{-- Derniers paiements --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h3 class="font-semibold text-gray-800">Derniers paiements</h3>
-                    <a href="{{ route('admin.paiements.index') }}"
-                       class="text-sm text-indigo-600 hover:underline">Voir tout →</a>
+    {{-- ── Stats secondaires ── --}}
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" class="section-gap">
+
+        <div style="background:#eff6ff;border:1px solid #dbeafe;border-radius:var(--radius);padding:14px 16px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#2563eb;">{{ $stats['nb_proprietaires'] }}</div>
+            <div style="font-size:11px;color:#3b82f6;margin-top:3px;font-weight:500;">Propriétaires</div>
+        </div>
+
+        <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:var(--radius);padding:14px 16px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#7c3aed;">{{ $stats['nb_locataires'] }}</div>
+            <div style="font-size:11px;color:#8b5cf6;margin-top:3px;font-weight:500;">Locataires</div>
+        </div>
+
+        <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:var(--radius);padding:14px 16px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;color:#0284c7;">{{ $stats['nb_biens'] }}</div>
+            <div style="font-size:11px;color:#0ea5e9;margin-top:3px;font-weight:500;">Biens</div>
+        </div>
+
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius);padding:14px 16px;text-align:center;">
+            <div style="font-size:18px;font-weight:800;color:#16a34a;" class="text-money">{{ number_format($stats['total_net_proprio'], 0, ',', ' ') }} F</div>
+            <div style="font-size:11px;color:#22c55e;margin-top:3px;font-weight:500;">Net reversé</div>
+        </div>
+
+    </div>
+
+    {{-- ── Derniers paiements ── --}}
+    <div class="card section-gap">
+        <div class="card-header">
+            <span class="card-title">Derniers paiements</span>
+            <a href="{{ route('admin.paiements.index') }}" class="link">Voir tout →</a>
+        </div>
+
+        {{-- Version mobile : cartes --}}
+        <div class="mobile-cards" style="padding:12px;">
+            @forelse($derniersPaiements as $p)
+                <div class="mobile-card">
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Référence</span>
+                        <span class="text-ref">{{ $p->reference_paiement }}</span>
+                    </div>
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Locataire</span>
+                        <span class="mobile-card-value">{{ $p->contrat->locataire->name }}</span>
+                    </div>
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Bien</span>
+                        <span class="mobile-card-value">{{ $p->contrat->bien->reference }}</span>
+                    </div>
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Période</span>
+                        <span class="mobile-card-value">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
+                    </div>
+                    <div class="mobile-card-row" style="margin-top:6px;padding-top:8px;border-top:1px solid var(--border);">
+                        <span class="mobile-card-label">Montant</span>
+                        <span style="font-weight:700;font-size:14px;" class="text-money">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</span>
+                    </div>
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Net proprio</span>
+                        <span style="font-weight:700;color:#16a34a;" class="text-money">{{ number_format($p->net_proprietaire, 0, ',', ' ') }} F</span>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-50">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Réf</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Locataire</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Bien</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Période</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Montant</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Net proprio</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @forelse($derniersPaiements as $p)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-4 py-3 text-xs font-mono text-gray-400">{{ $p->reference_paiement }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-800">{{ $p->contrat->locataire->name }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600">{{ $p->contrat->bien->reference }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600">
-                                    {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
-                                </td>
-                                <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
-                                    {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-4 py-3 text-sm font-bold text-emerald-600 text-right">
-                                    {{ number_format($p->net_proprietaire, 0, ',', ' ') }} F
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-gray-400 text-sm">
-                                    Aucun paiement enregistré
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            @empty
+                <div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">
+                    Aucun paiement enregistré
                 </div>
+            @endforelse
+        </div>
+
+        {{-- Version desktop : tableau --}}
+        <div class="desktop-table table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Réf</th>
+                        <th>Locataire</th>
+                        <th>Bien</th>
+                        <th>Période</th>
+                        <th style="text-align:right;">Montant</th>
+                        <th style="text-align:right;">Net proprio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($derniersPaiements as $p)
+                        <tr>
+                            <td><span class="text-ref">{{ $p->reference_paiement }}</span></td>
+                            <td>{{ $p->contrat->locataire->name }}</td>
+                            <td style="color:var(--text-2);">{{ $p->contrat->bien->reference }}</td>
+                            <td style="color:var(--text-2);">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</td>
+                            <td style="text-align:right;" class="text-money">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
+                            <td style="text-align:right;color:#16a34a;" class="text-money">{{ number_format($p->net_proprietaire, 0, ',', ' ') }} F</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" style="text-align:center;padding:32px;color:var(--text-3);">
+                                Aucun paiement enregistré
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- ── Graphique loyers par mois ── --}}
+    @if($loyersParMois->count() > 0)
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Évolution des loyers — 6 derniers mois</span>
+        </div>
+        <div class="card-body">
+            @php
+                $maxVal = $loyersParMois->max('total') ?: 1;
+            @endphp
+            <div style="display:flex;align-items:flex-end;gap:8px;height:120px;">
+                @foreach($loyersParMois as $mois)
+                    @php
+                        $hauteur = round(($mois->total / $maxVal) * 100);
+                        $label   = \Carbon\Carbon::createFromFormat('Y-m', $mois->mois)->translatedFormat('M');
+                    @endphp
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;">
+                        <div style="flex:1;display:flex;align-items:flex-end;width:100%;">
+                            <div style="width:100%;height:{{ $hauteur }}%;background:var(--agency);border-radius:4px 4px 0 0;opacity:.85;transition:opacity .2s;"
+                                 title="{{ number_format($mois->total, 0, ',', ' ') }} FCFA">
+                            </div>
+                        </div>
+                        <span style="font-size:10px;color:var(--text-3);font-weight:500;">{{ $label }}</span>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
+    @endif
+
 </x-app-layout>

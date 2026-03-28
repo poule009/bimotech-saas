@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\CheckAgencyActif;
+use App\Http\Middleware\CheckSubscription;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsSuperAdmin;
 use Illuminate\Foundation\Application;
@@ -13,6 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+
+        // ── Middlewares globaux ────────────────────────────────────────────
+        $middleware->appendToGroup('web', CheckAgencyActif::class);
+        $middleware->appendToGroup('web', CheckSubscription::class);
+
+        // ── Alias pour les routes ─────────────────────────────────────────
         $middleware->alias([
             'isAdmin'      => IsAdmin::class,
             'isSuperAdmin' => IsSuperAdmin::class,

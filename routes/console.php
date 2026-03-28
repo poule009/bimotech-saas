@@ -1,8 +1,18 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Vérifie les abonnements tous les jours à 8h00
+Schedule::command('subscriptions:reminders')
+    ->dailyAt('08:00')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+// Nettoyage des agences inactives tous les lundis à 3h00 du matin
+Schedule::command('agencies:clean-inactive')
+    ->weeklyOn(1, '03:00')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->emailOutputOnFailure(env('MAIL_FROM_ADDRESS'));

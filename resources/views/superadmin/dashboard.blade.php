@@ -71,14 +71,22 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-800">Toutes les agences</h2>
-                
-                    <a href="{{ route('agency.register') }}"
-                    class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
-                >
-                    + Nouvelle agence
-                </a>
-            </div>
+    <h2 class="text-lg font-semibold text-gray-800">Toutes les agences</h2>
+    <div class="flex items-center gap-3">
+        
+           <a href="{{ route('superadmin.subscriptions') }}"
+            class="text-sm bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition"
+        >
+            💳 Abonnements
+        </a>
+        
+          <a  href="{{ route('agency.register') }}"
+            class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+        >
+            + Nouvelle agence
+        </a>
+    </div>
+</div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">

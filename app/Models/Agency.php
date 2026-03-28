@@ -48,10 +48,50 @@ class Agency extends Model
         return $this->hasMany(Paiement::class);
     }
 
+    public function subscription(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Subscription::class);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────
 
     public function isActif(): bool
     {
         return $this->actif === true;
+    }
+
+    public function aAccesAbonnement(): bool
+    {
+        return $this->subscription && $this->subscription->aAcces();
+    }
+
+    /**
+     * Détermine si la couleur primaire est claire ou sombre.
+     */
+    public function couleurEstSombre(): bool
+    {
+        $hex = ltrim($this->couleur_primaire ?? '#1a3c5e', '#');
+
+        if (strlen($hex) !== 6) {
+            return true;
+        }
+
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+
+        $luminosite = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
+
+        return $luminosite < 0.5;
+    }
+
+    public function classeTexteNav(): string
+    {
+        return $this->couleurEstSombre() ? 'text-white' : 'text-gray-800';
+    }
+
+    public function classeTexteNavHover(): string
+    {
+        return $this->couleurEstSombre() ? 'hover:text-gray-200' : 'hover:text-gray-600';
     }
 }

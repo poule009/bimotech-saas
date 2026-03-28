@@ -1,18 +1,23 @@
 <?php
 
+use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BienController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RedirectController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 
-// ── Page d'accueil → redirection auto ────────────────────────────────────
-Route::get('/', fn() => redirect()->route('redirect.home'));
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('redirect.home');
+    }
+    return view('landing');
+})->name('landing');
 
-// ── Inscription d'une nouvelle agence (publique, sans auth) ───────────────
 Route::middleware('guest')->group(function () {
     Route::get('/register/agency', [AgencyRegistrationController::class, 'create'])
          ->name('agency.register');
@@ -20,17 +25,22 @@ Route::middleware('guest')->group(function () {
          ->name('agency.register.store');
 });
 
-// ── Routes authentifiées ──────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // ── Redirection auto après login ──────────────────────────────────────
     Route::get('/home', [RedirectController::class, 'index'])
          ->name('redirect.home');
 
-    // ── Profil (Breeze) ───────────────────────────────────────────────────
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // ── Page abonnement ───────────────────────────────────────────────────
+    Route::prefix('subscription')->name('subscription.')->group(function () {
+        Route::get('/', [SubscriptionController::class, 'index'])
+             ->name('index');
+        Route::post('/payer', [SubscriptionController::class, 'simulerPaiement'])
+             ->name('payer');
+    });
 
     // ── Dashboard SuperAdmin ──────────────────────────────────────────────
     Route::middleware('isSuperAdmin')
@@ -43,6 +53,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
                  ->name('agencies.toggle');
             Route::get('/agencies/{agency}', [SuperAdminController::class, 'showAgency'])
                  ->name('agencies.show');
+            Route::get('/subscriptions', [SuperAdminController::class, 'subscriptions'])
+                 ->name('subscriptions');
+            Route::post('/agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])
+                 ->name('agencies.abonnement.activer');
+            Route::post('/agencies/{agency}/essai', [SuperAdminController::class, 'reinitialiserEssai'])
+                 ->name('agencies.essai.reinitialiser');
     });
 
     // ── Dashboard Admin ───────────────────────────────────────────────────
@@ -53,6 +69,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Route::get('/dashboard', [DashboardController::class, 'admin'])
                  ->name('dashboard');
+
+            Route::get('agency/settings', [AgencySettingsController::class, 'edit'])
+                 ->name('agency.settings');
+            Route::patch('agency/settings', [AgencySettingsController::class, 'update'])
+                 ->name('agency.settings.update');
+            Route::delete('agency/logo', [AgencySettingsController::class, 'deleteLogo'])
+                 ->name('agency.logo.delete');
 
             Route::resource('paiements', PaiementController::class);
             Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])
@@ -87,7 +110,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                  ->name('impayes.relance');
     });
 
-    // ── Dashboard Propriétaire ────────────────────────────────────────────
     Route::middleware('can:isProprietaire')
          ->prefix('proprietaire')
          ->name('proprietaire.')
@@ -98,7 +120,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                  ->name('paiements.pdf');
     });
 
-    // ── Dashboard Locataire ───────────────────────────────────────────────
     Route::middleware('can:isLocataire')
          ->prefix('locataire')
          ->name('locataire.')
@@ -111,11 +132,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
                  ->name('paiements.pdf');
     });
 
-    // ── Biens (admin + proprio) ───────────────────────────────────────────
     Route::middleware('can:isStaff')
          ->resource('biens', BienController::class);
 
-    // ── Photos des biens ──────────────────────────────────────────────────
     Route::post('biens/{bien}/photos', [\App\Http\Controllers\BienPhotoController::class, 'store'])
          ->name('biens.photos.store');
     Route::delete('biens/{bien}/photos/{photo}', [\App\Http\Controllers\BienPhotoController::class, 'destroy'])
