@@ -9,6 +9,7 @@ use App\Models\Paiement;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class AgencySeeder extends Seeder
 {
@@ -46,13 +47,15 @@ class AgencySeeder extends Seeder
 
         $this->command->info("✓ Subscription BIMO-Tech créée (annuel, valide 1 an)");
 
+        $superAdminPassword = env('SEED_SUPERADMIN_PASSWORD', Str::random(24));
+
         // ── 3. Créer le SuperAdmin ────────────────────────────────────────
         $superAdmin = User::updateOrCreate(
             ['email' => 'superadmin@bimotech.sn'],
             [
                 'agency_id' => null,
                 'name'      => 'Super Administrateur Plateforme',
-                'password'  => bcrypt('SuperAdmin@2025!'),
+                'password'  => bcrypt($superAdminPassword),
                 'role'      => 'superadmin',
                 'telephone' => '+221 33 800 00 00',
                 'adresse'   => 'Dakar, Sénégal',

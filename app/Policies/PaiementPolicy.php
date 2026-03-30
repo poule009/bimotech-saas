@@ -7,10 +7,26 @@ use App\Models\User;
 
 class PaiementPolicy
 {
-    // Voir la liste — admin voit tout, locataire voit les siens
+    /**
+     * BUG 2 FIX : le superadmin bypasse toutes les vérifications de policy.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+        return null;
+    }
+
+    /**
+     * BUG 3 FIX : viewAny autorisait le locataire, mais la route paiements.index
+     * est sous middleware isAdmin — le locataire ne peut jamais l'atteindre.
+     * Le locataire accède à ses paiements via mesPaiements() (route séparée).
+     * → viewAny = admin uniquement pour la route index.
+     */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isLocataire() || $user->isProprietaire();
+        return $user->isAdmin();
     }
 
     // Voir un paiement spécifique

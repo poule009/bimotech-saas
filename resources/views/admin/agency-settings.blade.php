@@ -188,6 +188,28 @@
                         >
                     </div>
 
+                    {{-- NINEA --}}
+                    <div>
+                        <label for="ninea" class="block text-sm font-medium text-gray-700 mb-1">
+                            NINEA
+                            <span class="ml-1 text-xs text-gray-400 font-normal">(Numéro d'identification fiscal)</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="ninea"
+                            name="ninea"
+                            value="{{ old('ninea', $agency->ninea) }}"
+                            placeholder="ex: 00123456789"
+                            maxlength="30"
+                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        >
+                        @if(! $agency->ninea)
+                            <p class="mt-1 text-xs text-amber-600">
+                                ⚠️ Le NINEA est requis pour compléter la configuration de votre agence.
+                            </p>
+                        @endif
+                    </div>
+
                 </div>
             </div>
 

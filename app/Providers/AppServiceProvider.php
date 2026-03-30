@@ -27,8 +27,9 @@ class AppServiceProvider extends ServiceProvider
             => $user->role === 'superadmin'
         );
 
+        // BUG 1 FIX : cohérence avec le middleware IsAdmin qui autorise superadmin + admin
         Gate::define('isAdmin', fn($user)
-            => $user->role === 'admin'
+            => in_array($user->role, ['admin', 'superadmin'])
         );
 
         Gate::define('isProprietaire', fn($user)
@@ -39,21 +40,32 @@ class AppServiceProvider extends ServiceProvider
             => $user->role === 'locataire'
         );
 
-        // Admin OU Propriétaire (accès staff de l'agence)
+        // Admin OU Propriétaire (accès staff de l'agence — routes biens/photos)
+        // Le superadmin gère la plateforme, pas les biens des agences → exclu de isStaff
         Gate::define('isStaff', fn($user)
             => in_array($user->role, ['admin', 'proprietaire'])
-        );
-
-        // SuperAdmin OU Admin (accès back-office)
-        Gate::define('isBackOffice', fn($user)
-            => in_array($user->role, ['superadmin', 'admin'])
         );
 
         // ── Injecter l'agence courante dans toutes les vues Blade ─────────
         // Cela permet d'afficher le logo et les couleurs dynamiquement
         View::composer('*', function ($view) {
             if (Auth::check()) {
-                $view->with('currentAgency', Auth::user()->agency);
+                $user = Auth::user();
+                $view->with('currentAgency', $user->agency);
+
+                // Badge dynamique impayés (mois courant) — admin uniquement
+                if ($user->role === 'admin') {
+                    $impayes_count = \App\Models\Contrat::where('statut', 'actif')
+                        ->whereDoesntHave('paiements', function ($q) {
+                            $q->whereYear('periode', now()->year)
+                              ->whereMonth('periode', now()->month)
+                              ->where('statut', '!=', 'annule');
+                        })
+                        ->count();
+                    $view->with('impayes_count', $impayes_count);
+                } else {
+                    $view->with('impayes_count', 0);
+                }
             }
         });
     }

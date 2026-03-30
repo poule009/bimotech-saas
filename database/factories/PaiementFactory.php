@@ -9,8 +9,11 @@ class PaiementFactory extends Factory
 {
     public function definition(): array
     {
+        $contrat = Contrat::factory()->create();
+
         return [
-            'contrat_id'               => Contrat::factory(),
+            'agency_id'                => $contrat->agency_id,
+            'contrat_id'               => $contrat->id,
             'periode'                  => now()->startOfMonth()->toDateString(),
             'montant_encaisse'         => 250000,
             'mode_paiement'            => 'virement',

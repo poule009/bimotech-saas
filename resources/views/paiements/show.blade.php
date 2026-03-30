@@ -1,159 +1,193 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('admin.paiements.index') }}" class="text-gray-400 hover:text-gray-600 transition">←</a>
-                <h2 class="font-semibold text-xl text-gray-800">
-                    Paiement — {{ $paiement->reference_paiement }}
-                </h2>
-                <span class="px-2 py-1 text-xs rounded-full font-medium
-                    {{ $paiement->statut === 'valide'     ? 'bg-emerald-100 text-emerald-700' : '' }}
-                    {{ $paiement->statut === 'en_attente' ? 'bg-amber-100 text-amber-700'    : '' }}
-                    {{ $paiement->statut === 'annule'     ? 'bg-red-100 text-red-600'        : '' }}">
-                    {{ ucfirst($paiement->statut) }}
-                </span>
-            </div>
-            @if($paiement->statut === 'valide')
-            <a href="{{ route('admin.paiements.pdf', $paiement) }}"
-               target="_blank"
-               class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-                📄 Télécharger quittance
+    <x-slot name="header">Paiement — {{ $paiement->reference_paiement }}</x-slot>
+
+    {{-- Alertes --}}
+    @if(session('success'))
+        <div class="alert alert-success section-gap">✅ {{ session('success') }}</div>
+    @endif
+
+    {{-- Header navigation --}}
+    <div class="flex-between section-gap" style="flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="{{ route('admin.paiements.index') }}"
+               style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);color:var(--text-2);transition:background .15s;"
+               onmouseenter="this.style.background='var(--bg)'"
+               onmouseleave="this.style.background='transparent'">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
             </a>
-            @endif
+            <div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">
+                        {{ $paiement->reference_paiement }}
+                    </h1>
+                    @php
+                        $sc = match($paiement->statut) {
+                            'valide'     => 'badge badge-green',
+                            'en_attente' => 'badge badge-amber',
+                            'annule'     => 'badge badge-red',
+                            default      => 'badge badge-gray',
+                        };
+                        $sl = match($paiement->statut) {
+                            'valide'     => 'Validé',
+                            'en_attente' => 'En attente',
+                            'annule'     => 'Annulé',
+                            default      => ucfirst($paiement->statut),
+                        };
+                    @endphp
+                    <span class="{{ $sc }}">{{ $sl }}</span>
+                </div>
+                <p style="font-size:13px;color:var(--text-3);margin-top:2px;">
+                    {{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}
+                    — Réglé le {{ \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') }}
+                </p>
+            </div>
         </div>
-    </x-slot>
+        @if($paiement->statut === 'valide')
+            <a href="{{ route('admin.paiements.pdf', $paiement) }}" target="_blank" class="btn btn-primary">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Télécharger quittance
+            </a>
+        @endif
+    </div>
 
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div style="max-width:680px;">
 
-            @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm">
-                ✅ {{ session('success') }}
+        {{-- Parties concernées --}}
+        <div class="card section-gap">
+            <div class="card-header">
+                <span class="card-title">Parties concernées</span>
             </div>
-            @endif
+            <div class="card-body">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="parties-grid">
 
-            {{-- Parties --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 class="font-semibold text-gray-800 mb-4">Parties concernées</h3>
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Propriétaire</div>
-                        <div class="font-semibold text-gray-800">{{ $paiement->contrat->bien->proprietaire->name }}</div>
-                        <div class="text-sm text-gray-500">{{ $paiement->contrat->bien->proprietaire->telephone ?? '' }}</div>
+                    <div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Propriétaire</div>
+                        <div style="font-weight:700;font-size:14px;color:var(--text);">{{ $paiement->contrat->bien->proprietaire->name }}</div>
+                        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">{{ $paiement->contrat->bien->proprietaire->telephone ?? '—' }}</div>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Locataire</div>
-                        <div class="font-semibold text-gray-800">{{ $paiement->contrat->locataire->name }}</div>
-                        <div class="text-sm text-gray-500">{{ $paiement->contrat->locataire->telephone ?? '' }}</div>
-                    </div>
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Bien</div>
-                        <div class="font-semibold text-gray-800">{{ $paiement->contrat->bien->reference }}</div>
-                        <div class="text-sm text-gray-500">{{ $paiement->contrat->bien->adresse }}, {{ $paiement->contrat->bien->ville }}</div>
-                    </div>
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Période</div>
-                        <div class="font-semibold text-gray-800">
-                            {{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            Réglé le {{ \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') }}
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            {{-- Montants --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 class="font-semibold text-gray-800 mb-4">Détail des montants</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span class="text-sm text-gray-600">Loyer encaissé</span>
-                        <span class="font-semibold text-gray-900">
-                            {{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} FCFA
-                        </span>
+                    <div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Locataire</div>
+                        <div style="font-weight:700;font-size:14px;color:var(--text);">{{ $paiement->contrat->locataire->name }}</div>
+                        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">{{ $paiement->contrat->locataire->telephone ?? '—' }}</div>
                     </div>
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span class="text-sm text-gray-600">
-                            Commission HT ({{ $paiement->taux_commission_applique }}%)
-                        </span>
-                        <span class="text-amber-600">
-                            - {{ number_format($paiement->commission_agence, 0, ',', ' ') }} FCFA
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span class="text-sm text-gray-500 text-xs">TVA 18% sur commission</span>
-                        <span class="text-gray-500 text-xs">
-                            - {{ number_format($paiement->tva_commission, 0, ',', ' ') }} FCFA
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span class="text-sm text-gray-600">Commission TTC</span>
-                        <span class="text-amber-700 font-medium">
-                            - {{ number_format($paiement->commission_ttc, 0, ',', ' ') }} FCFA
-                        </span>
-                    </div>
-                    <div class="flex justify-between items-center py-3 bg-emerald-50 rounded-lg px-3">
-                        <span class="font-bold text-gray-800">Net propriétaire</span>
-                        <span class="font-bold text-emerald-600 text-lg">
-                            {{ number_format($paiement->net_proprietaire, 0, ',', ' ') }} FCFA
-                        </span>
-                    </div>
-                    @if($paiement->est_premier_paiement && $paiement->caution_percue > 0)
-                    <div class="flex justify-between items-center py-2 bg-indigo-50 rounded-lg px-3">
-                        <span class="text-sm text-indigo-700">Caution perçue</span>
-                        <span class="font-semibold text-indigo-700">
-                            {{ number_format($paiement->caution_percue, 0, ',', ' ') }} FCFA
-                        </span>
-                    </div>
-                    @endif
-                </div>
-            </div>
 
-            {{-- Infos règlement --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 class="font-semibold text-gray-800 mb-4">Règlement</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Mode</div>
-                        <div class="font-semibold text-gray-800">
-                            {{ ucfirst(str_replace('_', ' ', $paiement->mode_paiement)) }}
-                        </div>
+                    <div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Bien</div>
+                        <div style="font-weight:700;font-size:14px;color:var(--text);">{{ $paiement->contrat->bien->reference }}</div>
+                        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">{{ $paiement->contrat->bien->adresse }}, {{ $paiement->contrat->bien->ville }}</div>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Date</div>
-                        <div class="font-semibold text-gray-800">
+
+                    <div style="padding:14px;background:var(--bg);border-radius:var(--radius-sm);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Mode de règlement</div>
+                        <div style="font-weight:700;font-size:14px;color:var(--text);">{{ ucfirst(str_replace('_', ' ', $paiement->mode_paiement)) }}</div>
+                        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">
                             {{ \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') }}
                         </div>
                     </div>
+
                 </div>
+
                 @if($paiement->notes)
-                <div class="mt-3 pt-3 border-t border-gray-100">
-                    <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Notes</div>
-                    <div class="text-sm text-gray-600">{{ $paiement->notes }}</div>
-                </div>
+                    <div style="margin-top:14px;padding:14px;background:var(--bg);border-radius:var(--radius-sm);border-left:3px solid var(--agency);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Notes</div>
+                        <div style="font-size:13px;color:var(--text-2);">{{ $paiement->notes }}</div>
+                    </div>
                 @endif
             </div>
+        </div>
 
-            {{-- Annulation --}}
-            @if($paiement->statut === 'valide')
-            <div class="bg-red-50 rounded-2xl border border-red-100 p-6">
-                <h3 class="font-semibold text-red-800 mb-2">Annuler ce paiement</h3>
+        {{-- Détail des montants --}}
+        <div class="card section-gap">
+            <div class="card-header">
+                <span class="card-title">Détail des montants</span>
+            </div>
+            <div class="card-body">
+
+                {{-- Ligne loyer --}}
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+                    <span style="font-size:13px;color:var(--text-2);">Loyer encaissé</span>
+                    <span style="font-weight:700;font-size:15px;color:var(--text);" class="text-money">
+                        {{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} FCFA
+                    </span>
+                </div>
+
+                {{-- Ligne commission HT --}}
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+                    <span style="font-size:13px;color:var(--text-2);">
+                        Commission HT ({{ $paiement->taux_commission_applique }}%)
+                    </span>
+                    <span style="color:#d97706;font-weight:500;" class="text-money">
+                        − {{ number_format($paiement->commission_agence, 0, ',', ' ') }} FCFA
+                    </span>
+                </div>
+
+                {{-- Ligne TVA --}}
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+                    <span style="font-size:12px;color:var(--text-3);">TVA 18% sur commission</span>
+                    <span style="font-size:12px;color:var(--text-3);" class="text-money">
+                        − {{ number_format($paiement->tva_commission, 0, ',', ' ') }} FCFA
+                    </span>
+                </div>
+
+                {{-- Ligne commission TTC --}}
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+                    <span style="font-size:13px;color:var(--text-2);">Commission TTC</span>
+                    <span style="color:#b45309;font-weight:600;" class="text-money">
+                        − {{ number_format($paiement->commission_ttc, 0, ',', ' ') }} FCFA
+                    </span>
+                </div>
+
+                {{-- Net propriétaire --}}
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:#f0fdf4;border-radius:var(--radius-sm);margin-top:8px;">
+                    <span style="font-weight:700;font-size:14px;color:#15803d;">Net propriétaire</span>
+                    <span style="font-weight:800;font-size:20px;color:#16a34a;" class="text-money">
+                        {{ number_format($paiement->net_proprietaire, 0, ',', ' ') }} FCFA
+                    </span>
+                </div>
+
+                {{-- Caution --}}
+                @if($paiement->est_premier_paiement && $paiement->caution_percue > 0)
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#eff6ff;border-radius:var(--radius-sm);margin-top:8px;">
+                        <span style="font-size:13px;color:#1d4ed8;">Caution perçue</span>
+                        <span style="font-weight:700;color:#2563eb;" class="text-money">
+                            {{ number_format($paiement->caution_percue, 0, ',', ' ') }} FCFA
+                        </span>
+                    </div>
+                @endif
+
+            </div>
+        </div>
+
+        {{-- Zone annulation --}}
+        @if($paiement->statut === 'valide')
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius);padding:20px 24px;">
+                <div style="font-size:14px;font-weight:700;color:#dc2626;margin-bottom:8px;">⚠️ Annuler ce paiement</div>
                 <form method="POST" action="{{ route('admin.paiements.annuler', $paiement) }}"
                       onsubmit="return confirm('Annuler ce paiement ?')">
                     @csrf @method('PATCH')
-                    <div class="flex gap-3 items-center">
-                        <input type="text" name="motif" placeholder="Motif de l'annulation..."
-                               class="flex-1 border border-red-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-400">
-                        <button type="submit"
-                                class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <input type="text" name="motif"
+                               placeholder="Motif de l'annulation..."
+                               style="flex:1;padding:9px 13px;border:1.5px solid #fecaca;border-radius:var(--radius-sm);font-size:13px;color:var(--text);background:white;outline:none;font-family:inherit;">
+                        <button type="submit" class="btn btn-danger">
                             Annuler
                         </button>
                     </div>
                 </form>
             </div>
-            @endif
+        @endif
 
-        </div>
     </div>
+
+    <style>
+        @media (min-width: 640px) {
+            #parties-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+
 </x-app-layout>

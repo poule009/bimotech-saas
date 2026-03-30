@@ -9,6 +9,7 @@ use App\Models\Paiement;
 use App\Models\Proprietaire;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -17,6 +18,7 @@ class UserController extends Controller
     // ── Liste des propriétaires ───────────────────────────────────────────
     public function proprietaires()
     {
+        $this->authorize('isAdmin');
         $proprietaires = User::where('role', 'proprietaire')
             ->with('biens')
             ->withCount('biens')
@@ -35,6 +37,7 @@ class UserController extends Controller
     // ── Liste des locataires ──────────────────────────────────────────────
     public function locataires()
     {
+        $this->authorize('isAdmin');
         $locataires = User::where('role', 'locataire')
             ->with('contrats.bien')
             ->orderBy('name')
@@ -56,6 +59,7 @@ class UserController extends Controller
     // ── Formulaire création ───────────────────────────────────────────────
     public function create(string $role)
     {
+        $this->authorize('isAdmin');
         if (! in_array($role, ['proprietaire', 'locataire'])) {
             abort(404);
         }
@@ -66,6 +70,7 @@ class UserController extends Controller
     // ── Enregistrement ────────────────────────────────────────────────────
     public function store(Request $request)
     {
+        $this->authorize('isAdmin');
         $validated = $request->validate([
             'role'      => ['required', 'in:proprietaire,locataire'],
             'name'      => ['required', 'string', 'max:255'],
@@ -97,14 +102,15 @@ class UserController extends Controller
             'contact_urgence_lien'  => ['nullable', 'string', 'max:50'],
         ]);
 
-        // Créer le compte User
+        // Créer le compte User (auto-vérifié : créé par l'admin, pas d'auto-inscription)
         $user = User::create([
-            'name'      => $validated['name'],
-            'email'     => $validated['email'],
-            'telephone' => $validated['telephone'] ?? null,
-            'adresse'   => $validated['adresse'] ?? null,
-            'password'  => Hash::make($validated['password']),
-            'role'      => $validated['role'],
+            'name'              => $validated['name'],
+            'email'             => $validated['email'],
+            'telephone'         => $validated['telephone'] ?? null,
+            'adresse'           => $validated['adresse'] ?? null,
+            'password'          => Hash::make($validated['password']),
+            'role'              => $validated['role'],
+            'email_verified_at' => now(),
         ]);
 
         // Créer le profil selon le rôle
@@ -151,8 +157,20 @@ class UserController extends Controller
     }
 
     // ── Fiche détaillée d'un propriétaire ────────────────────────────────
-public function show(User $user)
-{
+    public function show(User $user)
+    {
+        $this->authorize('isAdmin');
+
+        // BUG 9 FIX : vérification cross-agence robuste.
+        // User n'a pas d'AgencyScope → vérification manuelle obligatoire.
+        // On utilise isSuperAdmin() (méthode du modèle) plutôt qu'une comparaison
+        // de chaîne fragile, et Auth::user() plutôt que le FQCN inline.
+        /** @var \App\Models\User $currentUser */
+        $currentUser = Auth::user();
+        if (! $currentUser->isSuperAdmin() && $currentUser->agency_id !== $user->agency_id) {
+            abort(403, 'Cet utilisateur n\'appartient pas à votre agence.');
+        }
+
     // Charge toutes les relations nécessaires
    $biens = Bien::where('proprietaire_id', $user->id)
     ->with(['contrats' => fn($q) => $q->where('statut', 'actif')
@@ -204,6 +222,7 @@ return view('users.show', compact(
     // ── Suppression ───────────────────────────────────────────────────────
     public function destroy(User $user)
     {
+        $this->authorize('isAdmin');
         // Impossible de supprimer si contrat actif
         if ($user->contrats()->where('statut', 'actif')->exists()) {
             return back()->withErrors([

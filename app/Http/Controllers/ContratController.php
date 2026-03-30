@@ -8,6 +8,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class ContratController extends Controller
 {
@@ -16,6 +19,8 @@ class ContratController extends Controller
     // ── Liste des contrats ────────────────────────────────────────────────
     public function index()
     {
+        $this->authorize('viewAny', Contrat::class);
+
         $contrats = Contrat::with('bien', 'locataire')
             ->orderByDesc('created_at')
             ->paginate(15);
@@ -33,6 +38,8 @@ class ContratController extends Controller
     // ── Formulaire création ───────────────────────────────────────────────
     public function create(Request $request)
     {
+        $this->authorize('create', Contrat::class);
+
         // Biens disponibles uniquement
         $biens = Bien::where('statut', 'disponible')
             ->with('proprietaire')
@@ -57,9 +64,36 @@ class ContratController extends Controller
     // ── Enregistrement ────────────────────────────────────────────────────
     public function store(Request $request)
     {
+        $this->authorize('create', Contrat::class);
+
+        $agencyId = Auth::user()->agency_id;
+
         $validated = $request->validate([
-            'bien_id'      => ['required', 'exists:biens,id'],
-            'locataire_id' => ['required', 'exists:users,id'],
+            // BUG 8 FIX : validation cross-agence pour bien_id.
+            // exists:biens,id ne tient pas compte de l'AgencyScope.
+            // On vérifie explicitement que le bien appartient à la même agence.
+            'bien_id' => [
+                'required',
+                'exists:biens,id',
+                function ($attribute, $value, $fail) use ($agencyId) {
+                    $bien = \App\Models\Bien::withoutGlobalScopes()->find($value);
+                    if (! $bien || $bien->agency_id !== $agencyId) {
+                        $fail('Ce bien n\'appartient pas à votre agence.');
+                    }
+                },
+            ],
+            // BUG 8 FIX : validation cross-agence pour locataire_id.
+            // User n'a pas d'AgencyScope — vérification manuelle obligatoire.
+            'locataire_id' => [
+                'required',
+                'exists:users,id',
+                function ($attribute, $value, $fail) use ($agencyId) {
+                    $locataire = User::find($value);
+                    if (! $locataire || $locataire->agency_id !== $agencyId || $locataire->role !== 'locataire') {
+                        $fail('Ce locataire n\'appartient pas à votre agence.');
+                    }
+                },
+            ],
             'date_debut'   => ['required', 'date'],
             'date_fin'     => ['nullable', 'date', 'after:date_debut'],
             'caution'      => ['required', 'numeric', 'min:0'],
@@ -102,6 +136,8 @@ class ContratController extends Controller
     // ── Détail d'un contrat ───────────────────────────────────────────────
     public function show(Contrat $contrat)
     {
+        $this->authorize('view', $contrat);
+
         $contrat->load('bien.proprietaire', 'locataire', 'paiements');
 
         $totalPaye     = $contrat->paiements->where('statut', 'valide')->sum('montant_encaisse');
@@ -120,9 +156,39 @@ class ContratController extends Controller
         ));
     }
 
+    // ── Création rapide d'un locataire (AJAX depuis la modale) ────────────
+    public function storeLocataireRapide(Request $request)
+    {
+        $this->authorize('create', Contrat::class);
+
+        $validated = $request->validate([
+            'name'      => ['required', 'string', 'max:255'],
+            'email'     => ['required', 'email', 'unique:users,email'],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'password'  => ['required', Password::min(8)],
+        ]);
+
+        $user = User::create([
+            'name'      => $validated['name'],
+            'email'     => $validated['email'],
+            'telephone' => $validated['telephone'] ?? null,
+            'password'  => Hash::make($validated['password']),
+            'role'      => 'locataire',
+            'agency_id' => Auth::user()->agency_id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'id'      => $user->id,
+            'name'    => $user->name,
+        ]);
+    }
+
     // ── Résiliation d'un contrat ──────────────────────────────────────────
     public function destroy(Contrat $contrat)
     {
+        $this->authorize('delete', $contrat);
+
         if ($contrat->statut !== 'actif') {
             return back()->withErrors(['general' => 'Ce contrat n\'est pas actif.']);
         }

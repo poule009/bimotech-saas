@@ -140,12 +140,16 @@
         .nav-item:hover svg, .nav-item.active svg { color: var(--agency); }
         .nav-badge {
             margin-left: auto;
-            background: #fef2f2;
-            color: #ef4444;
+            background: #dc2626;
+            color: #ffffff;
             font-size: 10px;
             font-weight: 700;
-            padding: 2px 6px;
-            border-radius: 6px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 1.5;
+            box-shadow: 0 1px 3px rgba(220,38,38,.4);
         }
 
         /* Sidebar footer */
@@ -563,7 +567,9 @@
                    class="nav-item {{ request()->routeIs('admin.impayes.*') ? 'active' : '' }}">
                     <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     Impayés
-                    <span class="nav-badge">!</span>
+                    @if(($impayes_count ?? 0) > 0)
+                        <span class="nav-badge">{{ $impayes_count }}</span>
+                    @endif
                 </a>
 
             @elseif(auth()->user()->isProprietaire())
@@ -704,7 +710,10 @@
                 <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 <span>Contrats</span>
             </a>
-            <a href="{{ route('admin.impayes.index') }}" class="tab-item {{ request()->routeIs('admin.impayes.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.impayes.index') }}" class="tab-item {{ request()->routeIs('admin.impayes.*') ? 'active' : '' }}" style="position:relative;">
+                @if(($impayes_count ?? 0) > 0)
+                    <span style="position:absolute;top:2px;right:calc(50% - 18px);background:#dc2626;color:white;font-size:9px;font-weight:700;padding:1px 4px;border-radius:999px;line-height:1.4;min-width:14px;text-align:center;">{{ $impayes_count }}</span>
+                @endif
                 <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 <span>Impayés</span>
             </a>

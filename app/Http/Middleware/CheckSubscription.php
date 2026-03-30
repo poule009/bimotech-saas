@@ -56,16 +56,20 @@ class CheckSubscription
                 ->with('warning', "Aucun abonnement trouvé pour votre agence.");
         }
 
-        // Accès autorisé si essai valide ou abonnement valide
+        // Accès complet autorisé si essai valide ou abonnement valide
         if ($subscription->aAcces()) {
             return $next($request);
         }
 
-        // Tout autre cas → bloqué (expiré, annulé, essai terminé...)
+        // Mode gel : abonnement/essai expiré => lecture seule, écriture bloquée
+        if (in_array($request->method(), ['GET', 'HEAD', 'OPTIONS'])) {
+            return $next($request);
+        }
+
         $message = match($subscription->statut) {
-            'essai'  => "Votre période d'essai de 30 jours est terminée. Choisissez un abonnement pour continuer.",
-            'annulé' => "Votre abonnement a été annulé. Contactez-nous pour le réactiver.",
-            default  => "Votre abonnement a expiré. Renouvelez-le pour continuer à utiliser BIMO-Tech.",
+            'essai'  => "Votre période d'essai est terminée. Vos données sont conservées en lecture seule. Abonnez-vous pour réactiver les modifications.",
+            'annulé' => "Votre abonnement est annulé. Vos données sont conservées en lecture seule. Réactivez l'abonnement pour modifier vos données.",
+            default  => "Votre abonnement a expiré. Vos données sont conservées en lecture seule. Renouvelez pour reprendre les modifications.",
         };
 
         return redirect()->route('subscription.index')

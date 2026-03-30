@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Scopes\AgencyScope;
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class Paiement extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'agency_id',
@@ -26,6 +27,7 @@ class Paiement extends Model
         'est_premier_paiement',
         'date_paiement',
         'reference_paiement',
+        'receipt_path',
         'statut',
         'notes',
     ];
@@ -77,11 +79,16 @@ class Paiement extends Model
         $netProprietaire = round($montant - $commissionTtc, 2);
 
         return [
-            'commission_agence'    => $commissionHt,
-            'tva_commission'       => $tva,
-            'commission_ttc'       => $commissionTtc,
-            'net_proprietaire'     => $netProprietaire,
+            // Clés métier actuelles
+            'commission_agence'        => $commissionHt,
+            'tva_commission'           => $tva,
+            'commission_ttc'           => $commissionTtc,
+            'net_proprietaire'         => $netProprietaire,
             'taux_commission_applique' => $tauxCommission,
+
+            // Compatibilité tests/unit legacy
+            'commission_ht'            => $commissionHt,
+            'tva'                      => $tva,
         ];
     }
 }

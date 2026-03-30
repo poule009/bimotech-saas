@@ -25,41 +25,31 @@ class RapportController extends Controller
 
         // ── Paiements du mois ─────────────────────────────────────────
         $paiementsMois = Paiement::with('contrat.bien.proprietaire', 'contrat.locataire')
-    ->where('statut', 'valide')
-    ->whereBetween('date_paiement', [$debutMois, $finMois])
-    ->orderBy('date_paiement')
-    ->paginate(50);
+            ->where('statut', 'valide')
+            ->whereBetween('date_paiement', [$debutMois, $finMois])
+            ->orderBy('date_paiement')
+            ->paginate(50);
 
-// KPI via DB directement — pas en PHP
-$kpiMois = [
-    'total_loyers'      => Paiement::where('statut', 'valide')
-        ->whereBetween('date_paiement', [$debutMois, $finMois])
-        ->sum('montant_encaisse'),
-    'total_commission'  => Paiement::where('statut', 'valide')
-        ->whereBetween('date_paiement', [$debutMois, $finMois])
-        ->sum('commission_agence'),
-    'total_tva'         => Paiement::where('statut', 'valide')
-        ->whereBetween('date_paiement', [$debutMois, $finMois])
-        ->sum('tva_commission'),
-    'total_ttc'         => Paiement::where('statut', 'valide')
-        ->whereBetween('date_paiement', [$debutMois, $finMois])
-        ->sum('commission_ttc'),
-    'total_net_proprio' => Paiement::where('statut', 'valide')
-        ->whereBetween('date_paiement', [$debutMois, $finMois])
-        ->sum('net_proprietaire'),
-    'nb_paiements'      => Paiement::where('statut', 'valide')
-        ->whereBetween('date_paiement', [$debutMois, $finMois])
-        ->count(),
-];
-
-        // ── KPI du mois ───────────────────────────────────────────────
+        // ── KPI du mois (source unique SQL pour cohérence/performance) ──
         $kpiMois = [
-            'total_loyers'      => $paiementsMois->sum('montant_encaisse'),
-            'total_commission'  => $paiementsMois->sum('commission_agence'),
-            'total_tva'         => $paiementsMois->sum('tva_commission'),
-            'total_ttc'         => $paiementsMois->sum('commission_ttc'),
-            'total_net_proprio' => $paiementsMois->sum('net_proprietaire'),
-            'nb_paiements'      => $paiementsMois->count(),
+            'total_loyers'      => Paiement::where('statut', 'valide')
+                ->whereBetween('date_paiement', [$debutMois, $finMois])
+                ->sum('montant_encaisse'),
+            'total_commission'  => Paiement::where('statut', 'valide')
+                ->whereBetween('date_paiement', [$debutMois, $finMois])
+                ->sum('commission_agence'),
+            'total_tva'         => Paiement::where('statut', 'valide')
+                ->whereBetween('date_paiement', [$debutMois, $finMois])
+                ->sum('tva_commission'),
+            'total_ttc'         => Paiement::where('statut', 'valide')
+                ->whereBetween('date_paiement', [$debutMois, $finMois])
+                ->sum('commission_ttc'),
+            'total_net_proprio' => Paiement::where('statut', 'valide')
+                ->whereBetween('date_paiement', [$debutMois, $finMois])
+                ->sum('net_proprietaire'),
+            'nb_paiements'      => Paiement::where('statut', 'valide')
+                ->whereBetween('date_paiement', [$debutMois, $finMois])
+                ->count(),
         ];
 
         // ── Évolution sur 12 mois ─────────────────────────────────────

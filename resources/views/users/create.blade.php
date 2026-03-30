@@ -1,242 +1,208 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <a href="{{ $role === 'proprietaire' ? route('admin.users.proprietaires') : route('admin.users.locataires') }}"
-               class="text-gray-400 hover:text-gray-600 transition">←</a>
-            <h2 class="font-semibold text-xl text-gray-800">
+    <x-slot name="header">Nouveau {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}</x-slot>
+
+    {{-- Header navigation --}}
+    <div style="display:flex;align-items:center;gap:12px;" class="section-gap">
+        <a href="{{ $role === 'proprietaire' ? route('admin.users.proprietaires') : route('admin.users.locataires') }}"
+           style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);color:var(--text-2);transition:background .15s;"
+           onmouseenter="this.style.background='var(--bg)'"
+           onmouseleave="this.style.background='transparent'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </a>
+        <div>
+            <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">
                 Nouveau {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
-            </h2>
-        </div>
-    </x-slot>
-
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <form method="POST" action="{{ route('admin.users.store') }}" class="space-y-6">
-                @csrf
-                <input type="hidden" name="role" value="{{ $role }}">
-
-                @if($errors->any())
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <ul class="text-sm text-red-600 space-y-1">
-                        @foreach($errors->all() as $error)
-                        <li>❌ {{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
-
-                {{-- Infos compte --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                    <h3 class="font-semibold text-gray-800 border-b border-gray-100 pb-3">
-                        Informations du compte
-                    </h3>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Nom complet <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="name" value="{{ old('name') }}"
-                                   placeholder="Moussa Diallo"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 @error('name') border-red-400 @enderror">
-                            @error('name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Email <span class="text-red-500">*</span>
-                            </label>
-                            <input type="email" name="email" value="{{ old('email') }}"
-                                   placeholder="moussa@example.com"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 @error('email') border-red-400 @enderror">
-                            @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                            <input type="text" name="telephone" value="{{ old('telephone') }}"
-                                   placeholder="+221 77 000 00 00"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
-                            <input type="text" name="adresse" value="{{ old('adresse') }}"
-                                   placeholder="Almadies, Dakar"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Mot de passe <span class="text-red-500">*</span>
-                            </label>
-                            <input type="password" name="password"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 @error('password') border-red-400 @enderror">
-                            @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Confirmer le mot de passe <span class="text-red-500">*</span>
-                            </label>
-                            <input type="password" name="password_confirmation"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Infos identité --}}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                    <h3 class="font-semibold text-gray-800 border-b border-gray-100 pb-3">
-                        Identité
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">CNI</label>
-                            <input type="text" name="cni" value="{{ old('cni') }}"
-                                   placeholder="SN-1234567"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date de naissance</label>
-                            <input type="date" name="date_naissance" value="{{ old('date_naissance') }}"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Genre</label>
-                            <select name="genre" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                                <option value="">-- Choisir --</option>
-                                <option value="homme" {{ old('genre') === 'homme' ? 'selected' : '' }}>Homme</option>
-                                <option value="femme" {{ old('genre') === 'femme' ? 'selected' : '' }}>Femme</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
-                            <select name="ville" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                                @foreach(['Dakar', 'Thiès', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Rufisque', 'Touba'] as $ville)
-                                <option value="{{ $ville }}" {{ old('ville', 'Dakar') === $ville ? 'selected' : '' }}>
-                                    {{ $ville }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Quartier</label>
-                            <input type="text" name="quartier" value="{{ old('quartier') }}"
-                                   placeholder="Almadies"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Champs spécifiques propriétaire --}}
-                @if($role === 'proprietaire')
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                    <h3 class="font-semibold text-gray-800 border-b border-gray-100 pb-3">
-                        Informations de paiement
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Mode paiement préféré</label>
-                            <select name="mode_paiement_prefere" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                                <option value="virement"     {{ old('mode_paiement_prefere') === 'virement'     ? 'selected' : '' }}>Virement bancaire</option>
-                                <option value="mobile_money" {{ old('mode_paiement_prefere') === 'mobile_money' ? 'selected' : '' }}>Mobile Money</option>
-                                <option value="especes"      {{ old('mode_paiement_prefere') === 'especes'      ? 'selected' : '' }}>Espèces</option>
-                                <option value="cheque"       {{ old('mode_paiement_prefere') === 'cheque'       ? 'selected' : '' }}>Chèque</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Banque</label>
-                            <input type="text" name="banque" value="{{ old('banque') }}"
-                                   placeholder="CBAO, Ecobank..."
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Numéro Wave</label>
-                            <input type="text" name="numero_wave" value="{{ old('numero_wave') }}"
-                                   placeholder="+221 77 000 00 00"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Numéro Orange Money</label>
-                            <input type="text" name="numero_om" value="{{ old('numero_om') }}"
-                                   placeholder="+221 77 000 00 00"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">NINEA</label>
-                            <input type="text" name="ninea" value="{{ old('ninea') }}"
-                                   placeholder="00000000000"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                {{-- Champs spécifiques locataire --}}
-                @if($role === 'locataire')
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-                    <h3 class="font-semibold text-gray-800 border-b border-gray-100 pb-3">
-                        Situation professionnelle
-                    </h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Profession</label>
-                            <input type="text" name="profession" value="{{ old('profession') }}"
-                                   placeholder="Ingénieur, Commerçant..."
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Employeur</label>
-                            <input type="text" name="employeur" value="{{ old('employeur') }}"
-                                   placeholder="Sonatel, Ministère..."
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA)</label>
-                            <input type="number" name="revenu_mensuel" value="{{ old('revenu_mensuel') }}"
-                                   min="0" placeholder="500000"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                    </div>
-
-                    <h3 class="font-semibold text-gray-800 border-b border-gray-100 pb-3 pt-2">
-                        Contact d'urgence
-                    </h3>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
-                            <input type="text" name="contact_urgence_nom" value="{{ old('contact_urgence_nom') }}"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
-                            <input type="text" name="contact_urgence_tel" value="{{ old('contact_urgence_tel') }}"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Lien</label>
-                            <input type="text" name="contact_urgence_lien" value="{{ old('contact_urgence_lien') }}"
-                                   placeholder="père, mère, conjoint..."
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                {{-- Boutons --}}
-                <div class="flex justify-end gap-3">
-                    <a href="{{ $role === 'proprietaire' ? route('admin.users.proprietaires') : route('admin.users.locataires') }}"
-                       class="px-5 py-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
-                        Annuler
-                    </a>
-                    <button type="submit"
-                            class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">
-                        Créer le {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
-                    </button>
-                </div>
-            </form>
+            </h1>
+            <p style="font-size:13px;color:var(--text-3);margin-top:2px;">
+                Renseignez les informations du {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
+            </p>
         </div>
     </div>
+
+    <div style="max-width:680px;">
+        <div class="card">
+            <div class="card-body">
+
+                {{-- Erreurs --}}
+                @if($errors->any())
+                    <div class="alert alert-error" style="margin-bottom:20px;">
+                        @foreach($errors->all() as $error)
+                            <div>❌ {{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('admin.users.store') }}">
+                    @csrf
+                    <input type="hidden" name="role" value="{{ $role }}">
+
+                    {{-- ══ Informations personnelles ══ --}}
+                    <div style="margin-bottom:24px;">
+                        <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+                            👤 Informations personnelles
+                        </div>
+
+                        {{-- Nom --}}
+                        <div style="margin-bottom:16px;">
+                            <label class="form-label">Nom complet <span style="color:#ef4444;">*</span></label>
+                            <input type="text" name="name" value="{{ old('name') }}"
+                                   placeholder="Prénom et Nom" class="input" required>
+                            @error('name')
+                                <div style="font-size:12px;color:#dc2626;margin-top:4px;">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Email + Téléphone --}}
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                            <div>
+                                <label class="form-label">Email <span style="color:#ef4444;">*</span></label>
+                                <input type="email" name="email" value="{{ old('email') }}"
+                                       placeholder="exemple@email.com" class="input" required>
+                                @error('email')
+                                    <div style="font-size:12px;color:#dc2626;margin-top:4px;">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="form-label">Téléphone</label>
+                                <input type="text" name="telephone" value="{{ old('telephone') }}"
+                                       placeholder="+221 77 000 00 00" class="input">
+                            </div>
+                        </div>
+
+                        {{-- Adresse --}}
+                        <div style="margin-bottom:16px;">
+                            <label class="form-label">Adresse</label>
+                            <input type="text" name="adresse" value="{{ old('adresse') }}"
+                                   placeholder="Rue, quartier..." class="input">
+                        </div>
+
+                        {{-- Mot de passe --}}
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                            <div>
+                                <label class="form-label">Mot de passe <span style="color:#ef4444;">*</span></label>
+                                <input type="password" name="password"
+                                       placeholder="Min. 8 caractères" class="input" required>
+                                @error('password')
+                                    <div style="font-size:12px;color:#dc2626;margin-top:4px;">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="form-label">Confirmer <span style="color:#ef4444;">*</span></label>
+                                <input type="password" name="password_confirmation"
+                                       placeholder="Répétez" class="input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ══ Infos spécifiques propriétaire ══ --}}
+                    @if($role === 'proprietaire')
+                        <div style="margin-bottom:24px;">
+                            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+                                🏢 Informations propriétaire
+                            </div>
+
+                            {{-- Ville + NINEA --}}
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                                <div>
+                                    <label class="form-label">Ville</label>
+                                    <select name="ville" class="input">
+                                        <option value="">— Choisir —</option>
+                                        @foreach(['Dakar', 'Thiès', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Rufisque', 'Touba'] as $ville)
+                                            <option value="{{ $ville }}" {{ old('ville') === $ville ? 'selected' : '' }}>{{ $ville }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">NINEA</label>
+                                    <input type="text" name="ninea" value="{{ old('ninea') }}"
+                                           placeholder="Numéro fiscal" class="input">
+                                </div>
+                            </div>
+
+                            {{-- Mode paiement préféré --}}
+                            <div style="margin-bottom:16px;">
+                                <label class="form-label">Mode de paiement préféré</label>
+                                <select name="mode_paiement_prefere" class="input">
+                                    <option value="">— Choisir —</option>
+                                    <option value="especes"      {{ old('mode_paiement_prefere') === 'especes'      ? 'selected' : '' }}>Espèces</option>
+                                    <option value="virement"     {{ old('mode_paiement_prefere') === 'virement'     ? 'selected' : '' }}>Virement bancaire</option>
+                                    <option value="wave"         {{ old('mode_paiement_prefere') === 'wave'         ? 'selected' : '' }}>Wave</option>
+                                    <option value="orange_money" {{ old('mode_paiement_prefere') === 'orange_money' ? 'selected' : '' }}>Orange Money</option>
+                                </select>
+                            </div>
+
+                            {{-- Wave + Orange Money --}}
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                                <div>
+                                    <label class="form-label">Numéro Wave</label>
+                                    <input type="text" name="numero_wave" value="{{ old('numero_wave') }}"
+                                           placeholder="+221 77 000 00 00" class="input">
+                                </div>
+                                <div>
+                                    <label class="form-label">Numéro Orange Money</label>
+                                    <input type="text" name="numero_om" value="{{ old('numero_om') }}"
+                                           placeholder="+221 77 000 00 00" class="input">
+                                </div>
+                            </div>
+
+                            {{-- Banque --}}
+                            <div style="margin-bottom:16px;">
+                                <label class="form-label">Banque / RIB</label>
+                                <input type="text" name="banque" value="{{ old('banque') }}"
+                                       placeholder="Ex : CBAO — SN011 01100..." class="input">
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- ══ Infos spécifiques locataire ══ --}}
+                    @if($role === 'locataire')
+                        <div style="margin-bottom:24px;">
+                            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+                                📋 Informations locataire
+                            </div>
+
+                            {{-- Profession + CNI --}}
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                                <div>
+                                    <label class="form-label">Profession</label>
+                                    <input type="text" name="profession" value="{{ old('profession') }}"
+                                           placeholder="Ex : Enseignant" class="input">
+                                </div>
+                                <div>
+                                    <label class="form-label">N° CNI / Passeport</label>
+                                    <input type="text" name="numero_cni" value="{{ old('numero_cni') }}"
+                                           placeholder="Ex : 1 234 567 890 12" class="input">
+                                </div>
+                            </div>
+
+                            {{-- Employeur --}}
+                            <div style="margin-bottom:16px;">
+                                <label class="form-label">Employeur / Garant</label>
+                                <input type="text" name="employeur" value="{{ old('employeur') }}"
+                                       placeholder="Nom de l'employeur ou garant" class="input">
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Boutons --}}
+                    <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:20px;border-top:1px solid var(--border);">
+                        <a href="{{ $role === 'proprietaire' ? route('admin.users.proprietaires') : route('admin.users.locataires') }}"
+                           class="btn btn-secondary">
+                            Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Créer le {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
 </x-app-layout>

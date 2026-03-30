@@ -38,6 +38,13 @@ return [
             'report' => false,
         ],
 
+        // Disk privé pour les quittances PDF (non accessible via le web)
+        'private' => [
+            'driver' => 'local',
+            'root'   => storage_path('app/private'),
+            'throw'  => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

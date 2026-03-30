@@ -1,171 +1,219 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">
-            Mon espace locataire — {{ auth()->user()->name }}
-        </h2>
-    </x-slot>
+    <x-slot name="header">Mon espace locataire</x-slot>
 
-    <div class="py-8">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    {{-- Header --}}
+    <div class="section-gap">
+        <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">
+            Bonjour, {{ auth()->user()->name }} 👋
+        </h1>
+        <p style="font-size:13px;color:var(--text-3);margin-top:3px;">
+            Voici un aperçu de votre situation locative
+        </p>
+    </div>
 
-            @if($contrat)
+    {{-- Contrat actif --}}
+    @if($contrat)
+        <div class="card section-gap" style="border-color:#bbf7d0;">
+            <div class="card-header" style="background:#f0fdf4;">
+                <span class="card-title" style="color:#15803d;">✅ Mon logement</span>
+                <span class="badge badge-green">Contrat actif</span>
+            </div>
+            <div class="card-body">
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;" id="contrat-grid">
 
-            {{-- Infos bail --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <h3 class="font-semibold text-gray-800 mb-4">Mon logement</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Bien</div>
-                        <div class="font-semibold text-gray-800">{{ $contrat->bien->reference }}</div>
-                        <div class="text-sm text-gray-500">{{ $contrat->bien->adresse }}, {{ $contrat->bien->ville }}</div>
-                        <div class="text-xs text-gray-400 mt-1">
+                    <div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Bien</div>
+                        <div style="font-weight:700;font-size:14px;color:var(--text);">{{ $contrat->bien->reference }}</div>
+                        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">{{ $contrat->bien->adresse }}, {{ $contrat->bien->ville }}</div>
+                        <div style="font-size:11px;color:var(--text-3);">
                             {{ $contrat->bien->type }}
                             @if($contrat->bien->surface_m2) · {{ $contrat->bien->surface_m2 }} m² @endif
                             @if($contrat->bien->nombre_pieces) · {{ $contrat->bien->nombre_pieces }} pièces @endif
                         </div>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-400 uppercase tracking-wide mb-1">Mon bail</div>
-                        <div class="font-semibold text-gray-800">
+
+                    <div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Mon bail</div>
+                        <div style="font-weight:800;font-size:18px;color:var(--text);" class="text-money">
                             {{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} FCFA/mois
                         </div>
-                        <div class="text-sm text-gray-500">
+                        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">
                             Depuis le {{ \Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y') }}
                         </div>
-                        <div class="text-xs text-emerald-600 font-medium mt-1">● Contrat actif</div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- KPI --}}
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-indigo-700">{{ $stats['nb_paiements'] }}</div>
-                    <div class="text-xs text-indigo-500 mt-1">Paiements effectués</div>
-                </div>
-                <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-emerald-700">
-                        {{ number_format($stats['total_paye'], 0, ',', ' ') }} F
-                    </div>
-                    <div class="text-xs text-emerald-500 mt-1">Total payé</div>
-                </div>
-                <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-amber-700">
-                        @if($prochainePeriode)
-                            {{ $prochainePeriode->translatedFormat('M Y') }}
-                        @else — @endif
-                    </div>
-                    <div class="text-xs text-amber-600 mt-1">Prochain loyer</div>
-                </div>
-            </div>
-
-            {{-- Dernier paiement + bouton PDF --}}
-            @if($dernierPaiement)
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-semibold text-gray-800 mb-1">Dernier paiement</h3>
-                        <div class="text-xs text-gray-400 font-mono">{{ $dernierPaiement->reference_paiement }}</div>
-                        <div class="mt-3 space-y-1">
-                            <div class="text-sm text-gray-600">
-                                Période :
-                                <span class="font-medium text-gray-800">
-                                    {{ \Carbon\Carbon::parse($dernierPaiement->periode)->translatedFormat('F Y') }}
-                                </span>
-                            </div>
-                            <div class="text-sm text-gray-600">
-                                Montant :
-                                <span class="font-bold text-gray-900">
-                                    {{ number_format($dernierPaiement->montant_encaisse, 0, ',', ' ') }} FCFA
-                                </span>
-                            </div>
-                            <div class="text-sm text-gray-600">
-                                Mode :
-                                <span class="font-medium">
-                                    {{ ucfirst(str_replace('_', ' ', $dernierPaiement->mode_paiement)) }}
-                                </span>
-                            </div>
-                            <div class="text-sm">
-                                <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">
-                                    ✓ Validé
-                                </span>
-                            </div>
+                        <div style="font-size:11px;margin-top:4px;">
+                            <span style="display:inline-flex;align-items:center;gap:4px;color:#16a34a;font-weight:600;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
+                                Contrat actif
+                            </span>
                         </div>
                     </div>
+
+                    <div style="padding:12px;background:var(--bg);border-radius:var(--radius-sm);">
+                        <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Paiements effectués</div>
+                        <div style="font-weight:800;font-size:22px;color:var(--text);">{{ $stats['nb_paiements'] }}</div>
+                        <div style="font-size:12px;color:var(--text-2);margin-top:2px;" class="text-money">
+                            {{ number_format($stats['total_paye'], 0, ',', ' ') }} F payés
+                        </div>
+                    </div>
+
+                    @if($prochainePeriode)
+                        <div style="padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-sm);">
+                            <div style="font-size:10px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Prochain loyer</div>
+                            <div style="font-weight:700;font-size:16px;color:#d97706;">
+                                {{ $prochainePeriode->translatedFormat('F Y') }}
+                            </div>
+                            <div style="font-size:12px;color:#92400e;margin-top:2px;" class="text-money">
+                                {{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} FCFA attendus
+                            </div>
+                        </div>
+                    @endif
+
+                </div>
+            </div>
+        </div>
+
+        {{-- Dernier paiement --}}
+        @if($dernierPaiement)
+            <div class="card section-gap">
+                <div class="card-header">
+                    <span class="card-title">Dernier paiement</span>
                     <a href="{{ route('locataire.paiements.pdf', $dernierPaiement) }}"
-                       target="_blank"
-                       class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm px-5 py-3 rounded-xl transition flex items-center gap-2">
+                       target="_blank" class="btn btn-secondary btn-sm">
                         📄 Quittance PDF
                     </a>
                 </div>
-            </div>
-            @endif
-
-            {{-- Historique --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="font-semibold text-gray-800">Historique de mes paiements</h3>
+                <div class="card-body">
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;" id="last-payment-grid">
+                        <div>
+                            <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Référence</div>
+                            <div class="text-ref">{{ $dernierPaiement->reference_paiement }}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Période</div>
+                            <div style="font-weight:600;font-size:13px;color:var(--text);">
+                                {{ \Carbon\Carbon::parse($dernierPaiement->periode)->translatedFormat('F Y') }}
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Montant</div>
+                            <div style="font-weight:800;font-size:16px;color:var(--text);" class="text-money">
+                                {{ number_format($dernierPaiement->montant_encaisse, 0, ',', ' ') }} FCFA
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Mode</div>
+                            <div style="font-weight:600;font-size:13px;color:var(--text);">
+                                {{ ucfirst(str_replace('_', ' ', $dernierPaiement->mode_paiement)) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:14px;">✓</span>
+                        <span style="font-size:13px;font-weight:600;color:#16a34a;">Validé</span>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-50">
-                        <thead class="bg-gray-50">
+            </div>
+        @endif
+
+        {{-- Historique --}}
+        <div class="card section-gap">
+            <div class="card-header">
+                <span class="card-title">Mes quittances de loyer</span>
+            </div>
+
+            {{-- Mobile --}}
+            <div class="mobile-cards" style="padding:12px;">
+                @forelse($paiements as $p)
+                    <div class="mobile-card">
+                        <div class="flex-between" style="margin-bottom:8px;">
+                            <span style="font-size:13px;font-weight:600;color:var(--text);">
+                                {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
+                            </span>
+                            <span class="badge badge-green">Validé</span>
+                        </div>
+                        <div class="mobile-card-row">
+                            <span class="mobile-card-label">Montant</span>
+                            <span class="text-money" style="font-weight:700;">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</span>
+                        </div>
+                        <div class="mobile-card-row">
+                            <span class="mobile-card-label">Mode</span>
+                            <span class="mobile-card-value">{{ ucfirst(str_replace('_', ' ', $p->mode_paiement)) }}</span>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
+                               class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;">
+                                📄 Télécharger quittance
+                            </a>
+                        </div>
+                    </div>
+                @empty
+                    <div style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">
+                        Aucune quittance disponible
+                    </div>
+                @endforelse
+            </div>
+
+            {{-- Desktop --}}
+            <div class="desktop-table table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Période</th>
+                            <th>Mode</th>
+                            <th>Date règlement</th>
+                            <th style="text-align:right;">Montant</th>
+                            <th style="text-align:center;">Quittance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($paiements as $p)
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Période</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Mode</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Montant</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Statut</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">PDF</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @forelse($paiements as $p)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-4 py-3 text-sm font-medium text-gray-800">
+                                <td><span class="text-ref">{{ $p->reference_paiement }}</span></td>
+                                <td style="font-weight:600;font-size:13px;">
                                     {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
                                 </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">
-                                    {{ ucfirst(str_replace('_', ' ', $p->mode_paiement)) }}
-                                </td>
-                                <td class="px-4 py-3 text-sm font-bold text-gray-900 text-right">
-                                    {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="px-2 py-1 text-xs rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                                        ✓ Validé
+                                <td>
+                                    <span class="badge badge-gray">
+                                        {{ ucfirst(str_replace('_', ' ', $p->mode_paiement)) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-center">
-                                    <a href="{{ route('locataire.paiements.pdf', $p) }}"
-                                       target="_blank"
-                                       class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
-                                        📄 PDF
-                                    </a>
+                                <td style="font-size:13px;color:var(--text-2);">
+                                    {{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}
+                                </td>
+                                <td style="text-align:right;font-weight:700;" class="text-money">
+                                    {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
+                                </td>
+                                <td style="text-align:center;">
+                                    <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
+                                       class="btn btn-secondary btn-sm">📄 PDF</a>
                                 </td>
                             </tr>
-                            @empty
+                        @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-gray-400 text-sm">
-                                    Aucun paiement enregistré
+                                <td colspan="6" style="text-align:center;padding:32px;color:var(--text-3);font-size:13px;">
+                                    Aucune quittance disponible
                                 </td>
                             </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-
-            @else
-            {{-- Pas de contrat actif --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-12 text-center">
-                <div class="text-5xl mb-4">🏠</div>
-                <div class="text-lg font-semibold text-gray-800 mb-2">Aucun contrat actif</div>
-                <div class="text-sm text-gray-500">
-                    Votre contrat de bail n'est pas encore enregistré.<br>
-                    Contactez l'agence BIMO-Tech pour plus d'informations.
-                </div>
-            </div>
-            @endif
-
         </div>
-    </div>
+
+    @else
+        <div class="card section-gap" style="text-align:center;padding:64px 24px;">
+            <div style="font-size:56px;margin-bottom:16px;opacity:.4;">🏠</div>
+            <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;">Aucun contrat actif</div>
+            <div style="font-size:13px;color:var(--text-3);">Contactez votre agence pour plus d'informations.</div>
+        </div>
+    @endif
+
+    <style>
+        @media (min-width: 640px) {
+            #contrat-grid       { grid-template-columns: repeat(4, 1fr); }
+            #last-payment-grid  { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+
 </x-app-layout>

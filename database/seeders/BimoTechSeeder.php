@@ -9,17 +9,22 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class BimoTechSeeder extends Seeder
 {
     public function run(): void
     {
+        $adminPassword = env('SEED_ADMIN_PASSWORD', Str::random(24));
+        $proprietairePassword = env('SEED_PROPRIETAIRE_PASSWORD', Str::random(24));
+        $locatairePassword = env('SEED_LOCATAIRE_PASSWORD', Str::random(24));
+
         // ── 1. Admin ─────────────────────────────────────────────────────────
         $admin = User::updateOrCreate(
             ['email' => 'admin@bimotech.sn'],
             [
                 'name'      => 'Administrateur BIMO',
-                'password'  => Hash::make('Admin@2025!'),
+                'password'  => Hash::make($adminPassword),
                 'role'      => 'admin',
                 'telephone' => '+221 77 000 00 01',
                 'adresse'   => 'Plateau, Dakar',
@@ -31,7 +36,7 @@ class BimoTechSeeder extends Seeder
             ['email' => 'moussa.diallo@bimotech.sn'],
             [
                 'name'      => 'Moussa Diallo',
-                'password'  => Hash::make('Proprio@2025!'),
+                'password'  => Hash::make($proprietairePassword),
                 'role'      => 'proprietaire',
                 'telephone' => '+221 77 100 20 30',
                 'adresse'   => 'Almadies, Dakar',
@@ -43,7 +48,7 @@ class BimoTechSeeder extends Seeder
             ['email' => 'fatou.sow@bimotech.sn'],
             [
                 'name'      => 'Fatou Sow',
-                'password'  => Hash::make('Locataire@2025!'),
+                'password'  => Hash::make($locatairePassword),
                 'role'      => 'locataire',
                 'telephone' => '+221 76 200 30 40',
                 'adresse'   => 'Medina, Dakar',
@@ -129,9 +134,9 @@ class BimoTechSeeder extends Seeder
         $this->command->table(
             ['Rôle', 'Nom', 'Email', 'Mot de passe (test)'],
             [
-                ['Admin',        $admin->name,        $admin->email,        'Admin@2025!'],
-                ['Propriétaire', $proprietaire->name, $proprietaire->email, 'Proprio@2025!'],
-                ['Locataire',    $locataire->name,    $locataire->email,    'Locataire@2025!'],
+                ['Admin',        $admin->name,        $admin->email,        $adminPassword],
+                ['Propriétaire', $proprietaire->name, $proprietaire->email, $proprietairePassword],
+                ['Locataire',    $locataire->name,    $locataire->email,    $locatairePassword],
             ]
         );
         $this->command->info("💰 Bien créé : {$bien->reference} — Loyer : 250 000 FCFA — Commission : 10%");

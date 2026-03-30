@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Paiement;
 
 class BienController extends Controller
 {
@@ -15,6 +16,10 @@ class BienController extends Controller
     // ── Liste des biens ───────────────────────────────────────────────────
     public function index()
     {
+        // BUG 4 FIX : authorize() manquant — défense en profondeur cohérente
+        // avec les autres méthodes du contrôleur.
+        $this->authorize('viewAny', Bien::class);
+
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
@@ -48,8 +53,21 @@ class BienController extends Controller
     {
         $this->authorize('create', Bien::class);
 
+        $agencyId = Auth::user()->agency_id;
+
         $validated = $request->validate([
-            'proprietaire_id' => ['required', 'exists:users,id'],
+            // BUG 7 FIX : validation cross-agence — le proprietaire_id doit
+            // appartenir à la même agence que l'admin connecté.
+            'proprietaire_id' => [
+                'required',
+                'exists:users,id',
+                function ($attribute, $value, $fail) use ($agencyId) {
+                    $proprietaire = User::find($value);
+                    if (! $proprietaire || $proprietaire->agency_id !== $agencyId) {
+                        $fail('Ce propriétaire n\'appartient pas à votre agence.');
+                    }
+                },
+            ],
             'type'            => ['required', 'string', 'max:100'],
             'adresse'         => ['required', 'string', 'max:255'],
             'ville'           => ['required', 'string', 'max:100'],
@@ -76,29 +94,26 @@ class BienController extends Controller
 
     // ── Détail d'un bien ──────────────────────────────────────────────────
     public function show(Bien $bien)
-    {
-        $this->authorize('view', $bien);
+{
+    $this->authorize('view', $bien);
 
-       $bien->load('proprietaire', 'photos', 'contrats.locataire');
+    $bien->load('proprietaire', 'photos', 'contrats.locataire');
 
-$totalEncaisse = Paiement::whereIn(
-    'contrat_id', $bien->contrats->pluck('id')
-)->where('statut', 'valide')->sum('montant_encaisse');
+    $contratActif = $bien->contratActif;
 
-// Paiements paginés
-$paiements = Paiement::whereIn('contrat_id', $bien->contrats->pluck('id'))
-    ->with('contrat.locataire')
-    ->orderByDesc('periode')
-    ->paginate(10);
+    $totalEncaisse = Paiement::whereIn(
+        'contrat_id', $bien->contrats->pluck('id')
+    )->where('statut', 'valide')->sum('montant_encaisse');
 
-return view('biens.show', compact(
-    'bien', 'contratActif', 'totalEncaisse', 'paiements'
-));
+    $paiements = Paiement::whereIn('contrat_id', $bien->contrats->pluck('id'))
+        ->with('contrat.locataire')
+        ->orderByDesc('periode')
+        ->paginate(10);
 
-        return view('biens.show', compact('bien', 'contratActif', 'totalEncaisse'));
-
-    }
-
+    return view('biens.show', compact(
+        'bien', 'contratActif', 'totalEncaisse', 'paiements'
+    ));
+}
     // ── Formulaire édition ────────────────────────────────────────────────
     public function edit(Bien $bien)
     {

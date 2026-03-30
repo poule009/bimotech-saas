@@ -5,15 +5,18 @@ namespace App\Http\Requests;
 use App\Models\Paiement;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class StorePaiementRequest extends FormRequest
 {
+    /**
+     * Tout admin d'agence (role = 'admin') ou superadmin peut soumettre ce formulaire.
+     * L'ancien check hardcodé sur l'email 'admin@bimotech.sn' était un bug
+     * qui bloquait tous les autres admins d'agence avec un 403.
+     */
     public function authorize(): bool
     {
-        return Auth::check()
-            && Auth::user()->role === 'admin'
-            && Auth::user()->email === 'admin@bimotech.sn';
+        return Gate::allows('isAdmin');
     }
 
     public function rules(): array

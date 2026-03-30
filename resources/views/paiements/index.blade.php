@@ -1,136 +1,216 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800">Paiements</h2>
-            <a href="{{ route('admin.paiements.create') }}"
-               class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-                + Nouveau paiement
-            </a>
+    <x-slot name="header">Paiements</x-slot>
+
+    {{-- Alertes --}}
+    @if(session('success'))
+        <div class="alert alert-success section-gap">✅ {{ session('success') }}</div>
+    @endif
+
+    {{-- Header action --}}
+    <div class="flex-between section-gap">
+        <div>
+            <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">Paiements</h1>
+            <p style="font-size:13px;color:var(--text-3);margin-top:3px;">
+                {{ $paiements->total() }} paiement(s) enregistré(s)
+            </p>
         </div>
-    </x-slot>
+        <a href="{{ route('admin.paiements.create') }}" class="btn btn-primary">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nouveau paiement
+        </a>
+    </div>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            {{-- Alertes --}}
-            @if(session('success'))
-            <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm">
-                ✅ {{ session('success') }}
+    {{-- Version mobile : cartes --}}
+    <div class="mobile-cards section-gap">
+        @forelse($paiements as $p)
+            <div class="mobile-card">
+                <div class="flex-between" style="margin-bottom:10px;">
+                    <span class="text-ref">{{ $p->reference_paiement }}</span>
+                    @php
+                        $sc = match($p->statut) {
+                            'valide'     => 'badge badge-green',
+                            'en_attente' => 'badge badge-amber',
+                            'annule'     => 'badge badge-red',
+                            default      => 'badge badge-gray',
+                        };
+                        $sl = match($p->statut) {
+                            'valide'     => 'Validé',
+                            'en_attente' => 'En attente',
+                            'annule'     => 'Annulé',
+                            default      => ucfirst($p->statut),
+                        };
+                    @endphp
+                    <span class="{{ $sc }}">{{ $sl }}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Locataire</span>
+                    <span class="mobile-card-value">{{ $p->contrat->locataire->name }}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Bien</span>
+                    <span class="mobile-card-value">{{ $p->contrat->bien->reference }}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Période</span>
+                    <span class="mobile-card-value">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Mode</span>
+                    <span class="mobile-card-value">{{ ucfirst(str_replace('_', ' ', $p->mode_paiement)) }}</span>
+                </div>
+                <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Loyer encaissé</span>
+                        <span class="text-money" style="font-weight:700;font-size:14px;">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</span>
+                    </div>
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Commission TTC</span>
+                        <span class="text-money" style="color:#d97706;font-weight:600;">{{ number_format($p->commission_ttc, 0, ',', ' ') }} F</span>
+                    </div>
+                    <div class="mobile-card-row">
+                        <span class="mobile-card-label">Net propriétaire</span>
+                        <span class="text-money" style="color:#16a34a;font-weight:700;">{{ number_format($p->net_proprietaire, 0, ',', ' ') }} F</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <a href="{{ route('admin.paiements.show', $p) }}" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;">
+                        Voir
+                    </a>
+                    @if($p->statut === 'valide')
+                        <a href="{{ route('admin.paiements.pdf', $p) }}" class="btn btn-secondary btn-sm" target="_blank">
+                            📄 PDF
+                        </a>
+                        <form method="POST" action="{{ route('admin.paiements.annuler', $p) }}"
+                              onsubmit="return confirm('Annuler ce paiement ?')">
+                            @csrf @method('PATCH')
+                            <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
+                        </form>
+                    @endif
+                </div>
             </div>
-            @endif
+        @empty
+            <div style="text-align:center;padding:48px 20px;color:var(--text-3);">
+                <div style="font-size:40px;margin-bottom:12px;">💰</div>
+                <div style="font-size:14px;">Aucun paiement enregistré</div>
+            </div>
+        @endforelse
+    </div>
 
-            {{-- Tableau --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Référence</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Locataire</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Bien</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Période</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Mode</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Loyer</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Commission TTC</th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Net Proprio</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Statut</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @forelse($paiements as $p)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-4 py-3 text-xs font-mono text-gray-500">
-                                    {{ $p->reference_paiement }}
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-800">
-                                    {{ $p->contrat->locataire->name }}
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">
-                                    <div>{{ $p->contrat->bien->reference }}</div>
-                                    <div class="text-xs text-gray-400">{{ $p->contrat->bien->ville }}</div>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">
-                                    {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 font-medium">
-                                        {{ ucfirst(str_replace('_', ' ', $p->mode_paiement)) }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-sm font-semibold text-gray-900 text-right">
-                                    {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-4 py-3 text-sm text-amber-600 font-medium text-right">
+    {{-- Version desktop : tableau --}}
+    <div class="desktop-table card section-gap">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Référence</th>
+                        <th>Locataire</th>
+                        <th>Bien</th>
+                        <th>Période</th>
+                        <th>Mode</th>
+                        <th style="text-align:right;">Loyer</th>
+                        <th style="text-align:right;">Commission TTC</th>
+                        <th style="text-align:right;">Net proprio</th>
+                        <th style="text-align:center;">Statut</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($paiements as $p)
+                        @php
+                            $sc = match($p->statut) {
+                                'valide'     => 'badge badge-green',
+                                'en_attente' => 'badge badge-amber',
+                                'annule'     => 'badge badge-red',
+                                default      => 'badge badge-gray',
+                            };
+                            $sl = match($p->statut) {
+                                'valide'     => 'Validé',
+                                'en_attente' => 'En attente',
+                                'annule'     => 'Annulé',
+                                default      => ucfirst($p->statut),
+                            };
+                        @endphp
+                        <tr>
+                            <td><span class="text-ref">{{ $p->reference_paiement }}</span></td>
+                            <td style="font-weight:500;">{{ $p->contrat->locataire->name }}</td>
+                            <td>
+                                <div style="font-size:13px;color:var(--text);">{{ $p->contrat->bien->reference }}</div>
+                                <div style="font-size:11px;color:var(--text-3);">{{ $p->contrat->bien->ville }}</div>
+                            </td>
+                            <td style="color:var(--text-2);">
+                                {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
+                            </td>
+                            <td>
+                                <span class="badge badge-gray">
+                                    {{ ucfirst(str_replace('_', ' ', $p->mode_paiement)) }}
+                                </span>
+                            </td>
+                            <td style="text-align:right;" class="text-money">
+                                {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
+                            </td>
+                            <td style="text-align:right;">
+                                <div class="text-money" style="color:#d97706;font-weight:600;">
                                     {{ number_format($p->commission_ttc, 0, ',', ' ') }} F
-                                    <div class="text-xs text-gray-400">
-                                        TVA: {{ number_format($p->tva_commission, 0, ',', ' ') }} F
-                                    </div>
-                                </td>
-                                <td class="px-4 py-3 text-sm font-bold text-emerald-600 text-right">
+                                </div>
+                                <div style="font-size:11px;color:var(--text-3);">
+                                    TVA: {{ number_format($p->tva_commission, 0, ',', ' ') }} F
+                                </div>
+                            </td>
+                            <td style="text-align:right;" class="text-money">
+                                <span style="color:#16a34a;font-weight:700;">
                                     {{ number_format($p->net_proprietaire, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="px-2 py-1 text-xs rounded-full font-medium
-                                        {{ $p->statut === 'valide'     ? 'bg-emerald-100 text-emerald-700' : '' }}
-                                        {{ $p->statut === 'en_attente' ? 'bg-amber-100 text-amber-700'    : '' }}
-                                        {{ $p->statut === 'annule'     ? 'bg-red-100 text-red-600'        : '' }}">
-                                        {{ ucfirst($p->statut) }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <div class="flex items-center justify-center gap-2">
-                                        {{-- Voir détail --}}
-                                        <a href="{{ route('admin.paiements.show', $p) }}"
-                                           class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
-                                            Voir
-                                        </a>
-                                        {{-- Télécharger PDF --}}
-                                        @if($p->statut === 'valide')
+                                </span>
+                            </td>
+                            <td style="text-align:center;">
+                                <span class="{{ $sc }}">{{ $sl }}</span>
+                            </td>
+                            <td style="text-align:center;">
+                                <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+                                    <a href="{{ route('admin.paiements.show', $p) }}"
+                                       class="btn btn-secondary btn-sm">
+                                        Voir
+                                    </a>
+                                    @if($p->statut === 'valide')
                                         <a href="{{ route('admin.paiements.pdf', $p) }}"
-                                           class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-medium px-2 py-1 rounded-lg transition"
+                                           class="btn btn-secondary btn-sm"
                                            target="_blank">
                                             📄 PDF
                                         </a>
-                                        @endif
-                                        {{-- Annuler --}}
-                                        @if($p->statut === 'valide')
-                                        <form method="POST" action="{{ route('admin.paiements.annuler', $p) }}"
+                                        <form method="POST"
+                                              action="{{ route('admin.paiements.annuler', $p) }}"
                                               onsubmit="return confirm('Annuler ce paiement ?')">
                                             @csrf @method('PATCH')
-                                            <button type="submit"
-                                                    class="text-red-500 hover:text-red-700 text-xs font-medium">
+                                            <button type="submit" class="btn btn-danger btn-sm">
                                                 Annuler
                                             </button>
                                         </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="10" class="px-6 py-12 text-center text-gray-400">
-                                    <div class="text-4xl mb-2">💰</div>
-                                    <div class="text-sm">Aucun paiement enregistré</div>
-                                    <a href="{{ route('paiements.create') }}"
-                                       class="mt-3 inline-block text-indigo-600 text-sm hover:underline">
-                                        Enregistrer le premier paiement →
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                {{-- Pagination --}}
-                @if($paiements->hasPages())
-                <div class="px-6 py-4 border-t border-gray-100">
-                    {{ $paiements->links() }}
-                </div>
-                @endif
-            </div>
-
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10" style="text-align:center;padding:48px;color:var(--text-3);">
+                                <div style="font-size:36px;margin-bottom:12px;">💰</div>
+                                <div style="font-size:14px;margin-bottom:12px;">Aucun paiement enregistré</div>
+                                <a href="{{ route('admin.paiements.create') }}" class="btn btn-primary btn-sm">
+                                    Enregistrer le premier paiement
+                                </a>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+
+        {{-- Pagination --}}
+        @if($paiements->hasPages())
+            <div style="padding:16px 20px;border-top:1px solid var(--border);">
+                {{ $paiements->links() }}
+            </div>
+        @endif
     </div>
+
 </x-app-layout>

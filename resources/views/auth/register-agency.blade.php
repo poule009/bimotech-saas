@@ -1,242 +1,150 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription Agence — BIMO-Tech</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-50 min-h-screen">
+<x-guest-layout>
+    <div class="auth-card">
 
-    <div class="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="auth-card-title">Créer votre agence</div>
+        <div class="auth-card-sub">Commencez votre essai gratuit de 30 jours — sans engagement</div>
 
-        {{-- Logo & Titre --}}
-        <div class="sm:mx-auto sm:w-full sm:max-w-2xl text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">BIMO-Tech</h1>
-            <p class="mt-2 text-gray-600">Créez votre espace agence immobilière</p>
-        </div>
+        {{-- Erreurs --}}
+        @if ($errors->any())
+            <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;margin-bottom:20px;">
+                @foreach ($errors->all() as $error)
+                    <div style="font-size:13px;color:#dc2626;margin-bottom:2px;">❌ {{ $error }}</div>
+                @endforeach
+            </div>
+        @endif
 
-        {{-- Carte formulaire --}}
-        <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
-            <div class="bg-white py-8 px-6 shadow-sm rounded-xl border border-gray-200">
+        <form method="POST" action="{{ route('agency.register.store') }}">
+            @csrf
 
-                {{-- Erreurs globales --}}
-                @if ($errors->any())
-                    <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                        <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+            {{-- ══ Section Agence ══ --}}
+            <div style="margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f1f5f9;">
+                    <span style="font-size:16px;">🏢</span>
+                    <span style="font-size:13px;font-weight:700;color:#0f172a;letter-spacing:-.2px;">Votre agence</span>
+                </div>
 
-                <form method="POST" action="{{ route('agency.register.store') }}">
-                    @csrf
+                {{-- Nom --}}
+                <div class="form-group">
+                    <label class="form-label">Nom de l'agence <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="agency_name" value="{{ old('agency_name') }}"
+                           placeholder="Ex : Immobilier Prestige Dakar"
+                           class="form-input" required>
+                    @error('agency_name')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
 
-                    {{-- ── Section 1 : Informations de l'agence ── --}}
-                    <div class="mb-8">
-                        <h2 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-5">
-                            🏢 Votre agence
-                        </h2>
-
-                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
-                            {{-- Nom de l'agence --}}
-                            <div class="sm:col-span-2">
-                                <label for="agency_name" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Nom de l'agence <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="agency_name"
-                                    name="agency_name"
-                                    value="{{ old('agency_name') }}"
-                                    placeholder="Ex : Immobilier Prestige Dakar"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('agency_name') border-red-500 @enderror"
-                                    required
-                                >
-                                @error('agency_name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Email de l'agence --}}
-                            <div>
-                                <label for="agency_email" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Email de l'agence <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="email"
-                                    id="agency_email"
-                                    name="agency_email"
-                                    value="{{ old('agency_email') }}"
-                                    placeholder="contact@monagence.sn"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('agency_email') border-red-500 @enderror"
-                                    required
-                                >
-                                @error('agency_email')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Téléphone --}}
-                            <div>
-                                <label for="agency_telephone" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Téléphone
-                                </label>
-                                <input
-                                    type="text"
-                                    id="agency_telephone"
-                                    name="agency_telephone"
-                                    value="{{ old('agency_telephone') }}"
-                                    placeholder="+221 77 000 00 00"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                >
-                            </div>
-
-                            {{-- Adresse --}}
-                            <div class="sm:col-span-2">
-                                <label for="agency_adresse" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Adresse
-                                </label>
-                                <input
-                                    type="text"
-                                    id="agency_adresse"
-                                    name="agency_adresse"
-                                    value="{{ old('agency_adresse') }}"
-                                    placeholder="Plateau, Dakar"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                >
-                            </div>
-
-                        </div>
-                    </div>
-
-                    {{-- ── Section 2 : Compte administrateur ── --}}
-                    <div class="mb-8">
-                        <h2 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-5">
-                            👤 Votre compte administrateur
-                        </h2>
-
-                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
-                            {{-- Nom admin --}}
-                            <div class="sm:col-span-2">
-                                <label for="admin_name" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Nom complet <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="admin_name"
-                                    name="admin_name"
-                                    value="{{ old('admin_name') }}"
-                                    placeholder="Prénom et Nom"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('admin_name') border-red-500 @enderror"
-                                    required
-                                >
-                                @error('admin_name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Email admin --}}
-                            <div class="sm:col-span-2">
-                                <label for="admin_email" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Email de connexion <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="email"
-                                    id="admin_email"
-                                    name="admin_email"
-                                    value="{{ old('admin_email') }}"
-                                    placeholder="votre@email.com"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('admin_email') border-red-500 @enderror"
-                                    required
-                                >
-                                @error('admin_email')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Mot de passe --}}
-                            <div>
-                                <label for="admin_password" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Mot de passe <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="password"
-                                    id="admin_password"
-                                    name="admin_password"
-                                    placeholder="Min. 8 caractères"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('admin_password') border-red-500 @enderror"
-                                    required
-                                >
-                                @error('admin_password')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- Confirmation mot de passe --}}
-                            <div>
-                                <label for="admin_password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">
-                                    Confirmer le mot de passe <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="password"
-                                    id="admin_password_confirmation"
-                                    name="admin_password_confirmation"
-                                    placeholder="Répétez le mot de passe"
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    required
-                                >
-                            </div>
-
-                        </div>
-                    </div>
-
-                    {{-- ── CGU ── --}}
-                    <div class="mb-6">
-                        <label class="flex items-start gap-3 cursor-pointer">
-                            <input
-                                type="checkbox"
-                                name="cgu"
-                                value="1"
-                                class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 @error('cgu') border-red-500 @enderror"
-                            >
-                            <span class="text-sm text-gray-600">
-                                J'accepte les
-                                <a href="#" class="text-blue-600 hover:underline">conditions générales d'utilisation</a>
-                                de la plateforme BIMO-Tech.
-                            </span>
-                        </label>
-                        @error('cgu')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                {{-- Email + Téléphone --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                    <div>
+                        <label class="form-label">Email <span style="color:#ef4444;">*</span></label>
+                        <input type="email" name="agency_email" value="{{ old('agency_email') }}"
+                               placeholder="contact@monagence.sn"
+                               class="form-input" required>
+                        @error('agency_email')
+                            <div class="form-error">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div>
+                        <label class="form-label">Téléphone</label>
+                        <input type="text" name="agency_telephone" value="{{ old('agency_telephone') }}"
+                               placeholder="+221 77 000 00 00"
+                               class="form-input">
+                    </div>
+                </div>
 
-                    {{-- ── Bouton submit ── --}}
-                    <button
-                        type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
-                    >
-                        Créer mon agence
-                    </button>
-
-                </form>
-
+                {{-- Adresse --}}
+                <div class="form-group">
+                    <label class="form-label">Adresse</label>
+                    <input type="text" name="agency_adresse" value="{{ old('agency_adresse') }}"
+                           placeholder="Plateau, Dakar"
+                           class="form-input">
+                </div>
             </div>
 
-            {{-- Lien connexion --}}
-            <p class="mt-4 text-center text-sm text-gray-600">
-                Déjà inscrit ?
-                <a href="{{ route('login') }}" class="text-blue-600 font-medium hover:underline">
-                    Se connecter
-                </a>
-            </p>
+            {{-- ══ Section Admin ══ --}}
+            <div style="margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f1f5f9;">
+                    <span style="font-size:16px;">👤</span>
+                    <span style="font-size:13px;font-weight:700;color:#0f172a;letter-spacing:-.2px;">Votre compte administrateur</span>
+                </div>
 
-        </div>
+                {{-- Nom admin --}}
+                <div class="form-group">
+                    <label class="form-label">Nom complet <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="admin_name" value="{{ old('admin_name') }}"
+                           placeholder="Prénom et Nom"
+                           class="form-input" required>
+                    @error('admin_name')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- Email admin --}}
+                <div class="form-group">
+                    <label class="form-label">Email de connexion <span style="color:#ef4444;">*</span></label>
+                    <input type="email" name="admin_email" value="{{ old('admin_email') }}"
+                           placeholder="votre@email.com"
+                           class="form-input" required>
+                    @error('admin_email')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- Mot de passe --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                    <div>
+                        <label class="form-label">Mot de passe <span style="color:#ef4444;">*</span></label>
+                        <input type="password" name="admin_password"
+                               placeholder="Min. 8 caractères"
+                               class="form-input" required>
+                        @error('admin_password')
+                            <div class="form-error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="form-label">Confirmer <span style="color:#ef4444;">*</span></label>
+                        <input type="password" name="admin_password_confirmation"
+                               placeholder="Répétez"
+                               class="form-input" required>
+                    </div>
+                </div>
+            </div>
+
+            {{-- CGU --}}
+            <div style="margin-bottom:20px;">
+                <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+                    <input type="checkbox" name="cgu" value="1"
+                           style="width:16px;height:16px;margin-top:2px;accent-color:#1a3c5e;cursor:pointer;flex-shrink:0;">
+                    <span style="font-size:13px;color:#64748b;line-height:1.5;">
+                        J'accepte les
+                        <a href="#" style="color:#1a3c5e;font-weight:600;">conditions générales d'utilisation</a>
+                        de la plateforme Bimotech.
+                    </span>
+                </label>
+                @error('cgu')
+                    <div class="form-error" style="margin-top:4px;">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Bouton --}}
+            <button type="submit" class="btn-auth">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 00-1-1h-2a1 1 0 00-1 1v5m4 0H9"/>
+                </svg>
+                Créer mon agence gratuitement
+            </button>
+
+        </form>
+
     </div>
 
-</body>
-</html>
+    {{-- Lien connexion --}}
+    <div style="text-align:center;margin-top:16px;">
+        <span style="font-size:13px;color:#64748b;">Déjà inscrit ?</span>
+        <a href="{{ route('login') }}" class="auth-link" style="margin-left:6px;">
+            Se connecter →
+        </a>
+    </div>
+
+</x-guest-layout>

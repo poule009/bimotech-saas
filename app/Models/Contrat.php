@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Scopes\AgencyScope;
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class Contrat extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'agency_id',

@@ -8,6 +8,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
 
 class QuittanceLocataireNotification extends Notification
 {
@@ -27,7 +28,28 @@ class QuittanceLocataireNotification extends Notification
 
         $periode = \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y');
 
-        // Génère le PDF en mémoire
+        $nomFichier = 'quittance-' . $paiement->reference_paiement . '.pdf';
+
+        $mail = (new MailMessage)
+            ->subject("Quittance de loyer — {$periode}")
+            ->greeting("Bonjour {$notifiable->name},")
+            ->line("Votre paiement de loyer pour **{$periode}** a bien été enregistré.")
+            ->line("**Bien loué :** {$paiement->contrat->bien->reference} — {$paiement->contrat->bien->adresse}")
+            ->line("**Montant :** " . number_format($paiement->montant_encaisse, 0, ',', ' ') . " FCFA")
+            ->line("**Mode de règlement :** " . ucfirst(str_replace('_', ' ', $paiement->mode_paiement)))
+            ->line("Votre quittance officielle est jointe à cet email.");
+
+        // Attachement prioritaire du PDF stocké
+        if (! empty($paiement->receipt_path) && Storage::disk('private')->exists($paiement->receipt_path)) {
+            return $mail
+                ->attach(Storage::disk('private')->path($paiement->receipt_path), [
+                    'as' => $nomFichier,
+                    'mime' => 'application/pdf',
+                ])
+                ->salutation("Cordialement, l'équipe BIMO-Tech Immobilier");
+        }
+
+        // Fallback: régénération uniquement si fichier absent
         $data = [
             'paiement'         => $paiement,
             'contrat'          => $paiement->contrat,
@@ -49,17 +71,23 @@ class QuittanceLocataireNotification extends Notification
             ->setPaper('a4', 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans');
 
-        $nomFichier = 'quittance-' . $paiement->reference_paiement . '.pdf';
+        $receiptPath = sprintf(
+            'receipts/%s/%s/%s/quittance-%s.pdf',
+            $paiement->agency_id ?? 'global',
+            now()->format('Y'),
+            now()->format('m'),
+            $paiement->reference_paiement
+        );
 
-        return (new MailMessage)
-            ->subject("Quittance de loyer — {$periode}")
-            ->greeting("Bonjour {$notifiable->name},")
-            ->line("Votre paiement de loyer pour **{$periode}** a bien été enregistré.")
-            ->line("**Bien loué :** {$paiement->contrat->bien->reference} — {$paiement->contrat->bien->adresse}")
-            ->line("**Montant :** " . number_format($paiement->montant_encaisse, 0, ',', ' ') . " FCFA")
-            ->line("**Mode de règlement :** " . ucfirst(str_replace('_', ' ', $paiement->mode_paiement)))
-            ->line("Votre quittance officielle est jointe à cet email.")
-            ->attachData($pdf->output(), $nomFichier, [
+        Storage::disk('private')->put($receiptPath, $pdf->output());
+
+        $paiement->update([
+            'receipt_path' => $receiptPath,
+        ]);
+
+        return $mail
+            ->attach(Storage::disk('private')->path($receiptPath), [
+                'as' => $nomFichier,
                 'mime' => 'application/pdf',
             ])
             ->salutation("Cordialement, l'équipe BIMO-Tech Immobilier");

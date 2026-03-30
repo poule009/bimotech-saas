@@ -31,12 +31,14 @@ class AgencySettingsController extends Controller
             'email'            => ['required', 'email', 'max:255', 'unique:agencies,email,' . $agency->id],
             'telephone'        => ['nullable', 'string', 'max:20'],
             'adresse'          => ['nullable', 'string', 'max:255'],
+            'ninea'            => ['nullable', 'string', 'max:30'],
             'couleur_primaire' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'logo'             => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
         ], [
             'name.required'          => "Le nom de l'agence est obligatoire.",
             'email.required'         => "L'email est obligatoire.",
             'email.unique'           => "Cet email est déjà utilisé par une autre agence.",
+            'ninea.max'              => "Le NINEA ne doit pas dépasser 30 caractères.",
             'couleur_primaire.regex' => "La couleur doit être un code hexadécimal valide (ex: #1a3c5e).",
             'logo.image'             => "Le fichier doit être une image.",
             'logo.mimes'             => "Formats acceptés : PNG, JPG, JPEG, SVG, WEBP.",
@@ -61,9 +63,14 @@ class AgencySettingsController extends Controller
             'email'            => $request->email,
             'telephone'        => $request->telephone,
             'adresse'          => $request->adresse,
+            'ninea'            => $request->ninea,
             'couleur_primaire' => $request->couleur_primaire ?? $agency->couleur_primaire,
             'logo_path'        => $logoPath,
         ]);
+
+        // Recalcule et persiste onboarding_completed si toutes les étapes sont remplies
+        $agency->refresh();
+        $agency->checkOnboarding();
 
         return redirect()
             ->route('admin.agency.settings')

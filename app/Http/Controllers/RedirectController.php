@@ -20,17 +20,3 @@ class RedirectController extends Controller
         };
     }
 }
-// ```
-
-// ---
-
-// ## Test
-
-// Connecte-toi avec le superadmin :
-
-// **Email :** `superadmin@bimotech.sn`
-// **Mot de passe :** `SuperAdmin@2025!`
-
-// Tu dois être redirigé automatiquement vers :
-// ```
-// http://localhost:8000/superadmin/dashboard

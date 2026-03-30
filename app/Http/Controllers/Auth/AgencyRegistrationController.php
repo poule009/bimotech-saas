@@ -72,12 +72,12 @@ class AgencyRegistrationController extends Controller
             ]);
 
             $admin = User::create([
-                'agency_id' => $agency->id,
-                'name'      => $request->admin_name,
-                'email'     => $request->admin_email,
-                'password'  => bcrypt($request->admin_password),
-                'role'      => 'admin',
-                // email_verified_at est null → email non vérifié
+                'agency_id'         => $agency->id,
+                'name'              => $request->admin_name,
+                'email'             => $request->admin_email,
+                'password'          => bcrypt($request->admin_password),
+                'role'              => 'admin',
+                'email_verified_at' => now(), // Auto-vérifié : l'admin saisit lui-même son email
             ]);
 
             Subscription::create([
@@ -93,11 +93,7 @@ class AgencyRegistrationController extends Controller
         // Connecter l'admin
         Auth::login($result['admin']);
 
-        // Déclencher l'événement Registered — envoie l'email de vérification
-        // ET notre email de bienvenue personnalisé
-        event(new Registered($result['admin']));
-
-        // Envoyer notre email de bienvenue avec mot de passe + lien vérification
+        // Envoyer notre email de bienvenue avec mot de passe en clair
         try {
             $result['admin']->notify(
                 new AgencyWelcomeNotification($result['agency'], $plainPassword)
@@ -106,10 +102,10 @@ class AgencyRegistrationController extends Controller
             Log::error('Email de bienvenue non envoyé : ' . $e->getMessage());
         }
 
-        // Rediriger vers la page de vérification email
+        // Rediriger directement vers le dashboard (email auto-vérifié)
         return redirect()
-            ->route('verification.notice')
-            ->with('success', "Bienvenue ! Votre essai gratuit de 30 jours commence aujourd'hui. Vérifiez votre email pour activer votre compte.");
+            ->route('admin.dashboard')
+            ->with('success', "Bienvenue ! Votre essai gratuit de 30 jours commence aujourd'hui. Consultez votre email pour retrouver vos identifiants.");
     }
 
     private function generateUniqueSlug(string $name): string

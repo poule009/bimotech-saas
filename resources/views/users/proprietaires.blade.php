@@ -1,114 +1,155 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800">Propriétaires</h2>
-            <a href="{{ route('admin.users.create', 'proprietaire') }}"
-               class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
-                + Nouveau propriétaire
-            </a>
+    <x-slot name="header">Propriétaires</x-slot>
+
+    {{-- Alertes --}}
+    @if(session('success'))
+        <div class="alert alert-success section-gap">✅ {{ session('success') }}</div>
+    @endif
+
+    {{-- Header action --}}
+    <div class="flex-between section-gap">
+        <div>
+            <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">Propriétaires</h1>
+            <p style="font-size:13px;color:var(--text-3);margin-top:3px;">{{ $proprietaires->total() }} propriétaire(s) enregistré(s)</p>
         </div>
-    </x-slot>
+        <a href="{{ route('admin.users.create', 'proprietaire') }}" class="btn btn-primary">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nouveau propriétaire
+        </a>
+    </div>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    {{-- Stats --}}
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" class="section-gap">
+        <div class="kpi" style="text-align:center;padding:16px;">
+            <div class="kpi-value" style="color:var(--agency);">{{ $stats['total'] }}</div>
+            <div class="kpi-sub">Propriétaires</div>
+        </div>
+        <div class="kpi" style="text-align:center;padding:16px;">
+            <div class="kpi-value">{{ $stats['total_biens'] }}</div>
+            <div class="kpi-sub">Biens total</div>
+        </div>
+        <div class="kpi" style="text-align:center;padding:16px;border-color:#bbf7d0;background:#f0fdf4;">
+            <div class="kpi-value" style="color:#16a34a;">{{ $stats['biens_loues'] }}</div>
+            <div class="kpi-sub" style="color:#22c55e;">Biens loués</div>
+        </div>
+    </div>
 
-            @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg text-sm">
-                ✅ {{ session('success') }}
+    {{-- Mobile cards --}}
+    <div class="mobile-cards section-gap">
+        @forelse($proprietaires as $user)
+            <div class="mobile-card" style="cursor:pointer;"
+                 onclick="window.location='{{ route('admin.users.show', $user) }}'">
+                <div class="flex-between" style="margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="avatar" style="width:36px;height:36px;font-size:14px;background:var(--agency-soft);color:var(--agency);">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <div style="font-weight:700;font-size:13px;color:var(--text);">{{ $user->name }}</div>
+                            <div style="font-size:11px;color:var(--text-3);">{{ $user->created_at->format('d/m/Y') }}</div>
+                        </div>
+                    </div>
+                    <span class="badge {{ $user->biens_count > 0 ? 'badge-blue' : 'badge-gray' }}">
+                        {{ $user->biens_count }} bien(s)
+                    </span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Email</span>
+                    <span class="mobile-card-value">{{ $user->email }}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Téléphone</span>
+                    <span class="mobile-card-value">{{ $user->telephone ?? '—' }}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Ville</span>
+                    <span class="mobile-card-value">{{ $user->proprietaire?->ville ?? '—' }}</span>
+                </div>
             </div>
-            @endif
-
-            {{-- Stats --}}
-            <div class="grid grid-cols-3 gap-4">
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 text-center">
-                    <div class="text-2xl font-bold text-indigo-600">{{ $stats['total'] }}</div>
-                    <div class="text-xs text-gray-400 mt-1">Propriétaires</div>
-                </div>
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 text-center">
-                    <div class="text-2xl font-bold text-gray-900">{{ $stats['total_biens'] }}</div>
-                    <div class="text-xs text-gray-400 mt-1">Biens total</div>
-                </div>
-                <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-emerald-700">{{ $stats['biens_loues'] }}</div>
-                    <div class="text-xs text-emerald-500 mt-1">Biens loués</div>
-                </div>
+        @empty
+            <div style="text-align:center;padding:48px;color:var(--text-3);">
+                <div style="font-size:40px;margin-bottom:12px;">👤</div>
+                <div style="font-size:14px;margin-bottom:12px;">Aucun propriétaire enregistré</div>
+                <a href="{{ route('admin.users.create', 'proprietaire') }}" class="btn btn-primary btn-sm">
+                    Ajouter le premier propriétaire
+                </a>
             </div>
+        @endforelse
+    </div>
 
-            {{-- Liste --}}
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-100">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Nom</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Email</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Téléphone</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Nb biens</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Ville</th>
-                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @forelse($proprietaires as $user)
-                            <tr class="hover:bg-gray-50 transition cursor-pointer"
-    onclick="window.location='{{ route('admin.users.show', $user) }}'">
-                                <td class="px-4 py-3">
-                                    <div class="font-medium text-sm text-gray-800">{{ $user->name }}</div>
-                                    <div class="text-xs text-gray-400">
-                                        Inscrit le {{ $user->created_at->format('d/m/Y') }}
+    {{-- Desktop table --}}
+    <div class="desktop-table card section-gap">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th style="text-align:center;">Biens</th>
+                        <th>Ville</th>
+                        <th style="text-align:center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($proprietaires as $user)
+                        <tr style="cursor:pointer;"
+                            onclick="window.location='{{ route('admin.users.show', $user) }}'">
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div class="avatar" style="width:32px;height:32px;font-size:12px;background:var(--agency-soft);color:var(--agency);flex-shrink:0;">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
                                     </div>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">{{ $user->email }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600">{{ $user->telephone ?? '—' }}</td>
-                                <td class="px-4 py-3 text-center">
-                                    <span class="px-2 py-1 text-xs rounded-full font-medium
-                                        {{ $user->biens_count > 0 ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-500' }}">
-                                        {{ $user->biens_count }} bien(s)
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-sm text-gray-600">
-                                    {{ $user->proprietaire?->ville ?? '—' }}
-                                </td>
-                                <td class="px-4 py-3 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <a href="{{ route('biens.index') }}?proprietaire={{ $user->id }}"
-                                           class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
-                                            Voir biens
-                                        </a>
-                                        @if($user->biens_count === 0)
+                                    <div>
+                                        <div style="font-weight:600;font-size:13px;color:var(--text);">{{ $user->name }}</div>
+                                        <div style="font-size:11px;color:var(--text-3);">Inscrit le {{ $user->created_at->format('d/m/Y') }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="color:var(--text-2);font-size:13px;">{{ $user->email }}</td>
+                            <td style="color:var(--text-2);font-size:13px;">{{ $user->telephone ?? '—' }}</td>
+                            <td style="text-align:center;">
+                                <span class="badge {{ $user->biens_count > 0 ? 'badge-blue' : 'badge-gray' }}">
+                                    {{ $user->biens_count }} bien(s)
+                                </span>
+                            </td>
+                            <td style="color:var(--text-2);font-size:13px;">{{ $user->proprietaire?->ville ?? '—' }}</td>
+                            <td style="text-align:center;" onclick="event.stopPropagation()">
+                                <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+                                    <a href="{{ route('admin.users.show', $user) }}" class="btn btn-secondary btn-sm">
+                                        Voir
+                                    </a>
+                                    @if($user->biens_count === 0)
                                         <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
                                               onsubmit="return confirm('Supprimer ce propriétaire ?')">
                                             @csrf @method('DELETE')
-                                            <button type="submit"
-                                                    class="text-red-500 hover:text-red-700 text-xs font-medium">
-                                                Supprimer
-                                            </button>
+                                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
                                         </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-400">
-                                    <div class="text-4xl mb-2">👤</div>
-                                    <div class="text-sm">Aucun propriétaire enregistré</div>
-                                    <a href="{{ route('admin.users.create', 'proprietaire') }}"
-                                       class="mt-3 inline-block text-indigo-600 text-sm hover:underline">
-                                        Ajouter le premier propriétaire →
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-                @if($proprietaires->hasPages())
-                <div class="px-6 py-4 border-t border-gray-100">
-                    {{ $proprietaires->links() }}
-                </div>
-                @endif
-            </div>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" style="text-align:center;padding:48px;color:var(--text-3);">
+                                <div style="font-size:36px;margin-bottom:12px;">👤</div>
+                                <div style="font-size:14px;margin-bottom:12px;">Aucun propriétaire enregistré</div>
+                                <a href="{{ route('admin.users.create', 'proprietaire') }}" class="btn btn-primary btn-sm">
+                                    Ajouter le premier propriétaire
+                                </a>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+        @if($proprietaires->hasPages())
+            <div style="padding:16px 20px;border-top:1px solid var(--border);">
+                {{ $proprietaires->links() }}
+            </div>
+        @endif
     </div>
+
 </x-app-layout>

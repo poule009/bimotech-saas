@@ -17,13 +17,16 @@ class Agency extends Model
         'logo_path',
         'couleur_primaire',
         'adresse',
+        'ninea',
+        'onboarding_completed',
         'taux_tva',
         'actif',
     ];
 
     protected $casts = [
-        'actif'    => 'boolean',
-        'taux_tva' => 'decimal:2',
+        'actif'                => 'boolean',
+        'onboarding_completed' => 'boolean',
+        'taux_tva'             => 'decimal:2',
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────
@@ -93,5 +96,50 @@ class Agency extends Model
     public function classeTexteNavHover(): string
     {
         return $this->couleurEstSombre() ? 'hover:text-gray-200' : 'hover:text-gray-600';
+    }
+
+    // ── Onboarding ────────────────────────────────────────────────────────
+
+    /**
+     * Calcule les 4 étapes d'onboarding et retourne un tableau d'état.
+     * Met aussi à jour onboarding_completed si toutes les étapes sont cochées.
+     */
+    public function checkOnboarding(): array
+    {
+        // Étape 1 : Paramètres agence configurés (Logo OU Couleur personnalisée + NINEA)
+        $etape1 = (
+            ($this->logo_path !== null || $this->couleur_primaire !== null)
+            && $this->ninea !== null
+            && trim($this->ninea) !== ''
+        );
+
+        // Étape 2 : Premier propriétaire ajouté
+        $etape2 = $this->users()
+            ->where('role', 'proprietaire')
+            ->exists();
+
+        // Étape 3 : Premier bien enregistré
+        $etape3 = $this->biens()->exists();
+
+        // Étape 4 : Premier contrat signé (statut actif)
+        $etape4 = $this->contrats()
+            ->where('statut', 'actif')
+            ->exists();
+
+        $toutesTerminees = $etape1 && $etape2 && $etape3 && $etape4;
+
+        // Persiste le flag si toutes les étapes sont complètes (opération idempotente)
+        if ($toutesTerminees && ! $this->onboarding_completed) {
+            $this->updateQuietly(['onboarding_completed' => true]);
+        }
+
+        return [
+            'etape1'           => $etape1,
+            'etape2'           => $etape2,
+            'etape3'           => $etape3,
+            'etape4'           => $etape4,
+            'tout_complete'    => $toutesTerminees,
+            'nb_completes'     => (int) $etape1 + (int) $etape2 + (int) $etape3 + (int) $etape4,
+        ];
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BienController;
@@ -9,10 +10,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect()->route('redirect.home');
     }
     return view('landing');
@@ -29,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/home', [RedirectController::class, 'index'])
          ->name('redirect.home');
+    Route::get('/dashboard', [RedirectController::class, 'index'])
+         ->name('dashboard');
 
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
@@ -49,16 +53,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
          ->group(function () {
             Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])
                  ->name('dashboard');
-            Route::patch('/agencies/{agency}/toggle', [SuperAdminController::class, 'toggleActif'])
-                 ->name('agencies.toggle');
-            Route::get('/agencies/{agency}', [SuperAdminController::class, 'showAgency'])
-                 ->name('agencies.show');
             Route::get('/subscriptions', [SuperAdminController::class, 'subscriptions'])
                  ->name('subscriptions');
+            Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+                 ->name('activity-logs.index');
+
+            // ── Création d'agence (routes statiques AVANT les routes dynamiques {agency}) ──
+            Route::get('/agencies/create', [SuperAdminController::class, 'createAgency'])
+                 ->name('agencies.create');
+            Route::post('/agencies', [SuperAdminController::class, 'storeAgency'])
+                 ->name('agencies.store');
+
+            // ── Routes dynamiques avec {agency} ──
+            Route::patch('/agencies/{agency}/toggle', [SuperAdminController::class, 'toggleActif'])
+                 ->name('agencies.toggle');
             Route::post('/agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])
                  ->name('agencies.abonnement.activer');
             Route::post('/agencies/{agency}/essai', [SuperAdminController::class, 'reinitialiserEssai'])
                  ->name('agencies.essai.reinitialiser');
+            Route::get('/agencies/{agency}', [SuperAdminController::class, 'showAgency'])
+                 ->name('agencies.show');
     });
 
     // ── Dashboard Admin ───────────────────────────────────────────────────
@@ -77,6 +91,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('agency/logo', [AgencySettingsController::class, 'deleteLogo'])
                  ->name('agency.logo.delete');
 
+            Route::get('activity-logs', [ActivityLogController::class, 'index'])
+                 ->name('activity-logs.index');
+
+            // ── TÂCHE 2 : Saisie prédictive — doit être déclaré AVANT resource ──
+            Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])
+                 ->name('paiements.dernier-periode');
+
             Route::resource('paiements', PaiementController::class);
             Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])
                  ->name('paiements.pdf');
@@ -85,6 +106,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Route::resource('contrats', \App\Http\Controllers\ContratController::class)
                  ->only(['index', 'create', 'store', 'show', 'destroy']);
+            Route::post('contrats/locataire-rapide', [\App\Http\Controllers\ContratController::class, 'storeLocataireRapide'])
+                 ->name('contrats.locataire-rapide');
 
             Route::prefix('users')->name('users.')->group(function () {
                 Route::get('proprietaires', [\App\Http\Controllers\UserController::class, 'proprietaires'])
@@ -135,12 +158,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:isStaff')
          ->resource('biens', BienController::class);
 
-    Route::post('biens/{bien}/photos', [\App\Http\Controllers\BienPhotoController::class, 'store'])
-         ->name('biens.photos.store');
-    Route::delete('biens/{bien}/photos/{photo}', [\App\Http\Controllers\BienPhotoController::class, 'destroy'])
-         ->name('biens.photos.destroy');
-    Route::patch('biens/{bien}/photos/{photo}/principale', [\App\Http\Controllers\BienPhotoController::class, 'setPrincipale'])
-         ->name('biens.photos.principale');
+    Route::middleware('can:isStaff')->group(function () {
+        Route::post('biens/{bien}/photos', [\App\Http\Controllers\BienPhotoController::class, 'store'])
+             ->name('biens.photos.store');
+        Route::delete('biens/{bien}/photos/{photo}', [\App\Http\Controllers\BienPhotoController::class, 'destroy'])
+             ->name('biens.photos.destroy');
+        Route::patch('biens/{bien}/photos/{photo}/principale', [\App\Http\Controllers\BienPhotoController::class, 'setPrincipale'])
+             ->name('biens.photos.principale');
+    });
 });
 
 require __DIR__ . '/auth.php';

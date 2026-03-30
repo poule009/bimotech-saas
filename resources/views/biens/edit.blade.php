@@ -1,55 +1,65 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <a href="{{ route('biens.show', $bien) }}" class="text-gray-400 hover:text-gray-600 transition">←</a>
-            <h2 class="font-semibold text-xl text-gray-800">Modifier — {{ $bien->reference }}</h2>
+    <x-slot name="header">Modifier — {{ $bien->reference }}</x-slot>
+
+    {{-- Header navigation --}}
+    <div style="display:flex;align-items:center;gap:12px;" class="section-gap">
+        <a href="{{ route('biens.show', $bien) }}"
+           style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);color:var(--text-2);transition:background .15s;"
+           onmouseenter="this.style.background='var(--bg)'"
+           onmouseleave="this.style.background='transparent'">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </a>
+        <div>
+            <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">
+                Modifier — {{ $bien->reference }}
+            </h1>
+            <p style="font-size:13px;color:var(--text-3);margin-top:2px;">
+                {{ $bien->type }} · {{ $bien->adresse }}, {{ $bien->ville }}
+            </p>
         </div>
-    </x-slot>
+    </div>
 
-    <div class="py-8">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
-
-                <form method="POST" action="{{ route('biens.update', $bien) }}" class="space-y-6">
+    <div style="max-width:680px;">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" action="{{ route('biens.update', $bien) }}">
                     @csrf @method('PUT')
 
                     {{-- Propriétaire (admin seulement) --}}
                     @if(auth()->user()->isAdmin())
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Propriétaire</label>
-                        <select name="proprietaire_id"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
-                            @foreach($proprietaires as $proprio)
-                            <option value="{{ $proprio->id }}"
-                                {{ $bien->proprietaire_id == $proprio->id ? 'selected' : '' }}>
-                                {{ $proprio->name }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div style="margin-bottom:20px;">
+                            <label class="form-label">Propriétaire</label>
+                            <select name="proprietaire_id" class="input">
+                                @foreach($proprietaires as $proprio)
+                                    <option value="{{ $proprio->id }}"
+                                            {{ $bien->proprietaire_id == $proprio->id ? 'selected' : '' }}>
+                                        {{ $proprio->name }} — {{ $proprio->email }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     @endif
 
                     {{-- Type + Statut --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
-                            <select name="type"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 @error('type') border-red-400 @enderror">
+                            <label class="form-label">Type de bien <span style="color:#ef4444;">*</span></label>
+                            <select name="type" class="input">
                                 @foreach(['Appartement', 'Villa', 'Studio', 'Bureau', 'Commerce', 'Terrain', 'Maison'] as $type)
-                                <option value="{{ $type }}"
-                                    {{ old('type', $bien->type) === $type ? 'selected' : '' }}>
-                                    {{ $type }}
-                                </option>
+                                    <option value="{{ $type }}" {{ old('type', $bien->type) === $type ? 'selected' : '' }}>
+                                        {{ $type }}
+                                    </option>
                                 @endforeach
                             </select>
                             @error('type')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <div style="font-size:12px;color:#dc2626;margin-top:4px;">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Statut *</label>
-                            <select name="statut"
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                            <label class="form-label">Statut <span style="color:#ef4444;">*</span></label>
+                            <select name="statut" class="input">
                                 <option value="disponible" {{ old('statut', $bien->statut) === 'disponible' ? 'selected' : '' }}>Disponible</option>
                                 <option value="loue"       {{ old('statut', $bien->statut) === 'loue'       ? 'selected' : '' }}>Loué</option>
                                 <option value="en_travaux" {{ old('statut', $bien->statut) === 'en_travaux' ? 'selected' : '' }}>En travaux</option>
@@ -58,87 +68,90 @@
                     </div>
 
                     {{-- Adresse --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Adresse *</label>
-                        <input type="text" name="adresse" value="{{ old('adresse', $bien->adresse) }}"
-                               class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 @error('adresse') border-red-400 @enderror">
+                    <div style="margin-bottom:20px;">
+                        <label class="form-label">Adresse <span style="color:#ef4444;">*</span></label>
+                        <input type="text" name="adresse"
+                               value="{{ old('adresse', $bien->adresse) }}"
+                               class="input">
                         @error('adresse')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            <div style="font-size:12px;color:#dc2626;margin-top:4px;">{{ $message }}</div>
                         @enderror
                     </div>
 
                     {{-- Ville --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Ville *</label>
-                        <select name="ville"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                    <div style="margin-bottom:20px;">
+                        <label class="form-label">Ville <span style="color:#ef4444;">*</span></label>
+                        <select name="ville" class="input">
                             @foreach(['Dakar', 'Thiès', 'Saint-Louis', 'Ziguinchor', 'Kaolack', 'Mbour', 'Rufisque', 'Touba'] as $ville)
-                            <option value="{{ $ville }}" {{ old('ville', $bien->ville) === $ville ? 'selected' : '' }}>
-                                {{ $ville }}
-                            </option>
+                                <option value="{{ $ville }}" {{ old('ville', $bien->ville) === $ville ? 'selected' : '' }}>
+                                    {{ $ville }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
 
                     {{-- Surface + Pièces --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Surface (m²)</label>
+                            <label class="form-label">Surface (m²)</label>
                             <input type="number" name="surface_m2"
-                                   value="{{ old('surface_m2', $bien->surface_m2) }}" min="1"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                                   value="{{ old('surface_m2', $bien->surface_m2) }}"
+                                   min="1" class="input">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de pièces</label>
+                            <label class="form-label">Nombre de pièces</label>
                             <input type="number" name="nombre_pieces"
-                                   value="{{ old('nombre_pieces', $bien->nombre_pieces) }}" min="1"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">
+                                   value="{{ old('nombre_pieces', $bien->nombre_pieces) }}"
+                                   min="1" class="input">
                         </div>
                     </div>
 
                     {{-- Loyer + Commission --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Loyer mensuel (FCFA) *</label>
+                            <label class="form-label">Loyer mensuel (FCFA) <span style="color:#ef4444;">*</span></label>
                             <input type="number" name="loyer_mensuel"
-                                   value="{{ old('loyer_mensuel', $bien->loyer_mensuel) }}" min="1"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 @error('loyer_mensuel') border-red-400 @enderror">
+                                   value="{{ old('loyer_mensuel', $bien->loyer_mensuel) }}"
+                                   min="1" class="input">
                             @error('loyer_mensuel')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <div style="font-size:12px;color:#dc2626;margin-top:4px;">{{ $message }}</div>
                             @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Taux commission (%) *</label>
+                            <label class="form-label">Taux commission (%) <span style="color:#ef4444;">*</span></label>
                             <input type="number" name="taux_commission"
                                    value="{{ old('taux_commission', $bien->taux_commission) }}"
-                                   min="1" max="20" step="0.5"
-                                   class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 @error('taux_commission') border-red-400 @enderror">
+                                   min="1" max="20" step="0.5" class="input">
+                            <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Entre 1% et 20%</div>
                             @error('taux_commission')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <div style="font-size:12px;color:#dc2626;margin-top:4px;">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
 
                     {{-- Description --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <div style="margin-bottom:24px;">
+                        <label class="form-label">Description</label>
                         <textarea name="description" rows="3"
-                                  class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500">{{ old('description', $bien->description) }}</textarea>
+                                  class="input" style="resize:vertical;">{{ old('description', $bien->description) }}</textarea>
                     </div>
 
                     {{-- Boutons --}}
-                    <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                        <a href="{{ route('biens.show', $bien) }}"
-                           class="px-5 py-2 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition">
+                    <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:20px;border-top:1px solid var(--border);">
+                        <a href="{{ route('biens.show', $bien) }}" class="btn btn-secondary">
                             Annuler
                         </a>
-                        <button type="submit"
-                                class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">
+                        <button type="submit" class="btn btn-primary">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
                             Enregistrer les modifications
                         </button>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
+
 </x-app-layout>

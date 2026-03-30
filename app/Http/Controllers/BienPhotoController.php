@@ -52,6 +52,8 @@ class BienPhotoController extends Controller
     {
         $this->authorize('update', $bien);
 
+        $photo = $bien->photos()->findOrFail($photo->id);
+
         // Supprime le fichier du disque
         Storage::disk('public')->delete($photo->chemin);
 
@@ -71,6 +73,8 @@ class BienPhotoController extends Controller
     public function setPrincipale(Bien $bien, BienPhoto $photo)
     {
         $this->authorize('update', $bien);
+
+        $photo = $bien->photos()->findOrFail($photo->id);
 
         // Retire l'ancienne principale
         $bien->photos()->update(['est_principale' => false]);

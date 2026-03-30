@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class PaiementController extends Controller
 {
@@ -20,6 +21,8 @@ class PaiementController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Paiement::class);
+
         $paiements = Paiement::with('contrat.bien', 'contrat.locataire')
             ->orderByDesc('date_paiement')
             ->paginate(15);
@@ -49,6 +52,10 @@ class PaiementController extends Controller
 
     public function store(StorePaiementRequest $request)
     {
+        // BUG 5 FIX : authorize() manquant — défense en profondeur.
+        // La route est sous isAdmin mais le contrôleur doit aussi vérifier.
+        $this->authorize('create', Paiement::class);
+
         $contrat = Contrat::with('bien')->findOrFail($request->contrat_id);
 
         // Garde 1 : Contrat doit être actif
@@ -114,8 +121,49 @@ class PaiementController extends Controller
                     'notes'                    => $request->notes,
                 ]);
 
-                // Chargement des relations pour les emails
+                // Chargement des relations pour génération PDF + emails
                 $contrat->load('bien.proprietaire', 'locataire');
+                $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
+
+                // Générer la quittance PDF UNE FOIS et la stocker sur le disk private
+                $montantEnLettres = \App\Services\NombreEnLettres::convertir($paiement->montant_encaisse);
+                $netEnLettres     = \App\Services\NombreEnLettres::convertir($paiement->net_proprietaire);
+
+                $data = [
+                    'paiement'         => $paiement,
+                    'contrat'          => $paiement->contrat,
+                    'bien'             => $paiement->contrat->bien,
+                    'proprietaire'     => $paiement->contrat->bien->proprietaire,
+                    'locataire'        => $paiement->contrat->locataire,
+                    'montantEnLettres' => $montantEnLettres,
+                    'netEnLettres'     => $netEnLettres,
+                    'agence' => [
+                        'nom'       => 'BIMO-Tech Immobilier',
+                        'adresse'   => 'Dakar, Sénégal',
+                        'telephone' => '+221 33 000 00 00',
+                        'email'     => 'contact@bimotech.sn',
+                        'ninea'     => 'NINEA : 00000000000',
+                    ],
+                ];
+
+                $pdf = Pdf::loadView('paiements.pdf.quittance', $data)
+                    ->setPaper('a4', 'portrait')
+                    ->setOption('defaultFont', 'DejaVu Sans')
+                    ->setOption('dpi', 150);
+
+                $receiptPath = sprintf(
+                    'receipts/%s/%s/%s/quittance-%s.pdf',
+                    $paiement->agency_id ?? 'global',
+                    now()->format('Y'),
+                    now()->format('m'),
+                    $paiement->reference_paiement
+                );
+
+                Storage::disk('private')->put($receiptPath, $pdf->output());
+
+                $paiement->update([
+                    'receipt_path' => $receiptPath,
+                ]);
 
                 // Email au locataire avec quittance PDF en pièce jointe
                 try {
@@ -123,7 +171,13 @@ class PaiementController extends Controller
                         new QuittanceLocataireNotification($paiement)
                     );
                 } catch (\Throwable $e) {
-                    Log::warning('Email locataire non envoyé', ['error' => $e->getMessage()]);
+                    Log::warning('Email locataire non envoyé', [
+                        'error' => $e->getMessage(),
+                        'paiement_id' => $paiement->id ?? null,
+                        'contrat_id' => $contrat->id ?? null,
+                        'agency_id' => \Illuminate\Support\Facades\Auth::user()?->agency_id,
+                        'target_user_id' => $contrat->locataire->id ?? null,
+                    ]);
                 }
 
                 // Email au propriétaire avec récapitulatif
@@ -132,7 +186,13 @@ class PaiementController extends Controller
                         new PaiementProprietaireNotification($paiement)
                     );
                 } catch (\Throwable $e) {
-                    Log::warning('Email propriétaire non envoyé', ['error' => $e->getMessage()]);
+                    Log::warning('Email propriétaire non envoyé', [
+                        'error' => $e->getMessage(),
+                        'paiement_id' => $paiement->id ?? null,
+                        'contrat_id' => $contrat->id ?? null,
+                        'agency_id' => \Illuminate\Support\Facades\Auth::user()?->agency_id,
+                        'target_user_id' => $contrat->bien->proprietaire->id ?? null,
+                    ]);
                 }
 
                 return $paiement;
@@ -165,8 +225,18 @@ class PaiementController extends Controller
 
     public function downloadPDF(Paiement $paiement)
     {
-        $this->authorize('isAdmin');
+        $this->authorize('downloadPdf', $paiement);
 
+        $fileName = 'quittance-' . $paiement->reference_paiement . '.pdf';
+
+        if (! empty($paiement->receipt_path) && Storage::disk('private')->exists($paiement->receipt_path)) {
+            return response()->download(
+                Storage::disk('private')->path($paiement->receipt_path),
+                $fileName
+            );
+        }
+
+        // Fallback de robustesse: si le fichier stocké est absent, régénérer puis persister
         $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
 
         $montantEnLettres = \App\Services\NombreEnLettres::convertir($paiement->montant_encaisse);
@@ -194,7 +264,24 @@ class PaiementController extends Controller
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('dpi', 150);
 
-        return $pdf->download('quittance-' . $paiement->reference_paiement . '.pdf');
+        $receiptPath = sprintf(
+            'receipts/%s/%s/%s/quittance-%s.pdf',
+            $paiement->agency_id ?? 'global',
+            now()->format('Y'),
+            now()->format('m'),
+            $paiement->reference_paiement
+        );
+
+        Storage::disk('private')->put($receiptPath, $pdf->output());
+
+        $paiement->update([
+            'receipt_path' => $receiptPath,
+        ]);
+
+        return response()->download(
+            Storage::disk('private')->path($receiptPath),
+            $fileName
+        );
     }
 
     // ── Annulation d'un paiement ──────────────────────────────────────────────
@@ -215,10 +302,52 @@ class PaiementController extends Controller
         return back()->with('success', 'Paiement annulé.');
     }
 
+    // ── TÂCHE 2 : Saisie prédictive — Dernier mois payé + suggestion ─────────
+    // Endpoint AJAX : GET admin/paiements/dernier-periode/{contrat}
+    // Retourne JSON : { periode_suggeree, label, dernier_paye, loyer_contractuel }
+
+    public function dernierePeriode(Contrat $contrat)
+    {
+        $this->authorize('isAdmin');
+
+        // Dernier paiement valide (non annulé) pour ce contrat, trié par période
+        $dernierPaiement = Paiement::where('contrat_id', $contrat->id)
+            ->where('statut', '!=', 'annule')
+            ->orderByDesc('periode')
+            ->first();
+
+        if ($dernierPaiement) {
+            // On propose le mois suivant le dernier payé
+            $prochaineMois = Carbon::parse($dernierPaiement->periode)->addMonth();
+            $dernierLabel  = Carbon::parse($dernierPaiement->periode)
+                ->locale('fr')
+                ->translatedFormat('F Y');
+        } else {
+            // Aucun paiement : on propose le mois de début du contrat
+            $prochaineMois = Carbon::parse($contrat->date_debut)->startOfMonth();
+            $dernierLabel  = null;
+        }
+
+        return response()->json([
+            // Format attendu par l'input[type=month] : "YYYY-MM"
+            'periode_suggeree'  => $prochaineMois->format('Y-m'),
+            // Label lisible pour l'affichage dans l'interface
+            'label'             => $prochaineMois->locale('fr')->translatedFormat('F Y'),
+            // Dernier mois payé (null si aucun paiement)
+            'dernier_paye'      => $dernierLabel,
+            // Loyer contractuel pour pré-remplir le montant
+            'loyer_contractuel' => $contrat->loyer_contractuel,
+        ]);
+    }
+
     // ── Paiements du locataire connecté ───────────────────────────────────────
 
     public function mesPaiements()
     {
+        // BUG 6 FIX : authorize() manquant — s'assure que seul un locataire
+        // peut accéder à cette méthode, en complément du middleware de route.
+        $this->authorize('isLocataire');
+
         $user = Auth::user();
 
         $contratIds = Contrat::where('locataire_id', $user->id)->pluck('id');

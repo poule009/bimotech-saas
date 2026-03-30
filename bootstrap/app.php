@@ -7,6 +7,8 @@ use App\Http\Middleware\IsSuperAdmin;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,5 +29,24 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->report(function (\Throwable $e) {
+            /** @var int $statusCode */
+            $statusCode = method_exists($e, 'getStatusCode')
+                ? (int) call_user_func([$e, 'getStatusCode'])
+                : 500;
+
+            if ($statusCode >= 500) {
+                $user = Auth::user();
+
+                Log::error('HTTP 500 capturée', [
+                    'message' => $e->getMessage(),
+                    'exception' => get_class($e),
+                    'agency_id' => $user?->agency_id,
+                    'user_id' => $user?->id,
+                    'url' => request()?->fullUrl(),
+                    'method' => request()?->method(),
+                    'trace_id' => request()?->header('X-Request-Id') ?? (string) \Illuminate\Support\Str::uuid(),
+                ]);
+            }
+        });
     })->create();
