@@ -43,7 +43,7 @@ class StorePaiementRequest extends FormRequest
                 },
             ],
             'montant_encaisse'     => ['required', 'numeric', 'gt:0'],
-            'mode_paiement'        => ['required', 'in:especes,virement,mobile_money,cheque'],
+            'mode_paiement'        => ['required', 'in:especes,virement,cheque,wave,orange_money,free_money,mobile_money'],
             'caution_percue'       => ['nullable', 'numeric', 'min:0'],
             'est_premier_paiement' => ['boolean'],
             'date_paiement'        => ['required', 'date', 'before_or_equal:today'],

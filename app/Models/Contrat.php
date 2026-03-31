@@ -12,6 +12,20 @@ class Contrat extends Model
 {
     use HasFactory, LogsActivity;
 
+    // ── Types de bail ─────────────────────────────────────────────────────
+    public const TYPES_BAIL = [
+        'habitation'  => "Bail d'habitation",
+        'commercial'  => 'Bail commercial',
+        'mixte'       => 'Bail mixte',
+        'saisonnier'  => 'Bail saisonnier',
+    ];
+
+    public const STATUTS = [
+        'actif'    => 'Actif',
+        'resilié'  => 'Résilié',
+        'expiré'   => 'Expiré',
+    ];
+
     protected $fillable = [
         'agency_id',
         'bien_id',
@@ -21,12 +35,26 @@ class Contrat extends Model
         'loyer_contractuel',
         'caution',
         'statut',
+        'type_bail',
+        'frais_agence',
+        'charges_mensuelles',
+        'indexation_annuelle',
+        'nombre_mois_caution',
+        'garant_nom',
+        'garant_telephone',
+        'garant_adresse',
         'observations',
     ];
 
     protected $casts = [
-        'date_debut' => 'date',
-        'date_fin'   => 'date',
+        'date_debut'          => 'date',
+        'date_fin'            => 'date',
+        'loyer_contractuel'   => 'decimal:2',
+        'caution'             => 'decimal:2',
+        'frais_agence'        => 'decimal:2',
+        'charges_mensuelles'  => 'decimal:2',
+        'indexation_annuelle' => 'decimal:2',
+        'nombre_mois_caution' => 'integer',
     ];
 
     // ── Global Scope ──────────────────────────────────────────────────────

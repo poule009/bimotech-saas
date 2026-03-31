@@ -6,31 +6,33 @@ use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\Paiement;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RapportController extends Controller
 {
-    public function financier(Request $request)
+    /**
+     * Retourne les données du rapport financier pour la vue et l'export.
+     * Toutes les requêtes User sont filtrées par agency_id pour éviter
+     * la fuite de données inter-agences.
+     */
+    private function getData(int $annee, int $mois): array
     {
-        $this->authorize('isAdmin');
-
-        // ── Période sélectionnée (défaut : mois en cours) ─────────────
-        $annee = (int) $request->input('annee', now()->year);
-        $mois  = (int) $request->input('mois',  now()->month);
-
+        $agencyId  = Auth::user()->agency_id;
         $debutMois = Carbon::create($annee, $mois, 1)->startOfMonth();
         $finMois   = Carbon::create($annee, $mois, 1)->endOfMonth();
 
-        // ── Paiements du mois ─────────────────────────────────────────
+        // ── Paiements du mois (AgencyScope appliqué automatiquement) ──
         $paiementsMois = Paiement::with('contrat.bien.proprietaire', 'contrat.locataire')
             ->where('statut', 'valide')
             ->whereBetween('date_paiement', [$debutMois, $finMois])
             ->orderBy('date_paiement')
-            ->paginate(50);
+            ->get();
 
-        // ── KPI du mois (source unique SQL pour cohérence/performance) ──
+        // ── KPI du mois ───────────────────────────────────────────────
         $kpiMois = [
             'total_loyers'      => Paiement::where('statut', 'valide')
                 ->whereBetween('date_paiement', [$debutMois, $finMois])
@@ -71,6 +73,7 @@ class RapportController extends Controller
 
         // ── Par propriétaire (mois sélectionné) ───────────────────────
         $parProprietaire = $paiementsMois
+            ->filter(fn($p) => $p->contrat?->bien?->proprietaire !== null)
             ->groupBy(fn($p) => $p->contrat->bien->proprietaire->id)
             ->map(function ($paiements) {
                 $proprio = $paiements->first()->contrat->bien->proprietaire;
@@ -86,21 +89,26 @@ class RapportController extends Controller
             ->sortByDesc('loyers');
 
         // ── Biens sans paiement ce mois ───────────────────────────────
-        $biensPaies = $paiementsMois->pluck('contrat.bien_id')->unique();
+        $biensPaies   = $paiementsMois->pluck('contrat.bien_id')->unique();
         $biensImpayés = Contrat::where('statut', 'actif')
             ->whereNotIn('bien_id', $biensPaies)
             ->with('bien', 'locataire')
             ->get();
 
-        // ── Stats générales ───────────────────────────────────────────
+        // ── Stats générales — FILTRÉES par agency_id ──────────────────
+        $nbBiens      = Bien::count();
+        $nbBiensLoues = Bien::where('statut', 'loue')->count();
         $statsGenerales = [
-            'nb_biens'         => Bien::count(),
-            'nb_biens_loues'   => Bien::where('statut', 'loue')->count(),
+            'nb_biens'         => $nbBiens,
+            'nb_biens_loues'   => $nbBiensLoues,
             'nb_contrats'      => Contrat::where('statut', 'actif')->count(),
-            'nb_proprietaires' => User::where('role', 'proprietaire')->count(),
-            'nb_locataires'    => User::where('role', 'locataire')->count(),
-            'taux_occupation'  => Bien::count() > 0
-                ? round((Bien::where('statut', 'loue')->count() / Bien::count()) * 100, 1)
+            // CORRECTION : filtrer par agency_id pour éviter fuite inter-agences
+            'nb_proprietaires' => User::where('role', 'proprietaire')
+                ->where('agency_id', $agencyId)->count(),
+            'nb_locataires'    => User::where('role', 'locataire')
+                ->where('agency_id', $agencyId)->count(),
+            'taux_occupation'  => $nbBiens > 0
+                ? round(($nbBiensLoues / $nbBiens) * 100, 1)
                 : 0,
         ];
 
@@ -110,12 +118,63 @@ class RapportController extends Controller
             ->orderByDesc('annee')
             ->pluck('annee');
 
-        return view('rapports.financier', compact(
+        return compact(
             'annee', 'mois', 'debutMois',
             'paiementsMois', 'kpiMois',
             'evolution', 'parProprietaire',
             'biensImpayés', 'statsGenerales',
             'anneesDisponibles'
-        ));
+        );
+    } // fin getData
+
+    public function financier(Request $request)
+    {
+        $this->authorize('isAdmin');
+
+        $annee = (int) $request->input('annee', now()->year);
+        $mois  = (int) $request->input('mois',  now()->month);
+
+        $data = $this->getData($annee, $mois);
+
+        // Paginer manuellement les paiements pour la vue
+        $paiementsMois = new \Illuminate\Pagination\LengthAwarePaginator(
+            $data['paiementsMois']->forPage(
+                $page = $request->input('page', 1),
+                $perPage = 50
+            ),
+            $data['paiementsMois']->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+        $data['paiementsMois'] = $paiementsMois;
+
+        return view('rapports.financier', $data);
+    }
+
+    /**
+     * Export PDF du rapport financier mensuel.
+     */
+    public function exportPdf(Request $request)
+    {
+        $this->authorize('isAdmin');
+
+        $annee = (int) $request->input('annee', now()->year);
+        $mois  = (int) $request->input('mois',  now()->month);
+
+        $data    = $this->getData($annee, $mois);
+        $agency  = Auth::user()->agency;
+        $data['agency'] = $agency;
+
+        $pdf = Pdf::loadView('rapports.financier_pdf', $data)
+            ->setPaper('a4', 'landscape')
+            ->setOptions([
+                'defaultFont'  => 'DejaVu Sans',
+                'isRemoteEnabled' => false,
+            ]);
+
+        $nomFichier = 'rapport-financier-' . $annee . '-' . str_pad($mois, 2, '0', STR_PAD_LEFT) . '.pdf';
+
+        return $pdf->download($nomFichier);
     }
 }

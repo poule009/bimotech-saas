@@ -39,10 +39,13 @@ class BienController extends Controller
         $this->authorize('create', Bien::class);
 
         // Admin peut choisir le proprio, proprio est forcé à lui-même
+        // CORRECTION : filtrer par agency_id pour éviter fuite inter-agences
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $proprietaires = $user->isAdmin()
-            ? User::where('role', 'proprietaire')->orderBy('name')->get()
+            ? User::where('role', 'proprietaire')
+                  ->where('agency_id', $user->agency_id)
+                  ->orderBy('name')->get()
             : collect([$user]);
 
         return view('biens.create', compact('proprietaires'));
@@ -56,8 +59,7 @@ class BienController extends Controller
         $agencyId = Auth::user()->agency_id;
 
         $validated = $request->validate([
-            // BUG 7 FIX : validation cross-agence — le proprietaire_id doit
-            // appartenir à la même agence que l'admin connecté.
+            // Validation cross-agence — le proprietaire_id doit appartenir à la même agence
             'proprietaire_id' => [
                 'required',
                 'exists:users,id',
@@ -71,20 +73,30 @@ class BienController extends Controller
             'type'            => ['required', 'string', 'max:100'],
             'adresse'         => ['required', 'string', 'max:255'],
             'ville'           => ['required', 'string', 'max:100'],
+            'quartier'        => ['nullable', 'string', 'max:100'],
+            'commune'         => ['nullable', 'string', 'max:100'],
             'surface_m2'      => ['nullable', 'integer', 'min:1'],
             'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
             'loyer_mensuel'   => ['required', 'numeric', 'min:1'],
             'taux_commission' => ['required', 'numeric', 'min:1', 'max:20'],
             'statut'          => ['required', 'in:disponible,loue,en_travaux'],
+            'meuble'          => ['boolean'],
             'description'     => ['nullable', 'string', 'max:1000'],
         ]);
 
-        // Génération automatique de la référence
-        $count     = Bien::count() + 1;
-        $reference = 'BIEN-' . now()->year . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+        // CORRECTION P0 : Référence unique par agence — utilise le count filtré
+        // par agency_id + un suffixe aléatoire pour éviter les collisions
+        $countAgence = Bien::withoutGlobalScopes()->where('agency_id', $agencyId)->count() + 1;
+        $reference   = sprintf(
+            'BIEN-%s-%s-%s',
+            now()->year,
+            str_pad($countAgence, 4, '0', STR_PAD_LEFT),
+            strtoupper(substr(uniqid(), -4))
+        );
 
         $bien = Bien::create(array_merge($validated, [
             'reference' => $reference,
+            'meuble'    => $request->boolean('meuble'),
         ]));
 
         return redirect()
@@ -121,8 +133,11 @@ class BienController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
+        // CORRECTION : filtrer par agency_id
         $proprietaires = $user->isAdmin()
-            ? User::where('role', 'proprietaire')->orderBy('name')->get()
+            ? User::where('role', 'proprietaire')
+                  ->where('agency_id', $user->agency_id)
+                  ->orderBy('name')->get()
             : collect([$user]);
 
         return view('biens.edit', compact('bien', 'proprietaires'));
@@ -137,15 +152,20 @@ class BienController extends Controller
             'type'            => ['required', 'string', 'max:100'],
             'adresse'         => ['required', 'string', 'max:255'],
             'ville'           => ['required', 'string', 'max:100'],
+            'quartier'        => ['nullable', 'string', 'max:100'],
+            'commune'         => ['nullable', 'string', 'max:100'],
             'surface_m2'      => ['nullable', 'integer', 'min:1'],
             'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
             'loyer_mensuel'   => ['required', 'numeric', 'min:1'],
             'taux_commission' => ['required', 'numeric', 'min:1', 'max:20'],
             'statut'          => ['required', 'in:disponible,loue,en_travaux'],
+            'meuble'          => ['boolean'],
             'description'     => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $bien->update($validated);
+        $bien->update(array_merge($validated, [
+            'meuble' => $request->boolean('meuble'),
+        ]));
 
         return redirect()
             ->route('biens.show', $bien)

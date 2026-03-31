@@ -82,12 +82,12 @@ class UserController extends Controller
             // Champs profil communs
             'cni'            => ['nullable', 'string', 'max:20'],
             'date_naissance' => ['nullable', 'date'],
-            'genre'          => ['nullable', 'in:homme,femme'],
+            'genre'          => ['nullable', 'in:M,F'],
             'ville'          => ['nullable', 'string', 'max:100'],
             'quartier'       => ['nullable', 'string', 'max:100'],
 
             // Champs propriétaire
-            'mode_paiement_prefere' => ['nullable', 'in:especes,virement,mobile_money,cheque'],
+            'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque,mobile_money'],
             'banque'                => ['nullable', 'string', 'max:100'],
             'numero_wave'           => ['nullable', 'string', 'max:20'],
             'numero_om'             => ['nullable', 'string', 'max:20'],
@@ -218,6 +218,78 @@ return view('users.show', compact(
     'user', 'biens', 'stats', 'paiements', 'locatairesActifs'
 ));
 }
+
+    // ── Formulaire édition ────────────────────────────────────────────────
+    public function edit(User $user)
+    {
+        $this->authorize('isAdmin');
+
+        if (! in_array($user->role, ['proprietaire', 'locataire'])) {
+            abort(404);
+        }
+
+        return view('users.edit', compact('user'));
+    }
+
+    // ── Mise à jour ───────────────────────────────────────────────────────
+    public function update(Request $request, User $user)
+    {
+        $this->authorize('isAdmin');
+
+        if (! in_array($user->role, ['proprietaire', 'locataire'])) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'name'      => ['required', 'string', 'max:255'],
+            'email'     => ['required', 'email', 'unique:users,email,' . $user->id],
+            'telephone' => ['nullable', 'string', 'max:30'],
+            'adresse'   => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user->update($validated);
+
+        // Mise à jour du profil selon le rôle
+        if ($user->role === 'proprietaire' && $user->proprietaire) {
+            $profilData = $request->validate([
+                'cni'                   => ['nullable', 'string', 'max:20'],
+                'date_naissance'        => ['nullable', 'date'],
+                'genre'                 => ['nullable', 'in:M,F'],
+                'nationalite'           => ['nullable', 'string', 'max:50'],
+                'telephone_secondaire'  => ['nullable', 'string', 'max:30'],
+                'adresse_domicile'      => ['nullable', 'string', 'max:255'],
+                'ville'                 => ['nullable', 'string', 'max:100'],
+                'quartier'              => ['nullable', 'string', 'max:100'],
+                'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque'],
+                'banque'                => ['nullable', 'string', 'max:100'],
+                'numero_compte'         => ['nullable', 'string', 'max:50'],
+                'numero_wave'           => ['nullable', 'string', 'max:20'],
+                'numero_om'             => ['nullable', 'string', 'max:20'],
+                'ninea'                 => ['nullable', 'string', 'max:20'],
+                'assujetti_tva'         => ['boolean'],
+            ]);
+            $user->proprietaire->update($profilData);
+        }
+
+        if ($user->role === 'locataire' && $user->locataire) {
+            $profilData = $request->validate([
+                'cni'                   => ['nullable', 'string', 'max:20'],
+                'date_naissance'        => ['nullable', 'date'],
+                'genre'                 => ['nullable', 'in:M,F'],
+                'nationalite'           => ['nullable', 'string', 'max:50'],
+                'profession'            => ['nullable', 'string', 'max:100'],
+                'employeur'             => ['nullable', 'string', 'max:150'],
+                'revenu_mensuel'        => ['nullable', 'numeric', 'min:0'],
+                'ville'                 => ['nullable', 'string', 'max:100'],
+                'quartier'              => ['nullable', 'string', 'max:100'],
+            ]);
+            $user->locataire->update($profilData);
+        }
+
+        return redirect()
+            ->route('admin.users.show', $user)
+            ->with('success', 'Utilisateur mis à jour ✓');
+    }
 
     // ── Suppression ───────────────────────────────────────────────────────
     public function destroy(User $user)

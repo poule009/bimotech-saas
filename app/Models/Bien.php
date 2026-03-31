@@ -13,6 +13,26 @@ class Bien extends Model
 {
     use HasFactory, SoftDeletes, LogsActivity;
 
+    // ── Types de biens courants au Sénégal ────────────────────────────────
+    public const TYPES = [
+        'appartement'       => 'Appartement',
+        'villa'             => 'Villa',
+        'studio'            => 'Studio',
+        'chambre'           => 'Chambre',
+        'bureau'            => 'Bureau',
+        'local_commercial'  => 'Local commercial',
+        'entrepot'          => 'Entrepôt',
+        'terrain'           => 'Terrain',
+        'maison'            => 'Maison',
+        'duplex'            => 'Duplex',
+    ];
+
+    public const STATUTS = [
+        'disponible'  => 'Disponible',
+        'loue'        => 'Loué',
+        'en_travaux'  => 'En travaux',
+    ];
+
     protected $fillable = [
         'agency_id',
         'proprietaire_id',
@@ -20,8 +40,11 @@ class Bien extends Model
         'type',
         'adresse',
         'ville',
+        'quartier',
+        'commune',
         'surface_m2',
         'nombre_pieces',
+        'meuble',
         'loyer_mensuel',
         'taux_commission',
         'statut',
@@ -31,6 +54,9 @@ class Bien extends Model
     protected $casts = [
         'loyer_mensuel'   => 'decimal:2',
         'taux_commission' => 'decimal:2',
+        'surface_m2'      => 'integer',
+        'nombre_pieces'   => 'integer',
+        'meuble'          => 'boolean',
     ];
 
     // ── Global Scope ──────────────────────────────────────────────────────

@@ -46,8 +46,9 @@ class ContratController extends Controller
             ->orderBy('reference')
             ->get();
 
-        // Locataires
+        // Locataires — filtrés par agence
         $locataires = User::where('role', 'locataire')
+            ->where('agency_id', Auth::user()->agency_id)
             ->orderBy('name')
             ->get();
 
@@ -69,9 +70,7 @@ class ContratController extends Controller
         $agencyId = Auth::user()->agency_id;
 
         $validated = $request->validate([
-            // BUG 8 FIX : validation cross-agence pour bien_id.
-            // exists:biens,id ne tient pas compte de l'AgencyScope.
-            // On vérifie explicitement que le bien appartient à la même agence.
+            // Validation cross-agence pour bien_id
             'bien_id' => [
                 'required',
                 'exists:biens,id',
@@ -82,8 +81,7 @@ class ContratController extends Controller
                     }
                 },
             ],
-            // BUG 8 FIX : validation cross-agence pour locataire_id.
-            // User n'a pas d'AgencyScope — vérification manuelle obligatoire.
+            // Validation cross-agence pour locataire_id
             'locataire_id' => [
                 'required',
                 'exists:users,id',
@@ -94,10 +92,18 @@ class ContratController extends Controller
                     }
                 },
             ],
-            'date_debut'   => ['required', 'date'],
-            'date_fin'     => ['nullable', 'date', 'after:date_debut'],
-            'caution'      => ['required', 'numeric', 'min:0'],
-            'observations' => ['nullable', 'string', 'max:1000'],
+            'date_debut'          => ['required', 'date'],
+            'date_fin'            => ['nullable', 'date', 'after:date_debut'],
+            'caution'             => ['required', 'numeric', 'min:0'],
+            'type_bail'           => ['required', 'in:habitation,commercial,mixte,saisonnier'],
+            'frais_agence'        => ['nullable', 'numeric', 'min:0'],
+            'charges_mensuelles'  => ['nullable', 'numeric', 'min:0'],
+            'indexation_annuelle' => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'nombre_mois_caution' => ['nullable', 'integer', 'min:1', 'max:6'],
+            'garant_nom'          => ['nullable', 'string', 'max:150'],
+            'garant_telephone'    => ['nullable', 'string', 'max:20'],
+            'garant_adresse'      => ['nullable', 'string', 'max:255'],
+            'observations'        => ['nullable', 'string', 'max:1000'],
         ]);
 
         // Vérifier qu'il n'y a pas déjà un contrat actif sur ce bien
@@ -115,14 +121,22 @@ class ContratController extends Controller
         $bien = Bien::findOrFail($validated['bien_id']);
 
         $contrat = Contrat::create([
-            'bien_id'           => $validated['bien_id'],
-            'locataire_id'      => $validated['locataire_id'],
-            'date_debut'        => $validated['date_debut'],
-            'date_fin'          => $validated['date_fin'] ?? null,
-            'loyer_contractuel' => $bien->loyer_mensuel,
-            'caution'           => $validated['caution'],
-            'statut'            => 'actif',
-            'observations'      => $validated['observations'] ?? null,
+            'bien_id'             => $validated['bien_id'],
+            'locataire_id'        => $validated['locataire_id'],
+            'date_debut'          => $validated['date_debut'],
+            'date_fin'            => $validated['date_fin'] ?? null,
+            'loyer_contractuel'   => $bien->loyer_mensuel,
+            'caution'             => $validated['caution'],
+            'statut'              => 'actif',
+            'type_bail'           => $validated['type_bail'] ?? 'habitation',
+            'frais_agence'        => $validated['frais_agence'] ?? 0,
+            'charges_mensuelles'  => $validated['charges_mensuelles'] ?? 0,
+            'indexation_annuelle' => $validated['indexation_annuelle'] ?? 0,
+            'nombre_mois_caution' => $validated['nombre_mois_caution'] ?? 1,
+            'garant_nom'          => $validated['garant_nom'] ?? null,
+            'garant_telephone'    => $validated['garant_telephone'] ?? null,
+            'garant_adresse'      => $validated['garant_adresse'] ?? null,
+            'observations'        => $validated['observations'] ?? null,
         ]);
 
         // Met à jour le statut du bien
@@ -182,6 +196,74 @@ class ContratController extends Controller
             'id'      => $user->id,
             'name'    => $user->name,
         ]);
+    }
+
+    // ── Formulaire édition ────────────────────────────────────────────────
+    public function edit(Contrat $contrat)
+    {
+        $this->authorize('update', $contrat);
+
+        $contrat->load('bien', 'locataire');
+
+        // Biens disponibles + le bien actuel du contrat
+        $biens = Bien::where(function ($q) use ($contrat) {
+            $q->where('statut', 'disponible')
+              ->orWhere('id', $contrat->bien_id);
+        })->with('proprietaire')->orderBy('reference')->get();
+
+        $locataires = User::where('role', 'locataire')
+            ->where('agency_id', Auth::user()->agency_id)
+            ->orderBy('name')
+            ->get();
+
+        $typesBail = \App\Models\Contrat::TYPES_BAIL;
+
+        return view('admin.contrats.edit', compact('contrat', 'biens', 'locataires', 'typesBail'));
+    }
+
+    // ── Mise à jour ───────────────────────────────────────────────────────
+    public function update(Request $request, Contrat $contrat)
+    {
+        $this->authorize('update', $contrat);
+
+        // Seuls les contrats actifs peuvent être modifiés
+        if ($contrat->statut !== 'actif') {
+            return back()->withErrors(['general' => 'Seul un contrat actif peut être modifié.']);
+        }
+
+        $validated = $request->validate([
+            'date_fin'            => ['nullable', 'date', 'after:date_debut'],
+            'loyer_contractuel'   => ['required', 'numeric', 'min:1'],
+            'caution'             => ['required', 'numeric', 'min:0'],
+            'type_bail'           => ['required', 'in:habitation,commercial,mixte,saisonnier'],
+            'frais_agence'        => ['nullable', 'numeric', 'min:0'],
+            'charges_mensuelles'  => ['nullable', 'numeric', 'min:0'],
+            'indexation_annuelle' => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'nombre_mois_caution' => ['nullable', 'integer', 'min:1', 'max:6'],
+            'garant_nom'          => ['nullable', 'string', 'max:150'],
+            'garant_telephone'    => ['nullable', 'string', 'max:20'],
+            'garant_adresse'      => ['nullable', 'string', 'max:255'],
+            'observations'        => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $contrat->update([
+            'date_fin'            => $validated['date_fin'] ?? null,
+            'loyer_contractuel'   => $validated['loyer_contractuel'],
+            'caution'             => $validated['caution'],
+            'type_bail'           => $validated['type_bail'],
+            'frais_agence'        => $validated['frais_agence'] ?? 0,
+            'charges_mensuelles'  => $validated['charges_mensuelles'] ?? 0,
+            'indexation_annuelle' => $validated['indexation_annuelle'] ?? 0,
+            'nombre_mois_caution' => $validated['nombre_mois_caution'] ?? 1,
+            'garant_nom'          => $validated['garant_nom'] ?? null,
+            'garant_telephone'    => $validated['garant_telephone'] ?? null,
+            'garant_adresse'      => $validated['garant_adresse'] ?? null,
+            'observations'        => $validated['observations'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('admin.contrats.show', $contrat)
+            ->with('success', 'Contrat mis à jour ✓');
     }
 
     // ── Résiliation d'un contrat ──────────────────────────────────────────

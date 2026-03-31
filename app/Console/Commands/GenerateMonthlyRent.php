@@ -19,6 +19,7 @@ class GenerateMonthlyRent extends Command
         $periode = Carbon::now()->startOfMonth();
 
         $contratsActifs = Contrat::query()
+            ->with('bien') // ← Chargement eager pour éviter N+1 et accéder à taux_commission
             ->where('statut', 'actif')
             ->where(function ($q) use ($periode) {
                 $q->whereNull('date_fin')
@@ -46,8 +47,9 @@ class GenerateMonthlyRent extends Command
                         return;
                     }
 
-                    $tauxCommission = (float) ($contrat->taux_commission ?? 0);
-                    $montantLoyer = (float) $contrat->loyer_contractuel;
+                    // CORRECTION : taux_commission est sur Bien, pas sur Contrat
+                    $tauxCommission = (float) ($contrat->bien->taux_commission ?? 0);
+                    $montantLoyer   = (float) $contrat->loyer_contractuel;
 
                     $calc = Paiement::calculerMontants($montantLoyer, $tauxCommission);
 

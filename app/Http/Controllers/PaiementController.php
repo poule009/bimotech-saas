@@ -129,6 +129,8 @@ class PaiementController extends Controller
                 $montantEnLettres = \App\Services\NombreEnLettres::convertir($paiement->montant_encaisse);
                 $netEnLettres     = \App\Services\NombreEnLettres::convertir($paiement->net_proprietaire);
 
+                // CORRECTION P0 : données agence dynamiques (plus de hardcode)
+                $agency = $paiement->agency ?? Auth::user()->agency;
                 $data = [
                     'paiement'         => $paiement,
                     'contrat'          => $paiement->contrat,
@@ -138,11 +140,12 @@ class PaiementController extends Controller
                     'montantEnLettres' => $montantEnLettres,
                     'netEnLettres'     => $netEnLettres,
                     'agence' => [
-                        'nom'       => 'BIMO-Tech Immobilier',
-                        'adresse'   => 'Dakar, Sénégal',
-                        'telephone' => '+221 33 000 00 00',
-                        'email'     => 'contact@bimotech.sn',
-                        'ninea'     => 'NINEA : 00000000000',
+                        'nom'       => $agency->name       ?? 'Agence Immobilière',
+                        'adresse'   => $agency->adresse    ?? 'Dakar, Sénégal',
+                        'telephone' => $agency->telephone  ?? '',
+                        'email'     => $agency->email      ?? '',
+                        'ninea'     => $agency->ninea      ? 'NINEA : ' . $agency->ninea : '',
+                        'logo_path' => $agency->logo_path  ?? null,
                     ],
                 ];
 
@@ -242,6 +245,8 @@ class PaiementController extends Controller
         $montantEnLettres = \App\Services\NombreEnLettres::convertir($paiement->montant_encaisse);
         $netEnLettres     = \App\Services\NombreEnLettres::convertir($paiement->net_proprietaire);
 
+        // CORRECTION P0 : données agence dynamiques (fallback PDF)
+        $agency = $paiement->agency ?? Auth::user()->agency;
         $data = [
             'paiement'         => $paiement,
             'contrat'          => $paiement->contrat,
@@ -251,11 +256,12 @@ class PaiementController extends Controller
             'montantEnLettres' => $montantEnLettres,
             'netEnLettres'     => $netEnLettres,
             'agence' => [
-                'nom'       => 'BIMO-Tech Immobilier',
-                'adresse'   => 'Dakar, Sénégal',
-                'telephone' => '+221 33 000 00 00',
-                'email'     => 'contact@bimotech.sn',
-                'ninea'     => 'NINEA : 00000000000',
+                'nom'       => $agency->name       ?? 'Agence Immobilière',
+                'adresse'   => $agency->adresse    ?? 'Dakar, Sénégal',
+                'telephone' => $agency->telephone  ?? '',
+                'email'     => $agency->email      ?? '',
+                'ninea'     => $agency->ninea      ? 'NINEA : ' . $agency->ninea : '',
+                'logo_path' => $agency->logo_path  ?? null,
             ],
         ];
 

@@ -12,6 +12,25 @@ class Paiement extends Model
 {
     use HasFactory, LogsActivity;
 
+    // ── Modes de paiement disponibles au Sénégal ──────────────────────────
+    public const MODES_PAIEMENT = [
+        'especes'      => 'Espèces',
+        'virement'     => 'Virement bancaire',
+        'cheque'       => 'Chèque',
+        'wave'         => 'Wave',
+        'orange_money' => 'Orange Money',
+        'free_money'   => 'Free Money',
+        'mobile_money' => 'Mobile Money (autre)',
+    ];
+
+    public const STATUTS = [
+        'en_attente' => 'En attente',
+        'valide'     => 'Validé',
+        'annule'     => 'Annulé',
+        'impaye'     => 'Impayé',
+        'unpaid'     => 'Non payé',
+    ];
+
     protected $fillable = [
         'agency_id',
         'contrat_id',

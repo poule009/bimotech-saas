@@ -4,12 +4,16 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BienController;
+use App\Http\Controllers\ContratController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ImpayeController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RapportController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -42,8 +46,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('subscription')->name('subscription.')->group(function () {
         Route::get('/', [SubscriptionController::class, 'index'])
              ->name('index');
-        Route::post('/payer', [SubscriptionController::class, 'simulerPaiement'])
-             ->name('payer');
+        // Initier un paiement (redirige vers PayDunya ou simule)
+        Route::post('/initier', [SubscriptionController::class, 'initierPaiement'])
+             ->name('initier');
+        // Callback PayDunya (IPN — webhook)
+        Route::post('/callback', [SubscriptionController::class, 'callbackPaydunya'])
+             ->name('callback')->withoutMiddleware(['auth', 'verified']);
+        // Retour succès/échec depuis PayDunya
+        Route::get('/succes', [SubscriptionController::class, 'succes'])
+             ->name('succes');
+        Route::get('/echec', [SubscriptionController::class, 'echec'])
+             ->name('echec');
     });
 
     // ── Dashboard SuperAdmin ──────────────────────────────────────────────
@@ -104,32 +117,40 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])
                  ->name('paiements.annuler');
 
-            Route::resource('contrats', \App\Http\Controllers\ContratController::class)
-                 ->only(['index', 'create', 'store', 'show', 'destroy']);
-            Route::post('contrats/locataire-rapide', [\App\Http\Controllers\ContratController::class, 'storeLocataireRapide'])
+            Route::resource('contrats', ContratController::class)
+                 ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+            Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])
                  ->name('contrats.locataire-rapide');
 
             Route::prefix('users')->name('users.')->group(function () {
-                Route::get('proprietaires', [\App\Http\Controllers\UserController::class, 'proprietaires'])
+                Route::get('proprietaires', [UserController::class, 'proprietaires'])
                      ->name('proprietaires');
-                Route::get('locataires', [\App\Http\Controllers\UserController::class, 'locataires'])
+                Route::get('locataires', [UserController::class, 'locataires'])
                      ->name('locataires');
-                Route::get('{user}', [\App\Http\Controllers\UserController::class, 'show'])
-                     ->name('show');
-                Route::get('create/{role}', [\App\Http\Controllers\UserController::class, 'create'])
+                // Routes statiques AVANT les routes dynamiques {user}
+                Route::get('create/{role}', [UserController::class, 'create'])
                      ->name('create');
-                Route::post('store', [\App\Http\Controllers\UserController::class, 'store'])
+                Route::post('store', [UserController::class, 'store'])
                      ->name('store');
-                Route::delete('{user}', [\App\Http\Controllers\UserController::class, 'destroy'])
+                // Routes dynamiques {user}
+                Route::get('{user}', [UserController::class, 'show'])
+                     ->name('show');
+                Route::get('{user}/edit', [UserController::class, 'edit'])
+                     ->name('edit');
+                Route::patch('{user}', [UserController::class, 'update'])
+                     ->name('update');
+                Route::delete('{user}', [UserController::class, 'destroy'])
                      ->name('destroy');
             });
 
-            Route::get('rapports/financier', [\App\Http\Controllers\RapportController::class, 'financier'])
+            Route::get('rapports/financier', [RapportController::class, 'financier'])
                  ->name('rapports.financier');
+            Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])
+                 ->name('rapports.financier.export-pdf');
 
-            Route::get('impayes', [\App\Http\Controllers\ImpayeController::class, 'index'])
+            Route::get('impayes', [ImpayeController::class, 'index'])
                  ->name('impayes.index');
-            Route::post('impayes/{contrat}/relance', [\App\Http\Controllers\ImpayeController::class, 'relance'])
+            Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])
                  ->name('impayes.relance');
     });
 

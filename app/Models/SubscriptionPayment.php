@@ -34,8 +34,10 @@ class SubscriptionPayment extends Model
         'paydunya'     => 'PayDunya',
         'wave'         => 'Wave',
         'orange_money' => 'Orange Money',
+        'free_money'   => 'Free Money',
         'virement'     => 'Virement bancaire',
         'manuel'       => 'Manuel (SuperAdmin)',
+        'simulation'   => 'Simulation (Test)',
     ];
 
     public const STATUT_LABELS = [

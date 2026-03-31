@@ -150,7 +150,7 @@
 
                     <form
                         method="POST"
-                        action="{{ route('subscription.payer') }}"
+                        action="{{ route('subscription.initier') }}"
                         class="mt-6"
                         onsubmit="return confirm('Confirmer l\'abonnement {{ $plan['label'] }} à {{ $plan['prix'] }} FCFA ?')"
                     >
