@@ -3,83 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        /* ═══════════════════════════════════════════════════════════
+           BASE
+        ═══════════════════════════════════════════════════════════ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: "DejaVu Sans", sans-serif;
-            font-size: 11px;
-            color: #1a1a2e;
-            background: #fff;
+            font-family: "DejaVu Sans", Arial, sans-serif;
+            font-size: 10.5px;
+            color: #1C1C2E;
+            background: #FFFFFF;
+            line-height: 1.5;
         }
 
-        /* ── En-tête ── */
+        /* ═══════════════════════════════════════════════════════════
+           WATERMARK
+        ═══════════════════════════════════════════════════════════ */
+        .watermark {
+            position: fixed;
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-38deg);
+            font-size: 68px;
+            font-weight: bold;
+            color: rgba(30, 58, 95, 0.035);
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           EN-TÊTE
+        ═══════════════════════════════════════════════════════════ */
         .header {
             background: #1E3A5F;
-            color: white;
-            padding: 24px 32px;
-            margin-bottom: 0;
+            color: #FFFFFF;
+            padding: 22px 30px 18px;
         }
-        .header-inner {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+        .header-table {
+            width: 100%;
+            display: table;
+            border-collapse: collapse;
         }
-        .logo-zone { }
-        .logo-nom {
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 1px;
+        .header-left {
+            display: table-cell;
+            width: 58%;
+            vertical-align: middle;
         }
-        .logo-slogan {
-            font-size: 9px;
-            opacity: 0.75;
-            margin-top: 2px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .agence-info {
-            font-size: 9px;
-            opacity: 0.85;
-            line-height: 1.8;
+        .header-right {
+            display: table-cell;
+            width: 42%;
+            vertical-align: middle;
             text-align: right;
         }
-
-        /* ── Bandeau titre ── */
-        .titre-bandeau {
-            background: #F0F4FF;
-            border-left: 5px solid #1E3A5F;
-            padding: 12px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
+        .agence-nom {
+            font-size: 21px;
+            font-weight: bold;
+            letter-spacing: .5px;
+            margin-bottom: 2px;
         }
-        .titre-bandeau h1 {
+        .agence-activite {
+            font-size: 9px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            opacity: .65;
+            margin-bottom: 6px;
+        }
+        .agence-mandataire {
+            display: inline-block;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 4px;
+            padding: 3px 9px;
+            font-size: 8.5px;
+            letter-spacing: .5px;
+            color: #A5C8F0;
+            margin-top: 2px;
+        }
+        .agence-coords {
+            font-size: 9px;
+            line-height: 1.8;
+            opacity: .82;
+        }
+        .agence-ninea {
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 9px;
+            font-weight: bold;
+            background: rgba(251, 191, 36, .15);
+            border: 1px solid rgba(251, 191, 36, .4);
+            border-radius: 3px;
+            padding: 2px 8px;
+            color: #FCD34D;
+            letter-spacing: .5px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           BANDEAU TITRE
+        ═══════════════════════════════════════════════════════════ */
+        .titre-band {
+            background: #EEF3FB;
+            border-left: 5px solid #1E3A5F;
+            padding: 12px 30px;
+            display: table;
+            width: 100%;
+        }
+        .titre-left  { display: table-cell; vertical-align: middle; }
+        .titre-right { display: table-cell; vertical-align: middle; text-align: right; }
+        .titre-h1 {
             font-size: 15px;
             font-weight: bold;
-            color: #1E3A5F;
             text-transform: uppercase;
             letter-spacing: 2px;
+            color: #1E3A5F;
         }
-        .ref-bloc {
-            text-align: right;
+        .titre-periode {
+            font-size: 10px;
+            color: #4B5563;
+            margin-top: 2px;
         }
         .ref-label {
-            font-size: 9px;
-            color: #888;
+            font-size: 8px;
             text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #9CA3AF;
         }
         .ref-value {
-            font-size: 11px;
+            font-size: 10.5px;
+            font-weight: bold;
+            color: #1E3A5F;
+            margin-top: 1px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           BANDEAU RÉFÉRENCE BAIL
+        ═══════════════════════════════════════════════════════════ */
+        .bail-band {
+            background: #F0F4FF;
+            border: 1px solid #C7D2FE;
+            border-radius: 6px;
+            margin: 14px 30px;
+            padding: 10px 16px;
+            display: table;
+            width: calc(100% - 60px);
+        }
+        .bail-cell {
+            display: table-cell;
+            vertical-align: middle;
+            padding-right: 24px;
+            font-size: 9px;
+            color: #374151;
+        }
+        .bail-cell:last-child { padding-right: 0; }
+        .bail-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: #6B7280;
+            margin-bottom: 2px;
+        }
+        .bail-value {
+            font-size: 10px;
             font-weight: bold;
             color: #1E3A5F;
         }
 
-        /* ── Sections ── */
-        .body-content { padding: 0 32px; }
-        .section { margin-bottom: 20px; }
+        /* ═══════════════════════════════════════════════════════════
+           CORPS
+        ═══════════════════════════════════════════════════════════ */
+        .body { padding: 0 30px; }
+
+        .section { margin-bottom: 16px; }
         .section-title {
-            font-size: 9px;
+            font-size: 8.5px;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -90,363 +188,529 @@
         }
 
         /* ── Grille 2 colonnes ── */
-        .grid-2 {
+        .grid2 {
             display: table;
             width: 100%;
             border-collapse: separate;
-            border-spacing: 12px 0;
+            border-spacing: 10px 0;
         }
         .col {
             display: table-cell;
             width: 50%;
-            background: #F8F9FC;
-            border: 1px solid #E8ECF4;
-            border-radius: 6px;
-            padding: 12px 14px;
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-radius: 5px;
+            padding: 11px 13px;
             vertical-align: top;
         }
-        .col-label {
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #999;
-            margin-bottom: 4px;
-        }
-        .col-value {
-            font-size: 12px;
-            font-weight: bold;
-            color: #1a1a2e;
-        }
-        .col-sub {
-            font-size: 9px;
-            color: #666;
-            margin-top: 3px;
-            line-height: 1.6;
-        }
+        .col-label  { font-size: 8px; text-transform: uppercase; letter-spacing: .8px; color: #9CA3AF; margin-bottom: 3px; }
+        .col-value  { font-size: 11.5px; font-weight: bold; color: #111827; }
+        .col-sub    { font-size: 8.5px; color: #6B7280; margin-top: 3px; line-height: 1.6; }
 
-        /* ── Tableau montants ── */
+        /* ── Tableau ventilé ── */
         .montant-table {
             width: 100%;
             border-collapse: collapse;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            overflow: hidden;
         }
-        .montant-table tr td {
-            padding: 9px 14px;
-            border-bottom: 1px solid #F0F0F0;
-            font-size: 11px;
+        .montant-table th,
+        .montant-table td {
+            padding: 8px 14px;
+            font-size: 10.5px;
+            text-align: left;
+            border-bottom: 1px solid #F3F4F6;
         }
-        .montant-table tr td:last-child {
-            text-align: right;
-            font-weight: bold;
-        }
-        .montant-table .row-tva td {
-            color: #888;
-            font-size: 10px;
-            font-style: italic;
-            background: #FAFAFA;
-        }
-        .montant-table .row-total td {
+        .montant-table th {
             background: #1E3A5F;
-            color: white;
-            font-size: 13px;
+            color: #FFFFFF;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             font-weight: bold;
-            padding: 12px 14px;
+            border-bottom: none;
         }
-        .montant-table .row-net td {
-            background: #E8F5E9;
-            color: #2E7D32;
+        .montant-table th:last-child,
+        .montant-table td:last-child {
+            text-align: right;
+            white-space: nowrap;
+        }
+        .row-loyer-nu td   { background: #FAFAFA; }
+        .row-charges td    { color: #374151; background: #FAFAFA; font-size: 10px; }
+        .row-tom td        { color: #374151; background: #FFF8F0; font-size: 10px; }
+        .row-subtotal td   {
+            background: #EEF3FB;
+            font-weight: bold;
+            font-size: 11px;
+            color: #1E3A5F;
+            border-top: 1.5px solid #C7D2FE;
+            border-bottom: 1.5px solid #C7D2FE;
+        }
+        .row-sep th {
+            background: #F3F4F6;
+            color: #6B7280;
+            font-size: 8px;
+            letter-spacing: .5px;
+            padding: 5px 14px;
+        }
+        .row-comm td       { font-size: 10px; }
+        .row-tva td        { font-size: 9.5px; color: #9CA3AF; font-style: italic; background: #FAFAFA; }
+        .row-comm-ttc td   { color: #D97706; font-size: 10px; }
+        .row-total td {
+            background: #1E3A5F;
+            color: #FFFFFF;
             font-size: 12px;
             font-weight: bold;
+            padding: 11px 14px;
+            border-bottom: none;
+        }
+        .row-net td {
+            background: #ECFDF5;
+            color: #065F46;
+            font-size: 11.5px;
+            font-weight: bold;
+            border-bottom: none;
+            border-top: 2px solid #6EE7B7;
         }
 
         /* ── Montant en lettres ── */
         .lettres-bloc {
-            background: #FFF8E1;
-            border: 1px solid #FFE082;
-            border-radius: 6px;
-            padding: 10px 14px;
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-radius: 5px;
+            padding: 9px 13px;
             margin-top: 10px;
         }
         .lettres-label {
             font-size: 8px;
             text-transform: uppercase;
-            color: #F59E0B;
-            letter-spacing: 1px;
-            margin-bottom: 3px;
+            letter-spacing: .8px;
+            color: #D97706;
+            margin-bottom: 2px;
         }
         .lettres-value {
-            font-size: 11px;
+            font-size: 10.5px;
             font-style: italic;
-            color: #78350F;
             font-weight: bold;
+            color: #78350F;
         }
+        .lettres-net {
+            background: #F0FFF4;
+            border-color: #6EE7B7;
+            margin-top: 6px;
+        }
+        .lettres-net .lettres-label { color: #059669; }
+        .lettres-net .lettres-value { color: #065F46; }
 
         /* ── Caution ── */
         .caution-bloc {
             background: #EEF2FF;
             border-left: 4px solid #6366F1;
-            padding: 10px 14px;
-            border-radius: 0 6px 6px 0;
+            border-radius: 0 5px 5px 0;
+            padding: 10px 13px;
             margin-top: 10px;
-            font-size: 10px;
+            font-size: 9.5px;
             color: #3730A3;
+            line-height: 1.6;
         }
 
-        /* ── Pied de page ── */
+        /* ═══════════════════════════════════════════════════════════
+           MENTIONS LÉGALES
+        ═══════════════════════════════════════════════════════════ */
+        .mentions {
+            background: #FFF7ED;
+            border: 1px solid #FED7AA;
+            border-radius: 5px;
+            padding: 11px 15px;
+            margin: 14px 30px;
+            font-size: 8.5px;
+            color: #9A3412;
+            line-height: 1.7;
+        }
+        .mentions-titre {
+            font-size: 8.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 4px;
+            color: #7C2D12;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           PIED DE PAGE
+        ═══════════════════════════════════════════════════════════ */
         .footer {
-            margin-top: 30px;
-            padding: 0 32px 24px;
+            padding: 0 30px 22px;
+            margin-top: 18px;
         }
         .footer-grid {
             display: table;
             width: 100%;
+            border-top: 1px solid #E5E7EB;
+            padding-top: 12px;
+            border-collapse: separate;
+            border-spacing: 12px 0;
         }
-        .footer-left {
+        .footer-col-legal {
             display: table-cell;
-            width: 60%;
+            width: 55%;
             vertical-align: bottom;
         }
-        .footer-right {
+        .footer-col-sign {
             display: table-cell;
-            width: 40%;
+            width: 25%;
             text-align: center;
             vertical-align: bottom;
         }
-        .legal {
-            font-size: 8px;
-            color: #aaa;
-            line-height: 1.6;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+        .footer-col-doc {
+            display: table-cell;
+            width: 20%;
+            text-align: center;
+            vertical-align: bottom;
         }
-        .signature-box {
-            border: 1px dashed #ccc;
+        .legal-text {
+            font-size: 7.5px;
+            color: #9CA3AF;
+            line-height: 1.7;
+        }
+        .sign-box {
+            border: 1px dashed #D1D5DB;
             border-radius: 6px;
-            padding: 30px 20px 10px;
+            padding: 18px 12px 8px;
             text-align: center;
         }
-        .signature-label {
-            font-size: 9px;
-            color: #999;
-            margin-top: 8px;
-        }
-        .cachet {
-            width: 80px;
-            height: 80px;
-            border: 2px solid #1E3A5F;
+        .tampon {
+            width: 68px;
+            height: 68px;
+            border: 2.5px solid #1E3A5F;
             border-radius: 50%;
-            margin: 0 auto 8px;
+            margin: 0 auto 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #1E3A5F;
-            font-size: 8px;
+            font-size: 7.5px;
             font-weight: bold;
             text-align: center;
             line-height: 1.4;
         }
-
-        /* ── Watermark statut ── */
-        .watermark {
-            position: fixed;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-35deg);
-            font-size: 72px;
-            font-weight: bold;
-            color: rgba(30, 58, 95, 0.04);
-            letter-spacing: 8px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            pointer-events: none;
+        .sign-label { font-size: 7.5px; color: #9CA3AF; margin-top: 4px; }
+        .doc-ref-box {
+            border: 1px solid #E5E7EB;
+            border-radius: 5px;
+            padding: 10px 8px;
+            background: #F9FAFB;
         }
+        .doc-ref-label { font-size: 7px; color: #9CA3AF; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+        .doc-ref-value { font-size: 8.5px; font-weight: bold; color: #374151; word-break: break-all; }
     </style>
 </head>
 <body>
 
-<div class="watermark">BIMO-TECH</div>
+<div class="watermark">QUITTANCE OFFICIELLE</div>
 
-{{-- ── EN-TÊTE ─────────────────────────────────────────────────────────────── --}}
+{{-- ═══════════════════════════════════════════════════════════
+     EN-TÊTE AGENCE
+═══════════════════════════════════════════════════════════ --}}
 <div class="header">
-    <div class="header-inner">
-        <div class="logo-zone">
-            <div class="logo-nom">🏢 BIMO-Tech</div>
-            <div class="logo-slogan">Immobilier · Gestion · Conseil</div>
+    <div class="header-table">
+        <div class="header-left">
+            <div class="agence-nom">{{ $agence['nom'] }}</div>
+            <div class="agence-activite">Agence Immobilière · Gestion Locative</div>
+            <div class="agence-mandataire">Mandataire du Propriétaire Bailleur</div>
         </div>
-        <div class="agence-info">
-            {{ $agence['adresse'] }}<br>
-            Tél : {{ $agence['telephone'] }}<br>
-            {{ $agence['email'] }}<br>
-            {{ $agence['ninea'] }}
+        <div class="header-right">
+            <div class="agence-coords">
+                {{ $agence['adresse'] }}<br>
+                Tél : {{ $agence['telephone'] }}<br>
+                {{ $agence['email'] }}
+            </div>
+            @if($agence['ninea'])
+                <div class="agence-ninea">{{ $agence['ninea'] }}</div>
+            @endif
+            @if(!empty($agence['rccm']))
+                <div style="margin-top:3px;font-size:8.5px;color:#A5C8F0;">RCCM : {{ $agence['rccm'] }}</div>
+            @endif
         </div>
     </div>
 </div>
 
-{{-- ── TITRE ────────────────────────────────────────────────────────────────── --}}
-<div class="titre-bandeau">
-    <h1>Quittance de Loyer</h1>
-    <div class="ref-bloc">
-        <div class="ref-label">Référence</div>
+{{-- ═══════════════════════════════════════════════════════════
+     BANDEAU TITRE
+═══════════════════════════════════════════════════════════ --}}
+<div class="titre-band">
+    <div class="titre-left">
+        <div class="titre-h1">Quittance de Loyer</div>
+        <div class="titre-periode">
+            Période : {{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}
+        </div>
+    </div>
+    <div class="titre-right">
+        <div class="ref-label">N° Quittance</div>
         <div class="ref-value">{{ $paiement->reference_paiement }}</div>
-        <div class="ref-label" style="margin-top:4px">Date d'émission</div>
+        <div class="ref-label" style="margin-top:6px;">Date d'émission</div>
         <div class="ref-value">{{ now()->format('d/m/Y') }}</div>
     </div>
 </div>
 
-<div class="body-content">
+{{-- ═══════════════════════════════════════════════════════════
+     BANDEAU RÉFÉRENCE BAIL
+═══════════════════════════════════════════════════════════ --}}
+<div class="bail-band">
+    <div class="bail-cell">
+        <div class="bail-label">Référence du contrat de bail</div>
+        <div class="bail-value">{{ $referenceBail }}</div>
+    </div>
+    <div class="bail-cell">
+        <div class="bail-label">Date de signature</div>
+        <div class="bail-value">{{ \Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y') }}</div>
+    </div>
+    <div class="bail-cell">
+        <div class="bail-label">Type de bail</div>
+        <div class="bail-value">{{ ucfirst($contrat->type_bail ?? 'Habitation') }}</div>
+    </div>
+    <div class="bail-cell">
+        <div class="bail-label">Échéance</div>
+        <div class="bail-value">
+            @if($contrat->date_fin)
+                {{ \Carbon\Carbon::parse($contrat->date_fin)->format('d/m/Y') }}
+            @else
+                Indéterminée
+            @endif
+        </div>
+    </div>
+</div>
 
-    {{-- ── PARTIES ──────────────────────────────────────────────────────────── --}}
+<div class="body">
+
+    {{-- ═══════════════════════════════════════════════════════════
+         PARTIES
+    ═══════════════════════════════════════════════════════════ --}}
     <div class="section">
-        <div class="section-title">Parties concernées</div>
-        <div class="grid-2">
+        <div class="section-title">Parties au contrat</div>
+        <div class="grid2">
             <div class="col">
                 <div class="col-label">Bailleur (Propriétaire)</div>
                 <div class="col-value">{{ $proprietaire->name }}</div>
                 <div class="col-sub">
                     {{ $proprietaire->adresse ?? 'Adresse non renseignée' }}<br>
-                    {{ $proprietaire->telephone ?? '' }}
+                    Tél : {{ $proprietaire->telephone ?? 'Non renseigné' }}<br>
+                    <em>Représenté par {{ $agence['nom'] }}</em>
                 </div>
             </div>
             <div class="col">
                 <div class="col-label">Locataire</div>
                 <div class="col-value">{{ $locataire->name }}</div>
                 <div class="col-sub">
-                    {{ $bien->adresse }}, {{ $bien->ville }}<br>
-                    {{ $locataire->telephone ?? '' }}
+                    {{ $locataire->adresse ?? ($bien->adresse . ', ' . $bien->ville) }}<br>
+                    Tél : {{ $locataire->telephone ?? 'Non renseigné' }}
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ── BIEN ─────────────────────────────────────────────────────────────── --}}
+    {{-- ═══════════════════════════════════════════════════════════
+         BIEN LOUÉ
+    ═══════════════════════════════════════════════════════════ --}}
     <div class="section">
         <div class="section-title">Bien loué</div>
-        <div class="col" style="display:block; width:auto;">
+        <div class="col" style="display:block;width:auto;">
             <div class="col-value">
                 {{ $bien->type }} — Réf. {{ $bien->reference }}
+                @if($bien->meuble) &nbsp;·&nbsp; <em>Meublé</em> @endif
             </div>
             <div class="col-sub">
-                {{ $bien->adresse }}, {{ $bien->ville }}
-                @if($bien->surface_m2) · {{ $bien->surface_m2 }} m² @endif
-                @if($bien->nombre_pieces) · {{ $bien->nombre_pieces }} pièce(s) @endif
-                <br>
-                Contrat du {{ \Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y') }}
-                @if($contrat->date_fin)
-                    au {{ \Carbon\Carbon::parse($contrat->date_fin)->format('d/m/Y') }}
-                @else
-                    · Durée indéterminée
-                @endif
+                {{ $bien->adresse }}
+                @if($bien->quartier), {{ $bien->quartier }}@endif
+                @if($bien->commune), {{ $bien->commune }}@endif
+                , {{ $bien->ville }}
+                @if($bien->surface_m2) &nbsp;·&nbsp; {{ $bien->surface_m2 }} m²@endif
+                @if($bien->nombre_pieces) &nbsp;·&nbsp; {{ $bien->nombre_pieces }} pièce(s)@endif
             </div>
         </div>
     </div>
 
-    {{-- ── PÉRIODE ──────────────────────────────────────────────────────────── --}}
+    {{-- ═══════════════════════════════════════════════════════════
+         DÉCOMPTE FINANCIER VENTILÉ
+    ═══════════════════════════════════════════════════════════ --}}
     <div class="section">
         <div class="section-title">
-            Quittance pour la période :
-            {{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}
+            Décompte financier — {{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}
         </div>
 
         <table class="montant-table">
-            {{-- Loyer --}}
             <tr>
-                <td>Loyer mensuel encaissé</td>
-                <td>{{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} FCFA</td>
+                <th>Désignation</th>
+                <th>Montant (FCFA)</th>
+            </tr>
+
+            {{-- Loyer nu --}}
+            <tr class="row-loyer-nu">
+                <td>Loyer nu mensuel (hors charges et hors TOM)</td>
+                <td>{{ number_format($loyer_nu, 0, ',', ' ') }}</td>
+            </tr>
+
+            {{-- Charges --}}
+            @if($charges_amount > 0)
+            <tr class="row-charges">
+                <td>+ Charges locatives récupérables (eau, électricité, gardiennage...)</td>
+                <td>{{ number_format($charges_amount, 0, ',', ' ') }}</td>
+            </tr>
+            @endif
+
+            {{-- TOM --}}
+            @if($tom_amount > 0)
+            <tr class="row-tom">
+                <td>+ TOM — Taxe sur les Ordures Ménagères (part locataire)</td>
+                <td>{{ number_format($tom_amount, 0, ',', ' ') }}</td>
+            </tr>
+            @endif
+
+            {{-- Sous-total --}}
+            <tr class="row-subtotal">
+                <td>TOTAL ENCAISSÉ</td>
+                <td>{{ number_format($total_encaisse, 0, ',', ' ') }}</td>
+            </tr>
+
+            {{-- Séparateur commission --}}
+            <tr class="row-sep">
+                <th colspan="2">Décompte commission d'agence — mandat de gestion locative</th>
             </tr>
 
             {{-- Commission HT --}}
-            <tr>
-                <td>Commission agence HT ({{ $paiement->taux_commission_applique }}%)</td>
-                <td>- {{ number_format($paiement->commission_agence, 0, ',', ' ') }} FCFA</td>
+            <tr class="row-comm">
+                <td>
+                    Commission d'agence HT ({{ $paiement->taux_commission_applique }}% sur loyer nu)
+                </td>
+                <td>{{ number_format($paiement->commission_agence, 0, ',', ' ') }}</td>
             </tr>
 
             {{-- TVA --}}
             <tr class="row-tva">
-                <td>&nbsp;&nbsp;&nbsp;↳ TVA sur commission (18%)</td>
-                <td>- {{ number_format($paiement->tva_commission, 0, ',', ' ') }} FCFA</td>
+                <td>&nbsp;&nbsp;&nbsp;↳ TVA sur commission (18% — art. 357 CGI Sénégal)</td>
+                <td>{{ number_format($paiement->tva_commission, 0, ',', ' ') }}</td>
             </tr>
-            <tr class="row-tva">
-                <td>&nbsp;&nbsp;&nbsp;↳ Commission TTC</td>
-                <td>- {{ number_format($paiement->commission_ttc, 0, ',', ' ') }} FCFA</td>
+            <tr class="row-comm-ttc">
+                <td>&nbsp;&nbsp;&nbsp;↳ Commission TTC (HT + TVA)</td>
+                <td>{{ number_format($paiement->commission_ttc, 0, ',', ' ') }}</td>
             </tr>
 
             {{-- Net propriétaire --}}
             <tr class="row-net">
                 <td>NET REVERSÉ AU PROPRIÉTAIRE</td>
-                <td>{{ number_format($paiement->net_proprietaire, 0, ',', ' ') }} FCFA</td>
-            </tr>
-
-            {{-- Total encaissé --}}
-            <tr class="row-total">
-                <td>TOTAL ENCAISSÉ</td>
-                <td>{{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} FCFA</td>
+                <td>{{ number_format($paiement->net_proprietaire, 0, ',', ' ') }}</td>
             </tr>
         </table>
 
-        {{-- Montant en lettres --}}
+        {{-- Montant total en lettres --}}
         <div class="lettres-bloc">
-            <div class="lettres-label">Montant en lettres</div>
+            <div class="lettres-label">Total encaissé en lettres</div>
             <div class="lettres-value">{{ $montantEnLettres }}</div>
         </div>
-        <div class="lettres-bloc" style="margin-top:6px; background:#F0FFF4; border-color:#6EE7B7;">
-            <div class="lettres-label" style="color:#059669;">Net propriétaire en lettres</div>
-            <div class="lettres-value" style="color:#065F46;">{{ $netEnLettres }}</div>
+
+        {{-- Loyer nu en lettres (si utile) --}}
+        @if($charges_amount > 0 || $tom_amount > 0)
+        <div class="lettres-bloc" style="margin-top:6px;background:#F0F4FF;border-color:#C7D2FE;">
+            <div class="lettres-label" style="color:#3730A3;">Loyer nu en lettres</div>
+            <div class="lettres-value" style="color:#1E1B4B;">{{ $loyerNuEnLettres }}</div>
+        </div>
+        @endif
+
+        {{-- Net propriétaire en lettres --}}
+        <div class="lettres-bloc lettres-net">
+            <div class="lettres-label">Net propriétaire en lettres</div>
+            <div class="lettres-value">{{ $netEnLettres }}</div>
         </div>
 
-        {{-- Caution --}}
+        {{-- Caution 1er paiement --}}
         @if($paiement->est_premier_paiement && $paiement->caution_percue > 0)
         <div class="caution-bloc">
-            <strong>Caution perçue (1er paiement) :</strong>
+            <strong>Reçu pour solde de tout compte — Caution versée (1er paiement) :</strong><br>
             {{ number_format($paiement->caution_percue, 0, ',', ' ') }} FCFA
-            — Restituable en fin de bail selon les conditions du contrat.
+            — Restituable en fin de bail sous déduction des éventuels préjudices constatés
+            lors de l'état des lieux de sortie, conformément aux dispositions du contrat
+            et à la loi sénégalaise sur les baux à usage d'habitation.
         </div>
         @endif
     </div>
 
-    {{-- ── MODE DE PAIEMENT ─────────────────────────────────────────────────── --}}
+    {{-- ═══════════════════════════════════════════════════════════
+         MODE DE RÈGLEMENT
+    ═══════════════════════════════════════════════════════════ --}}
     <div class="section">
-        <div class="section-title">Règlement</div>
-        <div class="grid-2">
+        <div class="section-title">Mode de règlement</div>
+        <div class="grid2">
             <div class="col">
                 <div class="col-label">Mode de paiement</div>
-                <div class="col-value">
-                    {{ ucfirst(str_replace('_', ' ', $paiement->mode_paiement)) }}
+                <div class="col-value">{{ ucfirst(str_replace('_', ' ', $paiement->mode_paiement)) }}</div>
+                <div class="col-sub" style="color:#059669;font-weight:bold;margin-top:5px;">
+                    ✓ Paiement validé et enregistré
                 </div>
             </div>
             <div class="col">
                 <div class="col-label">Date de règlement</div>
-                <div class="col-value">
-                    {{ \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') }}
+                <div class="col-value">{{ \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') }}</div>
+                @if($paiement->notes)
+                <div class="col-sub" style="margin-top:5px;font-style:italic;">
+                    Note : {{ $paiement->notes }}
                 </div>
-                <div class="col-sub" style="color:#16a34a; font-weight:bold;">
-                    ✓ Paiement validé
-                </div>
+                @endif
             </div>
         </div>
-        @if($paiement->notes)
-        <div style="margin-top:8px; font-size:9px; color:#666; font-style:italic;">
-            Note : {{ $paiement->notes }}
-        </div>
-        @endif
     </div>
 
+</div>{{-- /body --}}
+
+{{-- ═══════════════════════════════════════════════════════════
+     MENTIONS LÉGALES
+═══════════════════════════════════════════════════════════ --}}
+<div class="mentions">
+    <div class="mentions-titre">⚖️ Mentions légales obligatoires — République du Sénégal</div>
+    La présente quittance est délivrée conformément aux dispositions de la loi n° 81-18 du
+    25 juin 1981 relative aux baux à usage d'habitation au Sénégal, et du contrat de bail
+    <strong>{{ $referenceBail }}</strong> signé le <strong>{{ \Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y') }}</strong>.
+    Elle atteste que <strong>{{ $locataire->name }}</strong> s'est acquitté(e) de l'intégralité
+    de son loyer pour le mois de <strong>{{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}</strong>
+    concernant le bien sis : <strong>{{ $bien->adresse }}{{ $bien->quartier ? ', '.$bien->quartier : '' }}, {{ $bien->ville }}</strong>.
+    Le paiement du présent loyer ne vaut pas renonciation aux créances antérieures éventuelles.
+    Cette quittance ne peut être délivrée qu'après encaissement effectif du loyer.
+    <strong>{{ $agence['nom'] }}</strong> agit en qualité de Mandataire du Propriétaire
+    en vertu d'un mandat de gestion locative.
+    La commission d'agence est calculée sur le loyer nu conformément à la réglementation en vigueur.
+    Document généré le {{ now()->format('d/m/Y à H:i') }}.
 </div>
 
-{{-- ── PIED DE PAGE ─────────────────────────────────────────────────────────── --}}
+{{-- ═══════════════════════════════════════════════════════════
+     PIED DE PAGE
+═══════════════════════════════════════════════════════════ --}}
 <div class="footer">
     <div class="footer-grid">
-        <div class="footer-left">
-            <div class="legal">
-                Cette quittance est délivrée conformément aux dispositions du bail signé
-                le {{ \Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y') }}.
-                Le paiement du présent loyer ne vaut pas renonciation à d'éventuelles
-                créances antérieures. Document généré le {{ now()->format('d/m/Y à H:i') }}
-                par le système BIMO-Tech Immobilier.
+        <div class="footer-col-legal">
+            <div class="legal-text">
+                <strong>{{ $agence['nom'] }}</strong><br>
+                {{ $agence['adresse'] }}
+                @if($agence['ninea']) · {{ $agence['ninea'] }} @endif<br>
+                Tél : {{ $agence['telephone'] }} · {{ $agence['email'] }}<br><br>
+                Conservez précieusement ce document. En cas de litige, cette quittance
+                fait foi devant les juridictions sénégalaises compétentes.
+                Toute modification manuelle annule ce document.
             </div>
         </div>
-        <div class="footer-right">
-            <div class="signature-box">
-                <div class="cachet">BIMO<br>TECH<br>IMMO</div>
-                <div class="signature-label">Signature & Cachet de l'Agence</div>
+        <div class="footer-col-doc">
+            <div class="doc-ref-box">
+                <div class="doc-ref-label">Réf. document</div>
+                <div class="doc-ref-value">{{ $paiement->reference_paiement }}</div>
+                <div class="doc-ref-label" style="margin-top:6px;">Bail</div>
+                <div class="doc-ref-value">{{ $referenceBail }}</div>
+            </div>
+        </div>
+        <div class="footer-col-sign">
+            <div class="sign-box">
+                <div class="tampon">
+                    {{ strtoupper(substr($agence['nom'], 0, 4)) }}<br>IMMO
+                </div>
+                <div class="sign-label">Signature &amp; Cachet<br>du Mandataire</div>
             </div>
         </div>
     </div>

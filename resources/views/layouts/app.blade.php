@@ -28,13 +28,6 @@
             --shadow-lg:    0 10px 25px rgba(0,0,0,.1), 0 4px 10px rgba(0,0,0,.05);
         }
 
-        @if (isset($currentAgency) && $currentAgency?->couleur_primaire)
-            :root {
-                --agency: {{ $currentAgency->couleur_primaire }};
-                --agency-soft: color-mix(in srgb, {{ $currentAgency->couleur_primaire }} 10%, white);
-            }
-        @endif
-
         /* ═══════════════════════════════════════════
            RESET
         ═══════════════════════════════════════════ */
@@ -474,7 +467,7 @@
         .progress { height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; margin-top: 8px; }
         .progress-bar { height: 100%; background: var(--agency); border-radius: 999px; transition: width .5s ease; }
 
-        /* Mobile cards (remplacent les tableaux sur mobile) */
+        /* Mobile cards */
         .mobile-cards { display: flex; flex-direction: column; gap: 10px; }
         @media (min-width: 768px) { .mobile-cards { display: none; } }
         .desktop-table { display: none; }
@@ -499,6 +492,18 @@
         .section-gap { margin-bottom: 20px; }
         @media (min-width: 1024px) { .section-gap { margin-bottom: 28px; } }
     </style>
+
+    {{-- Couleur personnalisée de l'agence — DOIT être hors du bloc <style> principal --}}
+    @if (isset($currentAgency) && $currentAgency?->couleur_primaire)
+    <style>
+        :root {
+            --agency: {{ $currentAgency->couleur_primaire }};
+            --agency-soft: color-mix(in srgb, {{ $currentAgency->couleur_primaire }} 10%, white);
+        }
+    </style>
+    @endif
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>

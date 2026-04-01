@@ -2,111 +2,149 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePaiementRequest;
 use App\Models\Contrat;
 use App\Models\Paiement;
 use App\Notifications\PaiementProprietaireNotification;
 use App\Notifications\QuittanceLocataireNotification;
+use App\Services\NombreEnLettres;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PaiementController extends Controller
 {
-    // ── Liste des paiements ───────────────────────────────────────────────────
+    use AuthorizesRequests;
 
-    public function index(Request $request)
+    // ─────────────────────────────────────────────────────────────────────
+    // LISTE
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function index()
     {
         $this->authorize('viewAny', Paiement::class);
 
         $paiements = Paiement::with('contrat.bien', 'contrat.locataire')
             ->orderByDesc('date_paiement')
-            ->paginate(15);
+            ->paginate(20);
 
-        return view('paiements.index', compact('paiements'));
+        return view('admin.paiements.index', compact('paiements'));
     }
 
-    // ── Formulaire de saisie ──────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // FORMULAIRE CRÉATION
+    // ─────────────────────────────────────────────────────────────────────
 
     public function create(Request $request)
     {
-        $this->authorize('isAdmin');
+        $this->authorize('create', Paiement::class);
 
-        $contrats = Contrat::with('bien', 'locataire')
-            ->where('statut', 'actif')
-            ->orderByDesc('created_at')
+        $contrats = Contrat::where('statut', 'actif')
+            ->with('bien', 'locataire')
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $contratPreselectionne = $request->has('contrat_id')
-            ? Contrat::find($request->contrat_id)
+            ? Contrat::with('bien', 'locataire')->find($request->contrat_id)
             : null;
 
         return view('paiements.create', compact('contrats', 'contratPreselectionne'));
     }
 
-    // ── Enregistrement d'un paiement ──────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // ENREGISTREMENT
+    // ─────────────────────────────────────────────────────────────────────
 
-    public function store(StorePaiementRequest $request)
+    public function store(Request $request): RedirectResponse
     {
-        // BUG 5 FIX : authorize() manquant — défense en profondeur.
-        // La route est sous isAdmin mais le contrôleur doit aussi vérifier.
         $this->authorize('create', Paiement::class);
 
-        $contrat = Contrat::with('bien')->findOrFail($request->contrat_id);
+        $request->validate([
+            'contrat_id'           => ['required', 'exists:contrats,id'],
+            'periode'              => ['required', 'date_format:Y-m'],
+            'loyer_nu'             => ['required', 'numeric', 'min:1'],
+            'charges_amount'       => ['nullable', 'numeric', 'min:0'],
+            'tom_amount'           => ['nullable', 'numeric', 'min:0'],
+            'reference_bail'       => ['nullable', 'string', 'max:60'],
+            'mode_paiement'        => ['required', 'in:' . implode(',', array_keys(Paiement::MODES_PAIEMENT))],
+            'date_paiement'        => ['required', 'date'],
+            'caution_percue'       => ['nullable', 'numeric', 'min:0'],
+            'est_premier_paiement' => ['boolean'],
+            'notes'                => ['nullable', 'string', 'max:500'],
+        ]);
 
-        // Garde 1 : Contrat doit être actif
-        if ($contrat->statut !== 'actif') {
-            return back()->withInput()->withErrors([
-                'contrat_id' => 'Ce contrat n\'est plus actif.'
-            ]);
+        $contrat = Contrat::with('bien.proprietaire', 'locataire')
+            ->findOrFail($request->contrat_id);
+
+        if ($contrat->agency_id !== Auth::user()->agency_id) {
+            abort(403, 'Ce contrat n\'appartient pas à votre agence.');
         }
 
-        // Garde 2 : Anti-doublon
         $periodeDate = Carbon::createFromFormat('Y-m', $request->periode)->startOfMonth();
 
-        $doublonExiste = Paiement::where('contrat_id', $contrat->id)
+        $doublon = Paiement::where('contrat_id', $contrat->id)
+            ->where('statut', '!=', 'annule')
             ->whereYear('periode', $periodeDate->year)
             ->whereMonth('periode', $periodeDate->month)
-            ->where('statut', '!=', 'annule')
             ->exists();
 
-        if ($doublonExiste) {
+        if ($doublon) {
             return back()->withInput()->withErrors([
-                'periode' => "Un paiement existe déjà pour {$periodeDate->translatedFormat('F Y')} sur ce contrat."
+                'periode' => 'Un paiement valide existe déjà pour ce contrat sur cette période.',
             ]);
         }
 
-        // Calcul des montants avec TVA
-        $montant        = (float) $request->montant_encaisse;
-        $tauxCommission = (float) $contrat->bien->taux_commission;
-        $calcul         = Paiement::calculerMontants($montant, $tauxCommission);
-
-        // Gestion caution
         $caution         = (float) ($request->caution_percue ?? 0);
         $estPremierPaiem = (bool)  ($request->est_premier_paiement ?? false);
 
         if ($caution > 0 && ! $estPremierPaiem) {
             return back()->withInput()->withErrors([
-                'caution_percue' => 'Cochez "Premier paiement" pour enregistrer une caution.'
+                'caution_percue' => 'Cochez "Premier paiement" pour enregistrer une caution.',
             ]);
         }
 
-        // Génération de la référence
-        $reference = 'QUITT-' . $contrat->id . '-' . $periodeDate->format('Ym') . '-' . now()->format('His');
+        $loyerNu        = (float) $request->loyer_nu;
+        $chargesAmount  = (float) ($request->charges_amount ?? 0);
+        $tomAmount      = (float) ($request->tom_amount ?? 0);
+        $tauxCommission = (float) $contrat->bien->taux_commission;
+
+        $calcul = Paiement::calculerMontants(
+            loyerNu:        $loyerNu,
+            tauxCommission: $tauxCommission,
+            chargesAmount:  $chargesAmount,
+            tomAmount:      $tomAmount,
+        );
+
+        $referenceQuittance = sprintf(
+            'QUITT-%s-%s-%s',
+            $contrat->id,
+            $periodeDate->format('Ym'),
+            now()->format('His')
+        );
+
+        $referenceBail = ! empty($request->reference_bail)
+            ? trim($request->reference_bail)
+            : $contrat->reference_bail_affichee;
 
         try {
             $paiement = DB::transaction(function () use (
-                $request, $contrat, $periodeDate, $montant,
-                $tauxCommission, $calcul, $caution, $estPremierPaiem, $reference
+                $request, $contrat, $periodeDate,
+                $calcul, $caution, $estPremierPaiem,
+                $referenceQuittance, $referenceBail, $tauxCommission
             ) {
                 $paiement = Paiement::create([
                     'contrat_id'               => $contrat->id,
                     'periode'                  => $periodeDate->toDateString(),
-                    'montant_encaisse'         => $montant,
+                    'loyer_nu'                 => $calcul['loyer_nu'],
+                    'charges_amount'           => $calcul['charges_amount'],
+                    'tom_amount'               => $calcul['tom_amount'],
+                    'montant_encaisse'         => $calcul['montant_encaisse'],
                     'mode_paiement'            => $request->mode_paiement,
                     'taux_commission_applique' => $tauxCommission,
                     'commission_agence'        => $calcul['commission_ht'],
@@ -116,40 +154,19 @@ class PaiementController extends Controller
                     'caution_percue'           => $caution,
                     'est_premier_paiement'     => $estPremierPaiem,
                     'date_paiement'            => $request->date_paiement,
-                    'reference_paiement'       => $reference,
+                    'reference_paiement'       => $referenceQuittance,
+                    'reference_bail'           => $referenceBail,
                     'statut'                   => 'valide',
                     'notes'                    => $request->notes,
                 ]);
 
-                // Chargement des relations pour génération PDF + emails
                 $contrat->load('bien.proprietaire', 'locataire');
                 $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
 
-                // Générer la quittance PDF UNE FOIS et la stocker sur le disk private
-                $montantEnLettres = \App\Services\NombreEnLettres::convertir($paiement->montant_encaisse);
-                $netEnLettres     = \App\Services\NombreEnLettres::convertir($paiement->net_proprietaire);
+                $agency  = $paiement->agency ?? Auth::user()->agency;
+                $pdfData = self::buildPdfData($paiement, $agency);
 
-                // CORRECTION P0 : données agence dynamiques (plus de hardcode)
-                $agency = $paiement->agency ?? Auth::user()->agency;
-                $data = [
-                    'paiement'         => $paiement,
-                    'contrat'          => $paiement->contrat,
-                    'bien'             => $paiement->contrat->bien,
-                    'proprietaire'     => $paiement->contrat->bien->proprietaire,
-                    'locataire'        => $paiement->contrat->locataire,
-                    'montantEnLettres' => $montantEnLettres,
-                    'netEnLettres'     => $netEnLettres,
-                    'agence' => [
-                        'nom'       => $agency->name       ?? 'Agence Immobilière',
-                        'adresse'   => $agency->adresse    ?? 'Dakar, Sénégal',
-                        'telephone' => $agency->telephone  ?? '',
-                        'email'     => $agency->email      ?? '',
-                        'ninea'     => $agency->ninea      ? 'NINEA : ' . $agency->ninea : '',
-                        'logo_path' => $agency->logo_path  ?? null,
-                    ],
-                ];
-
-                $pdf = Pdf::loadView('paiements.pdf.quittance', $data)
+                $pdf = Pdf::loadView('paiements.pdf.quittance', $pdfData)
                     ->setPaper('a4', 'portrait')
                     ->setOption('defaultFont', 'DejaVu Sans')
                     ->setOption('dpi', 150);
@@ -159,43 +176,22 @@ class PaiementController extends Controller
                     $paiement->agency_id ?? 'global',
                     now()->format('Y'),
                     now()->format('m'),
-                    $paiement->reference_paiement
+                    $referenceQuittance
                 );
 
                 Storage::disk('private')->put($receiptPath, $pdf->output());
+                $paiement->update(['receipt_path' => $receiptPath]);
 
-                $paiement->update([
-                    'receipt_path' => $receiptPath,
-                ]);
-
-                // Email au locataire avec quittance PDF en pièce jointe
                 try {
-                    $contrat->locataire->notify(
-                        new QuittanceLocataireNotification($paiement)
-                    );
+                    $contrat->locataire->notify(new QuittanceLocataireNotification($paiement));
                 } catch (\Throwable $e) {
-                    Log::warning('Email locataire non envoyé', [
-                        'error' => $e->getMessage(),
-                        'paiement_id' => $paiement->id ?? null,
-                        'contrat_id' => $contrat->id ?? null,
-                        'agency_id' => \Illuminate\Support\Facades\Auth::user()?->agency_id,
-                        'target_user_id' => $contrat->locataire->id ?? null,
-                    ]);
+                    Log::warning('Email locataire non envoyé', ['error' => $e->getMessage()]);
                 }
 
-                // Email au propriétaire avec récapitulatif
                 try {
-                    $contrat->bien->proprietaire->notify(
-                        new PaiementProprietaireNotification($paiement)
-                    );
+                    $contrat->bien->proprietaire->notify(new PaiementProprietaireNotification($paiement));
                 } catch (\Throwable $e) {
-                    Log::warning('Email propriétaire non envoyé', [
-                        'error' => $e->getMessage(),
-                        'paiement_id' => $paiement->id ?? null,
-                        'contrat_id' => $contrat->id ?? null,
-                        'agency_id' => \Illuminate\Support\Facades\Auth::user()?->agency_id,
-                        'target_user_id' => $contrat->bien->proprietaire->id ?? null,
-                    ]);
+                    Log::warning('Email propriétaire non envoyé', ['error' => $e->getMessage()]);
                 }
 
                 return $paiement;
@@ -203,69 +199,52 @@ class PaiementController extends Controller
 
             return redirect()
                 ->route('admin.paiements.show', $paiement)
-                ->with('success', "Paiement enregistré ✓  Réf : {$reference}");
+                ->with('success', "Paiement enregistré ✓  Réf : {$referenceQuittance}");
 
         } catch (\Throwable $e) {
             Log::error('Erreur création paiement', ['error' => $e->getMessage()]);
             return back()->withInput()->withErrors([
-                'general' => 'Une erreur est survenue. Veuillez réessayer.'
+                'general' => 'Une erreur est survenue. Veuillez réessayer.',
             ]);
         }
     }
 
-    // ── Détail d'un paiement ──────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // DÉTAIL
+    // ─────────────────────────────────────────────────────────────────────
 
     public function show(Paiement $paiement)
     {
         $this->authorize('view', $paiement);
-
         $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
-
         return view('paiements.show', compact('paiement'));
     }
 
-    // ── Génération de la quittance PDF ────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // TÉLÉCHARGEMENT PDF
+    // ─────────────────────────────────────────────────────────────────────
 
-    public function downloadPDF(Paiement $paiement)
+    public function downloadPDF(Paiement $paiement): BinaryFileResponse|RedirectResponse
     {
         $this->authorize('downloadPdf', $paiement);
 
         $fileName = 'quittance-' . $paiement->reference_paiement . '.pdf';
 
-        if (! empty($paiement->receipt_path) && Storage::disk('private')->exists($paiement->receipt_path)) {
+        if (
+            ! empty($paiement->receipt_path)
+            && Storage::disk('private')->exists($paiement->receipt_path)
+        ) {
             return response()->download(
                 Storage::disk('private')->path($paiement->receipt_path),
                 $fileName
             );
         }
 
-        // Fallback de robustesse: si le fichier stocké est absent, régénérer puis persister
         $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
+        $agency  = $paiement->agency ?? Auth::user()->agency;
+        $pdfData = self::buildPdfData($paiement, $agency);
 
-        $montantEnLettres = \App\Services\NombreEnLettres::convertir($paiement->montant_encaisse);
-        $netEnLettres     = \App\Services\NombreEnLettres::convertir($paiement->net_proprietaire);
-
-        // CORRECTION P0 : données agence dynamiques (fallback PDF)
-        $agency = $paiement->agency ?? Auth::user()->agency;
-        $data = [
-            'paiement'         => $paiement,
-            'contrat'          => $paiement->contrat,
-            'bien'             => $paiement->contrat->bien,
-            'proprietaire'     => $paiement->contrat->bien->proprietaire,
-            'locataire'        => $paiement->contrat->locataire,
-            'montantEnLettres' => $montantEnLettres,
-            'netEnLettres'     => $netEnLettres,
-            'agence' => [
-                'nom'       => $agency->name       ?? 'Agence Immobilière',
-                'adresse'   => $agency->adresse    ?? 'Dakar, Sénégal',
-                'telephone' => $agency->telephone  ?? '',
-                'email'     => $agency->email      ?? '',
-                'ninea'     => $agency->ninea      ? 'NINEA : ' . $agency->ninea : '',
-                'logo_path' => $agency->logo_path  ?? null,
-            ],
-        ];
-
-        $pdf = Pdf::loadView('paiements.pdf.quittance', $data)
+        $pdf = Pdf::loadView('paiements.pdf.quittance', $pdfData)
             ->setPaper('a4', 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('dpi', 150);
@@ -279,10 +258,7 @@ class PaiementController extends Controller
         );
 
         Storage::disk('private')->put($receiptPath, $pdf->output());
-
-        $paiement->update([
-            'receipt_path' => $receiptPath,
-        ]);
+        $paiement->update(['receipt_path' => $receiptPath]);
 
         return response()->download(
             Storage::disk('private')->path($receiptPath),
@@ -290,9 +266,11 @@ class PaiementController extends Controller
         );
     }
 
-    // ── Annulation d'un paiement ──────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // ANNULATION
+    // ─────────────────────────────────────────────────────────────────────
 
-    public function annuler(Request $request, Paiement $paiement)
+    public function annuler(Request $request, Paiement $paiement): RedirectResponse
     {
         $this->authorize('update', $paiement);
 
@@ -302,68 +280,105 @@ class PaiementController extends Controller
 
         $paiement->update([
             'statut' => 'annule',
-            'notes'  => $paiement->notes . "\n[Annulé le " . now()->format('d/m/Y') . " — " . ($request->motif ?? 'Sans motif') . "]",
+            'notes'  => $paiement->notes
+                . "\n[Annulé le " . now()->format('d/m/Y')
+                . ' — ' . ($request->motif ?? 'Sans motif') . ']',
         ]);
 
         return back()->with('success', 'Paiement annulé.');
     }
 
-    // ── TÂCHE 2 : Saisie prédictive — Dernier mois payé + suggestion ─────────
-    // Endpoint AJAX : GET admin/paiements/dernier-periode/{contrat}
-    // Retourne JSON : { periode_suggeree, label, dernier_paye, loyer_contractuel }
+    // ─────────────────────────────────────────────────────────────────────
+    // DERNIÈRE PÉRIODE (AJAX)
+    // ─────────────────────────────────────────────────────────────────────
 
     public function dernierePeriode(Contrat $contrat)
     {
-        $this->authorize('isAdmin');
-
-        // Dernier paiement valide (non annulé) pour ce contrat, trié par période
-        $dernierPaiement = Paiement::where('contrat_id', $contrat->id)
+        $dernier = Paiement::where('contrat_id', $contrat->id)
             ->where('statut', '!=', 'annule')
             ->orderByDesc('periode')
             ->first();
 
-        if ($dernierPaiement) {
-            // On propose le mois suivant le dernier payé
-            $prochaineMois = Carbon::parse($dernierPaiement->periode)->addMonth();
-            $dernierLabel  = Carbon::parse($dernierPaiement->periode)
-                ->locale('fr')
-                ->translatedFormat('F Y');
-        } else {
-            // Aucun paiement : on propose le mois de début du contrat
-            $prochaineMois = Carbon::parse($contrat->date_debut)->startOfMonth();
-            $dernierLabel  = null;
-        }
+        $prochaine = $dernier
+            ? Carbon::parse($dernier->periode)->addMonth()->format('Y-m')
+            : Carbon::parse($contrat->date_debut)->format('Y-m');
 
         return response()->json([
-            // Format attendu par l'input[type=month] : "YYYY-MM"
-            'periode_suggeree'  => $prochaineMois->format('Y-m'),
-            // Label lisible pour l'affichage dans l'interface
-            'label'             => $prochaineMois->locale('fr')->translatedFormat('F Y'),
-            // Dernier mois payé (null si aucun paiement)
-            'dernier_paye'      => $dernierLabel,
-            // Loyer contractuel pour pré-remplir le montant
-            'loyer_contractuel' => $contrat->loyer_contractuel,
+            'prochaine_periode' => $prochaine,
+            'loyer_nu'          => $contrat->loyer_nu_effectif,
+            'charges'           => (float) ($contrat->charges_mensuelles ?? 0),
+            'tom'               => (float) ($contrat->tom_amount ?? 0),
         ]);
     }
 
-    // ── Paiements du locataire connecté ───────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // MES PAIEMENTS (locataire)
+    // ─────────────────────────────────────────────────────────────────────
 
     public function mesPaiements()
     {
-        // BUG 6 FIX : authorize() manquant — s'assure que seul un locataire
-        // peut accéder à cette méthode, en complément du middleware de route.
         $this->authorize('isLocataire');
 
-        $user = Auth::user();
+        $user    = Auth::user();
+        $contrat = Contrat::where('locataire_id', $user->id)
+                     ->where('statut', 'actif')
+                     ->first();
 
-        $contratIds = Contrat::where('locataire_id', $user->id)->pluck('id');
+        $paiements = $contrat
+            ? Paiement::where('contrat_id', $contrat->id)
+                ->where('statut', 'valide')
+                ->orderByDesc('periode')
+                ->get()
+            : collect();
 
-        $paiements = Paiement::whereIn('contrat_id', $contratIds)
-            ->where('statut', 'valide')
-            ->with('contrat.bien')
-            ->orderByDesc('periode')
-            ->paginate(12);
+        return view('locataire.paiements', compact('paiements', 'contrat'));
+    }
 
-        return view('paiements.index', compact('paiements'));
+    // ─────────────────────────────────────────────────────────────────────
+    // HELPER PRIVÉ : construction données PDF
+    // ─────────────────────────────────────────────────────────────────────
+
+    private static function buildPdfData(Paiement $paiement, mixed $agency): array
+    {
+        $contrat      = $paiement->contrat;
+        $bien         = $contrat->bien;
+        $proprietaire = $bien->proprietaire;
+        $locataire    = $contrat->locataire;
+
+        $loyerNu       = (float) ($paiement->loyer_nu ?? $paiement->montant_encaisse);
+        $chargesAmount = (float) ($paiement->charges_amount ?? 0);
+        $tomAmount     = (float) ($paiement->tom_amount ?? 0);
+        $totalEncaisse = (float) $paiement->montant_encaisse;
+
+        return [
+            'paiement'     => $paiement,
+            'contrat'      => $contrat,
+            'bien'         => $bien,
+            'proprietaire' => $proprietaire,
+            'locataire'    => $locataire,
+
+            'loyer_nu'       => $loyerNu,
+            'charges_amount' => $chargesAmount,
+            'tom_amount'     => $tomAmount,
+            'total_encaisse' => $totalEncaisse,
+
+            'montantEnLettres' => NombreEnLettres::convertir($totalEncaisse),
+            'loyerNuEnLettres' => NombreEnLettres::convertir($loyerNu),
+            'netEnLettres'     => NombreEnLettres::convertir((float) $paiement->net_proprietaire),
+
+            'referenceBail' => $paiement->reference_bail
+                ?? $contrat->reference_bail_affichee,
+
+            'agence' => [
+                'nom'       => $agency?->name       ?? 'Agence Immobilière',
+                'adresse'   => $agency?->adresse    ?? 'Dakar, Sénégal',
+                'telephone' => $agency?->telephone  ?? '',
+                'email'     => $agency?->email      ?? '',
+                'ninea'     => $agency?->ninea      ? 'NINEA : ' . $agency->ninea : '',
+                'rccm'      => $agency?->rccm       ?? '',
+                'logo_path' => $agency?->logo_path  ?? null,
+                'couleur'   => $agency?->couleur_primaire ?? '#1E3A5F',
+            ],
+        ];
     }
 }
