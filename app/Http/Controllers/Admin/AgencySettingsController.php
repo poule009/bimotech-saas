@@ -33,7 +33,20 @@ class AgencySettingsController extends Controller
             'adresse'          => ['nullable', 'string', 'max:255'],
             'ninea'            => ['nullable', 'string', 'max:30'],
             'couleur_primaire' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'logo'             => ['nullable', 'image', 'mimes:png,jpg,jpeg,svg,webp', 'max:2048'],
+
+            /**
+             * SÉCURITÉ — Upload logo :
+             *
+             * SVG intentionnellement retiré des formats acceptés.
+             * Un fichier SVG est du XML et peut contenir du JavaScript (<script>),
+             * des appels externes (xlink:href), ou des attaques XSS.
+             * Même avec une validation mimes:svg, Laravel ne parse pas le contenu
+             * du fichier — il se fie uniquement à l'extension et au MIME type,
+             * qui peuvent être falsifiés.
+             *
+             * Formats sûrs acceptés : PNG, JPG, JPEG, WEBP (formats raster)
+             */
+            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ], [
             'name.required'          => "Le nom de l'agence est obligatoire.",
             'email.required'         => "L'email est obligatoire.",
@@ -41,7 +54,7 @@ class AgencySettingsController extends Controller
             'ninea.max'              => "Le NINEA ne doit pas dépasser 30 caractères.",
             'couleur_primaire.regex' => "La couleur doit être un code hexadécimal valide (ex: #1a3c5e).",
             'logo.image'             => "Le fichier doit être une image.",
-            'logo.mimes'             => "Formats acceptés : PNG, JPG, JPEG, SVG, WEBP.",
+            'logo.mimes'             => "Formats acceptés : PNG, JPG, JPEG, WEBP.",
             'logo.max'               => "Le logo ne doit pas dépasser 2 Mo.",
         ]);
 
@@ -57,6 +70,8 @@ class AgencySettingsController extends Controller
         }
 
         // ── Mise à jour de l'agence ───────────────────────────────────────
+        // NOTE : `actif` et `slug` ne sont pas dans Agency::$fillable,
+        // ils ne peuvent donc pas être modifiés ici même si injectés dans la requête.
 
         $agency->update([
             'name'             => $request->name,
@@ -68,13 +83,12 @@ class AgencySettingsController extends Controller
             'logo_path'        => $logoPath,
         ]);
 
-        // Recalcule et persiste onboarding_completed si toutes les étapes sont remplies
         $agency->refresh();
         $agency->checkOnboarding();
 
         return redirect()
             ->route('admin.agency.settings')
-            ->with('success', "Paramètres de l'agence mis à jour avec succès ✓");
+            ->with('success', "Paramètres de l'agence mis à jour ✓");
     }
 
     // ── Supprime le logo ──────────────────────────────────────────────────
@@ -91,6 +105,6 @@ class AgencySettingsController extends Controller
 
         return redirect()
             ->route('admin.agency.settings')
-            ->with('success', 'Logo supprimé avec succès ✓');
+            ->with('success', 'Logo supprimé ✓');
     }
 }

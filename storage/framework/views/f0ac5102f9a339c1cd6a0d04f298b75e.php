@@ -8,193 +8,144 @@
 <?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-     <?php $__env->slot('header', null, []); ?> Paiements <?php $__env->endSlot(); ?>
+     <?php $__env->slot('header', null, []); ?> Journal des Paiements <?php $__env->endSlot(); ?>
 
     
     <?php if(session('success')): ?>
-        <div class="alert alert-success section-gap">✅ <?php echo e(session('success')); ?></div>
+        <div style="background: rgba(22, 163, 74, 0.1); border: 1px solid rgba(22, 163, 74, 0.2); color: #16a34a; padding: 16px 24px; border-radius: 16px; margin-bottom: 24px; font-weight: 600; display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 20px;">✓</span> <?php echo e(session('success')); ?>
+
+        </div>
     <?php endif; ?>
 
     
-    <div class="flex-between section-gap">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; gap: 20px; flex-wrap: wrap;">
         <div>
-            <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">Paiements</h1>
-            <p style="font-size:13px;color:var(--text-3);margin-top:3px;">
-                <?php echo e($paiements->total()); ?> paiement(s) enregistré(s)
+            <h1 style="font-size: 24px; font-weight: 900; color: #1a202c; letter-spacing: -1px;">Historique des Flux</h1>
+            <p style="font-size: 13px; color: #b58c5a; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">
+                <?php echo e($paiements->total()); ?> transaction(s) certifiée(s)
             </p>
         </div>
-        <a href="<?php echo e(route('admin.paiements.create')); ?>" class="btn btn-primary">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nouveau paiement
+        <a href="<?php echo e(route('admin.paiements.create')); ?>" class="btn btn-primary" style="background: #1a202c; padding: 14px 28px; border-radius: 14px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px; height:18px; margin-right: 8px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Nouveau Paiement
         </a>
     </div>
 
     
     <div class="mobile-cards section-gap">
         <?php $__empty_1 = true; $__currentLoopData = $paiements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-            <div class="mobile-card">
-                <div class="flex-between" style="margin-bottom:10px;">
-                    <span class="text-ref"><?php echo e($p->reference_paiement); ?></span>
+            <div class="mobile-card" style="background: white; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border-radius: 24px; padding: 24px; margin-bottom: 16px;">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <span style="font-family: monospace; font-weight: 800; color: #a0aec0; font-size: 12px;">#<?php echo e($p->reference_paiement); ?></span>
                     <?php
-                        $sc = match($p->statut) {
-                            'valide'     => 'badge badge-green',
-                            'en_attente' => 'badge badge-amber',
-                            'annule'     => 'badge badge-red',
-                            default      => 'badge badge-gray',
-                        };
-                        $sl = match($p->statut) {
-                            'valide'     => 'Validé',
-                            'en_attente' => 'En attente',
-                            'annule'     => 'Annulé',
-                            default      => ucfirst($p->statut),
+                        $statusStyles = match($p->statut) {
+                            'valide'    => ['bg' => '#f0fdf4', 'text' => '#16a34a', 'label' => 'Validé'],
+                            'en_attente'=> ['bg' => '#fffbeb', 'text' => '#d97706', 'label' => 'En attente'],
+                            'annule'    => ['bg' => '#fef2f2', 'text' => '#dc2626', 'label' => 'Annulé'],
+                            default     => ['bg' => '#f8fafc', 'text' => '#64748b', 'label' => ucfirst($p->statut)],
                         };
                     ?>
-                    <span class="<?php echo e($sc); ?>"><?php echo e($sl); ?></span>
+                    <span style="background: <?php echo e($statusStyles['bg']); ?>; color: <?php echo e($statusStyles['text']); ?>; padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                        <?php echo e($statusStyles['label']); ?>
+
+                    </span>
                 </div>
-                <div class="mobile-card-row">
-                    <span class="mobile-card-label">Locataire</span>
-                    <span class="mobile-card-value"><?php echo e($p->contrat->locataire->name); ?></span>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 16px; font-weight: 800; color: #1a202c;"><?php echo e($p->contrat->locataire->name); ?></div>
+                    <div style="font-size: 13px; color: #718096; margin-top: 2px;"><?php echo e($p->contrat->bien->reference); ?></div>
                 </div>
-                <div class="mobile-card-row">
-                    <span class="mobile-card-label">Bien</span>
-                    <span class="mobile-card-value"><?php echo e($p->contrat->bien->reference); ?></span>
-                </div>
-                <div class="mobile-card-row">
-                    <span class="mobile-card-label">Période</span>
-                    <span class="mobile-card-value"><?php echo e(\Carbon\Carbon::parse($p->periode)->translatedFormat('F Y')); ?></span>
-                </div>
-                <div class="mobile-card-row">
-                    <span class="mobile-card-label">Mode</span>
-                    <span class="mobile-card-value"><?php echo e(ucfirst(str_replace('_', ' ', $p->mode_paiement))); ?></span>
-                </div>
-                <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-                    <div class="mobile-card-row">
-                        <span class="mobile-card-label">Loyer encaissé</span>
-                        <span class="text-money" style="font-weight:700;font-size:14px;"><?php echo e(number_format($p->montant_encaisse, 0, ',', ' ')); ?> F</span>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: #fcfaf5; padding: 16px; border-radius: 16px; margin-bottom: 20px;">
+                    <div>
+                        <div style="font-size: 10px; color: #b58c5a; font-weight: 800; text-transform: uppercase;">Période</div>
+                        <div style="font-size: 13px; font-weight: 700; color: #1a202c;"><?php echo e(\Carbon\Carbon::parse($p->periode)->translatedFormat('M Y')); ?></div>
                     </div>
-                    <div class="mobile-card-row">
-                        <span class="mobile-card-label">Commission TTC</span>
-                        <span class="text-money" style="color:#d97706;font-weight:600;"><?php echo e(number_format($p->commission_ttc, 0, ',', ' ')); ?> F</span>
-                    </div>
-                    <div class="mobile-card-row">
-                        <span class="mobile-card-label">Net propriétaire</span>
-                        <span class="text-money" style="color:#16a34a;font-weight:700;"><?php echo e(number_format($p->net_proprietaire, 0, ',', ' ')); ?> F</span>
+                    <div>
+                        <div style="font-size: 10px; color: #b58c5a; font-weight: 800; text-transform: uppercase;">Montant Net</div>
+                        <div style="font-size: 13px; font-weight: 800; color: #16a34a;"><?php echo e(number_format($p->net_proprietaire, 0, ',', ' ')); ?> F</div>
                     </div>
                 </div>
-                <div style="display:flex;gap:8px;margin-top:12px;">
-                    <a href="<?php echo e(route('admin.paiements.show', $p)); ?>" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;">
-                        Voir
-                    </a>
+
+                <div style="display: flex; gap: 10px;">
+                    <a href="<?php echo e(route('admin.paiements.show', $p)); ?>" class="btn btn-secondary btn-sm" style="flex: 1; justify-content: center; background: white; border: 1px solid #e2e8f0; border-radius: 12px; font-weight: 700;">Détails</a>
                     <?php if($p->statut === 'valide'): ?>
-                        <a href="<?php echo e(route('admin.paiements.pdf', $p)); ?>" class="btn btn-secondary btn-sm" target="_blank">
-                            📄 PDF
-                        </a>
-                        <form method="POST" action="<?php echo e(route('admin.paiements.annuler', $p)); ?>"
-                              onsubmit="return confirm('Annuler ce paiement ?')">
-                            <?php echo csrf_field(); ?> <?php echo method_field('PATCH'); ?>
-                            <button type="submit" class="btn btn-danger btn-sm">Annuler</button>
-                        </form>
+                        <a href="<?php echo e(route('admin.paiements.pdf', $p)); ?>" target="_blank" style="background: #f7f4ec; color: #b58c5a; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 800;">PDF</a>
                     <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-            <div style="text-align:center;padding:48px 20px;color:var(--text-3);">
-                <div style="font-size:40px;margin-bottom:12px;">💰</div>
-                <div style="font-size:14px;">Aucun paiement enregistré</div>
+            <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 32px;">
+                <div style="font-size: 40px; margin-bottom: 16px;">🏦</div>
+                <p style="color: #a0aec0; font-weight: 600;">Aucun flux financier détecté.</p>
             </div>
         <?php endif; ?>
     </div>
 
     
-    <div class="desktop-table card section-gap">
+    <div class="desktop-table card" style="border: none; box-shadow: 0 20px 40px rgba(0,0,0,0.04); border-radius: 32px; overflow: hidden; background: white;">
         <div class="table-wrap">
-            <table>
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
                 <thead>
-                    <tr>
-                        <th>Référence</th>
-                        <th>Locataire</th>
-                        <th>Bien</th>
-                        <th>Période</th>
-                        <th>Mode</th>
-                        <th style="text-align:right;">Loyer</th>
-                        <th style="text-align:right;">Commission TTC</th>
-                        <th style="text-align:right;">Net proprio</th>
-                        <th style="text-align:center;">Statut</th>
-                        <th style="text-align:center;">Actions</th>
+                    <tr style="background: #fcfaf5;">
+                        <th style="padding: 20px 24px; font-size: 11px; color: #b58c5a; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800;">Référence</th>
+                        <th style="padding: 20px; font-size: 11px; color: #b58c5a; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800;">Locataire & Bien</th>
+                        <th style="padding: 20px; font-size: 11px; color: #b58c5a; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800;">Période</th>
+                        <th style="padding: 20px; font-size: 11px; color: #b58c5a; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; text-align: right;">Loyer Brut</th>
+                        <th style="padding: 20px; font-size: 11px; color: #b58c5a; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; text-align: right;">Net Proprio</th>
+                        <th style="padding: 20px; font-size: 11px; color: #b58c5a; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; text-align: center;">Statut</th>
+                        <th style="padding: 20px 24px; font-size: 11px; color: #b58c5a; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; text-align: center;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php $__empty_1 = true; $__currentLoopData = $paiements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <?php
-                            $sc = match($p->statut) {
-                                'valide'     => 'badge badge-green',
-                                'en_attente' => 'badge badge-amber',
-                                'annule'     => 'badge badge-red',
-                                default      => 'badge badge-gray',
-                            };
-                            $sl = match($p->statut) {
-                                'valide'     => 'Validé',
-                                'en_attente' => 'En attente',
-                                'annule'     => 'Annulé',
-                                default      => ucfirst($p->statut),
+                            $status = match($p->statut) {
+                                'valide'    => ['bg' => '#f0fdf4', 'text' => '#16a34a', 'label' => 'Validé'],
+                                'en_attente'=> ['bg' => '#fffbeb', 'text' => '#d97706', 'label' => 'En attente'],
+                                'annule'    => ['bg' => '#fef2f2', 'text' => '#dc2626', 'label' => 'Annulé'],
+                                default     => ['bg' => '#f8fafc', 'text' => '#64748b', 'label' => ucfirst($p->statut)],
                             };
                         ?>
-                        <tr>
-                            <td><span class="text-ref"><?php echo e($p->reference_paiement); ?></span></td>
-                            <td style="font-weight:500;"><?php echo e($p->contrat->locataire->name); ?></td>
-                            <td>
-                                <div style="font-size:13px;color:var(--text);"><?php echo e($p->contrat->bien->reference); ?></div>
-                                <div style="font-size:11px;color:var(--text-3);"><?php echo e($p->contrat->bien->ville); ?></div>
+                        <tr style="border-bottom: 1px solid #f7f4ec; transition: background 0.2s;" onmouseover="this.style.background='#fcfaf5'" onmouseout="this.style.background='transparent'">
+                            <td style="padding: 24px;"><span style="font-family: monospace; font-weight: 700; color: #718096; font-size: 13px;">#<?php echo e($p->reference_paiement); ?></span></td>
+                            <td style="padding: 24px;">
+                                <div style="font-weight: 800; color: #1a202c; font-size: 14px;"><?php echo e($p->contrat->locataire->name); ?></div>
+                                <div style="font-size: 12px; color: #a0aec0; margin-top: 2px;"><?php echo e($p->contrat->bien->reference); ?> • <?php echo e($p->contrat->bien->ville); ?></div>
                             </td>
-                            <td style="color:var(--text-2);">
-                                <?php echo e(\Carbon\Carbon::parse($p->periode)->translatedFormat('F Y')); ?>
-
-                            </td>
-                            <td>
-                                <span class="badge badge-gray">
-                                    <?php echo e(ucfirst(str_replace('_', ' ', $p->mode_paiement))); ?>
+                            <td style="padding: 24px;">
+                                <span style="background: #f7f4ec; color: #b58c5a; padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;">
+                                    <?php echo e(\Carbon\Carbon::parse($p->periode)->translatedFormat('F Y')); ?>
 
                                 </span>
                             </td>
-                            <td style="text-align:right;" class="text-money">
+                            <td style="padding: 24px; text-align: right; font-weight: 800; color: #1a202c; font-size: 15px;">
                                 <?php echo e(number_format($p->montant_encaisse, 0, ',', ' ')); ?> F
                             </td>
-                            <td style="text-align:right;">
-                                <div class="text-money" style="color:#d97706;font-weight:600;">
-                                    <?php echo e(number_format($p->commission_ttc, 0, ',', ' ')); ?> F
-                                </div>
-                                <div style="font-size:11px;color:var(--text-3);">
-                                    TVA: <?php echo e(number_format($p->tva_commission, 0, ',', ' ')); ?> F
-                                </div>
+                            <td style="padding: 24px; text-align: right;">
+                                <div style="color: #16a34a; font-weight: 900; font-size: 15px;"><?php echo e(number_format($p->net_proprietaire, 0, ',', ' ')); ?> F</div>
+                                <div style="font-size: 10px; color: #a0aec0; font-weight: 600;">COM: <?php echo e(number_format($p->commission_ttc, 0, ',', ' ')); ?> F</div>
                             </td>
-                            <td style="text-align:right;" class="text-money">
-                                <span style="color:#16a34a;font-weight:700;">
-                                    <?php echo e(number_format($p->net_proprietaire, 0, ',', ' ')); ?> F
+                            <td style="padding: 24px; text-align: center;">
+                                <span style="background: <?php echo e($status['bg']); ?>; color: <?php echo e($status['text']); ?>; padding: 6px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                                    <?php echo e($status['label']); ?>
+
                                 </span>
                             </td>
-                            <td style="text-align:center;">
-                                <span class="<?php echo e($sc); ?>"><?php echo e($sl); ?></span>
-                            </td>
-                            <td style="text-align:center;">
-                                <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
-                                    <a href="<?php echo e(route('admin.paiements.show', $p)); ?>"
-                                       class="btn btn-secondary btn-sm">
-                                        Voir
+                            <td style="padding: 24px; text-align: center;">
+                                <div style="display: flex; gap: 8px; justify-content: center;">
+                                    <a href="<?php echo e(route('admin.paiements.show', $p)); ?>" style="background: #fff; border: 1px solid #e2e8f0; color: #1a202c; padding: 8px; border-radius: 10px; transition: 0.2s;" title="Voir">
+                                        <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </a>
                                     <?php if($p->statut === 'valide'): ?>
-                                        <a href="<?php echo e(route('admin.paiements.pdf', $p)); ?>"
-                                           class="btn btn-secondary btn-sm"
-                                           target="_blank">
-                                            📄 PDF
+                                        <a href="<?php echo e(route('admin.paiements.pdf', $p)); ?>" target="_blank" style="background: #f7f4ec; border: 1px solid #fde68a; color: #b58c5a; padding: 8px; border-radius: 10px;" title="Reçu PDF">
+                                            <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                                         </a>
-                                        <form method="POST"
-                                              action="<?php echo e(route('admin.paiements.annuler', $p)); ?>"
-                                              onsubmit="return confirm('Annuler ce paiement ?')">
+                                        <form method="POST" action="<?php echo e(route('admin.paiements.annuler', $p)); ?>" onsubmit="return confirm('Annuler ce paiement ? Cette action est irréversible.')">
                                             <?php echo csrf_field(); ?> <?php echo method_field('PATCH'); ?>
-                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                Annuler
+                                            <button type="submit" style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 8px; border-radius: 10px;" title="Annuler">
+                                                <svg style="width:16px; height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -203,12 +154,9 @@
                         </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
-                            <td colspan="10" style="text-align:center;padding:48px;color:var(--text-3);">
-                                <div style="font-size:36px;margin-bottom:12px;">💰</div>
-                                <div style="font-size:14px;margin-bottom:12px;">Aucun paiement enregistré</div>
-                                <a href="<?php echo e(route('admin.paiements.create')); ?>" class="btn btn-primary btn-sm">
-                                    Enregistrer le premier paiement
-                                </a>
+                            <td colspan="7" style="padding: 100px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">💰</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #a0aec0;">Aucune transaction enregistrée.</div>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -218,13 +166,12 @@
 
         
         <?php if($paiements->hasPages()): ?>
-            <div style="padding:16px 20px;border-top:1px solid var(--border);">
+            <div style="padding: 24px; background: #fcfaf5; border-top: 1px solid #f7f4ec;">
                 <?php echo e($paiements->links()); ?>
 
             </div>
         <?php endif; ?>
     </div>
-
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>

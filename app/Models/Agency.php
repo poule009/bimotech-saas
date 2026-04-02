@@ -9,9 +9,23 @@ class Agency extends Model
 {
     use HasFactory;
 
+    /**
+     * SÉCURITÉ — Mass Assignment :
+     *
+     * `actif` et `slug` sont INTENTIONNELLEMENT absents de $fillable.
+     *
+     * - `actif`  : seul le SuperAdmin peut activer/désactiver une agence.
+     *              Si un admin pouvait le modifier via un formulaire, il pourrait
+     *              désactiver sa propre agence ou (via une faille) celle d'un concurrent.
+     *
+     * - `slug`   : identifiant unique d'URL généré à la création. Le modifier
+     *              pourrait casser des liens existants ou créer des conflits.
+     *
+     * Ces deux colonnes sont modifiées uniquement via assignation directe
+     * dans SuperAdminController ou dans les migrations de données.
+     */
     protected $fillable = [
         'name',
-        'slug',
         'email',
         'telephone',
         'logo_path',
@@ -20,7 +34,6 @@ class Agency extends Model
         'ninea',
         'onboarding_completed',
         'taux_tva',
-        'actif',
     ];
 
     protected $casts = [
@@ -68,9 +81,6 @@ class Agency extends Model
         return $this->subscription && $this->subscription->aAcces();
     }
 
-    /**
-     * Détermine si la couleur primaire est claire ou sombre.
-     */
     public function couleurEstSombre(): bool
     {
         $hex = ltrim($this->couleur_primaire ?? '#1a3c5e', '#');
@@ -100,46 +110,26 @@ class Agency extends Model
 
     // ── Onboarding ────────────────────────────────────────────────────────
 
-    /**
-     * Calcule les 4 étapes d'onboarding et retourne un tableau d'état.
-     * Met aussi à jour onboarding_completed si toutes les étapes sont cochées.
-     */
-    public function checkOnboarding(): array
-    {
-        // Étape 1 : Paramètres agence configurés (Logo OU Couleur personnalisée + NINEA)
-        $etape1 = (
-            ($this->logo_path !== null || $this->couleur_primaire !== null)
-            && $this->ninea !== null
-            && trim($this->ninea) !== ''
-        );
+ public function checkOnboarding(): array
+{
+    $etape1 = ! empty($this->logo_path) && ! empty($this->ninea);
+    $etape2 = $this->users()->where('role', 'proprietaire')->exists();
+    $etape3 = $this->biens()->exists();
+    $etape4 = $this->contrats()->where('statut', 'actif')->exists();
 
-        // Étape 2 : Premier propriétaire ajouté
-        $etape2 = $this->users()
-            ->where('role', 'proprietaire')
-            ->exists();
+    $nbCompletes = collect([$etape1, $etape2, $etape3, $etape4])->filter()->count();
 
-        // Étape 3 : Premier bien enregistré
-        $etape3 = $this->biens()->exists();
-
-        // Étape 4 : Premier contrat signé (statut actif)
-        $etape4 = $this->contrats()
-            ->where('statut', 'actif')
-            ->exists();
-
-        $toutesTerminees = $etape1 && $etape2 && $etape3 && $etape4;
-
-        // Persiste le flag si toutes les étapes sont complètes (opération idempotente)
-        if ($toutesTerminees && ! $this->onboarding_completed) {
-            $this->updateQuietly(['onboarding_completed' => true]);
-        }
-
-        return [
-            'etape1'           => $etape1,
-            'etape2'           => $etape2,
-            'etape3'           => $etape3,
-            'etape4'           => $etape4,
-            'tout_complete'    => $toutesTerminees,
-            'nb_completes'     => (int) $etape1 + (int) $etape2 + (int) $etape3 + (int) $etape4,
-        ];
+    if ($nbCompletes === 4 && ! $this->onboarding_completed) {
+        $this->update(['onboarding_completed' => true]);
     }
+
+    return [
+        'etape1'       => $etape1,
+        'etape2'       => $etape2,
+        'etape3'       => $etape3,
+        'etape4'       => $etape4,
+        'nb_completes' => $nbCompletes,
+        'total'        => 4,
+    ];
+}
 }

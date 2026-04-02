@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\DB;
 class RapportController extends Controller
 {
     /**
-     * Retourne les données du rapport financier pour la vue et l'export.
-     * Toutes les requêtes User sont filtrées par agency_id pour éviter
-     * la fuite de données inter-agences.
+     * Retourne les données du rapport financier.
+     * AgencyScope appliqué automatiquement sur Paiement, Bien, Contrat.
+     * User filtré manuellement par agency_id (pas de Global Scope sur User).
      */
     private function getData(int $annee, int $mois): array
     {
@@ -25,36 +25,37 @@ class RapportController extends Controller
         $debutMois = Carbon::create($annee, $mois, 1)->startOfMonth();
         $finMois   = Carbon::create($annee, $mois, 1)->endOfMonth();
 
-        // ── Paiements du mois (AgencyScope appliqué automatiquement) ──
+        // ── Paiements du mois avec eager load complet ──────────────────
         $paiementsMois = Paiement::with('contrat.bien.proprietaire', 'contrat.locataire')
             ->where('statut', 'valide')
             ->whereBetween('date_paiement', [$debutMois, $finMois])
             ->orderBy('date_paiement')
             ->get();
 
-        // ── KPI du mois ───────────────────────────────────────────────
+        // ── KPI du mois — UNE seule requête SQL avec selectRaw ─────────
+        // Avant : 5 requêtes séparées (sum x5). Après : 1 requête.
+        $kpiRaw = Paiement::where('statut', 'valide')
+            ->whereBetween('date_paiement', [$debutMois, $finMois])
+            ->selectRaw('
+                COALESCE(SUM(montant_encaisse), 0)  AS total_loyers,
+                COALESCE(SUM(commission_agence), 0) AS total_commission,
+                COALESCE(SUM(tva_commission), 0)    AS total_tva,
+                COALESCE(SUM(commission_ttc), 0)    AS total_ttc,
+                COALESCE(SUM(net_proprietaire), 0)  AS total_net_proprio,
+                COUNT(*)                             AS nb_paiements
+            ')
+            ->first();
+
         $kpiMois = [
-            'total_loyers'      => Paiement::where('statut', 'valide')
-                ->whereBetween('date_paiement', [$debutMois, $finMois])
-                ->sum('montant_encaisse'),
-            'total_commission'  => Paiement::where('statut', 'valide')
-                ->whereBetween('date_paiement', [$debutMois, $finMois])
-                ->sum('commission_agence'),
-            'total_tva'         => Paiement::where('statut', 'valide')
-                ->whereBetween('date_paiement', [$debutMois, $finMois])
-                ->sum('tva_commission'),
-            'total_ttc'         => Paiement::where('statut', 'valide')
-                ->whereBetween('date_paiement', [$debutMois, $finMois])
-                ->sum('commission_ttc'),
-            'total_net_proprio' => Paiement::where('statut', 'valide')
-                ->whereBetween('date_paiement', [$debutMois, $finMois])
-                ->sum('net_proprietaire'),
-            'nb_paiements'      => Paiement::where('statut', 'valide')
-                ->whereBetween('date_paiement', [$debutMois, $finMois])
-                ->count(),
+            'total_loyers'      => (float) ($kpiRaw->total_loyers     ?? 0),
+            'total_commission'  => (float) ($kpiRaw->total_commission  ?? 0),
+            'total_tva'         => (float) ($kpiRaw->total_tva         ?? 0),
+            'total_ttc'         => (float) ($kpiRaw->total_ttc         ?? 0),
+            'total_net_proprio' => (float) ($kpiRaw->total_net_proprio ?? 0),
+            'nb_paiements'      => (int)   ($kpiRaw->nb_paiements      ?? 0),
         ];
 
-        // ── Évolution sur 12 mois ─────────────────────────────────────
+        // ── Évolution sur 12 mois ──────────────────────────────────────
         $evolution = Paiement::where('statut', 'valide')
             ->where('periode', '>=', Carbon::now()->subMonths(11)->startOfMonth())
             ->select(
@@ -71,7 +72,9 @@ class RapportController extends Controller
             ->orderBy('mois')
             ->get();
 
-        // ── Par propriétaire (mois sélectionné) ───────────────────────
+        // ── Par propriétaire ───────────────────────────────────────────
+        // Les paiements du mois sont déjà chargés avec contrat.bien.proprietaire
+        // On group en PHP — pas de requête supplémentaire (N+1 évité)
         $parProprietaire = $paiementsMois
             ->filter(fn($p) => $p->contrat?->bien?->proprietaire !== null)
             ->groupBy(fn($p) => $p->contrat->bien->proprietaire->id)
@@ -88,31 +91,27 @@ class RapportController extends Controller
             })
             ->sortByDesc('loyers');
 
-        // ── Biens sans paiement ce mois ───────────────────────────────
+        // ── Biens sans paiement ce mois ────────────────────────────────
         $biensPaies   = $paiementsMois->pluck('contrat.bien_id')->unique();
         $biensImpayés = Contrat::where('statut', 'actif')
             ->whereNotIn('bien_id', $biensPaies)
             ->with('bien', 'locataire')
             ->get();
 
-        // ── Stats générales — FILTRÉES par agency_id ──────────────────
+        // ── Stats générales ────────────────────────────────────────────
         $nbBiens      = Bien::count();
         $nbBiensLoues = Bien::where('statut', 'loue')->count();
+
         $statsGenerales = [
             'nb_biens'         => $nbBiens,
             'nb_biens_loues'   => $nbBiensLoues,
             'nb_contrats'      => Contrat::where('statut', 'actif')->count(),
-            // CORRECTION : filtrer par agency_id pour éviter fuite inter-agences
-            'nb_proprietaires' => User::where('role', 'proprietaire')
-                ->where('agency_id', $agencyId)->count(),
-            'nb_locataires'    => User::where('role', 'locataire')
-                ->where('agency_id', $agencyId)->count(),
-            'taux_occupation'  => $nbBiens > 0
-                ? round(($nbBiensLoues / $nbBiens) * 100, 1)
-                : 0,
+            'nb_proprietaires' => User::where('role', 'proprietaire')->where('agency_id', $agencyId)->count(),
+            'nb_locataires'    => User::where('role', 'locataire')->where('agency_id', $agencyId)->count(),
+            'taux_occupation'  => $nbBiens > 0 ? round(($nbBiensLoues / $nbBiens) * 100, 1) : 0,
         ];
 
-        // ── Années disponibles pour le filtre ─────────────────────────
+        // ── Années disponibles pour le filtre ──────────────────────────
         $anneesDisponibles = Paiement::selectRaw('YEAR(periode) as annee')
             ->groupBy('annee')
             ->orderByDesc('annee')
@@ -125,7 +124,11 @@ class RapportController extends Controller
             'biensImpayés', 'statsGenerales',
             'anneesDisponibles'
         );
-    } // fin getData
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // VUE RAPPORT
+    // ─────────────────────────────────────────────────────────────────────
 
     public function financier(Request $request)
     {
@@ -136,10 +139,10 @@ class RapportController extends Controller
 
         $data = $this->getData($annee, $mois);
 
-        // Paginer manuellement les paiements pour la vue
+        // Pagination manuelle des paiements pour la vue
         $paiementsMois = new \Illuminate\Pagination\LengthAwarePaginator(
             $data['paiementsMois']->forPage(
-                $page = $request->input('page', 1),
+                $page    = $request->input('page', 1),
                 $perPage = 50
             ),
             $data['paiementsMois']->count(),
@@ -152,9 +155,10 @@ class RapportController extends Controller
         return view('rapports.financier', $data);
     }
 
-    /**
-     * Export PDF du rapport financier mensuel.
-     */
+    // ─────────────────────────────────────────────────────────────────────
+    // EXPORT PDF
+    // ─────────────────────────────────────────────────────────────────────
+
     public function exportPdf(Request $request)
     {
         $this->authorize('isAdmin');
@@ -162,19 +166,21 @@ class RapportController extends Controller
         $annee = (int) $request->input('annee', now()->year);
         $mois  = (int) $request->input('mois',  now()->month);
 
-        $data    = $this->getData($annee, $mois);
-        $agency  = Auth::user()->agency;
-        $data['agency'] = $agency;
+        $data  = $this->getData($annee, $mois);
+        $data['agency'] = Auth::user()->agency;
 
         $pdf = Pdf::loadView('rapports.financier_pdf', $data)
             ->setPaper('a4', 'landscape')
-            ->setOptions([
-                'defaultFont'  => 'DejaVu Sans',
-                'isRemoteEnabled' => false,
-            ]);
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('dpi', 120);
 
-        $nomFichier = 'rapport-financier-' . $annee . '-' . str_pad($mois, 2, '0', STR_PAD_LEFT) . '.pdf';
+        $filename = sprintf(
+            'rapport-financier-%04d-%02d-%s.pdf',
+            $annee,
+            $mois,
+            $data['agency']?->slug ?? 'agence'
+        );
 
-        return $pdf->download($nomFichier);
+        return $pdf->download($filename);
     }
 }

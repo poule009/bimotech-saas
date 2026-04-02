@@ -8,6 +8,8 @@ use App\Models\Locataire;
 use App\Models\Paiement;
 use App\Models\Proprietaire;
 use App\Models\User;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,51 +17,127 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    // ── Liste des propriétaires ───────────────────────────────────────────
+    use AuthorizesRequests;
+
+    // ─────────────────────────────────────────────────────────────────────
+    // HELPER PRIVÉ — Vérification appartenance cross-agence
+    // ─────────────────────────────────────────────────────────────────────
+
+    private function verifierAppartenance(User $user): void
+    {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        if ($authUser->isSuperAdmin()) {
+            return;
+        }
+
+        if ($user->agency_id !== $authUser->agency_id) {
+            abort(403, 'Accès refusé — cet utilisateur n\'appartient pas à votre agence.');
+        }
+
+        if (! in_array($user->role, ['proprietaire', 'locataire'])) {
+            abort(404);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // LISTE PROPRIÉTAIRES
+    // ─────────────────────────────────────────────────────────────────────
+
     public function proprietaires()
     {
         $this->authorize('isAdmin');
+
+        $agencyId = Auth::user()->agency_id;
+
+        /**
+         * PERFORMANCE — select() + withCount :
+         *
+         * Avant : ->with('biens') chargeait TOUS les biens (toutes leurs colonnes)
+         * juste pour afficher le nombre dans la liste.
+         *
+         * Après : withCount('biens') fait un COUNT(*) SQL en sous-requête.
+         * Plus besoin de charger les objets Bien en mémoire.
+         *
+         * select() : on ne charge que les colonnes affichées dans la liste.
+         */
         $proprietaires = User::where('role', 'proprietaire')
-            ->with('biens')
+            ->where('agency_id', $agencyId)
+            ->select(['id', 'agency_id', 'name', 'email', 'telephone', 'created_at'])
+            ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere'])
             ->withCount('biens')
             ->orderBy('name')
             ->paginate(15);
 
+        // Agrégats SQL — pas de get() en mémoire
         $stats = [
-            'total'        => User::where('role', 'proprietaire')->count(),
-            'total_biens'  => \App\Models\Bien::count(),
-            'biens_loues'  => \App\Models\Bien::where('statut', 'loue')->count(),
+            'total'       => User::where('role', 'proprietaire')->where('agency_id', $agencyId)->count(),
+            'total_biens' => Bien::count(),
+            'biens_loues' => Bien::where('statut', 'loue')->count(),
         ];
 
         return view('users.proprietaires', compact('proprietaires', 'stats'));
     }
 
-    // ── Liste des locataires ──────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // LISTE LOCATAIRES
+    // ─────────────────────────────────────────────────────────────────────
+
     public function locataires()
     {
         $this->authorize('isAdmin');
+
+        $agencyId = Auth::user()->agency_id;
+
+        /**
+         * PERFORMANCE — Eager loading sélectif :
+         *
+         * Avant : ->with('contrats.bien') chargeait TOUTES les colonnes de contrats
+         * ET de biens pour chaque locataire, juste pour afficher la référence.
+         *
+         * Après : on charge uniquement les colonnes nécessaires à l'affichage,
+         * avec withCount pour le nombre de contrats.
+         */
         $locataires = User::where('role', 'locataire')
-            ->with('contrats.bien')
+            ->where('agency_id', $agencyId)
+            ->select(['id', 'agency_id', 'name', 'email', 'telephone', 'created_at'])
+            ->with([
+                'contrats' => fn($q) => $q
+                    ->where('statut', 'actif')
+                    ->select(['id', 'locataire_id', 'bien_id', 'statut', 'loyer_contractuel'])
+                    ->with(['bien:id,reference,adresse,ville']),
+            ])
+            ->withCount([
+                'contrats',
+                'contrats as contrats_actifs_count' => fn($q) => $q->where('statut', 'actif'),
+            ])
             ->orderBy('name')
             ->paginate(15);
 
         $stats = [
-            'total'         => User::where('role', 'locataire')->count(),
-            'actifs'        => User::where('role', 'locataire')
-                ->whereHas('contrats', fn($q) => $q->where('statut', 'actif'))
-                ->count(),
-            'sans_contrat'  => User::where('role', 'locataire')
-                ->whereDoesntHave('contrats', fn($q) => $q->where('statut', 'actif'))
-                ->count(),
+            'total'        => User::where('role', 'locataire')->where('agency_id', $agencyId)->count(),
+            'actifs'       => User::where('role', 'locataire')
+                                  ->where('agency_id', $agencyId)
+                                  ->whereHas('contrats', fn($q) => $q->where('statut', 'actif'))
+                                  ->count(),
+            'sans_contrat' => User::where('role', 'locataire')
+                                  ->where('agency_id', $agencyId)
+                                  ->whereDoesntHave('contrats', fn($q) => $q->where('statut', 'actif'))
+                                  ->count(),
         ];
 
         return view('users.locataires', compact('locataires', 'stats'));
     }
 
-    // ── Formulaire création ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // FORMULAIRE CRÉATION
+    // ─────────────────────────────────────────────────────────────────────
+
     public function create(string $role)
     {
         $this->authorize('isAdmin');
+
         if (! in_array($role, ['proprietaire', 'locataire'])) {
             abort(404);
         }
@@ -67,10 +145,14 @@ class UserController extends Controller
         return view('users.create', compact('role'));
     }
 
-    // ── Enregistrement ────────────────────────────────────────────────────
-    public function store(Request $request)
+    // ─────────────────────────────────────────────────────────────────────
+    // ENREGISTREMENT
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function store(Request $request): RedirectResponse
     {
         $this->authorize('isAdmin');
+
         $validated = $request->validate([
             'role'      => ['required', 'in:proprietaire,locataire'],
             'name'      => ['required', 'string', 'max:255'],
@@ -78,42 +160,41 @@ class UserController extends Controller
             'telephone' => ['nullable', 'string', 'max:20'],
             'adresse'   => ['nullable', 'string', 'max:255'],
             'password'  => ['required', 'confirmed', Password::min(8)],
-
-            // Champs profil communs
             'cni'            => ['nullable', 'string', 'max:20'],
             'date_naissance' => ['nullable', 'date'],
             'genre'          => ['nullable', 'in:M,F'],
             'ville'          => ['nullable', 'string', 'max:100'],
             'quartier'       => ['nullable', 'string', 'max:100'],
-
-            // Champs propriétaire
             'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque,mobile_money'],
             'banque'                => ['nullable', 'string', 'max:100'],
             'numero_wave'           => ['nullable', 'string', 'max:20'],
             'numero_om'             => ['nullable', 'string', 'max:20'],
             'ninea'                 => ['nullable', 'string', 'max:20'],
-
-            // Champs locataire
             'profession'            => ['nullable', 'string', 'max:100'],
             'employeur'             => ['nullable', 'string', 'max:100'],
             'revenu_mensuel'        => ['nullable', 'numeric', 'min:0'],
             'contact_urgence_nom'   => ['nullable', 'string', 'max:100'],
             'contact_urgence_tel'   => ['nullable', 'string', 'max:20'],
             'contact_urgence_lien'  => ['nullable', 'string', 'max:50'],
+        ], [
+            'email.unique'   => 'Cet email est déjà utilisé par un autre compte.',
+            'name.required'  => 'Le nom complet est obligatoire.',
+            'genre.in'       => 'Genre invalide (M ou F).',
+            'mode_paiement_prefere.in' => 'Mode de paiement invalide.',
         ]);
 
-        // Créer le compte User (auto-vérifié : créé par l'admin, pas d'auto-inscription)
-        $user = User::create([
-            'name'              => $validated['name'],
-            'email'             => $validated['email'],
-            'telephone'         => $validated['telephone'] ?? null,
-            'adresse'           => $validated['adresse'] ?? null,
-            'password'          => Hash::make($validated['password']),
-            'role'              => $validated['role'],
-            'email_verified_at' => now(),
-        ]);
+        // agency_id forcé côté serveur — jamais depuis le formulaire
+        $user           = new User();
+        $user->name     = $validated['name'];
+        $user->email    = $validated['email'];
+        $user->telephone = $validated['telephone'] ?? null;
+        $user->adresse  = $validated['adresse'] ?? null;
+        $user->password = Hash::make($validated['password']);
+        $user->role     = $validated['role'];
+        $user->agency_id         = Auth::user()->agency_id;
+        $user->email_verified_at = now();
+        $user->save();
 
-        // Créer le profil selon le rôle
         if ($validated['role'] === 'proprietaire') {
             Proprietaire::create([
                 'user_id'               => $user->id,
@@ -134,123 +215,159 @@ class UserController extends Controller
                 ->with('success', "Propriétaire {$user->name} créé ✓");
         }
 
-        if ($validated['role'] === 'locataire') {
-            Locataire::create([
-                'user_id'              => $user->id,
-                'cni'                  => $validated['cni'] ?? null,
-                'date_naissance'       => $validated['date_naissance'] ?? null,
-                'genre'                => $validated['genre'] ?? null,
-                'ville'                => $validated['ville'] ?? 'Dakar',
-                'quartier'             => $validated['quartier'] ?? null,
-                'profession'           => $validated['profession'] ?? null,
-                'employeur'            => $validated['employeur'] ?? null,
-                'revenu_mensuel'       => $validated['revenu_mensuel'] ?? null,
-                'contact_urgence_nom'  => $validated['contact_urgence_nom'] ?? null,
-                'contact_urgence_tel'  => $validated['contact_urgence_tel'] ?? null,
-                'contact_urgence_lien' => $validated['contact_urgence_lien'] ?? null,
-            ]);
+        Locataire::create([
+            'user_id'              => $user->id,
+            'cni'                  => $validated['cni'] ?? null,
+            'date_naissance'       => $validated['date_naissance'] ?? null,
+            'genre'                => $validated['genre'] ?? null,
+            'ville'                => $validated['ville'] ?? 'Dakar',
+            'quartier'             => $validated['quartier'] ?? null,
+            'profession'           => $validated['profession'] ?? null,
+            'employeur'            => $validated['employeur'] ?? null,
+            'revenu_mensuel'       => $validated['revenu_mensuel'] ?? null,
+            'contact_urgence_nom'  => $validated['contact_urgence_nom'] ?? null,
+            'contact_urgence_tel'  => $validated['contact_urgence_tel'] ?? null,
+            'contact_urgence_lien' => $validated['contact_urgence_lien'] ?? null,
+        ]);
 
-            return redirect()
-                ->route('admin.users.locataires')
-                ->with('success', "Locataire {$user->name} créé ✓");
-        }
+        return redirect()
+            ->route('admin.users.locataires')
+            ->with('success', "Locataire {$user->name} créé ✓");
     }
 
-    // ── Fiche détaillée d'un propriétaire ────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // FICHE DÉTAILLÉE
+    // ─────────────────────────────────────────────────────────────────────
+
     public function show(User $user)
     {
         $this->authorize('isAdmin');
+        $this->verifierAppartenance($user);
 
-        // BUG 9 FIX : vérification cross-agence robuste.
-        // User n'a pas d'AgencyScope → vérification manuelle obligatoire.
-        // On utilise isSuperAdmin() (méthode du modèle) plutôt qu'une comparaison
-        // de chaîne fragile, et Auth::user() plutôt que le FQCN inline.
-        /** @var \App\Models\User $currentUser */
-        $currentUser = Auth::user();
-        if (! $currentUser->isSuperAdmin() && $currentUser->agency_id !== $user->agency_id) {
-            abort(403, 'Cet utilisateur n\'appartient pas à votre agence.');
+        $stats = [];
+
+        if ($user->isProprietaire()) {
+            // On récupère les IDs des contrats via une sous-requête
+            $contratIds = Contrat::whereHas(
+                'bien', fn($q) => $q->where('proprietaire_id', $user->id)
+            )->pluck('id');
+
+            /**
+             * PERFORMANCE — Agrégats SQL groupés :
+             * Une seule requête pour toutes les sommes au lieu de 5 count/sum séparés.
+             */
+            $aggr = Paiement::whereIn('contrat_id', $contratIds)
+                ->where('statut', 'valide')
+                ->selectRaw('
+                    COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
+                    COALESCE(SUM(net_proprietaire), 0) AS total_net,
+                    COALESCE(SUM(commission_ttc), 0)   AS total_commission,
+                    COUNT(*)                            AS nb_paiements
+                ')
+                ->first();
+
+            $stats = [
+                'nb_biens'         => Bien::where('proprietaire_id', $user->id)->count(),
+                'nb_biens_loues'   => Bien::where('proprietaire_id', $user->id)->where('statut', 'loue')->count(),
+                'total_loyers'     => (float) $aggr->total_loyers,
+                'total_net'        => (float) $aggr->total_net,
+                'total_commission' => (float) $aggr->total_commission,
+                'nb_paiements'     => (int)   $aggr->nb_paiements,
+            ];
+
+            $biens = Bien::where('proprietaire_id', $user->id)
+                ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type', 'adresse', 'ville', 'statut', 'loyer_mensuel'])
+                ->with([
+                    'contratActif:id,bien_id,locataire_id,statut,loyer_contractuel,date_debut',
+                    'contratActif.locataire:id,name',
+                ])
+                ->orderByDesc('created_at')
+                ->paginate(5);
+
+            $paiements = Paiement::whereIn('contrat_id', $contratIds)
+                ->where('statut', 'valide')
+                ->select(['id', 'agency_id', 'contrat_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'mode_paiement', 'date_paiement', 'reference_paiement'])
+                ->with(['contrat:id,bien_id', 'contrat.bien:id,reference'])
+                ->orderByDesc('date_paiement')
+                ->paginate(10);
+
+            $locatairesActifs = Contrat::whereIn('id', $contratIds)
+                ->where('statut', 'actif')
+                ->select(['id', 'bien_id', 'locataire_id', 'loyer_contractuel', 'date_debut'])
+                ->with([
+                    'locataire:id,name,email,telephone',
+                    'bien:id,reference,adresse,ville',
+                ])
+                ->get();
+
+            return view('users.show', compact(
+                'user', 'biens', 'stats', 'paiements', 'locatairesActifs'
+            ));
         }
 
-    // Charge toutes les relations nécessaires
-   $biens = Bien::where('proprietaire_id', $user->id)
-    ->with(['contrats' => fn($q) => $q->where('statut', 'actif')
-        ->with('locataire')])
-    ->paginate(5);
+        if ($user->isLocataire()) {
+            $contrat = Contrat::where('locataire_id', $user->id)
+                ->where('statut', 'actif')
+                ->select(['id', 'bien_id', 'locataire_id', 'statut', 'loyer_contractuel', 'date_debut', 'date_fin'])
+                ->with(['bien:id,reference,adresse,ville,type'])
+                ->first();
 
-$contratIds = Contrat::whereHas('bien', fn($q)
-    => $q->where('proprietaire_id', $user->id)
-)->pluck('id');
+            if ($contrat) {
+                $aggrLoc = Paiement::where('contrat_id', $contrat->id)
+                    ->where('statut', 'valide')
+                    ->selectRaw('
+                        COALESCE(SUM(montant_encaisse), 0) AS total_paye,
+                        COUNT(*)                           AS nb_paiements
+                    ')
+                    ->first();
 
-$paiements = Paiement::whereIn('contrat_id', $contratIds)
-    ->where('statut', 'valide')
-    ->with('contrat.bien', 'contrat.locataire')
-    ->orderByDesc('date_paiement')
-    ->paginate(10);
+                $stats = [
+                    'contrat_actif' => $contrat,
+                    'nb_paiements'  => (int)   $aggrLoc->nb_paiements,
+                    'total_paye'    => (float) $aggrLoc->total_paye,
+                ];
+            }
+        }
 
-$stats = [
-    'nb_biens'       => Bien::where('proprietaire_id', $user->id)->count(),
-    'nb_biens_loues' => Bien::where('proprietaire_id', $user->id)
-                            ->where('statut', 'loue')->count(),
-    'nb_locataires'  => Contrat::whereIn('id', $contratIds)
-                            ->where('statut', 'actif')
-                            ->distinct('locataire_id')->count(),
-    'total_loyers'   => Paiement::whereIn('contrat_id', $contratIds)
-                            ->where('statut', 'valide')->sum('montant_encaisse'),
-    'total_net'      => Paiement::whereIn('contrat_id', $contratIds)
-                            ->where('statut', 'valide')->sum('net_proprietaire'),
-    'total_commission'=> Paiement::whereIn('contrat_id', $contratIds)
-                            ->where('statut', 'valide')->sum('commission_ttc'),
-    'nb_paiements'   => Paiement::whereIn('contrat_id', $contratIds)
-                            ->where('statut', 'valide')->count(),
-];
+        return view('users.show', compact('user', 'stats'));
+    }
 
-$locatairesActifs = Contrat::whereIn('id', $contratIds)
-    ->where('statut', 'actif')
-    ->with('locataire', 'bien')
-    ->get()
-    ->map(fn($c) => [
-        'contrat'   => $c,
-        'locataire' => $c->locataire,
-        'bien'      => $c->bien,
-    ]);
+    // ─────────────────────────────────────────────────────────────────────
+    // FORMULAIRE ÉDITION
+    // ─────────────────────────────────────────────────────────────────────
 
-return view('users.show', compact(
-    'user', 'biens', 'stats', 'paiements', 'locatairesActifs'
-));
-}
-
-    // ── Formulaire édition ────────────────────────────────────────────────
     public function edit(User $user)
     {
         $this->authorize('isAdmin');
+        $this->verifierAppartenance($user);
 
-        if (! in_array($user->role, ['proprietaire', 'locataire'])) {
-            abort(404);
-        }
+        $user->load('proprietaire', 'locataire');
 
         return view('users.edit', compact('user'));
     }
 
-    // ── Mise à jour ───────────────────────────────────────────────────────
-    public function update(Request $request, User $user)
+    // ─────────────────────────────────────────────────────────────────────
+    // MISE À JOUR
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function update(Request $request, User $user): RedirectResponse
     {
         $this->authorize('isAdmin');
-
-        if (! in_array($user->role, ['proprietaire', 'locataire'])) {
-            abort(404);
-        }
+        $this->verifierAppartenance($user);
 
         $validated = $request->validate([
             'name'      => ['required', 'string', 'max:255'],
             'email'     => ['required', 'email', 'unique:users,email,' . $user->id],
             'telephone' => ['nullable', 'string', 'max:30'],
             'adresse'   => ['nullable', 'string', 'max:255'],
+        ], [
+            'email.unique'  => 'Cet email est déjà utilisé par un autre compte.',
+            'name.required' => 'Le nom complet est obligatoire.',
         ]);
 
         $user->update($validated);
 
-        // Mise à jour du profil selon le rôle
-        if ($user->role === 'proprietaire' && $user->proprietaire) {
+        if ($user->isProprietaire() && $user->proprietaire) {
             $profilData = $request->validate([
                 'cni'                   => ['nullable', 'string', 'max:20'],
                 'date_naissance'        => ['nullable', 'date'],
@@ -260,7 +377,7 @@ return view('users.show', compact(
                 'adresse_domicile'      => ['nullable', 'string', 'max:255'],
                 'ville'                 => ['nullable', 'string', 'max:100'],
                 'quartier'              => ['nullable', 'string', 'max:100'],
-                'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque'],
+                'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque,mobile_money'],
                 'banque'                => ['nullable', 'string', 'max:100'],
                 'numero_compte'         => ['nullable', 'string', 'max:50'],
                 'numero_wave'           => ['nullable', 'string', 'max:20'],
@@ -271,17 +388,17 @@ return view('users.show', compact(
             $user->proprietaire->update($profilData);
         }
 
-        if ($user->role === 'locataire' && $user->locataire) {
+        if ($user->isLocataire() && $user->locataire) {
             $profilData = $request->validate([
-                'cni'                   => ['nullable', 'string', 'max:20'],
-                'date_naissance'        => ['nullable', 'date'],
-                'genre'                 => ['nullable', 'in:M,F'],
-                'nationalite'           => ['nullable', 'string', 'max:50'],
-                'profession'            => ['nullable', 'string', 'max:100'],
-                'employeur'             => ['nullable', 'string', 'max:150'],
-                'revenu_mensuel'        => ['nullable', 'numeric', 'min:0'],
-                'ville'                 => ['nullable', 'string', 'max:100'],
-                'quartier'              => ['nullable', 'string', 'max:100'],
+                'cni'            => ['nullable', 'string', 'max:20'],
+                'date_naissance' => ['nullable', 'date'],
+                'genre'          => ['nullable', 'in:M,F'],
+                'nationalite'    => ['nullable', 'string', 'max:50'],
+                'profession'     => ['nullable', 'string', 'max:100'],
+                'employeur'      => ['nullable', 'string', 'max:150'],
+                'revenu_mensuel' => ['nullable', 'numeric', 'min:0'],
+                'ville'          => ['nullable', 'string', 'max:100'],
+                'quartier'       => ['nullable', 'string', 'max:100'],
             ]);
             $user->locataire->update($profilData);
         }
@@ -291,24 +408,28 @@ return view('users.show', compact(
             ->with('success', 'Utilisateur mis à jour ✓');
     }
 
-    // ── Suppression ───────────────────────────────────────────────────────
-    public function destroy(User $user)
+    // ─────────────────────────────────────────────────────────────────────
+    // SUPPRESSION
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function destroy(User $user): RedirectResponse
     {
         $this->authorize('isAdmin');
-        // Impossible de supprimer si contrat actif
-        if ($user->contrats()->where('statut', 'actif')->exists()) {
+        $this->verifierAppartenance($user);
+
+        if ($user->isLocataire() && $user->contrats()->where('statut', 'actif')->exists()) {
             return back()->withErrors([
-                'general' => 'Impossible de supprimer un locataire avec un contrat actif.'
+                'general' => 'Impossible de supprimer un locataire avec un contrat actif.',
             ]);
         }
 
-        if ($user->biens()->where('statut', 'loue')->exists()) {
+        if ($user->isProprietaire() && $user->biens()->where('statut', 'loue')->exists()) {
             return back()->withErrors([
-                'general' => 'Impossible de supprimer un propriétaire avec des biens loués.'
+                'general' => 'Impossible de supprimer un propriétaire avec des biens loués.',
             ]);
         }
 
-        $user->delete(); // SoftDelete
+        $user->delete();
 
         return back()->with('success', 'Utilisateur supprimé ✓');
     }

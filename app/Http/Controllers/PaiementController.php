@@ -26,15 +26,32 @@ class PaiementController extends Controller
     // LISTE
     // ─────────────────────────────────────────────────────────────────────
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Paiement::class);
 
-        $paiements = Paiement::with('contrat.bien', 'contrat.locataire')
+        /**
+         * PERFORMANCE — select() sélectif + eager loading optimisé :
+         *
+         * La liste paiements affiche : période, montant, mode, date, statut,
+         * référence bien, nom locataire. On n'a pas besoin de toutes les colonnes.
+         *
+         * with() avec select() : évite de charger password, description, etc.
+         */
+        $paiements = Paiement::select([
+                'id', 'agency_id', 'contrat_id',
+                'periode', 'montant_encaisse', 'commission_ttc', 'net_proprietaire',
+                'mode_paiement', 'date_paiement', 'statut', 'reference_paiement',
+            ])
+            ->with([
+                'contrat:id,bien_id,locataire_id',
+                'contrat.bien:id,reference,adresse,ville',
+                'contrat.locataire:id,name',
+            ])
             ->orderByDesc('date_paiement')
             ->paginate(20);
 
-        return view('admin.paiements.index', compact('paiements'));
+        return view('paiements.index', compact('paiements'));
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -45,13 +62,29 @@ class PaiementController extends Controller
     {
         $this->authorize('create', Paiement::class);
 
+        /**
+         * PERFORMANCE — select() sur les contrats pour le dropdown :
+         *
+         * Le formulaire utilise loyer_contractuel, loyer_nu, charges_mensuelles,
+         * tom_amount et taux_commission pour pré-remplir les champs JS.
+         * On n'a pas besoin de observations, garant_*, indexation_annuelle, etc.
+         */
         $contrats = Contrat::where('statut', 'actif')
-            ->with('bien', 'locataire')
-            ->orderBy('created_at', 'desc')
+            ->select([
+                'id', 'agency_id', 'bien_id', 'locataire_id',
+                'loyer_contractuel', 'loyer_nu', 'charges_mensuelles',
+                'tom_amount', 'date_debut', 'reference_bail',
+            ])
+            ->with([
+                'bien:id,agency_id,reference,adresse,ville,taux_commission,loyer_mensuel',
+                'locataire:id,name',
+            ])
+            ->orderByDesc('created_at')
             ->get();
 
         $contratPreselectionne = $request->has('contrat_id')
-            ? Contrat::with('bien', 'locataire')->find($request->contrat_id)
+            ? Contrat::with(['bien:id,reference,taux_commission,loyer_mensuel', 'locataire:id,name'])
+                     ->find($request->contrat_id)
             : null;
 
         return view('paiements.create', compact('contrats', 'contratPreselectionne'));
@@ -138,28 +171,31 @@ class PaiementController extends Controller
                 $calcul, $caution, $estPremierPaiem,
                 $referenceQuittance, $referenceBail, $tauxCommission
             ) {
-                $paiement = Paiement::create([
-                    'contrat_id'               => $contrat->id,
-                    'periode'                  => $periodeDate->toDateString(),
-                    'loyer_nu'                 => $calcul['loyer_nu'],
-                    'charges_amount'           => $calcul['charges_amount'],
-                    'tom_amount'               => $calcul['tom_amount'],
-                    'montant_encaisse'         => $calcul['montant_encaisse'],
-                    'mode_paiement'            => $request->mode_paiement,
-                    'taux_commission_applique' => $tauxCommission,
-                    'commission_agence'        => $calcul['commission_ht'],
-                    'tva_commission'           => $calcul['tva'],
-                    'commission_ttc'           => $calcul['commission_ttc'],
-                    'net_proprietaire'         => $calcul['net_proprietaire'],
-                    'caution_percue'           => $caution,
-                    'est_premier_paiement'     => $estPremierPaiem,
-                    'date_paiement'            => $request->date_paiement,
-                    'reference_paiement'       => $referenceQuittance,
-                    'reference_bail'           => $referenceBail,
-                    'statut'                   => 'valide',
-                    'notes'                    => $request->notes,
-                ]);
+                // Les colonnes calculées (commission, tva, net) sont assignées
+                // explicitement — elles ne sont pas dans $fillable
+                $paiement = new Paiement();
+                $paiement->contrat_id               = $contrat->id;
+                $paiement->periode                  = $periodeDate->toDateString();
+                $paiement->loyer_nu                 = $calcul['loyer_nu'];
+                $paiement->charges_amount           = $calcul['charges_amount'];
+                $paiement->tom_amount               = $calcul['tom_amount'];
+                $paiement->montant_encaisse         = $calcul['montant_encaisse'];
+                $paiement->mode_paiement            = $request->mode_paiement;
+                $paiement->taux_commission_applique = $tauxCommission;
+                $paiement->commission_agence        = $calcul['commission_ht'];
+                $paiement->tva_commission           = $calcul['tva'];
+                $paiement->commission_ttc           = $calcul['commission_ttc'];
+                $paiement->net_proprietaire         = $calcul['net_proprietaire'];
+                $paiement->caution_percue           = $caution;
+                $paiement->est_premier_paiement     = $estPremierPaiem;
+                $paiement->date_paiement            = $request->date_paiement;
+                $paiement->reference_paiement       = $referenceQuittance;
+                $paiement->reference_bail           = $referenceBail;
+                $paiement->statut                   = 'valide';
+                $paiement->notes                    = $request->notes;
+                $paiement->save();
 
+                // Génération PDF
                 $contrat->load('bien.proprietaire', 'locataire');
                 $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
 
@@ -180,8 +216,10 @@ class PaiementController extends Controller
                 );
 
                 Storage::disk('private')->put($receiptPath, $pdf->output());
-                $paiement->update(['receipt_path' => $receiptPath]);
+                $paiement->receipt_path = $receiptPath;
+                $paiement->save();
 
+                // Notifications
                 try {
                     $contrat->locataire->notify(new QuittanceLocataireNotification($paiement));
                 } catch (\Throwable $e) {
@@ -216,7 +254,12 @@ class PaiementController extends Controller
     public function show(Paiement $paiement)
     {
         $this->authorize('view', $paiement);
-        $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
+
+        $paiement->load([
+            'contrat.bien.proprietaire:id,name,telephone,adresse',
+            'contrat.locataire:id,name,email,telephone',
+        ]);
+
         return view('paiements.show', compact('paiement'));
     }
 
@@ -240,6 +283,7 @@ class PaiementController extends Controller
             );
         }
 
+        // Fallback — régénération
         $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
         $agency  = $paiement->agency ?? Auth::user()->agency;
         $pdfData = self::buildPdfData($paiement, $agency);
@@ -258,7 +302,8 @@ class PaiementController extends Controller
         );
 
         Storage::disk('private')->put($receiptPath, $pdf->output());
-        $paiement->update(['receipt_path' => $receiptPath]);
+        $paiement->receipt_path = $receiptPath;
+        $paiement->save();
 
         return response()->download(
             Storage::disk('private')->path($receiptPath),
@@ -278,12 +323,11 @@ class PaiementController extends Controller
             return back()->withErrors(['general' => 'Ce paiement est déjà annulé.']);
         }
 
-        $paiement->update([
-            'statut' => 'annule',
-            'notes'  => $paiement->notes
-                . "\n[Annulé le " . now()->format('d/m/Y')
-                . ' — ' . ($request->motif ?? 'Sans motif') . ']',
-        ]);
+        $paiement->statut = 'annule';
+        $paiement->notes  = ($paiement->notes ?? '')
+            . "\n[Annulé le " . now()->format('d/m/Y')
+            . ' — ' . ($request->motif ?? 'Sans motif') . ']';
+        $paiement->save();
 
         return back()->with('success', 'Paiement annulé.');
     }
@@ -297,6 +341,7 @@ class PaiementController extends Controller
         $dernier = Paiement::where('contrat_id', $contrat->id)
             ->where('statut', '!=', 'annule')
             ->orderByDesc('periode')
+            ->select(['id', 'contrat_id', 'periode'])
             ->first();
 
         $prochaine = $dernier
@@ -322,11 +367,17 @@ class PaiementController extends Controller
         $user    = Auth::user();
         $contrat = Contrat::where('locataire_id', $user->id)
                      ->where('statut', 'actif')
+                     ->select(['id', 'bien_id', 'locataire_id', 'statut', 'loyer_contractuel'])
                      ->first();
 
         $paiements = $contrat
             ? Paiement::where('contrat_id', $contrat->id)
                 ->where('statut', 'valide')
+                ->select([
+                    'id', 'contrat_id', 'agency_id',
+                    'periode', 'montant_encaisse', 'mode_paiement',
+                    'date_paiement', 'reference_paiement', 'statut',
+                ])
                 ->orderByDesc('periode')
                 ->get()
             : collect();
@@ -335,7 +386,7 @@ class PaiementController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // HELPER PRIVÉ : construction données PDF
+    // HELPER PRIVÉ — Construction données PDF
     // ─────────────────────────────────────────────────────────────────────
 
     private static function buildPdfData(Paiement $paiement, mixed $agency): array
@@ -366,8 +417,7 @@ class PaiementController extends Controller
             'loyerNuEnLettres' => NombreEnLettres::convertir($loyerNu),
             'netEnLettres'     => NombreEnLettres::convertir((float) $paiement->net_proprietaire),
 
-            'referenceBail' => $paiement->reference_bail
-                ?? $contrat->reference_bail_affichee,
+            'referenceBail' => $paiement->reference_bail ?? $contrat->reference_bail_affichee,
 
             'agence' => [
                 'nom'       => $agency?->name       ?? 'Agence Immobilière',

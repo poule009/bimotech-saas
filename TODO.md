@@ -1,5 +1,7 @@
-- [x] Identifier l’origine réelle de l’avertissement CSS (vue compilée Laravel dans storage/framework/views)
-- [x] Ajouter/mettre à jour la configuration VS Code pour ignorer les diagnostics CSS sur les vues compilées
-- [x] Vider le cache des vues compilées Laravel (`php artisan view:clear`)
-- [x] Vérifier que l’avertissement n’est plus bloquant dans l’éditeur
-- [x] Corriger l’erreur Intelephense P1009 dans la migration `2026_04_01_021745_add_quittance_fields_to_paiements_table.php` en utilisant le FQCN de `DB` dans `DB::statement(...)`
+# TODO - Correction RelanceImpayeNotification
+
+- [x] Remplacer `app/Notifications/RelanceImpayeNotification.php` par une vraie classe Notification (namespace `App\Notifications`)
+- [x] Garder la signature du constructeur compatible avec `new RelanceImpayeNotification($contrat, $periode)`
+- [x] Implémenter les canaux + contenu email de relance impayé
+- [ ] Vérifier la syntaxe PHP du fichier
+- [ ] Confirmer la résolution de l'erreur Intelephense P1009

@@ -13,7 +13,6 @@ class Paiement extends Model
 {
     use HasFactory, LogsActivity;
 
-    // ── Modes de paiement disponibles au Sénégal ──────────────────────────
     public const MODES_PAIEMENT = [
         'especes'      => 'Espèces',
         'virement'     => 'Virement bancaire',
@@ -32,31 +31,36 @@ class Paiement extends Model
         'unpaid'     => 'Non payé',
     ];
 
+    /**
+     * SÉCURITÉ — Mass Assignment :
+     *
+     * Les colonnes suivantes sont INTENTIONNELLEMENT absentes de $fillable :
+     *
+     * - `statut`             : ne doit être passé à 'valide' que par le contrôleur après vérification
+     * - `commission_agence`  : valeur calculée — ne doit jamais venir d'un formulaire
+     * - `tva_commission`     : idem
+     * - `commission_ttc`     : idem
+     * - `net_proprietaire`   : idem
+     * - `receipt_path`       : chemin fichier serveur — ne doit jamais être injecté par l'extérieur
+     *
+     * Ces colonnes sont assignées explicitement dans PaiementController::store()
+     * via un tableau construit côté serveur, jamais via $request->all() ou fill().
+     */
     protected $fillable = [
         'agency_id',
         'contrat_id',
         'periode',
-        // ── Ventilation loyer ──────────────────────────────────────────
-        'montant_encaisse',        // total encaissé (loyer_nu + charges + tom)
-        'loyer_nu',                // loyer hors charges et hors TOM
-        'charges_amount',          // charges récupérables du mois
-        'tom_amount',              // Taxe sur les Ordures Ménagères
-        // ── Calculs commission ─────────────────────────────────────────
+        'loyer_nu',
+        'charges_amount',
+        'tom_amount',
+        'montant_encaisse',
         'mode_paiement',
         'taux_commission_applique',
-        'commission_agence',       // commission HT sur loyer_nu
-        'tva_commission',          // TVA 18% sur commission HT
-        'commission_ttc',          // commission HT + TVA
-        'net_proprietaire',        // montant_encaisse - commission_ttc
-        // ── Caution ───────────────────────────────────────────────────
         'caution_percue',
         'est_premier_paiement',
-        // ── Références ────────────────────────────────────────────────
         'date_paiement',
-        'reference_paiement',      // référence quittance auto-générée
-        'reference_bail',          // référence bail saisie manuellement
-        'receipt_path',
-        'statut',
+        'reference_paiement',
+        'reference_bail',
         'notes',
     ];
 
@@ -87,10 +91,10 @@ class Paiement extends Model
             }
 
             // Auto-calcul loyer_nu si non fourni
-            if (empty($paiement->loyer_nu) || $paiement->loyer_nu == 0) {
-                $paiement->loyer_nu = $paiement->montant_encaisse
-                    - ($paiement->charges_amount ?? 0)
-                    - ($paiement->tom_amount ?? 0);
+            if ((empty($paiement->loyer_nu) || $paiement->loyer_nu == 0) && ! empty($paiement->montant_encaisse)) {
+                $paiement->loyer_nu = (float) $paiement->montant_encaisse
+                    - (float) ($paiement->charges_amount ?? 0)
+                    - (float) ($paiement->tom_amount ?? 0);
             }
         });
     }
@@ -109,56 +113,38 @@ class Paiement extends Model
 
     // ── Accesseurs ────────────────────────────────────────────────────────
 
-    /**
-     * Référence du bail : priorité à la saisie manuelle, sinon générée.
-     */
     public function getReferenceBailAfficheeAttribute(): string
     {
         if (! empty($this->reference_bail)) {
             return $this->reference_bail;
         }
-
         return 'BAIL-' . str_pad((string) $this->contrat_id, 5, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Montant total en lettres (pour la quittance).
-     */
     public function getMontantEnLettresAttribute(): string
     {
         return NombreEnLettres::convertir((float) $this->montant_encaisse);
     }
 
-    /**
-     * Net propriétaire en lettres (pour la quittance).
-     */
     public function getNetEnLettresAttribute(): string
     {
         return NombreEnLettres::convertir((float) $this->net_proprietaire);
     }
 
-    /**
-     * Loyer nu en lettres.
-     */
     public function getLoyerNuEnLettresAttribute(): string
     {
         return NombreEnLettres::convertir((float) $this->loyer_nu);
     }
 
-    // ── Méthodes statiques de calcul ──────────────────────────────────────
+    // ── Calcul des montants (méthode statique) ────────────────────────────
 
     /**
      * Calcule la ventilation complète d'un paiement.
+     * La commission s'applique sur le loyer nu uniquement.
      *
-     * La commission s'applique sur le LOYER NU uniquement
-     * (pas sur les charges ni sur la TOM — pratique sénégalaise standard).
-     *
-     * @param float $loyerNu       Loyer hors charges et hors TOM
-     * @param float $tauxCommission Taux en pourcentage (ex: 10 pour 10%)
-     * @param float $chargesAmount  Charges récupérables (défaut 0)
-     * @param float $tomAmount      Taxe Ordures Ménagères (défaut 0)
-     * @param float $tauxTva        Taux TVA (défaut 18%)
-     * @return array<string, float>
+     * @return array{loyer_nu: float, charges_amount: float, tom_amount: float,
+     *               montant_encaisse: float, commission_ht: float, tva: float,
+     *               commission_ttc: float, net_proprietaire: float}
      */
     public static function calculerMontants(
         float $loyerNu,
@@ -167,21 +153,21 @@ class Paiement extends Model
         float $tomAmount     = 0.0,
         float $tauxTva       = 18.0,
     ): array {
-        $commissionHt  = round($loyerNu * $tauxCommission / 100, 2);
-        $tva           = round($commissionHt * $tauxTva / 100, 2);
-        $commissionTtc = round($commissionHt + $tva, 2);
-        $totalEncaisse = round($loyerNu + $chargesAmount + $tomAmount, 2);
+        $commissionHt    = round($loyerNu * $tauxCommission / 100, 2);
+        $tva             = round($commissionHt * $tauxTva / 100, 2);
+        $commissionTtc   = round($commissionHt + $tva, 2);
+        $totalEncaisse   = round($loyerNu + $chargesAmount + $tomAmount, 2);
         $netProprietaire = round($totalEncaisse - $commissionTtc, 2);
 
         return [
-            'loyer_nu'        => $loyerNu,
-            'charges_amount'  => $chargesAmount,
-            'tom_amount'      => $tomAmount,
-            'montant_encaisse'=> $totalEncaisse,
-            'commission_ht'   => $commissionHt,
-            'tva'             => $tva,
-            'commission_ttc'  => $commissionTtc,
-            'net_proprietaire'=> $netProprietaire,
+            'loyer_nu'         => $loyerNu,
+            'charges_amount'   => $chargesAmount,
+            'tom_amount'       => $tomAmount,
+            'montant_encaisse' => $totalEncaisse,
+            'commission_ht'    => $commissionHt,
+            'tva'              => $tva,
+            'commission_ttc'   => $commissionTtc,
+            'net_proprietaire' => $netProprietaire,
         ];
     }
 }

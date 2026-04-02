@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\AgencyScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,14 +12,29 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, SoftDeletes;
 
+    /**
+     * SÉCURITÉ — Mass Assignment :
+     *
+     * `role` et `agency_id` sont intentionnellement ABSENTS de $fillable.
+     * Ces deux colonnes sont critiques : les laisser ici permettrait à n'importe
+     * quel formulaire mal protégé de changer le rôle d'un utilisateur ou de le
+     * rattacher à une autre agence.
+     *
+     * → Pour les assigner, utilisez TOUJOURS l'assignation directe :
+     *     $user->role = 'admin';
+     *     $user->agency_id = Auth::user()->agency_id;
+     *     $user->save();
+     *
+     * OU passez par forceFill() uniquement dans des contextes contrôlés
+     * (seeders, migrations de données, commandes artisan).
+     */
     protected $fillable = [
-        'agency_id',
         'name',
         'email',
         'password',
-        'role',
         'telephone',
         'adresse',
+        'email_verified_at',
     ];
 
     protected $hidden = [
@@ -33,13 +47,18 @@ class User extends Authenticatable
         'password'          => 'hashed',
     ];
 
-    // ── Global Scope ──────────────────────────────────────────────────────
+    // ── Hook de création ──────────────────────────────────────────────────
+    // agency_id assigné ici via forceFill() contrôlé, pas via $fillable
 
     protected static function booted(): void
     {
         static::creating(function (User $user) {
-            if (empty($user->agency_id) && Auth::check() && ! Auth::user()->isSuperAdmin()) {
-                $user->agency_id = Auth::user()->agency_id;
+            /** @var \App\Models\User|null $authUser */
+            $authUser = Auth::user();
+
+            // Si agency_id non encore défini, on l'injecte depuis l'utilisateur connecté
+            if (empty($user->agency_id) && $authUser && ! $authUser->isSuperAdmin()) {
+                $user->agency_id = $authUser->agency_id;
             }
         });
     }
@@ -82,7 +101,7 @@ class User extends Authenticatable
 
     public function profil(): Proprietaire|Locataire|null
     {
-        return match($this->role) {
+        return match ($this->role) {
             'proprietaire' => $this->proprietaire,
             'locataire'    => $this->locataire,
             default        => null,

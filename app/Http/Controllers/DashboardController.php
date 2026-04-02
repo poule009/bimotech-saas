@@ -14,51 +14,37 @@ class DashboardController extends Controller
 {
     use AuthorizesRequests;
 
-    // ── Dashboard Admin ───────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // DASHBOARD ADMIN
+    // ─────────────────────────────────────────────────────────────────────
+
     public function admin()
     {
-        // BUG 11 FIX : authorize() manquant — défense en profondeur.
-        // isAdmin gate autorise admin + superadmin (le superadmin est ensuite redirigé).
         $this->authorize('isAdmin');
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Le superadmin n'appartient à aucune agence.
-        // S'il accède manuellement à /admin/dashboard, on le redirige vers son propre dashboard.
         if ($user->isSuperAdmin()) {
             return redirect()->route('superadmin.dashboard');
         }
 
         $agencyId = $user->agency_id;
 
-        // ── Stats cumulatives (all-time) ──────────────────────────────────
-        // Tous ces counts sont filtrés par agency_id grâce au Global Scope
-        // SAUF User qui n'a pas de Global Scope — on filtre manuellement
+        // ── Stats cumulatives all-time ────────────────────────────────────
+        // AgencyScope appliqué automatiquement sur Bien, Contrat, Paiement
         $stats = [
-            'total_loyers'         => Paiement::where('statut', 'valide')
-                                        ->sum('montant_encaisse'),
-            'total_commissions'    => Paiement::where('statut', 'valide')
-                                        ->sum('commission_agence'),
-            'total_tva'            => Paiement::where('statut', 'valide')
-                                        ->sum('tva_commission'),
-            'total_commission_ttc' => Paiement::where('statut', 'valide')
-                                        ->sum('commission_ttc'),
-            'total_net_proprio'    => Paiement::where('statut', 'valide')
-                                        ->sum('net_proprietaire'),
+            'total_loyers'         => Paiement::where('statut', 'valide')->sum('montant_encaisse'),
+            'total_commissions'    => Paiement::where('statut', 'valide')->sum('commission_agence'),
+            'total_tva'            => Paiement::where('statut', 'valide')->sum('tva_commission'),
+            'total_commission_ttc' => Paiement::where('statut', 'valide')->sum('commission_ttc'),
+            'total_net_proprio'    => Paiement::where('statut', 'valide')->sum('net_proprietaire'),
             'nb_biens'             => Bien::count(),
             'nb_biens_loues'       => Bien::where('statut', 'loue')->count(),
             'nb_contrats'          => Contrat::where('statut', 'actif')->count(),
-
-            // Filtre manuel sur users car pas de Global Scope sur User
-            'nb_proprietaires'     => User::withoutGlobalScopes()
-                                        ->where('agency_id', $agencyId)
-                                        ->where('role', 'proprietaire')
-                                        ->count(),
-            'nb_locataires'        => User::withoutGlobalScopes()
-                                        ->where('agency_id', $agencyId)
-                                        ->where('role', 'locataire')
-                                        ->count(),
+            // User sans Global Scope — filtrage manuel
+            'nb_proprietaires'     => User::where('agency_id', $agencyId)->where('role', 'proprietaire')->count(),
+            'nb_locataires'        => User::where('agency_id', $agencyId)->where('role', 'locataire')->count(),
         ];
 
         $stats['taux_occupation'] = $stats['nb_biens'] > 0
@@ -66,6 +52,8 @@ class DashboardController extends Controller
             : 0;
 
         // ── Stats mois courant ────────────────────────────────────────────
+        // Clés alignées avec admin/dashboard.blade.php :
+        // loyers, commissions, net_proprio, nb_payes
         $statsMois = [
             'loyers'      => Paiement::where('statut', 'valide')
                                 ->whereYear('periode', now()->year)
@@ -85,30 +73,8 @@ class DashboardController extends Controller
                                 ->count(),
         ];
 
-        // ── Urgences : impayés du mois courant ───────────────────────────
-        $contratsActifs = Contrat::where('statut', 'actif')->count();
-
-        $impayes_urgents = Contrat::where('statut', 'actif')
-            ->whereDoesntHave('paiements', function ($q) {
-                $q->whereYear('periode', now()->year)
-                  ->whereMonth('periode', now()->month)
-                  ->where('statut', '!=', 'annule');
-            })
-            ->with('bien', 'locataire')
-            ->orderBy('created_at')
-            ->limit(5)
-            ->get()
-            ->map(function ($contrat) {
-                $joursRetard = now()->copy()->startOfMonth()->addDays(4)
-                    ->diffInDays(now(), false);
-                return [
-                    'contrat'      => $contrat,
-                    'jours_retard' => max(0, (int) $joursRetard),
-                    'montant_du'   => $contrat->loyer_contractuel,
-                ];
-            });
-
-        $nb_impayes_mois   = Contrat::where('statut', 'actif')
+        // ── Impayés du mois ───────────────────────────────────────────────
+        $nb_impayes_mois = Contrat::where('statut', 'actif')
             ->whereDoesntHave('paiements', function ($q) {
                 $q->whereYear('periode', now()->year)
                   ->whereMonth('periode', now()->month)
@@ -124,17 +90,49 @@ class DashboardController extends Controller
             })
             ->sum('loyer_contractuel');
 
-        // ── Urgences : contrats expirant dans 30 jours ───────────────────
+        // ── Urgences impayés (5 plus anciens) ────────────────────────────
+        $impayes_urgents = Contrat::where('statut', 'actif')
+            ->whereDoesntHave('paiements', function ($q) {
+                $q->whereYear('periode', now()->year)
+                  ->whereMonth('periode', now()->month)
+                  ->where('statut', '!=', 'annule');
+            })
+            ->select(['id', 'agency_id', 'bien_id', 'locataire_id', 'loyer_contractuel', 'statut'])
+            ->with([
+                'bien:id,reference,adresse,ville',
+                'locataire:id,name',
+            ])
+            ->orderBy('created_at')
+            ->limit(5)
+            ->get();
+
+        // ── Contrats expirant dans 30 jours ──────────────────────────────
         $contrats_a_renouveler = Contrat::where('statut', 'actif')
             ->whereNotNull('date_fin')
             ->where('date_fin', '>=', now()->toDateString())
             ->where('date_fin', '<=', now()->addDays(30)->toDateString())
-            ->with('bien', 'locataire')
+            ->select(['id', 'agency_id', 'bien_id', 'locataire_id', 'date_fin', 'loyer_contractuel'])
+            ->with([
+                'bien:id,reference,adresse,ville',
+                'locataire:id,name',
+            ])
             ->orderBy('date_fin')
             ->get();
 
+        // ── Nombre de contrats actifs (pour le bilan du mois) ────────────
+        $contratsActifs = Contrat::where('statut', 'actif')->count();
+
         // ── Derniers paiements ────────────────────────────────────────────
-        $derniersPaiements = Paiement::with('contrat.bien', 'contrat.locataire')
+        $derniersPaiements = Paiement::select([
+                'id', 'agency_id', 'contrat_id',
+                'periode', 'montant_encaisse', 'commission_ttc', 'net_proprietaire',
+                'mode_paiement', 'date_paiement', 'statut', 'reference_paiement',
+            ])
+            ->with([
+                'contrat:id,bien_id,locataire_id',
+                'contrat.bien:id,reference,adresse,ville',
+                'contrat.locataire:id,name',
+            ])
             ->where('statut', 'valide')
             ->orderByDesc('date_paiement')
             ->limit(6)
@@ -152,22 +150,15 @@ class DashboardController extends Controller
             ->orderBy('mois')
             ->get();
 
-        // ── TÂCHE 4 : Bilan du mois — Total attendu ───────────────────────
-        // Total attendu = somme des loyers contractuels de tous les contrats actifs
-        // (ce que l'agence devrait encaisser ce mois-ci si tout le monde payait)
-        $total_attendu_mois = Contrat::where('statut', 'actif')
-            ->sum('loyer_contractuel');
-
-        // Bilan express : 3 chiffres clés pour la TÂCHE 4
+        // ── Bilan du mois express ─────────────────────────────────────────
         $bilanMois = [
-            'attendu'   => $total_attendu_mois,
-            'encaisse'  => $statsMois['loyers'],
-            'a_recouvrer' => $montant_du_mois,
+            'attendu'      => Contrat::where('statut', 'actif')->sum('loyer_contractuel'),
+            'encaisse'     => $statsMois['loyers'],
+            'a_recouvrer'  => $montant_du_mois,
         ];
 
-        // ── TÂCHE 1 : Onboarding — calcul des étapes ─────────────────────
-        // On ne calcule que si l'onboarding n'est pas encore marqué terminé
-        $agency = $user->agency;
+        // ── Onboarding ────────────────────────────────────────────────────
+        $agency     = $user->agency;
         $onboarding = null;
 
         if ($agency && ! $agency->onboarding_completed) {
@@ -189,74 +180,61 @@ class DashboardController extends Controller
         ));
     }
 
-    // ── Dashboard Propriétaire ────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // DASHBOARD PROPRIÉTAIRE
+    // ─────────────────────────────────────────────────────────────────────
+
     public function proprietaire()
     {
-        // BUG 11 FIX : authorize() manquant — défense en profondeur.
         $this->authorize('isProprietaire');
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $biens = Bien::where('proprietaire_id', $user->id)
+            ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type', 'adresse', 'ville', 'statut', 'loyer_mensuel'])
             ->withCount('contrats')
             ->paginate(6);
 
         $contratIds = Contrat::whereHas(
-            'bien',
-            fn($q) => $q->where('proprietaire_id', $user->id)
+            'bien', fn($q) => $q->where('proprietaire_id', $user->id)
         )->pluck('id');
 
-        // Tous les paiements validés pour les stats globales
-        $tousLesPaiements = Paiement::whereIn('contrat_id', $contratIds)
-            ->where('statut', 'valide')
-            ->get();
-
-        // Dernier paiement reçu
-        $dernierPaiement = Paiement::whereIn('contrat_id', $contratIds)
-            ->where('statut', 'valide')
-            ->orderByDesc('date_paiement')
-            ->first();
-
-        // Caution totale des contrats du propriétaire
-        $cautionTotale = Contrat::whereIn('id', $contratIds)->sum('caution');
-
+        // Agrégats SQL — pas de get() en mémoire
         $stats = [
             'nb_biens'         => $biens->total(),
-            'nb_biens_loues'   => Bien::where('proprietaire_id', $user->id)
-                                    ->where('statut', 'loue')->count(),
-            'total_loyers'     => $tousLesPaiements->sum('montant_encaisse'),
-            'total_net'        => $tousLesPaiements->sum('net_proprietaire'),
-            'total_commission' => $tousLesPaiements->sum('commission_ttc'),
-            'nb_paiements'     => $tousLesPaiements->count(),
-            'dernier_paiement' => $dernierPaiement,
-            'caution'          => $cautionTotale,
+            'nb_biens_loues'   => Bien::where('proprietaire_id', $user->id)->where('statut', 'loue')->count(),
+            'total_loyers'     => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->sum('montant_encaisse'),
+            'total_net'        => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->sum('net_proprietaire'),
+            'total_commission' => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->sum('commission_ttc'),
+            'nb_paiements'     => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->count(),
+            'dernier_paiement' => Paiement::whereIn('contrat_id', $contratIds)
+                                    ->where('statut', 'valide')
+                                    ->orderByDesc('date_paiement')
+                                    ->first(),
+            'caution'          => Contrat::whereIn('id', $contratIds)->sum('caution'),
         ];
 
-        // Paiements paginés pour l'affichage des quittances
         $paiements = Paiement::whereIn('contrat_id', $contratIds)
             ->where('statut', 'valide')
-            ->with('contrat.bien', 'contrat.locataire')
+            ->select(['id', 'agency_id', 'contrat_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'mode_paiement', 'date_paiement', 'reference_paiement'])
+            ->with([
+                'contrat:id,bien_id,locataire_id',
+                'contrat.bien:id,reference',
+                'contrat.locataire:id,name',
+            ])
             ->orderByDesc('date_paiement')
             ->paginate(5);
 
-        // Un propriétaire n'a pas de contrat actif en tant que locataire
-        $contratActif    = null;
-        $prochainePeriode = null;
-
-        return view('proprietaire.dashboard', compact(
-            'biens',
-            'stats',
-            'paiements',
-            'contratActif',
-            'prochainePeriode'
-        ));
+        return view('proprietaire.dashboard', compact('biens', 'stats', 'paiements'));
     }
 
-    // ── Dashboard Locataire ───────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    // DASHBOARD LOCATAIRE
+    // ─────────────────────────────────────────────────────────────────────
+
     public function locataire()
     {
-        // BUG 11 FIX : authorize() manquant — défense en profondeur.
         $this->authorize('isLocataire');
 
         /** @var \App\Models\User $user */
@@ -283,9 +261,14 @@ class DashboardController extends Controller
             ? \Carbon\Carbon::parse($dernierPaiement->periode)->addMonth()
             : ($contrat ? \Carbon\Carbon::parse($contrat->date_debut) : null);
 
+        // Agrégats SQL
         $stats = [
-            'total_paye'    => $paiements->sum('montant_encaisse'),
-            'nb_paiements'  => $paiements->count(),
+            'total_paye'   => $contrat
+                ? Paiement::where('contrat_id', $contrat->id)->where('statut', 'valide')->sum('montant_encaisse')
+                : 0,
+            'nb_paiements' => $contrat
+                ? Paiement::where('contrat_id', $contrat->id)->where('statut', 'valide')->count()
+                : 0,
             'mois_restants' => $contrat?->date_fin
                 ? now()->diffInMonths($contrat->date_fin)
                 : null,

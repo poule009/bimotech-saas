@@ -1,1 +1,0 @@
-{{-- Ce fichier est désactivé. Le layout est géré par app.blade.php --}}
