@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Subscription;
 use App\Models\User;
-use App\Notifications\AgencyWelcomeNotification;
+// use App\Notifications\AgencyWelcomeNotification;
+use App\Support\PasswordPolicy;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class AgencyRegistrationController extends Controller
@@ -33,12 +33,9 @@ class AgencyRegistrationController extends Controller
             'agency_adresse'   => ['nullable', 'string', 'max:255'],
             'admin_name'       => ['required', 'string', 'min:2', 'max:100'],
             'admin_email'      => ['required', 'email', 'max:255', 'unique:users,email'],
-            'admin_password'   => [
-                'required',
-                'confirmed',
-                Password::min(8)->mixedCase()->numbers()->symbols(),
-            ],
-            'cgu' => ['required', 'accepted'],
+            // ✅ CORRECTION H3 : même règle que SuperAdminController
+            'admin_password'   => ['required', 'confirmed', PasswordPolicy::rules()],
+            'cgu'              => ['required', 'accepted'],
         ], [
             'agency_name.required'     => "Le nom de l'agence est obligatoire.",
             'agency_name.min'          => "Le nom de l'agence doit contenir au moins 2 caractères.",
@@ -51,74 +48,53 @@ class AgencyRegistrationController extends Controller
             'admin_email.unique'       => "Cet email est déjà utilisé par un autre compte.",
             'admin_password.required'  => "Le mot de passe est obligatoire.",
             'admin_password.confirmed' => "Les deux mots de passe ne correspondent pas.",
-            'admin_password.mixed'     => "Le mot de passe doit contenir au moins une majuscule et une minuscule.",
+            'admin_password.mixed'     => "Le mot de passe doit contenir majuscule et minuscule.",
             'admin_password.numbers'   => "Le mot de passe doit contenir au moins un chiffre.",
-            'admin_password.symbols'   => "Le mot de passe doit contenir au moins un caractère spécial (ex: @, !, #).",
+            'admin_password.symbols'   => "Le mot de passe doit contenir un caractère spécial (@, !, #…).",
             'cgu.accepted'             => "Vous devez accepter les conditions d'utilisation.",
         ]);
 
-        $plainPassword = $request->admin_password;
-
-        $result = DB::transaction(function () use ($request) {
-
-            $agency = Agency::create([
-                'name'      => $request->agency_name,
-                'slug'      => $this->generateUniqueSlug($request->agency_name),
-                'email'     => $request->agency_email,
-                'telephone' => $request->agency_telephone,
-                'adresse'   => $request->agency_adresse,
-                'taux_tva'  => 18.00,
-                'actif'     => true,
-            ]);
-
-            $admin = User::create([
-                'agency_id'         => $agency->id,
-                'name'              => $request->admin_name,
-                'email'             => $request->admin_email,
-                'password'          => bcrypt($request->admin_password),
-                'role'              => 'admin',
-                'email_verified_at' => now(), // Auto-vérifié : l'admin saisit lui-même son email
-            ]);
-
-            Subscription::create([
-                'agency_id'        => $agency->id,
-                'statut'           => 'essai',
-                'date_debut_essai' => now(),
-                'date_fin_essai'   => now()->addDays(30),
-            ]);
-
-            return ['agency' => $agency, 'admin' => $admin];
-        });
-
-        // Connecter l'admin
-        Auth::login($result['admin']);
-
-        // Envoyer notre email de bienvenue avec mot de passe en clair
         try {
-            $result['admin']->notify(
-                new AgencyWelcomeNotification($result['agency'], $plainPassword)
-            );
-        } catch (\Exception $e) {
-            Log::error('Email de bienvenue non envoyé : ' . $e->getMessage());
+            $admin = DB::transaction(function () use ($request) {
+                $agency = Agency::create([
+                    'name'      => $request->agency_name,
+                    'email'     => $request->agency_email,
+                    'telephone' => $request->agency_telephone,
+                    'adresse'   => $request->agency_adresse,
+                    'slug'      => Str::slug($request->agency_name) . '-' . Str::random(6),
+                ]);
+
+                $agency->actif = true;
+                $agency->save();
+
+                $admin            = new User();
+                $admin->name      = $request->admin_name;
+                $admin->email     = $request->admin_email;
+                $admin->password  = bcrypt($request->admin_password);
+                $admin->role      = 'admin';
+                $admin->agency_id = $agency->id;
+                $admin->save();
+
+                Subscription::create([
+                    'agency_id'        => $agency->id,
+                    'statut'           => 'essai',
+                    'date_debut_essai' => now(),
+                    'date_fin_essai'   => now()->addDays(30),
+                ]);
+
+                return $admin;
+            });
+
+            event(new Registered($admin));
+            Auth::login($admin);
+
+            return redirect()->route('redirect.home');
+
+        } catch (\Throwable $e) {
+            Log::error('Erreur inscription agence', ['error' => $e->getMessage()]);
+            return back()->withInput()->withErrors([
+                'general' => 'Une erreur est survenue. Veuillez réessayer.',
+            ]);
         }
-
-        // Rediriger directement vers le dashboard (email auto-vérifié)
-        return redirect()
-            ->route('admin.dashboard')
-            ->with('success', "Bienvenue ! Votre essai gratuit de 30 jours commence aujourd'hui. Consultez votre email pour retrouver vos identifiants.");
-    }
-
-    private function generateUniqueSlug(string $name): string
-    {
-        $baseSlug = Str::slug($name);
-        $slug     = $baseSlug;
-        $counter  = 1;
-
-        while (Agency::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
     }
 }

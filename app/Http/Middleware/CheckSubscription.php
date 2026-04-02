@@ -9,29 +9,33 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckSubscription
 {
+    // ✅ CORRECTION M2 : noms de routes uniquement (plus de chemins URL)
+    // Avant : mélange de paths ("admin/agency/settings") et de noms de routes
+    //         → certaines exclusions ne marchaient pas
+    // Après : uniquement des noms de routes → fiable même si les URLs changent
     protected array $except = [
         'login',
         'logout',
-        'password/*',
-        'register/agency',
-        'subscription',
-        'subscription/*',
-        'admin/agency/settings',
-        'admin/agency/logo',
-        'profile',
-        'profile/*',
-        'home',
-        'verify-email',
-        'verify-email/*',
-        'email/verification-notification',
+        'register',
+        'password.*',
+        'verification.*',
+        'agency.register',
+        'agency.register.store',
+        'subscription.*',
+        'admin.agency.settings',
+        'admin.agency.settings.update',
+        'admin.agency.logo.delete',
+        'profile.edit',
+        'profile.update',
+        'profile.destroy',
+        'redirect.home',
+        'dashboard',
     ];
 
     public function handle(Request $request, Closure $next): Response
     {
-        foreach ($this->except as $pattern) {
-            if ($request->routeIs($pattern) || $request->is($pattern)) {
-                return $next($request);
-            }
+        if ($request->routeIs(...$this->except)) {
+            return $next($request);
         }
 
         $user = Auth::user();
@@ -50,29 +54,25 @@ class CheckSubscription
 
         $subscription = $user->agency->subscription;
 
-        // Pas de subscription → redirection
         if (! $subscription) {
             return redirect()->route('subscription.index')
                 ->with('warning', "Aucun abonnement trouvé pour votre agence.");
         }
 
-        // Accès complet autorisé si essai valide ou abonnement valide
         if ($subscription->aAcces()) {
             return $next($request);
         }
 
-        // Mode gel : abonnement/essai expiré => lecture seule, écriture bloquée
         if (in_array($request->method(), ['GET', 'HEAD', 'OPTIONS'])) {
             return $next($request);
         }
 
-        $message = match($subscription->statut) {
-            'essai'  => "Votre période d'essai est terminée. Vos données sont conservées en lecture seule. Abonnez-vous pour réactiver les modifications.",
-            'annulé' => "Votre abonnement est annulé. Vos données sont conservées en lecture seule. Réactivez l'abonnement pour modifier vos données.",
-            default  => "Votre abonnement a expiré. Vos données sont conservées en lecture seule. Renouvelez pour reprendre les modifications.",
+        $message = match ($subscription->statut) {
+            'essai'  => "Votre période d'essai est terminée. Abonnez-vous pour réactiver les modifications.",
+            'annulé' => "Votre abonnement est annulé. Réactivez-le pour modifier vos données.",
+            default  => "Votre abonnement a expiré. Renouvelez pour reprendre les modifications.",
         };
 
-        return redirect()->route('subscription.index')
-            ->with('warning', $message);
+        return redirect()->route('subscription.index')->with('warning', $message);
     }
 }

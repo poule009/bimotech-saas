@@ -10,37 +10,58 @@ use App\Models\Paiement;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\AgencyWelcomeNotification;
+use App\Support\PasswordPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class SuperAdminController extends Controller
 {
-    // ── Dashboard global ──────────────────────────────────────────────────
-
+    // ✅ CORRECTION M3 : 11 requêtes → 3 requêtes grâce aux selectRaw groupés
     public function dashboard(): View
     {
+        // 1 requête pour les compteurs d'entités
+        $statsEntites = DB::selectOne('
+            SELECT
+                (SELECT COUNT(*) FROM agencies)                          AS nb_agences,
+                (SELECT COUNT(*) FROM agencies WHERE actif = 1)         AS nb_agences_actives,
+                (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL)   AS nb_users,
+                (SELECT COUNT(*) FROM biens WHERE deleted_at IS NULL)   AS nb_biens,
+                (SELECT COUNT(*) FROM contrats WHERE statut = "actif")  AS nb_contrats
+        ');
+
+        // 1 requête pour les totaux paiements
+        $statsPaiements = Paiement::withoutGlobalScopes()
+            ->where('statut', 'valide')
+            ->selectRaw('
+                COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
+                COALESCE(SUM(commission_ttc), 0)   AS total_commissions
+            ')
+            ->first();
+
+        // 1 requête pour les abonnements
+        $statsAbonnements = Subscription::selectRaw('
+            SUM(CASE WHEN statut = "essai"  THEN 1 ELSE 0 END)                        AS nb_essai,
+            SUM(CASE WHEN statut = "actif"  THEN 1 ELSE 0 END)                        AS nb_actifs,
+            SUM(CASE WHEN statut = "expiré" THEN 1 ELSE 0 END)                        AS nb_expires,
+            COALESCE(SUM(CASE WHEN statut = "actif" THEN montant_paye ELSE 0 END), 0) AS revenus
+        ')->first();
+
         $stats = [
-            'nb_agences'            => Agency::count(),
-            'nb_agences_actives'    => Agency::where('actif', true)->count(),
-            'nb_users'              => User::withoutGlobalScopes()->count(),
-            'nb_biens'              => Bien::withoutGlobalScopes()->count(),
-            'nb_contrats'           => Contrat::withoutGlobalScopes()
-                                         ->where('statut', 'actif')->count(),
-            'total_loyers'          => Paiement::withoutGlobalScopes()
-                                         ->where('statut', 'valide')
-                                         ->sum('montant_encaisse'),
-            'total_commissions'     => Paiement::withoutGlobalScopes()
-                                         ->where('statut', 'valide')
-                                         ->sum('commission_ttc'),
-            'nb_essai'              => Subscription::where('statut', 'essai')->count(),
-            'nb_abonnements_actifs' => Subscription::where('statut', 'actif')->count(),
-            'nb_expires'            => Subscription::where('statut', 'expiré')->count(),
-            'revenus_abonnements'   => Subscription::where('statut', 'actif')->sum('montant_paye'),
+            'nb_agences'            => (int)   ($statsEntites->nb_agences            ?? 0),
+            'nb_agences_actives'    => (int)   ($statsEntites->nb_agences_actives    ?? 0),
+            'nb_users'              => (int)   ($statsEntites->nb_users              ?? 0),
+            'nb_biens'              => (int)   ($statsEntites->nb_biens              ?? 0),
+            'nb_contrats'           => (int)   ($statsEntites->nb_contrats           ?? 0),
+            'total_loyers'          => (float) ($statsPaiements->total_loyers        ?? 0),
+            'total_commissions'     => (float) ($statsPaiements->total_commissions   ?? 0),
+            'nb_essai'              => (int)   ($statsAbonnements->nb_essai          ?? 0),
+            'nb_abonnements_actifs' => (int)   ($statsAbonnements->nb_actifs         ?? 0),
+            'nb_expires'            => (int)   ($statsAbonnements->nb_expires        ?? 0),
+            'revenus_abonnements'   => (float) ($statsAbonnements->revenus           ?? 0),
         ];
 
         $agences = Agency::withCount([
@@ -52,26 +73,24 @@ class SuperAdminController extends Controller
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($agency) {
-                $agency->total_loyers = Paiement::withoutGlobalScopes()
+                $p = Paiement::withoutGlobalScopes()
                     ->where('agency_id', $agency->id)
                     ->where('statut', 'valide')
-                    ->sum('montant_encaisse');
+                    ->selectRaw('
+                        COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
+                        COALESCE(SUM(commission_ttc), 0)   AS total_commissions
+                    ')
+                    ->first();
 
-                $agency->total_commissions = Paiement::withoutGlobalScopes()
-                    ->where('agency_id', $agency->id)
-                    ->where('statut', 'valide')
-                    ->sum('commission_ttc');
-
-                $agency->nb_admins = $agency->users
-                    ->where('role', 'admin')->count();
+                $agency->total_loyers      = (float) ($p->total_loyers      ?? 0);
+                $agency->total_commissions = (float) ($p->total_commissions ?? 0);
+                $agency->nb_admins         = $agency->users->where('role', 'admin')->count();
 
                 return $agency;
             });
 
         return view('superadmin.dashboard', compact('stats', 'agences'));
     }
-
-    // ── Activer / Désactiver une agence ───────────────────────────────────
 
     public function toggleActif(Agency $agency): RedirectResponse
     {
@@ -80,10 +99,8 @@ class SuperAdminController extends Controller
 
         return redirect()
             ->route('superadmin.dashboard')
-            ->with('success', "L'agence {$agency->name} a été {$statut} avec succès.");
+            ->with('success', "L'agence {$agency->name} a été {$statut}.");
     }
-
-    // ── Détail d'une agence ───────────────────────────────────────────────
 
     public function showAgency(Agency $agency): View
     {
@@ -99,6 +116,15 @@ class SuperAdminController extends Controller
 
         $subscription = $agency->subscription;
 
+        $p = Paiement::withoutGlobalScopes()
+            ->where('agency_id', $agency->id)
+            ->where('statut', 'valide')
+            ->selectRaw('
+                COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
+                COALESCE(SUM(commission_ttc), 0)   AS total_commissions
+            ')
+            ->first();
+
         $stats = [
             'nb_users'          => $users->count(),
             'nb_proprietaires'  => $users->where('role', 'proprietaire')->count(),
@@ -108,14 +134,8 @@ class SuperAdminController extends Controller
             'nb_contrats'       => Contrat::withoutGlobalScopes()
                                     ->where('agency_id', $agency->id)
                                     ->where('statut', 'actif')->count(),
-            'total_loyers'      => Paiement::withoutGlobalScopes()
-                                    ->where('agency_id', $agency->id)
-                                    ->where('statut', 'valide')
-                                    ->sum('montant_encaisse'),
-            'total_commissions' => Paiement::withoutGlobalScopes()
-                                    ->where('agency_id', $agency->id)
-                                    ->where('statut', 'valide')
-                                    ->sum('commission_ttc'),
+            'total_loyers'      => (float) ($p->total_loyers      ?? 0),
+            'total_commissions' => (float) ($p->total_commissions ?? 0),
         ];
 
         return view('superadmin.agency-detail', compact(
@@ -123,35 +143,48 @@ class SuperAdminController extends Controller
         ));
     }
 
-    // ── Dashboard abonnements ─────────────────────────────────────────────
-
+    // ✅ CORRECTION M4 : paginate(50) au lieu de get() + CASE WHEN au lieu de FIELD()
     public function subscriptions(): View
     {
-        $subscriptions = Subscription::with('agency')
-            ->orderByRaw("FIELD(statut, 'essai', 'actif', 'expiré', 'annulé')")
-            ->orderBy('date_fin_essai')
-            ->get();
+        $statsRaw = Subscription::selectRaw('
+            SUM(CASE WHEN statut = "essai"  THEN 1 ELSE 0 END)                        AS nb_essai,
+            SUM(CASE WHEN statut = "actif"  THEN 1 ELSE 0 END)                        AS nb_actifs,
+            SUM(CASE WHEN statut = "expiré" THEN 1 ELSE 0 END)                        AS nb_expires,
+            COALESCE(SUM(CASE WHEN statut = "actif" THEN montant_paye ELSE 0 END), 0) AS revenus_total,
+            COALESCE(SUM(CASE WHEN statut = "actif" THEN
+                CASE plan
+                    WHEN "mensuel"     THEN 25000
+                    WHEN "trimestriel" THEN 25000
+                    WHEN "semestriel"  THEN 25000
+                    WHEN "annuel"      THEN 20000
+                    ELSE 0
+                END
+            ELSE 0 END), 0) AS revenus_mensuel_equiv
+        ')->first();
 
         $stats = [
-            'nb_essai'              => $subscriptions->where('statut', 'essai')->count(),
-            'nb_actifs'             => $subscriptions->where('statut', 'actif')->count(),
-            'nb_expires'            => $subscriptions->where('statut', 'expiré')->count(),
-            'revenus_total'         => $subscriptions->where('statut', 'actif')->sum('montant_paye'),
-            'revenus_mensuel_equiv' => $subscriptions->where('statut', 'actif')->sum(function ($sub) {
-                return match($sub->plan) {
-                    'mensuel'     => 25000,
-                    'trimestriel' => 25000,
-                    'semestriel'  => 25000,
-                    'annuel'      => 20000,
-                    default       => 0,
-                };
-            }),
+            'nb_essai'              => (int)   ($statsRaw->nb_essai              ?? 0),
+            'nb_actifs'             => (int)   ($statsRaw->nb_actifs             ?? 0),
+            'nb_expires'            => (int)   ($statsRaw->nb_expires            ?? 0),
+            'revenus_total'         => (float) ($statsRaw->revenus_total         ?? 0),
+            'revenus_mensuel_equiv' => (float) ($statsRaw->revenus_mensuel_equiv ?? 0),
         ];
+
+        $subscriptions = Subscription::with('agency:id,name,email,actif')
+            ->orderByRaw("
+                CASE statut
+                    WHEN 'essai'  THEN 1
+                    WHEN 'actif'  THEN 2
+                    WHEN 'expiré' THEN 3
+                    WHEN 'annulé' THEN 4
+                    ELSE 5
+                END
+            ")
+            ->orderBy('date_fin_essai')
+            ->paginate(50);
 
         return view('superadmin.subscriptions', compact('subscriptions', 'stats'));
     }
-
-    // ── Activer manuellement un abonnement ────────────────────────────────
 
     public function activerAbonnement(Request $request, Agency $agency): RedirectResponse
     {
@@ -170,17 +203,12 @@ class SuperAdminController extends Controller
             ]);
         }
 
-        $subscription->activer(
-            $request->plan,
-            'MANUEL-SUPERADMIN-' . now()->format('YmdHis')
-        );
+        $subscription->activer($request->plan, 'MANUEL-SUPERADMIN-' . now()->format('YmdHis'));
 
         return redirect()
             ->route('superadmin.subscriptions')
             ->with('success', "Abonnement {$request->plan} activé pour {$agency->name}.");
     }
-
-    // ── Réinitialiser l'essai d'une agence ───────────────────────────────
 
     public function reinitialiserEssai(Agency $agency): RedirectResponse
     {
@@ -210,15 +238,12 @@ class SuperAdminController extends Controller
             ->with('success', "Essai de 30 jours réinitialisé pour {$agency->name}.");
     }
 
-    // ── Créer une agence (formulaire) ─────────────────────────────────────
-
     public function createAgency(): View
     {
         return view('superadmin.create-agency');
     }
 
-    // ── Créer une agence (traitement) ─────────────────────────────────────
-
+    // ✅ CORRECTION H3 : PasswordPolicy::rules() au lieu de Password::min(8)
     public function storeAgency(Request $request): RedirectResponse
     {
         $request->validate([
@@ -228,74 +253,52 @@ class SuperAdminController extends Controller
             'agency_adresse'   => ['nullable', 'string', 'max:255'],
             'admin_name'       => ['required', 'string', 'min:2', 'max:100'],
             'admin_email'      => ['required', 'email', 'max:255', 'unique:users,email'],
-            'admin_password'   => ['required', 'confirmed', Password::min(8)],
-        ], [
-            'agency_name.required'     => "Le nom de l'agence est obligatoire.",
-            'agency_name.min'          => "Le nom doit contenir au moins 2 caractères.",
-            'agency_email.required'    => "L'email de l'agence est obligatoire.",
-            'agency_email.email'       => "L'email de l'agence n'est pas valide.",
-            'agency_email.unique'      => "Cet email est déjà utilisé par une autre agence.",
-            'admin_name.required'      => "Le nom de l'administrateur est obligatoire.",
-            'admin_email.required'     => "L'email de connexion est obligatoire.",
-            'admin_email.email'        => "L'email de connexion n'est pas valide.",
-            'admin_email.unique'       => "Cet email est déjà utilisé par un autre compte.",
-            'admin_password.required'  => "Le mot de passe est obligatoire.",
-            'admin_password.confirmed' => "Les deux mots de passe ne correspondent pas.",
-            'admin_password.min'       => "Le mot de passe doit contenir au moins 8 caractères.",
+            'admin_password'   => ['required', 'confirmed', PasswordPolicy::rules()],
         ]);
 
-        $plainPassword = $request->admin_password;
-
-        $result = DB::transaction(function () use ($request) {
-
-            $slug = Str::slug($request->agency_name);
-            $base = $slug;
-            $i    = 1;
-            while (Agency::where('slug', $slug)->exists()) {
-                $slug = $base . '-' . $i++;
-            }
-
-            $agency = Agency::create([
-                'name'      => $request->agency_name,
-                'slug'      => $slug,
-                'email'     => $request->agency_email,
-                'telephone' => $request->agency_telephone,
-                'adresse'   => $request->agency_adresse,
-                'taux_tva'  => 18.00,
-                'actif'     => true,
-            ]);
-
-            $admin = User::create([
-                'agency_id'         => $agency->id,
-                'name'              => $request->admin_name,
-                'email'             => $request->admin_email,
-                'password'          => bcrypt($request->admin_password),
-                'role'              => 'admin',
-                'email_verified_at' => now(),
-            ]);
-
-            Subscription::create([
-                'agency_id'        => $agency->id,
-                'statut'           => 'essai',
-                'date_debut_essai' => now(),
-                'date_fin_essai'   => now()->addDays(30),
-            ]);
-
-            return ['agency' => $agency, 'admin' => $admin];
-        });
-
-        // Envoyer l'email de bienvenue à l'admin de la nouvelle agence
-        // Le SuperAdmin reste connecté — on n'appelle PAS Auth::login()
         try {
-            $result['admin']->notify(
-                new AgencyWelcomeNotification($result['agency'], $plainPassword)
-            );
-        } catch (\Exception $e) {
-            Log::error('Email de bienvenue non envoyé : ' . $e->getMessage());
-        }
+            DB::transaction(function () use ($request) {
+                $agency = Agency::create([
+                    'name'      => $request->agency_name,
+                    'email'     => $request->agency_email,
+                    'telephone' => $request->agency_telephone,
+                    'adresse'   => $request->agency_adresse,
+                    'slug'      => Str::slug($request->agency_name) . '-' . Str::random(6),
+                ]);
 
-        return redirect()
-            ->route('superadmin.dashboard')
-            ->with('success', "✅ Agence « {$result['agency']->name} » créée avec succès. L'admin ({$result['admin']->email}) a reçu ses identifiants par email.");
+                $agency->actif = true;
+                $agency->save();
+
+                $admin            = new User();
+                $admin->name      = $request->admin_name;
+                $admin->email     = $request->admin_email;
+                $admin->password  = bcrypt($request->admin_password);
+                $admin->role      = 'admin';
+                $admin->agency_id = $agency->id;
+                $admin->email_verified_at = now();
+                $admin->save();
+
+                Subscription::create([
+                    'agency_id'        => $agency->id,
+                    'statut'           => 'essai',
+                    'date_debut_essai' => now(),
+                    'date_fin_essai'   => now()->addDays(30),
+                ]);
+
+                try {
+                    $admin->notify(new AgencyWelcomeNotification($agency, $request->admin_password));
+                } catch (\Throwable $e) {
+                    Log::warning('Email de bienvenue non envoyé', ['error' => $e->getMessage()]);
+                }
+            });
+
+            return redirect()
+                ->route('superadmin.dashboard')
+                ->with('success', "Agence {$request->agency_name} créée avec succès.");
+
+        } catch (\Throwable $e) {
+            Log::error('Erreur création agence', ['error' => $e->getMessage()]);
+            return back()->withInput()->withErrors(['general' => 'Une erreur est survenue.']);
+        }
     }
 }

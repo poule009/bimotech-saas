@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Auth;
 
 trait LogsActivity
 {
+    // ✅ CORRECTION B3 : ces noms de champs n'apparaissent plus dans les logs
+    protected static array $hiddenFields = [
+        'password',
+        'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+    ];
+
     public static function bootLogsActivity(): void
     {
         static::created(function (Model $model): void {
@@ -28,15 +36,13 @@ trait LogsActivity
         try {
             $user = Auth::user();
 
-            $agencyId = $model->agency_id
-                ?? $user?->agency_id
-                ?? null;
+            $agencyId = $model->agency_id ?? $user?->agency_id ?? null;
 
             $description = match ($action) {
                 'created' => sprintf('%s #%s créé', class_basename($model), $model->getKey()),
                 'updated' => self::buildUpdatedDescription($model),
                 'deleted' => sprintf('%s #%s supprimé', class_basename($model), $model->getKey()),
-                default => sprintf('%s #%s %s', class_basename($model), $model->getKey(), $action),
+                default   => sprintf('%s #%s %s', class_basename($model), $model->getKey(), $action),
             };
 
             ActivityLog::create([
@@ -56,7 +62,15 @@ trait LogsActivity
     protected static function buildUpdatedDescription(Model $model): string
     {
         $changes = array_keys($model->getChanges());
-        $changes = array_values(array_diff($changes, ['updated_at']));
+
+        $hiddenFields = property_exists(static::class, 'hiddenFields')
+            ? static::$hiddenFields
+            : ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
+
+        // On retire updated_at ET les champs sensibles de la liste
+        $changes = array_values(
+            array_diff($changes, array_merge(['updated_at'], $hiddenFields))
+        );
 
         if (empty($changes)) {
             return sprintf('%s #%s modifié', class_basename($model), $model->getKey());

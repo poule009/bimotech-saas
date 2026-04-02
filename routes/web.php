@@ -33,159 +33,92 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/home', [RedirectController::class, 'index'])
-         ->name('redirect.home');
-    Route::get('/dashboard', [RedirectController::class, 'index'])
-         ->name('dashboard');
+    Route::get('/home', [RedirectController::class, 'index'])->name('redirect.home');
+    Route::get('/dashboard', [RedirectController::class, 'index'])->name('dashboard');
 
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // ── Page abonnement ───────────────────────────────────────────────────
     Route::prefix('subscription')->name('subscription.')->group(function () {
-        Route::get('/', [SubscriptionController::class, 'index'])
-             ->name('index');
-        // Initier un paiement (redirige vers PayDunya ou simule)
-        Route::post('/initier', [SubscriptionController::class, 'initierPaiement'])
-             ->name('initier');
-        // Callback PayDunya (IPN — webhook)
+        Route::get('/', [SubscriptionController::class, 'index'])->name('index');
+        Route::post('/initier', [SubscriptionController::class, 'initierPaiement'])->name('initier');
+
+        // ✅ CORRECTION C1 : throttle ajouté sur le webhook
         Route::post('/callback', [SubscriptionController::class, 'callbackPaydunya'])
-             ->name('callback')->withoutMiddleware(['auth', 'verified']);
-        // Retour succès/échec depuis PayDunya
-        Route::get('/succes', [SubscriptionController::class, 'succes'])
-             ->name('succes');
-        Route::get('/echec', [SubscriptionController::class, 'echec'])
-             ->name('echec');
+             ->name('callback')
+             ->withoutMiddleware(['auth', 'verified'])
+             ->middleware('throttle:60,1');
+
+        Route::get('/succes', [SubscriptionController::class, 'succes'])->name('succes');
+        Route::get('/echec', [SubscriptionController::class, 'echec'])->name('echec');
     });
 
-    // ── Dashboard SuperAdmin ──────────────────────────────────────────────
     Route::middleware('isSuperAdmin')
          ->prefix('superadmin')
          ->name('superadmin.')
          ->group(function () {
-            Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])
-                 ->name('dashboard');
-            Route::get('/subscriptions', [SuperAdminController::class, 'subscriptions'])
-                 ->name('subscriptions');
-            Route::get('/activity-logs', [ActivityLogController::class, 'index'])
-                 ->name('activity-logs.index');
-
-            // ── Création d'agence (routes statiques AVANT les routes dynamiques {agency}) ──
-            Route::get('/agencies/create', [SuperAdminController::class, 'createAgency'])
-                 ->name('agencies.create');
-            Route::post('/agencies', [SuperAdminController::class, 'storeAgency'])
-                 ->name('agencies.store');
-
-            // ── Routes dynamiques avec {agency} ──
-            Route::patch('/agencies/{agency}/toggle', [SuperAdminController::class, 'toggleActif'])
-                 ->name('agencies.toggle');
-            Route::post('/agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])
-                 ->name('agencies.abonnement.activer');
-            Route::post('/agencies/{agency}/essai', [SuperAdminController::class, 'reinitialiserEssai'])
-                 ->name('agencies.essai.reinitialiser');
-            Route::get('/agencies/{agency}', [SuperAdminController::class, 'showAgency'])
-                 ->name('agencies.show');
+            Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
+            Route::get('/subscriptions', [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
+            Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+            Route::get('/agencies/create', [SuperAdminController::class, 'createAgency'])->name('agencies.create');
+            Route::post('/agencies', [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
+            Route::patch('/agencies/{agency}/toggle', [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
+            Route::post('/agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
+            Route::post('/agencies/{agency}/essai', [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
+            Route::get('/agencies/{agency}', [SuperAdminController::class, 'showAgency'])->name('agencies.show');
     });
 
-    // ── Dashboard Admin ───────────────────────────────────────────────────
     Route::middleware('isAdmin')
          ->prefix('admin')
          ->name('admin.')
          ->group(function () {
-
-            Route::get('/dashboard', [DashboardController::class, 'admin'])
-                 ->name('dashboard');
-
-            Route::get('agency/settings', [AgencySettingsController::class, 'edit'])
-                 ->name('agency.settings');
-            Route::patch('agency/settings', [AgencySettingsController::class, 'update'])
-                 ->name('agency.settings.update');
-            Route::delete('agency/logo', [AgencySettingsController::class, 'deleteLogo'])
-                 ->name('agency.logo.delete');
-
-            Route::get('activity-logs', [ActivityLogController::class, 'index'])
-                 ->name('activity-logs.index');
-
-            // ── TÂCHE 2 : Saisie prédictive — doit être déclaré AVANT resource ──
-            Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])
-                 ->name('paiements.dernier-periode');
-
+            Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+            Route::get('agency/settings', [AgencySettingsController::class, 'edit'])->name('agency.settings');
+            Route::patch('agency/settings', [AgencySettingsController::class, 'update'])->name('agency.settings.update');
+            Route::delete('agency/logo', [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
+            Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+            Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])->name('paiements.dernier-periode');
             Route::resource('paiements', PaiementController::class);
-            Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])
-                 ->name('paiements.pdf');
-            Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])
-                 ->name('paiements.annuler');
-
-            Route::resource('contrats', ContratController::class)
-                 ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
-            Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])
-                 ->name('contrats.locataire-rapide');
+            Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
+            Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
+            Route::resource('contrats', ContratController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+            Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide');
 
             Route::prefix('users')->name('users.')->group(function () {
-                Route::get('proprietaires', [UserController::class, 'proprietaires'])
-                     ->name('proprietaires');
-                Route::get('locataires', [UserController::class, 'locataires'])
-                     ->name('locataires');
-                // Routes statiques AVANT les routes dynamiques {user}
-                Route::get('create/{role}', [UserController::class, 'create'])
-                     ->name('create');
-                Route::post('store', [UserController::class, 'store'])
-                     ->name('store');
-                // Routes dynamiques {user}
-                Route::get('{user}', [UserController::class, 'show'])
-                     ->name('show');
-                Route::get('{user}/edit', [UserController::class, 'edit'])
-                     ->name('edit');
-                Route::patch('{user}', [UserController::class, 'update'])
-                     ->name('update');
-                Route::delete('{user}', [UserController::class, 'destroy'])
-                     ->name('destroy');
+                Route::get('proprietaires', [UserController::class, 'proprietaires'])->name('proprietaires');
+                Route::get('locataires', [UserController::class, 'locataires'])->name('locataires');
+                Route::get('create/{role}', [UserController::class, 'create'])->name('create');
+                Route::post('store', [UserController::class, 'store'])->name('store');
+                Route::get('{user}', [UserController::class, 'show'])->name('show');
+                Route::get('{user}/edit', [UserController::class, 'edit'])->name('edit');
+                Route::patch('{user}', [UserController::class, 'update'])->name('update');
+                Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
             });
 
-            Route::get('rapports/financier', [RapportController::class, 'financier'])
-                 ->name('rapports.financier');
-            Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])
-                 ->name('rapports.financier.export-pdf');
-
-            Route::get('impayes', [ImpayeController::class, 'index'])
-                 ->name('impayes.index');
-            Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])
-                 ->name('impayes.relance');
+            Route::get('rapports/financier', [RapportController::class, 'financier'])->name('rapports.financier');
+            Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
+            Route::get('impayes', [ImpayeController::class, 'index'])->name('impayes.index');
+            Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance');
     });
 
-    Route::middleware('can:isProprietaire')
-         ->prefix('proprietaire')
-         ->name('proprietaire.')
-         ->group(function () {
-            Route::get('/dashboard', [DashboardController::class, 'proprietaire'])
-                 ->name('dashboard');
-            Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])
-                 ->name('paiements.pdf');
+    Route::middleware('can:isProprietaire')->prefix('proprietaire')->name('proprietaire.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'proprietaire'])->name('dashboard');
+        Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
     });
 
-    Route::middleware('can:isLocataire')
-         ->prefix('locataire')
-         ->name('locataire.')
-         ->group(function () {
-            Route::get('/dashboard', [DashboardController::class, 'locataire'])
-                 ->name('dashboard');
-            Route::get('mes-paiements', [PaiementController::class, 'mesPaiements'])
-                 ->name('paiements');
-            Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])
-                 ->name('paiements.pdf');
+    Route::middleware('can:isLocataire')->prefix('locataire')->name('locataire.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'locataire'])->name('dashboard');
+        Route::get('mes-paiements', [PaiementController::class, 'mesPaiements'])->name('paiements');
+        Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
     });
 
-    Route::middleware('can:isStaff')
-         ->resource('biens', BienController::class);
+    Route::middleware('can:isStaff')->resource('biens', BienController::class);
 
     Route::middleware('can:isStaff')->group(function () {
-        Route::post('biens/{bien}/photos', [\App\Http\Controllers\BienPhotoController::class, 'store'])
-             ->name('biens.photos.store');
-        Route::delete('biens/{bien}/photos/{photo}', [\App\Http\Controllers\BienPhotoController::class, 'destroy'])
-             ->name('biens.photos.destroy');
-        Route::patch('biens/{bien}/photos/{photo}/principale', [\App\Http\Controllers\BienPhotoController::class, 'setPrincipale'])
-             ->name('biens.photos.principale');
+        Route::post('biens/{bien}/photos', [\App\Http\Controllers\BienPhotoController::class, 'store'])->name('biens.photos.store');
+        Route::delete('biens/{bien}/photos/{photo}', [\App\Http\Controllers\BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
+        Route::patch('biens/{bien}/photos/{photo}/principale', [\App\Http\Controllers\BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
     });
 });
 

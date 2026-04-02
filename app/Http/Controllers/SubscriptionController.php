@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -18,31 +19,26 @@ class SubscriptionController extends Controller
     {
     }
 
-    // ── Page de choix d'abonnement ────────────────────────────────────────
-
     public function index(): View
     {
         $user         = Auth::user();
         $agency       = $user->agency;
         $subscription = $agency->subscription;
 
-        // Historique des paiements de cette agence
         $historique = SubscriptionPayment::where('agency_id', $agency->id)
             ->orderByDesc('created_at')
             ->get();
 
-        $tarifs  = Subscription::TARIFS;
-        $labels  = Subscription::LABELS;
-        $durees  = Subscription::DUREES_MOIS;
-        $mode    = config('services.paydunya.mode', 'simulation');
+        $tarifs = Subscription::TARIFS;
+        $labels = Subscription::LABELS;
+        $durees = Subscription::DUREES_MOIS;
+        $mode   = config('services.paydunya.mode', 'simulation');
 
         return view('subscription.index', compact(
             'agency', 'subscription', 'historique',
             'tarifs', 'labels', 'durees', 'mode'
         ));
     }
-
-    // ── Initier un paiement (PayDunya ou simulation) ──────────────────────
 
     public function initierPaiement(Request $request): RedirectResponse
     {
@@ -53,33 +49,27 @@ class SubscriptionController extends Controller
             'plan.in'       => 'Plan invalide.',
         ]);
 
-        $agency = Auth::user()->agency;
-        $plan   = $request->plan;
-
+        $agency   = Auth::user()->agency;
+        $plan     = $request->plan;
         $resultat = $this->paymentService->initierPaiement($agency, $plan);
 
         if (! $resultat['success']) {
             return back()->withErrors(['general' => $resultat['message']]);
         }
 
-        // Mode PayDunya : rediriger vers la page de paiement externe
         if ($resultat['mode'] !== 'simulation' && $resultat['redirect_url']) {
             return redirect()->away($resultat['redirect_url']);
         }
 
-        // Mode simulation : abonnement activé directement
         $labels = Subscription::LABELS;
         return redirect()
             ->route('admin.dashboard')
-            ->with('success', "🎉 Abonnement {$labels[$plan]} activé avec succès !");
+            ->with('success', "Abonnement {$labels[$plan]} activé avec succès !");
     }
-
-    // ── Callback IPN PayDunya (webhook — sans auth) ───────────────────────
 
     public function callbackPaydunya(Request $request): JsonResponse
     {
         $payload  = $request->all();
-
         Log::info('Callback PayDunya reçu', ['payload' => $payload]);
 
         $resultat = $this->paymentService->traiterCallbackIPN($payload);
@@ -90,39 +80,84 @@ class SubscriptionController extends Controller
         ], $resultat['success'] ? 200 : 422);
     }
 
-    // ── Page de retour succès PayDunya ────────────────────────────────────
-
+    // ✅ CORRECTION C2 : verrou DB + plan depuis PayDunya (pas la session)
+    // Avant : deux requêtes simultanées pouvaient activer 2 fois
+    // Avant : si la session expirait, le plan était perdu
+    // Après : lockForUpdate() + plan lu depuis l'API PayDunya
     public function succes(Request $request): View|RedirectResponse
     {
         $token  = $request->query('token');
         $agency = Auth::user()->agency;
 
-        // Vérifier le statut de la facture si un token est présent
-        if ($token) {
-            $statut = $this->paymentService->verifierStatutFacture($token);
-
-            if (isset($statut['status']) && $statut['status'] === 'completed') {
-                $plan = session('subscription_plan_pending');
-
-                if ($plan && $agency->subscription) {
-                    // Idempotence : vérifier si déjà activé via IPN
-                    $dejaTraite = SubscriptionPayment::where('reference', $token)->exists();
-                    if (! $dejaTraite && $plan) {
-                        $agency->subscription->activer($plan, $token, 'paydunya');
-                    }
-                }
-
-                session()->forget(['subscription_plan_pending', 'subscription_agency_id']);
-
-                return view('subscription.succes', compact('agency'));
-            }
+        if (! $token) {
+            return redirect()->route('subscription.index')
+                ->with('info', 'Votre paiement est en cours de traitement.');
         }
 
-        return redirect()->route('subscription.index')
-            ->with('info', 'Votre paiement est en cours de traitement.');
-    }
+        try {
+            // On demande à PayDunya si le paiement est vraiment complété
+            $statut = $this->paymentService->verifierStatutFacture($token);
 
-    // ── Page de retour échec PayDunya ─────────────────────────────────────
+            if (! $statut || ($statut['status'] ?? '') !== 'completed') {
+                return redirect()->route('subscription.index')
+                    ->with('info', 'Votre paiement est en cours de traitement.');
+            }
+
+            // Le plan vient de PayDunya, pas de la session
+            $planPaydunya = $statut['custom_data']['plan'] ?? null;
+            $planSession  = session('subscription_plan_pending');
+
+            // Alerte si les deux ne correspondent pas
+            if ($planSession && $planPaydunya && $planSession !== $planPaydunya) {
+                Log::critical('Incohérence plan session vs PayDunya', [
+                    'session'   => $planSession,
+                    'paydunya'  => $planPaydunya,
+                    'token'     => $token,
+                    'agency_id' => $agency->id,
+                ]);
+            }
+
+            $plan = $planPaydunya ?? $planSession;
+
+            if (! $plan || ! array_key_exists($plan, Subscription::TARIFS)) {
+                return redirect()->route('subscription.index')
+                    ->with('error', 'Plan invalide. Contactez le support.');
+            }
+
+            // Activation avec verrou — impossible de l'activer deux fois en même temps
+            DB::transaction(function () use ($agency, $plan, $token) {
+                $subscription = Subscription::where('agency_id', $agency->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $subscription) {
+                    $subscription = Subscription::create([
+                        'agency_id'        => $agency->id,
+                        'statut'           => 'essai',
+                        'date_debut_essai' => now(),
+                        'date_fin_essai'   => now()->addDays(30),
+                    ]);
+                }
+
+                if (! SubscriptionPayment::where('reference', $token)->exists()) {
+                    $subscription->activer($plan, $token, 'paydunya');
+                }
+            });
+
+            session()->forget(['subscription_plan_pending', 'subscription_agency_id']);
+
+            return view('subscription.succes', compact('agency'));
+
+        } catch (\Throwable $e) {
+            Log::error('Erreur retour PayDunya succes()', [
+                'token'     => $token,
+                'agency_id' => $agency->id,
+                'error'     => $e->getMessage(),
+            ]);
+            return redirect()->route('subscription.index')
+                ->with('info', 'Votre paiement est en cours de vérification.');
+        }
+    }
 
     public function echec(): View
     {

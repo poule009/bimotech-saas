@@ -1,7 +1,4 @@
-# TODO - Correction RelanceImpayeNotification
+# TODO
 
-- [x] Remplacer `app/Notifications/RelanceImpayeNotification.php` par une vraie classe Notification (namespace `App\Notifications`)
-- [x] Garder la signature du constructeur compatible avec `new RelanceImpayeNotification($contrat, $periode)`
-- [x] Implémenter les canaux + contenu email de relance impayé
-- [ ] Vérifier la syntaxe PHP du fichier
-- [ ] Confirmer la résolution de l'erreur Intelephense P1009
+- [ ] Fix Intelephense P1013 in `app/Providers/AppServiceProvider.php` by making `$user` explicitly typed as `\App\Models\User` before calling Eloquent relation methods.
+- [ ] Mark task as completed after patch is applied.
