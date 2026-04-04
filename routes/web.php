@@ -26,9 +26,9 @@ Route::get('/', function () {
 
 Route::middleware('guest')->group(function () {
     Route::get('/register/agency', [AgencyRegistrationController::class, 'create'])
-         ->name('agency.register');
+        ->name('agency.register');
     Route::post('/register/agency', [AgencyRegistrationController::class, 'store'])
-         ->name('agency.register.store');
+        ->name('agency.register.store');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -43,21 +43,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('subscription')->name('subscription.')->group(function () {
         Route::get('/', [SubscriptionController::class, 'index'])->name('index');
         Route::post('/initier', [SubscriptionController::class, 'initierPaiement'])->name('initier');
-
-        // ✅ CORRECTION C1 : throttle ajouté sur le webhook
         Route::post('/callback', [SubscriptionController::class, 'callbackPaydunya'])
-             ->name('callback')
-             ->withoutMiddleware(['auth', 'verified'])
-             ->middleware('throttle:60,1');
-
+            ->name('callback')
+            ->withoutMiddleware(['auth', 'verified'])
+            ->middleware('throttle:60,1');
         Route::get('/succes', [SubscriptionController::class, 'succes'])->name('succes');
         Route::get('/echec', [SubscriptionController::class, 'echec'])->name('echec');
     });
 
     Route::middleware('isSuperAdmin')
-         ->prefix('superadmin')
-         ->name('superadmin.')
-         ->group(function () {
+        ->prefix('superadmin')
+        ->name('superadmin.')
+        ->group(function () {
             Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
             Route::get('/subscriptions', [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
             Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
@@ -67,24 +64,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
             Route::post('/agencies/{agency}/essai', [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
             Route::get('/agencies/{agency}', [SuperAdminController::class, 'showAgency'])->name('agencies.show');
-    });
+        });
 
     Route::middleware('isAdmin')
-         ->prefix('admin')
-         ->name('admin.')
-         ->group(function () {
+        ->prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+
             Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+
             Route::get('agency/settings', [AgencySettingsController::class, 'edit'])->name('agency.settings');
             Route::patch('agency/settings', [AgencySettingsController::class, 'update'])->name('agency.settings.update');
             Route::delete('agency/logo', [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
+
             Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+            // Paiements — routes statiques AVANT resource
             Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])->name('paiements.dernier-periode');
+            Route::get('paiements/fiscal-preview/{contrat}', [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview');
             Route::resource('paiements', PaiementController::class);
             Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
             Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
+
+            // Contrats
             Route::resource('contrats', ContratController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
             Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide');
 
+            // Utilisateurs
             Route::prefix('users')->name('users.')->group(function () {
                 Route::get('proprietaires', [UserController::class, 'proprietaires'])->name('proprietaires');
                 Route::get('locataires', [UserController::class, 'locataires'])->name('locataires');
@@ -96,11 +102,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
             });
 
+            // Bilans fiscaux
+            Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'index'])->name('index');
+                Route::post('{proprietaire}/calculate', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'calculate'])->name('calculate');
+                Route::get('{proprietaire}', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'show'])->name('show');
+                Route::get('{proprietaire}/pdf', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'exportPdf'])->name('pdf');
+            });
+
+            // Rapports
             Route::get('rapports/financier', [RapportController::class, 'financier'])->name('rapports.financier');
             Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
+
+            // Impayés
             Route::get('impayes', [ImpayeController::class, 'index'])->name('impayes.index');
             Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance');
-    });
+
+        });
 
     Route::middleware('can:isProprietaire')->prefix('proprietaire')->name('proprietaire.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'proprietaire'])->name('dashboard');
@@ -120,6 +138,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('biens/{bien}/photos/{photo}', [\App\Http\Controllers\BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
         Route::patch('biens/{bien}/photos/{photo}/principale', [\App\Http\Controllers\BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
     });
+
 });
 
 require __DIR__ . '/auth.php';

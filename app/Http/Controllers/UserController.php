@@ -162,7 +162,7 @@ class UserController extends Controller
             'password'  => ['required', 'confirmed', Password::min(8)],
             'cni'            => ['nullable', 'string', 'max:20'],
             'date_naissance' => ['nullable', 'date'],
-            'genre'          => ['nullable', 'in:M,F'],
+            'genre' => ['nullable', 'in:homme,femme'],
             'ville'          => ['nullable', 'string', 'max:100'],
             'quartier'       => ['nullable', 'string', 'max:100'],
             'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque,mobile_money'],
@@ -179,7 +179,7 @@ class UserController extends Controller
         ], [
             'email.unique'   => 'Cet email est déjà utilisé par un autre compte.',
             'name.required'  => 'Le nom complet est obligatoire.',
-            'genre.in'       => 'Genre invalide (M ou F).',
+            'genre.in'       => 'Genre invalide (homme ou femme).',
             'mode_paiement_prefere.in' => 'Mode de paiement invalide.',
         ]);
 
@@ -350,63 +350,94 @@ class UserController extends Controller
     // MISE À JOUR
     // ─────────────────────────────────────────────────────────────────────
 
-    public function update(Request $request, User $user): RedirectResponse
-    {
-        $this->authorize('isAdmin');
-        $this->verifierAppartenance($user);
+     public function update(Request $request, User $user): RedirectResponse
+{
+    $this->authorize('isAdmin');
+    $this->verifierAppartenance($user);
 
-        $validated = $request->validate([
-            'name'      => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'email', 'unique:users,email,' . $user->id],
-            'telephone' => ['nullable', 'string', 'max:30'],
-            'adresse'   => ['nullable', 'string', 'max:255'],
-        ], [
-            'email.unique'  => 'Cet email est déjà utilisé par un autre compte.',
-            'name.required' => 'Le nom complet est obligatoire.',
+    // ── Champs User communs ───────────────────────────────────────────
+    $validated = $request->validate([
+        'name'      => ['required', 'string', 'max:255'],
+        'email'     => ['required', 'email', 'unique:users,email,' . $user->id],
+        'telephone' => ['nullable', 'string', 'max:30'],
+        'adresse'   => ['nullable', 'string', 'max:255'],
+    ], [
+        'email.unique'  => 'Cet email est déjà utilisé par un autre compte.',
+        'name.required' => 'Le nom complet est obligatoire.',
+    ]);
+
+    $user->update($validated);
+
+    // ── Profil PROPRIÉTAIRE ───────────────────────────────────────────
+    if ($user->isProprietaire() && $user->proprietaire) {
+        $profilData = $request->validate([
+            'cni'                   => ['nullable', 'string', 'max:20'],
+            'date_naissance'        => ['nullable', 'date'],
+            'genre'                 => ['nullable', 'in:homme,femme'],
+            'nationalite'           => ['nullable', 'string', 'max:50'],
+            'telephone_secondaire'  => ['nullable', 'string', 'max:30'],
+            'adresse_domicile'      => ['nullable', 'string', 'max:255'],
+            'ville'                 => ['nullable', 'string', 'max:100'],
+            'quartier'              => ['nullable', 'string', 'max:100'],
+            'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque,mobile_money'],
+            'banque'                => ['nullable', 'string', 'max:100'],
+            'numero_compte'         => ['nullable', 'string', 'max:50'],
+            'numero_wave'           => ['nullable', 'string', 'max:20'],
+            'numero_om'             => ['nullable', 'string', 'max:20'],
+            'ninea'                 => ['nullable', 'string', 'max:20'],
+            'assujetti_tva'         => ['nullable', 'boolean'],
         ]);
 
-        $user->update($validated);
-
-        if ($user->isProprietaire() && $user->proprietaire) {
-            $profilData = $request->validate([
-                'cni'                   => ['nullable', 'string', 'max:20'],
-                'date_naissance'        => ['nullable', 'date'],
-                'genre'                 => ['nullable', 'in:M,F'],
-                'nationalite'           => ['nullable', 'string', 'max:50'],
-                'telephone_secondaire'  => ['nullable', 'string', 'max:30'],
-                'adresse_domicile'      => ['nullable', 'string', 'max:255'],
-                'ville'                 => ['nullable', 'string', 'max:100'],
-                'quartier'              => ['nullable', 'string', 'max:100'],
-                'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque,mobile_money'],
-                'banque'                => ['nullable', 'string', 'max:100'],
-                'numero_compte'         => ['nullable', 'string', 'max:50'],
-                'numero_wave'           => ['nullable', 'string', 'max:20'],
-                'numero_om'             => ['nullable', 'string', 'max:20'],
-                'ninea'                 => ['nullable', 'string', 'max:20'],
-                'assujetti_tva'         => ['boolean'],
-            ]);
-            $user->proprietaire->update($profilData);
-        }
-
-        if ($user->isLocataire() && $user->locataire) {
-            $profilData = $request->validate([
-                'cni'            => ['nullable', 'string', 'max:20'],
-                'date_naissance' => ['nullable', 'date'],
-                'genre'          => ['nullable', 'in:M,F'],
-                'nationalite'    => ['nullable', 'string', 'max:50'],
-                'profession'     => ['nullable', 'string', 'max:100'],
-                'employeur'      => ['nullable', 'string', 'max:150'],
-                'revenu_mensuel' => ['nullable', 'numeric', 'min:0'],
-                'ville'          => ['nullable', 'string', 'max:100'],
-                'quartier'       => ['nullable', 'string', 'max:100'],
-            ]);
-            $user->locataire->update($profilData);
-        }
-
-        return redirect()
-            ->route('admin.users.show', $user)
-            ->with('success', 'Utilisateur mis à jour ✓');
+        $profilData['assujetti_tva'] = $request->boolean('assujetti_tva');
+        $user->proprietaire->update($profilData);
     }
+
+    // ── Profil LOCATAIRE ─────────────────────────────────────────────
+    if ($user->isLocataire() && $user->locataire) {
+        $profilData = $request->validate([
+            'cni'                  => ['nullable', 'string', 'max:20'],
+            'date_naissance'       => ['nullable', 'date'],
+            'genre'                => ['nullable', 'in:homme,femme'],
+            'nationalite'          => ['nullable', 'string', 'max:50'],
+            'ville'                => ['nullable', 'string', 'max:100'],
+            'quartier'             => ['nullable', 'string', 'max:100'],
+            'profession'           => ['nullable', 'string', 'max:100'],
+            'employeur'            => ['nullable', 'string', 'max:150'],
+            'revenu_mensuel'       => ['nullable', 'numeric', 'min:0'],
+            'contact_urgence_nom'  => ['nullable', 'string', 'max:150'],
+            'contact_urgence_tel'  => ['nullable', 'string', 'max:20'],
+            'contact_urgence_lien' => ['nullable', 'string', 'max:50'],
+            // Fiscal
+            'type_locataire'       => ['nullable', 'in:particulier,entreprise,association,ambassade,ong'],
+            'nom_entreprise'       => ['nullable', 'string', 'max:150'],
+            'ninea_locataire'      => ['nullable', 'string', 'max:30'],
+            'rccm_locataire'       => ['nullable', 'string', 'max:60'],
+            'taux_brs_override'    => ['nullable', 'numeric', 'min:0', 'max:20'],
+        ]);
+
+        // est_entreprise déduit du type_locataire
+        $profilData['est_entreprise'] = in_array(
+            $profilData['type_locataire'] ?? 'particulier',
+            ['entreprise', 'association']
+        );
+
+        // Si pas entreprise → effacer les infos entreprise
+        if (! $profilData['est_entreprise']) {
+            $profilData['nom_entreprise']    = null;
+            $profilData['ninea_locataire']   = null;
+            $profilData['rccm_locataire']    = null;
+            $profilData['taux_brs_override'] = null;
+        }
+
+        $user->locataire->update($profilData);
+        // LocataireObserver::updated() se déclenche automatiquement
+        // si est_entreprise a changé → propage BRS aux contrats actifs
+    }
+
+    return redirect()
+        ->route('admin.users.show', $user)
+        ->with('success', 'Profil mis à jour ✓');
+}
 
     // ─────────────────────────────────────────────────────────────────────
     // SUPPRESSION

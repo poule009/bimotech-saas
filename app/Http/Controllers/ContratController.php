@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Bien;
 use App\Models\Contrat;
-// use App\Models\Paiement;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-// use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -23,60 +21,40 @@ class ContratController extends Controller
     // LISTE
     // ─────────────────────────────────────────────────────────────────────
 
-    public function index()
-    {
-        $this->authorize('viewAny', Contrat::class);
+   public function index()
+{
+    $this->authorize('viewAny', Contrat::class);
 
-        /**
-         * PERFORMANCE — select() sur la liste :
-         *
-         * La vue index affiche : référence bien, locataire, dates, loyer, statut.
-         * On ne charge pas : observations, garant_*, indexation_annuelle, etc.
-         *
-         * Eager loading avec select() sur les relations pour éviter de charger
-         * toutes les colonnes des tables liées.
-         */
-        $contrats = Contrat::select([
-                'id', 'agency_id', 'bien_id', 'locataire_id',
-                'statut', 'date_debut', 'date_fin',
-                'loyer_contractuel', 'caution', 'type_bail', 'reference_bail',
-                'created_at',
-            ])
-            ->with([
-                'bien:id,agency_id,reference,type,adresse,ville,statut',
-                'locataire:id,name,email,telephone',
-            ])
-            ->orderByDesc('created_at')
-            ->paginate(15);
+    $contrats = Contrat::select([
+            'id', 'agency_id', 'bien_id', 'locataire_id',
+            'date_debut', 'date_fin', 'loyer_contractuel',
+            'caution', 'statut', 'type_bail', 'reference_bail',
+            'brs_applicable', 'loyer_assujetti_tva',
+            'date_enregistrement_dgid', 'enregistrement_exonere',
+        ])
+        ->with([
+            'bien:id,agency_id,reference,adresse,ville',
+            'locataire:id,name,email',
+        ])
+        ->orderByDesc('created_at')
+        ->paginate(20);
 
-        /**
-         * PERFORMANCE — Stats en une seule requête SQL au lieu de 4 :
-         *
-         * Avant :
-         *   Contrat::count()
-         *   Contrat::where('statut', 'actif')->count()
-         *   Contrat::where('statut', 'resilié')->count()
-         *   Contrat::where('statut', 'expiré')->count()
-         * = 4 requêtes SQL
-         *
-         * Après : 1 requête avec GROUP BY
-         */
-        $statsRaw = Contrat::selectRaw("
-            COUNT(*) AS total,
-            SUM(CASE WHEN statut = 'actif'   THEN 1 ELSE 0 END) AS actifs,
-            SUM(CASE WHEN statut = 'resilié' THEN 1 ELSE 0 END) AS resilies,
-            SUM(CASE WHEN statut = 'expiré'  THEN 1 ELSE 0 END) AS expires
-        ")->first();
+    $statsRaw = Contrat::selectRaw("
+        COUNT(*) AS total,
+        SUM(CASE WHEN statut = 'actif'   THEN 1 ELSE 0 END) AS actifs,
+        SUM(CASE WHEN statut = 'resilié' THEN 1 ELSE 0 END) AS resilies,
+        SUM(CASE WHEN statut = 'expiré'  THEN 1 ELSE 0 END) AS expires
+    ")->first();
 
-        $stats = [
-            'total'    => (int) $statsRaw->total,
-            'actifs'   => (int) $statsRaw->actifs,
-            'resilies' => (int) $statsRaw->resilies,
-            'expires'  => (int) $statsRaw->expires,
-        ];
+    $stats = [
+        'total'    => (int) $statsRaw->total,
+        'actifs'   => (int) $statsRaw->actifs,
+        'resilies' => (int) $statsRaw->resilies,
+        'expires'  => (int) $statsRaw->expires,
+    ];
 
-        return view('admin.contrats.index', compact('contrats', 'stats'));
-    }
+    return view('admin.contrats.index', compact('contrats', 'stats'));
+}
 
     // ─────────────────────────────────────────────────────────────────────
     // FORMULAIRE CRÉATION
@@ -88,15 +66,8 @@ class ContratController extends Controller
 
         $agencyId = Auth::user()->agency_id;
 
-        /**
-         * PERFORMANCE — select() sur les dropdowns :
-         *
-         * Pour un <select> HTML, on n'a besoin que de id, reference, adresse,
-         * loyer_mensuel et taux_commission pour pré-remplir le formulaire JS.
-         * Charger description, nombre_pieces, etc. est inutile.
-         */
         $biens = Bien::where('statut', 'disponible')
-            ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission'])
+            ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble'])
             ->with(['proprietaire:id,name'])
             ->orderBy('reference')
             ->get();
@@ -108,7 +79,7 @@ class ContratController extends Controller
             ->get();
 
         $bienPreselectionne = $request->has('bien_id')
-            ? Bien::select(['id', 'reference', 'loyer_mensuel', 'taux_commission'])->find($request->bien_id)
+            ? Bien::select(['id', 'reference', 'loyer_mensuel', 'taux_commission', 'meuble', 'type'])->find($request->bien_id)
             : null;
 
         $typesBail = Contrat::TYPES_BAIL;
@@ -162,13 +133,23 @@ class ContratController extends Controller
             'garant_adresse'      => ['nullable', 'string', 'max:255'],
             'reference_bail'      => ['nullable', 'string', 'max:60'],
             'observations'        => ['nullable', 'string', 'max:1000'],
+            // ── Fiscal ────────────────────────────────────────────────────
+            'loyer_assujetti_tva'      => ['nullable', 'boolean'],
+            'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'brs_applicable'           => ['nullable', 'boolean'],
+            'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],
+            // ── DGID ──────────────────────────────────────────────────────
+            'date_enregistrement_dgid' => ['nullable', 'date'],
+            'numero_quittance_dgid'    => ['nullable', 'string', 'max:60'],
+            'montant_droit_de_bail'    => ['nullable', 'numeric', 'min:0'],
+            'enregistrement_exonere'   => ['nullable', 'boolean'],
         ]);
 
         if (Contrat::where('bien_id', $validated['bien_id'])->where('statut', 'actif')->exists()) {
             return back()->withInput()->withErrors(['bien_id' => 'Ce bien a déjà un contrat actif.']);
         }
 
-        $loyerNu          = (float) $validated['loyer_nu'];
+        $loyerNu           = (float) $validated['loyer_nu'];
         $chargesMensuelles = (float) ($validated['charges_mensuelles'] ?? 0);
         $tomAmount         = (float) ($validated['tom_amount'] ?? 0);
         $loyerContractuel  = round($loyerNu + $chargesMensuelles + $tomAmount, 2);
@@ -197,6 +178,16 @@ class ContratController extends Controller
             'garant_adresse'      => $validated['garant_adresse'] ?? null,
             'observations'        => $validated['observations'] ?? null,
             'reference_bail'      => $referenceBail,
+            // ── Fiscal (l'Observer ContratObserver calcule aussi automatiquement)
+            'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
+            'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
+            'brs_applicable'           => $request->boolean('brs_applicable'),
+            'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
+            // ── DGID
+            'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
+            'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,
+            'montant_droit_de_bail'    => $validated['montant_droit_de_bail'] ?? null,
+            'enregistrement_exonere'   => $request->boolean('enregistrement_exonere'),
         ]);
 
         if (empty($referenceBail)) {
@@ -226,13 +217,12 @@ class ContratController extends Controller
             'locataire:id,name,email,telephone',
         ]);
 
-        // Agrégats SQL — une seule requête
         $aggrContrat = $contrat->paiements()
             ->where('statut', 'valide')
             ->selectRaw('
-                COALESCE(SUM(montant_encaisse), 0)  AS total_paye,
-                COALESCE(SUM(net_proprietaire), 0)  AS total_net,
-                COUNT(*)                            AS nb_paiements
+                COALESCE(SUM(montant_encaisse), 0) AS total_paye,
+                COALESCE(SUM(net_proprietaire), 0) AS total_net,
+                COUNT(*) AS nb_paiements
             ')
             ->first();
 
@@ -247,7 +237,6 @@ class ContratController extends Controller
 
         $decomposition = $contrat->decompositionLoyer();
 
-        // Historique paiements avec select() sélectif
         $paiements = $contrat->paiements()
             ->select(['id', 'contrat_id', 'agency_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'commission_ttc', 'mode_paiement', 'date_paiement', 'statut', 'reference_paiement'])
             ->orderByDesc('periode')
@@ -268,14 +257,14 @@ class ContratController extends Controller
         $this->authorize('update', $contrat);
 
         $contrat->load([
-            'bien:id,reference,type,adresse',
+            'bien:id,reference,type,adresse,meuble',
             'locataire:id,name',
         ]);
 
         $biens = Bien::where(function ($q) use ($contrat) {
             $q->where('statut', 'disponible')->orWhere('id', $contrat->bien_id);
         })
-        ->select(['id', 'agency_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission'])
+        ->select(['id', 'agency_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble'])
         ->with(['proprietaire:id,name'])
         ->orderBy('reference')
         ->get();
@@ -330,9 +319,19 @@ class ContratController extends Controller
                     }
                 },
             ],
+            // ── Fiscal ────────────────────────────────────────────────────
+            'loyer_assujetti_tva'      => ['nullable', 'boolean'],
+            'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'brs_applicable'           => ['nullable', 'boolean'],
+            'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],
+            // ── DGID ──────────────────────────────────────────────────────
+            'date_enregistrement_dgid' => ['nullable', 'date'],
+            'numero_quittance_dgid'    => ['nullable', 'string', 'max:60'],
+            'montant_droit_de_bail'    => ['nullable', 'numeric', 'min:0'],
+            'enregistrement_exonere'   => ['nullable', 'boolean'],
         ]);
 
-        $loyerNu          = (float) $validated['loyer_nu'];
+        $loyerNu           = (float) $validated['loyer_nu'];
         $chargesMensuelles = (float) ($validated['charges_mensuelles'] ?? 0);
         $tomAmount         = (float) ($validated['tom_amount'] ?? 0);
 
@@ -354,6 +353,16 @@ class ContratController extends Controller
                                         ? trim($validated['reference_bail'])
                                         : $contrat->reference_bail,
             'observations'        => $validated['observations'] ?? null,
+            // ── Fiscal
+            'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
+            'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
+            'brs_applicable'           => $request->boolean('brs_applicable'),
+            'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
+            // ── DGID
+            'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
+            'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,
+            'montant_droit_de_bail'    => $validated['montant_droit_de_bail'] ?? null,
+            'enregistrement_exonere'   => $request->boolean('enregistrement_exonere'),
         ];
 
         if (! empty($validated['locataire_id'])) {
@@ -402,13 +411,13 @@ class ContratController extends Controller
             'password'  => ['required', Password::min(8)],
         ], ['email.unique' => 'Cet email est déjà utilisé.']);
 
-        $user                   = new User();
-        $user->name             = $validated['name'];
-        $user->email            = $validated['email'];
-        $user->telephone        = $validated['telephone'] ?? null;
-        $user->password         = Hash::make($validated['password']);
-        $user->role             = 'locataire';
-        $user->agency_id        = Auth::user()->agency_id;
+        $user                    = new User();
+        $user->name              = $validated['name'];
+        $user->email             = $validated['email'];
+        $user->telephone         = $validated['telephone'] ?? null;
+        $user->password          = Hash::make($validated['password']);
+        $user->role              = 'locataire';
+        $user->agency_id         = Auth::user()->agency_id;
         $user->email_verified_at = now();
         $user->save();
 

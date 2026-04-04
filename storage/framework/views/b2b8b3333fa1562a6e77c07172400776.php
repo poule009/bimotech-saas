@@ -8,219 +8,419 @@
 <?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes([]); ?>
-     <?php $__env->slot('header', null, []); ?> Contrats de bail <?php $__env->endSlot(); ?>
+     <?php $__env->slot('header', null, []); ?> Contrats <?php $__env->endSlot(); ?>
+
+<style>
+/* ── KPI ROW ── */
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.kpi-mini { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:18px 20px; position:relative; overflow:hidden; transition:transform .15s; cursor:pointer; }
+.kpi-mini:hover { transform:translateY(-1px); box-shadow:0 4px 16px -4px rgba(0,0,0,0.07); }
+.kpi-mini.active-filter { box-shadow:0 0 0 2px #c9a84c; }
+.kpi-mini::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; border-radius:12px 12px 0 0; }
+.kpi-mini.gold::before  { background:#c9a84c; }
+.kpi-mini.green::before { background:#16a34a; }
+.kpi-mini.red::before   { background:#dc2626; }
+.kpi-mini.gray::before  { background:#9ca3af; }
+.kpi-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:5px; }
+.kpi-val { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.3px;line-height:1; }
+.kpi-s   { font-size:11px;color:#9ca3af;margin-top:5px; }
+
+/* ── FILTRES ── */
+.filter-bar { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.filter-input  { padding:8px 13px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;background:#f9fafb;outline:none;transition:border-color .15s; }
+.filter-input:focus { border-color:#c9a84c;background:#fff; }
+.filter-select { padding:8px 13px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;background:#f9fafb;outline:none;cursor:pointer; }
+.filter-btn   { padding:8px 16px;background:#0d1117;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap; }
+.filter-reset { padding:8px 14px;background:none;color:#6b7280;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap; }
+
+/* ── TABLE CARD ── */
+.table-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; }
+.table-header { padding:18px 22px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-between; }
+.table-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#0d1117; }
+.table-count { font-size:12px; color:#6b7280; margin-top:2px; }
+.dt { width:100%; border-collapse:collapse; }
+.dt thead tr { background:#f9fafb; }
+.dt th { padding:10px 18px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;border-bottom:1px solid #e5e7eb;white-space:nowrap; }
+.dt td { padding:14px 18px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
+.dt tbody tr:last-child td { border-bottom:none; }
+.dt tbody tr { transition:background .1s; }
+.dt tbody tr:hover { background:#f9fafb; }
+.th-r { text-align:right !important; }
+.td-r  { text-align:right; }
+.td-c  { text-align:center; }
+
+/* cellules */
+.ref-bail { font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:#9ca3af;letter-spacing:.3px; }
+.bien-ref  { font-size:13px;font-weight:600;color:#0d1117; }
+.bien-sub  { font-size:11px;color:#6b7280;margin-top:1px; }
+.loc-name  { font-size:13px;font-weight:500;color:#0d1117; }
+.loc-email { font-size:11px;color:#6b7280;margin-top:1px; }
+.loyer-val { font-family:'Syne',sans-serif;font-weight:600;color:#0d1117; }
+.loyer-sub { font-size:10px;color:#9ca3af;margin-top:1px; }
+.date-val  { font-size:13px;color:#374151; }
+.date-sub  { font-size:11px;color:#9ca3af;margin-top:1px; }
+
+/* badge statut */
+.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap; }
+.badge.g    { background:#dcfce7;color:#16a34a; }
+.badge.r    { background:#fee2e2;color:#dc2626; }
+.badge.gray { background:#f3f4f6;color:#6b7280; }
+.badge.o    { background:#fef3c7;color:#d97706; }
+.bdot { width:5px;height:5px;border-radius:50%;background:currentColor; }
+
+/* type bail */
+.bail-tag { display:inline-block;padding:2px 8px;background:#f3f4f6;color:#6b7280;border-radius:6px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px; }
+
+/* alerte expiration */
+.expiry-soon { color:#d97706;font-weight:600; }
+.expiry-alert { color:#dc2626;font-weight:600; }
+
+/* actions */
+.act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;text-decoration:none;transition:all .15s; }
+.act-btn:hover { border-color:#c9a84c;color:#8a6e2f;background:#f5e9c9; }
+.act-btn svg { width:13px;height:13px; }
+.act-btn.danger:hover { border-color:#dc2626;color:#dc2626;background:#fee2e2; }
+.act-btn.primary { background:#0d1117;border-color:#0d1117;color:#fff; }
+.act-btn.primary:hover { opacity:.85; }
+
+/* état vide */
+.empty-state { padding:56px 20px;text-align:center; }
+.empty-icon  { width:56px;height:56px;border-radius:14px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;margin:0 auto 16px; }
+.empty-icon svg { width:24px;height:24px;color:#8a6e2f; }
+.empty-title { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:6px; }
+.empty-sub   { font-size:13px;color:#6b7280; }
+
+/* pagination */
+.pagination-wrap { padding:16px 22px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
+.pagination-info { font-size:12px;color:#6b7280; }
+.pagination-links { display:flex;gap:4px; }
+.page-btn { display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 10px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s; }
+.page-btn:hover { background:#f9fafb; }
+.page-btn.active { background:#0d1117;color:#fff;border-color:#0d1117; }
+.page-btn.disabled { opacity:.4;pointer-events:none; }
+
+/* barre de progression durée */
+.progress-bar { height:4px;background:#f3f4f6;border-radius:99px;overflow:hidden;margin-top:6px;width:80px; }
+.progress-fill { height:100%;border-radius:99px; }
+</style>
+
+<div style="padding:24px 32px 48px">
 
     
-    <?php if(session('success')): ?>
-        <div class="alert alert-success section-gap">✅ <?php echo e(session('success')); ?></div>
-    <?php endif; ?>
-
-    
-    <div class="flex-between section-gap">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
         <div>
-            <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">Contrats de bail</h1>
-            <p style="font-size:13px;color:var(--text-3);margin-top:3px;">
-                <?php echo e($contrats->total()); ?> contrat(s) enregistré(s)
+            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Contrats de bail</h1>
+            <p style="font-size:13px;color:#6b7280;margin-top:3px">
+                <?php echo e($stats['total']); ?> contrat(s) au total · <?php echo e($stats['actifs']); ?> actif(s)
             </p>
         </div>
-        <a href="<?php echo e(route('admin.contrats.create')); ?>" class="btn btn-primary">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Nouveau contrat
+        <div style="display:flex;gap:10px">
+            <a href="<?php echo e(route('admin.contrats.create')); ?>" class="btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Nouveau contrat
+            </a>
+        </div>
+    </div>
+
+    
+    <div class="kpi-row">
+        <a href="<?php echo e(route('admin.contrats.index')); ?>" style="text-decoration:none" class="kpi-mini gold <?php echo e(!request('statut') ? 'active-filter' : ''); ?>">
+            <div class="kpi-lbl">Total contrats</div>
+            <div class="kpi-val"><?php echo e($stats['total']); ?></div>
+            <div class="kpi-s">Tous statuts confondus</div>
+        </a>
+        <a href="<?php echo e(route('admin.contrats.index', ['statut' => 'actif'])); ?>" style="text-decoration:none" class="kpi-mini green <?php echo e(request('statut') === 'actif' ? 'active-filter' : ''); ?>">
+            <div class="kpi-lbl">Contrats actifs</div>
+            <div class="kpi-val"><?php echo e($stats['actifs']); ?></div>
+            <div class="kpi-s">En cours d'exécution</div>
+        </a>
+        <a href="<?php echo e(route('admin.contrats.index', ['statut' => 'resilié'])); ?>" style="text-decoration:none" class="kpi-mini red <?php echo e(request('statut') === 'resilié' ? 'active-filter' : ''); ?>">
+            <div class="kpi-lbl">Résiliés</div>
+            <div class="kpi-val"><?php echo e($stats['resilies']); ?></div>
+            <div class="kpi-s">Bail interrompu</div>
+        </a>
+        <a href="<?php echo e(route('admin.contrats.index', ['statut' => 'expiré'])); ?>" style="text-decoration:none" class="kpi-mini gray <?php echo e(request('statut') === 'expiré' ? 'active-filter' : ''); ?>">
+            <div class="kpi-lbl">Expirés</div>
+            <div class="kpi-val"><?php echo e($stats['expires']); ?></div>
+            <div class="kpi-s">Durée échue</div>
         </a>
     </div>
 
     
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" class="section-gap">
-        <div class="kpi" style="padding:16px;text-align:center;">
-            <div style="font-size:28px;font-weight:800;color:var(--text);"><?php echo e($stats['total']); ?></div>
-            <div style="font-size:11px;color:var(--text-3);margin-top:3px;font-weight:500;">Total</div>
-        </div>
-        <div class="kpi" style="padding:16px;text-align:center;border-color:#bbf7d0;background:#f0fdf4;">
-            <div style="font-size:28px;font-weight:800;color:#16a34a;"><?php echo e($stats['actifs']); ?></div>
-            <div style="font-size:11px;color:#22c55e;margin-top:3px;font-weight:500;">Actifs</div>
-        </div>
-        <div class="kpi" style="padding:16px;text-align:center;border-color:#fecaca;background:#fef2f2;">
-            <div style="font-size:28px;font-weight:800;color:#dc2626;"><?php echo e($stats['resilies']); ?></div>
-            <div style="font-size:11px;color:#ef4444;margin-top:3px;font-weight:500;">Résiliés</div>
-        </div>
-        <div class="kpi" style="padding:16px;text-align:center;border-color:#e2e8f0;background:#f8fafc;">
-            <div style="font-size:28px;font-weight:800;color:var(--text-2);"><?php echo e($stats['expires']); ?></div>
-            <div style="font-size:11px;color:var(--text-3);margin-top:3px;font-weight:500;">Expirés</div>
-        </div>
-    </div>
-
-    
-    <div class="mobile-cards section-gap">
-        <?php $__empty_1 = true; $__currentLoopData = $contrats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $contrat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-            <div class="mobile-card">
-                <div class="flex-between" style="margin-bottom:10px;">
-                    <div>
-                        <div style="font-weight:700;font-size:14px;color:var(--text);"><?php echo e($contrat->bien->reference); ?></div>
-                        <div style="font-size:11px;color:var(--text-3);"><?php echo e($contrat->bien->ville); ?></div>
-                    </div>
-                    <?php
-                        $sc = match($contrat->statut) {
-                            'actif'   => 'badge badge-green',
-                            'resilié' => 'badge badge-red',
-                            'expiré'  => 'badge badge-gray',
-                            default   => 'badge badge-gray',
-                        };
-                        $sl = match($contrat->statut) {
-                            'actif'   => 'Actif',
-                            'resilié' => 'Résilié',
-                            'expiré'  => 'Expiré',
-                            default   => ucfirst($contrat->statut),
-                        };
-                    ?>
-                    <span class="<?php echo e($sc); ?>"><?php echo e($sl); ?></span>
-                </div>
-                <div class="mobile-card-row">
-                    <span class="mobile-card-label">Locataire</span>
-                    <span class="mobile-card-value"><?php echo e($contrat->locataire->name); ?></span>
-                </div>
-                <div class="mobile-card-row">
-                    <span class="mobile-card-label">Début</span>
-                    <span class="mobile-card-value"><?php echo e(\Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y')); ?></span>
-                </div>
-                <div class="mobile-card-row">
-                    <span class="mobile-card-label">Fin</span>
-                    <span class="mobile-card-value"><?php echo e($contrat->date_fin ? \Carbon\Carbon::parse($contrat->date_fin)->format('d/m/Y') : 'Indéterminé'); ?></span>
-                </div>
-                <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;">
-                    <div class="mobile-card-row">
-                        <span class="mobile-card-label">Loyer</span>
-                        <span class="text-money" style="font-weight:700;font-size:14px;"><?php echo e(number_format($contrat->loyer_contractuel, 0, ',', ' ')); ?> F</span>
-                    </div>
-                    <div class="mobile-card-row">
-                        <span class="mobile-card-label">Caution</span>
-                        <span class="text-money" style="color:var(--text-2);"><?php echo e(number_format($contrat->caution, 0, ',', ' ')); ?> F</span>
-                    </div>
-                </div>
-                <div style="display:flex;gap:8px;margin-top:12px;">
-                    <a href="<?php echo e(route('admin.contrats.show', $contrat)); ?>" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center;">
-                        Voir le détail
-                    </a>
-                    <?php if($contrat->statut === 'actif'): ?>
-                        <form method="POST" action="<?php echo e(route('admin.contrats.destroy', $contrat)); ?>"
-                              onsubmit="return confirm('Résilier ce contrat ?')">
-                            <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
-                            <button type="submit" class="btn btn-danger btn-sm">Résilier</button>
-                        </form>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-            <div style="text-align:center;padding:48px 20px;color:var(--text-3);">
-                <div style="font-size:40px;margin-bottom:12px;">📄</div>
-                <div style="font-size:14px;margin-bottom:12px;">Aucun contrat enregistré</div>
-                <a href="<?php echo e(route('admin.contrats.create')); ?>" class="btn btn-primary btn-sm">
-                    Créer le premier contrat
-                </a>
-            </div>
+    <form method="GET" action="<?php echo e(route('admin.contrats.index')); ?>">
+        
+        <?php if(request('statut') && !request('q') && !request('type_bail')): ?>
+            <input type="hidden" name="statut" value="<?php echo e(request('statut')); ?>">
         <?php endif; ?>
-    </div>
+        <div class="filter-bar">
+            
+            <div style="position:relative;flex:1;min-width:180px">
+                <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" name="q" value="<?php echo e(request('q')); ?>" placeholder="Réf. bail, locataire, bien…" class="filter-input" style="padding-left:34px;width:100%">
+            </div>
+
+            
+            <select name="statut" class="filter-select">
+                <option value="">Tous les statuts</option>
+                <option value="actif"   <?php echo e(request('statut')==='actif'   ? 'selected':''); ?>>Actifs</option>
+                <option value="resilié" <?php echo e(request('statut')==='resilié' ? 'selected':''); ?>>Résiliés</option>
+                <option value="expiré"  <?php echo e(request('statut')==='expiré'  ? 'selected':''); ?>>Expirés</option>
+            </select>
+
+            
+            <select name="type_bail" class="filter-select">
+                <option value="">Tous les types</option>
+                <?php $__currentLoopData = \App\Models\Contrat::TYPES_BAIL; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($key); ?>" <?php echo e(request('type_bail')===$key ? 'selected':''); ?>><?php echo e($label); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+
+            <button type="submit" class="filter-btn">Filtrer</button>
+
+            <?php if(request()->hasAny(['q','statut','type_bail'])): ?>
+                <a href="<?php echo e(route('admin.contrats.index')); ?>" class="filter-reset">
+                    <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Effacer
+                </a>
+            <?php endif; ?>
+        </div>
+    </form>
 
     
-    <div class="desktop-table card section-gap">
-        <div class="table-wrap">
-            <table>
+    <div class="table-card">
+        <div class="table-header">
+            <div>
+                <div class="table-title">Liste des contrats</div>
+                <div class="table-count"><?php echo e($contrats->total()); ?> contrat(s) · Page <?php echo e($contrats->currentPage()); ?> / <?php echo e($contrats->lastPage()); ?></div>
+            </div>
+            <div style="font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px">
+                <svg style="width:14px;height:14px;color:#c9a84c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Cliquez sur un KPI pour filtrer rapidement
+            </div>
+        </div>
+
+        <div style="overflow-x:auto">
+            <table class="dt">
                 <thead>
                     <tr>
+                        <th>Réf. bail</th>
                         <th>Bien</th>
                         <th>Locataire</th>
+                        <th>Type</th>
                         <th>Début</th>
-                        <th>Fin</th>
-                        <th style="text-align:right;">Loyer</th>
-                        <th style="text-align:right;">Caution</th>
-                        <th style="text-align:center;">Statut</th>
-                        <th style="text-align:center;">Actions</th>
+                        <th>Fin / Durée</th>
+                        <th class="th-r">Loyer mensuel</th>
+                        <th class="th-r">Caution</th>
+                        <th style="text-align:center">Statut</th>
+                        <th style="text-align:center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php $__empty_1 = true; $__currentLoopData = $contrats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $contrat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                        <?php
-                            $sc = match($contrat->statut) {
-                                'actif'   => 'badge badge-green',
-                                'resilié' => 'badge badge-red',
-                                'expiré'  => 'badge badge-gray',
-                                default   => 'badge badge-gray',
-                            };
-                            $sl = match($contrat->statut) {
-                                'actif'   => 'Actif',
-                                'resilié' => 'Résilié',
-                                'expiré'  => 'Expiré',
-                                default   => ucfirst($contrat->statut),
-                            };
-                        ?>
-                        <tr>
-                            <td>
-                                <div style="font-weight:600;font-size:13px;color:var(--text);"><?php echo e($contrat->bien->reference); ?></div>
-                                <div style="font-size:11px;color:var(--text-3);"><?php echo e($contrat->bien->ville); ?></div>
-                            </td>
-                            <td>
-                                <div style="font-size:13px;font-weight:500;color:var(--text);"><?php echo e($contrat->locataire->name); ?></div>
-                                <div style="font-size:11px;color:var(--text-3);"><?php echo e($contrat->locataire->email); ?></div>
-                            </td>
-                            <td style="color:var(--text-2);font-size:13px;">
-                                <?php echo e(\Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y')); ?>
+                    <?php
+                        $sl = match($contrat->statut) {
+                            'actif'   => ['g',    'Actif'],
+                            'resilié' => ['r',    'Résilié'],
+                            'expiré'  => ['gray', 'Expiré'],
+                            default   => ['gray', ucfirst($contrat->statut)],
+                        };
 
-                            </td>
-                            <td style="color:var(--text-2);font-size:13px;">
-                                <?php echo e($contrat->date_fin ? \Carbon\Carbon::parse($contrat->date_fin)->format('d/m/Y') : '—'); ?>
+                        // Calcul durée écoulée pour barre de progression
+                        $debut   = \Carbon\Carbon::parse($contrat->date_debut);
+                        $fin     = $contrat->date_fin ? \Carbon\Carbon::parse($contrat->date_fin) : null;
+                        $today   = now();
 
-                            </td>
-                            <td style="text-align:right;" class="text-money">
-                                <?php echo e(number_format($contrat->loyer_contractuel, 0, ',', ' ')); ?> F
-                            </td>
-                            <td style="text-align:right;color:var(--text-2);" class="text-money">
-                                <?php echo e(number_format($contrat->caution, 0, ',', ' ')); ?> F
-                            </td>
-                            <td style="text-align:center;">
-                                <span class="<?php echo e($sc); ?>"><?php echo e($sl); ?></span>
-                            </td>
-                            <td style="text-align:center;">
-                                <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
-                                    <a href="<?php echo e(route('admin.contrats.show', $contrat)); ?>"
-                                       class="btn btn-secondary btn-sm">
-                                        Voir
+                        $progress = null;
+                        $joursRestants = null;
+                        $expiryClass = '';
+
+                        if ($fin && $contrat->statut === 'actif') {
+                            $totalJours   = $debut->diffInDays($fin);
+                            $ecoules      = $debut->diffInDays($today);
+                            $progress     = $totalJours > 0 ? min(100, round(($ecoules / $totalJours) * 100)) : 0;
+                            $joursRestants = $today->diffInDays($fin, false);
+
+                            if ($joursRestants <= 30 && $joursRestants > 0) {
+                                $expiryClass = 'expiry-soon';
+                            } elseif ($joursRestants <= 0) {
+                                $expiryClass = 'expiry-alert';
+                            }
+                        }
+
+                        $progressColor = match(true) {
+                            $progress >= 90 => '#dc2626',
+                            $progress >= 70 => '#d97706',
+                            default         => '#16a34a',
+                        };
+                    ?>
+                    <tr>
+                        
+                        <td>
+                            <span class="ref-bail"><?php echo e($contrat->reference_bail ?? '#'.$contrat->id); ?></span>
+                        </td>
+
+                        
+                        <td>
+                            <div class="bien-ref"><?php echo e($contrat->bien?->reference ?? '—'); ?></div>
+                            <div class="bien-sub"><?php echo e($contrat->bien?->ville ?? ''); ?></div>
+                        </td>
+
+                        
+                        <td>
+                            <div class="loc-name"><?php echo e($contrat->locataire?->name ?? '—'); ?></div>
+                            <div class="loc-email"><?php echo e($contrat->locataire?->email ?? ''); ?></div>
+                        </td>
+
+                        
+                        <td>
+                            <span class="bail-tag">
+                                <?php echo e(\App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail); ?>
+
+                            </span>
+                        </td>
+
+                        
+                        <td>
+                            <div class="date-val"><?php echo e(\Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y')); ?></div>
+                            <div class="date-sub"><?php echo e(\Carbon\Carbon::parse($contrat->date_debut)->diffForHumans()); ?></div>
+                        </td>
+
+                        
+                        <td>
+                            <?php if($contrat->date_fin): ?>
+                                <div class="date-val <?php echo e($expiryClass); ?>">
+                                    <?php echo e(\Carbon\Carbon::parse($contrat->date_fin)->format('d/m/Y')); ?>
+
+                                </div>
+                                <?php if($joursRestants !== null && $contrat->statut === 'actif'): ?>
+                                    <div style="font-size:10px;margin-top:2px;<?php echo e($joursRestants <= 30 ? 'color:#d97706' : 'color:#9ca3af'); ?>">
+                                        <?php if($joursRestants > 0): ?>
+                                            <?php echo e($joursRestants); ?>j restants
+                                        <?php else: ?>
+                                            Expiré
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if($progress !== null): ?>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width:<?php echo e($progress); ?>%;background:<?php echo e($progressColor); ?>"></div>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <div class="date-val">—</div>
+                                <div class="date-sub">Indéterminée</div>
+                            <?php endif; ?>
+                        </td>
+
+                        
+                        <td class="td-r">
+                            <div class="loyer-val"><?php echo e(number_format($contrat->loyer_contractuel, 0, ',', ' ')); ?> F</div>
+                            <div class="loyer-sub">/ mois</div>
+                        </td>
+
+                        
+                        <td class="td-r">
+                            <div style="font-size:13px;color:#374151"><?php echo e(number_format($contrat->caution, 0, ',', ' ')); ?> F</div>
+                        </td>
+
+                        
+                        <td class="td-c">
+                            <span class="badge <?php echo e($sl[0]); ?>">
+                                <span class="bdot"></span>
+                                <?php echo e($sl[1]); ?>
+
+                            </span>
+                        </td>
+
+                        
+                        <td class="td-c">
+                            <div style="display:flex;align-items:center;justify-content:center;gap:5px">
+                                
+                                <a href="<?php echo e(route('admin.contrats.show', $contrat)); ?>" class="act-btn" title="Voir le contrat">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </a>
+
+                                
+                                <?php if($contrat->statut === 'actif'): ?>
+                                    <a href="<?php echo e(route('admin.paiements.create', ['contrat_id' => $contrat->id])); ?>"
+                                       class="act-btn primary" title="Enregistrer un paiement">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                                     </a>
-                                    <?php if($contrat->statut === 'actif'): ?>
-                                        <form method="POST"
-                                              action="<?php echo e(route('admin.contrats.destroy', $contrat)); ?>"
-                                              onsubmit="return confirm('Résilier ce contrat définitivement ?')">
-                                            <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
-                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                Résilier
-                                            </button>
-                                        </form>
+                                <?php endif; ?>
+
+                                
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('update', $contrat)): ?>
+                                    <a href="<?php echo e(route('admin.contrats.edit', $contrat)); ?>" class="act-btn" title="Modifier">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    </a>
+                                <?php endif; ?>
+
+                                
+                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('delete', $contrat)): ?>
+                                    <form method="POST" action="<?php echo e(route('admin.contrats.destroy', $contrat)); ?>"
+                                          onsubmit="return confirm('Supprimer ce contrat ? Cette action est irréversible.')">
+                                        <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
+                                        <button type="submit" class="act-btn danger" title="Supprimer">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                </div>
+                                <div class="empty-title">Aucun contrat trouvé</div>
+                                <div class="empty-sub">
+                                    <?php if(request()->hasAny(['q','statut','type_bail'])): ?>
+                                        Aucun résultat pour ces filtres.
+                                        <a href="<?php echo e(route('admin.contrats.index')); ?>" style="color:#c9a84c;font-weight:500">Effacer les filtres</a>
+                                    <?php else: ?>
+                                        Créez votre premier contrat de bail.
                                     <?php endif; ?>
                                 </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                        <tr>
-                            <td colspan="8" style="text-align:center;padding:48px;color:var(--text-3);">
-                                <div style="font-size:36px;margin-bottom:12px;">📄</div>
-                                <div style="font-size:14px;margin-bottom:12px;">Aucun contrat enregistré</div>
-                                <a href="<?php echo e(route('admin.contrats.create')); ?>" class="btn btn-primary btn-sm">
-                                    Créer le premier contrat
-                                </a>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
+        
         <?php if($contrats->hasPages()): ?>
-            <div style="padding:16px 20px;border-top:1px solid var(--border);">
-                <?php echo e($contrats->links()); ?>
-
+        <div class="pagination-wrap">
+            <div class="pagination-info">
+                Affichage de <?php echo e($contrats->firstItem()); ?> à <?php echo e($contrats->lastItem()); ?> sur <?php echo e($contrats->total()); ?> contrats
             </div>
+            <div class="pagination-links">
+                <?php if($contrats->onFirstPage()): ?>
+                    <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <?php else: ?>
+                    <a href="<?php echo e($contrats->previousPageUrl()); ?>" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+                <?php endif; ?>
+
+                <?php $__currentLoopData = $contrats->getUrlRange(max(1,$contrats->currentPage()-2), min($contrats->lastPage(),$contrats->currentPage()+2)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $page => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e($url); ?>" class="page-btn <?php echo e($page === $contrats->currentPage() ? 'active' : ''); ?>"><?php echo e($page); ?></a>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+                <?php if($contrats->hasMorePages()): ?>
+                    <a href="<?php echo e($contrats->nextPageUrl()); ?>" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+                <?php else: ?>
+                    <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+                <?php endif; ?>
+            </div>
+        </div>
         <?php endif; ?>
+
     </div>
+
+</div>
 
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>

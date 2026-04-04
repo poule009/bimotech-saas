@@ -6,10 +6,13 @@ use App\Models\Contrat;
 use App\Models\Paiement;
 use App\Notifications\PaiementProprietaireNotification;
 use App\Notifications\QuittanceLocataireNotification;
+use App\Services\FiscalContext;
+use App\Services\FiscalService;
 use App\Services\NombreEnLettres;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,14 +33,6 @@ class PaiementController extends Controller
     {
         $this->authorize('viewAny', Paiement::class);
 
-        /**
-         * PERFORMANCE — select() sélectif + eager loading optimisé :
-         *
-         * La liste paiements affiche : période, montant, mode, date, statut,
-         * référence bien, nom locataire. On n'a pas besoin de toutes les colonnes.
-         *
-         * with() avec select() : évite de charger password, description, etc.
-         */
         $paiements = Paiement::select([
                 'id', 'agency_id', 'contrat_id',
                 'periode', 'montant_encaisse', 'commission_ttc', 'net_proprietaire',
@@ -62,29 +57,27 @@ class PaiementController extends Controller
     {
         $this->authorize('create', Paiement::class);
 
-        /**
-         * PERFORMANCE — select() sur les contrats pour le dropdown :
-         *
-         * Le formulaire utilise loyer_contractuel, loyer_nu, charges_mensuelles,
-         * tom_amount et taux_commission pour pré-remplir les champs JS.
-         * On n'a pas besoin de observations, garant_*, indexation_annuelle, etc.
-         */
         $contrats = Contrat::where('statut', 'actif')
             ->select([
                 'id', 'agency_id', 'bien_id', 'locataire_id',
                 'loyer_contractuel', 'loyer_nu', 'charges_mensuelles',
                 'tom_amount', 'date_debut', 'reference_bail',
+                'type_bail', 'loyer_assujetti_tva', 'brs_applicable',
             ])
             ->with([
-                'bien:id,agency_id,reference,adresse,ville,taux_commission,loyer_mensuel',
+                'bien:id,agency_id,reference,adresse,ville,taux_commission,loyer_mensuel,meuble,type',
                 'locataire:id,name',
+                'locataire.locataire:user_id,est_entreprise,taux_brs_override',
             ])
             ->orderByDesc('created_at')
             ->get();
 
         $contratPreselectionne = $request->has('contrat_id')
-            ? Contrat::with(['bien:id,reference,taux_commission,loyer_mensuel', 'locataire:id,name'])
-                     ->find($request->contrat_id)
+            ? Contrat::with([
+                'bien:id,reference,taux_commission,loyer_mensuel,meuble,type',
+                'locataire:id,name',
+                'locataire.locataire:user_id,est_entreprise,taux_brs_override',
+              ])->find($request->contrat_id)
             : null;
 
         return view('paiements.create', compact('contrats', 'contratPreselectionne'));
@@ -99,37 +92,40 @@ class PaiementController extends Controller
         $this->authorize('create', Paiement::class);
 
         $request->validate([
-            'contrat_id'           => ['required', 'exists:contrats,id'],
+            'contrat_id'           => ['required', 'integer', 'exists:contrats,id'],
             'periode'              => ['required', 'date_format:Y-m'],
             'loyer_nu'             => ['required', 'numeric', 'min:1'],
             'charges_amount'       => ['nullable', 'numeric', 'min:0'],
             'tom_amount'           => ['nullable', 'numeric', 'min:0'],
-            'reference_bail'       => ['nullable', 'string', 'max:60'],
-            'mode_paiement'        => ['required', 'in:' . implode(',', array_keys(Paiement::MODES_PAIEMENT))],
+            'mode_paiement'        => ['required', 'string', 'in:' . implode(',', array_keys(Paiement::MODES_PAIEMENT))],
             'date_paiement'        => ['required', 'date'],
             'caution_percue'       => ['nullable', 'numeric', 'min:0'],
-            'est_premier_paiement' => ['boolean'],
+            'est_premier_paiement' => ['nullable', 'boolean'],
+            'reference_bail'       => ['nullable', 'string', 'max:60'],
             'notes'                => ['nullable', 'string', 'max:500'],
         ]);
 
-        $contrat = Contrat::with('bien.proprietaire', 'locataire')
-            ->findOrFail($request->contrat_id);
+        /** @var \App\Models\Contrat $contrat */
+        $contrat = Contrat::with([
+            'bien:id,agency_id,proprietaire_id,taux_commission,meuble,type',
+            'locataire:id,name,email,telephone',
+            'locataire.locataire:user_id,est_entreprise,taux_brs_override,nom_entreprise',
+        ])->findOrFail($request->contrat_id);
 
-        if ($contrat->agency_id !== Auth::user()->agency_id) {
-            abort(403, 'Ce contrat n\'appartient pas à votre agence.');
-        }
+        $this->authorize('view', $contrat);
 
         $periodeDate = Carbon::createFromFormat('Y-m', $request->periode)->startOfMonth();
 
+        // Vérification doublon
         $doublon = Paiement::where('contrat_id', $contrat->id)
-            ->where('statut', '!=', 'annule')
             ->whereYear('periode', $periodeDate->year)
             ->whereMonth('periode', $periodeDate->month)
+            ->where('statut', '!=', 'annule')
             ->exists();
 
         if ($doublon) {
             return back()->withInput()->withErrors([
-                'periode' => 'Un paiement valide existe déjà pour ce contrat sur cette période.',
+                'periode' => 'Un paiement existe déjà pour cette période.',
             ]);
         }
 
@@ -142,17 +138,26 @@ class PaiementController extends Controller
             ]);
         }
 
-        $loyerNu        = (float) $request->loyer_nu;
-        $chargesAmount  = (float) ($request->charges_amount ?? 0);
-        $tomAmount      = (float) ($request->tom_amount ?? 0);
-        $tauxCommission = (float) $contrat->bien->taux_commission;
+        // ── Calcul fiscal via FiscalService ──────────────────────────────
+        $ctx = FiscalContext::fromContrat($contrat);
 
-        $calcul = Paiement::calculerMontants(
-            loyerNu:        $loyerNu,
-            tauxCommission: $tauxCommission,
-            chargesAmount:  $chargesAmount,
-            tomAmount:      $tomAmount,
-        );
+        // Si l'admin a saisi un loyer différent (indexation), reconstruire le contexte
+        $loyerNuRequest = (float) $request->loyer_nu;
+        if (abs($loyerNuRequest - $ctx->loyerNu) > 0.01) {
+            $ctx = new FiscalContext(
+                loyerNu:                $loyerNuRequest,
+                chargesAmount:          (float) ($request->charges_amount ?? $ctx->chargesAmount),
+                tomAmount:              (float) ($request->tom_amount ?? $ctx->tomAmount),
+                typeBail:               $contrat->type_bail ?? 'habitation',
+                estMeuble:              (bool) ($contrat->bien->meuble ?? false),
+                tauxCommission:         (float) $contrat->bien->taux_commission,
+                locataireEstEntreprise: $ctx->locataireEstEntreprise,
+                tauxBrsLocataire:       $ctx->tauxBrsLocataire,
+                tauxBrsContrat:         $ctx->tauxBrsContrat,
+            );
+        }
+
+        $result = FiscalService::calculer($ctx);
 
         $referenceQuittance = sprintf(
             'QUITT-%s-%s-%s',
@@ -165,86 +170,114 @@ class PaiementController extends Controller
             ? trim($request->reference_bail)
             : $contrat->reference_bail_affichee;
 
+        // ╔══════════════════════════════════════════════════════════════╗
+        // ║  TRANSACTION DB PURE — uniquement la ligne paiement        ║
+        // ║  PDF généré EN DEHORS pour éviter rollback si DomPDF plante║
+        // ╚══════════════════════════════════════════════════════════════╝
         try {
             $paiement = DB::transaction(function () use (
-                $request, $contrat, $periodeDate,
-                $calcul, $caution, $estPremierPaiem,
-                $referenceQuittance, $referenceBail, $tauxCommission
+                $request, $contrat, $periodeDate, $result, $ctx,
+                $caution, $estPremierPaiem, $referenceQuittance, $referenceBail
             ) {
-                // Les colonnes calculées (commission, tva, net) sont assignées
-                // explicitement — elles ne sont pas dans $fillable
                 $paiement = new Paiement();
-                $paiement->contrat_id               = $contrat->id;
-                $paiement->periode                  = $periodeDate->toDateString();
-                $paiement->loyer_nu                 = $calcul['loyer_nu'];
-                $paiement->charges_amount           = $calcul['charges_amount'];
-                $paiement->tom_amount               = $calcul['tom_amount'];
-                $paiement->montant_encaisse         = $calcul['montant_encaisse'];
-                $paiement->mode_paiement            = $request->mode_paiement;
-                $paiement->taux_commission_applique = $tauxCommission;
-                $paiement->commission_agence        = $calcul['commission_ht'];
-                $paiement->tva_commission           = $calcul['tva'];
-                $paiement->commission_ttc           = $calcul['commission_ttc'];
-                $paiement->net_proprietaire         = $calcul['net_proprietaire'];
-                $paiement->caution_percue           = $caution;
-                $paiement->est_premier_paiement     = $estPremierPaiem;
-                $paiement->date_paiement            = $request->date_paiement;
-                $paiement->reference_paiement       = $referenceQuittance;
-                $paiement->reference_bail           = $referenceBail;
-                $paiement->statut                   = 'valide';
-                $paiement->notes                    = $request->notes;
+                $paiement->contrat_id                = $contrat->id;
+                $paiement->periode                   = $periodeDate->toDateString();
+                // Ventilation loyer
+                $paiement->loyer_ht                  = $result->loyerHt;
+                $paiement->tva_loyer                 = $result->tvaLoyer;
+                $paiement->loyer_ttc                 = $result->loyerTtc;
+                $paiement->loyer_nu                  = $result->loyerHt; // alias rétro-compat
+                $paiement->charges_amount            = $result->chargesAmount;
+                $paiement->tom_amount                = $result->tomAmount;
+                $paiement->montant_encaisse          = $result->montantEncaisse;
+                // Commission
+                $paiement->mode_paiement             = $request->mode_paiement;
+                $paiement->taux_commission_applique  = $ctx->tauxCommission;
+                $paiement->commission_agence         = $result->commissionHt;
+                $paiement->tva_commission            = $result->tvaCommission;
+                $paiement->commission_ttc            = $result->commissionTtc;
+                // Nets
+                $paiement->net_proprietaire          = $result->netProprietaire;
+                $paiement->brs_amount                = $result->brsAmount;
+                $paiement->taux_brs_applique         = $result->tauxBrsApplique;
+                $paiement->net_a_verser_proprietaire = $result->netAVerserProprietaire;
+                // Snapshot fiscal immuable
+                $paiement->regime_fiscal_snapshot    = $result->toArray();
+                // Divers
+                $paiement->caution_percue            = $caution;
+                $paiement->est_premier_paiement      = $estPremierPaiem;
+                $paiement->date_paiement             = $request->date_paiement;
+                $paiement->reference_paiement        = $referenceQuittance;
+                $paiement->reference_bail            = $referenceBail;
+                $paiement->statut                    = 'valide';
+                $paiement->notes                     = $request->notes;
                 $paiement->save();
-
-                // Génération PDF
-                $contrat->load('bien.proprietaire', 'locataire');
-                $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
-
-                $agency  = $paiement->agency ?? Auth::user()->agency;
-                $pdfData = self::buildPdfData($paiement, $agency);
-
-                $pdf = Pdf::loadView('paiements.pdf.quittance', $pdfData)
-                    ->setPaper('a4', 'portrait')
-                    ->setOption('defaultFont', 'DejaVu Sans')
-                    ->setOption('dpi', 150);
-
-                $receiptPath = sprintf(
-                    'receipts/%s/%s/%s/quittance-%s.pdf',
-                    $paiement->agency_id ?? 'global',
-                    now()->format('Y'),
-                    now()->format('m'),
-                    $referenceQuittance
-                );
-
-                Storage::disk('private')->put($receiptPath, $pdf->output());
-                $paiement->receipt_path = $receiptPath;
-                $paiement->save();
-
-                // Notifications
-                try {
-                    $contrat->locataire->notify(new QuittanceLocataireNotification($paiement));
-                } catch (\Throwable $e) {
-                    Log::warning('Email locataire non envoyé', ['error' => $e->getMessage()]);
-                }
-
-                try {
-                    $contrat->bien->proprietaire->notify(new PaiementProprietaireNotification($paiement));
-                } catch (\Throwable $e) {
-                    Log::warning('Email propriétaire non envoyé', ['error' => $e->getMessage()]);
-                }
 
                 return $paiement;
             });
 
-            return redirect()
-                ->route('admin.paiements.show', $paiement)
-                ->with('success', "Paiement enregistré ✓  Réf : {$referenceQuittance}");
-
         } catch (\Throwable $e) {
-            Log::error('Erreur création paiement', ['error' => $e->getMessage()]);
+            Log::error('Erreur création paiement (DB)', [
+                'error'      => $e->getMessage(),
+                'contrat_id' => $contrat->id,
+            ]);
             return back()->withInput()->withErrors([
-                'general' => 'Une erreur est survenue. Veuillez réessayer.',
+                'general' => 'Erreur lors de l\'enregistrement. Veuillez réessayer.',
             ]);
         }
+
+        // ╔══════════════════════════════════════════════════════════════╗
+        // ║  PDF & NOTIFICATIONS — EN DEHORS de la transaction         ║
+        // ║  Un échec ici ne rollback PAS le paiement sauvegardé.      ║
+        // ╚══════════════════════════════════════════════════════════════╝
+        try {
+            $contrat->load('bien.proprietaire', 'locataire');
+            $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
+
+            $agency  = $paiement->agency ?? Auth::user()->agency;
+            $pdfData = self::buildPdfData($paiement, $agency);
+
+            $pdf = Pdf::loadView('paiements.pdf.quittance', $pdfData)
+                ->setPaper('a4', 'portrait')
+                ->setOption('defaultFont', 'DejaVu Sans')
+                ->setOption('dpi', 96)
+                ->setOption('isRemoteEnabled', false)
+                ->setOption('isFontSubsettingEnabled', true);
+
+            $receiptPath = sprintf(
+                'receipts/%s/%s/%s/quittance-%s.pdf',
+                $paiement->agency_id ?? 'global',
+                now()->format('Y'),
+                now()->format('m'),
+                $referenceQuittance
+            );
+
+            Storage::disk('private')->put($receiptPath, $pdf->output());
+            $paiement->receipt_path = $receiptPath;
+            $paiement->saveQuietly(); // ne déclenche pas LogsActivity
+
+        } catch (\Throwable $e) {
+            Log::warning('PDF non généré — sera régénéré au prochain accès', [
+                'paiement_id' => $paiement->id,
+                'error'       => $e->getMessage(),
+            ]);
+        }
+
+        try {
+            $contrat->locataire->notify(new QuittanceLocataireNotification($paiement));
+        } catch (\Throwable $e) {
+            Log::warning('Email locataire non envoyé', ['error' => $e->getMessage()]);
+        }
+
+        try {
+            $contrat->bien->proprietaire->notify(new PaiementProprietaireNotification($paiement));
+        } catch (\Throwable $e) {
+            Log::warning('Email propriétaire non envoyé', ['error' => $e->getMessage()]);
+        }
+
+        return redirect()
+            ->route('admin.paiements.show', $paiement)
+            ->with('success', "Paiement enregistré ✓  Réf : {$referenceQuittance}");
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -258,9 +291,44 @@ class PaiementController extends Controller
         $paiement->load([
             'contrat.bien.proprietaire:id,name,telephone,adresse',
             'contrat.locataire:id,name,email,telephone',
+            'contrat.locataire.locataire:user_id,est_entreprise,nom_entreprise,ninea_locataire',
         ]);
 
         return view('paiements.show', compact('paiement'));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // APERÇU FISCAL TEMPS RÉEL (AJAX)
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Retourne la ventilation fiscale en JSON pour l'aperçu dans le formulaire create.
+     * Route : GET admin/paiements/fiscal-preview/{contrat}
+     */
+    public function fiscalPreview(Request $request, Contrat $contrat): JsonResponse
+    {
+        $contrat->load([
+            'bien:id,taux_commission,meuble,type',
+            'locataire.locataire:user_id,est_entreprise,taux_brs_override',
+        ]);
+
+        $ctx = FiscalContext::fromContrat($contrat);
+
+        if ($request->filled('loyer_nu')) {
+            $ctx = new FiscalContext(
+                loyerNu:                (float) $request->loyer_nu,
+                chargesAmount:          (float) ($request->charges ?? $ctx->chargesAmount),
+                tomAmount:              (float) ($request->tom ?? $ctx->tomAmount),
+                typeBail:               $contrat->type_bail ?? 'habitation',
+                estMeuble:              (bool) ($contrat->bien->meuble ?? false),
+                tauxCommission:         (float) $contrat->bien->taux_commission,
+                locataireEstEntreprise: $ctx->locataireEstEntreprise,
+                tauxBrsLocataire:       $ctx->tauxBrsLocataire,
+                tauxBrsContrat:         $ctx->tauxBrsContrat,
+            );
+        }
+
+        return response()->json(FiscalService::calculer($ctx)->toArray());
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -283,7 +351,7 @@ class PaiementController extends Controller
             );
         }
 
-        // Fallback — régénération
+        // Fallback — régénération à la demande
         $paiement->load('contrat.bien.proprietaire', 'contrat.locataire');
         $agency  = $paiement->agency ?? Auth::user()->agency;
         $pdfData = self::buildPdfData($paiement, $agency);
@@ -291,7 +359,9 @@ class PaiementController extends Controller
         $pdf = Pdf::loadView('paiements.pdf.quittance', $pdfData)
             ->setPaper('a4', 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
-            ->setOption('dpi', 150);
+            ->setOption('dpi', 96)
+            ->setOption('isRemoteEnabled', false)
+            ->setOption('isFontSubsettingEnabled', true);
 
         $receiptPath = sprintf(
             'receipts/%s/%s/%s/quittance-%s.pdf',
@@ -303,7 +373,7 @@ class PaiementController extends Controller
 
         Storage::disk('private')->put($receiptPath, $pdf->output());
         $paiement->receipt_path = $receiptPath;
-        $paiement->save();
+        $paiement->saveQuietly();
 
         return response()->download(
             Storage::disk('private')->path($receiptPath),
@@ -396,38 +466,53 @@ class PaiementController extends Controller
         $proprietaire = $bien->proprietaire;
         $locataire    = $contrat->locataire;
 
-        $loyerNu       = (float) ($paiement->loyer_nu ?? $paiement->montant_encaisse);
-        $chargesAmount = (float) ($paiement->charges_amount ?? 0);
-        $tomAmount     = (float) ($paiement->tom_amount ?? 0);
-        $totalEncaisse = (float) $paiement->montant_encaisse;
+        $snapshot = $paiement->regime_fiscal_snapshot;
 
         return [
-            'paiement'     => $paiement,
-            'contrat'      => $contrat,
-            'bien'         => $bien,
-            'proprietaire' => $proprietaire,
-            'locataire'    => $locataire,
+            'paiement'       => $paiement,
+            'contrat'        => $contrat,
+            'bien'           => $bien,
+            'proprietaire'   => $proprietaire,
+            'locataire'      => $locataire,
 
-            'loyer_nu'       => $loyerNu,
-            'charges_amount' => $chargesAmount,
-            'tom_amount'     => $tomAmount,
-            'total_encaisse' => $totalEncaisse,
+            // Ventilation loyer (avec fallbacks pour anciens paiements)
+            'loyer_ht'       => (float) ($paiement->loyer_ht ?? $paiement->loyer_nu),
+            'tva_loyer'      => (float) ($paiement->tva_loyer ?? 0),
+            'loyer_ttc'      => (float) ($paiement->loyer_ttc ?? $paiement->loyer_nu),
+            'loyer_nu'       => (float) ($paiement->loyer_ht ?? $paiement->loyer_nu), // compat
+            'charges_amount' => (float) ($paiement->charges_amount ?? 0),
+            'tom_amount'     => (float) ($paiement->tom_amount ?? 0),
+            'total_encaisse' => (float) $paiement->montant_encaisse,
 
-            'montantEnLettres' => NombreEnLettres::convertir($totalEncaisse),
-            'loyerNuEnLettres' => NombreEnLettres::convertir($loyerNu),
-            'netEnLettres'     => NombreEnLettres::convertir((float) $paiement->net_proprietaire),
+            // BRS
+            'brs_amount'        => (float) ($paiement->brs_amount ?? 0),
+            'brs_applicable'    => ($paiement->brs_amount ?? 0) > 0,
+            'taux_brs_applique' => (float) ($paiement->taux_brs_applique ?? 0),
 
-            'referenceBail' => $paiement->reference_bail ?? $contrat->reference_bail_affichee,
+            // Nets
+            'net_a_verser' => (float) ($paiement->net_a_verser_proprietaire ?? $paiement->net_proprietaire),
+
+            // Régime fiscal
+            'regime_fiscal'   => $snapshot['regime_fiscal'] ?? $paiement->regime_fiscal_label,
+            'loyer_assujetti' => ($paiement->tva_loyer ?? 0) > 0,
+
+            // Montants en lettres
+            'montantEnLettres'    => NombreEnLettres::convertir((float) $paiement->montant_encaisse),
+            'loyerNuEnLettres'    => NombreEnLettres::convertir((float) ($paiement->loyer_ht ?? $paiement->loyer_nu)),
+            'netEnLettres'        => NombreEnLettres::convertir((float) $paiement->net_proprietaire),
+            'netAVerserEnLettres' => NombreEnLettres::convertir((float) ($paiement->net_a_verser_proprietaire ?? $paiement->net_proprietaire)),
+
+            'referenceBail' => $paiement->reference_bail_affichee,
 
             'agence' => [
-                'nom'       => $agency?->name       ?? 'Agence Immobilière',
-                'adresse'   => $agency?->adresse    ?? 'Dakar, Sénégal',
-                'telephone' => $agency?->telephone  ?? '',
-                'email'     => $agency?->email      ?? '',
-                'ninea'     => $agency?->ninea      ? 'NINEA : ' . $agency->ninea : '',
-                'rccm'      => $agency?->rccm       ?? '',
-                'logo_path' => $agency?->logo_path  ?? null,
-                'couleur'   => $agency?->couleur_primaire ?? '#1E3A5F',
+                'nom'       => $agency?->name            ?? 'Agence Immobilière',
+                'adresse'   => $agency?->adresse         ?? 'Dakar, Sénégal',
+                'telephone' => $agency?->telephone       ?? '',
+                'email'     => $agency?->email           ?? '',
+                'ninea'     => $agency?->ninea ? 'NINEA : ' . $agency->ninea : '',
+                'rccm'      => $agency?->rccm            ?? '',
+                'logo_path' => $agency?->logo_path       ?? null,
+                'couleur'   => $agency?->couleur_primaire ?? '#0d1117',
             ],
         ];
     }

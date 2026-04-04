@@ -169,7 +169,9 @@ class BienController extends Controller
             ->orderByDesc('periode')
             ->paginate(10);
 
-        return view('biens.show', compact('bien', 'totalEncaisse', 'paiements'));
+        $contratActif = $bien->contratActif;
+
+return view('biens.show', compact('bien', 'totalEncaisse', 'paiements', 'contratActif'));
     }
 
     // ─────────────────────────────────────────────────────────────────────

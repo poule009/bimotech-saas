@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\Paiement;
-use App\Models\User;
+// use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -31,46 +31,64 @@ class DashboardController extends Controller
 
         $agencyId = $user->agency_id;
 
-        // ── Stats cumulatives all-time ────────────────────────────────────
-        // AgencyScope appliqué automatiquement sur Bien, Contrat, Paiement
+        // ── CORRECTION : 10 requêtes → 1 requête pour les stats all-time ─
+        // Avant : sum() x5 + count() x5 = 10 allers-retours DB séparés
+        // Après : 1 seul selectRaw qui ramène tout en une passe
+        $statsRaw = Paiement::where('statut', 'valide')
+            ->selectRaw('
+                COALESCE(SUM(montant_encaisse), 0)   AS total_loyers,
+                COALESCE(SUM(commission_agence), 0)  AS total_commissions,
+                COALESCE(SUM(tva_commission), 0)     AS total_tva,
+                COALESCE(SUM(commission_ttc), 0)     AS total_commission_ttc,
+                COALESCE(SUM(net_proprietaire), 0)   AS total_net_proprio
+            ')
+            ->first();
+
+        $compteurs = DB::selectOne("
+            SELECT
+                (SELECT COUNT(*) FROM biens WHERE agency_id = ? AND deleted_at IS NULL)                  AS nb_biens,
+                (SELECT COUNT(*) FROM biens WHERE agency_id = ? AND statut = 'loue' AND deleted_at IS NULL) AS nb_biens_loues,
+                (SELECT COUNT(*) FROM contrats WHERE agency_id = ? AND statut = 'actif')                 AS nb_contrats,
+                (SELECT COUNT(*) FROM users WHERE agency_id = ? AND role = 'proprietaire')               AS nb_proprietaires,
+                (SELECT COUNT(*) FROM users WHERE agency_id = ? AND role = 'locataire')                  AS nb_locataires
+        ", [$agencyId, $agencyId, $agencyId, $agencyId, $agencyId]);
+
         $stats = [
-            'total_loyers'         => Paiement::where('statut', 'valide')->sum('montant_encaisse'),
-            'total_commissions'    => Paiement::where('statut', 'valide')->sum('commission_agence'),
-            'total_tva'            => Paiement::where('statut', 'valide')->sum('tva_commission'),
-            'total_commission_ttc' => Paiement::where('statut', 'valide')->sum('commission_ttc'),
-            'total_net_proprio'    => Paiement::where('statut', 'valide')->sum('net_proprietaire'),
-            'nb_biens'             => Bien::count(),
-            'nb_biens_loues'       => Bien::where('statut', 'loue')->count(),
-            'nb_contrats'          => Contrat::where('statut', 'actif')->count(),
-            // User sans Global Scope — filtrage manuel
-            'nb_proprietaires'     => User::where('agency_id', $agencyId)->where('role', 'proprietaire')->count(),
-            'nb_locataires'        => User::where('agency_id', $agencyId)->where('role', 'locataire')->count(),
+            'total_loyers'         => (float) ($statsRaw->total_loyers         ?? 0),
+            'total_commissions'    => (float) ($statsRaw->total_commissions     ?? 0),
+            'total_tva'            => (float) ($statsRaw->total_tva             ?? 0),
+            'total_commission_ttc' => (float) ($statsRaw->total_commission_ttc  ?? 0),
+            'total_net_proprio'    => (float) ($statsRaw->total_net_proprio     ?? 0),
+            'nb_biens'             => (int)   ($compteurs->nb_biens             ?? 0),
+            'nb_biens_loues'       => (int)   ($compteurs->nb_biens_loues       ?? 0),
+            'nb_contrats'          => (int)   ($compteurs->nb_contrats          ?? 0),
+            'nb_proprietaires'     => (int)   ($compteurs->nb_proprietaires     ?? 0),
+            'nb_locataires'        => (int)   ($compteurs->nb_locataires        ?? 0),
         ];
 
         $stats['taux_occupation'] = $stats['nb_biens'] > 0
             ? round(($stats['nb_biens_loues'] / $stats['nb_biens']) * 100, 1)
             : 0;
 
-        // ── Stats mois courant ────────────────────────────────────────────
-        // Clés alignées avec admin/dashboard.blade.php :
-        // loyers, commissions, net_proprio, nb_payes
+        // ── CORRECTION : 4 requêtes → 1 pour les stats du mois courant ──
+        // Avant : sum() x3 + count() = 4 requêtes avec les mêmes filtres répétés
+        // Après : 1 seul selectRaw
+        $statsMoisRaw = Paiement::where('statut', 'valide')
+            ->whereYear('periode', now()->year)
+            ->whereMonth('periode', now()->month)
+            ->selectRaw('
+                COALESCE(SUM(montant_encaisse), 0)  AS loyers,
+                COALESCE(SUM(commission_ttc), 0)    AS commissions,
+                COALESCE(SUM(net_proprietaire), 0)  AS net_proprio,
+                COUNT(*)                             AS nb_payes
+            ')
+            ->first();
+
         $statsMois = [
-            'loyers'      => Paiement::where('statut', 'valide')
-                                ->whereYear('periode', now()->year)
-                                ->whereMonth('periode', now()->month)
-                                ->sum('montant_encaisse'),
-            'commissions' => Paiement::where('statut', 'valide')
-                                ->whereYear('periode', now()->year)
-                                ->whereMonth('periode', now()->month)
-                                ->sum('commission_ttc'),
-            'net_proprio' => Paiement::where('statut', 'valide')
-                                ->whereYear('periode', now()->year)
-                                ->whereMonth('periode', now()->month)
-                                ->sum('net_proprietaire'),
-            'nb_payes'    => Paiement::where('statut', 'valide')
-                                ->whereYear('periode', now()->year)
-                                ->whereMonth('periode', now()->month)
-                                ->count(),
+            'loyers'      => (float) ($statsMoisRaw->loyers      ?? 0),
+            'commissions' => (float) ($statsMoisRaw->commissions  ?? 0),
+            'net_proprio' => (float) ($statsMoisRaw->net_proprio  ?? 0),
+            'nb_payes'    => (int)   ($statsMoisRaw->nb_payes     ?? 0),
         ];
 
         // ── Impayés du mois ───────────────────────────────────────────────
@@ -119,7 +137,6 @@ class DashboardController extends Controller
             ->orderBy('date_fin')
             ->get();
 
-        // ── Nombre de contrats actifs (pour le bilan du mois) ────────────
         $contratsActifs = Contrat::where('statut', 'actif')->count();
 
         // ── Derniers paiements ────────────────────────────────────────────
@@ -150,11 +167,11 @@ class DashboardController extends Controller
             ->orderBy('mois')
             ->get();
 
-        // ── Bilan du mois express ─────────────────────────────────────────
+        // ── Bilan du mois ─────────────────────────────────────────────────
         $bilanMois = [
-            'attendu'      => Contrat::where('statut', 'actif')->sum('loyer_contractuel'),
-            'encaisse'     => $statsMois['loyers'],
-            'a_recouvrer'  => $montant_du_mois,
+            'attendu'     => Contrat::where('statut', 'actif')->sum('loyer_contractuel'),
+            'encaisse'    => $statsMois['loyers'],
+            'a_recouvrer' => $montant_du_mois,
         ];
 
         // ── Onboarding ────────────────────────────────────────────────────
@@ -200,19 +217,41 @@ class DashboardController extends Controller
             'bien', fn($q) => $q->where('proprietaire_id', $user->id)
         )->pluck('id');
 
-        // Agrégats SQL — pas de get() en mémoire
+        // ── CORRECTION : 6 requêtes → 1 selectRaw ────────────────────────
+        // Avant : sum() x3 + count() + first() + sum() = 6 requêtes avec
+        //         whereIn('contrat_id', ...) répété identiquement à chaque fois
+        // Après : 1 seul selectRaw regroupe tout
+        $aggrRaw = Paiement::whereIn('contrat_id', $contratIds)
+            ->where('statut', 'valide')
+            ->selectRaw('
+                COALESCE(SUM(montant_encaisse), 0)  AS total_loyers,
+                COALESCE(SUM(net_proprietaire), 0)  AS total_net,
+                COALESCE(SUM(commission_ttc), 0)    AS total_commission,
+                COUNT(*)                             AS nb_paiements,
+                MAX(date_paiement)                  AS date_dernier_paiement
+            ')
+            ->first();
+
+        $cautionTotal = Contrat::whereIn('id', $contratIds)->sum('caution');
+
+        // Le dernier paiement complet (pour affichage détaillé en vue)
+        $dernierPaiement = $aggrRaw->date_dernier_paiement
+            ? Paiement::whereIn('contrat_id', $contratIds)
+                ->where('statut', 'valide')
+                ->where('date_paiement', $aggrRaw->date_dernier_paiement)
+                ->select(['id', 'contrat_id', 'montant_encaisse', 'date_paiement', 'reference_paiement'])
+                ->first()
+            : null;
+
         $stats = [
             'nb_biens'         => $biens->total(),
             'nb_biens_loues'   => Bien::where('proprietaire_id', $user->id)->where('statut', 'loue')->count(),
-            'total_loyers'     => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->sum('montant_encaisse'),
-            'total_net'        => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->sum('net_proprietaire'),
-            'total_commission' => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->sum('commission_ttc'),
-            'nb_paiements'     => Paiement::whereIn('contrat_id', $contratIds)->where('statut', 'valide')->count(),
-            'dernier_paiement' => Paiement::whereIn('contrat_id', $contratIds)
-                                    ->where('statut', 'valide')
-                                    ->orderByDesc('date_paiement')
-                                    ->first(),
-            'caution'          => Contrat::whereIn('id', $contratIds)->sum('caution'),
+            'total_loyers'     => (float) ($aggrRaw->total_loyers    ?? 0),
+            'total_net'        => (float) ($aggrRaw->total_net        ?? 0),
+            'total_commission' => (float) ($aggrRaw->total_commission ?? 0),
+            'nb_paiements'     => (int)   ($aggrRaw->nb_paiements    ?? 0),
+            'dernier_paiement' => $dernierPaiement,
+            'caution'          => (float) $cautionTotal,
         ];
 
         $paiements = Paiement::whereIn('contrat_id', $contratIds)
@@ -240,9 +279,13 @@ class DashboardController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $contrat = Contrat::with('bien.proprietaire')
+        $contrat = Contrat::with([
+                'bien:id,reference,adresse,ville,type',
+                'bien.proprietaire:id,name,telephone',
+            ])
             ->where('locataire_id', $user->id)
             ->where('statut', 'actif')
+            ->select(['id', 'bien_id', 'locataire_id', 'loyer_contractuel', 'date_debut', 'date_fin', 'statut', 'caution'])
             ->first();
 
         $paiements       = collect();
@@ -251,6 +294,7 @@ class DashboardController extends Controller
         if ($contrat) {
             $paiements = Paiement::where('contrat_id', $contrat->id)
                 ->where('statut', 'valide')
+                ->select(['id', 'contrat_id', 'periode', 'montant_encaisse', 'mode_paiement', 'date_paiement', 'reference_paiement'])
                 ->orderByDesc('periode')
                 ->get();
 
@@ -261,25 +305,24 @@ class DashboardController extends Controller
             ? \Carbon\Carbon::parse($dernierPaiement->periode)->addMonth()
             : ($contrat ? \Carbon\Carbon::parse($contrat->date_debut) : null);
 
-        // Agrégats SQL
+        // 1 seule requête pour les agrégats locataire
+        $aggrLoc = $contrat
+            ? Paiement::where('contrat_id', $contrat->id)
+                ->where('statut', 'valide')
+                ->selectRaw('
+                    COALESCE(SUM(montant_encaisse), 0) AS total_paye,
+                    COUNT(*)                            AS nb_paiements
+                ')
+                ->first()
+            : null;
+
         $stats = [
-            'total_paye'   => $contrat
-                ? Paiement::where('contrat_id', $contrat->id)->where('statut', 'valide')->sum('montant_encaisse')
-                : 0,
-            'nb_paiements' => $contrat
-                ? Paiement::where('contrat_id', $contrat->id)->where('statut', 'valide')->count()
-                : 0,
-            'mois_restants' => $contrat?->date_fin
-                ? now()->diffInMonths($contrat->date_fin)
-                : null,
+            'total_paye'   => (float) ($aggrLoc->total_paye   ?? 0),
+            'nb_paiements' => (int)   ($aggrLoc->nb_paiements ?? 0),
         ];
 
         return view('locataire.dashboard', compact(
-            'contrat',
-            'paiements',
-            'dernierPaiement',
-            'prochainePeriode',
-            'stats'
+            'contrat', 'paiements', 'dernierPaiement', 'prochainePeriode', 'stats'
         ));
     }
 }

@@ -10,48 +10,111 @@
 <?php $component->withAttributes([]); ?>
      <?php $__env->slot('header', null, []); ?> Nouveau bien <?php $__env->endSlot(); ?>
 
-    
-    <div style="display:flex;align-items:center;gap:12px;" class="section-gap">
-        <a href="<?php echo e(route('biens.index')); ?>"
-           style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);border:1px solid var(--border);color:var(--text-2);transition:background .15s;"
-           onmouseenter="this.style.background='var(--bg)'"
-           onmouseleave="this.style.background='transparent'">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:16px;height:16px;">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-        </a>
-        <div>
-            <h1 style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px;">Nouveau bien</h1>
-            <p style="font-size:13px;color:var(--text-3);margin-top:2px;">Renseignez les informations du bien immobilier</p>
-        </div>
+<style>
+.form-grid { display:grid; grid-template-columns:1fr 280px; gap:24px; align-items:start; }
+.card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:18px; }
+.card:last-child { margin-bottom:0; }
+.card-hd { padding:15px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; gap:10px; }
+.card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.card-icon svg { width:15px;height:15px; }
+.card-icon.gold   { background:#f5e9c9; } .card-icon.gold svg   { color:#8a6e2f; }
+.card-icon.blue   { background:#dbeafe; } .card-icon.blue svg   { color:#1d4ed8; }
+.card-icon.green  { background:#dcfce7; } .card-icon.green svg  { color:#16a34a; }
+.card-icon.gray   { background:#f3f4f6; } .card-icon.gray svg   { color:#6b7280; }
+.card-icon.purple { background:#ede9fe; } .card-icon.purple svg { color:#7c3aed; }
+.card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#0d1117; }
+.card-body { padding:18px 20px; }
+.form-group { margin-bottom:14px; }
+.form-group:last-child { margin-bottom:0; }
+.form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
+.req { color:#dc2626;margin-left:2px; }
+.opt { font-size:11px;font-weight:400;color:#9ca3af;margin-left:4px; }
+.form-input, .form-select, .form-textarea {
+    width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;
+    font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;
+    background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.10);
+}
+.form-input.error, .form-select.error { border-color:#dc2626; }
+.form-textarea { resize:vertical;min-height:90px; }
+.form-select { cursor:pointer; }
+.form-row  { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.form-row3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px; }
+.form-error { font-size:12px;color:#dc2626;margin-top:4px; }
+.form-hint  { font-size:11px;color:#9ca3af;margin-top:4px; }
+/* checkbox toggle */
+.toggle-row { display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;transition:border-color .15s; }
+.toggle-row:hover { border-color:#c9a84c; }
+.toggle-row input[type=checkbox] { width:16px;height:16px;accent-color:#c9a84c;cursor:pointer;flex-shrink:0; }
+.toggle-lbl { font-size:13px;font-weight:500;color:#374151; }
+.toggle-sub { font-size:11px;color:#6b7280;margin-top:1px; }
+/* type pills */
+.type-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
+.type-pill { position:relative; }
+.type-pill input { position:absolute;opacity:0;width:0;height:0; }
+.type-pill label { display:flex;flex-direction:column;align-items:center;padding:10px 8px;border:1.5px solid #e5e7eb;border-radius:9px;cursor:pointer;font-size:11px;font-weight:500;color:#6b7280;text-align:center;gap:5px;background:#fff;transition:all .15s; }
+.type-pill label svg { width:18px;height:18px; }
+.type-pill input:checked + label { border-color:#c9a84c;background:#f5e9c9;color:#8a6e2f; }
+.type-pill label:hover { border-color:#c9a84c;background:#fdf8ef; }
+/* submit */
+.submit-bar { display:flex;align-items:center;gap:10px;padding:14px 18px;border-top:1px solid #e5e7eb;background:#f9fafb; }
+.btn-submit { flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 20px;background:#0d1117;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s; }
+.btn-submit:hover { opacity:.88; }
+.btn-submit svg { width:15px;height:15px; }
+.btn-cancel { padding:11px 18px;background:#fff;color:#6b7280;border:1px solid #e5e7eb;border-radius:9px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none; }
+/* récap sticky */
+.recap-card { background:#0d1117;border-radius:14px;overflow:hidden;position:sticky;top:80px; }
+.recap-hd { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
+.recap-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff; }
+.recap-body { padding:14px 18px; }
+.rp-row { display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05); }
+.rp-row:last-child { border-bottom:none; }
+.rp-lbl { font-size:12px;color:rgba(255,255,255,.5); }
+.rp-val { font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#fff; }
+.rp-val.green { color:#4ade80; }
+.rp-val.gold  { color:#c9a84c; }
+.rp-val.muted { color:rgba(255,255,255,.3);font-weight:400; }
+.rp-block { background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.15);border-radius:9px;padding:12px 14px;margin-top:12px; }
+.rp-block-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
+.rp-block-val { font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#c9a84c;letter-spacing:-.3px; }
+.rp-sep { height:1px;background:rgba(255,255,255,.08);margin:8px 0; }
+</style>
+
+<div style="padding:24px 32px 48px">
+
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:16px">
+        <a href="<?php echo e(route('biens.index')); ?>" style="color:#6b7280;text-decoration:none">Biens</a>
+        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0d1117;font-weight:500">Nouveau bien</span>
     </div>
 
-    <div style="max-width:680px;">
-        <div class="card">
-            <div class="card-body">
+    <div style="margin-bottom:22px">
+        <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Ajouter un bien</h1>
+        <p style="font-size:13px;color:#6b7280;margin-top:3px">La référence est générée automatiquement.</p>
+    </div>
+
+    <form method="POST" action="<?php echo e(route('biens.store')); ?>" id="form-bien">
+        <?php echo csrf_field(); ?>
+        <div class="form-grid">
+            <div>
 
                 
-                <?php if($errors->any()): ?>
-                    <div class="alert alert-error" style="margin-bottom:20px;">
-                        <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <div>❌ <?php echo e($error); ?></div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php if(auth()->user()->isAdmin()): ?>
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                        <div class="card-title">Propriétaire</div>
                     </div>
-                <?php endif; ?>
-
-                <form method="POST" action="<?php echo e(route('biens.store')); ?>">
-                    <?php echo csrf_field(); ?>
-
-                    
-                    <?php if(auth()->user()->isAdmin()): ?>
-                        <div style="margin-bottom:20px;">
-                            <label class="form-label">Propriétaire <span style="color:#ef4444;">*</span></label>
-                            <select name="proprietaire_id" class="input">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label" for="proprietaire_id">Propriétaire <span class="req">*</span></label>
+                            <select name="proprietaire_id" id="proprietaire_id" class="form-select <?php echo e($errors->has('proprietaire_id') ? 'error':''); ?>">
                                 <option value="">— Sélectionner un propriétaire —</option>
-                                <?php $__currentLoopData = $proprietaires; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $proprio): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($proprio->id); ?>"
-                                            <?php echo e(old('proprietaire_id') == $proprio->id ? 'selected' : ''); ?>>
-                                        <?php echo e($proprio->name); ?> — <?php echo e($proprio->email); ?>
+                                <?php $__currentLoopData = $proprietaires; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($p->id); ?>" <?php echo e(old('proprietaire_id') == $p->id ? 'selected':''); ?>>
+                                        <?php echo e($p->name); ?> — <?php echo e($p->email); ?>
 
                                     </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -60,272 +123,288 @@
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                         </div>
-                    <?php else: ?>
-                        <input type="hidden" name="proprietaire_id" value="<?php echo e(auth()->id()); ?>">
-                    <?php endif; ?>
-
-                    
-                    <div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);">
-                        🏠 Identification
                     </div>
+                </div>
+                <?php endif; ?>
 
-                    
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-                        <div>
-                            <label class="form-label">Type de bien <span style="color:#ef4444;">*</span></label>
-                            <select name="type" class="input">
-                                <option value="">— Choisir —</option>
-                                <?php $__currentLoopData = ['Appartement', 'Villa', 'Studio', 'Chambre', 'Bureau', 'Local commercial', 'Entrepôt', 'Terrain', 'Maison', 'Duplex']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($type); ?>" <?php echo e(old('type') === $type ? 'selected' : ''); ?>><?php echo e($type); ?></option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </select>
-                            <?php $__errorArgs = ['type'];
+                
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+                        <div class="card-title">Type de bien</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="type-grid">
+                            <?php $__currentLoopData = \App\Models\Bien::TYPES; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="type-pill">
+                                <input type="radio" name="type" id="type_<?php echo e($key); ?>" value="<?php echo e($key); ?>"
+                                    <?php echo e(old('type') === $key ? 'checked':''); ?>>
+                                <label for="type_<?php echo e($key); ?>">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <?php if(in_array($key, ['appartement','studio'])): ?>
+                                            <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/>
+                                        <?php elseif($key === 'villa'): ?>
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                        <?php elseif(in_array($key, ['bureau','local_commercial'])): ?>
+                                            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+                                        <?php elseif($key === 'maison'): ?>
+                                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                                        <?php else: ?>
+                                            <circle cx="12" cy="12" r="10"/>
+                                        <?php endif; ?>
+                                    </svg>
+                                    <?php echo e($label); ?>
+
+                                </label>
+                            </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </div>
+                        <?php $__errorArgs = ['type'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error" style="margin-top:8px"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                    </div>
+                </div>
+
+                
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                        <div class="card-title">Localisation</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label" for="adresse">Adresse <span class="req">*</span></label>
+                            <input type="text" name="adresse" id="adresse" class="form-input <?php echo e($errors->has('adresse') ? 'error':''); ?>"
+                                value="<?php echo e(old('adresse')); ?>" placeholder="N° rue, nom de la rue">
+                            <?php $__errorArgs = ['adresse'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                         </div>
-                        <div>
-                            <label class="form-label">Statut <span style="color:#ef4444;">*</span></label>
-                            <select name="statut" class="input">
-                                <option value="disponible" <?php echo e(old('statut', 'disponible') === 'disponible' ? 'selected' : ''); ?>>Disponible</option>
-                                <option value="loue"       <?php echo e(old('statut') === 'loue'       ? 'selected' : ''); ?>>Loué</option>
-                                <option value="en_travaux" <?php echo e(old('statut') === 'en_travaux' ? 'selected' : ''); ?>>En travaux</option>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="ville">Ville <span class="req">*</span></label>
+                                <input type="text" name="ville" id="ville" class="form-input <?php echo e($errors->has('ville') ? 'error':''); ?>"
+                                    value="<?php echo e(old('ville', 'Dakar')); ?>" placeholder="Ex: Dakar">
+                                <?php $__errorArgs = ['ville'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="quartier">Quartier <span class="opt">(optionnel)</span></label>
+                                <input type="text" name="quartier" id="quartier" class="form-input"
+                                    value="<?php echo e(old('quartier')); ?>" placeholder="Ex: Plateau">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="commune">Commune <span class="opt">(optionnel)</span></label>
+                            <input type="text" name="commune" id="commune" class="form-input"
+                                value="<?php echo e(old('commune')); ?>" placeholder="Ex: Dakar-Plateau">
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+                        <div class="card-title">Caractéristiques</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="surface_m2">Surface <span class="opt">(m²)</span></label>
+                                <input type="number" name="surface_m2" id="surface_m2" class="form-input"
+                                    value="<?php echo e(old('surface_m2')); ?>" placeholder="Ex: 80" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="nombre_pieces">Nombre de pièces</label>
+                                <input type="number" name="nombre_pieces" id="nombre_pieces" class="form-input"
+                                    value="<?php echo e(old('nombre_pieces')); ?>" placeholder="Ex: 3" min="1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="toggle-row" for="meuble">
+                                <input type="checkbox" name="meuble" id="meuble" value="1" <?php echo e(old('meuble') ? 'checked':''); ?>>
+                                <div>
+                                    <div class="toggle-lbl">Bien meublé</div>
+                                    <div class="toggle-sub">Cochez si le bien est loué avec mobilier</div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="statut">Statut <span class="req">*</span></label>
+                            <select name="statut" id="statut" class="form-select <?php echo e($errors->has('statut') ? 'error':''); ?>">
+                                <option value="disponible" <?php echo e(old('statut','disponible')==='disponible' ? 'selected':''); ?>>Disponible</option>
+                                <option value="loue"       <?php echo e(old('statut')==='loue'       ? 'selected':''); ?>>Loué</option>
+                                <option value="en_travaux" <?php echo e(old('statut')==='en_travaux' ? 'selected':''); ?>>En travaux</option>
                             </select>
                             <?php $__errorArgs = ['statut'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                         </div>
                     </div>
+                </div>
 
-                    
-                    <div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);">
-                        📍 Localisation
+                
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                        <div class="card-title">Finances</div>
                     </div>
-
-                    
-                    <div style="margin-bottom:20px;">
-                        <label class="form-label">Adresse <span style="color:#ef4444;">*</span></label>
-                        <input type="text" name="adresse" value="<?php echo e(old('adresse')); ?>"
-                               placeholder="Ex : 25 Rue de Thiong" class="input">
-                        <?php $__errorArgs = ['adresse'];
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="loyer_mensuel">Loyer mensuel <span class="req">*</span></label>
+                                <input type="number" name="loyer_mensuel" id="loyer_mensuel"
+                                    class="form-input <?php echo e($errors->has('loyer_mensuel') ? 'error':''); ?>"
+                                    value="<?php echo e(old('loyer_mensuel')); ?>" placeholder="Ex: 200000" min="1" step="500"
+                                    oninput="calcRecap()">
+                                <?php $__errorArgs = ['loyer_mensuel'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                        <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                    </div>
-
-                    
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-                        <div>
-                            <label class="form-label">Région / Ville <span style="color:#ef4444;">*</span></label>
-                            <select name="ville" class="input">
-                                <?php $__currentLoopData = [
-                                    'Dakar', 'Thiès', 'Saint-Louis', 'Ziguinchor', 'Kaolack',
-                                    'Fatick', 'Louga', 'Tambacounda', 'Kolda', 'Matam',
-                                    'Kaffrine', 'Kédougou', 'Sédhiou', 'Diourbel'
-                                ]; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ville): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($ville); ?>" <?php echo e(old('ville', 'Dakar') === $ville ? 'selected' : ''); ?>>
-                                        <?php echo e($ville); ?>
-
-                                    </option>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </select>
-                            <?php $__errorArgs = ['ville'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        </div>
-                        <div>
-                            <label class="form-label">Quartier</label>
-                            <input type="text" name="quartier" value="<?php echo e(old('quartier')); ?>"
-                                   placeholder="Ex : Almadies, Mermoz, Plateau…" class="input">
-                            <?php $__errorArgs = ['quartier'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        </div>
-                    </div>
-
-                    
-                    <div style="margin-bottom:20px;">
-                        <label class="form-label">Commune</label>
-                        <input type="text" name="commune" value="<?php echo e(old('commune')); ?>"
-                               placeholder="Ex : Dakar-Plateau, Guédiawaye, Pikine…" class="input">
-                        <?php $__errorArgs = ['commune'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                            <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                        <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                    </div>
-
-                    
-                    <div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);">
-                        📐 Caractéristiques
-                    </div>
-
-                    
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
-                        <div>
-                            <label class="form-label">Surface (m²)</label>
-                            <input type="number" name="surface_m2" value="<?php echo e(old('surface_m2')); ?>"
-                                   min="1" placeholder="85" class="input">
-                            <?php $__errorArgs = ['surface_m2'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        </div>
-                        <div>
-                            <label class="form-label">Nombre de pièces</label>
-                            <input type="number" name="nombre_pieces" value="<?php echo e(old('nombre_pieces')); ?>"
-                                   min="1" placeholder="3" class="input">
-                            <?php $__errorArgs = ['nombre_pieces'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        </div>
-                        <div>
-                            <label class="form-label">Meublé</label>
-                            <div style="display:flex;align-items:center;gap:10px;height:38px;margin-top:2px;">
-                                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text-2);">
-                                    <input type="checkbox" name="meuble" value="1"
-                                           <?php echo e(old('meuble') ? 'checked' : ''); ?>
-
-                                           style="width:16px;height:16px;accent-color:var(--agency);cursor:pointer;">
-                                    Oui, meublé
-                                </label>
                             </div>
-                            <?php $__errorArgs = ['meuble'];
+                            <div class="form-group">
+                                <label class="form-label" for="taux_commission">Commission agence <span class="req">*</span> <span class="opt">(%)</span></label>
+                                <input type="number" name="taux_commission" id="taux_commission"
+                                    class="form-input <?php echo e($errors->has('taux_commission') ? 'error':''); ?>"
+                                    value="<?php echo e(old('taux_commission', 10)); ?>" placeholder="10" min="1" max="20" step="0.5"
+                                    oninput="calcRecap()">
+                                <?php $__errorArgs = ['taux_commission'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    
-                    <div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);">
-                        💰 Conditions financières
+                
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                        <div class="card-title">Description <span class="opt">(optionnel)</span></div>
                     </div>
-
-                    
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-                        <div>
-                            <label class="form-label">Loyer mensuel (FCFA) <span style="color:#ef4444;">*</span></label>
-                            <input type="number" name="loyer_mensuel" value="<?php echo e(old('loyer_mensuel')); ?>"
-                                   min="1" placeholder="250 000" class="input">
-                            <?php $__errorArgs = ['loyer_mensuel'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                        </div>
-                        <div>
-                            <label class="form-label">Taux commission (%) <span style="color:#ef4444;">*</span></label>
-                            <input type="number" name="taux_commission" value="<?php echo e(old('taux_commission', 10)); ?>"
-                                   min="1" max="20" step="0.5" placeholder="10" class="input">
-                            <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Entre 1% et 20%</div>
-                            <?php $__errorArgs = ['taux_commission'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                <div style="font-size:12px;color:#dc2626;margin-top:4px;"><?php echo e($message); ?></div>
-                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <textarea name="description" id="description" class="form-textarea"
+                                placeholder="Description du bien, équipements, état général…"><?php echo e(old('description')); ?></textarea>
                         </div>
                     </div>
-
-                    
-                    <div style="margin-bottom:24px;">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" rows="3"
-                                  placeholder="Appartement F3 climatisé, 2ème étage, vue sur mer…"
-                                  class="input" style="resize:vertical;"><?php echo e(old('description')); ?></textarea>
-                    </div>
-
-                    
-                    <div style="display:flex;justify-content:flex-end;gap:10px;padding-top:20px;border-top:1px solid var(--border);">
-                        <a href="<?php echo e(route('biens.index')); ?>" class="btn btn-secondary">
-                            Annuler
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:15px;height:15px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
+                    <div class="submit-bar">
+                        <a href="<?php echo e(route('biens.index')); ?>" class="btn-cancel">Annuler</a>
+                        <button type="submit" class="btn-submit">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             Enregistrer le bien
                         </button>
                     </div>
+                </div>
 
-                </form>
+            </div>
+
+            
+            <div>
+                <div class="recap-card">
+                    <div class="recap-hd"><div class="recap-title">Récapitulatif</div></div>
+                    <div class="recap-body">
+                        <div class="rp-row">
+                            <div class="rp-lbl">Loyer mensuel</div>
+                            <div class="rp-val" id="rp-loyer">— F</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-lbl">Commission HT</div>
+                            <div class="rp-val gold" id="rp-comm">— F</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-lbl">TVA (18%)</div>
+                            <div class="rp-val" style="color:#fbbf24" id="rp-tva">— F</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-lbl">Commission TTC</div>
+                            <div class="rp-val gold" id="rp-ttc">— F</div>
+                        </div>
+                        <div class="rp-block">
+                            <div class="rp-block-lbl">Net propriétaire / mois</div>
+                            <div class="rp-block-val"><span id="rp-net">0</span> F</div>
+                        </div>
+                        <div class="rp-sep"></div>
+                        <div class="rp-row">
+                            <div class="rp-lbl">Type</div>
+                            <div class="rp-val muted" id="rp-type">—</div>
+                        </div>
+                        <div class="rp-row">
+                            <div class="rp-lbl">Statut</div>
+                            <div class="rp-val muted" id="rp-statut">Disponible</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
+
+</div>
+
+<script>
+function calcRecap() {
+    const loyer = parseFloat(document.getElementById('loyer_mensuel').value) || 0;
+    const taux  = parseFloat(document.getElementById('taux_commission').value) || 0;
+    const fmt   = n => Math.round(n).toLocaleString('fr-FR');
+    const commHT  = loyer * taux / 100;
+    const tva     = commHT * 0.18;
+    const commTTC = commHT + tva;
+    const net     = loyer - commTTC;
+    document.getElementById('rp-loyer').textContent = fmt(loyer) + ' F';
+    document.getElementById('rp-comm').textContent  = fmt(commHT) + ' F';
+    document.getElementById('rp-tva').textContent   = fmt(tva) + ' F';
+    document.getElementById('rp-ttc').textContent   = fmt(commTTC) + ' F';
+    document.getElementById('rp-net').textContent   = fmt(net);
+}
+// Type sélectionné
+document.querySelectorAll('input[name="type"]').forEach(r => {
+    r.addEventListener('change', () => {
+        document.getElementById('rp-type').textContent = r.nextElementSibling.textContent.trim();
+    });
+});
+// Statut
+document.getElementById('statut').addEventListener('change', function() {
+    const labels = {disponible:'Disponible', loue:'Loué', en_travaux:'En travaux'};
+    document.getElementById('rp-statut').textContent = labels[this.value] || this.value;
+});
+calcRecap();
+</script>
 
  <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>

@@ -2,7 +2,12 @@
    BIMOTECH — Design System CSS
    Variables, composants, layout sidebar/mobile
 ═══════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
+/* Remplace Inter par DM Sans comme police de base */
+body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
 /* ── Variables globales ── */
 :root {
     --agency-color: #1a3c5e;

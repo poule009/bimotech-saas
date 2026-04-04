@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Locataire;
+use App\Observers\ContratObserver;
+use App\Observers\LocataireObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +31,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('isLocataire',  fn($user) => $user->role === 'locataire');
         Gate::define('isStaff',      fn($user) => in_array($user->role, ['admin', 'proprietaire']));
 
+        // ── Observers fiscaux ─────────────────────────────────────────────────
+Contrat::observe(ContratObserver::class);
+Locataire::observe(LocataireObserver::class);
         // ✅ CORRECTION H1 : le calcul ne se fait plus à chaque vue imbriquée
         // Avant : 5 à 10 requêtes SQL par page (une par partial, layout, composant…)
         // Après : 1 calcul par requête HTTP grâce à "static $shared"

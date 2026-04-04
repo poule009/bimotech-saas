@@ -25,22 +25,21 @@ return new class extends Migration
             // Loyer nu : loyer hors charges et hors TOM
             // C'est sur cette base que la commission agence est calculée
             $table->decimal('loyer_nu', 12, 2)
-                  ->default(0)
-                  ->after('loyer_contractuel')
-                  ->comment('Loyer hors charges et hors TOM — base de calcul commission');
+                ->default(0)
+                ->after('loyer_contractuel')
+                ->comment('Loyer hors charges et hors TOM — base de calcul commission');
 
             // TOM — Taxe sur les Ordures Ménagères (municipalités sénégalaises)
             $table->decimal('tom_amount', 10, 2)
-                  ->default(0)
-                  ->after('charges_mensuelles')
-                  ->comment('Taxe sur les Ordures Ménagères — part locataire mensuelle');
+                ->default(0)
+                ->comment('Taxe sur les Ordures Ménagères — part locataire');
 
             // Référence bail saisie manuellement par l'agence
             // Si null → référence générée automatiquement (BIMO-YYYY-NNN)
             $table->string('reference_bail', 60)
-                  ->nullable()
-                  ->after('observations')
-                  ->comment('Référence officielle du bail — prioritaire sur la générée');
+                ->nullable()
+                ->after('observations')
+                ->comment('Référence officielle du bail — prioritaire sur la générée');
 
             $table->index('reference_bail');
         });

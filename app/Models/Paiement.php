@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Scopes\AgencyScope;
 use App\Models\Traits\LogsActivity;
+use App\Services\FiscalService;
 use App\Services\NombreEnLettres;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -33,29 +34,25 @@ class Paiement extends Model
 
     /**
      * SÉCURITÉ — Mass Assignment :
-     *
-     * Les colonnes suivantes sont INTENTIONNELLEMENT absentes de $fillable :
-     *
-     * - `statut`             : ne doit être passé à 'valide' que par le contrôleur après vérification
-     * - `commission_agence`  : valeur calculée — ne doit jamais venir d'un formulaire
-     * - `tva_commission`     : idem
-     * - `commission_ttc`     : idem
-     * - `net_proprietaire`   : idem
-     * - `receipt_path`       : chemin fichier serveur — ne doit jamais être injecté par l'extérieur
-     *
-     * Ces colonnes sont assignées explicitement dans PaiementController::store()
-     * via un tableau construit côté serveur, jamais via $request->all() ou fill().
+     * Les colonnes calculées sont INTENTIONNELLEMENT absentes de $fillable.
+     * Elles sont assignées explicitement dans PaiementController::store().
      */
     protected $fillable = [
         'agency_id',
         'contrat_id',
         'periode',
-        'loyer_nu',
+        // Ventilation loyer
+        'loyer_ht',
+        'tva_loyer',
+        'loyer_ttc',
+        'loyer_nu',           // alias rétro-compat = loyer_ht
         'charges_amount',
         'tom_amount',
         'montant_encaisse',
+        // Mode
         'mode_paiement',
         'taux_commission_applique',
+        // Divers
         'caution_percue',
         'est_premier_paiement',
         'date_paiement',
@@ -65,21 +62,28 @@ class Paiement extends Model
     ];
 
     protected $casts = [
-        'periode'              => 'date',
-        'date_paiement'        => 'date',
-        'est_premier_paiement' => 'boolean',
-        'montant_encaisse'     => 'decimal:2',
-        'loyer_nu'             => 'decimal:2',
-        'charges_amount'       => 'decimal:2',
-        'tom_amount'           => 'decimal:2',
-        'commission_agence'    => 'decimal:2',
-        'tva_commission'       => 'decimal:2',
-        'commission_ttc'       => 'decimal:2',
-        'net_proprietaire'     => 'decimal:2',
-        'caution_percue'       => 'decimal:2',
+        'periode'                   => 'date',
+        'date_paiement'             => 'date',
+        'est_premier_paiement'      => 'boolean',
+        'montant_encaisse'          => 'decimal:2',
+        'loyer_ht'                  => 'decimal:2',
+        'tva_loyer'                 => 'decimal:2',
+        'loyer_ttc'                 => 'decimal:2',
+        'loyer_nu'                  => 'decimal:2',
+        'charges_amount'            => 'decimal:2',
+        'tom_amount'                => 'decimal:2',
+        'commission_agence'         => 'decimal:2',
+        'tva_commission'            => 'decimal:2',
+        'commission_ttc'            => 'decimal:2',
+        'net_proprietaire'          => 'decimal:2',
+        'brs_amount'                => 'decimal:2',
+        'taux_brs_applique'         => 'decimal:2',
+        'net_a_verser_proprietaire' => 'decimal:2',
+        'caution_percue'            => 'decimal:2',
+        'regime_fiscal_snapshot'    => 'array',
     ];
 
-    // ── Global Scope ──────────────────────────────────────────────────────
+    // ── Global Scope ──────────────────────────────────────────────────────────
 
     protected static function booted(): void
     {
@@ -90,16 +94,23 @@ class Paiement extends Model
                 $paiement->agency_id = Auth::user()->agency_id;
             }
 
-            // Auto-calcul loyer_nu si non fourni
-            if ((empty($paiement->loyer_nu) || $paiement->loyer_nu == 0) && ! empty($paiement->montant_encaisse)) {
-                $paiement->loyer_nu = (float) $paiement->montant_encaisse
-                    - (float) ($paiement->charges_amount ?? 0)
-                    - (float) ($paiement->tom_amount ?? 0);
+            // Alias rétro-compat : loyer_nu = loyer_ht
+            if ((empty($paiement->loyer_nu) || $paiement->loyer_nu == 0)
+                && ! empty($paiement->loyer_ht)
+            ) {
+                $paiement->loyer_nu = $paiement->loyer_ht;
+            }
+
+            // Inverse : si loyer_ht non fourni mais loyer_nu l'est
+            if ((empty($paiement->loyer_ht) || $paiement->loyer_ht == 0)
+                && ! empty($paiement->loyer_nu)
+            ) {
+                $paiement->loyer_ht = $paiement->loyer_nu;
             }
         });
     }
 
-    // ── Relations ─────────────────────────────────────────────────────────
+    // ── Relations ─────────────────────────────────────────────────────────────
 
     public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -111,7 +122,7 @@ class Paiement extends Model
         return $this->belongsTo(Contrat::class);
     }
 
-    // ── Accesseurs ────────────────────────────────────────────────────────
+    // ── Accesseurs ────────────────────────────────────────────────────────────
 
     public function getReferenceBailAfficheeAttribute(): string
     {
@@ -131,20 +142,44 @@ class Paiement extends Model
         return NombreEnLettres::convertir((float) $this->net_proprietaire);
     }
 
-    public function getLoyerNuEnLettresAttribute(): string
+    public function getNetAVerserEnLettresAttribute(): string
     {
-        return NombreEnLettres::convertir((float) $this->loyer_nu);
+        return NombreEnLettres::convertir((float) ($this->net_a_verser_proprietaire ?? $this->net_proprietaire));
     }
 
-    // ── Calcul des montants (méthode statique) ────────────────────────────
+    public function getLoyerNuEnLettresAttribute(): string
+    {
+        return NombreEnLettres::convertir((float) ($this->loyer_ht ?? $this->loyer_nu));
+    }
 
     /**
-     * Calcule la ventilation complète d'un paiement.
-     * La commission s'applique sur le loyer nu uniquement.
+     * Régime fiscal depuis le snapshot ou recontruit depuis les montants.
+     */
+    public function getRegimeFiscalLabelAttribute(): string
+    {
+        $snapshot = $this->regime_fiscal_snapshot;
+        if ($snapshot && isset($snapshot['regime_fiscal'])) {
+            return $snapshot['regime_fiscal'];
+        }
+        // Fallback : déduire depuis les montants
+        if (($this->tva_loyer ?? 0) > 0) {
+            return 'Bail commercial/meublé (TVA 18% loyer)';
+        }
+        return 'Habitation nue (exonéré TVA loyer)';
+    }
+
+    // ── Méthode de calcul ────────────────────────────────────────────────────
+
+    /**
+     * Méthode de compatibilité — utilisée par les Seeders existants.
+     * Préférer FiscalService::calculer(FiscalContext $ctx) pour les nouveaux appels.
+     
      *
-     * @return array{loyer_nu: float, charges_amount: float, tom_amount: float,
-     *               montant_encaisse: float, commission_ht: float, tva: float,
-     *               commission_ttc: float, net_proprietaire: float}
+     * Conservé pour rétro-compatibilité avec DemoDataSeeder, BimoTechSeeder,
+     * et les tests existants. Délègue à FiscalService::calculerLegacy().
+     *
+     * ATTENTION : cette méthode traite toujours comme un bail habitation particulier.
+     * Pour les cas commerciaux/meublés/entreprise, utiliser FiscalService directement.
      */
     public static function calculerMontants(
         float $loyerNu,
@@ -153,21 +188,12 @@ class Paiement extends Model
         float $tomAmount     = 0.0,
         float $tauxTva       = 18.0,
     ): array {
-        $commissionHt    = round($loyerNu * $tauxCommission / 100, 2);
-        $tva             = round($commissionHt * $tauxTva / 100, 2);
-        $commissionTtc   = round($commissionHt + $tva, 2);
-        $totalEncaisse   = round($loyerNu + $chargesAmount + $tomAmount, 2);
-        $netProprietaire = round($totalEncaisse - $commissionTtc, 2);
-
-        return [
-            'loyer_nu'         => $loyerNu,
-            'charges_amount'   => $chargesAmount,
-            'tom_amount'       => $tomAmount,
-            'montant_encaisse' => $totalEncaisse,
-            'commission_ht'    => $commissionHt,
-            'tva'              => $tva,
-            'commission_ttc'   => $commissionTtc,
-            'net_proprietaire' => $netProprietaire,
-        ];
+        return FiscalService::calculerLegacy(
+            loyerNu: $loyerNu,
+            tauxCommission: $tauxCommission,
+            chargesAmount: $chargesAmount,
+            tomAmount: $tomAmount,
+            tauxTva: $tauxTva,
+        );
     }
 }
