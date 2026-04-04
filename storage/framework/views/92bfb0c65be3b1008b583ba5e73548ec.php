@@ -238,7 +238,7 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
 <body>
 
 <!-- ─── NAVIGATION ─────────────────────────────────────── -->
-@include('partials.public-nav', ['active' => 'contact'])
+<?php echo $__env->make('partials.public-nav', ['active' => 'contact'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <!-- ─── HERO ──────────────────────────────────────────── -->
 <section class="hero">
@@ -255,11 +255,11 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
     </p>
 
     <div class="hero-btns">
-        <a href="{{ route('register') }}" class="btn-gold">Créer mon agence gratuitement →</a>
-        <a href="{{ route('demo') }}" class="btn-outline">Demander une démo</a>
+        <a href="<?php echo e(route('register')); ?>" class="btn-gold">Créer mon agence gratuitement →</a>
+        <a href="<?php echo e(route('demo')); ?>" class="btn-outline">Demander une démo</a>
     </div>
 
-    {{-- Mockup dashboard --}}
+    
     <div class="mockup-wrap">
         <div class="mockup-glow"></div>
         <div class="mockup">
@@ -458,7 +458,7 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
         <p class="section-sub">Tous les plans incluent la conformité fiscale complète. Aucune carte bancaire requise pour démarrer.</p>
 
         <div class="pricing-grid">
-            {{-- Plan gratuit --}}
+            
             <div class="plan">
                 <div class="plan-name">Démarrage</div>
                 <div class="plan-price">Gratuit <span>/ toujours</span></div>
@@ -469,10 +469,10 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
                     <li>Quittances PDF</li>
                     <li>Conformité fiscale SN</li>
                 </ul>
-                <a href="{{ route('register') }}" class="plan-btn plan-btn-outline">Commencer gratuitement</a>
+                <a href="<?php echo e(route('register')); ?>" class="plan-btn plan-btn-outline">Commencer gratuitement</a>
             </div>
 
-            {{-- Plan Agence (featured) --}}
+            
             <div class="plan featured">
                 <div class="plan-badge">Le plus populaire</div>
                 <div class="plan-name">Agence</div>
@@ -486,10 +486,10 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
                     <li>Logs d'activité complets</li>
                     <li>Support prioritaire WhatsApp</li>
                 </ul>
-                <a href="{{ route('register') }}" class="plan-btn plan-btn-gold">Démarrer l'essai gratuit</a>
+                <a href="<?php echo e(route('register')); ?>" class="plan-btn plan-btn-gold">Démarrer l'essai gratuit</a>
             </div>
 
-            {{-- Plan Réseau --}}
+            
             <div class="plan">
                 <div class="plan-name">Réseau</div>
                 <div class="plan-price">Sur devis</div>
@@ -501,7 +501,7 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
                     <li>Formation sur site à Dakar</li>
                     <li>SLA garanti</li>
                 </ul>
-                <a href="{{ route('contact') }}" class="plan-btn plan-btn-outline">Nous contacter</a>
+                <a href="<?php echo e(route('contact')); ?>" class="plan-btn plan-btn-outline">Nous contacter</a>
             </div>
         </div>
     </div>
@@ -513,8 +513,8 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
     <h2>Rejoignez les agences qui<br>gèrent mieux avec <em>BimoTech</em></h2>
     <p>Aucune installation, aucune carte bancaire. Votre agence est en ligne en moins de 10 minutes.</p>
     <div class="hero-btns">
-        <a href="{{ route('register') }}" class="btn-gold">Créer mon agence gratuitement →</a>
-        <a href="{{ route('demo') }}" class="btn-outline">Demander une démo</a>
+        <a href="<?php echo e(route('register')); ?>" class="btn-gold">Créer mon agence gratuitement →</a>
+        <a href="<?php echo e(route('demo')); ?>" class="btn-outline">Demander une démo</a>
     </div>
 </div>
 
@@ -522,14 +522,14 @@ footer{padding:2.5rem 5%;border-top:1px solid var(--border);display:flex;justify
 <footer>
     <div class="footer-logo">BimoTech Immo</div>
     <div class="footer-links">
-        <a href="{{ route('login') }}">Connexion</a>
-        <a href="{{ route('faq') }}">FAQ</a>
-        <a href="{{ route('contact') }}">Contact</a>
-        <a href="{{ route('mentions-legales') }}">Mentions légales</a>
-        <a href="{{ route('confidentialite') }}">Confidentialité</a>
+        <a href="<?php echo e(route('login')); ?>">Connexion</a>
+        <a href="<?php echo e(route('faq')); ?>">FAQ</a>
+        <a href="<?php echo e(route('contact')); ?>">Contact</a>
+        <a href="<?php echo e(route('mentions-legales')); ?>">Mentions légales</a>
+        <a href="<?php echo e(route('confidentialite')); ?>">Confidentialité</a>
     </div>
-    <div class="footer-copy">© {{ date('Y') }} BimoTech · Dakar, Sénégal</div>
+    <div class="footer-copy">© <?php echo e(date('Y')); ?> BimoTech · Dakar, Sénégal</div>
 </footer>
 
 </body>
-</html>
+</html><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/welcome.blade.php ENDPATH**/ ?>

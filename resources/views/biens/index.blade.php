@@ -1,513 +1,119 @@
-<x-app-layout>
-    <x-slot name="header">Biens</x-slot>
+@extends('layouts.app')
 
-<style>
-/* ── KPI ROW ── */
-.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
-.kpi-mini { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:18px 20px; position:relative; overflow:hidden; }
-.kpi-mini::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; border-radius:12px 12px 0 0; }
-.kpi-mini.gold::before  { background:#c9a84c; }
-.kpi-mini.green::before { background:#16a34a; }
-.kpi-mini.blue::before  { background:#1d4ed8; }
-.kpi-mini.red::before   { background:#dc2626; }
-.kpi-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:5px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;letter-spacing:-.3px;line-height:1; }
-.kpi-u   { font-size:11px;font-weight:400;color:#9ca3af;margin-left:2px; }
-.kpi-s   { font-size:11px;color:#9ca3af;margin-top:5px; }
+@section('title', 'Biens immobiliers')
+@section('breadcrumb', 'Biens')
 
-/* ── FILTRES ── */
-.filter-bar { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
-.filter-input { padding:8px 13px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;background:#f9fafb;outline:none;transition:border-color .15s;min-width:0; }
-.filter-input:focus { border-color:#c9a84c;background:#fff; }
-.filter-select { padding:8px 13px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;background:#f9fafb;outline:none;cursor:pointer; }
-.filter-btn { padding:8px 16px;background:#0d1117;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap; }
-.filter-reset { padding:8px 14px;background:none;color:#6b7280;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;white-space:nowrap; }
-.view-toggle { display:flex;gap:2px;padding:3px;background:#f3f4f6;border-radius:8px; }
-.view-btn { padding:6px 10px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center; }
-.view-btn.active { background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-.view-btn svg { width:16px;height:16px;color:#6b7280; }
-.view-btn.active svg { color:#0d1117; }
+@section('content')
 
-/* ── VUE GRILLE ── */
-.biens-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    {{-- En-tête avec bouton d'action conditionnel --}}
+    <x-page-header
+        title="Biens immobiliers"
+        :subtitle="$biens->total() . ' bien(s) enregistré(s)'"
+    >
+        <x-slot:actions>
+            @can('create', App\Models\Bien::class)
+                <a href="{{ route('biens.create') }}" class="btn-primary">+ Nouveau bien</a>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
-.bien-card {
-    background:#fff; border:1px solid #e5e7eb; border-radius:14px;
-    overflow:hidden; transition:transform .2s, box-shadow .2s;
-    display:flex; flex-direction:column;
-}
-.bien-card:hover { transform:translateY(-3px); box-shadow:0 12px 32px -8px rgba(0,0,0,0.10); }
-
-.bien-photo {
-    height:160px; background:#f9fafb;
-    display:flex; align-items:center; justify-content:center;
-    position:relative; overflow:hidden;
-}
-.bien-photo img { width:100%;height:100%;object-fit:cover; }
-.bien-photo-placeholder {
-    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(135deg,#f5e9c9 0%,#f9fafb 100%);
-}
-.bien-photo-placeholder svg { width:40px;height:40px;color:#c9a84c;opacity:.6; }
-
-.statut-pill {
-    position:absolute;top:12px;left:12px;
-    padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;
-    backdrop-filter:blur(4px);
-}
-.statut-pill.loue  { background:rgba(22,163,74,.15);color:#16a34a;border:1px solid rgba(22,163,74,.2); }
-.statut-pill.dispo { background:rgba(29,78,216,.15);color:#1d4ed8;border:1px solid rgba(29,78,216,.2); }
-.statut-pill.trav  { background:rgba(201,168,76,.15);color:#8a6e2f;border:1px solid rgba(201,168,76,.2); }
-
-.meuble-tag {
-    position:absolute;top:12px;right:12px;
-    background:rgba(0,0,0,.5);color:#fff;
-    padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.5px;
-}
-
-.bien-body { padding:16px 18px;flex:1;display:flex;flex-direction:column;gap:4px; }
-.bien-ref { font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:#9ca3af;letter-spacing:.5px; }
-.bien-type { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;letter-spacing:-.2px;margin:3px 0; }
-.bien-addr { font-size:12px;color:#6b7280;display:flex;align-items:center;gap:4px; }
-.bien-addr svg { width:12px;height:12px;flex-shrink:0; }
-
-.bien-sep { height:1px;background:#f3f4f6;margin:12px 0; }
-
-.bien-meta { display:flex;align-items:center;justify-content:space-between; }
-.bien-loyer { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#0d1117; }
-.bien-loyer-u { font-size:11px;font-weight:400;color:#9ca3af;margin-left:2px; }
-.bien-proprio { font-size:12px;color:#6b7280; }
-
-.bien-footer {
-    padding:12px 18px;border-top:1px solid #f3f4f6;
-    display:flex;align-items:center;justify-content:space-between;
-}
-.bien-contrats { font-size:11px;color:#9ca3af;display:flex;align-items:center;gap:4px; }
-.bien-contrats svg { width:12px;height:12px; }
-.bien-actions { display:flex;gap:5px; }
-
-.act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;text-decoration:none;transition:all .15s;cursor:pointer; }
-.act-btn:hover { border-color:#c9a84c;color:#8a6e2f;background:#f5e9c9; }
-.act-btn svg { width:13px;height:13px; }
-.act-btn.danger:hover { border-color:#dc2626;color:#dc2626;background:#fee2e2; }
-
-/* ── VUE LISTE (TABLE) ── */
-.table-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden; }
-.table-header { padding:18px 22px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.table-title { font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0d1117; }
-.table-count { font-size:12px;color:#6b7280;margin-top:2px; }
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:10px 18px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb;white-space:nowrap; }
-.dt td { padding:14px 18px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#f9fafb; }
-
-/* badges */
-.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap; }
-.badge.g { background:#dcfce7;color:#16a34a; }
-.badge.b { background:#dbeafe;color:#1d4ed8; }
-.badge.o { background:#f5e9c9;color:#8a6e2f; }
-.badge.gray { background:#f3f4f6;color:#6b7280; }
-.bdot { width:5px;height:5px;border-radius:50%;background:currentColor; }
-
-/* état vide */
-.empty-state { padding:56px 20px;text-align:center; }
-.empty-icon { width:56px;height:56px;border-radius:14px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;margin:0 auto 16px; }
-.empty-icon svg { width:24px;height:24px;color:#8a6e2f; }
-.empty-title { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:6px; }
-.empty-sub { font-size:13px;color:#6b7280; }
-
-/* pagination */
-.pagination-wrap { padding:16px 22px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.pagination-info { font-size:12px;color:#6b7280; }
-.pagination-links { display:flex;gap:4px; }
-.page-btn { display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 10px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s; }
-.page-btn:hover { background:#f9fafb;border-color:#d1d5db; }
-.page-btn.active { background:#0d1117;color:#fff;border-color:#0d1117; }
-.page-btn.disabled { opacity:.4;pointer-events:none; }
-
-/* vue active */
-#view-liste .bien-card-wrap { display:none; }
-#view-grid  .table-wrap     { display:none; }
-</style>
-
-<div style="padding:24px 32px 48px">
-
-    {{-- PAGE HEADER --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
-        <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Biens immobiliers</h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                Gérez votre parc immobilier — {{ $biens->total() }} bien(s) au total
-            </p>
-        </div>
-        @can('create', \App\Models\Bien::class)
-            <a href="{{ route('biens.create') }}" class="btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Ajouter un bien
-            </a>
-        @endcan
+    {{-- KPIs --}}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+        <x-kpi-card
+            label="Total biens"
+            :value="$biens->total()"
+            color="gold"
+        />
+        <x-kpi-card
+            label="Biens loués"
+            :value="$biens->where('statut', 'loue')->count()"
+            color="green"
+        />
+        <x-kpi-card
+            label="Disponibles"
+            :value="$biens->where('statut', 'disponible')->count()"
+            color="blue"
+        />
     </div>
 
-    {{-- KPI ROW --}}
-    @php
-        $nbTotal    = $biens->total();
-        $nbLoues    = $biens->getCollection()->where('statut','loue')->count();
-        $nbDispos   = $biens->getCollection()->where('statut','disponible')->count();
-        $loyerTotal = $biens->getCollection()->sum('loyer_mensuel');
-    @endphp
-    <div class="kpi-row">
-        <div class="kpi-mini gold">
-            <div class="kpi-lbl">Total biens</div>
-            <div class="kpi-val">{{ $nbTotal }}<span class="kpi-u">biens</span></div>
-            <div class="kpi-s">Dans votre agence</div>
-        </div>
-        <div class="kpi-mini green">
-            <div class="kpi-lbl">Biens loués</div>
-            <div class="kpi-val">{{ $biens->getCollection()->where('statut','loue')->count() }}</div>
-            <div class="kpi-s">Contrats actifs</div>
-        </div>
-        <div class="kpi-mini blue">
-            <div class="kpi-lbl">Disponibles</div>
-            <div class="kpi-val">{{ $biens->getCollection()->where('statut','disponible')->count() }}</div>
-            <div class="kpi-s">Prêts à louer</div>
-        </div>
-        <div class="kpi-mini red">
-            <div class="kpi-lbl">Loyer potentiel</div>
-            <div class="kpi-val">{{ number_format($loyerTotal/1000, 0, ',', ' ') }}<span class="kpi-u">k F</span></div>
-            <div class="kpi-s">Total mensuel (page)</div>
-        </div>
-    </div>
-
-    {{-- FILTRES --}}
-    <form method="GET" action="{{ route('biens.index') }}" id="filter-form">
-        <div class="filter-bar">
-            {{-- Recherche --}}
-            <div style="position:relative;flex:1;min-width:180px">
-                <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="Référence, adresse, ville…" class="filter-input" style="padding-left:34px;width:100%">
-            </div>
-
-            {{-- Statut --}}
-            <select name="statut" class="filter-select">
-                <option value="">Tous les statuts</option>
-                <option value="loue"       {{ request('statut')==='loue'       ? 'selected':'' }}>Loués</option>
-                <option value="disponible" {{ request('statut')==='disponible' ? 'selected':'' }}>Disponibles</option>
-                <option value="en_travaux" {{ request('statut')==='en_travaux' ? 'selected':'' }}>En travaux</option>
-            </select>
-
-            {{-- Type --}}
-            <select name="type" class="filter-select">
-                <option value="">Tous les types</option>
-                @foreach(\App\Models\Bien::TYPES as $key => $label)
-                    <option value="{{ $key }}" {{ request('type')===$key ? 'selected':'' }}>{{ $label }}</option>
-                @endforeach
-            </select>
-
-            <button type="submit" class="filter-btn">Filtrer</button>
-
-            @if(request()->hasAny(['q','statut','type']))
-                <a href="{{ route('biens.index') }}" class="filter-reset">
-                    <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    Effacer
-                </a>
-            @endif
-
-            <div style="flex:1"></div>
-
-            {{-- Toggle vue grille / liste --}}
-            <div class="view-toggle">
-                <button type="button" class="view-btn active" id="btn-grid" onclick="setView('grid')" title="Vue grille">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                </button>
-                <button type="button" class="view-btn" id="btn-list" onclick="setView('list')" title="Vue liste">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                </button>
-            </div>
-        </div>
+    {{-- Filtres --}}
+    <form method="GET" style="display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap;">
+        <select name="statut" onchange="this.form.submit()" style="font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid #d0d7de; border-radius: 8px; padding: 8px 12px; background: #fff; color: #1c2128;">
+            <option value="">Tous les statuts</option>
+            <option value="disponible" @selected(request('statut') === 'disponible')>Disponible</option>
+            <option value="loue"       @selected(request('statut') === 'loue')>Loué</option>
+            <option value="en_travaux" @selected(request('statut') === 'en_travaux')>En travaux</option>
+        </select>
+        <select name="type" onchange="this.form.submit()" style="font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid #d0d7de; border-radius: 8px; padding: 8px 12px; background: #fff; color: #1c2128;">
+            <option value="">Tous les types</option>
+            <option value="appartement" @selected(request('type') === 'appartement')>Appartement</option>
+            <option value="villa"       @selected(request('type') === 'villa')>Villa</option>
+            <option value="bureau"      @selected(request('type') === 'bureau')>Bureau</option>
+            <option value="commerce"    @selected(request('type') === 'commerce')>Commerce</option>
+        </select>
     </form>
 
-    {{-- ═══════════════════════════════════
-         VUE GRILLE (défaut)
-    ═══════════════════════════════════ --}}
-    <div id="view-grid">
-        @if($biens->isEmpty())
-            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px">
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    </div>
-                    <div class="empty-title">Aucun bien trouvé</div>
-                    <div class="empty-sub">
-                        @if(request()->hasAny(['q','statut','type']))
-                            Aucun résultat pour ces filtres.
-                            <a href="{{ route('biens.index') }}" style="color:#c9a84c;font-weight:500">Effacer les filtres</a>
-                        @else
-                            Ajoutez votre premier bien pour commencer.
-                        @endif
-                    </div>
-                </div>
-            </div>
-        @else
-            <div class="biens-grid">
-                @foreach($biens as $bien)
-                @php
-                    $statutClass = match($bien->statut) {
-                        'loue'       => 'loue',
-                        'disponible' => 'dispo',
-                        default      => 'trav',
-                    };
-                    $statutLabel = match($bien->statut) {
-                        'loue'       => 'Loué',
-                        'disponible' => 'Disponible',
-                        'en_travaux' => 'En travaux',
-                        default      => $bien->statut,
-                    };
-                @endphp
-                <div class="bien-card">
-
-                    {{-- Photo / placeholder --}}
-                    <div class="bien-photo">
-                        @if($bien->photos && $bien->photos->where('est_principale',true)->first())
-                            <img src="{{ Storage::url($bien->photos->where('est_principale',true)->first()->chemin) }}"
-                                 alt="{{ $bien->reference }}"
-                                 loading="lazy">
-                        @else
-                            <div class="bien-photo-placeholder">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                            </div>
-                        @endif
-
-                        <span class="statut-pill {{ $statutClass }}">
-                            {{ $statutLabel }}
-                        </span>
-
-                        @if($bien->meuble)
-                            <span class="meuble-tag">MEUBLÉ</span>
-                        @endif
-                    </div>
-
-                    {{-- Infos --}}
-                    <div class="bien-body">
-                        <div class="bien-ref">{{ $bien->reference }}</div>
-                        <div class="bien-type">
-                            {{ \App\Models\Bien::TYPES[$bien->type] ?? $bien->type }}
-                        </div>
-                        <div class="bien-addr">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            {{ $bien->adresse }}@if($bien->ville), {{ $bien->ville }}@endif
-                        </div>
-
-                        <div class="bien-sep"></div>
-
-                        <div class="bien-meta">
-                            <div>
-                                <div class="bien-loyer">
-                                    {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}<span class="bien-loyer-u">F/mois</span>
-                                </div>
-                                @if($bien->contratActif)
-                                    <div style="font-size:11px;color:#16a34a;margin-top:2px;font-weight:500">
-                                        Loyer contractuel : {{ number_format($bien->contratActif->loyer_contractuel, 0, ',', ' ') }} F
-                                    </div>
-                                @endif
-                            </div>
-                            @if($bien->proprietaire)
-                                <div style="text-align:right">
-                                    <div style="font-size:11px;color:#9ca3af">Propriétaire</div>
-                                    <div style="font-size:12px;font-weight:500;color:#374151">{{ $bien->proprietaire->name }}</div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Footer --}}
-                    <div class="bien-footer">
-                        <div class="bien-contrats">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            {{ $bien->contrats_count }} contrat(s)
-                        </div>
-                        <div class="bien-actions">
-                            <a href="{{ route('biens.show', $bien) }}" class="act-btn" title="Voir le détail">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            </a>
-                            @can('update', $bien)
-                                <a href="{{ route('biens.edit', $bien) }}" class="act-btn" title="Modifier">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </a>
-                            @endcan
-                            @can('delete', $bien)
-                                <form method="POST" action="{{ route('biens.destroy', $bien) }}"
-                                      onsubmit="return confirm('Supprimer ce bien ? Cette action est irréversible.')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="act-btn danger" title="Supprimer">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-                                    </button>
-                                </form>
-                            @endcan
-                        </div>
-                    </div>
-
-                </div>
-                @endforeach
-            </div>
-        @endif
-    </div>
-
-    {{-- ═══════════════════════════════════
-         VUE LISTE (TABLE)
-    ═══════════════════════════════════ --}}
-    <div id="view-list" style="display:none">
-        <div class="table-card">
-            <div class="table-header">
-                <div>
-                    <div class="table-title">Liste des biens</div>
-                    <div class="table-count">{{ $biens->total() }} bien(s) · Page {{ $biens->currentPage() }} / {{ $biens->lastPage() }}</div>
-                </div>
-            </div>
-            <div style="overflow-x:auto">
-                <table class="dt">
-                    <thead>
-                        <tr>
-                            <th>Référence</th>
-                            <th>Type</th>
-                            <th>Adresse</th>
-                            <th>Propriétaire</th>
-                            <th style="text-align:right">Loyer/mois</th>
-                            <th>Commission</th>
-                            <th style="text-align:center">Statut</th>
-                            <th style="text-align:center">Contrats</th>
-                            <th style="text-align:center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($biens as $bien)
-                        @php
-                            $sl = match($bien->statut) { 'loue'=>['Loué','g'], 'disponible'=>['Disponible','b'], default=>['En travaux','o'] };
-                        @endphp
-                        <tr>
-                            <td>
-                                <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#9ca3af">{{ $bien->reference }}</div>
-                                @if($bien->meuble)<div style="font-size:10px;color:#8a6e2f;margin-top:1px">Meublé</div>@endif
+    {{-- Liste des biens --}}
+    @if($biens->isEmpty())
+        <x-empty-state
+            title="Aucun bien enregistré"
+            description="Commencez par ajouter votre premier bien immobilier."
+            action-label="Ajouter un bien"
+            :action-url="route('biens.create')"
+        />
+    @else
+        <div style="background: #fff; border-radius: 12px; border: 1px solid #eaeef2; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+                <thead>
+                    <tr style="background: #f6f8fa; border-bottom: 1px solid #eaeef2;">
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 500; color: #57606a; font-size: 12px; text-transform: uppercase; letter-spacing: .5px;">Référence</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 500; color: #57606a; font-size: 12px; text-transform: uppercase; letter-spacing: .5px;">Bien</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 500; color: #57606a; font-size: 12px; text-transform: uppercase; letter-spacing: .5px;">Propriétaire</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 500; color: #57606a; font-size: 12px; text-transform: uppercase; letter-spacing: .5px;">Loyer HC</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 500; color: #57606a; font-size: 12px; text-transform: uppercase; letter-spacing: .5px;">Statut</th>
+                        <th style="padding: 12px 16px; text-align: left; font-weight: 500; color: #57606a; font-size: 12px; text-transform: uppercase; letter-spacing: .5px;">Locataire</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($biens as $bien)
+                        <tr style="border-bottom: 1px solid #f0f3f6;" onmouseover="this.style.background='#fafbfc'" onmouseout="this.style.background='transparent'">
+                            <td style="padding: 12px 16px; color: #8b949e; font-family: monospace; font-size: 12px;">
+                                {{ $bien->reference }}
                             </td>
-                            <td>
-                                <div style="font-weight:500;color:#0d1117">{{ \App\Models\Bien::TYPES[$bien->type] ?? $bien->type }}</div>
+                            <td style="padding: 12px 16px;">
+                                <div style="font-weight: 500; color: #1c2128;">{{ $bien->titre }}</div>
+                                <div style="font-size: 12px; color: #8b949e;">{{ $bien->quartier }}, {{ $bien->ville }} · {{ $bien->surface }} m²</div>
                             </td>
-                            <td>
-                                <div style="font-size:13px;color:#374151">{{ $bien->adresse }}</div>
-                                <div style="font-size:11px;color:#6b7280">{{ $bien->ville }}@if($bien->quartier), {{ $bien->quartier }}@endif</div>
+                            <td style="padding: 12px 16px; color: #57606a;">
+                                {{-- Eager loaded → pas de N+1 --}}
+                                {{ $bien->proprietaire?->prenom }} {{ $bien->proprietaire?->nom }}
                             </td>
-                            <td>
-                                <div style="font-size:13px;font-weight:500;color:#374151">{{ $bien->proprietaire?->name ?? '—' }}</div>
-                                <div style="font-size:11px;color:#9ca3af">{{ $bien->proprietaire?->telephone ?? '' }}</div>
+                            <td style="padding: 12px 16px; font-weight: 500; color: #1c2128;">
+                                {{ number_format($bien->loyer_hors_charges, 0, ',', ' ') }} FCFA
                             </td>
-                            <td style="text-align:right">
-                                <div style="font-family:'Syne',sans-serif;font-weight:600;color:#0d1117">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
+                            <td style="padding: 12px 16px;">
+                                {{-- Composant badge réutilisable --}}
+                                <x-status-badge :status="$bien->statut" type="bien" />
                             </td>
-                            <td>
-                                <div style="font-size:12px;color:#6b7280">{{ $bien->taux_commission }}%</div>
+                            <td style="padding: 12px 16px; color: #57606a; font-size: 13px;">
+                                {{-- Eager loaded → pas de N+1 --}}
+                                {{ $bien->contratActif?->locataire?->prenom ?? '—' }}
+                                {{ $bien->contratActif?->locataire?->nom ?? '' }}
                             </td>
-                            <td style="text-align:center">
-                                <span class="badge {{ $sl[1] }}"><span class="bdot"></span>{{ $sl[0] }}</span>
-                            </td>
-                            <td style="text-align:center">
-                                <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#374151">{{ $bien->contrats_count }}</span>
-                            </td>
-                            <td style="text-align:center">
-                                <div style="display:flex;align-items:center;justify-content:center;gap:5px">
-                                    <a href="{{ route('biens.show', $bien) }}" class="act-btn">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                    </a>
-                                    @can('update', $bien)
-                                    <a href="{{ route('biens.edit', $bien) }}" class="act-btn">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                    </a>
-                                    @endcan
-                                </div>
+                            <td style="padding: 12px 16px; text-align: right;">
+                                <a href="{{ route('biens.show', $bien) }}" style="font-size: 13px; color: #c9a84c; text-decoration: none; font-weight: 500;">Voir →</a>
                             </td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="9">
-                                <div class="empty-state">
-                                    <div class="empty-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-                                    </div>
-                                    <div class="empty-title">Aucun bien</div>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            {{-- Pagination --}}
-            @if($biens->hasPages())
-            <div class="pagination-wrap">
-                <div class="pagination-info">
-                    Affichage de {{ $biens->firstItem() }} à {{ $biens->lastItem() }} sur {{ $biens->total() }} résultats
-                </div>
-                <div class="pagination-links">
-                    @if($biens->onFirstPage())
-                        <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-                    @else
-                        <a href="{{ $biens->previousPageUrl() }}" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-                    @endif
-                    @foreach($biens->getUrlRange(max(1,$biens->currentPage()-2), min($biens->lastPage(),$biens->currentPage()+2)) as $page => $url)
-                        <a href="{{ $url }}" class="page-btn {{ $page === $biens->currentPage() ? 'active' : '' }}">{{ $page }}</a>
                     @endforeach
-                    @if($biens->hasMorePages())
-                        <a href="{{ $biens->nextPageUrl() }}" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-                    @else
-                        <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                    @endif
-                </div>
-            </div>
-            @endif
+                </tbody>
+            </table>
         </div>
-    </div>
 
-    {{-- PAGINATION GRILLE --}}
-    @if($biens->hasPages() && !$biens->isEmpty())
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px" id="grid-pagination">
-        <div style="font-size:12px;color:#6b7280">
-            Affichage de {{ $biens->firstItem() }} à {{ $biens->lastItem() }} sur {{ $biens->total() }} biens
+        {{-- Pagination --}}
+        <div style="margin-top: 1.25rem;">
+            {{ $biens->links() }}
         </div>
-        <div class="pagination-links">
-            @if($biens->onFirstPage())
-                <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-            @else
-                <a href="{{ $biens->previousPageUrl() }}" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-            @endif
-            @foreach($biens->getUrlRange(max(1,$biens->currentPage()-2), min($biens->lastPage(),$biens->currentPage()+2)) as $page => $url)
-                <a href="{{ $url }}" class="page-btn {{ $page === $biens->currentPage() ? 'active' : '' }}">{{ $page }}</a>
-            @endforeach
-            @if($biens->hasMorePages())
-                <a href="{{ $biens->nextPageUrl() }}" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-            @else
-                <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-            @endif
-        </div>
-    </div>
     @endif
 
-</div>
-
-<script>
-function setView(v) {
-    const isGrid = v === 'grid';
-    document.getElementById('view-grid').style.display = isGrid ? '' : 'none';
-    document.getElementById('view-list').style.display = isGrid ? 'none' : '';
-    const gp = document.getElementById('grid-pagination');
-    if (gp) gp.style.display = isGrid ? '' : 'none';
-    document.getElementById('btn-grid').classList.toggle('active', isGrid);
-    document.getElementById('btn-list').classList.toggle('active', !isGrid);
-    localStorage.setItem('biens_view', v);
-}
-
-// Restaurer la vue préférée
-const savedView = localStorage.getItem('biens_view') || 'grid';
-if (savedView === 'list') setView('list');
-</script>
-
-</x-app-layout>
+@endsection

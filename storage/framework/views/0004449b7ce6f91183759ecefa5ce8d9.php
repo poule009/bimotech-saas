@@ -120,7 +120,7 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
 
 <div class="left" role="complementary">
     <div class="grid-deco" aria-hidden="true"></div>
-    <a href="{{ url('/') }}" class="left-logo" aria-label="BimoTech Immo — Retour à l'accueil">Bimo<span>Tech</span></a>
+    <a href="<?php echo e(url('/')); ?>" class="left-logo" aria-label="BimoTech Immo — Retour à l'accueil">Bimo<span>Tech</span></a>
     <div style="position:relative;z-index:1">
         <h2 class="left-title">Votre agence en ligne<br>en <em>moins de 10 min</em></h2>
         <p class="left-sub">Rejoignez les agences sénégalaises qui gèrent leur activité avec BimoTech.</p>
@@ -139,53 +139,74 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
             </div>
         </div>
     </div>
-    <div class="left-footer">Déjà un compte ? <a href="{{ route('login') }}">Se connecter →</a></div>
+    <div class="left-footer">Déjà un compte ? <a href="<?php echo e(route('login')); ?>">Se connecter →</a></div>
 </div>
 
 <main class="right">
     <div class="form-box">
         <h1 class="form-title">Créer mon agence</h1>
-        <p class="form-subtitle">Déjà inscrit ? <a href="{{ route('login') }}">Se connecter</a></p>
+        <p class="form-subtitle">Déjà inscrit ? <a href="<?php echo e(route('login')); ?>">Se connecter</a></p>
 
-        @if($errors->any())
+        <?php if($errors->any()): ?>
             <div class="error-bag" role="alert">
-                @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+                <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><p><?php echo e($error); ?></p><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
-        @endif
+        <?php endif; ?>
 
-        <form method="POST" action="{{ route('register') }}" id="register-form" novalidate>
-            @csrf
+        <form method="POST" action="<?php echo e(route('register')); ?>" id="register-form" novalidate>
+            <?php echo csrf_field(); ?>
 
             <div class="form-section">Votre agence</div>
 
             <div class="field">
                 <label for="agency_nom">Nom de l'agence *</label>
                 <input type="text" id="agency_nom" name="agency_nom"
-                    value="{{ old('agency_nom') }}"
+                    value="<?php echo e(old('agency_nom')); ?>"
                     placeholder="Agence Immobilière Diallo"
                     aria-required="true"
-                    class="{{ $errors->has('agency_nom') ? 'is-error' : '' }}"
+                    class="<?php echo e($errors->has('agency_nom') ? 'is-error' : ''); ?>"
                 >
-                @error('agency_nom')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                <?php $__errorArgs = ['agency_nom'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="row-2">
                 <div class="field">
                     <label for="agency_ninea">NINEA</label>
                     <input type="text" id="agency_ninea" name="agency_ninea"
-                        value="{{ old('agency_ninea') }}" placeholder="1234567A"
-                        class="{{ $errors->has('agency_ninea') ? 'is-error' : '' }}"
+                        value="<?php echo e(old('agency_ninea')); ?>" placeholder="1234567A"
+                        class="<?php echo e($errors->has('agency_ninea') ? 'is-error' : ''); ?>"
                     >
-                    @error('agency_ninea')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                    <?php $__errorArgs = ['agency_ninea'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="field">
                     <label for="agency_telephone">Téléphone</label>
                     <input type="tel" id="agency_telephone" name="agency_telephone"
-                        value="{{ old('agency_telephone') }}" placeholder="+221 77 000 00 00"
+                        value="<?php echo e(old('agency_telephone')); ?>" placeholder="+221 77 000 00 00"
                         autocomplete="tel"
-                        class="{{ $errors->has('agency_telephone') ? 'is-error' : '' }}"
+                        class="<?php echo e($errors->has('agency_telephone') ? 'is-error' : ''); ?>"
                     >
-                    @error('agency_telephone')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                    <?php $__errorArgs = ['agency_telephone'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
@@ -195,31 +216,52 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
                 <div class="field">
                     <label for="prenom">Prénom *</label>
                     <input type="text" id="prenom" name="prenom"
-                        value="{{ old('prenom') }}" placeholder="Amadou"
+                        value="<?php echo e(old('prenom')); ?>" placeholder="Amadou"
                         autocomplete="given-name" aria-required="true"
-                        class="{{ $errors->has('prenom') ? 'is-error' : '' }}"
+                        class="<?php echo e($errors->has('prenom') ? 'is-error' : ''); ?>"
                     >
-                    @error('prenom')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                    <?php $__errorArgs = ['prenom'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
                 <div class="field">
                     <label for="nom">Nom *</label>
                     <input type="text" id="nom" name="nom"
-                        value="{{ old('nom') }}" placeholder="Diallo"
+                        value="<?php echo e(old('nom')); ?>" placeholder="Diallo"
                         autocomplete="family-name" aria-required="true"
-                        class="{{ $errors->has('nom') ? 'is-error' : '' }}"
+                        class="<?php echo e($errors->has('nom') ? 'is-error' : ''); ?>"
                     >
-                    @error('nom')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                    <?php $__errorArgs = ['nom'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 </div>
             </div>
 
             <div class="field">
                 <label for="email">Adresse email *</label>
                 <input type="email" id="email" name="email"
-                    value="{{ old('email') }}" placeholder="amadou@agence.sn"
+                    value="<?php echo e(old('email')); ?>" placeholder="amadou@agence.sn"
                     autocomplete="email" aria-required="true"
-                    class="{{ $errors->has('email') ? 'is-error' : '' }}"
+                    class="<?php echo e($errors->has('email') ? 'is-error' : ''); ?>"
                 >
-                @error('email')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                <?php $__errorArgs = ['email'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
             </div>
 
             <div class="field">
@@ -229,7 +271,7 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
                         placeholder="8 caractères minimum"
                         autocomplete="new-password" aria-required="true"
                         aria-describedby="pw-strength-label"
-                        class="has-toggle {{ $errors->has('password') ? 'is-error' : '' }}"
+                        class="has-toggle <?php echo e($errors->has('password') ? 'is-error' : ''); ?>"
                         oninput="checkStrength(this.value)"
                     >
                     <button type="button" class="toggle-pw" id="toggle-pw1"
@@ -240,7 +282,14 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
                         </svg>
                     </button>
                 </div>
-                @error('password')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                 <div class="pw-strength" id="pw-strength" aria-live="polite">
                     <div class="pw-bars" aria-hidden="true">
                         <div class="pw-bar"></div><div class="pw-bar"></div>
@@ -271,13 +320,20 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
             </div>
 
             <div class="cgu-row">
-                <input type="checkbox" id="cgu" name="cgu" value="1" {{ old('cgu') ? 'checked' : '' }} aria-required="true">
+                <input type="checkbox" id="cgu" name="cgu" value="1" <?php echo e(old('cgu') ? 'checked' : ''); ?> aria-required="true">
                 <label for="cgu" class="cgu-label">
-                    J'accepte les <a href="{{ route('mentions-legales') }}" target="_blank">conditions d'utilisation</a>
-                    et la <a href="{{ route('confidentialite') }}" target="_blank">politique de confidentialité</a>.
+                    J'accepte les <a href="<?php echo e(route('mentions-legales')); ?>" target="_blank">conditions d'utilisation</a>
+                    et la <a href="<?php echo e(route('confidentialite')); ?>" target="_blank">politique de confidentialité</a>.
                 </label>
             </div>
-            @error('cgu')<div class="input-error" role="alert" style="margin-top:-8px;margin-bottom:10px">{{ $message }}</div>@enderror
+            <?php $__errorArgs = ['cgu'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="input-error" role="alert" style="margin-top:-8px;margin-bottom:10px"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
 
             <button type="submit" class="btn-submit" id="submit-btn">
                 <div class="spinner" aria-hidden="true"></div>
@@ -285,7 +341,7 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
             </button>
         </form>
 
-        <p class="to-login">Déjà un compte ? <a href="{{ route('login') }}">Se connecter</a></p>
+        <p class="to-login">Déjà un compte ? <a href="<?php echo e(route('login')); ?>">Se connecter</a></p>
     </div>
 </main>
 
@@ -346,4 +402,4 @@ document.getElementById('register-form').addEventListener('submit', function() {
 </script>
 
 </body>
-</html>
+</html><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/auth/register.blade.php ENDPATH**/ ?>

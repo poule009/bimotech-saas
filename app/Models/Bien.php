@@ -2,105 +2,124 @@
 
 namespace App\Models;
 
-use App\Models\Scopes\AgencyScope;
-use App\Models\Traits\LogsActivity;
+use App\Models\Concerns\HasAgencyScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
+/**
+ * Modèle Bien — Bien immobilier géré par une agence.
+ *
+ * Changements appliqués :
+ *  - Trait HasAgencyScope : isolation multi-tenant automatique
+ *  - SoftDeletes : les biens supprimés sont archivés, pas effacés (historique)
+ *  - Relations avec Eager Loading hints en commentaire
+ *  - Casts typés pour les montants (prévient les erreurs de calcul fiscal)
+ */
 class Bien extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
-
-    // ── Types de biens courants au Sénégal ────────────────────────────────
-    public const TYPES = [
-        'appartement'       => 'Appartement',
-        'villa'             => 'Villa',
-        'studio'            => 'Studio',
-        'chambre'           => 'Chambre',
-        'bureau'            => 'Bureau',
-        'local_commercial'  => 'Local commercial',
-        'entrepot'          => 'Entrepôt',
-        'terrain'           => 'Terrain',
-        'maison'            => 'Maison',
-        'duplex'            => 'Duplex',
-    ];
-
-    public const STATUTS = [
-        'disponible'  => 'Disponible',
-        'loue'        => 'Loué',
-        'en_travaux'  => 'En travaux',
-    ];
+    use HasFactory, HasAgencyScope, SoftDeletes;
 
     protected $fillable = [
         'agency_id',
         'proprietaire_id',
         'reference',
-        'type',
-        'adresse',
-        'ville',
-        'quartier',
-        'commune',
-        'surface_m2',
-        'nombre_pieces',
-        'meuble',
-        'loyer_mensuel',
-        'taux_commission',
-        'statut',
+        'type',           // appartement, villa, bureau, commerce, terrain
+        'titre',
         'description',
+        'adresse',
+        'quartier',
+        'ville',
+        'surface',
+        'nb_pieces',
+        'loyer_hors_charges',
+        'charges',
+        'depot_garantie',
+        'statut',         // disponible, loue, en_travaux, archive
+        'photos',
+        'meuble',
     ];
 
     protected $casts = [
-        'loyer_mensuel'   => 'decimal:2',
-        'taux_commission' => 'decimal:2',
-        'surface_m2'      => 'integer',
-        'nombre_pieces'   => 'integer',
-        'meuble'          => 'boolean',
+        'loyer_hors_charges' => 'decimal:0',
+        'charges'            => 'decimal:0',
+        'depot_garantie'     => 'decimal:0',
+        'surface'            => 'decimal:2',
+        'meuble'             => 'boolean',
+        'photos'             => 'array',
+        'deleted_at'         => 'datetime',
     ];
 
-    // ── Global Scope ──────────────────────────────────────────────────────
+    // ─── Relations ─────────────────────────────────────────────────────────
 
-    protected static function booted(): void
-    {
-        static::addGlobalScope(new AgencyScope());
-
-        static::creating(function (Bien $bien) {
-            if (empty($bien->agency_id) && Auth::check()) {
-                $bien->agency_id = Auth::user()->agency_id;
-            }
-        });
-    }
-
-    // ── Relations ─────────────────────────────────────────────────────────
-
-    public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function agency()
     {
         return $this->belongsTo(Agency::class);
     }
 
-    public function proprietaire(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function proprietaire()
     {
-        return $this->belongsTo(User::class, 'proprietaire_id');
+        return $this->belongsTo(Proprietaire::class);
     }
 
-    public function contrats(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * Tous les contrats (actifs, résiliés, expirés).
+     * Eager load recommandé : Bien::with('contrats.locataire')
+     */
+    public function contrats()
     {
         return $this->hasMany(Contrat::class);
     }
 
-    public function contratActif(): \Illuminate\Database\Eloquent\Relations\HasOne
+    /**
+     * Contrat actuellement actif (au maximum 1 à la fois).
+     */
+    public function contratActif()
     {
         return $this->hasOne(Contrat::class)->where('statut', 'actif');
     }
 
-    public function photos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    /**
+     * Tous les paiements de loyer liés à ce bien (via ses contrats).
+     * Eager load recommandé : Bien::with('paiements')
+     */
+    public function paiements()
     {
-        return $this->hasMany(BienPhoto::class)->orderBy('ordre');
+        return $this->hasManyThrough(Paiement::class, Contrat::class);
     }
 
-    public function photoPrincipale(): \Illuminate\Database\Eloquent\Relations\HasOne
+    // ─── Accesseurs & Calculs ───────────────────────────────────────────────
+
+    /**
+     * Loyer total charges comprises.
+     */
+    public function getLoyerTotalAttribute(): float
     {
-        return $this->hasOne(BienPhoto::class)->where('est_principale', true);
+        return (float) $this->loyer_hors_charges + (float) $this->charges;
+    }
+
+    /**
+     * Vérifie si le bien est actuellement loué.
+     */
+    public function getEstLoueAttribute(): bool
+    {
+        return $this->statut === 'loue';
+    }
+
+    // ─── Scopes locaux ─────────────────────────────────────────────────────
+
+    public function scopeDisponible($query)
+    {
+        return $query->where('statut', 'disponible');
+    }
+
+    public function scopeLoue($query)
+    {
+        return $query->where('statut', 'loue');
+    }
+
+    public function scopeAvecContratActif($query)
+    {
+        return $query->whereHas('contratActif');
     }
 }

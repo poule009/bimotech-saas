@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BienController;
 use App\Http\Controllers\ContratController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ImpayeController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProfileController;
@@ -17,12 +19,22 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('redirect.home');
-    }
-    return view('landing');
-})->name('landing');
+
+
+// Landing page
+Route::get('/', fn() => view('welcome'))->name('home');
+ 
+// Pages publiques
+Route::get('/contact',          fn() => view('contact'))->name('contact');
+Route::get('/demo',             fn() => view('demo'))->name('demo');
+Route::get('/faq',              fn() => view('faq'))->name('faq');
+Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mentions-legales');
+Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
+ 
+// Soumissions de formulaires
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+Route::post('/demo',    [DemoController::class, 'send'])->name('demo.send');
+   
 
 Route::middleware('guest')->group(function () {
     Route::get('/register/agency', [AgencyRegistrationController::class, 'create'])
