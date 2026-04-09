@@ -12,7 +12,7 @@ class Contrat extends Model
 {
     use HasFactory, LogsActivity;
 
-    // ── Constantes ────────────────────────────────────────────────────────
+    // ── Constantes ────────────────────────────────────────────────────────────
 
     public const TYPES_BAIL = [
         'habitation'  => "Bail d'habitation",
@@ -22,12 +22,12 @@ class Contrat extends Model
     ];
 
     public const STATUTS = [
-        'actif'    => 'Actif',
-        'resilié'  => 'Résilié',
-        'expiré'   => 'Expiré',
+        'actif'   => 'Actif',
+        'resilié' => 'Résilié',
+        'expiré'  => 'Expiré',
     ];
 
-    // ── Fillable ──────────────────────────────────────────────────────────
+    // ── Fillable ──────────────────────────────────────────────────────────────
 
     protected $fillable = [
         'agency_id',
@@ -35,52 +35,75 @@ class Contrat extends Model
         'locataire_id',
         'date_debut',
         'date_fin',
-        // ── Ventilation du loyer ──────────────────────────────────────
-        'loyer_nu',             // loyer hors charges et hors TOM
-        'loyer_contractuel',    // total = loyer_nu + charges_mensuelles + tom_amount
-        'tom_amount',           // Taxe sur les Ordures Ménagères (part locataire)
+
+        // ── Ventilation du loyer ───────────────────────────────────────────
+        'loyer_nu',             // Loyer hors charges et hors TOM
+        'loyer_contractuel',    // Total = loyer_nu + charges_mensuelles + tom_amount
+        'charges_mensuelles',   // Charges récupérables mensuelles
+        'tom_amount',           // Taxe sur les Ordures Ménagères (FCFA fixe)
+
+        // ── Financier ─────────────────────────────────────────────────────
         'caution',
+        'nombre_mois_caution',
+        'frais_agence',
+        'indexation_annuelle',
+
+        // ── Statut et type ─────────────────────────────────────────────────
         'statut',
         'type_bail',
-        'frais_agence',
-        'charges_mensuelles',   // charges récupérables mensuelles
-        'indexation_annuelle',
-        'nombre_mois_caution',
+        'reference_bail',
+
+        // ── Fiscal — CORRIGÉ : ces champs étaient absents ─────────────────
+        'loyer_assujetti_tva',      // Bool — TVA loyer applicable
+        'taux_tva_loyer',           // Taux TVA loyer (0 ou 18)
+        'brs_applicable',           // Bool — BRS applicable
+        'taux_brs_manuel',          // Override taux BRS (null = légal)
+        'date_enregistrement_dgid', // Date enregistrement bail à la DGID
+        'enregistrement_exonere',   // Bool — exonéré d'enregistrement
+
+        // ── Garant ────────────────────────────────────────────────────────
         'garant_nom',
         'garant_telephone',
         'garant_adresse',
+
+        // ── Divers ────────────────────────────────────────────────────────
         'observations',
-        'reference_bail',       // référence bail manuelle (nullable)
     ];
 
-    // ── Casts ─────────────────────────────────────────────────────────────
+    // ── Casts ─────────────────────────────────────────────────────────────────
 
     protected $casts = [
-        'date_debut'          => 'date',
-        'date_fin'            => 'date',
-        'loyer_nu'            => 'decimal:2',
-        'loyer_contractuel'   => 'decimal:2',
-        'tom_amount'          => 'decimal:2',
-        'caution'             => 'decimal:2',
-        'frais_agence'        => 'decimal:2',
-        'charges_mensuelles'  => 'decimal:2',
-        'indexation_annuelle' => 'decimal:2',
-        'nombre_mois_caution' => 'integer',
+        'date_debut'                => 'date',
+        'date_fin'                  => 'date',
+        'date_enregistrement_dgid'  => 'date',
+        'loyer_nu'                  => 'decimal:2',
+        'loyer_contractuel'         => 'decimal:2',
+        'charges_mensuelles'        => 'decimal:2',
+        'tom_amount'                => 'decimal:2',
+        'caution'                   => 'decimal:2',
+        'frais_agence'              => 'decimal:2',
+        'indexation_annuelle'       => 'decimal:2',
+        'taux_tva_loyer'            => 'decimal:2',
+        'taux_brs_manuel'           => 'decimal:2',
+        'nombre_mois_caution'       => 'integer',
+        'loyer_assujetti_tva'       => 'boolean',
+        'brs_applicable'            => 'boolean',
+        'enregistrement_exonere'    => 'boolean',
     ];
 
-    // ── Global Scope ──────────────────────────────────────────────────────
+    // ── Global Scope + hooks ───────────────────────────────────────────────────
 
     protected static function booted(): void
     {
         static::addGlobalScope(new AgencyScope());
 
         static::creating(function (Contrat $contrat) {
+            // Auto-injection agency_id
             if (empty($contrat->agency_id) && Auth::check()) {
                 $contrat->agency_id = Auth::user()->agency_id;
             }
 
             // Auto-calcul loyer_contractuel si non fourni
-            // loyer_contractuel = loyer_nu + charges_mensuelles + tom_amount
             if (
                 ! empty($contrat->loyer_nu)
                 && (empty($contrat->loyer_contractuel) || $contrat->loyer_contractuel == 0)
@@ -90,8 +113,7 @@ class Contrat extends Model
                     + (float) ($contrat->tom_amount ?? 0);
             }
 
-            // Inverse : si loyer_nu non renseigné mais loyer_contractuel oui
-            // (rétro-compatibilité)
+            // Rétro-compat : si loyer_nu absent mais loyer_contractuel renseigné
             if (empty($contrat->loyer_nu) && ! empty($contrat->loyer_contractuel)) {
                 $contrat->loyer_nu = (float) $contrat->loyer_contractuel
                     - (float) ($contrat->charges_mensuelles ?? 0)
@@ -100,7 +122,7 @@ class Contrat extends Model
         });
     }
 
-    // ── Relations ─────────────────────────────────────────────────────────
+    // ── Relations ─────────────────────────────────────────────────────────────
 
     public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -114,6 +136,7 @@ class Contrat extends Model
 
     public function locataire(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
+        // locataire_id = users.id
         return $this->belongsTo(User::class, 'locataire_id');
     }
 
@@ -122,23 +145,20 @@ class Contrat extends Model
         return $this->hasMany(Paiement::class);
     }
 
-    public function contratActif(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function quittances(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
-        return $this->hasOne(Paiement::class)->where('statut', 'actif');
+        return $this->hasManyThrough(Quittance::class, Paiement::class);
     }
 
-    // ── Accesseurs ────────────────────────────────────────────────────────
+    // ── Accesseurs ────────────────────────────────────────────────────────────
 
     /**
      * Total loyer = loyer nu + charges + TOM.
-     * Utile pour l'affichage et les calculs sans recharger depuis la DB.
-     *
-     * Usage : $contrat->total_loyer
      */
     public function getTotalLoyerAttribute(): float
     {
         return round(
-            (float) ($this->loyer_nu ?? $this->loyer_contractuel)
+            (float) ($this->loyer_nu ?? $this->loyer_contractuel ?? 0)
             + (float) ($this->charges_mensuelles ?? 0)
             + (float) ($this->tom_amount ?? 0),
             2
@@ -146,10 +166,22 @@ class Contrat extends Model
     }
 
     /**
-     * Référence bail affichée : priorité manuelle > générée.
+     * Loyer nu effectif avec fallback rétro-compatible.
+     */
+    public function getLoyerNuEffectifAttribute(): float
+    {
+        if (! empty($this->loyer_nu)) {
+            return (float) $this->loyer_nu;
+        }
+
+        return max(0, (float) ($this->loyer_contractuel ?? 0)
+            - (float) ($this->charges_mensuelles ?? 0)
+            - (float) ($this->tom_amount ?? 0));
+    }
+
+    /**
+     * Référence bail affichée : priorité manuelle > générée auto.
      * Format généré : BIMO-YYYY-NNNNN
-     *
-     * Usage : $contrat->reference_bail_affichee
      */
     public function getReferenceBailAfficheeAttribute(): string
     {
@@ -165,40 +197,28 @@ class Contrat extends Model
     }
 
     /**
-     * Loyer nu effectif — avec fallback rétro-compatible.
-     *
-     * Usage : $contrat->loyer_nu_effectif
+     * Nombre de mois de la durée du bail.
      */
-    public function getLoyerNuEffectifAttribute(): float
+    public function getDureeMoisAttribute(): int
     {
-        if (! empty($this->loyer_nu) && (float) $this->loyer_nu > 0) {
-            return (float) $this->loyer_nu;
+        if (! $this->date_debut || ! $this->date_fin) {
+            return 0;
         }
 
-        // Rétro-compatibilité : déduire les charges du loyer contractuel
-        return max(
-            0,
-            (float) $this->loyer_contractuel
-            - (float) ($this->charges_mensuelles ?? 0)
-            - (float) ($this->tom_amount ?? 0)
-        );
+        return (int) $this->date_debut->diffInMonths($this->date_fin);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────
-
     /**
-     * Retourne la décomposition complète du loyer mensuel.
-     * Pratique pour passer à la vue ou au contrôleur PDF.
-     *
-     * @return array{loyer_nu: float, charges: float, tom: float, total: float}
+     * Indique si le bail arrive à échéance dans moins de 30 jours.
      */
-    public function decompositionLoyer(): array
+    public function getExpireBientotAttribute(): bool
     {
-        return [
-            'loyer_nu' => $this->loyer_nu_effectif,
-            'charges'  => (float) ($this->charges_mensuelles ?? 0),
-            'tom'      => (float) ($this->tom_amount ?? 0),
-            'total'    => $this->total_loyer,
-        ];
+        if (! $this->date_fin) {
+            return false;
+        }
+
+        return $this->statut === 'actif'
+            && $this->date_fin->diffInDays(now()) <= 30
+            && $this->date_fin->isFuture();
     }
 }

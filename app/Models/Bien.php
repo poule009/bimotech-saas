@@ -7,119 +7,109 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * Modèle Bien — Bien immobilier géré par une agence.
- *
- * Changements appliqués :
- *  - Trait HasAgencyScope : isolation multi-tenant automatique
- *  - SoftDeletes : les biens supprimés sont archivés, pas effacés (historique)
- *  - Relations avec Eager Loading hints en commentaire
- *  - Casts typés pour les montants (prévient les erreurs de calcul fiscal)
- */
 class Bien extends Model
 {
     use HasFactory, HasAgencyScope, SoftDeletes;
 
+    public const TYPES = [
+        'appartement' => 'Appartement',
+        'villa'       => 'Villa',
+        'bureau'      => 'Bureau',
+        'commerce'    => 'Commerce',
+        'terrain'     => 'Terrain',
+    ];
+
+    public const STATUTS = [
+        'disponible' => 'Disponible',
+        'loue'       => 'Loué',
+        'en_travaux' => 'En travaux',
+        'archive'    => 'Archivé',
+    ];
+
+    // Colonnes réelles de la table biens
     protected $fillable = [
         'agency_id',
         'proprietaire_id',
         'reference',
-        'type',           // appartement, villa, bureau, commerce, terrain
-        'titre',
-        'description',
+        'type',
         'adresse',
-        'quartier',
         'ville',
-        'surface',
-        'nb_pieces',
-        'loyer_hors_charges',
-        'charges',
-        'depot_garantie',
-        'statut',         // disponible, loue, en_travaux, archive
-        'photos',
+        'quartier',
+        'commune',
+        'surface_m2',
+        'nombre_pieces',
         'meuble',
+        'loyer_mensuel',    // ← colonne réelle
+        'taux_commission',
+        'statut',
+        'description',
     ];
 
     protected $casts = [
-        'loyer_hors_charges' => 'decimal:0',
-        'charges'            => 'decimal:0',
-        'depot_garantie'     => 'decimal:0',
-        'surface'            => 'decimal:2',
-        'meuble'             => 'boolean',
-        'photos'             => 'array',
-        'deleted_at'         => 'datetime',
+        'loyer_mensuel'   => 'decimal:2',
+        'surface_m2'      => 'decimal:2',
+        'taux_commission' => 'decimal:2',
+        'meuble'          => 'boolean',
+        'deleted_at'      => 'datetime',
     ];
 
-    // ─── Relations ─────────────────────────────────────────────────────────
+    // ── Relations ─────────────────────────────────────────────────────────
 
-    public function agency()
+    public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Agency::class);
     }
 
-    public function proprietaire()
+    public function proprietaire(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Proprietaire::class);
+        return $this->belongsTo(User::class, 'proprietaire_id');
     }
 
-    /**
-     * Tous les contrats (actifs, résiliés, expirés).
-     * Eager load recommandé : Bien::with('contrats.locataire')
-     */
-    public function contrats()
+    public function contrats(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Contrat::class);
     }
 
-    /**
-     * Contrat actuellement actif (au maximum 1 à la fois).
-     */
-    public function contratActif()
+    public function contratActif(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Contrat::class)->where('statut', 'actif');
     }
 
-    /**
-     * Tous les paiements de loyer liés à ce bien (via ses contrats).
-     * Eager load recommandé : Bien::with('paiements')
-     */
-    public function paiements()
+    public function paiements(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
         return $this->hasManyThrough(Paiement::class, Contrat::class);
     }
 
-    // ─── Accesseurs & Calculs ───────────────────────────────────────────────
-
-    /**
-     * Loyer total charges comprises.
-     */
-    public function getLoyerTotalAttribute(): float
+    public function photos(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return (float) $this->loyer_hors_charges + (float) $this->charges;
+        return $this->hasMany(BienPhoto::class)->orderBy('ordre');
     }
 
-    /**
-     * Vérifie si le bien est actuellement loué.
-     */
+    // ── Accesseurs ────────────────────────────────────────────────────────
+
+    // Alias loyer_hors_charges → loyer_mensuel pour compatibilité
+    public function getLoyerHorsChargesAttribute(): float
+    {
+        return (float) $this->loyer_mensuel;
+    }
+
+    public function getLoyerTotalAttribute(): float
+    {
+        return (float) $this->loyer_mensuel;
+    }
+
     public function getEstLoueAttribute(): bool
     {
         return $this->statut === 'loue';
     }
 
-    // ─── Scopes locaux ─────────────────────────────────────────────────────
-
-    public function scopeDisponible($query)
+    public function getTypeLabelAttribute(): string
     {
-        return $query->where('statut', 'disponible');
+        return self::TYPES[$this->type] ?? ucfirst($this->type ?? '');
     }
 
-    public function scopeLoue($query)
+    public function getStatutLabelAttribute(): string
     {
-        return $query->where('statut', 'loue');
-    }
-
-    public function scopeAvecContratActif($query)
-    {
-        return $query->whereHas('contratActif');
+        return self::STATUTS[$this->statut] ?? ucfirst($this->statut ?? '');
     }
 }

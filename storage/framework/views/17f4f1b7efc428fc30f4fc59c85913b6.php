@@ -1,6 +1,34 @@
-@props(['agency' => null])
+<?php $attributes ??= new \Illuminate\View\ComponentAttributeBag;
 
-@php
+$__newAttributes = [];
+$__propNames = \Illuminate\View\ComponentAttributeBag::extractPropNames((['agency' => null]));
+
+foreach ($attributes->all() as $__key => $__value) {
+    if (in_array($__key, $__propNames)) {
+        $$__key = $$__key ?? $__value;
+    } else {
+        $__newAttributes[$__key] = $__value;
+    }
+}
+
+$attributes = new \Illuminate\View\ComponentAttributeBag($__newAttributes);
+
+unset($__propNames);
+unset($__newAttributes);
+
+foreach (array_filter((['agency' => null]), 'is_string', ARRAY_FILTER_USE_KEY) as $__key => $__value) {
+    $$__key = $$__key ?? $__value;
+}
+
+$__defined_vars = get_defined_vars();
+
+foreach ($attributes->all() as $__key => $__value) {
+    if (array_key_exists($__key, $__defined_vars)) unset($$__key);
+}
+
+unset($__defined_vars, $__key, $__value); ?>
+
+<?php
     $user = auth()->user();
     $role = $user->role ?? 'admin';
 
@@ -52,7 +80,7 @@
 
     // Initiales agence pour le logo de fallback
     $agencyInitial = strtoupper(substr($agency?->name ?? 'B', 0, 1));
-@endphp
+?>
 
 <style>
 .bm-sidebar-wrap * { box-sizing: border-box; }
@@ -214,56 +242,58 @@
 
 <aside class="bm-sidebar-wrap">
 
-    {{-- Logo --}}
+    
     <div class="bm-logo-zone">
-        @if($agency?->logo_path)
-            <img src="{{ Storage::url($agency->logo_path) }}"
-                 alt="{{ $agency->name }}"
+        <?php if($agency?->logo_path): ?>
+            <img src="<?php echo e(Storage::url($agency->logo_path)); ?>"
+                 alt="<?php echo e($agency->name); ?>"
                  style="height:36px;width:36px;object-fit:contain;border-radius:10px;flex-shrink:0">
-        @else
-            <div class="bm-logo-icon">{{ $agencyInitial }}</div>
-        @endif
+        <?php else: ?>
+            <div class="bm-logo-icon"><?php echo e($agencyInitial); ?></div>
+        <?php endif; ?>
         <div class="bm-logo-text">
-            <div class="bm-logo-name">{{ $agency?->name ?? config('app.name') }}</div>
-            <div class="bm-logo-role">{{ ucfirst($role) }}</div>
+            <div class="bm-logo-name"><?php echo e($agency?->name ?? config('app.name')); ?></div>
+            <div class="bm-logo-role"><?php echo e(ucfirst($role)); ?></div>
         </div>
     </div>
 
-    {{-- Navigation --}}
+    
     <nav class="bm-nav">
-        @foreach($nav as $item)
-            @if($item['section'])
-                <div class="bm-section-label">{{ $item['section'] }}</div>
-            @endif
-            @php
+        <?php $__currentLoopData = $nav; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if($item['section']): ?>
+                <div class="bm-section-label"><?php echo e($item['section']); ?></div>
+            <?php endif; ?>
+            <?php
                 $isActive = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*');
                 try { $url = route($item['route']); } catch(\Exception $e) { $url = '#'; }
                 $svg = $svgs[$item['route']] ?? '<circle cx="12" cy="12" r="3"/>';
-            @endphp
-            <a href="{{ $url }}" class="bm-nav-item {{ $isActive ? 'active' : '' }}">
+            ?>
+            <a href="<?php echo e($url); ?>" class="bm-nav-item <?php echo e($isActive ? 'active' : ''); ?>">
                 <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
-                    {!! $svg !!}
+                    <?php echo $svg; ?>
+
                 </svg>
-                <span class="bm-nav-label">{{ $item['label'] }}</span>
+                <span class="bm-nav-label"><?php echo e($item['label']); ?></span>
             </a>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </nav>
 
-    {{-- Footer profil --}}
+    
     <div class="bm-footer">
         <div class="bm-profile">
             <div class="bm-avatar">
-                {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
+                <?php echo e(strtoupper(substr($user->name ?? 'U', 0, 1))); ?>
+
             </div>
             <div class="bm-profile-info">
-                <div class="bm-profile-name">{{ $user->name ?? '' }}</div>
-                <div class="bm-profile-email">{{ $user->email ?? '' }}</div>
+                <div class="bm-profile-name"><?php echo e($user->name ?? ''); ?></div>
+                <div class="bm-profile-email"><?php echo e($user->email ?? ''); ?></div>
             </div>
         </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
+        <form method="POST" action="<?php echo e(route('logout')); ?>">
+            <?php echo csrf_field(); ?>
             <button type="submit" class="bm-logout">
                 <svg style="width:14px;height:14px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
@@ -275,4 +305,4 @@
         </form>
     </div>
 
-</aside>
+</aside><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/components/sidebar.blade.php ENDPATH**/ ?>

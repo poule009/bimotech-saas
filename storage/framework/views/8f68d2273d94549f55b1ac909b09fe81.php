@@ -1,117 +1,95 @@
-<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
-<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('app-layout'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-     <?php $__env->slot('header', null, []); ?> Nouveau bien <?php $__env->endSlot(); ?>
 
+<?php $__env->startSection('title', 'Nouveau bien'); ?>
+<?php $__env->startSection('breadcrumb', 'Biens › Nouveau'); ?>
+
+<?php $__env->startSection('content'); ?>
 <style>
-.form-grid { display:grid; grid-template-columns:1fr 280px; gap:24px; align-items:start; }
-.card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:18px; }
-.card:last-child { margin-bottom:0; }
-.card-hd { padding:15px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; gap:10px; }
+.form-grid { display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start; }
+.card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:16px; }
+.card-hd { padding:14px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; gap:10px; }
 .card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
 .card-icon svg { width:15px;height:15px; }
-.card-icon.gold   { background:#f5e9c9; } .card-icon.gold svg   { color:#8a6e2f; }
-.card-icon.blue   { background:#dbeafe; } .card-icon.blue svg   { color:#1d4ed8; }
-.card-icon.green  { background:#dcfce7; } .card-icon.green svg  { color:#16a34a; }
-.card-icon.gray   { background:#f3f4f6; } .card-icon.gray svg   { color:#6b7280; }
-.card-icon.purple { background:#ede9fe; } .card-icon.purple svg { color:#7c3aed; }
-.card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#0d1117; }
+.card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
+.card-icon.blue   { background:#dbeafe;color:#1d4ed8; }
+.card-icon.green  { background:#dcfce7;color:#16a34a; }
+.card-icon.purple { background:#ede9fe;color:#7c3aed; }
+.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
 .card-body { padding:18px 20px; }
+.form-row { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
 .form-group { margin-bottom:14px; }
 .form-group:last-child { margin-bottom:0; }
 .form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
-.req { color:#dc2626;margin-left:2px; }
-.opt { font-size:11px;font-weight:400;color:#9ca3af;margin-left:4px; }
-.form-input, .form-select, .form-textarea {
+.req { color:#dc2626; }
+.opt { color:#9ca3af;font-weight:400; }
+.form-input,.form-select,.form-textarea {
     width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;
-    font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;
-    background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;
+    font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fff;
+    outline:none;transition:border .15s;
 }
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.10);
-}
-.form-input.error, .form-select.error { border-color:#dc2626; }
-.form-textarea { resize:vertical;min-height:90px; }
-.form-select { cursor:pointer; }
-.form-row  { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
-.form-row3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px; }
-.form-error { font-size:12px;color:#dc2626;margin-top:4px; }
-.form-hint  { font-size:11px;color:#9ca3af;margin-top:4px; }
-/* checkbox toggle */
-.toggle-row { display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;cursor:pointer;transition:border-color .15s; }
-.toggle-row:hover { border-color:#c9a84c; }
-.toggle-row input[type=checkbox] { width:16px;height:16px;accent-color:#c9a84c;cursor:pointer;flex-shrink:0; }
-.toggle-lbl { font-size:13px;font-weight:500;color:#374151; }
-.toggle-sub { font-size:11px;color:#6b7280;margin-top:1px; }
-/* type pills */
-.type-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
-.type-pill { position:relative; }
-.type-pill input { position:absolute;opacity:0;width:0;height:0; }
-.type-pill label { display:flex;flex-direction:column;align-items:center;padding:10px 8px;border:1.5px solid #e5e7eb;border-radius:9px;cursor:pointer;font-size:11px;font-weight:500;color:#6b7280;text-align:center;gap:5px;background:#fff;transition:all .15s; }
-.type-pill label svg { width:18px;height:18px; }
-.type-pill input:checked + label { border-color:#c9a84c;background:#f5e9c9;color:#8a6e2f; }
-.type-pill label:hover { border-color:#c9a84c;background:#fdf8ef; }
-/* submit */
-.submit-bar { display:flex;align-items:center;gap:10px;padding:14px 18px;border-top:1px solid #e5e7eb;background:#f9fafb; }
-.btn-submit { flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 20px;background:#0d1117;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s; }
-.btn-submit:hover { opacity:.88; }
-.btn-submit svg { width:15px;height:15px; }
-.btn-cancel { padding:11px 18px;background:#fff;color:#6b7280;border:1px solid #e5e7eb;border-radius:9px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none; }
-/* récap sticky */
-.recap-card { background:#0d1117;border-radius:14px;overflow:hidden;position:sticky;top:80px; }
+.form-input:focus,.form-select:focus,.form-textarea:focus { border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1); }
+.form-input.error,.form-select.error { border-color:#dc2626; }
+.form-error { font-size:11px;color:#dc2626;margin-top:3px; }
+.form-textarea { resize:vertical;min-height:80px; }
+.recap-card { background:#0d1117;border-radius:14px;overflow:hidden;position:sticky;top:24px; }
 .recap-hd { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
 .recap-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff; }
-.recap-body { padding:14px 18px; }
-.rp-row { display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05); }
+.recap-body { padding:16px 18px; }
+.rp-row { display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06); }
 .rp-row:last-child { border-bottom:none; }
-.rp-lbl { font-size:12px;color:rgba(255,255,255,.5); }
+.rp-lbl { font-size:12px;color:rgba(255,255,255,.45); }
 .rp-val { font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#fff; }
-.rp-val.green { color:#4ade80; }
-.rp-val.gold  { color:#c9a84c; }
-.rp-val.muted { color:rgba(255,255,255,.3);font-weight:400; }
-.rp-block { background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.15);border-radius:9px;padding:12px 14px;margin-top:12px; }
-.rp-block-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
-.rp-block-val { font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#c9a84c;letter-spacing:-.3px; }
-.rp-sep { height:1px;background:rgba(255,255,255,.08);margin:8px 0; }
+.rp-val.gold { color:#c9a84c; }
+.rp-total { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:12px 14px;margin-top:12px; }
+.rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
+.rp-total-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#c9a84c; }
+.submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f9fafb; }
+.btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
+.btn-submit { padding:8px 18px;border-radius:8px;border:none;background:#2a4a7f;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
 </style>
 
-<div style="padding:24px 32px 48px">
+<div style="padding:0 0 48px">
 
-    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:16px">
-        <a href="<?php echo e(route('biens.index')); ?>" style="color:#6b7280;text-decoration:none">Biens</a>
+    
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:18px">
+        <a href="<?php echo e(route('admin.biens.index')); ?>" style="color:#6b7280;text-decoration:none">Biens</a>
         <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         <span style="color:#0d1117;font-weight:500">Nouveau bien</span>
     </div>
 
-    <div style="margin-bottom:22px">
+    <div style="margin-bottom:20px">
         <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Ajouter un bien</h1>
         <p style="font-size:13px;color:#6b7280;margin-top:3px">La référence est générée automatiquement.</p>
     </div>
 
-    <form method="POST" action="<?php echo e(route('biens.store')); ?>" id="form-bien">
+    <?php if($errors->any()): ?>
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-left:3px solid #dc2626;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#dc2626">
+        <strong>Veuillez corriger les erreurs :</strong>
+        <ul style="margin-top:4px;padding-left:16px">
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $e): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><li><?php echo e($e); ?></li><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </ul>
+    </div>
+    <?php endif; ?>
+
+    <form method="POST" action="<?php echo e(route('admin.biens.store')); ?>" id="form-bien" enctype="multipart/form-data">
         <?php echo csrf_field(); ?>
         <div class="form-grid">
+
+            
             <div>
 
                 
-                <?php if(auth()->user()->isAdmin()): ?>
                 <div class="card">
                     <div class="card-hd">
-                        <div class="card-icon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                        <div class="card-icon gold">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
                         <div class="card-title">Propriétaire</div>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label" for="proprietaire_id">Propriétaire <span class="req">*</span></label>
-                            <select name="proprietaire_id" id="proprietaire_id" class="form-select <?php echo e($errors->has('proprietaire_id') ? 'error':''); ?>">
-                                <option value="">— Sélectionner un propriétaire —</option>
+                            <label class="form-label">Propriétaire <span class="req">*</span></label>
+                            <select name="proprietaire_id" class="form-select <?php echo e($errors->has('proprietaire_id') ? 'error':''); ?>">
+                                <option value="">— Sélectionner —</option>
                                 <?php $__currentLoopData = $proprietaires; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($p->id); ?>" <?php echo e(old('proprietaire_id') == $p->id ? 'selected':''); ?>>
                                         <?php echo e($p->name); ?> — <?php echo e($p->email); ?>
@@ -130,62 +108,72 @@ unset($__errorArgs, $__bag); ?>
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
 
                 
                 <div class="card">
                     <div class="card-hd">
-                        <div class="card-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
-                        <div class="card-title">Type de bien</div>
+                        <div class="card-icon blue">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        </div>
+                        <div class="card-title">Informations générales</div>
                     </div>
                     <div class="card-body">
-                        <div class="type-grid">
-                            <?php $__currentLoopData = \App\Models\Bien::TYPES; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <div class="type-pill">
-                                <input type="radio" name="type" id="type_<?php echo e($key); ?>" value="<?php echo e($key); ?>"
-                                    <?php echo e(old('type') === $key ? 'checked':''); ?>>
-                                <label for="type_<?php echo e($key); ?>">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <?php if(in_array($key, ['appartement','studio'])): ?>
-                                            <rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/>
-                                        <?php elseif($key === 'villa'): ?>
-                                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                                        <?php elseif(in_array($key, ['bureau','local_commercial'])): ?>
-                                            <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
-                                        <?php elseif($key === 'maison'): ?>
-                                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-                                        <?php else: ?>
-                                            <circle cx="12" cy="12" r="10"/>
-                                        <?php endif; ?>
-                                    </svg>
-                                    <?php echo e($label); ?>
-
-                                </label>
-                            </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </div>
-                        <?php $__errorArgs = ['type'];
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Type <span class="req">*</span></label>
+                                <select name="type" class="form-select <?php echo e($errors->has('type') ? 'error':''); ?>" onchange="calcRecap()">
+                                    <option value="">— Choisir —</option>
+                                    <?php $__currentLoopData = \App\Models\Bien::TYPES; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($val); ?>" <?php echo e(old('type') === $val ? 'selected':''); ?>><?php echo e($label); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
+                                <?php $__errorArgs = ['type'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><div class="form-error" style="margin-top:8px"><?php echo e($message); ?></div><?php unset($message);
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Surface (m²) <span class="opt">(optionnel)</span></label>
+                                <input type="number" name="surface_m2" class="form-input"
+                                       value="<?php echo e(old('surface_m2')); ?>" min="1" step="0.5">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nombre de pièces <span class="opt">(optionnel)</span></label>
+                                <input type="number" name="nombre_pieces" class="form-input"
+                                       value="<?php echo e(old('nombre_pieces')); ?>" min="1">
+                            </div>
+                            <div class="form-group" style="display:flex;align-items:center;padding-top:22px">
+                                <label class="form-label" style="margin-bottom:0;display:flex;align-items:center;gap:8px;cursor:pointer">
+                                    <input type="checkbox" name="meuble" value="1"
+                                           <?php echo e(old('meuble') ? 'checked':''); ?>
+
+                                           style="width:16px;height:16px;accent-color:#c9a84c;cursor:pointer">
+                                    Bien meublé
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 
                 <div class="card">
                     <div class="card-hd">
-                        <div class="card-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                        <div class="card-icon green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
                         <div class="card-title">Localisation</div>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
-                            <label class="form-label" for="adresse">Adresse <span class="req">*</span></label>
-                            <input type="text" name="adresse" id="adresse" class="form-input <?php echo e($errors->has('adresse') ? 'error':''); ?>"
-                                value="<?php echo e(old('adresse')); ?>" placeholder="N° rue, nom de la rue">
+                            <label class="form-label">Adresse <span class="req">*</span></label>
+                            <input type="text" name="adresse" class="form-input <?php echo e($errors->has('adresse') ? 'error':''); ?>"
+                                   value="<?php echo e(old('adresse')); ?>" placeholder="Rue, numéro">
                             <?php $__errorArgs = ['adresse'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -197,68 +185,21 @@ unset($__errorArgs, $__bag); ?>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label" for="ville">Ville <span class="req">*</span></label>
-                                <input type="text" name="ville" id="ville" class="form-input <?php echo e($errors->has('ville') ? 'error':''); ?>"
-                                    value="<?php echo e(old('ville', 'Dakar')); ?>" placeholder="Ex: Dakar">
-                                <?php $__errorArgs = ['ville'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
+                                <label class="form-label">Quartier <span class="opt">(optionnel)</span></label>
+                                <input type="text" name="quartier" class="form-input"
+                                       value="<?php echo e(old('quartier')); ?>" placeholder="Ex: Almadies">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="quartier">Quartier <span class="opt">(optionnel)</span></label>
-                                <input type="text" name="quartier" id="quartier" class="form-input"
-                                    value="<?php echo e(old('quartier')); ?>" placeholder="Ex: Plateau">
+                                <label class="form-label">Commune <span class="opt">(optionnel)</span></label>
+                                <input type="text" name="commune" class="form-input"
+                                       value="<?php echo e(old('commune')); ?>" placeholder="Ex: Dakar Plateau">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="commune">Commune <span class="opt">(optionnel)</span></label>
-                            <input type="text" name="commune" id="commune" class="form-input"
-                                value="<?php echo e(old('commune')); ?>" placeholder="Ex: Dakar-Plateau">
-                        </div>
-                    </div>
-                </div>
-
-                
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-                        <div class="card-title">Caractéristiques</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label" for="surface_m2">Surface <span class="opt">(m²)</span></label>
-                                <input type="number" name="surface_m2" id="surface_m2" class="form-input"
-                                    value="<?php echo e(old('surface_m2')); ?>" placeholder="Ex: 80" min="1">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="nombre_pieces">Nombre de pièces</label>
-                                <input type="number" name="nombre_pieces" id="nombre_pieces" class="form-input"
-                                    value="<?php echo e(old('nombre_pieces')); ?>" placeholder="Ex: 3" min="1">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="toggle-row" for="meuble">
-                                <input type="checkbox" name="meuble" id="meuble" value="1" <?php echo e(old('meuble') ? 'checked':''); ?>>
-                                <div>
-                                    <div class="toggle-lbl">Bien meublé</div>
-                                    <div class="toggle-sub">Cochez si le bien est loué avec mobilier</div>
-                                </div>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="statut">Statut <span class="req">*</span></label>
-                            <select name="statut" id="statut" class="form-select <?php echo e($errors->has('statut') ? 'error':''); ?>">
-                                <option value="disponible" <?php echo e(old('statut','disponible')==='disponible' ? 'selected':''); ?>>Disponible</option>
-                                <option value="loue"       <?php echo e(old('statut')==='loue'       ? 'selected':''); ?>>Loué</option>
-                                <option value="en_travaux" <?php echo e(old('statut')==='en_travaux' ? 'selected':''); ?>>En travaux</option>
-                            </select>
-                            <?php $__errorArgs = ['statut'];
+                            <label class="form-label">Ville <span class="req">*</span></label>
+                            <input type="text" name="ville" class="form-input <?php echo e($errors->has('ville') ? 'error':''); ?>"
+                                   value="<?php echo e(old('ville', 'Dakar')); ?>" placeholder="Ex: Dakar">
+                            <?php $__errorArgs = ['ville'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -273,17 +214,19 @@ unset($__errorArgs, $__bag); ?>
                 
                 <div class="card">
                     <div class="card-hd">
-                        <div class="card-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-                        <div class="card-title">Finances</div>
+                        <div class="card-icon gold">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                        </div>
+                        <div class="card-title">Informations financières</div>
                     </div>
                     <div class="card-body">
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label" for="loyer_mensuel">Loyer mensuel <span class="req">*</span></label>
+                                <label class="form-label">Loyer mensuel (FCFA) <span class="req">*</span></label>
                                 <input type="number" name="loyer_mensuel" id="loyer_mensuel"
-                                    class="form-input <?php echo e($errors->has('loyer_mensuel') ? 'error':''); ?>"
-                                    value="<?php echo e(old('loyer_mensuel')); ?>" placeholder="Ex: 200000" min="1" step="500"
-                                    oninput="calcRecap()">
+                                       class="form-input <?php echo e($errors->has('loyer_mensuel') ? 'error':''); ?>"
+                                       value="<?php echo e(old('loyer_mensuel')); ?>" min="0" step="500"
+                                       oninput="calcRecap()">
                                 <?php $__errorArgs = ['loyer_mensuel'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -294,11 +237,11 @@ endif;
 unset($__errorArgs, $__bag); ?>
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="taux_commission">Commission agence <span class="req">*</span> <span class="opt">(%)</span></label>
+                                <label class="form-label">Taux commission (%) <span class="req">*</span></label>
                                 <input type="number" name="taux_commission" id="taux_commission"
-                                    class="form-input <?php echo e($errors->has('taux_commission') ? 'error':''); ?>"
-                                    value="<?php echo e(old('taux_commission', 10)); ?>" placeholder="10" min="1" max="20" step="0.5"
-                                    oninput="calcRecap()">
+                                       class="form-input <?php echo e($errors->has('taux_commission') ? 'error':''); ?>"
+                                       value="<?php echo e(old('taux_commission', 10)); ?>" min="0" max="30" step="0.5"
+                                       oninput="calcRecap()">
                                 <?php $__errorArgs = ['taux_commission'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -315,20 +258,64 @@ unset($__errorArgs, $__bag); ?>
                 
                 <div class="card">
                     <div class="card-hd">
-                        <div class="card-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                        <div class="card-icon" style="background:#f0fdf4;color:#16a34a">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                        </div>
+                        <div class="card-title">Photos <span class="opt">(optionnel)</span></div>
+                    </div>
+                    <div class="card-body">
+                        <div id="drop-zone" style="
+                            border:2px dashed #e5e7eb;border-radius:10px;padding:28px;
+                            text-align:center;cursor:pointer;transition:all .15s;background:#fafafa"
+                            onclick="document.getElementById('photos-input').click()"
+                            ondragover="event.preventDefault();this.style.borderColor='#c9a84c';this.style.background='#fffbeb'"
+                            ondragleave="this.style.borderColor='#e5e7eb';this.style.background='#fafafa'"
+                            ondrop="handleDrop(event)">
+                            <svg style="width:32px;height:32px;color:#d1d5db;margin:0 auto 10px;display:block"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <p style="font-size:13px;color:#6b7280;margin-bottom:4px">Cliquez ou glissez vos photos ici</p>
+                            <p style="font-size:11px;color:#9ca3af">JPG, PNG, WEBP — max 3 Mo par photo</p>
+                        </div>
+
+                        <input type="file" id="photos-input" name="photos[]"
+                               multiple accept="image/jpeg,image/png,image/webp"
+                               style="display:none" onchange="previewPhotos(this.files)">
+
+                        <div id="preview-grid"
+                             style="display:none;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:14px">
+                        </div>
+
+                        <p style="font-size:11px;color:#9ca3af;margin-top:10px">
+                            La première photo sélectionnée sera la photo principale.
+                        </p>
+                    </div>
+                </div>
+
+                
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        </div>
                         <div class="card-title">Description <span class="opt">(optionnel)</span></div>
                     </div>
                     <div class="card-body">
-                        <div class="form-group">
-                            <textarea name="description" id="description" class="form-textarea"
-                                placeholder="Description du bien, équipements, état général…"><?php echo e(old('description')); ?></textarea>
-                        </div>
+                        <textarea name="description" class="form-textarea"
+                            placeholder="Description du bien, équipements, état général…"><?php echo e(old('description')); ?></textarea>
                     </div>
                     <div class="submit-bar">
-                        <a href="<?php echo e(route('biens.index')); ?>" class="btn-cancel">Annuler</a>
+                        <a href="<?php echo e(route('admin.biens.index')); ?>" class="btn-cancel">Annuler</a>
                         <button type="submit" class="btn-submit">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            Enregistrer le bien
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+                            Créer le bien
                         </button>
                     </div>
                 </div>
@@ -338,7 +325,9 @@ unset($__errorArgs, $__bag); ?>
             
             <div>
                 <div class="recap-card">
-                    <div class="recap-hd"><div class="recap-title">Récapitulatif</div></div>
+                    <div class="recap-hd">
+                        <div class="recap-title">Récapitulatif fiscal</div>
+                    </div>
                     <div class="recap-body">
                         <div class="rp-row">
                             <div class="rp-lbl">Loyer mensuel</div>
@@ -349,70 +338,97 @@ unset($__errorArgs, $__bag); ?>
                             <div class="rp-val gold" id="rp-comm">— F</div>
                         </div>
                         <div class="rp-row">
-                            <div class="rp-lbl">TVA (18%)</div>
-                            <div class="rp-val" style="color:#fbbf24" id="rp-tva">— F</div>
+                            <div class="rp-lbl">TVA commission (18%)</div>
+                            <div class="rp-val" id="rp-tva">— F</div>
                         </div>
                         <div class="rp-row">
                             <div class="rp-lbl">Commission TTC</div>
-                            <div class="rp-val gold" id="rp-ttc">— F</div>
+                            <div class="rp-val gold" id="rp-comm-ttc">— F</div>
                         </div>
-                        <div class="rp-block">
-                            <div class="rp-block-lbl">Net propriétaire / mois</div>
-                            <div class="rp-block-val"><span id="rp-net">0</span> F</div>
+                        <div class="rp-total">
+                            <div class="rp-total-lbl">Net propriétaire</div>
+                            <div class="rp-total-val" id="rp-net">— FCFA</div>
                         </div>
-                        <div class="rp-sep"></div>
-                        <div class="rp-row">
-                            <div class="rp-lbl">Type</div>
-                            <div class="rp-val muted" id="rp-type">—</div>
-                        </div>
-                        <div class="rp-row">
-                            <div class="rp-lbl">Statut</div>
-                            <div class="rp-val muted" id="rp-statut">Disponible</div>
+
+                        <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)">
+                            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.25);margin-bottom:10px">Rappel fiscal</div>
+                            <div style="font-size:11px;color:rgba(255,255,255,.35);line-height:1.6">
+                                Commission HT × 18% = TVA (Art. 357 CGI SN)<br>
+                                TVA loyer 18% si bail commercial/meublé<br>
+                                BRS 15% si locataire entreprise
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </form>
-
 </div>
 
 <script>
-function calcRecap() {
-    const loyer = parseFloat(document.getElementById('loyer_mensuel').value) || 0;
-    const taux  = parseFloat(document.getElementById('taux_commission').value) || 0;
-    const fmt   = n => Math.round(n).toLocaleString('fr-FR');
-    const commHT  = loyer * taux / 100;
-    const tva     = commHT * 0.18;
-    const commTTC = commHT + tva;
-    const net     = loyer - commTTC;
-    document.getElementById('rp-loyer').textContent = fmt(loyer) + ' F';
-    document.getElementById('rp-comm').textContent  = fmt(commHT) + ' F';
-    document.getElementById('rp-tva').textContent   = fmt(tva) + ' F';
-    document.getElementById('rp-ttc').textContent   = fmt(commTTC) + ' F';
-    document.getElementById('rp-net').textContent   = fmt(net);
+function fmt(n) {
+    return Math.round(n).toLocaleString('fr-FR') + ' F';
 }
-// Type sélectionné
-document.querySelectorAll('input[name="type"]').forEach(r => {
-    r.addEventListener('change', () => {
-        document.getElementById('rp-type').textContent = r.nextElementSibling.textContent.trim();
+
+function calcRecap() {
+    const loyer   = parseFloat(document.getElementById('loyer_mensuel').value) || 0;
+    const taux    = parseFloat(document.getElementById('taux_commission').value) || 0;
+    const commHt  = Math.round(loyer * taux / 100);
+    const tvaComm = Math.round(commHt * 0.18);
+    const commTtc = commHt + tvaComm;
+    const net     = loyer - commHt;
+
+    document.getElementById('rp-loyer').textContent    = fmt(loyer);
+    document.getElementById('rp-comm').textContent     = fmt(commHt);
+    document.getElementById('rp-tva').textContent      = fmt(tvaComm);
+    document.getElementById('rp-comm-ttc').textContent = fmt(commTtc);
+    document.getElementById('rp-net').textContent      = fmt(net) + 'CFA';
+}
+
+function previewPhotos(files) {
+    const grid = document.getElementById('preview-grid');
+    grid.innerHTML = '';
+    if (!files || !files.length) {
+        grid.style.display = 'none';
+        return;
+    }
+    grid.style.display = 'grid';
+    [...files].forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.style.cssText = 'position:relative;border-radius:8px;overflow:hidden;height:90px;border:1px solid #e5e7eb';
+            div.innerHTML = `
+                <img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">
+                ${i === 0
+                    ? '<span style="position:absolute;top:4px;left:4px;background:#c9a84c;color:#0d1117;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px">Principale</span>'
+                    : ''}
+            `;
+            grid.appendChild(div);
+        };
+        reader.readAsDataURL(file);
     });
-});
-// Statut
-document.getElementById('statut').addEventListener('change', function() {
-    const labels = {disponible:'Disponible', loue:'Loué', en_travaux:'En travaux'};
-    document.getElementById('rp-statut').textContent = labels[this.value] || this.value;
-});
+    document.getElementById('drop-zone').style.borderColor = '#c9a84c';
+    document.getElementById('drop-zone').style.background  = '#fffbeb';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').style.borderColor = '#e5e7eb';
+    document.getElementById('drop-zone').style.background  = '#fafafa';
+    const dt    = e.dataTransfer;
+    const input = document.getElementById('photos-input');
+    // Transfert des fichiers vers l'input (DataTransfer)
+    try {
+        input.files = dt.files;
+    } catch(err) {
+        // Fallback si navigateur bloque l'assignation directe
+    }
+    previewPhotos(dt.files);
+}
+
 calcRecap();
 </script>
-
- <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
-<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
-<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
-<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
-<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
-<?php endif; ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/biens/create.blade.php ENDPATH**/ ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/biens/create.blade.php ENDPATH**/ ?>

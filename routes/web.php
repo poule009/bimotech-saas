@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
+use App\Http\Controllers\Admin\BilanFiscalController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BienController;
+use App\Http\Controllers\BienPhotoController;
 use App\Http\Controllers\ContratController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DashboardController;
@@ -16,139 +18,129 @@ use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-
-
-// Landing page
+// ── Pages publiques ───────────────────────────────────────────────────────────
 Route::get('/', fn() => view('welcome'))->name('home');
- 
-// Pages publiques
 Route::get('/contact',          fn() => view('contact'))->name('contact');
 Route::get('/demo',             fn() => view('demo'))->name('demo');
 Route::get('/faq',              fn() => view('faq'))->name('faq');
 Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mentions-legales');
 Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
- 
-// Soumissions de formulaires
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
-Route::post('/demo',    [DemoController::class, 'send'])->name('demo.send');
-   
+Route::post('/demo',    [DemoController::class,    'send'])->name('demo.send');
 
+// ── Inscription agence (invités) ──────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
-    Route::get('/register/agency', [AgencyRegistrationController::class, 'create'])
-        ->name('agency.register');
-    Route::post('/register/agency', [AgencyRegistrationController::class, 'store'])
-        ->name('agency.register.store');
+    Route::get('/register/agency',  [AgencyRegistrationController::class, 'create'])->name('agency.register');
+    Route::post('/register/agency', [AgencyRegistrationController::class, 'store'])->name('agency.register.store');
 });
 
+// ── Zone authentifiée ─────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/home', [RedirectController::class, 'index'])->name('redirect.home');
+    Route::get('/home',      [RedirectController::class, 'index'])->name('redirect.home');
     Route::get('/dashboard', [RedirectController::class, 'index'])->name('dashboard');
 
     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // ── Abonnements ───────────────────────────────────────────────────────────
     Route::prefix('subscription')->name('subscription.')->group(function () {
-        Route::get('/', [SubscriptionController::class, 'index'])->name('index');
-        Route::post('/initier', [SubscriptionController::class, 'initierPaiement'])->name('initier');
-        Route::post('/callback', [SubscriptionController::class, 'callbackPaydunya'])
+        Route::get('/',         [SubscriptionController::class, 'index'])->name('index');
+        Route::post('initier',  [SubscriptionController::class, 'initierPaiement'])->name('initier');
+        Route::post('callback', [SubscriptionController::class, 'callbackPaydunya'])
             ->name('callback')
             ->withoutMiddleware(['auth', 'verified'])
             ->middleware('throttle:60,1');
-        Route::get('/succes', [SubscriptionController::class, 'succes'])->name('succes');
-        Route::get('/echec', [SubscriptionController::class, 'echec'])->name('echec');
+        Route::get('succes', [SubscriptionController::class, 'succes'])->name('succes');
+        Route::get('echec',  [SubscriptionController::class, 'echec'])->name('echec');
     });
 
-    Route::middleware('isSuperAdmin')
-        ->prefix('superadmin')
-        ->name('superadmin.')
-        ->group(function () {
-            Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
-            Route::get('/subscriptions', [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
-            Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
-            Route::get('/agencies/create', [SuperAdminController::class, 'createAgency'])->name('agencies.create');
-            Route::post('/agencies', [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
-            Route::patch('/agencies/{agency}/toggle', [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
-            Route::post('/agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
-            Route::post('/agencies/{agency}/essai', [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
-            Route::get('/agencies/{agency}', [SuperAdminController::class, 'showAgency'])->name('agencies.show');
+    // ── SuperAdmin ────────────────────────────────────────────────────────────
+    Route::middleware('isSuperAdmin')->prefix('superadmin')->name('superadmin.')->group(function () {
+        Route::get('dashboard',                     [SuperAdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('subscriptions',                 [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('activity-logs',                 [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
+        Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
+        Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
+        Route::post('agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
+        Route::post('agencies/{agency}/essai',      [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
+        Route::get('agencies/{agency}',             [SuperAdminController::class, 'showAgency'])->name('agencies.show');
+    });
+
+    // ── Admin agence ──────────────────────────────────────────────────────────
+    Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function () {
+
+        Route::get('dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+
+        // Paramètres agence
+        Route::get('agency/settings',   [AgencySettingsController::class, 'edit'])->name('agency.settings');
+        Route::patch('agency/settings', [AgencySettingsController::class, 'update'])->name('agency.settings.update');
+        Route::delete('agency/logo',    [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
+
+        // Logs
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+        // ── Biens (dans admin) ────────────────────────────────────────────
+        Route::resource('biens', BienController::class);
+        Route::post('biens/{bien}/photos',                      [BienPhotoController::class, 'store'])->name('biens.photos.store');
+        Route::delete('biens/{bien}/photos/{photo}',            [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
+        Route::patch('biens/{bien}/photos/{photo}/principale',  [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
+
+        // ── Paiements — statiques AVANT resource ──────────────────────────
+        Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])->name('paiements.dernier-periode');
+        Route::get('paiements/fiscal-preview/{contrat}',  [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview');
+        Route::resource('paiements', PaiementController::class);
+        Route::get('paiements/{paiement}/pdf',   [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
+        Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
+
+        // ── Contrats — statique AVANT resource ────────────────────────────
+        Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide');
+        Route::resource('contrats', ContratController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
+
+        // ── Utilisateurs ──────────────────────────────────────────────────
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::get('proprietaires',  [UserController::class, 'proprietaires'])->name('proprietaires');
+            Route::get('locataires',     [UserController::class, 'locataires'])->name('locataires');
+            Route::get('create/{role}',  [UserController::class, 'create'])->name('create');
+            Route::post('store',         [UserController::class, 'store'])->name('store');
+            Route::get('{user}',         [UserController::class, 'show'])->name('show');
+            Route::get('{user}/edit',    [UserController::class, 'edit'])->name('edit');
+            Route::patch('{user}',       [UserController::class, 'update'])->name('update');
+            Route::delete('{user}',      [UserController::class, 'destroy'])->name('destroy');
         });
 
-    Route::middleware('isAdmin')
-        ->prefix('admin')
-        ->name('admin.')
-        ->group(function () {
-
-            Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
-
-            Route::get('agency/settings', [AgencySettingsController::class, 'edit'])->name('agency.settings');
-            Route::patch('agency/settings', [AgencySettingsController::class, 'update'])->name('agency.settings.update');
-            Route::delete('agency/logo', [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
-
-            Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
-
-            // Paiements — routes statiques AVANT resource
-            Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])->name('paiements.dernier-periode');
-            Route::get('paiements/fiscal-preview/{contrat}', [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview');
-            Route::resource('paiements', PaiementController::class);
-            Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
-            Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
-
-            // Contrats
-            Route::resource('contrats', ContratController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
-            Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide');
-
-            // Utilisateurs
-            Route::prefix('users')->name('users.')->group(function () {
-                Route::get('proprietaires', [UserController::class, 'proprietaires'])->name('proprietaires');
-                Route::get('locataires', [UserController::class, 'locataires'])->name('locataires');
-                Route::get('create/{role}', [UserController::class, 'create'])->name('create');
-                Route::post('store', [UserController::class, 'store'])->name('store');
-                Route::get('{user}', [UserController::class, 'show'])->name('show');
-                Route::get('{user}/edit', [UserController::class, 'edit'])->name('edit');
-                Route::patch('{user}', [UserController::class, 'update'])->name('update');
-                Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
-            });
-
-            // Bilans fiscaux
-            Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->group(function () {
-                Route::get('/', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'index'])->name('index');
-                Route::post('{proprietaire}/calculate', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'calculate'])->name('calculate');
-                Route::get('{proprietaire}', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'show'])->name('show');
-                Route::get('{proprietaire}/pdf', [\App\Http\Controllers\Admin\BilanFiscalController::class, 'exportPdf'])->name('pdf');
-            });
-
-            // Rapports
-            Route::get('rapports/financier', [RapportController::class, 'financier'])->name('rapports.financier');
-            Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
-
-            // Impayés
-            Route::get('impayes', [ImpayeController::class, 'index'])->name('impayes.index');
-            Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance');
-
+        // ── Bilans fiscaux ────────────────────────────────────────────────
+        Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->group(function () {
+            Route::get('/',                         [BilanFiscalController::class, 'index'])->name('index');
+            Route::post('{proprietaire}/calculate', [BilanFiscalController::class, 'calculate'])->name('calculate');
+            Route::get('{proprietaire}',            [BilanFiscalController::class, 'show'])->name('show');
+            Route::get('{proprietaire}/pdf',        [BilanFiscalController::class, 'exportPdf'])->name('pdf');
         });
 
-    Route::middleware('can:isProprietaire')->prefix('proprietaire')->name('proprietaire.')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'proprietaire'])->name('dashboard');
-        Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
+        // ── Rapports ──────────────────────────────────────────────────────
+        Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier');
+        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
+
+        // ── Impayés ───────────────────────────────────────────────────────
+        Route::get('impayes',                    [ImpayeController::class, 'index'])->name('impayes.index');
+        Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance');
     });
 
-    Route::middleware('can:isLocataire')->prefix('locataire')->name('locataire.')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'locataire'])->name('dashboard');
-        Route::get('mes-paiements', [PaiementController::class, 'mesPaiements'])->name('paiements');
-        Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
+    // ── Propriétaire ──────────────────────────────────────────────────────────
+    Route::middleware('isProprietaire')->prefix('proprietaire')->name('proprietaire.')->group(function () {
+        Route::get('dashboard',                    [DashboardController::class, 'proprietaire'])->name('dashboard');
+        Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
     });
 
-    Route::middleware('can:isStaff')->resource('biens', BienController::class);
-
-    Route::middleware('can:isStaff')->group(function () {
-        Route::post('biens/{bien}/photos', [\App\Http\Controllers\BienPhotoController::class, 'store'])->name('biens.photos.store');
-        Route::delete('biens/{bien}/photos/{photo}', [\App\Http\Controllers\BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
-        Route::patch('biens/{bien}/photos/{photo}/principale', [\App\Http\Controllers\BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
+    // ── Locataire ─────────────────────────────────────────────────────────────
+    Route::middleware('isLocataire')->prefix('locataire')->name('locataire.')->group(function () {
+        Route::get('dashboard',                    [DashboardController::class, 'locataire'])->name('dashboard');
+        Route::get('mes-paiements',                [PaiementController::class,  'mesPaiements'])->name('paiements');
+        Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
     });
 
 });
