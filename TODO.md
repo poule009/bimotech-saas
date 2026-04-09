@@ -1,4 +1,7 @@
-- [ ] Remove duplicate `downloadPDF()` in `app/Http/Controllers/PaiementController.php`
-- [ ] Remove duplicate `buildPdfData()` in `app/Http/Controllers/PaiementController.php`
-- [ ] Run syntax validation for `PaiementController.php`
-- [ ] Mark tasks as completed
+- [x] Fix Intelephense P1009 in `app/Services/Quittanceservice.php` (Undefined type `App\Models\Quittance`)
+- [x] Create `app/Models/Quittance.php` with namespace, fillable/casts, and core relations
+- [x] Add `quittance()` relation in `app/Models/Paiement.php`
+- [x] Re-scan `Quittance` references to ensure analyzer/type resolution is clean
+- [ ] Fix Intelephense P1013 in `app/Services/Quittanceservice.php` (Undefined method `id` from `auth()` helper typing)
+- [ ] Replace `auth()->id()` with `\Illuminate\Support\Facades\Auth::id()` in `app/Services/Quittanceservice.php`
+- [ ] Run a quick PHP lint check on `app/Services/Quittanceservice.php`

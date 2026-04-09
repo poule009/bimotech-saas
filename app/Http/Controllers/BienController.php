@@ -3,243 +3,188 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bien;
-// use App\Models\Contrat;
-use App\Models\Paiement;
-use App\Models\User;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\RedirectResponse;
+use App\Models\Proprietaire;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
+/**
+ * BienController — CRUD des biens immobiliers.
+ *
+ * Principes appliqués :
+ *  1. $this->authorize() en première ligne de CHAQUE méthode
+ *  2. Eager Loading systématique pour éviter les N+1
+ *  3. Aucune logique métier ici → délégué aux Services (étape 2 de la roadmap)
+ *  4. L'AgencyScope filtre automatiquement par agence → pas de ->where('agency_id', ...)
+ */
 class BienController extends Controller
 {
-    use AuthorizesRequests;
-
-    // ─────────────────────────────────────────────────────────────────────
-    // LISTE
-    // ─────────────────────────────────────────────────────────────────────
-
-    public function index()
+    /**
+     * Liste des biens de l'agence.
+     * GET /biens
+     */
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', Bien::class);
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $query = $user->isAdmin()
-            ? Bien::query()
-            : Bien::where('proprietaire_id', $user->id);
-
-        /**
-         * PERFORMANCE — select() sélectif :
-         *
-         * La liste n'affiche que référence, type, adresse, ville, statut,
-         * loyer_mensuel et le nom du propriétaire. Charger description,
-         * surface_m2, nombre_pieces, etc. est inutile pour une liste paginée.
-         *
-         * Colonnes conservées : celles affichées dans la vue + les FK nécessaires
-         * pour les relations (agency_id pour AgencyScope, proprietaire_id pour with).
-         */
-        $biens = $query
-            ->select([
-                'id', 'agency_id', 'proprietaire_id',
-                'reference', 'type', 'adresse', 'ville', 'quartier',
-                'loyer_mensuel', 'taux_commission', 'statut', 'meuble',
-                'created_at',
-            ])
-            ->with([
-                // EAGER LOADING — on sélectionne uniquement les colonnes nécessaires
-                'proprietaire:id,name,telephone',
-                // withCount évite de charger toute la relation pour compter
-                'contratActif:id,bien_id,statut,loyer_contractuel',
-            ])
-            ->withCount('contrats')
-            ->orderByDesc('created_at')
+        $biens = Bien::with(['proprietaire', 'contratActif.locataire'])
+            ->when($request->statut, fn($q, $s) => $q->where('statut', $s))
+            ->when($request->type, fn($q, $t) => $q->where('type', $t))
+            ->latest()
             ->paginate(12);
 
         return view('biens.index', compact('biens'));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // FORMULAIRE CRÉATION
-    // ─────────────────────────────────────────────────────────────────────
+    /**
+     * Détail d'un bien.
+     * GET /biens/{bien}
+     */
+    public function show(Bien $bien): View
+    {
+        // L'AgencyScope garantit que $bien appartient à l'agence (404 sinon).
+        // La Policy affine selon le rôle (proprietaire, locataire...).
+        $this->authorize('view', $bien);
 
-    public function create()
+        $bien->load([
+            'proprietaire',
+            'contratActif.locataire',
+            'contrats' => fn($q) => $q->latest()->limit(5),
+            'paiements' => fn($q) => $q->latest()->limit(10),
+        ]);
+
+        return view('biens.show', compact('bien'));
+    }
+
+    /**
+     * Formulaire de création.
+     * GET /biens/create
+     */
+    public function create(): View
     {
         $this->authorize('create', Bien::class);
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        // select() — pour le dropdown, on n'a besoin que de id et name
-        $proprietaires = $user->isAdmin()
-            ? User::where('role', 'proprietaire')
-                  ->where('agency_id', $user->agency_id)
-                  ->select(['id', 'name', 'telephone'])
-                  ->orderBy('name')
-                  ->get()
-            : collect([$user]);
+        // Eager load : uniquement les propriétaires de l'agence (AgencyScope actif)
+        $proprietaires = Proprietaire::orderBy('nom')->get(['id', 'nom', 'prenom']);
 
         return view('biens.create', compact('proprietaires'));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // ENREGISTREMENT
-    // ─────────────────────────────────────────────────────────────────────
-
+    /**
+     * Enregistrement d'un nouveau bien.
+     * POST /biens
+     */
     public function store(Request $request): RedirectResponse
     {
         $this->authorize('create', Bien::class);
 
-        $agencyId = Auth::user()->agency_id;
-
         $validated = $request->validate([
-            'proprietaire_id' => [
-                'required', 'exists:users,id',
-                function ($attr, $value, $fail) use ($agencyId) {
-                    $proprietaire = User::find($value);
-                    if (! $proprietaire || $proprietaire->agency_id !== $agencyId) {
-                        $fail('Ce propriétaire n\'appartient pas à votre agence.');
-                    }
-                },
-            ],
-            'type'            => ['required', 'string', 'max:100'],
-            'adresse'         => ['required', 'string', 'max:255'],
-            'ville'           => ['required', 'string', 'max:100'],
-            'quartier'        => ['nullable', 'string', 'max:100'],
-            'commune'         => ['nullable', 'string', 'max:100'],
-            'surface_m2'      => ['nullable', 'integer', 'min:1'],
-            'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
-            'loyer_mensuel'   => ['required', 'numeric', 'min:1'],
-            'taux_commission' => ['required', 'numeric', 'min:1', 'max:20'],
-            'statut'          => ['required', 'in:disponible,loue,en_travaux'],
-            'meuble'          => ['boolean'],
-            'description'     => ['nullable', 'string', 'max:1000'],
+            'proprietaire_id'    => ['required', 'exists:proprietaires,id'],
+            'type'               => ['required', 'in:appartement,villa,bureau,commerce,terrain'],
+            'titre'              => ['required', 'string', 'max:255'],
+            'description'        => ['nullable', 'string'],
+            'adresse'            => ['required', 'string'],
+            'quartier'           => ['required', 'string', 'max:100'],
+            'ville'              => ['required', 'string', 'max:100'],
+            'surface'            => ['required', 'numeric', 'min:1'],
+            'nb_pieces'          => ['nullable', 'integer', 'min:1'],
+            'loyer_hors_charges' => ['required', 'numeric', 'min:0'],
+            'charges'            => ['nullable', 'numeric', 'min:0'],
+            'depot_garantie'     => ['nullable', 'numeric', 'min:0'],
+            'meuble'             => ['boolean'],
         ]);
 
-        $countAgence = Bien::withoutGlobalScopes()->where('agency_id', $agencyId)->count() + 1;
-        $reference   = sprintf(
-            'BIEN-%s-%s-%s',
-            now()->year,
-            str_pad($countAgence, 4, '0', STR_PAD_LEFT),
-            strtoupper(substr(uniqid(), -4))
-        );
+        // Injection de l'agency_id depuis l'utilisateur connecté (jamais depuis le form)
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+        $validated['agency_id'] = $authUser->agency_id;
+        $validated['statut']    = 'disponible';
+        $validated['reference'] = $this->generateReference();
 
-        $bien = Bien::create(array_merge($validated, [
-            'reference' => $reference,
-            'meuble'    => $request->boolean('meuble'),
-        ]));
+        $bien = Bien::create($validated);
 
         return redirect()
             ->route('biens.show', $bien)
-            ->with('success', "Bien {$reference} créé ✓");
+            ->with('success', 'Bien créé avec succès.');
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // DÉTAIL
-    // ─────────────────────────────────────────────────────────────────────
-
-    public function show(Bien $bien)
-    {
-        $this->authorize('view', $bien);
-
-        // Eager load complet pour la fiche détaillée — ici on veut tout
-        $bien->load('proprietaire', 'photos', 'contratActif.locataire');
-
-        /**
-         * PERFORMANCE — Agrégat SQL au lieu de whereIn + sum en PHP.
-         *
-         * On utilise l'ID du contrat actif s'il existe,
-         * sinon on cherche via tous les contrats du bien.
-         */
-        $contratIds = $bien->contrats()->pluck('id');
-
-        $totalEncaisse = Paiement::whereIn('contrat_id', $contratIds)
-            ->where('statut', 'valide')
-            ->sum('montant_encaisse'); // SQL SUM — pas de get() en mémoire
-
-        $paiements = Paiement::whereIn('contrat_id', $contratIds)
-            ->select([
-                'id', 'contrat_id', 'agency_id', 'periode',
-                'montant_encaisse', 'net_proprietaire', 'commission_ttc',
-                'mode_paiement', 'date_paiement', 'statut', 'reference_paiement',
-            ])
-            ->with(['contrat:id,bien_id,locataire_id', 'contrat.locataire:id,name'])
-            ->where('statut', 'valide')
-            ->orderByDesc('periode')
-            ->paginate(10);
-
-        $contratActif = $bien->contratActif;
-
-return view('biens.show', compact('bien', 'totalEncaisse', 'paiements', 'contratActif'));
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
-    // FORMULAIRE ÉDITION
-    // ─────────────────────────────────────────────────────────────────────
-
-    public function edit(Bien $bien)
+    /**
+     * Formulaire de modification.
+     * GET /biens/{bien}/edit
+     */
+    public function edit(Bien $bien): View
     {
         $this->authorize('update', $bien);
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $proprietaires = $user->isAdmin()
-            ? User::where('role', 'proprietaire')
-                  ->where('agency_id', $user->agency_id)
-                  ->select(['id', 'name'])
-                  ->orderBy('name')
-                  ->get()
-            : collect([$user]);
+        $proprietaires = Proprietaire::orderBy('nom')->get(['id', 'nom', 'prenom']);
 
         return view('biens.edit', compact('bien', 'proprietaires'));
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // MISE À JOUR
-    // ─────────────────────────────────────────────────────────────────────
-
+    /**
+     * Mise à jour d'un bien.
+     * PUT /biens/{bien}
+     */
     public function update(Request $request, Bien $bien): RedirectResponse
     {
         $this->authorize('update', $bien);
 
         $validated = $request->validate([
-            'type'            => ['required', 'string', 'max:100'],
-            'adresse'         => ['required', 'string', 'max:255'],
-            'ville'           => ['required', 'string', 'max:100'],
-            'quartier'        => ['nullable', 'string', 'max:100'],
-            'commune'         => ['nullable', 'string', 'max:100'],
-            'surface_m2'      => ['nullable', 'integer', 'min:1'],
-            'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
-            'loyer_mensuel'   => ['required', 'numeric', 'min:1'],
-            'taux_commission' => ['required', 'numeric', 'min:1', 'max:20'],
-            'statut'          => ['required', 'in:disponible,loue,en_travaux'],
-            'meuble'          => ['boolean'],
-            'description'     => ['nullable', 'string', 'max:1000'],
+            'proprietaire_id'    => ['required', 'exists:proprietaires,id'],
+            'type'               => ['required', 'in:appartement,villa,bureau,commerce,terrain'],
+            'titre'              => ['required', 'string', 'max:255'],
+            'description'        => ['nullable', 'string'],
+            'adresse'            => ['required', 'string'],
+            'quartier'           => ['required', 'string', 'max:100'],
+            'ville'              => ['required', 'string', 'max:100'],
+            'surface'            => ['required', 'numeric', 'min:1'],
+            'nb_pieces'          => ['nullable', 'integer', 'min:1'],
+            'loyer_hors_charges' => ['required', 'numeric', 'min:0'],
+            'charges'            => ['nullable', 'numeric', 'min:0'],
+            'depot_garantie'     => ['nullable', 'numeric', 'min:0'],
+            'meuble'             => ['boolean'],
         ]);
 
-        $bien->update(array_merge($validated, ['meuble' => $request->boolean('meuble')]));
+        $bien->update($validated);
 
-        return redirect()->route('biens.show', $bien)->with('success', 'Bien mis à jour ✓');
+        return redirect()
+            ->route('biens.show', $bien)
+            ->with('success', 'Bien mis à jour avec succès.');
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // SUPPRESSION
-    // ─────────────────────────────────────────────────────────────────────
-
+    /**
+     * Suppression (soft delete) d'un bien.
+     * DELETE /biens/{bien}
+     */
     public function destroy(Bien $bien): RedirectResponse
     {
         $this->authorize('delete', $bien);
 
-        if ($bien->contrats()->where('statut', 'actif')->exists()) {
-            return back()->withErrors([
-                'general' => 'Impossible de supprimer un bien avec un contrat actif.',
-            ]);
-        }
+        $bien->delete(); // SoftDelete → bien archivé, pas perdu
 
-        $bien->delete();
+        return redirect()
+            ->route('biens.index')
+            ->with('success', 'Bien archivé avec succès.');
+    }
 
-        return redirect()->route('biens.index')->with('success', 'Bien supprimé ✓');
+    // ─── Méthodes privées ──────────────────────────────────────────────────
+
+    /**
+     * Génère une référence unique pour un bien.
+     * Format : BT-AGXX-YYYY (ex: BT-AG04-0023)
+     */
+    private function generateReference(): string
+    {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        $agencyId = str_pad($authUser->agency_id, 2, '0', STR_PAD_LEFT);
+        $count    = Bien::withoutGlobalScope(\App\Models\Scopes\AgencyScope::class)
+            ->where('agency_id', $authUser->agency_id)
+            ->withTrashed()
+            ->count() + 1;
+
+        return 'BT-AG' . $agencyId . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
     }
 }

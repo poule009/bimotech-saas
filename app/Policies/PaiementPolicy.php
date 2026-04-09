@@ -4,94 +4,136 @@ namespace App\Policies;
 
 use App\Models\Paiement;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
+/**
+ * PaiementPolicy — Règles d'accès sur les paiements de loyer.
+ *
+ * Sensibilité maximale : les paiements impliquent des montants réels,
+ * des quittances légales et des rapports financiers.
+ * Le locataire peut VOIR ses paiements mais jamais les créer/modifier.
+ * Seul l'admin peut enregistrer et valider un paiement.
+ */
 class PaiementPolicy
 {
-    public function before(User $user, string $ability): bool|null
+    use HandlesAuthorization;
+
+    public function before(User $user, string $ability): ?bool
     {
-        if ($user->isSuperAdmin()) {
+        if ($user->role === 'superadmin') {
             return true;
         }
+
         return null;
     }
 
+    /**
+     * Voir la liste des paiements.
+     */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        // Locataires : accès à leur propre historique via une route dédiée
+        // Propriétaires : accès à l'historique de leurs biens
+        return in_array($user->role, ['admin', 'proprietaire', 'locataire']);
     }
 
-    // ✅ CORRECTION M5 : on ne recharge la relation que si elle n'est pas déjà en mémoire
-    public function view(User $user, Paiement $paiement): bool
+    /**
+     * Voir un paiement spécifique.
+     */
+    public function view(User $user, Paiement $paiement): Response
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
+        return match ($user->role) {
+            'admin' => $user->agency_id === $paiement->agency_id
+                ? Response::allow()
+                : Response::deny('Ce paiement n\'appartient pas à votre agence.'),
 
-        if ($user->isLocataire()) {
-            $this->chargerContrat($paiement);
-            return $paiement->contrat?->locataire_id === $user->id;
-        }
+            'proprietaire' => $paiement->contrat?->bien?->proprietaire_id === $user->id
+                ? Response::allow()
+                : Response::deny('Ce paiement ne concerne pas l\'un de vos biens.'),
 
-        if ($user->isProprietaire()) {
-            $this->chargerContratAvecBien($paiement);
-            return $paiement->contrat?->bien?->proprietaire_id === $user->id;
-        }
+            'locataire' => $paiement->contrat?->locataire_id === $user->locataire?->id
+                ? Response::allow()
+                : Response::deny('Ce paiement ne vous concerne pas.'),
 
-        return false;
+            default => Response::deny('Accès refusé.'),
+        };
     }
 
+    /**
+     * Enregistrer un nouveau paiement.
+     * Action réservée à l'admin. Un locataire ne s'auto-valide pas.
+     */
     public function create(User $user): bool
     {
-        return $user->isAdmin();
+        return $user->role === 'admin';
     }
 
-    public function update(User $user, Paiement $paiement): bool
+    /**
+     * Modifier un paiement existant.
+     * Règle métier : un paiement 'validé' est immuable (quittance émise).
+     */
+    public function update(User $user, Paiement $paiement): Response
     {
-        return $user->isAdmin();
+        if ($user->role !== 'admin') {
+            return Response::deny('Seul un administrateur peut modifier un paiement.');
+        }
+
+        if ($paiement->statut === 'valide') {
+            return Response::deny('Un paiement validé avec quittance émise ne peut pas être modifié.');
+        }
+
+        return $user->agency_id === $paiement->agency_id
+            ? Response::allow()
+            : Response::deny('Ce paiement n\'appartient pas à votre agence.');
     }
 
-    public function delete(User $user, Paiement $paiement): bool
+    /**
+     * Valider un paiement (déclenche la génération de quittance).
+     */
+    public function valider(User $user, Paiement $paiement): Response
     {
-        return $user->isAdmin();
+        if ($user->role !== 'admin') {
+            return Response::deny('Seul un administrateur peut valider un paiement.');
+        }
+
+        if ($paiement->statut !== 'en_attente') {
+            return Response::deny('Seul un paiement en attente peut être validé.');
+        }
+
+        return $user->agency_id === $paiement->agency_id
+            ? Response::allow()
+            : Response::deny('Accès refusé.');
     }
 
-    public function downloadPdf(User $user, Paiement $paiement): bool
+    /**
+     * Télécharger une quittance PDF.
+     * Le locataire peut télécharger SA quittance. Le proprio aussi.
+     */
+    public function telechargerQuittance(User $user, Paiement $paiement): Response
     {
-        if ($user->isAdmin()) {
-            return true;
+        if ($paiement->statut !== 'valide') {
+            return Response::deny('La quittance n\'est disponible que pour les paiements validés.');
         }
 
-        if ($user->isLocataire()) {
-            $this->chargerContrat($paiement);
-            return $paiement->contrat?->locataire_id === $user->id;
-        }
-
-        if ($user->isProprietaire()) {
-            $this->chargerContratAvecBien($paiement);
-            return $paiement->contrat?->bien?->proprietaire_id === $user->id;
-        }
-
-        return false;
+        return $this->view($user, $paiement);
     }
 
-    // Charge le contrat seulement s'il n'est pas déjà en mémoire
-    private function chargerContrat(Paiement $paiement): void
+    /**
+     * Supprimer un paiement (quasi-impossible en prod).
+     */
+    public function delete(User $user, Paiement $paiement): Response
     {
-        if (! $paiement->relationLoaded('contrat')) {
-            $paiement->load('contrat:id,locataire_id,bien_id');
+        if ($user->role !== 'admin') {
+            return Response::deny('Action non autorisée.');
         }
-    }
 
-    // Charge le contrat + le bien seulement si nécessaire
-    private function chargerContratAvecBien(Paiement $paiement): void
-    {
-        if (! $paiement->relationLoaded('contrat')) {
-            $paiement->load([
-                'contrat:id,locataire_id,bien_id',
-                'contrat.bien:id,proprietaire_id',
-            ]);
-        } elseif (! $paiement->contrat->relationLoaded('bien')) {
-            $paiement->contrat->load('bien:id,proprietaire_id');
+        if ($paiement->statut === 'valide') {
+            return Response::deny('Impossible de supprimer un paiement avec quittance émise.');
         }
+
+        return $user->agency_id === $paiement->agency_id
+            ? Response::allow()
+            : Response::deny('Accès refusé.');
     }
 }
