@@ -31,9 +31,17 @@ class ContratController extends Controller
             'bien:id,agency_id,reference,adresse,ville,type',
             'locataire:id,name,email',
         ])->select([
-            'id', 'agency_id', 'bien_id', 'locataire_id',
-            'date_debut', 'date_fin', 'loyer_contractuel',
-            'caution', 'statut', 'type_bail', 'reference_bail',
+            'id',
+            'agency_id',
+            'bien_id',
+            'locataire_id',
+            'date_debut',
+            'date_fin',
+            'loyer_contractuel',
+            'caution',
+            'statut',
+            'type_bail',
+            'reference_bail',
         ]);
 
         if ($request->filled('statut')) {
@@ -46,8 +54,8 @@ class ContratController extends Controller
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('reference_bail', 'like', "%{$search}%")
-                  ->orWhereHas('locataire', fn($u) => $u->where('name', 'like', "%{$search}%"))
-                  ->orWhereHas('bien', fn($b) => $b->where('reference', 'like', "%{$search}%"));
+                    ->orWhereHas('locataire', fn($u) => $u->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('bien', fn($b) => $b->where('reference', 'like', "%{$search}%"));
             });
         }
 
@@ -81,8 +89,18 @@ class ContratController extends Controller
         $agencyId = Auth::user()->agency_id;
 
         $biens = Bien::where('statut', 'disponible')
-            ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type',
-                      'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble'])
+            ->select([
+                'id',
+                'agency_id',
+                'proprietaire_id',
+                'reference',
+                'type',
+                'adresse',
+                'ville',
+                'loyer_mensuel',
+                'taux_commission',
+                'meuble'
+            ])
             ->with(['proprietaire:id,name'])
             ->orderBy('reference')
             ->get();
@@ -95,13 +113,16 @@ class ContratController extends Controller
 
         $bienPreselectionne = $request->filled('bien_id')
             ? Bien::select(['id', 'reference', 'loyer_mensuel', 'taux_commission', 'meuble', 'type'])
-                  ->find($request->bien_id)
+            ->find($request->bien_id)
             : null;
 
         $typesBail = Contrat::TYPES_BAIL;
 
         return view('admin.contrats.create', compact(
-            'biens', 'locataires', 'bienPreselectionne', 'typesBail'
+            'biens',
+            'locataires',
+            'bienPreselectionne',
+            'typesBail'
         ));
     }
 
@@ -124,10 +145,10 @@ class ContratController extends Controller
             'charges_mensuelles' => ['nullable', 'numeric', 'min:0'],
             'tom_amount'         => ['nullable', 'numeric', 'min:0'],
             'caution'            => ['required', 'numeric', 'min:0'],
-            'nombre_mois_caution'=> ['nullable', 'integer', 'min:1', 'max:6'],
+            'nombre_mois_caution' => ['nullable', 'integer', 'min:1', 'max:6'],
             'frais_agence'       => ['nullable', 'numeric', 'min:0'],
             'type_bail'          => ['required', 'in:habitation,commercial,mixte,saisonnier'],
-            'indexation_annuelle'=> ['nullable', 'numeric', 'min:0', 'max:20'],
+            'indexation_annuelle' => ['nullable', 'numeric', 'min:0', 'max:20'],
             'garant_nom'         => ['nullable', 'string', 'max:150'],
             'garant_telephone'   => ['nullable', 'string', 'max:30'],
             'garant_adresse'     => ['nullable', 'string', 'max:255'],
@@ -213,16 +234,28 @@ class ContratController extends Controller
         // Liste paiements
         $paiements = Paiement::where('contrat_id', $contrat->id)
             ->select([
-                'id', 'contrat_id', 'agency_id', 'periode', 'date_paiement',
-                'montant_encaisse', 'net_proprietaire', 'commission_ttc',
-                'mode_paiement', 'statut', 'reference_paiement',
+                'id',
+                'contrat_id',
+                'agency_id',
+                'periode',
+                'date_paiement',
+                'montant_encaisse',
+                'net_proprietaire',
+                'commission_ttc',
+                'mode_paiement',
+                'statut',
+                'reference_paiement',
             ])
             ->orderByDesc('periode')
             ->get();
 
         return view('admin.contrats.show', compact(
-            'contrat', 'totalPaye', 'totalNet', 'nbPaiements',
-            'prochainePeriode', 'paiements'
+            'contrat',
+            'totalPaye',
+            'totalNet',
+            'nbPaiements',
+            'prochainePeriode',
+            'paiements'
         ));
     }
 
@@ -265,10 +298,10 @@ class ContratController extends Controller
             'charges_mensuelles' => ['nullable', 'numeric', 'min:0'],
             'tom_amount'         => ['nullable', 'numeric', 'min:0'],
             'caution'            => ['required', 'numeric', 'min:0'],
-            'nombre_mois_caution'=> ['nullable', 'integer', 'min:1', 'max:6'],
+            'nombre_mois_caution' => ['nullable', 'integer', 'min:1', 'max:6'],
             'frais_agence'       => ['nullable', 'numeric', 'min:0'],
             'type_bail'          => ['required', 'in:habitation,commercial,mixte,saisonnier'],
-            'indexation_annuelle'=> ['nullable', 'numeric', 'min:0', 'max:20'],
+            'indexation_annuelle' => ['nullable', 'numeric', 'min:0', 'max:20'],
             'garant_nom'         => ['nullable', 'string', 'max:150'],
             'garant_telephone'   => ['nullable', 'string', 'max:30'],
             'garant_adresse'     => ['nullable', 'string', 'max:255'],

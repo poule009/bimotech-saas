@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<title>Quittance {{ $paiement->reference_paiement }}</title>
+<title>Quittance <?php echo e($paiement->reference_paiement); ?></title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1f2937; background:#fff; }
@@ -92,7 +92,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
 </head>
 <body>
 
-@php
+<?php
     $agence       = $agence ?? auth()->user()?->agency;
     $contrat      = $paiement->contrat;
     $bien         = $contrat?->bien;
@@ -119,92 +119,99 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
         : now()->format('d/m/Y');
 
     $refBail = $paiement->reference_bail ?? ($contrat?->reference_bail ?? 'BAIL-'.$contrat?->id);
-@endphp
+?>
 
-{{-- ─── EN-TÊTE ─── --}}
+
 <div class="header">
     <div class="header-inner">
         <div class="header-left">
-            <div class="agency-name">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+            <div class="agency-name"><?php echo e($agence?->name ?? 'BimoTech Immo'); ?></div>
             <div class="agency-sub">
-                {{ $agence?->adresse ?? '' }}
-                @if($agence?->telephone) · {{ $agence->telephone }} @endif
-                @if($agence?->email) · {{ $agence->email }} @endif
+                <?php echo e($agence?->adresse ?? ''); ?>
+
+                <?php if($agence?->telephone): ?> · <?php echo e($agence->telephone); ?> <?php endif; ?>
+                <?php if($agence?->email): ?> · <?php echo e($agence->email); ?> <?php endif; ?>
             </div>
-            @if($agence?->ninea)
-            <div class="agency-sub">NINEA : {{ $agence->ninea }}</div>
-            @endif
+            <?php if($agence?->ninea): ?>
+            <div class="agency-sub">NINEA : <?php echo e($agence->ninea); ?></div>
+            <?php endif; ?>
         </div>
         <div class="header-right">
             <div class="doc-title">Quittance de loyer</div>
-            <div class="doc-ref">Réf. {{ $paiement->reference_paiement }}</div>
+            <div class="doc-ref">Réf. <?php echo e($paiement->reference_paiement); ?></div>
         </div>
     </div>
 </div>
 <div class="gold-bar"></div>
 
-{{-- ─── PÉRIODE ─── --}}
+
 <div class="periode-section">
     <div class="periode-left">
         <div class="periode-label">Période concernée</div>
-        <div class="periode-value">{{ $periode->translatedFormat('F Y') }}</div>
+        <div class="periode-value"><?php echo e($periode->translatedFormat('F Y')); ?></div>
     </div>
     <div class="periode-right">
         <div class="statut-badge">Paiement validé</div>
-        <div style="font-size:9px;color:#6b7280;margin-top:4px">Le {{ $datePaiement }}</div>
+        <div style="font-size:9px;color:#6b7280;margin-top:4px">Le <?php echo e($datePaiement); ?></div>
     </div>
 </div>
 
-{{-- ─── CONTENU ─── --}}
+
 <div class="main">
 
-    {{-- PARTIES --}}
+    
     <div class="parties-grid">
         <div class="partie-cell">
             <div class="partie-label">Bailleur (Propriétaire)</div>
-            <div class="partie-name">{{ $proprietaire?->name ?? '—' }}</div>
+            <div class="partie-name"><?php echo e($proprietaire?->name ?? '—'); ?></div>
             <div class="partie-info">
-                {{ $proprietaire?->email ?? '' }}<br>
-                {{ $proprietaire?->telephone ?? '' }}<br>
-                {{ $proprietaire?->adresse ?? '' }}
+                <?php echo e($proprietaire?->email ?? ''); ?><br>
+                <?php echo e($proprietaire?->telephone ?? ''); ?><br>
+                <?php echo e($proprietaire?->adresse ?? ''); ?>
+
             </div>
         </div>
         <div class="partie-spacer"></div>
         <div class="partie-cell">
             <div class="partie-label">Preneur (Locataire)</div>
-            <div class="partie-name">{{ $locataire?->name ?? '—' }}</div>
+            <div class="partie-name"><?php echo e($locataire?->name ?? '—'); ?></div>
             <div class="partie-info">
-                {{ $locataire?->email ?? '' }}<br>
-                {{ $locataire?->telephone ?? '' }}<br>
-                {{ $locataire?->adresse ?? '' }}
+                <?php echo e($locataire?->email ?? ''); ?><br>
+                <?php echo e($locataire?->telephone ?? ''); ?><br>
+                <?php echo e($locataire?->adresse ?? ''); ?>
+
             </div>
         </div>
     </div>
 
-    {{-- BIEN --}}
+    
     <div class="bien-section">
         <div class="bien-left">
-            <div class="bien-label">Bien loué — Réf. bail : {{ $refBail }}</div>
+            <div class="bien-label">Bien loué — Réf. bail : <?php echo e($refBail); ?></div>
             <div class="bien-ref">
-                {{ \App\Models\Bien::TYPES[$bien?->type] ?? $bien?->type }}
-                — {{ $bien?->reference }}
-                @if($bien?->meuble) (Meublé) @endif
+                <?php echo e(\App\Models\Bien::TYPES[$bien?->type] ?? $bien?->type); ?>
+
+                — <?php echo e($bien?->reference); ?>
+
+                <?php if($bien?->meuble): ?> (Meublé) <?php endif; ?>
             </div>
             <div class="bien-adresse">
-                {{ $bien?->adresse }}
-                @if($bien?->quartier), {{ $bien->quartier }} @endif
-                @if($bien?->commune), {{ $bien->commune }} @endif
-                — {{ $bien?->ville }}
+                <?php echo e($bien?->adresse); ?>
+
+                <?php if($bien?->quartier): ?>, <?php echo e($bien->quartier); ?> <?php endif; ?>
+                <?php if($bien?->commune): ?>, <?php echo e($bien->commune); ?> <?php endif; ?>
+                — <?php echo e($bien?->ville); ?>
+
             </div>
         </div>
         <div class="bien-right">
             <div class="loyer-label">Loyer mensuel</div>
-            <div class="loyer-val">{{ number_format($montant, 0, ',', ' ') }}</div>
+            <div class="loyer-val"><?php echo e(number_format($montant, 0, ',', ' ')); ?></div>
             <div class="loyer-unit">FCFA encaissés</div>
         </div>
     </div>
 
-    {{-- DÉCOMPTE --}}
+    
     <div class="section-title">Décompte du loyer</div>
     <table>
         <thead>
@@ -217,41 +224,41 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
         <tbody>
             <tr>
                 <td>Loyer nu</td>
-                <td class="right">{{ number_format($loyerNu, 0, ',', ' ') }}</td>
+                <td class="right"><?php echo e(number_format($loyerNu, 0, ',', ' ')); ?></td>
                 <td class="right label">Base de calcul commission</td>
             </tr>
-            @if($charges > 0)
+            <?php if($charges > 0): ?>
             <tr>
                 <td>Charges récupérables</td>
-                <td class="right">{{ number_format($charges, 0, ',', ' ') }}</td>
+                <td class="right"><?php echo e(number_format($charges, 0, ',', ' ')); ?></td>
                 <td class="right label">Eau, électricité, etc.</td>
             </tr>
-            @endif
-            @if($tom > 0)
+            <?php endif; ?>
+            <?php if($tom > 0): ?>
             <tr>
                 <td>TOM (Taxe Ordures Ménagères)</td>
-                <td class="right">{{ number_format($tom, 0, ',', ' ') }}</td>
+                <td class="right"><?php echo e(number_format($tom, 0, ',', ' ')); ?></td>
                 <td class="right label">Part locataire</td>
             </tr>
-            @endif
-            @if($tvaLoyer > 0)
+            <?php endif; ?>
+            <?php if($tvaLoyer > 0): ?>
             <tr>
                 <td>TVA sur loyer (18%)</td>
-                <td class="right">{{ number_format($tvaLoyer, 0, ',', ' ') }}</td>
+                <td class="right"><?php echo e(number_format($tvaLoyer, 0, ',', ' ')); ?></td>
                 <td class="right label">Art. 357 CGI SN</td>
             </tr>
-            @endif
+            <?php endif; ?>
         </tbody>
         <tfoot>
             <tr class="total-row">
                 <td>Total encaissé</td>
-                <td class="right gold">{{ number_format($montant, 0, ',', ' ') }} FCFA</td>
+                <td class="right gold"><?php echo e(number_format($montant, 0, ',', ' ')); ?> FCFA</td>
                 <td class="right"></td>
             </tr>
         </tfoot>
     </table>
 
-    {{-- COMMISSION AGENCE --}}
+    
     <div class="section-title">Commission agence</div>
     <table>
         <thead>
@@ -264,40 +271,40 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
         <tbody>
             <tr>
                 <td>Commission agence HT</td>
-                <td class="right">{{ $tauxComm }} %</td>
-                <td class="right">{{ number_format($commHt, 0, ',', ' ') }}</td>
+                <td class="right"><?php echo e($tauxComm); ?> %</td>
+                <td class="right"><?php echo e(number_format($commHt, 0, ',', ' ')); ?></td>
             </tr>
             <tr>
                 <td>TVA sur commission (18%)</td>
                 <td class="right">18 %</td>
-                <td class="right">{{ number_format($tvaComm, 0, ',', ' ') }}</td>
+                <td class="right"><?php echo e(number_format($tvaComm, 0, ',', ' ')); ?></td>
             </tr>
-            @if($brs > 0)
+            <?php if($brs > 0): ?>
             <tr>
                 <td>BRS — Retenue à la source</td>
-                <td class="right">{{ $paiement->taux_brs_applique ?? 0 }} %</td>
-                <td class="right">{{ number_format($brs, 0, ',', ' ') }}</td>
+                <td class="right"><?php echo e($paiement->taux_brs_applique ?? 0); ?> %</td>
+                <td class="right"><?php echo e(number_format($brs, 0, ',', ' ')); ?></td>
             </tr>
-            @endif
+            <?php endif; ?>
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="2">Commission TTC</td>
-                <td class="right" style="font-weight:700;color:#c9a84c">{{ number_format($commTtc, 0, ',', ' ') }} FCFA</td>
+                <td class="right" style="font-weight:700;color:#c9a84c"><?php echo e(number_format($commTtc, 0, ',', ' ')); ?> FCFA</td>
             </tr>
             <tr class="net-row">
                 <td colspan="2">Net à reverser au propriétaire</td>
-                <td class="right gold">{{ number_format($netAVerser, 0, ',', ' ') }} FCFA</td>
+                <td class="right gold"><?php echo e(number_format($netAVerser, 0, ',', ' ')); ?> FCFA</td>
             </tr>
         </tfoot>
     </table>
 
-    {{-- INFOS PAIEMENT --}}
+    
     <div class="paiement-info">
         <div class="pi-cell">
             <div class="pi-label">Mode de paiement</div>
             <div class="pi-value">
-                @php
+                <?php
                     $modes = [
                         'especes'      => 'Espèces',
                         'virement'     => 'Virement bancaire',
@@ -307,68 +314,72 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
                         'free_money'   => 'Free Money',
                         'e_money'      => 'E-Money',
                     ];
-                @endphp
-                {{ $modes[$paiement->mode_paiement] ?? $paiement->mode_paiement }}
+                ?>
+                <?php echo e($modes[$paiement->mode_paiement] ?? $paiement->mode_paiement); ?>
+
             </div>
         </div>
         <div class="pi-spacer"></div>
         <div class="pi-cell">
             <div class="pi-label">Date de paiement</div>
-            <div class="pi-value">{{ $datePaiement }}</div>
+            <div class="pi-value"><?php echo e($datePaiement); ?></div>
         </div>
         <div class="pi-spacer"></div>
         <div class="pi-cell">
             <div class="pi-label">Référence paiement</div>
-            <div class="pi-value" style="font-size:9px">{{ $paiement->reference_paiement }}</div>
+            <div class="pi-value" style="font-size:9px"><?php echo e($paiement->reference_paiement); ?></div>
         </div>
     </div>
 
-    @if($paiement->notes)
+    <?php if($paiement->notes): ?>
     <div class="mention">
-        <strong>Notes :</strong> {{ $paiement->notes }}
-    </div>
-    @endif
+        <strong>Notes :</strong> <?php echo e($paiement->notes); ?>
 
-    {{-- MENTION LÉGALE --}}
+    </div>
+    <?php endif; ?>
+
+    
     <div class="mention">
-        Quittance délivrée conformément au contrat de bail ref. {{ $refBail }}.
-        Cette quittance atteste que le loyer du mois de {{ $periode->translatedFormat('F Y') }}
+        Quittance délivrée conformément au contrat de bail ref. <?php echo e($refBail); ?>.
+        Cette quittance atteste que le loyer du mois de <?php echo e($periode->translatedFormat('F Y')); ?>
+
         a été intégralement acquitté. Commission calculée conformément à l'Art. 357 du CGI SN.
-        Document généré le {{ now()->format('d/m/Y') }} par {{ $agence?->name ?? 'BimoTech Immo' }}.
+        Document généré le <?php echo e(now()->format('d/m/Y')); ?> par <?php echo e($agence?->name ?? 'BimoTech Immo'); ?>.
     </div>
 
-    {{-- SIGNATURES --}}
+    
     <div class="signature-section">
         <div class="sig-cell">
             <div class="sig-label">Signature du bailleur / Cachet agence</div>
-            <div class="sig-line">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+            <div class="sig-line"><?php echo e($agence?->name ?? 'BimoTech Immo'); ?></div>
         </div>
         <div class="sig-spacer"></div>
         <div class="sig-cell">
             <div class="sig-label">Signature du locataire</div>
-            <div class="sig-line">{{ $locataire?->name ?? '' }}</div>
+            <div class="sig-line"><?php echo e($locataire?->name ?? ''); ?></div>
         </div>
     </div>
 
 </div>
 
-{{-- PIED DE PAGE --}}
+
 <div class="footer">
     <div class="footer-left">
         <div class="footer-text">
-            {{ $agence?->name ?? 'BimoTech Immo' }}
-            @if($agence?->adresse) · {{ $agence->adresse }} @endif
-            @if($agence?->telephone) · {{ $agence->telephone }} @endif
+            <?php echo e($agence?->name ?? 'BimoTech Immo'); ?>
+
+            <?php if($agence?->adresse): ?> · <?php echo e($agence->adresse); ?> <?php endif; ?>
+            <?php if($agence?->telephone): ?> · <?php echo e($agence->telephone); ?> <?php endif; ?>
         </div>
         <div class="footer-text" style="margin-top:2px">
             Plateforme BimoTech Immo — Gestion immobilière conforme CGI SN
         </div>
     </div>
     <div class="footer-right">
-        <div class="footer-text">Réf. {{ $paiement->reference_paiement }}</div>
-        <div class="footer-text">{{ now()->format('d/m/Y') }}</div>
+        <div class="footer-text">Réf. <?php echo e($paiement->reference_paiement); ?></div>
+        <div class="footer-text"><?php echo e(now()->format('d/m/Y')); ?></div>
     </div>
 </div>
 
 </body>
-</html>
+</html><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/paiements/pdf/quittance.blade.php ENDPATH**/ ?>

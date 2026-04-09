@@ -1,8 +1,8 @@
-@extends('layouts.app')
-@section('title', 'Impayés')
-@section('breadcrumb', 'Paiements › Impayés')
 
-@section('content')
+<?php $__env->startSection('title', 'Impayés'); ?>
+<?php $__env->startSection('breadcrumb', 'Paiements › Impayés'); ?>
+
+<?php $__env->startSection('content'); ?>
 <style>
 .kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
 .kpi { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px; }
@@ -52,92 +52,94 @@
 
 <div style="padding:0 0 48px">
 
-    {{-- Header --}}
+    
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
                 Suivi des impayés
             </h1>
             <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                {{ $periode->translatedFormat('F Y') }}
-                · {{ $stats['nb_impayes'] }} impayé(s) sur {{ $stats['nb_impayes'] + $stats['nb_payes'] }} contrats actifs
+                <?php echo e($periode->translatedFormat('F Y')); ?>
+
+                · <?php echo e($stats['nb_impayes']); ?> impayé(s) sur <?php echo e($stats['nb_impayes'] + $stats['nb_payes']); ?> contrats actifs
             </p>
         </div>
 
-        {{-- Navigation mois --}}
+        
         <div class="month-nav">
-            @php
+            <?php
                 $prevMois  = $mois == 1  ? 12 : $mois - 1;
                 $prevAnnee = $mois == 1  ? $annee - 1 : $annee;
                 $nextMois  = $mois == 12 ? 1  : $mois + 1;
                 $nextAnnee = $mois == 12 ? $annee + 1 : $annee;
-            @endphp
-            <a href="{{ route('admin.impayes.index', ['mois' => $prevMois, 'annee' => $prevAnnee]) }}" class="month-btn">
+            ?>
+            <a href="<?php echo e(route('admin.impayes.index', ['mois' => $prevMois, 'annee' => $prevAnnee])); ?>" class="month-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             </a>
-            <div class="month-current">{{ $periode->translatedFormat('F Y') }}</div>
-            @if($nextAnnee < now()->year || ($nextAnnee == now()->year && $nextMois <= now()->month))
-            <a href="{{ route('admin.impayes.index', ['mois' => $nextMois, 'annee' => $nextAnnee]) }}" class="month-btn">
+            <div class="month-current"><?php echo e($periode->translatedFormat('F Y')); ?></div>
+            <?php if($nextAnnee < now()->year || ($nextAnnee == now()->year && $nextMois <= now()->month)): ?>
+            <a href="<?php echo e(route('admin.impayes.index', ['mois' => $nextMois, 'annee' => $nextAnnee])); ?>" class="month-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             </a>
-            @else
+            <?php else: ?>
             <span class="month-btn" style="opacity:.3;cursor:not-allowed">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             </span>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 
-    {{-- KPIs --}}
+    
     <div class="kpi-row">
         <div class="kpi red">
             <div class="kpi-lbl">Impayés</div>
-            <div class="kpi-val" style="color:#dc2626">{{ $stats['nb_impayes'] }}</div>
+            <div class="kpi-val" style="color:#dc2626"><?php echo e($stats['nb_impayes']); ?></div>
             <div class="kpi-sub">Contrats sans paiement</div>
         </div>
         <div class="kpi green">
             <div class="kpi-lbl">Payés</div>
-            <div class="kpi-val" style="color:#16a34a">{{ $stats['nb_payes'] }}</div>
+            <div class="kpi-val" style="color:#16a34a"><?php echo e($stats['nb_payes']); ?></div>
             <div class="kpi-sub">Paiements validés</div>
         </div>
         <div class="kpi orange">
             <div class="kpi-lbl">Montant dû</div>
             <div class="kpi-val" style="font-size:16px;color:#d97706">
-                {{ number_format($stats['montant_du'], 0, ',', ' ') }}
+                <?php echo e(number_format($stats['montant_du'], 0, ',', ' ')); ?>
+
             </div>
             <div class="kpi-sub">FCFA à recouvrer</div>
         </div>
         <div class="kpi blue">
             <div class="kpi-lbl">Taux recouvrement</div>
-            <div class="kpi-val" style="color:#1d4ed8">{{ $stats['taux_recouvrement'] }}%</div>
+            <div class="kpi-val" style="color:#1d4ed8"><?php echo e($stats['taux_recouvrement']); ?>%</div>
             <div class="kpi-sub">Ce mois</div>
         </div>
     </div>
 
-    {{-- Barre recouvrement --}}
+    
     <div class="recouvrement-bar">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
             <span style="font-size:12px;font-weight:600;color:#0d1117">Taux de recouvrement</span>
-            <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:{{ $stats['taux_recouvrement'] >= 80 ? '#16a34a' : ($stats['taux_recouvrement'] >= 50 ? '#d97706' : '#dc2626') }}">
-                {{ $stats['taux_recouvrement'] }}%
+            <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:<?php echo e($stats['taux_recouvrement'] >= 80 ? '#16a34a' : ($stats['taux_recouvrement'] >= 50 ? '#d97706' : '#dc2626')); ?>">
+                <?php echo e($stats['taux_recouvrement']); ?>%
             </span>
         </div>
         <div class="bar-track">
-            <div class="bar-fill" style="width:{{ $stats['taux_recouvrement'] }}%;background:{{ $stats['taux_recouvrement'] >= 80 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : ($stats['taux_recouvrement'] >= 50 ? 'linear-gradient(90deg,#d97706,#fbbf24)' : 'linear-gradient(90deg,#dc2626,#f87171)') }}"></div>
+            <div class="bar-fill" style="width:<?php echo e($stats['taux_recouvrement']); ?>%;background:<?php echo e($stats['taux_recouvrement'] >= 80 ? 'linear-gradient(90deg,#16a34a,#4ade80)' : ($stats['taux_recouvrement'] >= 50 ? 'linear-gradient(90deg,#d97706,#fbbf24)' : 'linear-gradient(90deg,#dc2626,#f87171)')); ?>"></div>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:#9ca3af">
-            <span>{{ $stats['nb_payes'] }} payés</span>
-            <span>{{ $stats['nb_impayes'] }} impayés</span>
+            <span><?php echo e($stats['nb_payes']); ?> payés</span>
+            <span><?php echo e($stats['nb_impayes']); ?> impayés</span>
         </div>
     </div>
 
-    {{-- ═══ TABLE IMPAYÉS ═══ --}}
-    @if($impayes->isNotEmpty())
+    
+    <?php if($impayes->isNotEmpty()): ?>
     <div class="table-card">
         <div class="table-hd">
             <div class="table-title" style="color:#dc2626">
                 <svg style="width:14px;height:14px;display:inline;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Impayés — {{ $impayes->count() }} contrat(s)
+                Impayés — <?php echo e($impayes->count()); ?> contrat(s)
             </div>
             <span style="font-size:11px;color:#9ca3af">Triés par retard décroissant</span>
         </div>
@@ -155,72 +157,77 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($impayes as $item)
-                    @php
+                    <?php $__currentLoopData = $impayes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $jr = $item['jours_retard'];
                         $urgent = $jr > 15;
-                    @endphp
-                    <tr class="{{ $urgent ? 'urgent' : '' }}">
+                    ?>
+                    <tr class="<?php echo e($urgent ? 'urgent' : ''); ?>">
                         <td>
                             <div style="font-weight:500;color:#0d1117">
-                                {{ $item['contrat']->bien?->reference ?? '—' }}
+                                <?php echo e($item['contrat']->bien?->reference ?? '—'); ?>
+
                             </div>
                             <div style="font-size:11px;color:#6b7280">
-                                {{ $item['contrat']->bien?->adresse }}, {{ $item['contrat']->bien?->ville }}
+                                <?php echo e($item['contrat']->bien?->adresse); ?>, <?php echo e($item['contrat']->bien?->ville); ?>
+
                             </div>
                         </td>
                         <td>
                             <div style="font-size:13px;color:#0d1117">
-                                {{ $item['contrat']->locataire?->name ?? '—' }}
+                                <?php echo e($item['contrat']->locataire?->name ?? '—'); ?>
+
                             </div>
                             <div style="font-size:11px;color:#6b7280">
-                                {{ $item['contrat']->locataire?->telephone ?? $item['contrat']->locataire?->email ?? '' }}
+                                <?php echo e($item['contrat']->locataire?->telephone ?? $item['contrat']->locataire?->email ?? ''); ?>
+
                             </div>
                         </td>
                         <td style="font-size:12px;color:#6b7280">
-                            {{ $item['contrat']->bien?->proprietaire?->name ?? '—' }}
+                            <?php echo e($item['contrat']->bien?->proprietaire?->name ?? '—'); ?>
+
                         </td>
                         <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:700;color:#dc2626">
-                            {{ number_format($item['montant_du'], 0, ',', ' ') }} F
+                            <?php echo e(number_format($item['montant_du'], 0, ',', ' ')); ?> F
                         </td>
                         <td style="text-align:center">
-                            @if($jr > 0)
-                                <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:{{ $jr > 15 ? '#dc2626' : ($jr > 7 ? '#d97706' : '#6b7280') }}">
-                                    {{ $jr }}j
+                            <?php if($jr > 0): ?>
+                                <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:<?php echo e($jr > 15 ? '#dc2626' : ($jr > 7 ? '#d97706' : '#6b7280')); ?>">
+                                    <?php echo e($jr); ?>j
                                 </span>
-                            @else
+                            <?php else: ?>
                                 <span style="font-size:11px;color:#9ca3af">Ce mois</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
                         <td style="text-align:center">
-                            @if($jr > 15)
+                            <?php if($jr > 15): ?>
                                 <span class="urgence-haute">🔴 Haute</span>
-                            @elseif($jr > 7)
+                            <?php elseif($jr > 7): ?>
                                 <span class="urgence-moy">🟡 Moyenne</span>
-                            @else
+                            <?php else: ?>
                                 <span class="urgence-bas">⚪ Faible</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
                         <td>
                             <div style="display:flex;align-items:center;justify-content:center;gap:4px">
-                                {{-- Enregistrer paiement --}}
-                                <a href="{{ route('admin.paiements.create', ['contrat_id' => $item['contrat']->id]) }}"
+                                
+                                <a href="<?php echo e(route('admin.paiements.create', ['contrat_id' => $item['contrat']->id])); ?>"
                                    class="act-btn green" title="Enregistrer le paiement">
                                     <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 </a>
-                                {{-- Voir contrat --}}
-                                <a href="{{ route('admin.contrats.show', $item['contrat']) }}"
+                                
+                                <a href="<?php echo e(route('admin.contrats.show', $item['contrat'])); ?>"
                                    class="act-btn" title="Voir le contrat">
                                     <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                {{-- Relance --}}
+                                
                                 <form method="POST"
-                                      action="{{ route('admin.impayes.relance', $item['contrat']) }}">
-                                    @csrf
-                                    <input type="hidden" name="mois" value="{{ $mois }}">
-                                    <input type="hidden" name="annee" value="{{ $annee }}">
+                                      action="<?php echo e(route('admin.impayes.relance', $item['contrat'])); ?>">
+                                    <?php echo csrf_field(); ?>
+                                    <input type="hidden" name="mois" value="<?php echo e($mois); ?>">
+                                    <input type="hidden" name="annee" value="<?php echo e($annee); ?>">
                                     <button type="submit" class="btn-relance" title="Envoyer relance email"
-                                            onclick="return confirm('Envoyer une relance à {{ $item['contrat']->locataire?->name }} ?')">
+                                            onclick="return confirm('Envoyer une relance à <?php echo e($item['contrat']->locataire?->name); ?> ?')">
                                         <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                                         Relancer
                                     </button>
@@ -228,30 +235,30 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
     </div>
-    @else
+    <?php else: ?>
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:32px;text-align:center;margin-bottom:20px">
         <svg style="width:36px;height:36px;color:#16a34a;margin:0 auto 12px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
         <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#16a34a;margin-bottom:4px">
             Aucun impayé ce mois !
         </div>
         <div style="font-size:13px;color:#6b7280">
-            Tous les loyers de {{ $periode->translatedFormat('F Y') }} ont été réglés.
+            Tous les loyers de <?php echo e($periode->translatedFormat('F Y')); ?> ont été réglés.
         </div>
     </div>
-    @endif
+    <?php endif; ?>
 
-    {{-- ═══ TABLE PAYÉS ═══ --}}
-    @if($payes->isNotEmpty())
+    
+    <?php if($payes->isNotEmpty()): ?>
     <div class="table-card">
         <div class="table-hd">
             <div class="table-title" style="color:#16a34a">
                 <svg style="width:14px;height:14px;display:inline;margin-right:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                Payés — {{ $payes->count() }} contrat(s)
+                Payés — <?php echo e($payes->count()); ?> contrat(s)
             </div>
         </div>
         <div style="overflow-x:auto">
@@ -267,52 +274,57 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($payes as $item)
+                    <?php $__currentLoopData = $payes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
                         <td>
                             <div style="font-weight:500;color:#0d1117">
-                                {{ $item['contrat']->bien?->reference ?? '—' }}
+                                <?php echo e($item['contrat']->bien?->reference ?? '—'); ?>
+
                             </div>
-                            <div style="font-size:11px;color:#6b7280">{{ $item['contrat']->bien?->ville }}</div>
+                            <div style="font-size:11px;color:#6b7280"><?php echo e($item['contrat']->bien?->ville); ?></div>
                         </td>
                         <td style="font-size:13px;color:#0d1117">
-                            {{ $item['contrat']->locataire?->name ?? '—' }}
+                            <?php echo e($item['contrat']->locataire?->name ?? '—'); ?>
+
                         </td>
                         <td style="font-size:12px;color:#6b7280">
-                            {{ $item['paiement']->date_paiement
+                            <?php echo e($item['paiement']->date_paiement
                                 ? \Carbon\Carbon::parse($item['paiement']->date_paiement)->format('d/m/Y')
-                                : '—' }}
+                                : '—'); ?>
+
                         </td>
                         <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:700;color:#16a34a">
-                            {{ number_format($item['paiement']->montant_encaisse, 0, ',', ' ') }} F
+                            <?php echo e(number_format($item['paiement']->montant_encaisse, 0, ',', ' ')); ?> F
                         </td>
                         <td style="font-size:12px;color:#6b7280">
-                            @php
+                            <?php
                                 $modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque',
                                           'wave'=>'Wave','orange_money'=>'Orange Money',
                                           'free_money'=>'Free Money','e_money'=>'E-Money'];
-                            @endphp
-                            {{ $modes[$item['paiement']->mode_paiement] ?? $item['paiement']->mode_paiement }}
+                            ?>
+                            <?php echo e($modes[$item['paiement']->mode_paiement] ?? $item['paiement']->mode_paiement); ?>
+
                         </td>
                         <td>
                             <div style="display:flex;align-items:center;justify-content:center;gap:4px">
-                                <a href="{{ route('admin.paiements.show', $item['paiement']) }}"
+                                <a href="<?php echo e(route('admin.paiements.show', $item['paiement'])); ?>"
                                    class="act-btn" title="Voir le paiement">
                                     <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                <a href="{{ route('admin.paiements.pdf', $item['paiement']) }}"
+                                <a href="<?php echo e(route('admin.paiements.pdf', $item['paiement'])); ?>"
                                    target="_blank" class="act-btn" title="Quittance PDF">
                                     <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
     </div>
-    @endif
+    <?php endif; ?>
 
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/impayes/index.blade.php ENDPATH**/ ?>

@@ -1,5 +1,14 @@
-<x-app-layout>
-    <x-slot name="header">Tableau de bord</x-slot>
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+     <?php $__env->slot('header', null, []); ?> Tableau de bord <?php $__env->endSlot(); ?>
 
 <style>
 /* ── KPI ── */
@@ -99,12 +108,13 @@
 
 <div style="padding:24px 32px 48px">
 
-    {{-- PAGE HEADER --}}
+    
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Tableau de bord</h1>
             <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                Bilan de {{ now()->translatedFormat('F Y') }} · {{ $currentAgency->name ?? 'Votre agence' }}
+                Bilan de <?php echo e(now()->translatedFormat('F Y')); ?> · <?php echo e($currentAgency->name ?? 'Votre agence'); ?>
+
             </p>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
@@ -113,68 +123,68 @@
                 <button class="tab">Trimestre</button>
                 <button class="tab">Année</button>
             </div>
-            <a href="{{ route('admin.rapports.financier.export-pdf') }}" class="btn-outline">
+            <a href="<?php echo e(route('admin.rapports.financier.export-pdf')); ?>" class="btn-outline">
                 <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Exporter PDF
             </a>
         </div>
     </div>
 
-    {{-- KPI GRID --}}
+    
     <div class="kpi-grid">
         <div class="kpi-card gold">
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
             <div class="kpi-label">Loyers encaissés</div>
-            <div class="kpi-value">{{ number_format($statsMois['loyers'], 0, ',', ' ') }}<span class="kpi-unit">F</span></div>
-            <div class="kpi-sub">{{ $statsMois['nb_payes'] }} paiements ce mois</div>
+            <div class="kpi-value"><?php echo e(number_format($statsMois['loyers'], 0, ',', ' ')); ?><span class="kpi-unit">F</span></div>
+            <div class="kpi-sub"><?php echo e($statsMois['nb_payes']); ?> paiements ce mois</div>
         </div>
         <div class="kpi-card green">
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
             <div class="kpi-label">Taux d'occupation</div>
-            <div class="kpi-value">{{ $stats['taux_occupation'] }}<span class="kpi-unit">%</span></div>
-            <div class="kpi-sub">{{ $stats['nb_biens_loues'] }} / {{ $stats['nb_biens'] }} biens loués</div>
+            <div class="kpi-value"><?php echo e($stats['taux_occupation']); ?><span class="kpi-unit">%</span></div>
+            <div class="kpi-sub"><?php echo e($stats['nb_biens_loues']); ?> / <?php echo e($stats['nb_biens']); ?> biens loués</div>
         </div>
         <div class="kpi-card red">
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
             <div class="kpi-label">Impayés ce mois</div>
-            <div class="kpi-value">{{ $nb_impayes_mois }}<span class="kpi-unit">contrats</span></div>
-            <div class="kpi-sub"><span class="t-down">{{ number_format($montant_du_mois, 0, ',', ' ') }} F</span> à recouvrer</div>
+            <div class="kpi-value"><?php echo e($nb_impayes_mois); ?><span class="kpi-unit">contrats</span></div>
+            <div class="kpi-sub"><span class="t-down"><?php echo e(number_format($montant_du_mois, 0, ',', ' ')); ?> F</span> à recouvrer</div>
         </div>
         <div class="kpi-card blue">
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div class="kpi-label">Commission agence</div>
-            <div class="kpi-value">{{ number_format($statsMois['commissions'], 0, ',', ' ') }}<span class="kpi-unit">F</span></div>
-            <div class="kpi-sub">TTC · {{ $stats['nb_contrats'] }} contrats actifs</div>
+            <div class="kpi-value"><?php echo e(number_format($statsMois['commissions'], 0, ',', ' ')); ?><span class="kpi-unit">F</span></div>
+            <div class="kpi-sub">TTC · <?php echo e($stats['nb_contrats']); ?> contrats actifs</div>
         </div>
     </div>
 
-    {{-- BILAN --}}
+    
     <div class="bilan">
         <div class="bilan-col">
             <div class="bilan-lbl">Attendu ce mois</div>
-            <div class="bilan-val">{{ number_format($bilanMois['attendu'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
-            <div class="bilan-tag m">{{ $contratsActifs->count() }} contrats actifs</div>
+            <div class="bilan-val"><?php echo e(number_format($bilanMois['attendu'], 0, ',', ' ')); ?><span class="bilan-u">F</span></div>
+            <div class="bilan-tag m"><?php echo e($contratsActifs->count()); ?> contrats actifs</div>
         </div>
         <div class="bilan-col">
             <div class="bilan-lbl">Encaissé</div>
-            <div class="bilan-val g">{{ number_format($bilanMois['encaisse'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
-            <div class="bilan-tag g">✓ {{ $bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0 }}% de recouvrement</div>
+            <div class="bilan-val g"><?php echo e(number_format($bilanMois['encaisse'], 0, ',', ' ')); ?><span class="bilan-u">F</span></div>
+            <div class="bilan-tag g">✓ <?php echo e($bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0); ?>% de recouvrement</div>
         </div>
         <div class="bilan-col">
             <div class="bilan-lbl">Reliquat</div>
-            <div class="bilan-val {{ $bilanMois['a_recouvrer'] > 0 ? 'r' : 'g' }}">{{ number_format($bilanMois['a_recouvrer'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
-            @if($bilanMois['a_recouvrer'] > 0)
-                <div class="bilan-tag r">⚠ {{ $nb_impayes_mois }} contrats en défaut</div>
-            @else
+            <div class="bilan-val <?php echo e($bilanMois['a_recouvrer'] > 0 ? 'r' : 'g'); ?>"><?php echo e(number_format($bilanMois['a_recouvrer'], 0, ',', ' ')); ?><span class="bilan-u">F</span></div>
+            <?php if($bilanMois['a_recouvrer'] > 0): ?>
+                <div class="bilan-tag r">⚠ <?php echo e($nb_impayes_mois); ?> contrats en défaut</div>
+            <?php else: ?>
                 <div class="bilan-tag g">✓ Recouvrement complet</div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 
-    {{-- GRAPHIQUES ROW 1 --}}
+    
     <div class="g2">
 
-        {{-- Évolution 6 mois --}}
+        
         <div class="card">
             <div class="card-hd">
                 <div>
@@ -188,7 +198,7 @@
             </div>
             <div class="chart-meta">
                 <div>
-                    <div class="chart-num">{{ number_format($statsMois['loyers'], 0, ',', ' ') }} F</div>
+                    <div class="chart-num"><?php echo e(number_format($statsMois['loyers'], 0, ',', ' ')); ?> F</div>
                     <div class="chart-sub">Encaissés ce mois</div>
                 </div>
                 <span class="badge g"><span class="bdot"></span>Ce mois</span>
@@ -198,7 +208,7 @@
             </div>
         </div>
 
-        {{-- Répartition par type de biens --}}
+        
         <div class="card">
             <div class="card-hd">
                 <div class="card-title">Répartition des biens</div>
@@ -215,21 +225,21 @@
         </div>
     </div>
 
-    {{-- GRAPHIQUES ROW 2 --}}
+    
     <div class="g3">
 
-        {{-- Net propriétaires --}}
+        
         <div class="card">
             <div class="card-hd">
                 <div class="card-title">Net reversé par propriétaire</div>
-                <a href="{{ route('admin.rapports.financier') }}" class="card-act">Rapport détaillé →</a>
+                <a href="<?php echo e(route('admin.rapports.financier')); ?>" class="card-act">Rapport détaillé →</a>
             </div>
             <div style="position:relative;height:220px;padding:16px 20px">
                 <canvas id="chartProprio"></canvas>
             </div>
         </div>
 
-        {{-- Statut paiements --}}
+        
         <div class="card">
             <div class="card-hd"><div class="card-title">Statut paiements</div></div>
             <div style="position:relative;height:140px;padding:16px 20px;display:flex;align-items:center;justify-content:center">
@@ -238,24 +248,24 @@
             <div style="padding:4px 20px 16px;display:flex;flex-direction:column;gap:8px">
                 <div style="display:flex;justify-content:space-between;align-items:center">
                     <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280"><div style="width:8px;height:8px;border-radius:2px;background:#16a34a"></div>Validés</div>
-                    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#0d1117">{{ $statsMois['nb_payes'] }}</span>
+                    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#0d1117"><?php echo e($statsMois['nb_payes']); ?></span>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center">
                     <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280"><div style="width:8px;height:8px;border-radius:2px;background:#dc2626"></div>Impayés</div>
-                    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#dc2626">{{ $nb_impayes_mois }}</span>
+                    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#dc2626"><?php echo e($nb_impayes_mois); ?></span>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- TABLE + IMPAYÉS --}}
+    
     <div class="g4">
 
-        {{-- Derniers paiements --}}
+        
         <div class="card">
             <div class="card-hd">
                 <div class="card-title">Derniers paiements</div>
-                <a href="{{ route('admin.paiements.index') }}" class="card-act">Voir tout →</a>
+                <a href="<?php echo e(route('admin.paiements.index')); ?>" class="card-act">Voir tout →</a>
             </div>
             <table class="dt">
                 <thead>
@@ -268,118 +278,121 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($derniersPaiements as $p)
+                    <?php $__empty_1 = true; $__currentLoopData = $derniersPaiements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <tr>
-                        <td><span class="ref">{{ $p->reference_paiement }}</span></td>
+                        <td><span class="ref"><?php echo e($p->reference_paiement); ?></span></td>
                         <td>
-                            <div style="font-weight:500;font-size:13px">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                            <div style="font-size:11px;color:#6b7280">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
+                            <div style="font-weight:500;font-size:13px"><?php echo e($p->contrat?->bien?->reference ?? '—'); ?></div>
+                            <div style="font-size:11px;color:#6b7280"><?php echo e($p->contrat?->locataire?->name ?? '—'); ?></div>
                         </td>
                         <td style="font-size:12px;color:#6b7280">
-                            {{ \App\Models\Paiement::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}
+                            <?php echo e(\App\Models\Paiement::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement); ?>
+
                         </td>
-                        <td style="text-align:right"><span class="amt">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</span></td>
+                        <td style="text-align:right"><span class="amt"><?php echo e(number_format($p->montant_encaisse, 0, ',', ' ')); ?> F</span></td>
                         <td>
-                            @if($p->statut === 'valide')
+                            <?php if($p->statut === 'valide'): ?>
                                 <span class="badge g"><span class="bdot"></span>Validé</span>
-                            @elseif($p->statut === 'annule')
+                            <?php elseif($p->statut === 'annule'): ?>
                                 <span class="badge r"><span class="bdot"></span>Annulé</span>
-                            @else
+                            <?php else: ?>
                                 <span class="badge o"><span class="bdot"></span>En attente</span>
-                            @endif
+                            <?php endif; ?>
                         </td>
                     </tr>
-                    @empty
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <tr>
                         <td colspan="5" style="text-align:center;padding:32px;color:#9ca3af;font-size:13px">
                             Aucun paiement enregistré ce mois
                         </td>
                     </tr>
-                    @endforelse
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
-        {{-- Impayés urgents --}}
+        
         <div style="display:flex;flex-direction:column;gap:20px">
             <div class="card">
                 <div class="card-hd">
                     <div class="card-title">Impayés urgents</div>
-                    <a href="{{ route('admin.impayes.index') }}" class="card-act" style="color:#dc2626">Relancer →</a>
+                    <a href="<?php echo e(route('admin.impayes.index')); ?>" class="card-act" style="color:#dc2626">Relancer →</a>
                 </div>
 
-                @forelse($impayes_urgents as $c)
+                <?php $__empty_1 = true; $__currentLoopData = $impayes_urgents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <div class="imp-item">
-                    <div class="imp-av">{{ strtoupper(substr($c->locataire?->name ?? 'X', 0, 2)) }}</div>
+                    <div class="imp-av"><?php echo e(strtoupper(substr($c->locataire?->name ?? 'X', 0, 2))); ?></div>
                     <div style="flex:1;min-width:0">
-                        <div class="imp-ref">{{ $c->bien?->reference ?? '—' }}</div>
-                        <div class="imp-name">{{ $c->locataire?->name ?? '—' }}</div>
+                        <div class="imp-ref"><?php echo e($c->bien?->reference ?? '—'); ?></div>
+                        <div class="imp-name"><?php echo e($c->locataire?->name ?? '—'); ?></div>
                     </div>
-                    <div class="imp-amt">{{ number_format($c->loyer_contractuel, 0, ',', ' ') }} F</div>
+                    <div class="imp-amt"><?php echo e(number_format($c->loyer_contractuel, 0, ',', ' ')); ?> F</div>
                 </div>
-                @empty
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                 <div style="padding:24px;text-align:center;color:#16a34a;font-size:13px">
                     ✓ Aucun impayé ce mois
                 </div>
-                @endforelse
+                <?php endif; ?>
 
-                {{-- Barre de progression --}}
+                
                 <div style="padding:14px 18px;border-top:1px solid #f3f4f6">
-                    @php $taux = $bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0; @endphp
+                    <?php $taux = $bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0; ?>
                     <div style="display:flex;justify-content:space-between;margin-bottom:7px">
                         <span style="font-size:12px;color:#6b7280;font-weight:500">Taux de recouvrement</span>
-                        <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#16a34a">{{ $taux }}%</span>
+                        <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#16a34a"><?php echo e($taux); ?>%</span>
                     </div>
                     <div class="prog-wrap">
-                        <div class="prog-fill" style="width:{{ $taux }}%"></div>
+                        <div class="prog-fill" style="width:<?php echo e($taux); ?>%"></div>
                     </div>
                     <div style="display:flex;justify-content:space-between;margin-top:5px">
-                        <span style="font-size:10px;color:#9ca3af">{{ number_format($bilanMois['encaisse'], 0, ',', ' ') }} F encaissés</span>
-                        <span style="font-size:10px;color:#9ca3af">{{ number_format($bilanMois['attendu'], 0, ',', ' ') }} F attendus</span>
+                        <span style="font-size:10px;color:#9ca3af"><?php echo e(number_format($bilanMois['encaisse'], 0, ',', ' ')); ?> F encaissés</span>
+                        <span style="font-size:10px;color:#9ca3af"><?php echo e(number_format($bilanMois['attendu'], 0, ',', ' ')); ?> F attendus</span>
                     </div>
                 </div>
             </div>
 
-            {{-- Contrats à renouveler --}}
-            @if($contrats_a_renouveler->isNotEmpty())
+            
+            <?php if($contrats_a_renouveler->isNotEmpty()): ?>
             <div class="card">
                 <div class="card-hd">
                     <div class="card-title">À renouveler bientôt</div>
                 </div>
-                @foreach($contrats_a_renouveler as $c)
+                <?php $__currentLoopData = $contrats_a_renouveler; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #f3f4f6">
                     <div style="width:38px;height:38px;border-radius:9px;background:#fef3c7;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#d97706;line-height:1">
-                            {{ \Carbon\Carbon::parse($c->date_fin)->diffInDays(now()) }}
+                            <?php echo e(\Carbon\Carbon::parse($c->date_fin)->diffInDays(now())); ?>
+
                         </div>
                         <div style="font-size:8px;color:#d97706;font-weight:600;letter-spacing:.5px">jours</div>
                     </div>
                     <div style="flex:1;min-width:0">
-                        <div style="font-size:13px;font-weight:500;color:#0d1117">{{ $c->bien?->reference ?? '—' }}</div>
-                        <div style="font-size:11px;color:#6b7280">{{ $c->locataire?->name ?? '—' }}</div>
+                        <div style="font-size:13px;font-weight:500;color:#0d1117"><?php echo e($c->bien?->reference ?? '—'); ?></div>
+                        <div style="font-size:11px;color:#6b7280"><?php echo e($c->locataire?->name ?? '—'); ?></div>
                     </div>
                     <div style="font-size:11px;color:#9ca3af;white-space:nowrap">
-                        {{ \Carbon\Carbon::parse($c->date_fin)->format('d/m/Y') }}
+                        <?php echo e(\Carbon\Carbon::parse($c->date_fin)->format('d/m/Y')); ?>
+
                     </div>
                 </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 
 </div>
 
-{{-- CHART.JS --}}
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.color = '#9ca3af';
 
 // ── Données depuis Blade → JS ──────────────────────────────────────
-const loyersData = @json($loyersParMois->pluck('total'));
-const commData   = @json($loyersParMois->pluck('commission'));
-const moisLabels = @json($loyersParMois->pluck('mois'));
+const loyersData = <?php echo json_encode($loyersParMois->pluck('total'), 15, 512) ?>;
+const commData   = <?php echo json_encode($loyersParMois->pluck('commission'), 15, 512) ?>;
+const moisLabels = <?php echo json_encode($loyersParMois->pluck('mois'), 15, 512) ?>;
 
 // ── Tooltip commun ─────────────────────────────────────────────────
 const tooltipStyle = {
@@ -484,10 +497,10 @@ new Chart(document.getElementById('chartTypes'), {
 new Chart(document.getElementById('chartProprio'), {
     type: 'bar',
     data: {
-        labels: @json($loyersParMois->pluck('mois')),
+        labels: <?php echo json_encode($loyersParMois->pluck('mois'), 15, 512) ?>,
         datasets: [{
             label: 'Loyers (F)',
-            data: @json($loyersParMois->pluck('total')),
+            data: <?php echo json_encode($loyersParMois->pluck('total'), 15, 512) ?>,
             backgroundColor: function(ctx) {
                 const alpha = 0.9 - (ctx.dataIndex * 0.12);
                 return `rgba(201,168,76,${Math.max(alpha, 0.2)})`;
@@ -525,7 +538,7 @@ new Chart(document.getElementById('chartStatuts'), {
     data: {
         labels: ['Validés', 'Impayés'],
         datasets: [{
-            data: [{{ $statsMois['nb_payes'] }}, {{ $nb_impayes_mois }}],
+            data: [<?php echo e($statsMois['nb_payes']); ?>, <?php echo e($nb_impayes_mois); ?>],
             backgroundColor: ['#16a34a', '#dc2626'],
             borderColor: '#ffffff',
             borderWidth: 3,
@@ -552,4 +565,13 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 </script>
 
-</x-app-layout>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/admin/dashboard.blade.php ENDPATH**/ ?>

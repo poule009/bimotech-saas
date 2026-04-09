@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Rapport Financier — {{ $debutMois->translatedFormat('F Y') }}</title>
+    <title>Rapport Financier — <?php echo e($debutMois->translatedFormat('F Y')); ?></title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -174,103 +174,101 @@
 </head>
 <body>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         EN-TÊTE
-    ═══════════════════════════════════════════════════════════════ --}}
+    
     <div class="header">
         <div class="header-inner">
             <div class="header-left">
                 <div class="h1" style="font-size:18px;font-weight:700;color:#fff;">
-                    {{ $agency->name ?? 'BimoTech Immo' }}
+                    <?php echo e($agency->name ?? 'BimoTech Immo'); ?>
+
                 </div>
                 <div class="h2" style="font-size:11px;color:#93c5fd;margin-top:3px;">
                     Rapport Financier Mensuel
                 </div>
-                @if($agency->adresse ?? false)
+                <?php if($agency->adresse ?? false): ?>
                     <div class="agency-name" style="font-size:9px;color:#bfdbfe;margin-top:4px;">
-                        {{ $agency->adresse }}
-                        @if($agency->telephone) · {{ $agency->telephone }} @endif
+                        <?php echo e($agency->adresse); ?>
+
+                        <?php if($agency->telephone): ?> · <?php echo e($agency->telephone); ?> <?php endif; ?>
                     </div>
-                @endif
-                @if($agency->ninea ?? false)
-                    <div style="font-size:9px;color:#bfdbfe;margin-top:2px;">NINEA : {{ $agency->ninea }}</div>
-                @endif
+                <?php endif; ?>
+                <?php if($agency->ninea ?? false): ?>
+                    <div style="font-size:9px;color:#bfdbfe;margin-top:2px;">NINEA : <?php echo e($agency->ninea); ?></div>
+                <?php endif; ?>
             </div>
             <div class="header-right">
                 <div class="periode" style="font-size:20px;font-weight:700;color:#fff;text-transform:uppercase;">
-                    {{ $debutMois->translatedFormat('F Y') }}
+                    <?php echo e($debutMois->translatedFormat('F Y')); ?>
+
                 </div>
                 <div class="generated" style="font-size:9px;color:#93c5fd;margin-top:4px;">
-                    Généré le {{ now()->translatedFormat('d F Y à H:i') }}
+                    Généré le <?php echo e(now()->translatedFormat('d F Y à H:i')); ?>
+
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         KPI DU MOIS
-    ═══════════════════════════════════════════════════════════════ --}}
+    
     <div class="section-title">📊 Indicateurs du mois</div>
 
     <table style="border-collapse:separate;border-spacing:6px;width:100%;margin-bottom:16px;">
         <tr>
             <td style="width:16.66%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;text-align:center;">
                 <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:4px;">Loyers encaissés</div>
-                <div style="font-size:14px;font-weight:700;color:#1a3c5e;">{{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }}</div>
+                <div style="font-size:14px;font-weight:700;color:#1a3c5e;"><?php echo e(number_format($kpiMois['total_loyers'], 0, ',', ' ')); ?></div>
                 <div style="font-size:8px;color:#94a3b8;margin-top:2px;">FCFA</div>
             </td>
             <td style="width:16.66%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;text-align:center;">
                 <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:4px;">Commission HT</div>
-                <div style="font-size:14px;font-weight:700;color:#1a3c5e;">{{ number_format($kpiMois['total_commission'], 0, ',', ' ') }}</div>
+                <div style="font-size:14px;font-weight:700;color:#1a3c5e;"><?php echo e(number_format($kpiMois['total_commission'], 0, ',', ' ')); ?></div>
                 <div style="font-size:8px;color:#94a3b8;margin-top:2px;">FCFA</div>
             </td>
             <td style="width:16.66%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;text-align:center;">
                 <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:4px;">TVA (18%)</div>
-                <div style="font-size:14px;font-weight:700;color:#1a3c5e;">{{ number_format($kpiMois['total_tva'], 0, ',', ' ') }}</div>
+                <div style="font-size:14px;font-weight:700;color:#1a3c5e;"><?php echo e(number_format($kpiMois['total_tva'], 0, ',', ' ')); ?></div>
                 <div style="font-size:8px;color:#94a3b8;margin-top:2px;">FCFA</div>
             </td>
             <td style="width:16.66%;background:#1a3c5e;border:1px solid #1a3c5e;border-radius:6px;padding:10px 12px;text-align:center;">
                 <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#93c5fd;margin-bottom:4px;">Commission TTC</div>
-                <div style="font-size:16px;font-weight:700;color:#fff;">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }}</div>
+                <div style="font-size:16px;font-weight:700;color:#fff;"><?php echo e(number_format($kpiMois['total_ttc'], 0, ',', ' ')); ?></div>
                 <div style="font-size:8px;color:#93c5fd;margin-top:2px;">FCFA</div>
             </td>
             <td style="width:16.66%;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 12px;text-align:center;">
                 <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#15803d;margin-bottom:4px;">Net propriétaires</div>
-                <div style="font-size:14px;font-weight:700;color:#15803d;">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }}</div>
+                <div style="font-size:14px;font-weight:700;color:#15803d;"><?php echo e(number_format($kpiMois['total_net_proprio'], 0, ',', ' ')); ?></div>
                 <div style="font-size:8px;color:#16a34a;margin-top:2px;">FCFA</div>
             </td>
             <td style="width:16.66%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;text-align:center;">
                 <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:4px;">Paiements</div>
-                <div style="font-size:14px;font-weight:700;color:#1a3c5e;">{{ $kpiMois['nb_paiements'] }}</div>
+                <div style="font-size:14px;font-weight:700;color:#1a3c5e;"><?php echo e($kpiMois['nb_paiements']); ?></div>
                 <div style="font-size:8px;color:#94a3b8;margin-top:2px;">transactions</div>
             </td>
         </tr>
     </table>
 
-    {{-- Stats générales --}}
+    
     <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
         <tr>
             <td style="padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:9px;">
-                🏠 <strong>{{ $statsGenerales['nb_biens'] }}</strong> biens
-                (<strong>{{ $statsGenerales['nb_biens_loues'] }}</strong> loués —
-                taux d'occupation : <strong>{{ $statsGenerales['taux_occupation'] }}%</strong>)
+                🏠 <strong><?php echo e($statsGenerales['nb_biens']); ?></strong> biens
+                (<strong><?php echo e($statsGenerales['nb_biens_loues']); ?></strong> loués —
+                taux d'occupation : <strong><?php echo e($statsGenerales['taux_occupation']); ?>%</strong>)
             </td>
             <td style="padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:9px;">
-                📋 <strong>{{ $statsGenerales['nb_contrats'] }}</strong> contrats actifs
+                📋 <strong><?php echo e($statsGenerales['nb_contrats']); ?></strong> contrats actifs
             </td>
             <td style="padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:9px;">
-                👥 <strong>{{ $statsGenerales['nb_proprietaires'] }}</strong> propriétaires ·
-                <strong>{{ $statsGenerales['nb_locataires'] }}</strong> locataires
+                👥 <strong><?php echo e($statsGenerales['nb_proprietaires']); ?></strong> propriétaires ·
+                <strong><?php echo e($statsGenerales['nb_locataires']); ?></strong> locataires
             </td>
         </tr>
     </table>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         DÉTAIL DES PAIEMENTS
-    ═══════════════════════════════════════════════════════════════ --}}
+    
     <div class="section-title">💳 Détail des paiements du mois</div>
 
-    @if($paiementsMois->count() > 0)
+    <?php if($paiementsMois->count() > 0): ?>
         <table>
             <thead>
                 <tr>
@@ -288,51 +286,50 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($paiementsMois as $p)
+                <?php $__currentLoopData = $paiementsMois; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td style="font-family:monospace;font-size:8px;color:#6b7280;">{{ $p->reference_paiement }}</td>
-                        <td>{{ $p->date_paiement->format('d/m/Y') }}</td>
+                        <td style="font-family:monospace;font-size:8px;color:#6b7280;"><?php echo e($p->reference_paiement); ?></td>
+                        <td><?php echo e($p->date_paiement->format('d/m/Y')); ?></td>
                         <td>
-                            <strong>{{ $p->contrat?->bien?->reference }}</strong><br>
-                            <span style="color:#6b7280;font-size:8px;">{{ $p->contrat?->bien?->adresse }}</span>
+                            <strong><?php echo e($p->contrat?->bien?->reference); ?></strong><br>
+                            <span style="color:#6b7280;font-size:8px;"><?php echo e($p->contrat?->bien?->adresse); ?></span>
                         </td>
-                        <td>{{ $p->contrat?->locataire?->name }}</td>
-                        <td>{{ $p->contrat?->bien?->proprietaire?->name }}</td>
+                        <td><?php echo e($p->contrat?->locataire?->name); ?></td>
+                        <td><?php echo e($p->contrat?->bien?->proprietaire?->name); ?></td>
                         <td>
-                            @php
+                            <?php
                                 $modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave'=>'Wave','orange_money'=>'Orange Money','free_money'=>'Free Money','mobile_money'=>'Mobile'];
-                            @endphp
-                            {{ $modes[$p->mode_paiement] ?? $p->mode_paiement }}
+                            ?>
+                            <?php echo e($modes[$p->mode_paiement] ?? $p->mode_paiement); ?>
+
                         </td>
-                        <td class="right">{{ number_format($p->montant_encaisse, 0, ',', ' ') }}</td>
-                        <td class="right">{{ number_format($p->commission_agence, 0, ',', ' ') }}</td>
-                        <td class="right">{{ number_format($p->tva_commission, 0, ',', ' ') }}</td>
-                        <td class="right font-bold">{{ number_format($p->commission_ttc, 0, ',', ' ') }}</td>
-                        <td class="right text-green">{{ number_format($p->net_proprietaire, 0, ',', ' ') }}</td>
+                        <td class="right"><?php echo e(number_format($p->montant_encaisse, 0, ',', ' ')); ?></td>
+                        <td class="right"><?php echo e(number_format($p->commission_agence, 0, ',', ' ')); ?></td>
+                        <td class="right"><?php echo e(number_format($p->tva_commission, 0, ',', ' ')); ?></td>
+                        <td class="right font-bold"><?php echo e(number_format($p->commission_ttc, 0, ',', ' ')); ?></td>
+                        <td class="right text-green"><?php echo e(number_format($p->net_proprietaire, 0, ',', ' ')); ?></td>
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="6" class="font-bold">TOTAL</td>
-                    <td class="right font-bold">{{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }}</td>
-                    <td class="right font-bold">{{ number_format($kpiMois['total_commission'], 0, ',', ' ') }}</td>
-                    <td class="right font-bold">{{ number_format($kpiMois['total_tva'], 0, ',', ' ') }}</td>
-                    <td class="right font-bold">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }}</td>
-                    <td class="right font-bold text-green">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }}</td>
+                    <td class="right font-bold"><?php echo e(number_format($kpiMois['total_loyers'], 0, ',', ' ')); ?></td>
+                    <td class="right font-bold"><?php echo e(number_format($kpiMois['total_commission'], 0, ',', ' ')); ?></td>
+                    <td class="right font-bold"><?php echo e(number_format($kpiMois['total_tva'], 0, ',', ' ')); ?></td>
+                    <td class="right font-bold"><?php echo e(number_format($kpiMois['total_ttc'], 0, ',', ' ')); ?></td>
+                    <td class="right font-bold text-green"><?php echo e(number_format($kpiMois['total_net_proprio'], 0, ',', ' ')); ?></td>
                 </tr>
             </tfoot>
         </table>
-    @else
+    <?php else: ?>
         <p style="text-align:center;color:#94a3b8;padding:20px;font-style:italic;">
             Aucun paiement validé pour ce mois.
         </p>
-    @endif
+    <?php endif; ?>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         PAR PROPRIÉTAIRE
-    ═══════════════════════════════════════════════════════════════ --}}
-    @if($parProprietaire->count() > 0)
+    
+    <?php if($parProprietaire->count() > 0): ?>
         <div class="section-title mt-4">👤 Récapitulatif par propriétaire</div>
 
         <table class="proprio-table">
@@ -346,34 +343,32 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($parProprietaire as $nom => $item)
+                <?php $__currentLoopData = $parProprietaire; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $nom => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
     <tr>
-        <td><strong>{{ $nom }}</strong></td>
-        <td class="right">{{ $item['nb_paiements'] }}</td>
-        <td class="right">{{ number_format($item['total_encaisse'], 0, ',', ' ') }} FCFA</td>
-        <td class="right">{{ number_format($item['total_commission'], 0, ',', ' ') }} FCFA</td>
-        <td class="right">{{ number_format($item['total_net'], 0, ',', ' ') }} FCFA</td>
+        <td><strong><?php echo e($nom); ?></strong></td>
+        <td class="right"><?php echo e($item['nb_paiements']); ?></td>
+        <td class="right"><?php echo e(number_format($item['total_encaisse'], 0, ',', ' ')); ?> FCFA</td>
+        <td class="right"><?php echo e(number_format($item['total_commission'], 0, ',', ' ')); ?> FCFA</td>
+        <td class="right"><?php echo e(number_format($item['total_net'], 0, ',', ' ')); ?> FCFA</td>
     </tr>
-@endforeach
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
             <tfoot>
                 <tr>
                     <td class="font-bold">TOTAL</td>
-                    <td class="right font-bold">{{ $parProprietaire->sum('nb_paiements') }}</td>
-                    <td class="right font-bold">{{ number_format($parProprietaire->sum('loyers'), 0, ',', ' ') }} FCFA</td>
-                    <td class="right font-bold">{{ number_format($parProprietaire->sum('commission'), 0, ',', ' ') }} FCFA</td>
-                    <td class="right font-bold text-green">{{ number_format($parProprietaire->sum('net'), 0, ',', ' ') }} FCFA</td>
+                    <td class="right font-bold"><?php echo e($parProprietaire->sum('nb_paiements')); ?></td>
+                    <td class="right font-bold"><?php echo e(number_format($parProprietaire->sum('loyers'), 0, ',', ' ')); ?> FCFA</td>
+                    <td class="right font-bold"><?php echo e(number_format($parProprietaire->sum('commission'), 0, ',', ' ')); ?> FCFA</td>
+                    <td class="right font-bold text-green"><?php echo e(number_format($parProprietaire->sum('net'), 0, ',', ' ')); ?> FCFA</td>
                 </tr>
             </tfoot>
         </table>
-    @endif
+    <?php endif; ?>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         BIENS IMPAYÉS
-    ═══════════════════════════════════════════════════════════════ --}}
-    @if($biensImpayés->count() > 0)
+    
+    <?php if($biensImpayés->count() > 0): ?>
         <div class="section-title mt-4" style="color:#dc2626;border-color:#dc2626;">
-            ⚠️ Biens sans paiement ce mois ({{ $biensImpayés->count() }})
+            ⚠️ Biens sans paiement ce mois (<?php echo e($biensImpayés->count()); ?>)
         </div>
 
         <table class="impaye-table">
@@ -387,27 +382,25 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($biensImpayés as $contrat)
+                <?php $__currentLoopData = $biensImpayés; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $contrat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td><strong>{{ $contrat->bien?->reference }}</strong></td>
-                        <td>{{ $contrat->bien?->adresse }}</td>
-                        <td>{{ $contrat->locataire?->name }}</td>
-                        <td class="right">{{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} FCFA</td>
-                        <td>{{ $contrat->date_debut->format('d/m/Y') }}</td>
+                        <td><strong><?php echo e($contrat->bien?->reference); ?></strong></td>
+                        <td><?php echo e($contrat->bien?->adresse); ?></td>
+                        <td><?php echo e($contrat->locataire?->name); ?></td>
+                        <td class="right"><?php echo e(number_format($contrat->loyer_contractuel, 0, ',', ' ')); ?> FCFA</td>
+                        <td><?php echo e($contrat->date_debut->format('d/m/Y')); ?></td>
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
-    @endif
+    <?php endif; ?>
 
-    {{-- ═══════════════════════════════════════════════════════════════
-         PIED DE PAGE
-    ═══════════════════════════════════════════════════════════════ --}}
+    
     <div class="footer">
         <div class="footer-left">
-            <strong>{{ $agency->name ?? 'BimoTech Immo' }}</strong>
-            @if($agency->email ?? false) · {{ $agency->email }} @endif
-            @if($agency->ninea ?? false) · NINEA : {{ $agency->ninea }} @endif
+            <strong><?php echo e($agency->name ?? 'BimoTech Immo'); ?></strong>
+            <?php if($agency->email ?? false): ?> · <?php echo e($agency->email); ?> <?php endif; ?>
+            <?php if($agency->ninea ?? false): ?> · NINEA : <?php echo e($agency->ninea); ?> <?php endif; ?>
         </div>
         <div class="footer-right">
             Document confidentiel — Rapport généré automatiquement par BimoTech Immo
@@ -416,3 +409,4 @@
 
 </body>
 </html>
+<?php /**PATH C:\Users\ph\bimotech-immo\resources\views/rapports/financier_pdf.blade.php ENDPATH**/ ?>

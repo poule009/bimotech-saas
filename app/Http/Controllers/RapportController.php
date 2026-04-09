@@ -175,7 +175,7 @@ class RapportController extends Controller
         $filename = sprintf(
             'rapport-financier-%04d-%02d-%s.pdf',
             $annee, $mois,
-            $data['agency']?->slug ?? 'agence'
+            Auth::user()->agency?->name ?? 'agence'
         );
 
         return $pdf->download($filename);

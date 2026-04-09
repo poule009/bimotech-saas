@@ -1,8 +1,8 @@
-@extends('layouts.app')
-@section('title', 'Enregistrer un paiement')
-@section('breadcrumb', 'Paiements › Nouveau')
 
-@section('content')
+<?php $__env->startSection('title', 'Enregistrer un paiement'); ?>
+<?php $__env->startSection('breadcrumb', 'Paiements › Nouveau'); ?>
+
+<?php $__env->startSection('content'); ?>
 <style>
 .form-grid { display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start; }
 .card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:16px; }
@@ -66,9 +66,9 @@
 
 <div style="padding:0 0 48px">
 
-    {{-- Breadcrumb --}}
+    
     <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:18px">
-        <a href="{{ route('admin.paiements.index') }}" style="color:#6b7280;text-decoration:none">Paiements</a>
+        <a href="<?php echo e(route('admin.paiements.index')); ?>" style="color:#6b7280;text-decoration:none">Paiements</a>
         <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         <span style="color:#0d1117;font-weight:500">Enregistrer un paiement</span>
     </div>
@@ -82,22 +82,22 @@
         </p>
     </div>
 
-    @if($errors->any())
+    <?php if($errors->any()): ?>
     <div style="background:#fef2f2;border:1px solid #fecaca;border-left:3px solid #dc2626;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#dc2626">
         <ul style="padding-left:16px;margin:0">
-            @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $e): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><li><?php echo e($e); ?></li><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </ul>
     </div>
-    @endif
+    <?php endif; ?>
 
-    <form method="POST" action="{{ route('admin.paiements.store') }}" id="form-paiement">
-        @csrf
+    <form method="POST" action="<?php echo e(route('admin.paiements.store')); ?>" id="form-paiement">
+        <?php echo csrf_field(); ?>
         <div class="form-grid">
 
-            {{-- ═══ COLONNE GAUCHE ═══ --}}
+            
             <div>
 
-                {{-- CONTRAT --}}
+                
                 <div class="card">
                     <div class="card-hd">
                         <div class="card-icon gold">
@@ -109,30 +109,40 @@
                         <div class="form-group">
                             <label class="form-label">Contrat concerné <span class="req">*</span></label>
                             <select name="contrat_id" id="contrat_id"
-                                    class="form-select {{ $errors->has('contrat_id') ? 'error':'' }}"
+                                    class="form-select <?php echo e($errors->has('contrat_id') ? 'error':''); ?>"
                                     onchange="chargerContrat(this.value)">
                                 <option value="">— Sélectionner un contrat actif —</option>
-                                @foreach($contrats as $c)
-                                    <option value="{{ $c->id }}"
-                                        data-loyer-nu="{{ $c->loyer_nu }}"
-                                        data-charges="{{ $c->charges_mensuelles ?? 0 }}"
-                                        data-tom="{{ $c->tom_amount ?? 0 }}"
-                                        data-loyer-total="{{ $c->loyer_contractuel }}"
-                                        data-taux-comm="{{ $c->bien?->taux_commission ?? 10 }}"
-                                        data-bien="{{ $c->bien?->reference }} — {{ $c->bien?->adresse }}"
-                                        data-locataire="{{ $c->locataire?->name }}"
-                                        data-ref="{{ $c->reference_bail ?? 'BAIL-'.$c->id }}"
-                                        {{ old('contrat_id', $contrat?->id) == $c->id ? 'selected':'' }}>
-                                        {{ $c->reference_bail ?? 'BAIL-'.$c->id }}
-                                        — {{ $c->bien?->reference }}
-                                        — {{ $c->locataire?->name }}
+                                <?php $__currentLoopData = $contrats; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $c): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($c->id); ?>"
+                                        data-loyer-nu="<?php echo e($c->loyer_nu); ?>"
+                                        data-charges="<?php echo e($c->charges_mensuelles ?? 0); ?>"
+                                        data-tom="<?php echo e($c->tom_amount ?? 0); ?>"
+                                        data-loyer-total="<?php echo e($c->loyer_contractuel); ?>"
+                                        data-taux-comm="<?php echo e($c->bien?->taux_commission ?? 10); ?>"
+                                        data-bien="<?php echo e($c->bien?->reference); ?> — <?php echo e($c->bien?->adresse); ?>"
+                                        data-locataire="<?php echo e($c->locataire?->name); ?>"
+                                        data-ref="<?php echo e($c->reference_bail ?? 'BAIL-'.$c->id); ?>"
+                                        <?php echo e(old('contrat_id', $contrat?->id) == $c->id ? 'selected':''); ?>>
+                                        <?php echo e($c->reference_bail ?? 'BAIL-'.$c->id); ?>
+
+                                        — <?php echo e($c->bien?->reference); ?>
+
+                                        — <?php echo e($c->locataire?->name); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
-                            @error('contrat_id')<div class="form-error">{{ $message }}</div>@enderror
+                            <?php $__errorArgs = ['contrat_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                         </div>
 
-                        {{-- Infos contrat dynamiques --}}
+                        
                         <div id="contrat-details" style="display:none">
                             <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;font-size:12px">
                                 <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f3f4f6">
@@ -152,7 +162,7 @@
                     </div>
                 </div>
 
-                {{-- PÉRIODE ET DATE --}}
+                
                 <div class="card">
                     <div class="card-hd">
                         <div class="card-icon blue">
@@ -165,23 +175,37 @@
                             <div class="form-group">
                                 <label class="form-label">Période concernée <span class="req">*</span></label>
                                 <input type="month" name="periode" id="periode"
-                                       class="form-input {{ $errors->has('periode') ? 'error':'' }}"
-                                       value="{{ old('periode', now()->format('Y-m')) }}">
+                                       class="form-input <?php echo e($errors->has('periode') ? 'error':''); ?>"
+                                       value="<?php echo e(old('periode', now()->format('Y-m'))); ?>">
                                 <div class="form-hint">Mois du loyer (pas la date de paiement)</div>
-                                @error('periode')<div class="form-error">{{ $message }}</div>@enderror
+                                <?php $__errorArgs = ['periode'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Date de paiement <span class="req">*</span></label>
                                 <input type="date" name="date_paiement"
-                                       class="form-input {{ $errors->has('date_paiement') ? 'error':'' }}"
-                                       value="{{ old('date_paiement', $datePaiement) }}">
-                                @error('date_paiement')<div class="form-error">{{ $message }}</div>@enderror
+                                       class="form-input <?php echo e($errors->has('date_paiement') ? 'error':''); ?>"
+                                       value="<?php echo e(old('date_paiement', $datePaiement)); ?>">
+                                <?php $__errorArgs = ['date_paiement'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- MONTANT --}}
+                
                 <div class="card">
                     <div class="card-hd">
                         <div class="card-icon gold">
@@ -194,24 +218,39 @@
                             <div class="form-group">
                                 <label class="form-label">Montant encaissé (FCFA) <span class="req">*</span></label>
                                 <input type="number" name="montant_encaisse" id="montant_encaisse"
-                                       class="form-input {{ $errors->has('montant_encaisse') ? 'error':'' }}"
-                                       value="{{ old('montant_encaisse') }}" min="0" step="500"
+                                       class="form-input <?php echo e($errors->has('montant_encaisse') ? 'error':''); ?>"
+                                       value="<?php echo e(old('montant_encaisse')); ?>" min="0" step="500"
                                        oninput="verifierMontant()">
                                 <div class="montant-ok" id="montant-ok">✓ Correspond au loyer contractuel</div>
                                 <div class="montant-diff" id="montant-diff">⚠ Différent du loyer contractuel</div>
-                                @error('montant_encaisse')<div class="form-error">{{ $message }}</div>@enderror
+                                <?php $__errorArgs = ['montant_encaisse'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Mode de paiement <span class="req">*</span></label>
-                                <select name="mode_paiement" class="form-select {{ $errors->has('mode_paiement') ? 'error':'' }}">
+                                <select name="mode_paiement" class="form-select <?php echo e($errors->has('mode_paiement') ? 'error':''); ?>">
                                     <option value="">— Choisir —</option>
-                                    @foreach($modesPaiement as $val => $label)
-                                        <option value="{{ $val }}" {{ old('mode_paiement') === $val ? 'selected':'' }}>
-                                            {{ $label }}
+                                    <?php $__currentLoopData = $modesPaiement; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $val => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($val); ?>" <?php echo e(old('mode_paiement') === $val ? 'selected':''); ?>>
+                                            <?php echo e($label); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
-                                @error('mode_paiement')<div class="form-error">{{ $message }}</div>@enderror
+                                <?php $__errorArgs = ['mode_paiement'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?><div class="form-error"><?php echo e($message); ?></div><?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                             </div>
                         </div>
 
@@ -219,13 +258,13 @@
                             <div class="form-group">
                                 <label class="form-label">Caution perçue <span class="opt">(premier mois)</span></label>
                                 <input type="number" name="caution_percue"
-                                       class="form-input" value="{{ old('caution_percue', 0) }}" min="0" step="500">
+                                       class="form-input" value="<?php echo e(old('caution_percue', 0)); ?>" min="0" step="500">
                                 <div class="form-hint">Saisir uniquement au premier paiement</div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Notes <span class="opt">(optionnel)</span></label>
                                 <input type="text" name="notes" class="form-input"
-                                       value="{{ old('notes') }}" placeholder="Ex: Paiement partiel…">
+                                       value="<?php echo e(old('notes')); ?>" placeholder="Ex: Paiement partiel…">
                             </div>
                         </div>
                     </div>
@@ -239,7 +278,7 @@
                         </div>
                     </div>
                     <div class="submit-bar">
-                        <a href="{{ route('admin.paiements.index') }}" class="btn-cancel">Annuler</a>
+                        <a href="<?php echo e(route('admin.paiements.index')); ?>" class="btn-cancel">Annuler</a>
                         <button type="submit" class="btn-submit">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
                             Enregistrer le paiement
@@ -247,9 +286,9 @@
                     </div>
                 </div>
 
-            </div>{{-- fin colonne gauche --}}
+            </div>
 
-            {{-- ═══ COLONNE DROITE : RÉCAPITULATIF ═══ --}}
+            
             <div>
                 <div class="recap-card">
                     <div class="recap-hd"><div class="recap-title">Décompte fiscal</div></div>
@@ -319,7 +358,7 @@
 </div>
 
 <script>
-const contrats = @json($contrats->keyBy('id'));
+const contrats = <?php echo json_encode($contrats->keyBy('id'), 15, 512) ?>;
 let loyerContractuel = 0;
 
 function fmt(n) { return Math.round(n).toLocaleString('fr-FR') + ' F'; }
@@ -404,15 +443,16 @@ function verifierMontant() {
 }
 
 // Init si contrat présélectionné
-@if($contrat)
+<?php if($contrat): ?>
     document.addEventListener('DOMContentLoaded', () => {
-        chargerContrat({{ $contrat->id }});
+        chargerContrat(<?php echo e($contrat->id); ?>);
     });
-@else
+<?php else: ?>
     const selectInit = document.getElementById('contrat_id');
     if (selectInit.value) {
         document.addEventListener('DOMContentLoaded', () => chargerContrat(selectInit.value));
     }
-@endif
+<?php endif; ?>
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/paiements/create.blade.php ENDPATH**/ ?>

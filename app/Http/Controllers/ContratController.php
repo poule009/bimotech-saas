@@ -235,7 +235,7 @@ class ContratController extends Controller
             ? Carbon::parse($dernierPaiement->periode)->addMonth()
             : Carbon::parse($contrat->date_debut);
 
-        $decomposition = $contrat->decompositionLoyer();
+       
 
         $paiements = $contrat->paiements()
             ->select(['id', 'contrat_id', 'agency_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'commission_ttc', 'mode_paiement', 'date_paiement', 'statut', 'reference_paiement'])
@@ -244,7 +244,7 @@ class ContratController extends Controller
 
         return view('admin.contrats.show', compact(
             'contrat', 'totalPaye', 'totalNet', 'nbPaiements',
-            'prochainePeriode', 'decomposition', 'paiements'
+            'prochainePeriode', 'paiements'
         ));
     }
 
