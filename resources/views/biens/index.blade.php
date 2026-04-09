@@ -404,6 +404,7 @@
                                 <div style="font-family:'Syne',sans-serif;font-weight:600;color:#0d1117">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
                             </td>
                             <td>
+                                
                                 <div style="font-size:12px;color:#6b7280">{{ $bien->taux_commission }}%</div>
                             </td>
                             <td style="text-align:center">
