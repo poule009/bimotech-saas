@@ -20,7 +20,7 @@ class ImpayeController extends Controller
 
     public function index(Request $request)
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $mois    = (int) $request->input('mois',  now()->month);
         $annee   = (int) $request->input('annee', now()->year);
@@ -105,7 +105,7 @@ class ImpayeController extends Controller
 
     public function relance(Request $request, Contrat $contrat): RedirectResponse
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $mois    = (int) $request->input('mois',  now()->month);
         $annee   = (int) $request->input('annee', now()->year);

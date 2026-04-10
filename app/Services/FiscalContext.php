@@ -5,104 +5,103 @@ namespace App\Services;
 use App\Models\Contrat;
 
 /**
- * FiscalContext — Paramètres d'entrée du moteur de calcul fiscal.
+ * FiscalContext — Objet de transfert de données pour FiscalService::calculer().
  *
- * Cet objet encapsule tous les paramètres nécessaires pour calculer
- * la ventilation fiscale complète d'un paiement de loyer.
+ * Encapsule tous les paramètres fiscaux nécessaires au calcul d'un paiement.
+ * Immuable (readonly) : construit une seule fois, transmis à FiscalService.
  *
- * UTILISATION :
- *   $ctx = FiscalContext::fromContrat($contrat);
+ * Usage :
+ *   $ctx    = FiscalContext::fromContrat($contrat);
  *   $result = FiscalService::calculer($ctx);
- *
- * RÈGLES D'ASSIETTE :
- *   - TVA loyer → UNIQUEMENT sur loyer_nu (jamais sur charges ni TOM)
- *   - Commission → UNIQUEMENT sur loyer_nu (jamais sur charges ni TOM)
- *   - BRS → sur loyer TTC (loyer_nu + tva_loyer)
- *   - TOM et charges → hors champ TVA et hors commission
  */
 final class FiscalContext
 {
     public function __construct(
-        // ── Ventilation du loyer ─────────────────────────────────────────
-        public readonly float  $loyerNu,            // Loyer hors charges et hors TOM
-        public readonly float  $chargesAmount,       // Charges récupérables (eau, élec...)
-        public readonly float  $tomAmount,           // Taxe ordures ménagères
+        // ── Loyer de base ────────────────────────────────────────────────────
+        public readonly float  $loyerNu,           // Loyer hors charges, hors TVA (FCFA)
+        public readonly float  $chargesAmount,      // Charges mensuelles (FCFA)
+        public readonly float  $tomAmount,          // Taxe sur Opérations Mobilières (FCFA)
 
-        // ── Type de bail et caractéristique du bien ──────────────────────
-        public readonly string $typeBail,            // habitation|commercial|mixte|saisonnier
-        public readonly bool   $estMeuble,           // Bien meublé → TVA loyer si habitation
+        // ── Caractéristiques du contrat ──────────────────────────────────────
+        public readonly string $typeBail,           // habitation | commercial | mixte | saisonnier
+        public readonly bool   $estMeuble,          // Détermine l'assujettissement TVA habitation
 
-        // ── Commission agence ────────────────────────────────────────────
-        public readonly float  $tauxCommission,      // % sur loyer_nu uniquement
-        public readonly float  $tauxTvaCommission = 18.0, // Toujours 18% (Art. 357 CGI SN)
+        // ── Locataire ────────────────────────────────────────────────────────
+        public readonly bool   $locataireEstEntreprise, // Active le calcul BRS (CGI art. 196bis)
 
-        // ── TVA loyer (surchargeable) ────────────────────────────────────
-        // Calculé auto par loyerEstAssujetti(), mais peut être forcé manuellement
-        public readonly ?float $tauxTvaLoyerOverride = null,
+        // ── Taux agence ──────────────────────────────────────────────────────
+        public readonly float  $tauxCommission,     // Ex: 10.0 pour 10% (format pourcentage)
+        public readonly float  $tauxTvaCommission,  // Toujours 18.0 au Sénégal (format pourcentage)
 
-        // ── BRS — Retenue à la Source ────────────────────────────────────
-        public readonly bool   $locataireEstEntreprise = false,
-        public readonly ?float $tauxBrsLocataire = null,  // Override locataire
-        public readonly ?float $tauxBrsContrat   = null,  // Override contrat (priorité max)
+        // ── Overrides fiscaux ────────────────────────────────────────────────
+        // null  = FiscalService détermine automatiquement via loyerEstAssujetti()
+        // 0.0   = loyer exonéré de TVA (override manuel)
+        // 18.0  = loyer assujetti à TVA à 18% (override manuel)
+        public readonly ?float $tauxTvaLoyerOverride,
+
+        // null = pas de taux BRS spécifique sur ce contrat
+        public readonly ?float $tauxBrsContrat,     // Taux BRS manuel du contrat (format pourcentage)
+
+        // null = pas de taux BRS override sur ce locataire
+        public readonly ?float $tauxBrsLocataire,   // Taux BRS override du profil locataire (format pourcentage)
     ) {}
 
     /**
-     * Construit un FiscalContext depuis un Contrat Eloquent chargé.
+     * Construit un FiscalContext depuis un Contrat chargé avec ses relations.
      *
-     * Relations requises (eager load avant appel) :
-     *   - contrat.bien (meuble, taux_commission, type)
-     *   - contrat.locataire.locataire (est_entreprise, taux_brs_override)
+     * Prérequis : le contrat doit avoir les relations suivantes chargées :
+     *   - bien                  (pour taux_commission, meuble)
+     *   - locataire.locataire   (User → profil Locataire, pour est_entreprise et taux_brs_override)
+     *
+     * Priorité TVA loyer :
+     *   1. Override manuel sur le contrat (loyer_assujetti_tva + taux_tva_loyer)
+     *   2. Détection automatique par FiscalService::loyerEstAssujetti(typeBail, estMeuble)
+     *
+     * Priorité taux BRS :
+     *   1. taux_brs_manuel sur le contrat
+     *   2. taux_brs_override sur le profil locataire
+     *   3. Taux légal 15% (appliqué par FiscalService si les deux sont null)
      */
     public static function fromContrat(Contrat $contrat): self
     {
-        $bien      = $contrat->bien;
-        $locataire = $contrat->locataire?->locataire; // relation User → Locataire
+        $bien       = $contrat->bien;
+        $locUser    = $contrat->locataire;               // User (rôle locataire)
+        $locProfile = $locUser?->locataire;              // Profil Locataire (HasOne sur User)
+
+        // ── Taux TVA loyer ────────────────────────────────────────────────
+        // Si le contrat spécifie explicitement l'assujettissement, on l'honore.
+        // Sinon (null), FiscalService applique la règle automatique.
+        $tauxTvaOverride = null;
+        if ($contrat->loyer_assujetti_tva !== null) {
+            $tauxTvaOverride = $contrat->loyer_assujetti_tva
+                ? (float) ($contrat->taux_tva_loyer ?? FiscalService::TVA_TAUX)
+                : 0.0;
+        }
+
+        // ── Taux BRS ──────────────────────────────────────────────────────
+        $tauxBrsContrat   = null;
+        $tauxBrsLocataire = null;
+
+        if ($contrat->brs_applicable && $contrat->taux_brs_manuel !== null) {
+            $tauxBrsContrat = (float) $contrat->taux_brs_manuel;
+        }
+
+        if ($locProfile?->taux_brs_override !== null) {
+            $tauxBrsLocataire = (float) $locProfile->taux_brs_override;
+        }
 
         return new self(
-            loyerNu:              (float) ($contrat->loyer_nu_effectif ?? $contrat->loyer_nu ?? $contrat->loyer_contractuel),
-            chargesAmount:        (float) ($contrat->charges_mensuelles ?? 0),
-            tomAmount:            (float) ($contrat->tom_amount ?? 0),
-            typeBail:             $contrat->type_bail ?? 'habitation',
-            estMeuble:            (bool)  ($bien?->meuble ?? false),
-            tauxCommission:       (float) ($bien?->taux_commission ?? 0),
-            tauxTvaCommission:    18.0,
-            // Si l'agence a surchargé manuellement sur le contrat
-            tauxTvaLoyerOverride: $contrat->taux_tva_loyer > 0 && $contrat->loyer_assujetti_tva
-                                    ? (float) $contrat->taux_tva_loyer
-                                    : null,
-            locataireEstEntreprise: (bool) ($locataire?->est_entreprise ?? false),
-            tauxBrsLocataire:     $locataire?->taux_brs_override !== null
-                                    ? (float) $locataire->taux_brs_override
-                                    : null,
-            tauxBrsContrat:       $contrat->taux_brs_manuel !== null
-                                    ? (float) $contrat->taux_brs_manuel
-                                    : null,
-        );
-    }
-
-    /**
-     * Construit un FiscalContext depuis une Request (formulaire de paiement).
-     * Permet l'aperçu fiscal en temps réel (endpoint AJAX fiscalPreview).
-     */
-    public static function fromRequest(
-        float  $loyerNu,
-        float  $chargesAmount,
-        float  $tomAmount,
-        string $typeBail,
-        bool   $estMeuble,
-        float  $tauxCommission,
-        bool   $locataireEstEntreprise = false,
-        ?float $tauxBrsOverride = null,
-    ): self {
-        return new self(
-            loyerNu:               $loyerNu,
-            chargesAmount:         $chargesAmount,
-            tomAmount:             $tomAmount,
-            typeBail:              $typeBail,
-            estMeuble:             $estMeuble,
-            tauxCommission:        $tauxCommission,
-            locataireEstEntreprise: $locataireEstEntreprise,
-            tauxBrsLocataire:      $tauxBrsOverride,
+            loyerNu:                (float) ($contrat->loyer_nu ?? 0),
+            chargesAmount:          (float) ($contrat->charges_mensuelles ?? 0),
+            tomAmount:              (float) ($contrat->tom_amount ?? 0),
+            typeBail:               $contrat->type_bail ?? 'habitation',
+            estMeuble:              (bool)  ($bien?->meuble ?? false),
+            locataireEstEntreprise: (bool)  ($locProfile?->est_entreprise ?? false),
+            tauxCommission:         (float) ($bien?->taux_commission ?? FiscalService::COMMISSION_TAUX),
+            tauxTvaCommission:      FiscalService::TVA_TAUX,
+            tauxTvaLoyerOverride:   $tauxTvaOverride,
+            tauxBrsContrat:         $tauxBrsContrat,
+            tauxBrsLocataire:       $tauxBrsLocataire,
         );
     }
 }

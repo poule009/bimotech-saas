@@ -16,7 +16,7 @@ class BienController extends Controller
 
     public function index(Request $request): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $query = Bien::with([
             'proprietaire:id,name,email',
@@ -37,7 +37,7 @@ class BienController extends Controller
 
     public function show(Bien $bien): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $bien->load([
             'proprietaire:id,name,email,telephone,adresse',
@@ -51,7 +51,7 @@ class BienController extends Controller
 
     public function create(): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $proprietaires = User::where('role', 'proprietaire')
             ->where('agency_id', Auth::user()->agency_id)
@@ -63,7 +63,7 @@ class BienController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
@@ -114,7 +114,7 @@ if ($request->hasFile('photos')) {
 
     public function edit(Bien $bien): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $proprietaires = User::where('role', 'proprietaire')
             ->where('agency_id', Auth::user()->agency_id)
@@ -126,7 +126,7 @@ if ($request->hasFile('photos')) {
 
     public function update(Request $request, Bien $bien): RedirectResponse
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
@@ -154,7 +154,7 @@ if ($request->hasFile('photos')) {
 
     public function destroy(Bien $bien): RedirectResponse
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         if ($bien->contratActif) {
             return back()->withErrors([

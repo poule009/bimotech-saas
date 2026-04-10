@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Paiement;
 use InvalidArgumentException;
 
 /**
@@ -9,85 +10,346 @@ use InvalidArgumentException;
  *
  * Références légales :
  *  - TVA 18%         : Code Général des Impôts (CGI), article 357
- *  - TOM             : Taxe sur les Opérations Mobilières (variable selon commune)
+ *  - BRS 15%         : CGI article 196bis — Retenue à la source locataire entreprise
  *  - Commission HT   : Base de facturation de l'agence hors taxes
  *  - Loi 81-18       : Encadrement des loyers au Sénégal
- *  - NINEA           : Numéro d'Identification Nationale des Entreprises et Associations
+ *  - IRPP            : CGI article 65, barème progressif, abattement 30% (Art. 58)
+ *  - CFPB            : CGI articles 95-110 (Contribution Foncière des Propriétés Bâties)
  *
- * IMPORTANT : Toutes les méthodes sont pures (pas d'effets de bord, pas d'I/O).
- * Elles reçoivent des scalaires et retournent des tableaux de résultats.
- * Cela les rend 100% testables unitairement sans base de données.
+ * ARCHITECTURE :
+ *  Méthodes statiques (API principale) :
+ *    - calculer(FiscalContext)              → FiscalResult   [cœur du moteur]
+ *    - loyerEstAssujetti(type, meuble)      → bool           [règle TVA]
+ *    - calculerBilanAnnuel(id, annee, agId) → array          [agrégation DB]
+ *
+ *  Méthodes d'instance (utilitaires projections) :
+ *    - calculerDecompositionLoyer(...)      → array          [estimation rapide]
+ *    - projeterBilanAnnuel(...)             → array          [projection sans DB]
  */
 class FiscalService
 {
     // ─── Constantes fiscales ────────────────────────────────────────────────
 
-    public const TVA_TAUX          = 0.18;   // 18% — CGI art. 357
-    public const TOM_TAUX_DEFAUT   = 0.05;   // 5% (Dakar) — variable selon commune
-    public const COMMISSION_TAUX   = 0.10;   // 10% du loyer brut (standard marché SN)
+    public const TVA_TAUX           = 18.0;   // 18% — CGI art. 357
+    public const TVA_TAUX_DECIMAL   = 0.18;
+    public const BRS_TAUX_LEGAL     = 15.0;   // 15% — CGI art. 196bis
+    public const COMMISSION_TAUX    = 10.0;   // 10% — standard marché SN
+    public const ABATTEMENT_IRPP    = 0.30;   // 30% forfaitaire — CGI art. 58
+    public const CFPB_TAUX          = 0.05;   // ~5% de la valeur locative brute
 
-    // Tranches loi 81-18 (plafonds loyer mensuel en FCFA selon surface)
-    // Ces plafonds sont indicatifs et à ajuster selon les arrêtés en vigueur
+    // Tranches IRPP progressif (CGI art. 65) — montants en FCFA
+    public const IRPP_TRANCHES = [
+        ['min' => 0,        'max' => 1_500_000,  'taux' => 0],
+        ['min' => 1_500_001, 'max' => 4_000_000,  'taux' => 20],
+        ['min' => 4_000_001, 'max' => 8_000_000,  'taux' => 30],
+        ['min' => 8_000_001, 'max' => PHP_INT_MAX, 'taux' => 40],
+    ];
+
+    // Tranches loi 81-18 (plafonds loyer mensuel en FCFA selon surface m²)
     public const LOI_8118_TRANCHES = [
         ['surface_max' => 60,   'loyer_max' => 150_000],
         ['surface_max' => 100,  'loyer_max' => 300_000],
         ['surface_max' => 150,  'loyer_max' => 500_000],
-        ['surface_max' => null, 'loyer_max' => null],    // Au-delà : libre
+        ['surface_max' => null, 'loyer_max' => null],   // Au-delà : libre
     ];
 
-    // ─── API principale ─────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════
+    // API STATIQUE PRINCIPALE
+    // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * Calcule la décomposition fiscale complète d'un loyer mensuel.
+     * Calcule la ventilation fiscale complète d'un paiement.
      *
-     * @param  float  $loyerHorsCharges   Loyer de base HT (FCFA)
-     * @param  float  $charges            Charges mensuelles (FCFA)
-     * @param  float  $tauxTom            Taux TOM local (défaut 5%)
-     * @param  float  $tauxCommission     Taux commission agence (défaut 10%)
-     * @return array  Décomposition complète avec tous les montants
+     * Point d'entrée unique pour tout enregistrement de paiement.
+     * Appelé par : PaiementService, PaiementController.
+     *
+     * Règles d'assiette :
+     *   - TVA loyer   → sur loyer_ht uniquement (jamais charges ni TOM)
+     *   - Commission  → % × loyer_ht uniquement
+     *   - BRS         → % × loyer_ttc (si locataire entreprise)
+     *   - Charges/TOM → hors TVA, hors commission, hors BRS
+     */
+    public static function calculer(FiscalContext $ctx): FiscalResult
+    {
+        // ── 1. TVA loyer ────────────────────────────────────────────────────
+        $assujetti = $ctx->tauxTvaLoyerOverride !== null
+            ? ($ctx->tauxTvaLoyerOverride > 0)
+            : self::loyerEstAssujetti($ctx->typeBail, $ctx->estMeuble);
+
+        $tauxTvaLoyer = $ctx->tauxTvaLoyerOverride ?? ($assujetti ? self::TVA_TAUX : 0.0);
+
+        $loyerHt  = round($ctx->loyerNu, 2);
+        $tvaLoyer = round($loyerHt * ($tauxTvaLoyer / 100), 2);
+        $loyerTtc = round($loyerHt + $tvaLoyer, 2);
+
+        // ── 2. Total encaissé ────────────────────────────────────────────────
+        $montantEncaisse = round($loyerTtc + $ctx->chargesAmount + $ctx->tomAmount, 2);
+
+        // ── 3. Commission agence ────────────────────────────────────────────
+        $commissionHt  = round($loyerHt * ($ctx->tauxCommission / 100), 2);
+        $tvaCommission = round($commissionHt * ($ctx->tauxTvaCommission / 100), 2);
+        $commissionTtc = round($commissionHt + $tvaCommission, 2);
+
+        // ── 4. Net propriétaire (avant BRS) ─────────────────────────────────
+        $netProprietaire = round($montantEncaisse - $commissionTtc, 2);
+
+        // ── 5. BRS — priorité : contrat > locataire > légal 15% ────────────
+        $brsApplicable = $ctx->locataireEstEntreprise;
+        $tauxBrs       = 0.0;
+        $brsAmount     = 0.0;
+
+        if ($brsApplicable) {
+            $tauxBrs   = $ctx->tauxBrsContrat ?? $ctx->tauxBrsLocataire ?? self::BRS_TAUX_LEGAL;
+            $brsAmount = round($loyerTtc * ($tauxBrs / 100), 2);
+        }
+
+        $netAVerser = round($netProprietaire - $brsAmount, 2);
+
+        // ── 6. Label régime fiscal (lisible pour UI/PDF) ────────────────────
+        $regime = match(true) {
+            $assujetti && $brsApplicable => 'commercial_avec_brs',
+            $assujetti                   => 'commercial',
+            $brsApplicable               => 'habitation_avec_brs',
+            default                      => 'habitation',
+        };
+
+        return new FiscalResult(
+            loyerHt:                $loyerHt,
+            tvaLoyer:               $tvaLoyer,
+            loyerTtc:               $loyerTtc,
+            chargesAmount:          (float) $ctx->chargesAmount,
+            tomAmount:              (float) $ctx->tomAmount,
+            montantEncaisse:        $montantEncaisse,
+            commissionHt:           $commissionHt,
+            tvaCommission:          $tvaCommission,
+            commissionTtc:          $commissionTtc,
+            netProprietaire:        $netProprietaire,
+            tauxBrsApplique:        $tauxBrs,
+            brsAmount:              $brsAmount,
+            brsApplicable:          $brsApplicable,
+            netAVerserProprietaire: $netAVerser,
+            loyerAssujetti:         $assujetti,
+            regimeFiscal:           $regime,
+            tauxTvaLoyerApplique:   $tauxTvaLoyer,
+        );
+    }
+
+    /**
+     * Détermine si le loyer est assujetti à la TVA.
+     *
+     * Règle CGI SN art. 355 :
+     *  - Habitation non meublée  → exonérée
+     *  - Habitation meublée      → assujettie (équivaut à prestation de service)
+     *  - Commercial / mixte      → toujours assujetti
+     *  - Saisonnier meublé       → assujetti
+     *
+     * Appelé par : FiscalService::calculer()
+     */
+    public static function loyerEstAssujetti(string $typeBail, bool $estMeuble = false): bool
+    {
+        return match($typeBail) {
+            'commercial'  => true,
+            'mixte'       => true,
+            'habitation'  => $estMeuble,
+            'saisonnier'  => $estMeuble,
+            default       => false,
+        };
+    }
+
+    /**
+     * Calcule le bilan annuel réel depuis la base de données.
+     *
+     * Agrège les paiements validés d'une année pour un propriétaire.
+     * Calcule IRPP (barème progressif) et CFPB depuis les vrais montants.
+     *
+     * Appelé par : BilanFiscalController::calculate()
+     *
+     * @param  int $proprietaireId  ID de l'utilisateur (rôle proprietaire)
+     * @param  int $annee           Année fiscale (ex: 2025)
+     * @param  int $agencyId        Isolation multi-tenant
+     * @return array                Données prêtes pour BilanFiscalProprietaire::updateOrCreate()
+     */
+    public static function calculerBilanAnnuel(int $proprietaireId, int $annee, int $agencyId): array
+    {
+        // ── Agrégation des paiements validés depuis la DB ───────────────────
+        $paiements = Paiement::withoutGlobalScopes()
+            ->join('contrats', 'paiements.contrat_id', '=', 'contrats.id')
+            ->join('biens', 'contrats.bien_id', '=', 'biens.id')
+            ->where('paiements.agency_id', $agencyId)
+            ->where('paiements.statut', 'valide')
+            ->whereYear('paiements.date_paiement', $annee)
+            ->where('biens.proprietaire_id', $proprietaireId)
+            ->select([
+                'paiements.id',
+                'paiements.periode',
+                'paiements.loyer_ht',
+                'paiements.loyer_nu',
+                'paiements.tva_loyer',
+                'paiements.charges_amount',
+                'paiements.commission_agence',
+                'paiements.tva_commission',
+                'paiements.commission_ttc',
+                'paiements.brs_amount',
+                'paiements.net_proprietaire',
+                'paiements.date_paiement',
+                'biens.reference as bien_reference',
+                'contrats.type_bail',
+            ])
+            ->orderBy('paiements.periode')
+            ->get();
+
+        // ── Agrégats ────────────────────────────────────────────────────────
+        $revenusBrutsLoyers  = (float) $paiements->sum(fn($p) => $p->loyer_ht ?? $p->loyer_nu ?? 0);
+        $revenusBrutsCharges = (float) $paiements->sum('charges_amount');
+        $revenusBrutsTotal   = $revenusBrutsLoyers + $revenusBrutsCharges;
+
+        $commissionsHt    = (float) $paiements->sum('commission_agence');
+        $tvaCommissions   = (float) $paiements->sum('tva_commission');
+        $tvaLoyerCollecte = (float) $paiements->sum('tva_loyer');
+        $brsRetenuTotal   = (float) $paiements->sum('brs_amount');
+        $netProprietaire  = (float) $paiements->sum('net_proprietaire');
+
+        $nbBiensGeres = $paiements->pluck('bien_reference')->unique()->count();
+
+        // ── Calcul IRPP (CGI art. 58 et 65) ────────────────────────────────
+        $abattement30      = round($revenusBrutsLoyers * self::ABATTEMENT_IRPP, 2);
+        $baseImposable     = round($revenusBrutsLoyers - $abattement30, 2);
+        $irppEstime        = self::calculerIRPP($baseImposable);
+
+        // ── CFPB (CGI art. 95-110) ──────────────────────────────────────────
+        $cfpbEstimee = round($revenusBrutsLoyers * self::CFPB_TAUX, 2);
+
+        return [
+            // Revenus
+            'revenus_bruts_loyers'      => $revenusBrutsLoyers,
+            'revenus_bruts_charges'     => $revenusBrutsCharges,
+            'revenus_bruts_total'       => $revenusBrutsTotal,
+
+            // Calcul fiscal
+            'abattement_forfaitaire_30' => $abattement30,
+            'base_imposable'            => $baseImposable,
+            'irpp_estime'               => $irppEstime,
+            'cfpb_estimee'              => $cfpbEstimee,
+
+            // Taxes collectées
+            'tva_loyer_collectee'       => $tvaLoyerCollecte,
+            'brs_retenu_total'          => $brsRetenuTotal,
+
+            // Commissions agence
+            'commissions_agence_ht'     => $commissionsHt,
+            'tva_commissions'           => $tvaCommissions,
+
+            // Net propriétaire
+            'net_proprietaire_total'    => $netProprietaire,
+
+            // Méta
+            'nb_paiements'              => $paiements->count(),
+            'nb_biens_geres'            => $nbBiensGeres,
+            'calcule_le'                => now(),
+
+            // Snapshot paiements pour le PDF
+            'paiements'                 => $paiements,
+        ];
+    }
+
+    /**
+     * Calcule l'IRPP selon le barème progressif sénégalais (CGI art. 65).
+     *
+     * @param  float $baseImposable  Revenus nets après abattement 30%
+     * @return float                 IRPP total estimé en FCFA
+     */
+    public static function calculerIRPP(float $baseImposable): float
+    {
+        $irpp = 0.0;
+
+        foreach (self::IRPP_TRANCHES as $tranche) {
+            if ($baseImposable <= $tranche['min']) {
+                break;
+            }
+            $imposable = min($baseImposable, (float) $tranche['max']) - $tranche['min'];
+            $irpp     += $imposable * ($tranche['taux'] / 100);
+        }
+
+        return round($irpp, 2);
+    }
+
+    /**
+     * Vérifie si un loyer respecte les plafonds de la loi 81-18.
+     *
+     * @param  float    $loyerMensuel  Loyer nu mensuel en FCFA
+     * @param  int|null $surfaceM2     Surface habitable en m²
+     * @return array{conforme: bool, plafond: int|null, message: string}
+     */
+    public static function verifierLoi8118(float $loyerMensuel, ?int $surfaceM2 = null): array
+    {
+        if ($surfaceM2 === null) {
+            return ['conforme' => true, 'plafond' => null, 'message' => 'Surface non renseignée — vérification impossible'];
+        }
+
+        foreach (self::LOI_8118_TRANCHES as $tranche) {
+            if ($tranche['surface_max'] === null || $surfaceM2 <= $tranche['surface_max']) {
+                if ($tranche['loyer_max'] === null) {
+                    return ['conforme' => true, 'plafond' => null, 'message' => 'Loyer libre (surface > 150 m²)'];
+                }
+                $conforme = $loyerMensuel <= $tranche['loyer_max'];
+                return [
+                    'conforme' => $conforme,
+                    'plafond'  => $tranche['loyer_max'],
+                    'message'  => $conforme
+                        ? "Conforme loi 81-18 (plafond {$tranche['loyer_max']} F)"
+                        : "Dépasse le plafond loi 81-18 ({$tranche['loyer_max']} F pour {$surfaceM2} m²)",
+                ];
+            }
+        }
+
+        return ['conforme' => true, 'plafond' => null, 'message' => 'Hors tranches connues'];
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // MÉTHODES D'INSTANCE — Projections et utilitaires (PAS de DB)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Calcule une décomposition fiscale estimée depuis des montants bruts.
+     * Utilisé pour les previews rapides et le DemoDataSeeder.
+     * N'accède pas à la base de données.
+     *
+     * @param  float $loyerHorsCharges   Loyer de base HT (FCFA)
+     * @param  float $charges            Charges mensuelles (FCFA)
+     * @param  float $tauxTom            Taux TOM local (défaut 5%, format décimal 0-1)
+     * @param  float $tauxCommission     Taux commission (défaut 10%, format décimal 0-1)
      */
     public function calculerDecompositionLoyer(
         float $loyerHorsCharges,
         float $charges = 0,
-        float $tauxTom = self::TOM_TAUX_DEFAUT,
-        float $tauxCommission = self::COMMISSION_TAUX
+        float $tauxTom = 0.05,
+        float $tauxCommission = 0.10
     ): array {
         $this->validerMontant($loyerHorsCharges, 'loyer_hors_charges');
         $this->validerMontant($charges, 'charges');
-        $this->validerTaux($tauxTom, 'taux_tom');
-        $this->validerTaux($tauxCommission, 'taux_commission');
+        $this->validerTauxDecimal($tauxTom, 'taux_tom');
+        $this->validerTauxDecimal($tauxCommission, 'taux_commission');
 
         $loyerBrut       = $loyerHorsCharges + $charges;
         $commissionHt    = round($loyerHorsCharges * $tauxCommission);
-        $tva             = round($commissionHt * self::TVA_TAUX);
+        $tva             = round($commissionHt * self::TVA_TAUX_DECIMAL);
         $commissionTtc   = $commissionHt + $tva;
         $tom             = round($loyerHorsCharges * $tauxTom);
         $netProprietaire = $loyerHorsCharges - $commissionHt - $tom;
 
         return [
-            // Montants bruts
             'loyer_hors_charges'  => round($loyerHorsCharges),
             'charges'             => round($charges),
             'loyer_brut'          => round($loyerBrut),
-
-            // Commission agence
             'commission_taux'     => $tauxCommission,
             'commission_ht'       => $commissionHt,
-            'tva_taux'            => self::TVA_TAUX,
+            'tva_taux'            => self::TVA_TAUX_DECIMAL,
             'tva_montant'         => $tva,
             'commission_ttc'      => $commissionTtc,
-
-            // Taxe sur les Opérations Mobilières
             'tom_taux'            => $tauxTom,
             'tom_montant'         => $tom,
-
-            // Ce que reçoit réellement le propriétaire
             'net_proprietaire'    => $netProprietaire,
-
-            // Ce que paie le locataire
             'total_locataire'     => round($loyerBrut),
-
-            // Ratios pour les rapports
             'ratio_commission'    => $loyerHorsCharges > 0
                 ? round(($commissionTtc / $loyerHorsCharges) * 100, 2)
                 : 0,
@@ -95,151 +357,44 @@ class FiscalService
     }
 
     /**
-     * Calcule le dépôt de garantie selon la loi 81-18.
-     * Plafond légal : 2 mois de loyer hors charges.
-     *
-     * @param  float  $loyerHorsCharges
-     * @param  int    $moisDemandes      Nombre de mois souhaités (1 ou 2)
-     * @return array
-     */
-    public function calculerDepotGarantie(float $loyerHorsCharges, int $moisDemandes = 2): array
-    {
-        $this->validerMontant($loyerHorsCharges, 'loyer_hors_charges');
-
-        $moisLegal = min($moisDemandes, 2); // Loi 81-18 : maximum 2 mois
-        $montant   = round($loyerHorsCharges * $moisLegal);
-
-        return [
-            'mois_demandes'    => $moisDemandes,
-            'mois_appliques'   => $moisLegal,
-            'montant'          => $montant,
-            'conforme_loi8118' => $moisDemandes <= 2,
-            'avertissement'    => $moisDemandes > 2
-                ? 'La loi 81-18 plafonne le dépôt de garantie à 2 mois de loyer hors charges.'
-                : null,
-        ];
-    }
-
-    /**
-     * Vérifie la conformité d'un loyer avec la loi 81-18.
-     *
-     * @param  float  $loyerHorsCharges
-     * @param  float  $surface           Surface en m²
-     * @param  string $type              Type de bien (appartement, villa, etc.)
-     * @return array
-     */
-    public function verifierConformiteLoi8118(
-        float $loyerHorsCharges,
-        float $surface,
-        string $type = 'appartement'
-    ): array {
-        // Les locaux commerciaux et bureaux ne sont pas soumis à la loi 81-18
-        $typesExclus = ['bureau', 'commerce', 'terrain'];
-        if (in_array($type, $typesExclus)) {
-            return [
-                'soumis_loi8118' => false,
-                'conforme'       => true,
-                'motif'          => "Les biens de type '{$type}' ne sont pas soumis à la loi 81-18.",
-                'loyer_max'      => null,
-            ];
-        }
-
-        $loyerMax = null;
-        foreach (self::LOI_8118_TRANCHES as $tranche) {
-            if ($tranche['surface_max'] === null || $surface <= $tranche['surface_max']) {
-                $loyerMax = $tranche['loyer_max'];
-                break;
-            }
-        }
-
-        // Surface très grande : loyer libre
-        if ($loyerMax === null) {
-            return [
-                'soumis_loi8118' => true,
-                'conforme'       => true,
-                'motif'          => 'Surface > 150 m² : loyer libre (hors plafond loi 81-18).',
-                'loyer_max'      => null,
-            ];
-        }
-
-        $conforme = $loyerHorsCharges <= $loyerMax;
-
-        return [
-            'soumis_loi8118' => true,
-            'conforme'       => $conforme,
-            'loyer_propose'  => round($loyerHorsCharges),
-            'loyer_max'      => $loyerMax,
-            'ecart'          => $conforme ? 0 : round($loyerHorsCharges - $loyerMax),
-            'motif'          => $conforme
-                ? "Loyer conforme (≤ {$loyerMax} FCFA pour {$surface} m²)."
-                : "Loyer non conforme : dépasse le plafond de " . number_format($loyerMax, 0, ',', ' ') . " FCFA pour {$surface} m².",
-        ];
-    }
-
-    /**
-     * Calcule les frais d'état des lieux.
-     * Standard marché sénégalais : 1 mois de loyer HT partagé 50/50.
+     * Projette un bilan annuel estimé SANS base de données.
      *
      * @param  float $loyerHorsCharges
-     * @return array
+     * @param  float $charges
+     * @param  int   $moisOccupes       Mois effectivement occupés (0-12)
      */
-    public function calculerFraisEtatDesLieux(float $loyerHorsCharges): array
-    {
-        $total              = round($loyerHorsCharges);
-        $partLocataire      = round($total / 2);
-        $partProprietaire   = $total - $partLocataire; // Évite les arrondis impairs
-
-        return [
-            'total'             => $total,
-            'part_locataire'    => $partLocataire,
-            'part_proprietaire' => $partProprietaire,
-        ];
-    }
-
-    /**
-     * Génère le récapitulatif financier annuel pour les rapports.
-     *
-     * @param  float  $loyerHorsCharges
-     * @param  float  $charges
-     * @param  int    $moisOccupes       Nombre de mois effectivement occupés
-     * @param  float  $tauxTom
-     * @param  float  $tauxCommission
-     * @return array
-     */
-    public function calculerBilanAnnuel(
+    public function projeterBilanAnnuel(
         float $loyerHorsCharges,
         float $charges = 0,
         int   $moisOccupes = 12,
-        float $tauxTom = self::TOM_TAUX_DEFAUT,
-        float $tauxCommission = self::COMMISSION_TAUX
+        float $tauxTom = 0.05,
+        float $tauxCommission = 0.10
     ): array {
-        $mensuel = $this->calculerDecompositionLoyer(
-            $loyerHorsCharges,
-            $charges,
-            $tauxTom,
-            $tauxCommission
-        );
-
+        $mensuel        = $this->calculerDecompositionLoyer($loyerHorsCharges, $charges, $tauxTom, $tauxCommission);
         $multiplicateur = max(0, min(12, $moisOccupes));
 
         return [
-            'mois_occupes'           => $multiplicateur,
-            'taux_occupation'        => round(($multiplicateur / 12) * 100, 1),
-
-            // Annualisations
-            'loyer_brut_annuel'      => $mensuel['loyer_brut'] * $multiplicateur,
-            'commission_ht_annuel'   => $mensuel['commission_ht'] * $multiplicateur,
-            'tva_annuel'             => $mensuel['tva_montant'] * $multiplicateur,
-            'commission_ttc_annuel'  => $mensuel['commission_ttc'] * $multiplicateur,
-            'tom_annuel'             => $mensuel['tom_montant'] * $multiplicateur,
-            'net_proprietaire_annuel'=> $mensuel['net_proprietaire'] * $multiplicateur,
-
-            // Détail mensuel inclus
-            'mensuel'                => $mensuel,
+            'mois_occupes'            => $multiplicateur,
+            'taux_occupation'         => round(($multiplicateur / 12) * 100, 1),
+            'loyer_brut_annuel'       => $mensuel['loyer_brut'] * $multiplicateur,
+            'commission_ht_annuel'    => $mensuel['commission_ht'] * $multiplicateur,
+            'tva_annuel'              => $mensuel['tva_montant'] * $multiplicateur,
+            'commission_ttc_annuel'   => $mensuel['commission_ttc'] * $multiplicateur,
+            'tom_annuel'              => $mensuel['tom_montant'] * $multiplicateur,
+            'net_proprietaire_annuel' => $mensuel['net_proprietaire'] * $multiplicateur,
+            'mensuel'                 => $mensuel,
         ];
     }
 
-    // ─── Méthodes utilitaires ───────────────────────────────────────────────
+    /**
+     * Calcule la caution selon la loi 81-18.
+     * Plafond légal : 2 mois de loyer hors charges.
+     */
+    public function calculerCaution(float $loyerHorsCharges, int $moisCaution = 1): float
+    {
+        $this->validerMontant($loyerHorsCharges, 'loyer_hors_charges');
+        return round($loyerHorsCharges * min($moisCaution, 2));
+    }
 
     /**
      * Formate un montant en FCFA avec séparateurs de milliers.
@@ -257,7 +412,7 @@ class FiscalService
         return number_format($taux * 100, 0) . '%';
     }
 
-    // ─── Validations internes ───────────────────────────────────────────────
+    // ─── Validations internes ────────────────────────────────────────────────
 
     private function validerMontant(float $valeur, string $champ): void
     {
@@ -268,11 +423,11 @@ class FiscalService
         }
     }
 
-    private function validerTaux(float $taux, string $champ): void
+    private function validerTauxDecimal(float $taux, string $champ): void
     {
         if ($taux < 0 || $taux > 1) {
             throw new InvalidArgumentException(
-                "Le taux '{$champ}' doit être compris entre 0 et 1. Valeur reçue : {$taux}"
+                "Le taux '{$champ}' doit être entre 0 et 1 (ex: 0.10 pour 10%). Valeur reçue : {$taux}"
             );
         }
     }

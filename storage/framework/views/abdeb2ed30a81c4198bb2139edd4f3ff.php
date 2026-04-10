@@ -1,5 +1,14 @@
-<x-app-layout>
-    <x-slot name="header">Mon espace propriétaire</x-slot>
+<?php if (isset($component)) { $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54 = $attributes; } ?>
+<?php $component = App\View\Components\AppLayout::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('app-layout'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\AppLayout::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+     <?php $__env->slot('header', null, []); ?> Mon espace propriétaire <?php $__env->endSlot(); ?>
 
 <style>
 /* ── LAYOUT ── */
@@ -116,17 +125,17 @@
 
 <div style="padding:24px 32px 48px">
 
-    {{-- GREETING --}}
+    
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
-                Bonjour, {{ explode(' ', auth()->user()->name)[0] }} 👋
+                Bonjour, <?php echo e(explode(' ', auth()->user()->name)[0]); ?> 👋
             </h1>
             <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                {{ now()->translatedFormat('l d F Y') }} · Aperçu de votre patrimoine immobilier
+                <?php echo e(now()->translatedFormat('l d F Y')); ?> · Aperçu de votre patrimoine immobilier
             </p>
         </div>
-        <a href="{{ route('admin.biens.index') }}"
+        <a href="<?php echo e(route('admin.biens.index')); ?>"
            style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fff;transition:all .15s"
            onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
            onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
@@ -135,134 +144,134 @@
         </a>
     </div>
 
-    {{-- KPI ROW --}}
-    @php
+    
+    <?php
         $tauxOccupation = $stats['nb_biens'] > 0
             ? round(($stats['nb_biens_loues'] / $stats['nb_biens']) * 100)
             : 0;
-    @endphp
+    ?>
     <div class="kpi-row">
         <div class="kpi-card gold">
             <div class="kpi-lbl">Total loyers encaissés</div>
-            <div class="kpi-val gold">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
-            <div class="kpi-s">{{ $stats['nb_paiements'] }} paiements validés</div>
+            <div class="kpi-val gold"><?php echo e(number_format($stats['total_loyers'], 0, ',', ' ')); ?><span class="kpi-u">F</span></div>
+            <div class="kpi-s"><?php echo e($stats['nb_paiements']); ?> paiements validés</div>
         </div>
         <div class="kpi-card green">
-            <div class="kpi-val green" style="font-size:26px;margin-bottom:5px">{{ number_format($stats['total_net'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
+            <div class="kpi-val green" style="font-size:26px;margin-bottom:5px"><?php echo e(number_format($stats['total_net'], 0, ',', ' ')); ?><span class="kpi-u">F</span></div>
             <div class="kpi-lbl">Net reversé (après commission)</div>
             <div class="kpi-s">Votre revenu net total</div>
         </div>
         <div class="kpi-card blue">
             <div class="kpi-lbl">Biens loués</div>
-            <div class="kpi-val" style="color:#1d4ed8">{{ $stats['nb_biens_loues'] }}<span class="kpi-u">/ {{ $stats['nb_biens'] }}</span></div>
-            <div class="kpi-s">{{ $tauxOccupation }}% d'occupation</div>
+            <div class="kpi-val" style="color:#1d4ed8"><?php echo e($stats['nb_biens_loues']); ?><span class="kpi-u">/ <?php echo e($stats['nb_biens']); ?></span></div>
+            <div class="kpi-s"><?php echo e($tauxOccupation); ?>% d'occupation</div>
         </div>
         <div class="kpi-card purple">
             <div class="kpi-lbl">Caution totale détenue</div>
-            <div class="kpi-val" style="color:#7c3aed">{{ number_format($stats['caution'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
+            <div class="kpi-val" style="color:#7c3aed"><?php echo e(number_format($stats['caution'], 0, ',', ' ')); ?><span class="kpi-u">F</span></div>
             <div class="kpi-s">Dépôts de garantie</div>
         </div>
     </div>
 
-    {{-- BILAN ALL-TIME --}}
+    
     <div class="bilan">
         <div class="bilan-col">
             <div class="bilan-lbl">Total encaissé brut</div>
-            <div class="bilan-val gold">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
+            <div class="bilan-val gold"><?php echo e(number_format($stats['total_loyers'], 0, ',', ' ')); ?><span class="bilan-u">F</span></div>
             <div class="bilan-s">Depuis le début</div>
         </div>
         <div class="bilan-col">
             <div class="bilan-lbl">Commission agence (TTC)</div>
-            <div class="bilan-val">{{ number_format($stats['total_commission'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
+            <div class="bilan-val"><?php echo e(number_format($stats['total_commission'], 0, ',', ' ')); ?><span class="bilan-u">F</span></div>
             <div class="bilan-s">Déduites automatiquement</div>
         </div>
         <div class="bilan-col">
             <div class="bilan-lbl">Net reversé propriétaire</div>
-            <div class="bilan-val green">{{ number_format($stats['total_net'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
+            <div class="bilan-val green"><?php echo e(number_format($stats['total_net'], 0, ',', ' ')); ?><span class="bilan-u">F</span></div>
             <div class="bilan-s">Votre revenu net cumulé</div>
         </div>
     </div>
 
     <div class="dash-grid">
 
-        {{-- ═══ COLONNE GAUCHE ═══ --}}
+        
         <div>
 
-            {{-- MES BIENS --}}
+            
             <div class="card">
                 <div class="card-hd">
-                    <div class="card-title">Mes biens ({{ $biens->total() }})</div>
-                    <a href="{{ route('admin.biens.index') }}" class="card-action">
+                    <div class="card-title">Mes biens (<?php echo e($biens->total()); ?>)</div>
+                    <a href="<?php echo e(route('admin.biens.index')); ?>" class="card-action">
                         Voir tout
                         <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </a>
                 </div>
 
-                @if($biens->isEmpty())
+                <?php if($biens->isEmpty()): ?>
                 <div style="padding:32px;text-align:center;color:#9ca3af;font-size:13px">
                     Aucun bien associé à votre compte.
                 </div>
-                @else
+                <?php else: ?>
                 <div class="biens-grid">
-                    @foreach($biens as $bien)
-                    @php
+                    <?php $__currentLoopData = $biens; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bien): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
                         $sp = match($bien->statut) { 'loue'=>'loue', 'disponible'=>'dispo', default=>'trav' };
                         $sl = match($bien->statut) { 'loue'=>'Loué', 'disponible'=>'Disponible', default=>'En travaux' };
-                    @endphp
-                    <a href="{{ route('admin.biens.show', $bien) }}" style="text-decoration:none" class="bien-card">
+                    ?>
+                    <a href="<?php echo e(route('admin.biens.show', $bien)); ?>" style="text-decoration:none" class="bien-card">
                         <div class="bien-photo">
-                            @php $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first(); @endphp
-                            @if($photo)
-                                <img src="{{ Storage::url($photo->chemin) }}" alt="{{ $bien->reference }}" loading="lazy">
-                            @else
+                            <?php $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first(); ?>
+                            <?php if($photo): ?>
+                                <img src="<?php echo e(Storage::url($photo->chemin)); ?>" alt="<?php echo e($bien->reference); ?>" loading="lazy">
+                            <?php else: ?>
                                 <div class="bien-photo-ph">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
                                 </div>
-                            @endif
-                            <span class="statut-pill {{ $sp }}">{{ $sl }}</span>
+                            <?php endif; ?>
+                            <span class="statut-pill <?php echo e($sp); ?>"><?php echo e($sl); ?></span>
                         </div>
                         <div class="bien-body">
-                            <div class="bien-ref">{{ $bien->reference }}</div>
-                            <div class="bien-addr">{{ $bien->adresse }}, {{ $bien->ville }}</div>
-                            <div class="bien-loyer">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F/mois</div>
+                            <div class="bien-ref"><?php echo e($bien->reference); ?></div>
+                            <div class="bien-addr"><?php echo e($bien->adresse); ?>, <?php echo e($bien->ville); ?></div>
+                            <div class="bien-loyer"><?php echo e(number_format($bien->loyer_mensuel, 0, ',', ' ')); ?> F/mois</div>
                         </div>
                     </a>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
 
-                {{-- Pagination biens --}}
-                @if($biens->hasPages())
+                
+                <?php if($biens->hasPages()): ?>
                 <div class="pagination-wrap">
-                    <div class="pagination-info">{{ $biens->firstItem() }} – {{ $biens->lastItem() }} sur {{ $biens->total() }}</div>
+                    <div class="pagination-info"><?php echo e($biens->firstItem()); ?> – <?php echo e($biens->lastItem()); ?> sur <?php echo e($biens->total()); ?></div>
                     <div class="pagination-links">
-                        @if($biens->onFirstPage())
+                        <?php if($biens->onFirstPage()): ?>
                             <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-                        @else
-                            <a href="{{ $biens->previousPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-                        @endif
-                        @if($biens->hasMorePages())
-                            <a href="{{ $biens->nextPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-                        @else
+                        <?php else: ?>
+                            <a href="<?php echo e($biens->previousPageUrl()); ?>" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+                        <?php endif; ?>
+                        <?php if($biens->hasMorePages()): ?>
+                            <a href="<?php echo e($biens->nextPageUrl()); ?>" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+                        <?php else: ?>
                             <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
-                @endif
-                @endif
+                <?php endif; ?>
+                <?php endif; ?>
             </div>
 
-            {{-- DERNIERS PAIEMENTS --}}
+            
             <div class="card">
                 <div class="card-hd">
                     <div class="card-title">Derniers versements</div>
                     <span style="font-size:11px;color:#9ca3af">Net reversé après commission</span>
                 </div>
 
-                @if($paiements->isEmpty())
+                <?php if($paiements->isEmpty()): ?>
                 <div style="padding:28px;text-align:center;color:#9ca3af;font-size:13px">
                     Aucun paiement enregistré pour l'instant.
                 </div>
-                @else
+                <?php else: ?>
                 <div style="overflow-x:auto">
                     <table class="dt">
                         <thead>
@@ -277,18 +286,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($paiements as $p)
+                            <?php $__currentLoopData = $paiements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td>
-                                    <div style="font-size:13px;font-weight:500;color:#0d1117">{{ $p->contrat->bien->reference }}</div>
+                                    <div style="font-size:13px;font-weight:500;color:#0d1117"><?php echo e($p->contrat->bien->reference); ?></div>
                                 </td>
-                                <td style="font-size:12px;color:#6b7280">{{ $p->contrat->locataire->name }}</td>
-                                <td><span class="periode-pill">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span></td>
-                                <td style="font-size:12px;color:#6b7280">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</td>
-                                <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:600;color:#374151">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
-                                <td style="text-align:right"><span class="amt-green">{{ number_format($p->net_proprietaire, 0, ',', ' ') }} F</span></td>
+                                <td style="font-size:12px;color:#6b7280"><?php echo e($p->contrat->locataire->name); ?></td>
+                                <td><span class="periode-pill"><?php echo e(\Carbon\Carbon::parse($p->periode)->translatedFormat('M Y')); ?></span></td>
+                                <td style="font-size:12px;color:#6b7280"><?php echo e(\Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y')); ?></td>
+                                <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:600;color:#374151"><?php echo e(number_format($p->montant_encaisse, 0, ',', ' ')); ?> F</td>
+                                <td style="text-align:right"><span class="amt-green"><?php echo e(number_format($p->net_proprietaire, 0, ',', ' ')); ?> F</span></td>
                                 <td style="text-align:center">
-                                    <a href="{{ route('proprietaire.paiements.pdf', $p) }}" target="_blank"
+                                    <a href="<?php echo e(route('proprietaire.paiements.pdf', $p)); ?>" target="_blank"
                                        style="display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border:1px solid #e5e7eb;border-radius:6px;color:#6b7280;text-decoration:none;transition:all .15s"
                                        onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f';this.style.background='#f5e9c9'"
                                        onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280';this.style.background='transparent'"
@@ -297,132 +306,133 @@
                                     </a>
                                 </td>
                             </tr>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>
                     </table>
                 </div>
 
-                {{-- Pagination paiements --}}
-                @if($paiements->hasPages())
+                
+                <?php if($paiements->hasPages()): ?>
                 <div class="pagination-wrap">
-                    <div class="pagination-info">Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</div>
+                    <div class="pagination-info">Page <?php echo e($paiements->currentPage()); ?> / <?php echo e($paiements->lastPage()); ?></div>
                     <div class="pagination-links">
-                        @if($paiements->onFirstPage())
+                        <?php if($paiements->onFirstPage()): ?>
                             <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-                        @else
-                            <a href="{{ $paiements->previousPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-                        @endif
-                        @foreach($paiements->getUrlRange(max(1,$paiements->currentPage()-1), min($paiements->lastPage(),$paiements->currentPage()+1)) as $pg => $url)
-                            <a href="{{ $url }}" class="page-btn {{ $pg === $paiements->currentPage() ? 'active':'' }}">{{ $pg }}</a>
-                        @endforeach
-                        @if($paiements->hasMorePages())
-                            <a href="{{ $paiements->nextPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-                        @else
+                        <?php else: ?>
+                            <a href="<?php echo e($paiements->previousPageUrl()); ?>" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+                        <?php endif; ?>
+                        <?php $__currentLoopData = $paiements->getUrlRange(max(1,$paiements->currentPage()-1), min($paiements->lastPage(),$paiements->currentPage()+1)); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pg => $url): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <a href="<?php echo e($url); ?>" class="page-btn <?php echo e($pg === $paiements->currentPage() ? 'active':''); ?>"><?php echo e($pg); ?></a>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php if($paiements->hasMorePages()): ?>
+                            <a href="<?php echo e($paiements->nextPageUrl()); ?>" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+                        <?php else: ?>
                             <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
-                @endif
-                @endif
+                <?php endif; ?>
+                <?php endif; ?>
             </div>
 
-        </div>{{-- fin colonne gauche --}}
+        </div>
 
-        {{-- ═══ COLONNE DROITE ═══ --}}
+        
         <div class="sidebar-sticky">
 
-            {{-- ANNEAU OCCUPATION --}}
+            
             <div class="card" style="margin-bottom:12px">
                 <div class="card-hd"><div class="card-title">Taux d'occupation</div></div>
                 <div class="occ-ring-wrap">
-                    @php
+                    <?php
                         $circumference = 2 * M_PI * 32; // r=32
                         $dash = ($tauxOccupation / 100) * $circumference;
                         $ringColor = $tauxOccupation >= 80 ? '#16a34a' : ($tauxOccupation >= 50 ? '#d97706' : '#dc2626');
-                    @endphp
+                    ?>
                     <div class="occ-ring">
                         <svg viewBox="0 0 80 80">
                             <circle class="occ-ring-bg" cx="40" cy="40" r="32"/>
                             <circle class="occ-ring-fill" cx="40" cy="40" r="32"
-                                stroke="{{ $ringColor }}"
-                                stroke-dasharray="{{ $dash }} {{ $circumference }}"
+                                stroke="<?php echo e($ringColor); ?>"
+                                stroke-dasharray="<?php echo e($dash); ?> <?php echo e($circumference); ?>"
                                 stroke-dashoffset="0"/>
                         </svg>
                         <div class="occ-ring-text">
-                            <div class="occ-ring-pct" style="color:{{ $ringColor }}">{{ $tauxOccupation }}%</div>
+                            <div class="occ-ring-pct" style="color:<?php echo e($ringColor); ?>"><?php echo e($tauxOccupation); ?>%</div>
                             <div class="occ-ring-sub">occupé</div>
                         </div>
                     </div>
-                    <div class="occ-label">{{ $stats['nb_biens_loues'] }} loué(s) sur {{ $stats['nb_biens'] }} bien(s)</div>
+                    <div class="occ-label"><?php echo e($stats['nb_biens_loues']); ?> loué(s) sur <?php echo e($stats['nb_biens']); ?> bien(s)</div>
                     <div class="occ-sub">
-                        @if($stats['nb_biens'] - $stats['nb_biens_loues'] > 0)
-                            {{ $stats['nb_biens'] - $stats['nb_biens_loues'] }} bien(s) disponible(s)
-                        @else
+                        <?php if($stats['nb_biens'] - $stats['nb_biens_loues'] > 0): ?>
+                            <?php echo e($stats['nb_biens'] - $stats['nb_biens_loues']); ?> bien(s) disponible(s)
+                        <?php else: ?>
                             Parc immobilier pleinement loué ✓
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
 
-            {{-- KPIs sidebar --}}
+            
             <div class="kpi-mini green">
                 <div class="km-lbl">Net reversé (all time)</div>
-                <div class="km-val green">{{ number_format($stats['total_net'], 0, ',', ' ') }}<span class="km-u">F</span></div>
+                <div class="km-val green"><?php echo e(number_format($stats['total_net'], 0, ',', ' ')); ?><span class="km-u">F</span></div>
                 <div class="km-s">Votre revenu net cumulé</div>
             </div>
 
             <div class="kpi-mini gold">
                 <div class="km-lbl">Caution totale</div>
-                <div class="km-val gold">{{ number_format($stats['caution'], 0, ',', ' ') }}<span class="km-u">F</span></div>
+                <div class="km-val gold"><?php echo e(number_format($stats['caution'], 0, ',', ' ')); ?><span class="km-u">F</span></div>
                 <div class="km-s">Dépôts de garantie détenus</div>
             </div>
 
-            @if($stats['dernier_paiement'])
+            <?php if($stats['dernier_paiement']): ?>
             <div class="kpi-mini blue">
                 <div class="km-lbl">Dernier versement</div>
                 <div class="km-val" style="color:#1d4ed8;font-size:15px">
-                    {{ number_format($stats['dernier_paiement']->net_proprietaire, 0, ',', ' ') }}<span class="km-u">F</span>
+                    <?php echo e(number_format($stats['dernier_paiement']->net_proprietaire, 0, ',', ' ')); ?><span class="km-u">F</span>
                 </div>
-                <div class="km-s">{{ \Carbon\Carbon::parse($stats['dernier_paiement']->date_paiement)->format('d/m/Y') }}</div>
+                <div class="km-s"><?php echo e(\Carbon\Carbon::parse($stats['dernier_paiement']->date_paiement)->format('d/m/Y')); ?></div>
             </div>
-            @endif
+            <?php endif; ?>
 
-            {{-- CONTACT AGENCE --}}
-            @if($currentAgency)
+            
+            <?php if($currentAgency): ?>
             <div class="card">
                 <div class="card-hd"><div class="card-title">Votre agence</div></div>
                 <div class="card-body" style="padding:14px 18px">
                     <div class="agence-card">
-                        <div class="ag-name">{{ $currentAgency->name }}</div>
-                        @if($currentAgency->telephone)
+                        <div class="ag-name"><?php echo e($currentAgency->name); ?></div>
+                        <?php if($currentAgency->telephone): ?>
                         <div class="ag-row">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07"/></svg>
-                            <a href="tel:{{ $currentAgency->telephone }}">{{ $currentAgency->telephone }}</a>
+                            <a href="tel:<?php echo e($currentAgency->telephone); ?>"><?php echo e($currentAgency->telephone); ?></a>
                         </div>
-                        @endif
-                        @if($currentAgency->email)
+                        <?php endif; ?>
+                        <?php if($currentAgency->email): ?>
                         <div class="ag-row">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                            <a href="mailto:{{ $currentAgency->email }}">{{ $currentAgency->email }}</a>
+                            <a href="mailto:<?php echo e($currentAgency->email); ?>"><?php echo e($currentAgency->email); ?></a>
                         </div>
-                        @endif
-                        @if($currentAgency->adresse)
+                        <?php endif; ?>
+                        <?php if($currentAgency->adresse): ?>
                         <div class="ag-row">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/></svg>
-                            {{ $currentAgency->adresse }}
+                            <?php echo e($currentAgency->adresse); ?>
+
                         </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
 
-                    {{-- WhatsApp agence --}}
-                    @if($currentAgency->telephone)
-                    @php
+                    
+                    <?php if($currentAgency->telephone): ?>
+                    <?php
                         $tel = preg_replace('/\s+|-/', '', $currentAgency->telephone);
                         if (!str_starts_with($tel, '+') && !str_starts_with($tel, '221')) $tel = '221' . ltrim($tel, '0');
                         $tel = ltrim($tel, '+');
                         $msgWa = "Bonjour {$currentAgency->name}, je suis ".auth()->user()->name.", propriétaire géré par votre agence. Je souhaite vous contacter.";
-                    @endphp
-                    <a href="https://wa.me/{{ $tel }}?text={{ urlencode($msgWa) }}" target="_blank"
+                    ?>
+                    <a href="https://wa.me/<?php echo e($tel); ?>?text=<?php echo e(urlencode($msgWa)); ?>" target="_blank"
                        style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding:9px;background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;transition:background .15s"
                        onmouseover="this.style.background='#bbf7d0'"
                        onmouseout="this.style.background='#dcfce7'">
@@ -432,15 +442,24 @@
                         </svg>
                         Contacter par WhatsApp
                     </a>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
-        </div>{{-- fin sidebar --}}
+        </div>
 
-    </div>{{-- /dash-grid --}}
+    </div>
 
 </div>
 
-</x-app-layout>
+ <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $attributes = $__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__attributesOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54)): ?>
+<?php $component = $__componentOriginal9ac128a9029c0e4701924bd2d73d7f54; ?>
+<?php unset($__componentOriginal9ac128a9029c0e4701924bd2d73d7f54); ?>
+<?php endif; ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/proprietaire/dashboard.blade.php ENDPATH**/ ?>

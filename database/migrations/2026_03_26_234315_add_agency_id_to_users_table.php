@@ -12,11 +12,14 @@ return new class extends Migration
     public function up(): void
 {
     Schema::table('users', function (Blueprint $table) {
-        $table->foreignId('agency_id')
-              ->nullable()           // nullable pour ne pas bloquer les données existantes
-              ->after('id')
-              ->constrained('agencies')
-              ->onDelete('cascade');
+        // Guard : la migration 2026_03_18 a peut-être déjà ajouté cette colonne
+        if (! Schema::hasColumn('users', 'agency_id')) {
+            $table->foreignId('agency_id')
+                  ->nullable()
+                  ->after('id')
+                  ->constrained('agencies')
+                  ->onDelete('cascade');
+        }
 
         // On ajoute aussi le rôle superadmin (propriétaire de la plateforme)
         $table->enum('role', ['superadmin', 'admin', 'proprietaire', 'locataire'])

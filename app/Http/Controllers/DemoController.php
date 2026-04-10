@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DemoRequestMail;
 use Illuminate\Http\Request;
- 
+use Illuminate\Support\Facades\Mail;
+
 class DemoController extends Controller
 {
     public function send(Request $request)
@@ -17,9 +19,9 @@ class DemoController extends Controller
             'nb_biens'  => 'nullable|string',
             'ville'     => 'nullable|string',
         ]);
- 
-        // Mail::to('contact@bimotech.sn')->send(new DemoRequestMail($validated));
- 
+
+        Mail::to('contact@bimotech.sn')->send(new DemoRequestMail($validated));
+
         return back()->with('success', 'Demande reçue !');
     }
 }

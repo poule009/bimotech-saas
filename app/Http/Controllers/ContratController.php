@@ -21,40 +21,50 @@ class ContratController extends Controller
     // LISTE
     // ─────────────────────────────────────────────────────────────────────
 
-   public function index()
-{
-    $this->authorize('viewAny', Contrat::class);
+    public function index()
+    {
+        $this->authorize('viewAny', Contrat::class);
 
-    $contrats = Contrat::select([
-            'id', 'agency_id', 'bien_id', 'locataire_id',
-            'date_debut', 'date_fin', 'loyer_contractuel',
-            'caution', 'statut', 'type_bail', 'reference_bail',
-            'brs_applicable', 'loyer_assujetti_tva',
-            'date_enregistrement_dgid', 'enregistrement_exonere',
+        $contrats = Contrat::select([
+            'id',
+            'agency_id',
+            'bien_id',
+            'locataire_id',
+            'date_debut',
+            'date_fin',
+            'loyer_contractuel',
+            'caution',
+            'statut',
+            'type_bail',
+            'reference_bail',
+            'brs_applicable',
+            'loyer_assujetti_tva',
+            'date_enregistrement_dgid',
+            'enregistrement_exonere',
         ])
-        ->with([
-            'bien:id,agency_id,reference,adresse,ville',
-            'locataire:id,name,email',
-        ])
-        ->orderByDesc('created_at')
-        ->paginate(20);
+            ->with([
+                'bien:id,agency_id,reference,adresse,ville',
+                'locataire:id,name,email',
+            ])
+            ->orderByDesc('created_at')
+            ->paginate(20);
 
-    $statsRaw = Contrat::selectRaw("
+        $statsRaw = Contrat::selectRaw("
         COUNT(*) AS total,
         SUM(CASE WHEN statut = 'actif'   THEN 1 ELSE 0 END) AS actifs,
         SUM(CASE WHEN statut = 'resilié' THEN 1 ELSE 0 END) AS resilies,
         SUM(CASE WHEN statut = 'expiré'  THEN 1 ELSE 0 END) AS expires
     ")->first();
 
-    $stats = [
-        'total'    => (int) $statsRaw->total,
-        'actifs'   => (int) $statsRaw->actifs,
-        'resilies' => (int) $statsRaw->resilies,
-        'expires'  => (int) $statsRaw->expires,
-    ];
+        $stats = [
+            'total'    => (int) $statsRaw->total,
+            'actifs'   => (int) $statsRaw->actifs,
+            'resilies' => (int) $statsRaw->resilies,
+            'expires'  => (int) $statsRaw->expires,
+        ];
 
-    return view('admin.contrats.index', compact('contrats', 'stats'));
-}
+        return view('admin.contrats.index', compact('contrats', 'stats'));
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // FORMULAIRE CRÉATION
@@ -85,7 +95,10 @@ class ContratController extends Controller
         $typesBail = Contrat::TYPES_BAIL;
 
         return view('admin.contrats.create', compact(
-            'biens', 'locataires', 'bienPreselectionne', 'typesBail'
+            'biens',
+            'locataires',
+            'bienPreselectionne',
+            'typesBail'
         ));
     }
 
@@ -101,7 +114,8 @@ class ContratController extends Controller
 
         $validated = $request->validate([
             'bien_id' => [
-                'required', 'exists:biens,id',
+                'required',
+                'exists:biens,id',
                 function ($attr, $value, $fail) use ($agencyId) {
                     $bien = Bien::withoutGlobalScopes()->find($value);
                     if (! $bien || $bien->agency_id !== $agencyId) {
@@ -110,7 +124,8 @@ class ContratController extends Controller
                 },
             ],
             'locataire_id' => [
-                'required', 'exists:users,id',
+                'required',
+                'exists:users,id',
                 function ($attr, $value, $fail) use ($agencyId) {
                     $loc = User::find($value);
                     if (! $loc || $loc->agency_id !== $agencyId || $loc->role !== 'locataire') {
@@ -235,7 +250,7 @@ class ContratController extends Controller
             ? Carbon::parse($dernierPaiement->periode)->addMonth()
             : Carbon::parse($contrat->date_debut);
 
-       
+
 
         $paiements = $contrat->paiements()
             ->select(['id', 'contrat_id', 'agency_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'commission_ttc', 'mode_paiement', 'date_paiement', 'statut', 'reference_paiement'])
@@ -243,8 +258,12 @@ class ContratController extends Controller
             ->get();
 
         return view('admin.contrats.show', compact(
-            'contrat', 'totalPaye', 'totalNet', 'nbPaiements',
-            'prochainePeriode', 'paiements'
+            'contrat',
+            'totalPaye',
+            'totalNet',
+            'nbPaiements',
+            'prochainePeriode',
+            'paiements'
         ));
     }
 
@@ -264,10 +283,10 @@ class ContratController extends Controller
         $biens = Bien::where(function ($q) use ($contrat) {
             $q->where('statut', 'disponible')->orWhere('id', $contrat->bien_id);
         })
-        ->select(['id', 'agency_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble'])
-        ->with(['proprietaire:id,name'])
-        ->orderBy('reference')
-        ->get();
+            ->select(['id', 'agency_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble'])
+            ->with(['proprietaire:id,name'])
+            ->orderBy('reference')
+            ->get();
 
         $locataires = User::where('role', 'locataire')
             ->where('agency_id', Auth::user()->agency_id)
@@ -310,7 +329,8 @@ class ContratController extends Controller
             'reference_bail'      => ['nullable', 'string', 'max:60'],
             'observations'        => ['nullable', 'string', 'max:1000'],
             'locataire_id'        => [
-                'nullable', 'exists:users,id',
+                'nullable',
+                'exists:users,id',
                 function ($attr, $value, $fail) use ($agencyId) {
                     if (empty($value)) return;
                     $loc = User::find($value);
@@ -350,8 +370,8 @@ class ContratController extends Controller
             'garant_telephone'    => $validated['garant_telephone'] ?? null,
             'garant_adresse'      => $validated['garant_adresse'] ?? null,
             'reference_bail'      => ! empty($validated['reference_bail'])
-                                        ? trim($validated['reference_bail'])
-                                        : $contrat->reference_bail,
+                ? trim($validated['reference_bail'])
+                : $contrat->reference_bail,
             'observations'        => $validated['observations'] ?? null,
             // ── Fiscal
             'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),

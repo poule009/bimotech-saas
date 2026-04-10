@@ -234,7 +234,7 @@ class DashboardController extends Controller
             ->select([
                 'id', 'agency_id', 'proprietaire_id',
                 'reference', 'type', 'adresse', 'ville',
-                'statut', 'loyer_hors_charges',
+                'statut', 'loyer_mensuel',
             ])
             ->withCount('contrats')
             ->paginate(6);
@@ -292,8 +292,8 @@ class DashboardController extends Controller
             ])
             ->orderByDesc('date_paiement')
             ->paginate(5);
-
-        return view('proprietaire.dashboard', compact('biens', 'stats', 'paiements'));
+             $currentAgency = $user->agency;
+        return view('proprietaire.dashboard', compact('biens', 'stats', 'paiements', 'currentAgency'));
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -355,7 +355,7 @@ class DashboardController extends Controller
             'total_paye'   => (float) ($aggrLoc->total_paye   ?? 0),
             'nb_paiements' => (int)   ($aggrLoc->nb_paiements ?? 0),
         ];
-
+                 $currentAgency = $user->agency;
         return view('locataire.dashboard', compact(
             'contrat', 'paiements', 'dernierPaiement', 'prochainePeriode', 'stats'
         ));

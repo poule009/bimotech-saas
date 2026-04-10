@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-// use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\Paiement;
+use App\Services\FiscalContext;
+use App\Services\FiscalService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -33,7 +34,7 @@ class PaiementController extends Controller
 
     public function index(Request $request): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $agencyId = Auth::user()->agency_id;
 
@@ -90,7 +91,7 @@ class PaiementController extends Controller
 
     public function create(Request $request): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $agencyId = Auth::user()->agency_id;
 
@@ -133,7 +134,7 @@ class PaiementController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $agencyId = Auth::user()->agency_id;
 
@@ -153,23 +154,17 @@ class PaiementController extends Controller
             'mode_paiement.required'    => 'Le mode de paiement est obligatoire.',
         ]);
 
-        // Vérifier appartenance du contrat
-        $contrat = Contrat::with('bien:id,taux_commission,reference')
+        // Vérifier appartenance du contrat + charger les relations nécessaires au calcul fiscal
+        $contrat = Contrat::with([
+                'bien',
+                'locataire.locataire',
+            ])
             ->where('agency_id', $agencyId)
             ->findOrFail($validated['contrat_id']);
 
-        // Calcul fiscal
-        $loyerNu       = (float) $contrat->loyer_nu;
-        $charges       = (float) ($contrat->charges_mensuelles ?? 0);
-        $tom           = (float) ($contrat->tom_amount ?? 0);
-        $tauxComm      = (float) ($contrat->bien->taux_commission ?? 10);
-        $montant       = (float) $validated['montant_encaisse'];
-
-        $commAgence    = round($loyerNu * $tauxComm / 100, 2);
-        $tvaComm       = round($commAgence * 0.18, 2);
-        $commTtc       = $commAgence + $tvaComm;
-        $netProprio    = $loyerNu - $commAgence;
-        $netAVerser    = $loyerNu - $commTtc;
+        // Calcul fiscal via FiscalService (TVA loyer, BRS, commission, nets)
+        $ctx    = FiscalContext::fromContrat($contrat);
+        $result = FiscalService::calculer($ctx);
 
         // Vérifier si c'est le premier paiement du contrat
         $estPremier = Paiement::where('contrat_id', $contrat->id)->count() === 0;
@@ -177,34 +172,24 @@ class PaiementController extends Controller
         // Référence paiement unique
         $reference = 'PAY-' . strtoupper(Str::random(8));
 
-        Paiement::create([
-            'agency_id'               => $agencyId,
-            'contrat_id'              => $contrat->id,
-            'periode'                 => Carbon::parse($validated['periode'])->startOfMonth(),
-            'date_paiement'           => $validated['date_paiement'],
-            'montant_encaisse'        => $montant,
-            'loyer_nu'                => $loyerNu,
-            'loyer_ht'                => $loyerNu,
-            'tva_loyer'               => 0,
-            'loyer_ttc'               => $loyerNu,
-            'charges_amount'          => $charges,
-            'tom_amount'              => $tom,
-            'mode_paiement'           => $validated['mode_paiement'],
-            'taux_commission_applique'=> $tauxComm,
-            'commission_agence'       => $commAgence,
-            'tva_commission'          => $tvaComm,
-            'commission_ttc'          => $commTtc,
-            'net_proprietaire'        => $netProprio,
-            'net_a_verser_proprietaire' => $netAVerser,
-            'brs_amount'              => 0,
-            'taux_brs_applique'       => 0,
-            'caution_percue'          => $validated['caution_percue'] ?? 0,
-            'est_premier_paiement'    => $estPremier,
-            'statut'                  => 'valide',
-            'reference_paiement'      => $reference,
-            'reference_bail'          => $contrat->reference_bail,
-            'notes'                   => $validated['notes'] ?? null,
-        ]);
+        Paiement::create(array_merge(
+            $result->toPaiementFields(),
+            [
+                'agency_id'               => $agencyId,
+                'contrat_id'              => $contrat->id,
+                'periode'                 => Carbon::parse($validated['periode'])->startOfMonth(),
+                'date_paiement'           => $validated['date_paiement'],
+                'montant_encaisse'        => $result->montantEncaisse,
+                'mode_paiement'           => $validated['mode_paiement'],
+                'taux_commission_applique'=> $ctx->tauxCommission,
+                'caution_percue'          => $validated['caution_percue'] ?? 0,
+                'est_premier_paiement'    => $estPremier,
+                'statut'                  => 'valide',
+                'reference_paiement'      => $reference,
+                'reference_bail'          => $contrat->reference_bail,
+                'notes'                   => $validated['notes'] ?? null,
+            ]
+        ));
 
         return redirect()
             ->route('admin.contrats.show', $contrat)
@@ -217,7 +202,7 @@ class PaiementController extends Controller
 
     public function show(Paiement $paiement): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $paiement->load([
             'contrat.bien.proprietaire:id,name,email,telephone',
@@ -233,7 +218,7 @@ class PaiementController extends Controller
 
     public function annuler(Paiement $paiement): RedirectResponse
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         if ($paiement->statut !== 'valide') {
             return back()->withErrors(['general' => 'Seul un paiement valide peut être annulé.']);
@@ -273,27 +258,29 @@ class PaiementController extends Controller
 
     public function fiscalPreview(Contrat $contrat)
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
-        $contrat->load('bien:id,taux_commission');
+        $contrat->loadMissing(['bien', 'locataire.locataire']);
 
-        $loyerNu    = (float) $contrat->loyer_nu;
-        $tauxComm   = (float) ($contrat->bien->taux_commission ?? 10);
-        $commAgence = round($loyerNu * $tauxComm / 100, 2);
-        $tvaComm    = round($commAgence * 0.18, 2);
-        $commTtc    = $commAgence + $tvaComm;
-        $netProprio = $loyerNu - $commTtc;
+        $ctx    = FiscalContext::fromContrat($contrat);
+        $result = FiscalService::calculer($ctx);
 
         return response()->json([
-            'loyer_nu'       => $loyerNu,
-            'charges'        => (float) ($contrat->charges_mensuelles ?? 0),
-            'tom'            => (float) ($contrat->tom_amount ?? 0),
-            'loyer_total'    => $loyerNu + ($contrat->charges_mensuelles ?? 0) + ($contrat->tom_amount ?? 0),
-            'taux_comm'      => $tauxComm,
-            'comm_ht'        => $commAgence,
-            'tva_comm'       => $tvaComm,
-            'comm_ttc'       => $commTtc,
-            'net_proprietaire' => $netProprio,
+            'loyer_nu'          => $result->loyerHt,
+            'tva_loyer'         => $result->tvaLoyer,
+            'loyer_ttc'         => $result->loyerTtc,
+            'charges'           => $result->chargesAmount,
+            'tom'               => $result->tomAmount,
+            'montant_encaisse'  => $result->montantEncaisse,
+            'taux_comm'         => $ctx->tauxCommission,
+            'comm_ht'           => $result->commissionHt,
+            'tva_comm'          => $result->tvaCommission,
+            'comm_ttc'          => $result->commissionTtc,
+            'net_proprietaire'  => $result->netProprietaire,
+            'brs_amount'        => $result->brsAmount,
+            'net_a_verser'      => $result->netAVerserProprietaire,
+            'regime_fiscal'     => $result->regimeFiscal,
+            'loyer_assujetti'   => $result->loyerAssujetti,
         ]);
     }
 
@@ -303,7 +290,7 @@ class PaiementController extends Controller
 
     public function dernierePeriode(Contrat $contrat)
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isStaff');
 
         $dernier = Paiement::where('contrat_id', $contrat->id)
             ->where('statut', 'valide')
