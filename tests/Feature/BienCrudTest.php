@@ -23,10 +23,11 @@ class BienCrudTest extends TestCase
         $agency = Agency::factory()->create(['actif' => true]);
 
         Subscription::factory()->create([
-            'agency_id'  => $agency->id,
-            'statut'     => 'actif',
-            'date_debut' => now()->subMonth(),
-            'date_fin'   => now()->addYear(),
+            'agency_id'              => $agency->id,
+            'statut'                 => 'actif',
+            'plan'                   => 'annuel',
+            'date_debut_abonnement'  => now()->subMonth(),
+            'date_fin_abonnement'    => now()->addYear(),
         ]);
 
         return User::factory()->create([
@@ -70,7 +71,7 @@ class BienCrudTest extends TestCase
         $admin = $this->adminAvecAgence();
 
         $this->actingAs($admin)
-             ->get(route('biens.create'))
+             ->get(route('admin.biens.create'))
              ->assertOk()
              ->assertSee('Nouveau bien');
     }
@@ -82,7 +83,7 @@ class BienCrudTest extends TestCase
         $payload = $this->payloadBienValide($admin);
 
         $this->actingAs($admin)
-             ->post(route('biens.store'), $payload)
+             ->post(route('admin.biens.store'), $payload)
              ->assertRedirect();
 
         $this->assertDatabaseHas('biens', [
@@ -104,7 +105,7 @@ class BienCrudTest extends TestCase
         unset($payload['quartier'], $payload['commune']);
 
         $this->actingAs($admin)
-             ->post(route('biens.store'), $payload)
+             ->post(route('admin.biens.store'), $payload)
              ->assertRedirect();
 
         $this->assertDatabaseHas('biens', [
@@ -122,7 +123,7 @@ class BienCrudTest extends TestCase
         unset($payload['meuble']); // checkbox non cochée → absent du POST
 
         $this->actingAs($admin)
-             ->post(route('biens.store'), $payload)
+             ->post(route('admin.biens.store'), $payload)
              ->assertRedirect();
 
         $this->assertDatabaseHas('biens', [
@@ -145,7 +146,7 @@ class BienCrudTest extends TestCase
         $payload['proprietaire_id'] = $proprioEtranger->id;
 
         $this->actingAs($admin)
-             ->post(route('biens.store'), $payload)
+             ->post(route('admin.biens.store'), $payload)
              ->assertSessionHasErrors('proprietaire_id');
     }
 
@@ -157,7 +158,7 @@ class BienCrudTest extends TestCase
         unset($payload['loyer_mensuel']);
 
         $this->actingAs($admin)
-             ->post(route('biens.store'), $payload)
+             ->post(route('admin.biens.store'), $payload)
              ->assertSessionHasErrors('loyer_mensuel');
     }
 
@@ -168,7 +169,7 @@ class BienCrudTest extends TestCase
         $proprio = $this->proprietaire($admin);
 
         $this->actingAs($proprio)
-             ->post(route('biens.store'), $this->payloadBienValide($admin))
+             ->post(route('admin.biens.store'), $this->payloadBienValide($admin))
              ->assertForbidden();
     }
 
@@ -184,7 +185,7 @@ class BienCrudTest extends TestCase
         ]);
 
         $this->actingAs($admin)
-             ->put(route('biens.update', $bien), [
+             ->put(route('admin.biens.update', $bien), [
                  'proprietaire_id' => $bien->proprietaire_id,
                  'type'            => $bien->type,
                  'adresse'         => $bien->adresse,
@@ -216,9 +217,11 @@ class BienCrudTest extends TestCase
         $autreAgence = Agency::factory()->create();
         $bienEtranger = Bien::factory()->create(['agency_id' => $autreAgence->id]);
 
-        $this->actingAs($admin)
-             ->get(route('biens.edit', $bienEtranger))
-             ->assertForbidden();
+        $response = $this->actingAs($admin)
+             ->get(route('admin.biens.edit', $bienEtranger));
+
+        // Le bien étranger est masqué par AgencyScope (404) ou bloqué par Policy (403)
+        $this->assertContains($response->status(), [403, 404]);
     }
 
     // ── Sécurité AgencyScope ──────────────────────────────────────────────
@@ -241,7 +244,7 @@ class BienCrudTest extends TestCase
         ]);
 
         $this->actingAs($admin1)
-             ->get(route('biens.index'))
+             ->get(route('admin.biens.index'))
              ->assertSee('Bien agence 1')
              ->assertDontSee('Bien agence 2');
     }

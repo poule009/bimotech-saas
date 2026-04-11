@@ -67,7 +67,7 @@ class BienController extends Controller
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
-            'type'            => ['required', 'in:appartement,villa,bureau,commerce,terrain'],
+            'type'            => ['required', 'in:Appartement,Villa,Studio,Bureau,Commerce,Terrain'],
             'adresse'         => ['required', 'string', 'max:255'],
             'quartier'        => ['nullable', 'string', 'max:100'],
             'commune'         => ['nullable', 'string', 'max:100'],
@@ -86,7 +86,21 @@ class BienController extends Controller
             'loyer_mensuel.required'   => 'Le loyer est obligatoire.',
         ]);
 
-        $validated['agency_id']      = Auth::user()->agency_id;
+        $agencyId = Auth::user()->agency_id;
+
+        // Vérifier que le propriétaire appartient à l'agence courante
+        $proprioValide = \App\Models\User::where('id', $validated['proprietaire_id'])
+            ->where('agency_id', $agencyId)
+            ->where('role', 'proprietaire')
+            ->exists();
+
+        if (! $proprioValide) {
+            return back()
+                ->withErrors(['proprietaire_id' => 'Ce propriétaire n\'appartient pas à votre agence.'])
+                ->withInput();
+        }
+
+        $validated['agency_id']      = $agencyId;
         $validated['statut']         = 'disponible';
         $validated['reference']      = $this->genererReference();
         $validated['meuble']         = $request->boolean('meuble');
@@ -130,7 +144,7 @@ if ($request->hasFile('photos')) {
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
-            'type'            => ['required', 'in:appartement,villa,bureau,commerce,terrain'],
+            'type'            => ['required', 'in:Appartement,Villa,Studio,Bureau,Commerce,Terrain'],
             'adresse'         => ['required', 'string', 'max:255'],
             'quartier'        => ['nullable', 'string', 'max:100'],
             'commune'         => ['nullable', 'string', 'max:100'],

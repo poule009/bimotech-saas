@@ -142,16 +142,14 @@ class PaiementController extends Controller
             'contrat_id'    => ['required', 'exists:contrats,id'],
             'periode'       => ['required', 'date'],
             'date_paiement' => ['required', 'date'],
-            'montant_encaisse' => ['required', 'numeric', 'min:0'],
             'mode_paiement' => ['required', 'in:' . implode(',', array_keys(self::MODES_PAIEMENT))],
             'caution_percue'=> ['nullable', 'numeric', 'min:0'],
             'notes'         => ['nullable', 'string', 'max:500'],
         ], [
-            'contrat_id.required'       => 'Veuillez sélectionner un contrat.',
-            'periode.required'          => 'La période est obligatoire.',
-            'date_paiement.required'    => 'La date de paiement est obligatoire.',
-            'montant_encaisse.required' => 'Le montant est obligatoire.',
-            'mode_paiement.required'    => 'Le mode de paiement est obligatoire.',
+            'contrat_id.required'    => 'Veuillez sélectionner un contrat.',
+            'periode.required'       => 'La période est obligatoire.',
+            'date_paiement.required' => 'La date de paiement est obligatoire.',
+            'mode_paiement.required' => 'Le mode de paiement est obligatoire.',
         ]);
 
         // Vérifier appartenance du contrat + charger les relations nécessaires au calcul fiscal
@@ -161,6 +159,19 @@ class PaiementController extends Controller
             ])
             ->where('agency_id', $agencyId)
             ->findOrFail($validated['contrat_id']);
+
+        // Vérifier doublon : un seul paiement valide par contrat par mois
+        $periodeDebut = Carbon::parse($validated['periode'])->startOfMonth();
+        $doublonExiste = Paiement::where('contrat_id', $contrat->id)
+            ->where('periode', $periodeDebut)
+            ->where('statut', '!=', 'annule')
+            ->exists();
+
+        if ($doublonExiste) {
+            return back()
+                ->withInput()
+                ->withErrors(['periode' => 'Un paiement valide existe déjà pour cette période.']);
+        }
 
         // Calcul fiscal via FiscalService (TVA loyer, BRS, commission, nets)
         $ctx    = FiscalContext::fromContrat($contrat);
@@ -193,7 +204,7 @@ class PaiementController extends Controller
 
         return redirect()
             ->route('admin.contrats.show', $contrat)
-            ->with('success', 'Paiement enregistré ✓ — ' . number_format($montant, 0, ',', ' ') . ' FCFA');
+            ->with('success', 'Paiement enregistré ✓ — ' . number_format($result->montantEncaisse, 0, ',', ' ') . ' FCFA');
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -224,7 +235,7 @@ class PaiementController extends Controller
             return back()->withErrors(['general' => 'Seul un paiement valide peut être annulé.']);
         }
 
-        $paiement->update(['statut' => 'annulé']);
+        $paiement->update(['statut' => 'annule']);
 
         return back()->with('success', 'Paiement annulé ✓');
     }
@@ -235,6 +246,8 @@ class PaiementController extends Controller
 
     public function downloadPDF(Paiement $paiement)
     {
+        $this->authorize('telechargerQuittance', $paiement);
+
         $paiement->load([
             'contrat.bien.proprietaire:id,name,email,telephone,adresse',
             'contrat.locataire:id,name,email,telephone,adresse',

@@ -20,6 +20,7 @@ return new class extends Migration
         $table->string('logo_path')->nullable();         // chemin vers le logo
         $table->string('couleur_primaire', 7)->nullable(); // ex: "#1a3c5e"
         $table->string('adresse')->nullable();
+        $table->string('ville', 100)->nullable()->default('Dakar');
         $table->decimal('taux_tva', 5, 2)->default(18.00);
         $table->boolean('actif')->default(true);
         $table->timestamps();

@@ -26,10 +26,11 @@ class MultiTenantSecurityTest extends TestCase
         $agency = Agency::factory()->create(['actif' => true]);
 
         Subscription::factory()->create([
-            'agency_id'  => $agency->id,
-            'statut'     => 'actif',
-            'date_debut' => now()->subMonth(),
-            'date_fin'   => now()->addYear(),
+            'agency_id'             => $agency->id,
+            'statut'                => 'actif',
+            'plan'                  => 'annuel',
+            'date_debut_abonnement' => now()->subMonth(),
+            'date_fin_abonnement'   => now()->addYear(),
         ]);
 
         $admin = User::factory()->create([
@@ -81,7 +82,7 @@ class MultiTenantSecurityTest extends TestCase
         $bien2 = $this->bienPourAgence($agence2);
 
         $this->actingAs($admin1)
-             ->get(route('biens.index'))
+             ->get(route('admin.biens.index'))
              ->assertSee($bien1->reference)
              ->assertDontSee($bien2->reference);
     }
@@ -94,9 +95,11 @@ class MultiTenantSecurityTest extends TestCase
 
         $bienEtranger = $this->bienPourAgence($agence2);
 
-        $this->actingAs($admin1)
-             ->get(route('biens.show', $bienEtranger))
-             ->assertForbidden();
+        $response = $this->actingAs($admin1)
+             ->get(route('admin.biens.show', $bienEtranger));
+
+        // AgencyScope masque le bien étranger (404) ou Policy le bloque (403)
+        $this->assertContains($response->status(), [403, 404]);
     }
 
     /** @test */
@@ -107,10 +110,11 @@ class MultiTenantSecurityTest extends TestCase
 
         $bienEtranger = $this->bienPourAgence($agence2);
 
-        $this->actingAs($admin1)
-             ->delete(route('biens.destroy', $bienEtranger))
-             ->assertForbidden();
+        $response = $this->actingAs($admin1)
+             ->delete(route('admin.biens.destroy', $bienEtranger));
 
+        // AgencyScope masque le bien étranger (404) ou Policy le bloque (403)
+        $this->assertContains($response->status(), [403, 404]);
         $this->assertDatabaseHas('biens', ['id' => $bienEtranger->id]);
     }
 
@@ -125,9 +129,13 @@ class MultiTenantSecurityTest extends TestCase
         $contrat1 = $this->contratPourAgence($agence1);
         $contrat2 = $this->contratPourAgence($agence2);
 
+        // Charger la référence AVANT actingAs pour éviter que AgencyScope
+        // filtre le bien de agence2 une fois admin1 authentifié
+        $refBien2 = $contrat2->bien->reference;
+
         $this->actingAs($admin1)
              ->get(route('admin.contrats.index'))
-             ->assertDontSee($contrat2->bien->reference);
+             ->assertDontSee($refBien2);
     }
 
     /** @test */
@@ -138,9 +146,11 @@ class MultiTenantSecurityTest extends TestCase
 
         $contratEtranger = $this->contratPourAgence($agence2);
 
-        $this->actingAs($admin1)
-             ->get(route('admin.contrats.show', $contratEtranger))
-             ->assertForbidden();
+        $response = $this->actingAs($admin1)
+             ->get(route('admin.contrats.show', $contratEtranger));
+
+        // AgencyScope masque le contrat étranger (404) ou Policy le bloque (403)
+        $this->assertContains($response->status(), [403, 404]);
     }
 
     // ── Isolation des paiements ───────────────────────────────────────────
@@ -179,7 +189,7 @@ class MultiTenantSecurityTest extends TestCase
         ]);
 
         $this->actingAs($admin1)
-             ->get(route('users.show', $proprioEtranger))
+             ->get(route('admin.users.show', $proprioEtranger))
              ->assertForbidden();
     }
 

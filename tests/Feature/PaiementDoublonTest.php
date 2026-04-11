@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\Paiement;
+use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -55,11 +56,10 @@ class PaiementDoublonTest extends TestCase
         $this->actingAs($this->admin);
 
         $response = $this->post(route('admin.paiements.store'), [
-            'contrat_id'       => $this->contrat->id,
-            'periode'          => Carbon::now()->format('Y-m'),
-            'montant_encaisse' => 250000,
-            'mode_paiement'    => 'virement',
-            'date_paiement'    => now()->format('Y-m-d'),
+            'contrat_id'    => $this->contrat->id,
+            'periode'       => Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'mode_paiement' => 'virement',
+            'date_paiement' => now()->format('Y-m-d'),
         ]);
 
         $this->assertDatabaseHas('paiements', [
@@ -82,11 +82,10 @@ class PaiementDoublonTest extends TestCase
 
         // Tentative de doublon
         $response = $this->post(route('admin.paiements.store'), [
-            'contrat_id'       => $this->contrat->id,
-            'periode'          => Carbon::now()->format('Y-m'),
-            'montant_encaisse' => 250000,
-            'mode_paiement'    => 'virement',
-            'date_paiement'    => now()->format('Y-m-d'),
+            'contrat_id'    => $this->contrat->id,
+            'periode'       => Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'mode_paiement' => 'virement',
+            'date_paiement' => now()->format('Y-m-d'),
         ]);
 
         $response->assertSessionHasErrors('periode');
@@ -107,11 +106,10 @@ class PaiementDoublonTest extends TestCase
 
         // Nouveau paiement pour le même mois doit passer
         $response = $this->post(route('admin.paiements.store'), [
-            'contrat_id'       => $this->contrat->id,
-            'periode'          => Carbon::now()->format('Y-m'),
-            'montant_encaisse' => 250000,
-            'mode_paiement'    => 'virement',
-            'date_paiement'    => now()->format('Y-m-d'),
+            'contrat_id'    => $this->contrat->id,
+            'periode'       => Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'mode_paiement' => 'virement',
+            'date_paiement' => now()->format('Y-m-d'),
         ]);
 
         $this->assertEquals(

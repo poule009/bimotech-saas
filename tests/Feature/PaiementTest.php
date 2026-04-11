@@ -24,11 +24,9 @@ class PaiementTest extends TestCase
     {
         parent::setUp();
 
-        $this->agency = Agency::create([
+        $this->agency = Agency::factory()->create([
             'name'  => 'Agence Test',
             'email' => 'agence@test.com',
-            'slug'  => 'agence-test',
-            'actif' => true,
         ]);
 
         Subscription::create([
@@ -38,27 +36,18 @@ class PaiementTest extends TestCase
             'date_fin_essai'   => now()->addDays(30),
         ]);
 
-        $this->admin = User::create([
-            'name'              => 'Admin Test',
-            'email'             => 'admin@test.com',
-            'password'          => bcrypt('password'),
+        $this->admin = User::factory()->create([
             'role'              => 'admin',
             'agency_id'         => $this->agency->id,
             'email_verified_at' => now(),
         ]);
 
-        $proprio = User::create([
-            'name'      => 'Proprio Test',
-            'email'     => 'proprio@test.com',
-            'password'  => bcrypt('password'),
+        $proprio = User::factory()->create([
             'role'      => 'proprietaire',
             'agency_id' => $this->agency->id,
         ]);
 
-        $locataire = User::create([
-            'name'      => 'Locataire Test',
-            'email'     => 'locataire@test.com',
-            'password'  => bcrypt('password'),
+        $locataire = User::factory()->create([
             'role'      => 'locataire',
             'agency_id' => $this->agency->id,
         ]);
@@ -117,11 +106,9 @@ class PaiementTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $periode = now()->format('Y-m');
-        $data    = [
+        $data = [
             'contrat_id'    => $this->contrat->id,
-            'periode'       => $periode,
-            'loyer_nu'      => 200000,
+            'periode'       => now()->startOfMonth()->format('Y-m-d'),
             'mode_paiement' => 'especes',
             'date_paiement' => now()->toDateString(),
         ];
@@ -136,62 +123,49 @@ class PaiementTest extends TestCase
     }
 
     #[Test]
-    public function loyer_aberrant_est_rejete(): void
+    public function paiement_valide_est_cree(): void
     {
         $this->actingAs($this->admin);
 
-        // Contractuel = 200 000 F — on envoie 500 000 F (+150%) → rejeté
         $this->post(route('admin.paiements.store'), [
             'contrat_id'    => $this->contrat->id,
-            'periode'       => now()->format('Y-m'),
-            'loyer_nu'      => 500000,
-            'mode_paiement' => 'especes',
+            'periode'       => now()->startOfMonth()->format('Y-m-d'),
+            'mode_paiement' => 'virement',
             'date_paiement' => now()->toDateString(),
-        ])->assertSessionHasErrors('loyer_nu');
-    }
+        ])->assertSessionHasNoErrors();
 
-    #[Test]
-    public function loyer_dans_tolerance_est_accepte(): void
-    {
-        $this->actingAs($this->admin);
-
-        // 210 000 F = +5% → dans la tolérance de ±20% → pas d'erreur sur loyer_nu
-        $this->post(route('admin.paiements.store'), [
-            'contrat_id'    => $this->contrat->id,
-            'periode'       => now()->format('Y-m'),
-            'loyer_nu'      => 210000,
-            'mode_paiement' => 'especes',
-            'date_paiement' => now()->toDateString(),
-        ])->assertSessionMissingErrors('loyer_nu');
+        $this->assertDatabaseHas('paiements', [
+            'contrat_id'  => $this->contrat->id,
+            'statut'      => 'valide',
+            'mode_paiement' => 'virement',
+        ]);
     }
 
     #[Test]
     public function locataire_ne_voit_pas_paiement_dun_autre(): void
     {
         // Deuxième locataire dans la même agence
-        $autreLocataire = User::create([
-            'name'      => 'Autre Locataire',
-            'email'     => 'autre@test.com',
-            'password'  => bcrypt('password'),
+        $autreLocataire = User::factory()->create([
             'role'      => 'locataire',
             'agency_id' => $this->agency->id,
         ]);
 
         // Paiement sur le contrat du premier locataire
         $paiement = Paiement::create([
-            'agency_id'          => $this->agency->id,
-            'contrat_id'         => $this->contrat->id,
-            'periode'            => now()->startOfMonth(),
-            'loyer_nu'           => 200000,
-            'montant_encaisse'   => 200000,
-            'commission_agence'  => 20000,
-            'tva_commission'     => 3600,
-            'commission_ttc'     => 23600,
-            'net_proprietaire'   => 176400,
-            'mode_paiement'      => 'especes',
-            'date_paiement'      => now(),
-            'reference_paiement' => 'QUITT-TEST-001',
-            'statut'             => 'valide',
+            'agency_id'                => $this->agency->id,
+            'contrat_id'               => $this->contrat->id,
+            'periode'                  => now()->startOfMonth(),
+            'loyer_nu'                 => 200000,
+            'montant_encaisse'         => 200000,
+            'taux_commission_applique' => 10.00,
+            'commission_agence'        => 20000,
+            'tva_commission'           => 3600,
+            'commission_ttc'           => 23600,
+            'net_proprietaire'         => 176400,
+            'mode_paiement'            => 'especes',
+            'date_paiement'            => now(),
+            'reference_paiement'       => 'QUITT-TEST-001',
+            'statut'                   => 'valide',
         ]);
 
         // L'autre locataire tente d'accéder au PDF → doit recevoir 403

@@ -72,28 +72,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ── Routes accessibles admin ET propriétaires (isStaff) ───────────────
-    Route::middleware('can:isStaff')->prefix('admin')->name('admin.')->group(function () {
-
-        // Biens
-        Route::resource('biens', BienController::class);
-        Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store');
-        Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
-        Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
-
-        // Contrats — lecture
-        Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index');
-        Route::get('contrats/{contrat}', [ContratController::class, 'show'])->name('contrats.show');
-
-        // Paiements — lecture + PDF
-        Route::get('paiements',                [PaiementController::class, 'index'])->name('paiements.index');
-        Route::get('paiements/{paiement}',     [PaiementController::class, 'show'])->name('paiements.show');
-        Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
-
-        // Impayés — lecture
-        Route::get('impayes', [ImpayeController::class, 'index'])->name('impayes.index');
-    });
-
     // ── Admin agence — écriture uniquement ────────────────────────────────
+    // IMPORTANT : ce groupe doit être déclaré AVANT le groupe isStaff
+    // pour que les routes spécifiques (create, store…) soient enregistrées
+    // avant les routes paramétrées ({contrat}, {paiement}…).
     Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function () {
 
         Route::get('dashboard', [DashboardController::class, 'admin'])->name('dashboard');
@@ -147,6 +129,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Rapports
         Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier');
         Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
+    });
+
+    // ── Staff agence — lecture (admin + superadmin) ───────────────────────
+    // Déclaré APRÈS isAdmin pour éviter que {contrat}/{paiement} ne capturent
+    // les routes spécifiques (create, store…) déclarées ci-dessus.
+    Route::middleware('can:isStaff')->prefix('admin')->name('admin.')->group(function () {
+
+        // Biens
+        Route::resource('biens', BienController::class);
+        Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store');
+        Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
+        Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
+
+        // Contrats — lecture
+        Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index');
+        Route::get('contrats/{contrat}', [ContratController::class, 'show'])->name('contrats.show');
+
+        // Paiements — lecture + PDF
+        Route::get('paiements',                [PaiementController::class, 'index'])->name('paiements.index');
+        Route::get('paiements/{paiement}',     [PaiementController::class, 'show'])->name('paiements.show');
+        Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
+
+        // Impayés — lecture
+        Route::get('impayes', [ImpayeController::class, 'index'])->name('impayes.index');
     });
 
     // ── Propriétaire ───────────────────────────────────────────────────────

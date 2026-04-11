@@ -34,18 +34,9 @@ return new class extends Migration
                       ->after('email');
             }
 
-            // agency_id — nullable pour le superadmin (pas d'agence)
-            if (! Schema::hasColumn('users', 'agency_id')) {
-                $table->foreignId('agency_id')
-                      ->nullable()
-                      ->after('role')
-                      ->constrained('agencies')
-                      ->nullOnDelete();
-            }
-
             // Téléphone et adresse (profil de base)
             if (! Schema::hasColumn('users', 'telephone')) {
-                $table->string('telephone', 30)->nullable()->after('agency_id');
+                $table->string('telephone', 30)->nullable()->after('role');
             }
 
             if (! Schema::hasColumn('users', 'adresse')) {
@@ -62,12 +53,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Supprimer la clé étrangère avant la colonne
-            if (Schema::hasColumn('users', 'agency_id')) {
-                $table->dropForeign(['agency_id']);
-                $table->dropColumn('agency_id');
-            }
-
             foreach (['role', 'telephone', 'adresse', 'deleted_at'] as $col) {
                 if (Schema::hasColumn('users', $col)) {
                     $table->dropColumn($col);

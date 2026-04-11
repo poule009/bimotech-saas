@@ -21,10 +21,11 @@ class ContratCrudTest extends TestCase
         $agency = Agency::factory()->create(['actif' => true]);
 
         Subscription::factory()->create([
-            'agency_id'  => $agency->id,
-            'statut'     => 'actif',
-            'date_debut' => now()->subMonth(),
-            'date_fin'   => now()->addYear(),
+            'agency_id'             => $agency->id,
+            'statut'                => 'actif',
+            'plan'                  => 'annuel',
+            'date_debut_abonnement' => now()->subMonth(),
+            'date_fin_abonnement'   => now()->addYear(),
         ]);
 
         return User::factory()->create([
@@ -63,11 +64,12 @@ class ContratCrudTest extends TestCase
             'locataire_id'        => $this->locataire($admin)->id,
             'date_debut'          => now()->format('Y-m-d'),
             'date_fin'            => null,
+            'loyer_nu'            => 300000,
+            'charges_mensuelles'  => 20000,
             'caution'             => 600000,
             'nombre_mois_caution' => 2,
             'type_bail'           => 'habitation',
             'frais_agence'        => 150000,
-            'charges_mensuelles'  => 20000,
             'indexation_annuelle' => 3,
             'garant_nom'          => 'Moussa Fall',
             'garant_telephone'    => '+221 77 123 45 67',
@@ -86,7 +88,7 @@ class ContratCrudTest extends TestCase
         $this->actingAs($admin)
              ->get(route('admin.contrats.create'))
              ->assertOk()
-             ->assertSee('Nouveau contrat de bail')
+             ->assertSee('Nouveau contrat')
              ->assertSee('type_bail')
              ->assertSee('garant_nom')
              ->assertSee('charges_mensuelles');
@@ -249,7 +251,7 @@ class ContratCrudTest extends TestCase
         $this->actingAs($admin)
              ->put(route('admin.contrats.update', $contrat), [
                  'date_fin'            => now()->addYear()->format('Y-m-d'),
-                 'loyer_contractuel'   => 350000,
+                 'loyer_nu'            => 330000,
                  'caution'             => 700000,
                  'type_bail'           => 'commercial',
                  'frais_agence'        => 200000,
@@ -265,7 +267,7 @@ class ContratCrudTest extends TestCase
 
         $this->assertDatabaseHas('contrats', [
             'id'                  => $contrat->id,
-            'loyer_contractuel'   => 350000,
+            'loyer_contractuel'   => 360000, // loyer_nu 330000 + charges 30000
             'type_bail'           => 'commercial',
             'garant_nom'          => 'Fatou Diallo',
             'charges_mensuelles'  => 30000,
@@ -299,9 +301,11 @@ class ContratCrudTest extends TestCase
         $autreAgence   = Agency::factory()->create();
         $contratEtranger = Contrat::factory()->create(['agency_id' => $autreAgence->id]);
 
-        $this->actingAs($admin)
-             ->get(route('admin.contrats.edit', $contratEtranger))
-             ->assertForbidden();
+        $response = $this->actingAs($admin)
+             ->get(route('admin.contrats.edit', $contratEtranger));
+
+        // AgencyScope masque le contrat étranger (404) ou Policy le bloque (403)
+        $this->assertContains($response->status(), [403, 404]);
     }
 
     // ── Test locataire rapide (AJAX) ───────────────────────────────────────

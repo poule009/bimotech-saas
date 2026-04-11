@@ -21,10 +21,6 @@ return new class extends Migration
                   ->onDelete('cascade');
         }
 
-        // On ajoute aussi le rôle superadmin (propriétaire de la plateforme)
-        $table->enum('role', ['superadmin', 'admin', 'proprietaire', 'locataire'])
-              ->default('locataire')
-              ->change();
     });
 }
 
