@@ -40,3 +40,18 @@ Schedule::command('app:check-subscriptions')
      ->withoutOverlapping()
      ->runInBackground()
      ->emailOutputOnFailure(env('MAIL_FROM_ADDRESS'));
+
+// Indexation annuelle des loyers — 1er janvier à 02:00 (après les loyers de minuit)
+Schedule::command('loyers:indexation')
+    ->yearlyOn(1, 1, '02:00')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground()
+    ->emailOutputOnFailure(env('MAIL_FROM_ADDRESS'));
+
+// Rappels échéances fiscales DGID — quotidien à 09:00
+Schedule::command('dgid:reminders')
+    ->dailyAt('09:00')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground();

@@ -22,32 +22,46 @@ class PaiementDoublonTest extends TestCase
     {
         parent::setUp();
 
-        // Créer l'admin
-        $this->admin = User::factory()->create([
-            'role'  => 'admin',
-            'email' => 'admin@bimotech.sn',
+        // Créer une agence active avec abonnement (requis par CheckSubscription)
+        $agency = \App\Models\Agency::factory()->create(['actif' => true]);
+
+        Subscription::factory()->create([
+            'agency_id'             => $agency->id,
+            'statut'                => 'actif',
+            'plan'                  => 'mensuel',
+            'date_debut_abonnement' => now()->subMonth(),
+            'date_fin_abonnement'   => now()->addMonth(),
         ]);
 
-        // Créer un propriétaire
-        $proprio = User::factory()->create(['role' => 'proprietaire']);
+        // Créer l'admin rattaché à cette agence
+        $this->admin = User::factory()->create([
+            'role'      => 'admin',
+            'agency_id' => $agency->id,
+            'email'     => 'admin@bimotech.sn',
+        ]);
 
-        // Créer un locataire
-        $locataire = User::factory()->create(['role' => 'locataire']);
+        // Créer un propriétaire et un locataire dans la même agence
+        $proprio   = User::factory()->create(['role' => 'proprietaire', 'agency_id' => $agency->id]);
+        $locataire = User::factory()->create(['role' => 'locataire',    'agency_id' => $agency->id]);
 
-        // Créer un bien
+        // Créer un bien dans cette agence
         $bien = Bien::factory()->create([
+            'agency_id'       => $agency->id,
             'proprietaire_id' => $proprio->id,
             'loyer_mensuel'   => 250000,
             'taux_commission' => 10,
             'statut'          => 'loue',
         ]);
 
-        // Créer un contrat
+        // Créer un contrat actif dans cette agence
         $this->contrat = Contrat::factory()->create([
+            'agency_id'         => $agency->id,
             'bien_id'           => $bien->id,
             'locataire_id'      => $locataire->id,
+            'loyer_nu'          => 250000,
             'loyer_contractuel' => 250000,
             'statut'            => 'actif',
+            'type_bail'         => 'habitation',
         ]);
     }
 

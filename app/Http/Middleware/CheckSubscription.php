@@ -30,6 +30,16 @@ class CheckSubscription
         'profile.destroy',
         'redirect.home',
         'dashboard',
+        // Routes d'authentification complémentaires
+        'home',
+        'landing',
+        'contact',
+        'contact.send',
+        'demo',
+        'demo.send',
+        'faq',
+        'mentions-legales',
+        'confidentialite',
     ];
 
     public function handle(Request $request, Closure $next): Response

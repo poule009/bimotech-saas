@@ -145,7 +145,7 @@ class PaiementTest extends TestCase
     public function locataire_ne_voit_pas_paiement_dun_autre(): void
     {
         // Deuxième locataire dans la même agence
-        $autreLocataire = User::factory()->create([
+        $autreLocataire = User::factory()->createOne([
             'role'      => 'locataire',
             'agency_id' => $this->agency->id,
         ]);

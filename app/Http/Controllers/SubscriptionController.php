@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Services\PaymentService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,8 @@ use Illuminate\View\View;
 
 class SubscriptionController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(private readonly PaymentService $paymentService)
     {
     }
@@ -42,6 +45,8 @@ class SubscriptionController extends Controller
 
     public function initierPaiement(Request $request): RedirectResponse
     {
+        $this->authorize('isAdmin');
+
         $request->validate([
             'plan' => ['required', 'in:mensuel,trimestriel,semestriel,annuel'],
         ], [

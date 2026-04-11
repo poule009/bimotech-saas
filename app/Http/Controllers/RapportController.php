@@ -92,7 +92,7 @@ class RapportController extends Controller
                 'total_commission' => $group->sum('commission_ttc'),
             ]);
 
-        $allContrats = Contrat::where('statut', 'actif')
+        $allContrats = Contrat::where('agency_id', $agencyId)->where('statut', 'actif')
             ->select(['id', 'bien_id', 'locataire_id', 'loyer_contractuel'])
             ->with([
                 'bien:id,agency_id,proprietaire_id,reference,adresse,ville',
@@ -101,7 +101,8 @@ class RapportController extends Controller
             ])
             ->get();
 
-        $contratsPaies = Paiement::where('statut', '!=', 'annule')
+        $contratsPaies = Paiement::where('agency_id', $agencyId)
+            ->where('statut', '!=', 'annule')
             ->whereYear('periode', $annee)
             ->whereMonth('periode', $mois)
             ->pluck('contrat_id')
@@ -111,13 +112,13 @@ class RapportController extends Controller
             fn($c) => ! in_array($c->id, $contratsPaies)
         );
 
-        $nbBiens      = Bien::count();
-        $nbBiensLoues = Bien::where('statut', 'loue')->count();
+        $nbBiens      = Bien::where('agency_id', $agencyId)->count();
+        $nbBiensLoues = Bien::where('agency_id', $agencyId)->where('statut', 'loue')->count();
 
         $statsGenerales = [
             'nb_biens'         => $nbBiens,
             'nb_biens_loues'   => $nbBiensLoues,
-            'nb_contrats'      => Contrat::where('statut', 'actif')->count(),
+            'nb_contrats'      => Contrat::where('agency_id', $agencyId)->where('statut', 'actif')->count(),
             'nb_proprietaires' => User::where('agency_id', $agencyId)->where('role', 'proprietaire')->count(),
             'nb_locataires'    => User::where('agency_id', $agencyId)->where('role', 'locataire')->count(),
             'taux_occupation'  => $nbBiens > 0 ? round(($nbBiensLoues / $nbBiens) * 100, 1) : 0,

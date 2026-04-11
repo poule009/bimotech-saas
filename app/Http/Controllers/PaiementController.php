@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contrat;
 use App\Models\Paiement;
+use App\Notifications\PaiementProprietaireNotification;
 use App\Services\FiscalContext;
 use App\Services\FiscalService;
 use Carbon\Carbon;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -183,7 +185,7 @@ class PaiementController extends Controller
         // Référence paiement unique
         $reference = 'PAY-' . strtoupper(Str::random(8));
 
-        Paiement::create(array_merge(
+        $paiement = Paiement::create(array_merge(
             $result->toPaiementFields(),
             [
                 'agency_id'               => $agencyId,
@@ -201,6 +203,20 @@ class PaiementController extends Controller
                 'notes'                   => $validated['notes'] ?? null,
             ]
         ));
+
+        // Notifier le propriétaire par email
+        try {
+            $proprio = $contrat->bien->proprietaire ?? null;
+            if ($proprio && $proprio->email) {
+                $paiement->load('contrat.bien', 'contrat.locataire');
+                $proprio->notify(new PaiementProprietaireNotification($paiement));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Notification propriétaire non envoyée', [
+                'paiement_id' => $paiement->id,
+                'error'       => $e->getMessage(),
+            ]);
+        }
 
         return redirect()
             ->route('admin.contrats.show', $contrat)

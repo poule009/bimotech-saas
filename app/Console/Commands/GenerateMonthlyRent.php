@@ -88,7 +88,7 @@ class GenerateMonthlyRent extends Command
                             'taux_brs_applique'            => $result->tauxBrsApplique,
                             'net_a_verser_proprietaire'    => $result->netAVerserProprietaire,
                             // Snapshot fiscal
-                            'regime_fiscal_snapshot'       => $result->toJson(),
+                            'regime_fiscal_snapshot'       => json_encode($result->toArray()),
                             // Divers
                             'reference_bail'               => $contrat->reference_bail_affichee,
                             'caution_percue'               => 0,

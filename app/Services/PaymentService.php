@@ -2,185 +2,228 @@
 
 namespace App\Services;
 
-use App\Models\Contrat;
-use App\Models\Paiement;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-// use Illuminate\Support\Facades\Auth;
+use App\Models\Agency;
+use App\Models\Subscription;
+use App\Models\SubscriptionPayment;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 /**
- * PaiementService — Orchestration des paiements de loyer.
+ * PaymentService — Gestion des paiements d'abonnement via PayDunya.
  *
- * Responsabilités :
- *  - Enregistrer un paiement mensuel depuis un formulaire
- *  - Identifier les impayés
- *  - Préparer les données pour le rapport financier
+ * Trois modes (config services.paydunya.mode) :
+ *  - simulation : aucun appel API, abonnement activé directement (dev/test)
+ *  - test       : sandbox PayDunya
+ *  - live       : production PayDunya
  */
-class PaiementService
+class PaymentService
 {
-    public function __construct(
-        private readonly FiscalService $fiscalService
-    ) {}
+    private string $mode;
+    private string $masterKey;
+    private string $privateKey;
+    private string $token;
 
-    // ─── Enregistrement d'un paiement ──────────────────────────────────────────
+    public function __construct()
+    {
+        $this->mode       = config('services.paydunya.mode', 'simulation');
+        $this->masterKey  = config('services.paydunya.master_key', '');
+        $this->privateKey = config('services.paydunya.private_key', '');
+        $this->token      = config('services.paydunya.token', '');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // API PUBLIQUE
+    // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * Enregistre un paiement mensuel avec calcul fiscal complet.
-     * Toute la logique de calcul est déléguée à FiscalService via FiscalContext.
+     * Initie un paiement d'abonnement.
      *
-     * @param  Contrat $contrat   Contrat chargé avec bien + locataire
-     * @param  array   $data      Données du formulaire (periode, mode_paiement, etc.)
-     * @return Paiement
+     * @return array{success: bool, mode: string, message: string, redirect_url: ?string}
      */
-    public function enregistrerPaiement(Contrat $contrat, array $data): Paiement
+    public function initierPaiement(Agency $agency, string $plan): array
     {
-        // Charger les relations nécessaires au calcul fiscal
-        $contrat->loadMissing([
-            'bien',
-            'locataire.locataire',
-        ]);
-
-        // Construire le contexte fiscal depuis le contrat
-        $ctx    = \App\Services\FiscalContext::fromContrat($contrat);
-        $result = FiscalService::calculer($ctx);
-
-        return DB::transaction(function () use ($contrat, $data, $result) {
-            $periode = Carbon::parse($data['periode'])->startOfMonth();
-
-            $paiement = Paiement::create([
-                'agency_id'   => $contrat->agency_id,
-                'contrat_id'  => $contrat->id,
-                'periode'     => $periode->toDateString(),
-                'date_paiement' => $data['date_paiement'] ?? now()->toDateString(),
-                'mode_paiement' => $data['mode_paiement'],
-                'statut'      => 'valide',
-
-                // Ventilation loyer
-                'loyer_nu'         => $result->loyerHt,
-                'loyer_ht'         => $result->loyerHt,
-                'tva_loyer'        => $result->tvaLoyer,
-                'loyer_ttc'        => $result->loyerTtc,
-                'charges_amount'   => $result->chargesAmount,
-                'tom_amount'       => $result->tomAmount,
-                'montant_encaisse' => $result->montantEncaisse,
-
-                // Commission
-                'taux_commission_applique' => $ctx->tauxCommission,
-                'commission_agence'        => $result->commissionHt,
-                'tva_commission'           => $result->tvaCommission,
-                'commission_ttc'           => $result->commissionTtc,
-
-                // Nets
-                'net_proprietaire'          => $result->netProprietaire,
-                'brs_amount'                => $result->brsAmount,
-                'taux_brs_applique'         => $result->tauxBrsApplique,
-                'net_a_verser_proprietaire' => $result->netAVerserProprietaire,
-
-                // Snapshot fiscal immuable
-                'regime_fiscal_snapshot' => $result->toArray(),
-
-                // Référence
-                'reference_paiement' => $data['reference_paiement'] ?? $this->genererReference($contrat),
-                'reference_bail'     => $contrat->reference_bail_affichee,
-
-                'notes' => $data['notes'] ?? null,
-            ]);
-
-            // Mettre à jour le statut du bien → loué si ce n'est pas déjà fait
-            if ($contrat->bien && $contrat->bien->statut === 'disponible') {
-                $contrat->bien->update(['statut' => 'loue']);
-            }
-
-            return $paiement;
-        });
-    }
-
-    // ─── Impayés ───────────────────────────────────────────────────────────────
-
-    /**
-     * Retourne les contrats actifs sans paiement validé pour une période donnée.
-     */
-    public function getImpayes(int $agencyId, ?Carbon $periode = null): Collection
-    {
-        $periode ??= now()->startOfMonth();
-
-        // Contrats actifs de l'agence
-        $contrats = Contrat::where('agency_id', $agencyId)
-            ->where('statut', 'actif')
-            ->with([
-                'bien:id,agency_id,reference,adresse,ville,type',
-                'locataire:id,name,email,telephone',
-            ])
-            ->get();
-
-        // IDs des contrats ayant un paiement valide pour cette période
-        $payes = Paiement::where('agency_id', $agencyId)
-            ->where('statut', 'valide')
-            ->where('periode', $periode->toDateString())
-            ->pluck('contrat_id')
-            ->toArray();
-
-        return $contrats->filter(fn($c) => ! in_array($c->id, $payes))->values();
-    }
-
-    /**
-     * Retourne les contrats actifs AVEC paiement validé pour une période donnée.
-     */
-    public function getPaiesPourPeriode(int $agencyId, Carbon $periode): Collection
-    {
-        return Paiement::where('agency_id', $agencyId)
-            ->where('statut', 'valide')
-            ->where('periode', $periode->toDateString())
-            ->with([
-                'contrat:id,bien_id,locataire_id',
-                'contrat.bien:id,reference,adresse,ville',
-                'contrat.locataire:id,name,telephone,email',
-            ])
-            ->get();
-    }
-
-    // ─── Utilitaires ───────────────────────────────────────────────────────────
-
-    /**
-     * Génère une référence unique pour un paiement.
-     * Format : PAY-{CONTRAT_ID}-{YYYYMM}-{RANDOM}
-     */
-    private function genererReference(Contrat $contrat): string
-    {
-        return sprintf(
-            'PAY-%s-%s-%s',
-            str_pad($contrat->id, 5, '0', STR_PAD_LEFT),
-            now()->format('Ym'),
-            strtoupper(substr(md5(uniqid()), 0, 4))
-        );
-    }
-
-    /**
-     * Dernière période payée pour un contrat.
-     * Utilisée pour pré-remplir le formulaire de paiement.
-     */
-    public function dernierePeriode(Contrat $contrat): ?Carbon
-    {
-        $dernier = Paiement::where('contrat_id', $contrat->id)
-            ->where('statut', 'valide')
-            ->orderByDesc('periode')
-            ->value('periode');
-
-        return $dernier ? Carbon::parse($dernier) : null;
-    }
-
-    /**
-     * Prochaine période à payer pour un contrat.
-     */
-    public function prochainePeriode(Contrat $contrat): Carbon
-    {
-        $derniere = $this->dernierePeriode($contrat);
-
-        if ($derniere) {
-            return $derniere->addMonth()->startOfMonth();
+        if (! array_key_exists($plan, Subscription::TARIFS)) {
+            return ['success' => false, 'mode' => $this->mode, 'message' => 'Plan invalide', 'redirect_url' => null];
         }
 
-        return Carbon::parse($contrat->date_debut)->startOfMonth();
+        if ($this->mode === 'simulation') {
+            return $this->simulerPaiement($agency, $plan);
+        }
+
+        return $this->creerFacturePaydunya($agency, $plan);
+    }
+
+    /**
+     * Traite un callback IPN (Instant Payment Notification) de PayDunya.
+     *
+     * @return array{success: bool, message: string}
+     */
+    public function traiterCallbackIPN(array $payload): array
+    {
+        try {
+            $token  = $payload['data']['invoice']['token']  ?? null;
+            $status = $payload['data']['invoice']['status'] ?? null;
+
+            if (! $token || $status !== 'completed') {
+                return ['success' => false, 'message' => 'Paiement non complété ou token absent'];
+            }
+
+            $agencyId = $payload['data']['invoice']['custom_data']['agency_id'] ?? null;
+            $plan     = $payload['data']['invoice']['custom_data']['plan']      ?? null;
+
+            if (! $agencyId || ! $plan) {
+                return ['success' => false, 'message' => 'Données custom_data manquantes'];
+            }
+
+            DB::transaction(function () use ($agencyId, $plan, $token) {
+                // Idempotence — on ne traite pas deux fois le même token
+                if (SubscriptionPayment::where('reference', $token)->exists()) {
+                    return;
+                }
+
+                $subscription = Subscription::where('agency_id', $agencyId)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $subscription->activer($plan, $token, 'paydunya');
+            });
+
+            return ['success' => true, 'message' => 'Abonnement activé'];
+
+        } catch (\Throwable $e) {
+            Log::error('Erreur traitement IPN PayDunya', [
+                'error'   => $e->getMessage(),
+                'payload' => $payload,
+            ]);
+            return ['success' => false, 'message' => 'Erreur serveur interne'];
+        }
+    }
+
+    /**
+     * Vérifie le statut d'une facture PayDunya.
+     * En simulation : retourne toujours un statut "completed".
+     *
+     * @return array{status: string, custom_data: array}|null
+     */
+    public function verifierStatutFacture(string $token): ?array
+    {
+        if ($this->mode === 'simulation') {
+            return ['status' => 'completed', 'custom_data' => []];
+        }
+
+        try {
+            $response = Http::withHeaders($this->headers())
+                ->get($this->baseUrl() . "/checkout-invoice/confirm/{$token}");
+
+            return $response->successful() ? $response->json() : null;
+
+        } catch (\Throwable $e) {
+            Log::error('Erreur vérification facture PayDunya', [
+                'token' => $token,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // PRIVÉ
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private function simulerPaiement(Agency $agency, string $plan): array
+    {
+        DB::transaction(function () use ($agency, $plan) {
+            $subscription = $agency->subscription;
+
+            if (! $subscription) {
+                $subscription = Subscription::create([
+                    'agency_id'        => $agency->id,
+                    'statut'           => 'essai',
+                    'date_debut_essai' => now(),
+                    'date_fin_essai'   => now()->addDays(30),
+                ]);
+            }
+
+            $ref = 'SIM-' . strtoupper(substr(md5(uniqid()), 0, 12));
+            $subscription->activer($plan, $ref, 'manuel');
+        });
+
+        return [
+            'success'      => true,
+            'mode'         => 'simulation',
+            'message'      => 'Paiement simulé avec succès',
+            'redirect_url' => null,
+        ];
+    }
+
+    private function creerFacturePaydunya(Agency $agency, string $plan): array
+    {
+        try {
+            $montant = Subscription::TARIFS[$plan];
+            $labels  = Subscription::LABELS;
+
+            $response = Http::withHeaders($this->headers())
+                ->post($this->baseUrl() . '/checkout-invoice/create', [
+                    'invoice' => [
+                        'total_amount' => $montant,
+                        'description'  => "Abonnement BIMO-Tech {$labels[$plan]} — {$agency->name}",
+                    ],
+                    'store' => [
+                        'name' => 'BIMO-Tech Immobilier',
+                    ],
+                    'actions' => [
+                        'callback_url' => route('subscription.callback'),
+                        'return_url'   => route('subscription.succes'),
+                        'cancel_url'   => route('subscription.echec'),
+                    ],
+                    'custom_data' => [
+                        'agency_id' => $agency->id,
+                        'plan'      => $plan,
+                    ],
+                ]);
+
+            if ($response->successful() && ($response->json('response_code') === '00')) {
+                return [
+                    'success'      => true,
+                    'mode'         => $this->mode,
+                    'message'      => 'Facture PayDunya créée',
+                    'redirect_url' => $response->json('response_text'),
+                ];
+            }
+
+            return [
+                'success'      => false,
+                'mode'         => $this->mode,
+                'message'      => 'Erreur PayDunya : ' . $response->json('response_text', 'Erreur inconnue'),
+                'redirect_url' => null,
+            ];
+
+        } catch (\Throwable $e) {
+            Log::error('Erreur création facture PayDunya', ['error' => $e->getMessage()]);
+            return [
+                'success'      => false,
+                'mode'         => $this->mode,
+                'message'      => 'Service de paiement temporairement indisponible',
+                'redirect_url' => null,
+            ];
+        }
+    }
+
+    private function baseUrl(): string
+    {
+        return $this->mode === 'live'
+            ? 'https://app.paydunya.com/api/v1'
+            : 'https://app.paydunya.com/sandbox-api/v1';
+    }
+
+    private function headers(): array
+    {
+        return [
+            'PAYDUNYA-MASTER-KEY'  => $this->masterKey,
+            'PAYDUNYA-PRIVATE-KEY' => $this->privateKey,
+            'PAYDUNYA-TOKEN'       => $this->token,
+            'Content-Type'         => 'application/json',
+        ];
     }
 }
