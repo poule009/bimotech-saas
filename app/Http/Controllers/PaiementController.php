@@ -260,7 +260,7 @@ class PaiementController extends Controller
     // TÉLÉCHARGEMENT PDF QUITTANCE
     // ─────────────────────────────────────────────────────────────────────
 
-    public function downloadPDF(Paiement $paiement)
+    public function downloadPDF(Paiement $paiement): \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
     {
         $this->authorize('telechargerQuittance', $paiement);
 
@@ -273,7 +273,7 @@ class PaiementController extends Controller
         $agence = Auth::user()->agency;
 
         $pdf = app('dompdf.wrapper');
-       $pdf->loadView('paiements.pdf.quittance', compact('paiement', 'agence'));
+        $pdf->loadView('paiements.pdf.quittance', compact('paiement', 'agence'));
         $pdf->setPaper('A4', 'portrait');
 
         $filename = 'quittance-' . $paiement->reference_paiement . '.pdf';

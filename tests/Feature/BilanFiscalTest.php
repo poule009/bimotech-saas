@@ -11,6 +11,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Services\FiscalService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -117,7 +118,7 @@ class BilanFiscalTest extends TestCase
     // calculerBilanAnnuel() — Aggrégation DB
     // ════════════════════════════════════════════════════════════════════════
 
-    /** @test */
+    #[Test]
     public function bilan_annuel_est_calcule_correctement_depuis_les_paiements(): void
     {
         // 3 paiements de 300 000 F pour ce proprio en 2025
@@ -146,7 +147,7 @@ class BilanFiscalTest extends TestCase
         $this->assertEquals(45_000.0, (float) $data['cfpb_estimee']);
     }
 
-    /** @test */
+    #[Test]
     public function bilan_ne_compte_que_les_paiements_valides(): void
     {
         // 1 paiement valide + 1 paiement annulé
@@ -190,7 +191,7 @@ class BilanFiscalTest extends TestCase
         $this->assertEquals(200_000.0, (float) $data['revenus_bruts_loyers']);
     }
 
-    /** @test */
+    #[Test]
     public function bilan_ne_compte_que_les_paiements_de_lannee_demandee(): void
     {
         $this->creerPaiementPourProprio($this->proprio, 300_000, 2024); // année passée
@@ -202,7 +203,7 @@ class BilanFiscalTest extends TestCase
         $this->assertEquals(300_000.0, (float) $data['revenus_bruts_loyers']);
     }
 
-    /** @test */
+    #[Test]
     public function bilan_vide_si_aucun_paiement(): void
     {
         $data = FiscalService::calculerBilanAnnuel($this->proprio->id, 2025, $this->agency->id);
@@ -213,7 +214,7 @@ class BilanFiscalTest extends TestCase
         $this->assertEquals(0.0, (float) $data['cfpb_estimee']);
     }
 
-    /** @test */
+    #[Test]
     public function bilan_ne_compte_pas_les_paiements_dun_autre_proprio(): void
     {
         $autreProprio = User::factory()->create([
@@ -234,7 +235,7 @@ class BilanFiscalTest extends TestCase
     // BilanFiscalController — Accès et sécurité
     // ════════════════════════════════════════════════════════════════════════
 
-    /** @test */
+    #[Test]
     public function admin_peut_voir_la_liste_des_bilans(): void
     {
         $this->actingAs($this->admin)
@@ -243,7 +244,7 @@ class BilanFiscalTest extends TestCase
              ->assertSee($this->proprio->name);
     }
 
-    /** @test */
+    #[Test]
     public function proprietaire_ne_peut_pas_acceder_aux_bilans(): void
     {
         $this->actingAs($this->proprio)
@@ -251,7 +252,7 @@ class BilanFiscalTest extends TestCase
              ->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function admin_peut_calculer_un_bilan(): void
     {
         $this->creerPaiementPourProprio($this->proprio, 300_000, now()->year);
@@ -269,7 +270,7 @@ class BilanFiscalTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function recalcul_met_a_jour_le_bilan_existant(): void
     {
         // Premier calcul
@@ -293,7 +294,7 @@ class BilanFiscalTest extends TestCase
         );
     }
 
-    /** @test */
+    #[Test]
     public function admin_peut_voir_le_detail_dun_bilan(): void
     {
         $this->creerPaiementPourProprio($this->proprio, 300_000, now()->year);
@@ -304,7 +305,7 @@ class BilanFiscalTest extends TestCase
              ->assertSee($this->proprio->name);
     }
 
-    /** @test */
+    #[Test]
     public function affichage_bilan_calcule_automatiquement_si_absent(): void
     {
         $this->creerPaiementPourProprio($this->proprio, 300_000, now()->year);
@@ -329,7 +330,7 @@ class BilanFiscalTest extends TestCase
     // Isolation multi-tenant
     // ════════════════════════════════════════════════════════════════════════
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_calculer_bilan_dun_proprio_etranger(): void
     {
         $autreAgence = Agency::factory()->create(['actif' => true]);
@@ -352,7 +353,7 @@ class BilanFiscalTest extends TestCase
         $this->assertEquals(0, $data['nb_paiements']);
     }
 
-    /** @test */
+    #[Test]
     public function bilan_calcule_est_isole_par_agence(): void
     {
         // Deux agences avec chacune un proprio et un paiement

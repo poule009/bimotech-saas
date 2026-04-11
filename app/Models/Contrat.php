@@ -47,6 +47,7 @@ class Contrat extends Model
         'nombre_mois_caution',
         'frais_agence',
         'indexation_annuelle',
+        'annee_derniere_indexation',
 
         // ── Statut et type ─────────────────────────────────────────────────
         'statut',

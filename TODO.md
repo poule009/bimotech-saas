@@ -1,9 +1,11 @@
-# Fix Intelephense P1006 in PaiementController.php
+# BIMO-Tech — Liste des tâches
 
-## Plan Steps
-- [ ] 1. Create TODO.md ✅
-- [x] 2. Edit PaiementController.php: Add return type to downloadPDF() ✅
-  Note: FiscalService lacks calculer(FiscalContext). Uses calculerDecompositionLoyer(float). Secondary issue.
-- [x] 3. Verify Intelephense error resolved (type added; IDE cache may need restart)
-- [ ] 4. Test PDF download functionality
-- [ ] 5. Complete task
+## Avant le lancement commercial
+
+- [ ] Renseigner les clés PayDunya live dans `.env` (`PAYDUNYA_MODE=live` + 3 clés)
+- [ ] Configurer l'hébergeur : worker queue `php artisan queue:work --daemon`
+- [ ] Configurer le cron sur l'hébergeur : `* * * * * php /chemin/artisan schedule:run >> /dev/null 2>&1`
+- [ ] Changer `APP_ENV=production`, `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`
+- [ ] Configurer le mail de production (Brevo / Mailgun) dans `.env`
+- [x] Tester le PDF quittance en production  → couvert par QuittancePdfTest (8 tests : admin/proprio/locataire, 403 annulé, taille PDF > 10 Ko)
+- [x] Tester le paiement PayDunya end-to-end en sandbox → couvert par PayDunyaSandboxTest (18 tests : simulation, Http::fake() sandbox, IPN idempotent, succes/echec)

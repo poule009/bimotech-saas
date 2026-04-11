@@ -6,6 +6,7 @@ use App\Models\Agency;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UserCrudTest extends TestCase
@@ -50,7 +51,7 @@ class UserCrudTest extends TestCase
 
     // ── Tests liste ───────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_voir_la_liste_des_proprietaires()
     {
         $admin = $this->adminAvecAgence();
@@ -62,7 +63,7 @@ class UserCrudTest extends TestCase
              ->assertSee($proprio->name);
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_voit_pas_les_utilisateurs_des_autres_agences()
     {
         $admin1       = $this->adminAvecAgence();
@@ -76,7 +77,7 @@ class UserCrudTest extends TestCase
 
     // ── Tests création ────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_creer_un_proprietaire()
     {
         $admin = $this->adminAvecAgence();
@@ -99,7 +100,7 @@ class UserCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_peut_creer_un_locataire()
     {
         $admin = $this->adminAvecAgence();
@@ -121,7 +122,7 @@ class UserCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function creation_echoue_avec_email_deja_existant()
     {
         $admin = $this->adminAvecAgence();
@@ -140,7 +141,7 @@ class UserCrudTest extends TestCase
 
     // ── Tests édition ────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_voir_le_formulaire_dedition_dun_proprietaire()
     {
         $admin  = $this->adminAvecAgence();
@@ -152,7 +153,7 @@ class UserCrudTest extends TestCase
              ->assertSee($proprio->name);
     }
 
-    /** @test */
+    #[Test]
     public function admin_peut_modifier_le_nom_et_telephone_dun_utilisateur()
     {
         $admin  = $this->adminAvecAgence();
@@ -173,7 +174,7 @@ class UserCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_modifier_un_utilisateur_dune_autre_agence()
     {
         $admin       = $this->adminAvecAgence();
@@ -188,7 +189,7 @@ class UserCrudTest extends TestCase
              ->assertForbidden();
     }
 
-    /** @test */
+    #[Test]
     public function proprietaire_ne_peut_pas_modifier_un_autre_utilisateur()
     {
         $admin  = $this->adminAvecAgence();
@@ -202,7 +203,7 @@ class UserCrudTest extends TestCase
 
     // ── Tests suppression ─────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_supprimer_un_utilisateur_de_son_agence()
     {
         $admin  = $this->adminAvecAgence();
@@ -215,7 +216,7 @@ class UserCrudTest extends TestCase
         $this->assertSoftDeleted('users', ['id' => $proprio->id]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_se_supprimer_lui_meme()
     {
         $admin = $this->adminAvecAgence();
@@ -229,7 +230,7 @@ class UserCrudTest extends TestCase
 
     // ── Tests accès invité ────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function invite_est_redirige_vers_login()
     {
         $this->get(route('admin.users.proprietaires'))

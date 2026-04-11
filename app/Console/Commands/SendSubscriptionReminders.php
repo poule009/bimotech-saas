@@ -26,8 +26,10 @@ class SendSubscriptionReminders extends Command
 
         foreach ($subscriptions as $sub) {
 
-            // Détermine la date d'expiration selon le type
-            $dateFin = $sub->estEnEssai()
+            // Détermine la date d'expiration selon le type.
+            // On utilise le statut plutôt que estEnEssai() (qui retourne false
+            // quand l'essai est déjà expiré) afin de détecter aussi les expirations.
+            $dateFin = $sub->statut === 'essai'
                 ? $sub->date_fin_essai
                 : $sub->date_fin_abonnement;
 

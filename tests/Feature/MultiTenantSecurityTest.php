@@ -9,6 +9,7 @@ use App\Models\Paiement;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -72,7 +73,7 @@ class MultiTenantSecurityTest extends TestCase
 
     // ── Isolation des biens ───────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_ne_voit_pas_les_biens_dune_autre_agence_dans_la_liste()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -87,7 +88,7 @@ class MultiTenantSecurityTest extends TestCase
              ->assertDontSee($bien2->reference);
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_afficher_la_fiche_dun_bien_etranger()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -102,7 +103,7 @@ class MultiTenantSecurityTest extends TestCase
         $this->assertContains($response->status(), [403, 404]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_supprimer_un_bien_etranger()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -120,7 +121,7 @@ class MultiTenantSecurityTest extends TestCase
 
     // ── Isolation des contrats ────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_ne_voit_pas_les_contrats_dune_autre_agence()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -138,7 +139,7 @@ class MultiTenantSecurityTest extends TestCase
              ->assertDontSee($refBien2);
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_voir_le_detail_dun_contrat_etranger()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -155,7 +156,7 @@ class MultiTenantSecurityTest extends TestCase
 
     // ── Isolation des paiements ───────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_ne_voit_pas_les_paiements_dune_autre_agence()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -177,7 +178,7 @@ class MultiTenantSecurityTest extends TestCase
 
     // ── Isolation utilisateurs ────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_voir_le_profil_dun_utilisateur_etranger()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -195,7 +196,7 @@ class MultiTenantSecurityTest extends TestCase
 
     // ── SuperAdmin bypass ────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function superadmin_peut_voir_les_contrats_de_toutes_les_agences()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
@@ -218,7 +219,7 @@ class MultiTenantSecurityTest extends TestCase
 
     // ── Injection d'ID cross-agence ───────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function creation_contrat_avec_bien_etranger_en_injection_est_bloquee()
     {
         [$agence1, $admin1] = $this->creerAgenceAvecAdmin();

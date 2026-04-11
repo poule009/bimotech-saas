@@ -45,9 +45,12 @@ class CheckSubscriptions extends Command
                     ]);
 
                     if ($agency instanceof Agency) {
-                        $agency->update([
-                            'actif' => false,
-                        ]);
+                        // `actif` est intentionnellement absent de Agency::$fillable
+                        // (seul le SuperAdmin peut le modifier).
+                        // On passe par assignation directe + save() pour contourner
+                        // la protection mass-assignment de façon explicite et sécurisée.
+                        $agency->actif = false;
+                        $agency->save();
                     }
 
                     $updated++;

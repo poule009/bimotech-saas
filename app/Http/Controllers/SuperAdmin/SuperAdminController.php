@@ -94,7 +94,11 @@ class SuperAdminController extends Controller
 
     public function toggleActif(Agency $agency): RedirectResponse
     {
-        $agency->update(['actif' => ! $agency->actif]);
+        // `actif` est intentionnellement absent de Agency::$fillable.
+        // On passe par assignation directe + save() pour contourner
+        // la protection mass-assignment de façon explicite.
+        $agency->actif = ! $agency->actif;
+        $agency->save();
         $statut = $agency->actif ? 'activée' : 'désactivée';
 
         return redirect()
@@ -258,15 +262,16 @@ class SuperAdminController extends Controller
 
         try {
             DB::transaction(function () use ($request) {
-                $agency = Agency::create([
-                    'name'      => $request->agency_name,
-                    'email'     => $request->agency_email,
-                    'telephone' => $request->agency_telephone,
-                    'adresse'   => $request->agency_adresse,
-                    'slug'      => Str::slug($request->agency_name) . '-' . Str::random(6),
-                ]);
-
-                $agency->actif = true;
+                // `slug` et `actif` sont intentionnellement absents de Agency::$fillable.
+                // On utilise l'assignation directe de propriétés (pas create()) pour
+                // contourner la protection mass-assignment de façon explicite et documentée.
+                $agency            = new Agency();
+                $agency->name      = $request->agency_name;
+                $agency->email     = $request->agency_email;
+                $agency->telephone = $request->agency_telephone;
+                $agency->adresse   = $request->agency_adresse;
+                $agency->slug      = Str::slug($request->agency_name) . '-' . Str::random(6);
+                $agency->actif     = true;
                 $agency->save();
 
                 $admin            = new User();

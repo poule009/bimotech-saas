@@ -8,6 +8,7 @@ use App\Models\Contrat;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ContratCrudTest extends TestCase
@@ -80,7 +81,7 @@ class ContratCrudTest extends TestCase
 
     // ── Tests vue formulaire ──────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_voir_le_formulaire_de_creation_de_contrat()
     {
         $admin = $this->adminAvecAgence();
@@ -96,7 +97,7 @@ class ContratCrudTest extends TestCase
 
     // ── Tests création ────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_creer_un_contrat_complet_avec_tous_les_champs()
     {
         $admin   = $this->adminAvecAgence();
@@ -120,7 +121,7 @@ class ContratCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function type_bail_commercial_est_accepte()
     {
         $admin   = $this->adminAvecAgence();
@@ -134,7 +135,7 @@ class ContratCrudTest extends TestCase
         $this->assertDatabaseHas('contrats', ['type_bail' => 'commercial']);
     }
 
-    /** @test */
+    #[Test]
     public function type_bail_invalide_est_rejete()
     {
         $admin   = $this->adminAvecAgence();
@@ -146,7 +147,7 @@ class ContratCrudTest extends TestCase
              ->assertSessionHasErrors('type_bail');
     }
 
-    /** @test */
+    #[Test]
     public function contrat_sans_garant_est_accepte()
     {
         $admin   = $this->adminAvecAgence();
@@ -164,7 +165,7 @@ class ContratCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function indexation_superieure_a_20_est_rejetee()
     {
         $admin   = $this->adminAvecAgence();
@@ -176,7 +177,7 @@ class ContratCrudTest extends TestCase
              ->assertSessionHasErrors('indexation_annuelle');
     }
 
-    /** @test */
+    #[Test]
     public function impossible_de_creer_deux_contrats_actifs_sur_le_meme_bien()
     {
         $admin = $this->adminAvecAgence();
@@ -200,7 +201,7 @@ class ContratCrudTest extends TestCase
              ->assertSessionHasErrors('bien_id');
     }
 
-    /** @test */
+    #[Test]
     public function bien_dune_autre_agence_est_rejete()
     {
         $admin        = $this->adminAvecAgence();
@@ -218,7 +219,7 @@ class ContratCrudTest extends TestCase
              ->assertSessionHasErrors('bien_id');
     }
 
-    /** @test */
+    #[Test]
     public function locataire_dune_autre_agence_est_rejete()
     {
         $admin           = $this->adminAvecAgence();
@@ -238,7 +239,7 @@ class ContratCrudTest extends TestCase
 
     // ── Tests édition ────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_modifier_un_contrat_actif()
     {
         $admin   = $this->adminAvecAgence();
@@ -275,7 +276,7 @@ class ContratCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function contrat_resilie_ne_peut_pas_etre_modifie()
     {
         $admin   = $this->adminAvecAgence();
@@ -294,7 +295,7 @@ class ContratCrudTest extends TestCase
              ->assertSessionHasErrors('general');
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_modifier_un_contrat_dune_autre_agence()
     {
         $admin         = $this->adminAvecAgence();
@@ -310,7 +311,7 @@ class ContratCrudTest extends TestCase
 
     // ── Test locataire rapide (AJAX) ───────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_creer_un_locataire_en_ajax()
     {
         $admin = $this->adminAvecAgence();
@@ -331,7 +332,7 @@ class ContratCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function creation_locataire_rapide_echoue_sans_email()
     {
         $admin = $this->adminAvecAgence();

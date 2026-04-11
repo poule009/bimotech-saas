@@ -7,6 +7,7 @@ use App\Models\Bien;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class BienCrudTest extends TestCase
@@ -65,7 +66,7 @@ class BienCrudTest extends TestCase
 
     // ── Tests création ────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_voir_le_formulaire_de_creation()
     {
         $admin = $this->adminAvecAgence();
@@ -76,7 +77,7 @@ class BienCrudTest extends TestCase
              ->assertSee('Nouveau bien');
     }
 
-    /** @test */
+    #[Test]
     public function admin_peut_creer_un_bien_avec_tous_les_champs()
     {
         $admin   = $this->adminAvecAgence();
@@ -97,7 +98,7 @@ class BienCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function bien_cree_sans_quartier_ni_commune_est_accepte()
     {
         $admin   = $this->adminAvecAgence();
@@ -115,7 +116,7 @@ class BienCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function bien_non_meuble_par_defaut()
     {
         $admin   = $this->adminAvecAgence();
@@ -132,7 +133,7 @@ class BienCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function creation_echoue_si_proprietaire_hors_agence()
     {
         $admin          = $this->adminAvecAgence();
@@ -150,7 +151,7 @@ class BienCrudTest extends TestCase
              ->assertSessionHasErrors('proprietaire_id');
     }
 
-    /** @test */
+    #[Test]
     public function loyer_obligatoire_a_la_creation()
     {
         $admin   = $this->adminAvecAgence();
@@ -162,7 +163,7 @@ class BienCrudTest extends TestCase
              ->assertSessionHasErrors('loyer_mensuel');
     }
 
-    /** @test */
+    #[Test]
     public function proprietaire_ne_peut_pas_creer_un_bien()
     {
         $admin  = $this->adminAvecAgence();
@@ -175,7 +176,7 @@ class BienCrudTest extends TestCase
 
     // ── Tests édition ────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function admin_peut_modifier_quartier_commune_et_meuble()
     {
         $admin = $this->adminAvecAgence();
@@ -210,7 +211,7 @@ class BienCrudTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function admin_ne_peut_pas_modifier_un_bien_dune_autre_agence()
     {
         $admin      = $this->adminAvecAgence();
@@ -226,7 +227,7 @@ class BienCrudTest extends TestCase
 
     // ── Sécurité AgencyScope ──────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function agencyscope_masque_les_biens_des_autres_agences()
     {
         $admin1 = $this->adminAvecAgence();

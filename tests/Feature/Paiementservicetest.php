@@ -8,6 +8,7 @@ use App\Services\FiscalService;
 use App\Services\PaiementService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
@@ -34,7 +35,7 @@ class PaiementServiceTest extends TestCase
 
     // ─── genererEcheances ───────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function genere_le_bon_nombre_d_echeances_pour_un_bail_12_mois(): void
     {
         $contrat = Contrat::factory()->create([
@@ -49,7 +50,7 @@ class PaiementServiceTest extends TestCase
         $this->assertCount(12, $echeances);
     }
 
-    /** @test */
+    #[Test]
     public function genere_le_bon_nombre_d_echeances_pour_un_bail_6_mois(): void
     {
         $contrat = Contrat::factory()->create([
@@ -64,7 +65,7 @@ class PaiementServiceTest extends TestCase
         $this->assertCount(6, $echeances);
     }
 
-    /** @test */
+    #[Test]
     public function toutes_les_echeances_sont_en_statut_en_attente(): void
     {
         $contrat = Contrat::factory()->create([
@@ -80,7 +81,7 @@ class PaiementServiceTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function les_montants_fiscaux_sont_correctement_calcules_dans_les_echeances(): void
     {
         $contrat = Contrat::factory()->create([
@@ -103,7 +104,7 @@ class PaiementServiceTest extends TestCase
 
 
 
-    /** @test */
+    #[Test]
     public function regler_un_paiement_deja_valide_leve_une_exception(): void
     {
         $paiement = Paiement::factory()->create(['statut' => 'valide']);
@@ -115,7 +116,7 @@ class PaiementServiceTest extends TestCase
 
     // ─── getImpayes ─────────────────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function get_impayes_retourne_uniquement_les_echeances_depassees(): void
     {
         Carbon::setTestNow('2025-07-01');
@@ -153,7 +154,7 @@ class PaiementServiceTest extends TestCase
 
     // ─── getTableauDeBordMensuel ────────────────────────────────────────────
 
-    /** @test */
+    #[Test]
     public function tableau_de_bord_mensuel_calcule_taux_recouvrement(): void
     {
         $agencyId = 1;
