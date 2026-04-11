@@ -42,6 +42,7 @@ unset($__defined_vars, $__key, $__value); ?>
         ['section' => 'ANALYTIQUE',   'route' => 'admin.rapports.financier',  'label' => 'Rapports'],
         ['section' => null,           'route' => 'admin.activity-logs.index', 'label' => 'Activité'],
         ['section' => 'AGENCE',       'route' => 'admin.agency.settings',     'label' => 'Paramètres'],
+        ['section' => null,           'route' => 'subscription.index',        'label' => 'Abonnement'],
     ];
 
     $navProprietaire = [
@@ -69,6 +70,7 @@ unset($__defined_vars, $__key, $__value); ?>
         'admin.rapports.financier'  => '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
         'admin.activity-logs.index' => '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
         'admin.agency.settings'     => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',
+        'subscription.index'        => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
         'locataire.paiements'       => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
     ];
 
@@ -107,7 +109,7 @@ unset($__defined_vars, $__key, $__value); ?>
 .bm-logo-icon {
     width: 36px; height: 36px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #c9a84c, #8a6e2f);
+    background: var(--ac, #c9a84c);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Syne', sans-serif;
     font-size: 15px; font-weight: 800;
@@ -165,15 +167,15 @@ unset($__defined_vars, $__key, $__value); ?>
     color: #e6edf3;
 }
 .bm-nav-item.active {
-    background: rgba(201,168,76,.13);
-    color: #c9a84c;
+    background: rgba(var(--ac-r, 201), var(--ac-g, 168), var(--ac-b, 76), .13);
+    color: var(--ac, #c9a84c);
 }
 .bm-nav-item.active::before {
     content: '';
     position: absolute;
     left: 0; top: 25%; bottom: 25%;
     width: 3px;
-    background: #c9a84c;
+    background: var(--ac, #c9a84c);
     border-radius: 0 3px 3px 0;
 }
 .bm-nav-icon {
@@ -201,11 +203,11 @@ unset($__defined_vars, $__key, $__value); ?>
 .bm-avatar {
     width: 32px; height: 32px;
     border-radius: 50%;
-    background: rgba(201,168,76,.15);
-    border: 1.5px solid rgba(201,168,76,.3);
+    background: rgba(var(--ac-r, 201), var(--ac-g, 168), var(--ac-b, 76), .15);
+    border: 1.5px solid rgba(var(--ac-r, 201), var(--ac-g, 168), var(--ac-b, 76), .3);
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700;
-    color: #c9a84c;
+    color: var(--ac, #c9a84c);
     flex-shrink: 0;
 }
 .bm-profile-info { overflow: hidden; flex: 1; }

@@ -49,6 +49,13 @@ Schedule::command('loyers:indexation')
     ->runInBackground()
     ->emailOutputOnFailure(env('MAIL_FROM_ADDRESS'));
 
+// Emails d'onboarding essai gratuit — J+1, J+7, J+25 — quotidien à 09:30
+Schedule::command('onboarding:emails')
+    ->dailyAt('09:30')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground();
+
 // Rappels échéances fiscales DGID — quotidien à 09:00
 Schedule::command('dgid:reminders')
     ->dailyAt('09:00')

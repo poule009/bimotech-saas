@@ -280,9 +280,9 @@
                             @foreach($paiements as $p)
                             <tr>
                                 <td>
-                                    <div style="font-size:13px;font-weight:500;color:#0d1117">{{ $p->contrat->bien->reference }}</div>
+                                    <div style="font-size:13px;font-weight:500;color:#0d1117">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
                                 </td>
-                                <td style="font-size:12px;color:#6b7280">{{ $p->contrat->locataire->name }}</td>
+                                <td style="font-size:12px;color:#6b7280">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
                                 <td><span class="periode-pill">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span></td>
                                 <td style="font-size:12px;color:#6b7280">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</td>
                                 <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:600;color:#374151">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>

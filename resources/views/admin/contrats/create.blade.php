@@ -276,6 +276,19 @@
                     </div>
                 </div>
 
+                {{-- PARAMÈTRES FISCAUX --}}
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon" style="background:#fef3c7;color:#d97706">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="card-title">Paramètres fiscaux</div>
+                    </div>
+                    <div class="card-body">
+                        @include('admin.contrats._section-fiscal', ['contrat' => null])
+                    </div>
+                </div>
+
                 {{-- GARANT --}}
                 <div class="card">
                     <div class="card-hd">

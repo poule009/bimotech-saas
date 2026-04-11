@@ -89,6 +89,24 @@
     </style>
 
     {{ $styles ?? '' }}
+
+    {{-- Couleur de l'agence injectée en CSS variable --}}
+    @php
+        $agencyColor = auth()->user()?->agency?->couleur_primaire ?? '#c9a84c';
+        $hex = ltrim($agencyColor, '#');
+        $cr  = hexdec(substr($hex, 0, 2));
+        $cg  = hexdec(substr($hex, 2, 2));
+        $cb  = hexdec(substr($hex, 4, 2));
+    @endphp
+    <style>
+        :root {
+            --ac:   {{ $agencyColor }};
+            --ac-r: {{ $cr }};
+            --ac-g: {{ $cg }};
+            --ac-b: {{ $cb }};
+        }
+        .btn-primary { background: var(--ac) !important; }
+    </style>
 </head>
 <body>
 

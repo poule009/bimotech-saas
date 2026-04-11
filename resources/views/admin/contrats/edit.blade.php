@@ -163,7 +163,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Type de bail <span class="req">*</span></label>
-                                <select name="type_bail" class="form-select">
+                                <select name="type_bail" class="form-select {{ $errors->has('type_bail') ? 'error':'' }}">
                                     @foreach($typesBail as $val => $label)
                                         <option value="{{ $val }}"
                                             {{ old('type_bail', $contrat->type_bail) === $val ? 'selected':'' }}>
@@ -171,6 +171,7 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                @error('type_bail')<div class="form-error">{{ $message }}</div>@enderror
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Référence bail</label>
@@ -239,7 +240,8 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Caution (FCFA) <span class="req">*</span></label>
-                                <input type="number" name="caution" class="form-input"
+                                <input type="number" name="caution"
+                                       class="form-input {{ $errors->has('caution') ? 'error':'' }}"
                                        value="{{ old('caution', $contrat->caution) }}" min="0" step="500">
                                 @error('caution')<div class="form-error">{{ $message }}</div>@enderror
                             </div>
@@ -260,6 +262,19 @@
                             <input type="number" name="frais_agence" class="form-input"
                                    value="{{ old('frais_agence', $contrat->frais_agence ?? 0) }}" min="0" step="500">
                         </div>
+                    </div>
+                </div>
+
+                {{-- PARAMÈTRES FISCAUX --}}
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon" style="background:#fef3c7;color:#d97706">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="card-title">Paramètres fiscaux</div>
+                    </div>
+                    <div class="card-body">
+                        @include('admin.contrats._section-fiscal', ['contrat' => $contrat])
                     </div>
                 </div>
 

@@ -84,7 +84,7 @@ class QuittanceService
 
         $donnees = $this->preparerDonneesPdf($quittance);
 
-        return Pdf::loadView('pdf.quittance', $donnees)
+        return Pdf::loadView('paiements.pdf.quittance', $donnees)
             ->setPaper('A4')
             ->setOption('isPhpEnabled', false)
             ->setOption('isRemoteEnabled', false)

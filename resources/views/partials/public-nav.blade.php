@@ -93,7 +93,7 @@
 
     <div class="pub-nav-actions">
         <a href="{{ route('login') }}"    class="pub-nav-login" aria-label="Se connecter">Connexion</a>
-        <a href="{{ route('register') }}" class="pub-nav-cta"   aria-label="Créer un compte gratuitement">Démarrer gratuitement</a>
+        <a href="{{ route('agency.register') }}" class="pub-nav-cta"   aria-label="Créer un compte gratuitement">Démarrer gratuitement</a>
         <button class="hamburger" id="hamburger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
             <span></span><span></span><span></span>
         </button>
@@ -107,7 +107,7 @@
     <a href="{{ route('faq') }}"     @if($active==='faq')     class="active-link" @endif>FAQ</a>
     <a href="{{ route('contact') }}" @if($active==='contact') class="active-link" @endif>Contact</a>
     <div class="mobile-drawer-actions">
-        <a href="{{ route('register') }}" class="mob-cta">Créer mon agence gratuitement →</a>
+        <a href="{{ route('agency.register') }}" class="mob-cta">Créer mon agence gratuitement →</a>
         <a href="{{ route('login') }}"    class="mob-login">Se connecter</a>
     </div>
 </div>

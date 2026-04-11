@@ -22,6 +22,9 @@ class Subscription extends Model
         'reference_paydunya',
         'rappel_7j_envoye',
         'rappel_1j_envoye',
+        'onboarding_j1_envoye',
+        'onboarding_j7_envoye',
+        'onboarding_j25_envoye',
     ];
 
     protected $casts = [
@@ -31,6 +34,9 @@ class Subscription extends Model
         'date_fin_abonnement'    => 'datetime',
         'rappel_7j_envoye'       => 'boolean',
         'rappel_1j_envoye'       => 'boolean',
+        'onboarding_j1_envoye'   => 'boolean',
+        'onboarding_j7_envoye'   => 'boolean',
+        'onboarding_j25_envoye'  => 'boolean',
         'montant_paye'           => 'decimal:2',
     ];
 

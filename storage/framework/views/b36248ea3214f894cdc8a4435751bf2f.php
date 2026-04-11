@@ -117,7 +117,7 @@ unset($__defined_vars, $__key, $__value); ?>
 
     <div class="pub-nav-actions">
         <a href="<?php echo e(route('login')); ?>"    class="pub-nav-login" aria-label="Se connecter">Connexion</a>
-        <a href="<?php echo e(route('register')); ?>" class="pub-nav-cta"   aria-label="Créer un compte gratuitement">Démarrer gratuitement</a>
+        <a href="<?php echo e(route('agency.register')); ?>" class="pub-nav-cta"   aria-label="Créer un compte gratuitement">Démarrer gratuitement</a>
         <button class="hamburger" id="hamburger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
             <span></span><span></span><span></span>
         </button>
@@ -131,7 +131,7 @@ unset($__defined_vars, $__key, $__value); ?>
     <a href="<?php echo e(route('faq')); ?>"     <?php if($active==='faq'): ?>     class="active-link" <?php endif; ?>>FAQ</a>
     <a href="<?php echo e(route('contact')); ?>" <?php if($active==='contact'): ?> class="active-link" <?php endif; ?>>Contact</a>
     <div class="mobile-drawer-actions">
-        <a href="<?php echo e(route('register')); ?>" class="mob-cta">Créer mon agence gratuitement →</a>
+        <a href="<?php echo e(route('agency.register')); ?>" class="mob-cta">Créer mon agence gratuitement →</a>
         <a href="<?php echo e(route('login')); ?>"    class="mob-login">Se connecter</a>
     </div>
 </div>

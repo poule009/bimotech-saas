@@ -227,6 +227,29 @@
                     </div>
                 </div>
 
+                {{-- STATUT FISCAL PROPRIÉTAIRE --}}
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon" style="background:#fef3c7;color:#d97706">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="card-title">Statut fiscal</div>
+                    </div>
+                    <div class="card-body">
+                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#374151">
+                            <input type="checkbox" name="assujetti_tva" value="1"
+                                   {{ old('assujetti_tva', $user->proprietaire?->assujetti_tva) ? 'checked' : '' }}
+                                   style="width:16px;height:16px;accent-color:#c9a84c">
+                            <span>
+                                Propriétaire assujetti à la TVA
+                                <span style="display:block;font-size:11px;color:#9ca3af;font-weight:400;margin-top:2px">
+                                    Art. 355 CGI SN · La commission de l'agence sera calculée HT + TVA 18%
+                                </span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
                 {{-- PROFIL LOCATAIRE --}}
                 @elseif($user->isLocataire())
                 <div class="card">
@@ -306,6 +329,19 @@
                                    value="{{ old('contact_urgence_lien', $user->locataire?->contact_urgence_lien) }}"
                                    placeholder="Ex: Père, Mère, Époux(se)...">
                         </div>
+                    </div>
+                </div>
+
+                {{-- STATUT FISCAL LOCATAIRE --}}
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon" style="background:#fef3c7;color:#d97706">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="card-title">Statut fiscal</div>
+                    </div>
+                    <div class="card-body">
+                        @include('admin.users._section-type-locataire', ['user' => $user])
                     </div>
                 </div>
                 @endif

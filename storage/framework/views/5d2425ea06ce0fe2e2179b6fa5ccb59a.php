@@ -1,9 +1,8 @@
-@extends('layouts.app')
-@section('title', 'Abonnement')
-@section('breadcrumb', 'Abonnement')
+<?php $__env->startSection('title', 'Abonnement'); ?>
+<?php $__env->startSection('breadcrumb', 'Abonnement'); ?>
 
-@section('content')
-@php
+<?php $__env->startSection('content'); ?>
+<?php
 $plans = [
     'mensuel'     => ['label'=>'Mensuel',     'total'=>'25 000',  'mensuel'=>'25 000',  'period'=>'/ mois',    'eco'=>null,   'saving'=>null],
     'trimestriel' => ['label'=>'Trimestriel', 'total'=>'67 500',  'mensuel'=>'22 500',  'period'=>'/ 3 mois',  'eco'=>'−10%', 'saving'=>'Économie 7 500 FCFA/an'],
@@ -13,7 +12,7 @@ $plans = [
 $estActif = $subscription?->estActif();
 $estEssai = $subscription?->estEnEssai();
 $estExpire = $subscription && !$estActif && !$estEssai;
-@endphp
+?>
 
 <style>
 .sub-page { max-width:900px; margin:0 auto; padding-bottom:60px; }
@@ -201,36 +200,39 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 
 <div class="sub-page">
 
-    {{-- Breadcrumb --}}
+    
     <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:20px">
-        <a href="{{ route('admin.dashboard') }}" style="color:#6b7280;text-decoration:none">Tableau de bord</a>
+        <a href="<?php echo e(route('admin.dashboard')); ?>" style="color:#6b7280;text-decoration:none">Tableau de bord</a>
         <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         <span style="color:#e6edf3;font-weight:500">Abonnement</span>
     </div>
 
-    {{-- Flash messages --}}
-    @if(session('success'))
+    
+    <?php if(session('success')): ?>
     <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#4ade80;display:flex;align-items:center;gap:10px">
         <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        {{ session('success') }}
+        <?php echo e(session('success')); ?>
+
     </div>
-    @endif
-    @if(session('warning'))
+    <?php endif; ?>
+    <?php if(session('warning')): ?>
     <div style="background:rgba(234,179,8,.07);border:1px solid rgba(234,179,8,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#fbbf24;display:flex;align-items:center;gap:10px">
         <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        {{ session('warning') }}
+        <?php echo e(session('warning')); ?>
+
     </div>
-    @endif
-    @if($errors->has('general'))
+    <?php endif; ?>
+    <?php if($errors->has('general')): ?>
     <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#f87171;display:flex;align-items:center;gap:10px">
         <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        {{ $errors->first('general') }}
-    </div>
-    @endif
+        <?php echo e($errors->first('general')); ?>
 
-    {{-- Statut actuel --}}
-    @if($subscription)
-    @if($estEssai)
+    </div>
+    <?php endif; ?>
+
+    
+    <?php if($subscription): ?>
+    <?php if($estEssai): ?>
     <div class="sub-banner essai">
         <div class="sub-banner-left">
             <div class="sub-banner-icon">
@@ -239,8 +241,8 @@ $estExpire = $subscription && !$estActif && !$estEssai;
             <div>
                 <div class="sub-banner-title">Période d'essai en cours</div>
                 <div class="sub-banner-sub">
-                    Expire le {{ $subscription->date_fin_essai->format('d/m/Y') }} —
-                    <strong style="color:#c9a84c">{{ $subscription->joursRestantsEssai() }} jours restants</strong>
+                    Expire le <?php echo e($subscription->date_fin_essai->format('d/m/Y')); ?> —
+                    <strong style="color:#c9a84c"><?php echo e($subscription->joursRestantsEssai()); ?> jours restants</strong>
                 </div>
             </div>
         </div>
@@ -249,17 +251,17 @@ $estExpire = $subscription && !$estActif && !$estEssai;
             Essai gratuit 30 jours
         </div>
     </div>
-    @elseif($estActif)
+    <?php elseif($estActif): ?>
     <div class="sub-banner actif">
         <div class="sub-banner-left">
             <div class="sub-banner-icon">
                 <svg style="width:20px;height:20px;color:#4ade80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div>
-                <div class="sub-banner-title">Abonnement actif — {{ \App\Models\Subscription::LABELS[$subscription->plan] ?? '' }}</div>
+                <div class="sub-banner-title">Abonnement actif — <?php echo e(\App\Models\Subscription::LABELS[$subscription->plan] ?? ''); ?></div>
                 <div class="sub-banner-sub">
-                    Expire le {{ $subscription->date_fin_abonnement->format('d/m/Y') }} —
-                    <strong style="color:#4ade80">{{ $subscription->joursRestantsAbonnement() }} jours restants</strong>
+                    Expire le <?php echo e($subscription->date_fin_abonnement->format('d/m/Y')); ?> —
+                    <strong style="color:#4ade80"><?php echo e($subscription->joursRestantsAbonnement()); ?> jours restants</strong>
                 </div>
             </div>
         </div>
@@ -268,7 +270,7 @@ $estExpire = $subscription && !$estActif && !$estEssai;
             Actif
         </div>
     </div>
-    @else
+    <?php else: ?>
     <div class="sub-banner expire">
         <div class="sub-banner-left">
             <div class="sub-banner-icon">
@@ -281,48 +283,48 @@ $estExpire = $subscription && !$estActif && !$estEssai;
         </div>
         <div class="sub-banner-badge">Expiré</div>
     </div>
-    @endif
-    @endif
+    <?php endif; ?>
+    <?php endif; ?>
 
-    {{-- Titre section --}}
+    
     <div class="sub-section-title">Choisissez votre abonnement</div>
     <div class="sub-section-sub">Toutes les fonctionnalités incluses. Aucun frais caché. Conformité fiscale SN intégrée.</div>
 
-    {{-- Plans --}}
+    
     <div class="plans-row">
-        @foreach($plans as $key => $p)
-        <div class="plan-card {{ $key === 'semestriel' ? 'popular' : '' }}">
-            @if($key === 'semestriel')
+        <?php $__currentLoopData = $plans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <div class="plan-card <?php echo e($key === 'semestriel' ? 'popular' : ''); ?>">
+            <?php if($key === 'semestriel'): ?>
             <div class="plan-card-badge">Le plus populaire</div>
-            @endif
-            @if($p['eco'])
-            <div><span class="plan-card-eco">{{ $p['eco'] }}</span></div>
-            @endif
-            <div class="plan-card-name">{{ $p['label'] }}</div>
-            <div class="plan-card-price">{{ $p['total'] }} <span>FCFA {{ $p['period'] }}</span></div>
-            @if($p['mensuel'] !== $p['total'])
-            <div class="plan-card-mensuel">soit {{ $p['mensuel'] }} FCFA / mois</div>
-            @else
+            <?php endif; ?>
+            <?php if($p['eco']): ?>
+            <div><span class="plan-card-eco"><?php echo e($p['eco']); ?></span></div>
+            <?php endif; ?>
+            <div class="plan-card-name"><?php echo e($p['label']); ?></div>
+            <div class="plan-card-price"><?php echo e($p['total']); ?> <span>FCFA <?php echo e($p['period']); ?></span></div>
+            <?php if($p['mensuel'] !== $p['total']): ?>
+            <div class="plan-card-mensuel">soit <?php echo e($p['mensuel']); ?> FCFA / mois</div>
+            <?php else: ?>
             <div class="plan-card-mensuel">&nbsp;</div>
-            @endif
-            @if($p['saving'])
-            <div class="plan-card-saving">{{ $p['saving'] }}</div>
-            @else
+            <?php endif; ?>
+            <?php if($p['saving']): ?>
+            <div class="plan-card-saving"><?php echo e($p['saving']); ?></div>
+            <?php else: ?>
             <div style="margin-bottom:16px">&nbsp;</div>
-            @endif
-            <form method="POST" action="{{ route('subscription.initier') }}"
-                  onsubmit="return confirm('Confirmer l\'abonnement {{ $p['label'] }} à {{ $p['total'] }} FCFA ?')">
-                @csrf
-                <input type="hidden" name="plan" value="{{ $key }}">
-                <button type="submit" class="plan-card-btn {{ $key === 'semestriel' ? 'plan-card-btn-gold' : 'plan-card-btn-outline' }}">
+            <?php endif; ?>
+            <form method="POST" action="<?php echo e(route('subscription.initier')); ?>"
+                  onsubmit="return confirm('Confirmer l\'abonnement <?php echo e($p['label']); ?> à <?php echo e($p['total']); ?> FCFA ?')">
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="plan" value="<?php echo e($key); ?>">
+                <button type="submit" class="plan-card-btn <?php echo e($key === 'semestriel' ? 'plan-card-btn-gold' : 'plan-card-btn-outline'); ?>">
                     Choisir
                 </button>
             </form>
         </div>
-        @endforeach
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 
-    {{-- Comparatif durées --}}
+    
     <div class="compare-table">
         <table>
             <thead>
@@ -334,30 +336,30 @@ $estExpire = $subscription && !$estActif && !$estEssai;
                 </tr>
             </thead>
             <tbody>
-                @foreach($plans as $key => $p)
+                <?php $__currentLoopData = $plans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <tr>
-                    <td>{{ $p['label'] }}</td>
-                    <td class="{{ $p['eco'] ? 'gold' : '' }}">{{ $p['total'] }} FCFA</td>
-                    <td class="{{ $p['eco'] ? 'gold' : '' }}">{{ $p['mensuel'] }} FCFA / mois</td>
+                    <td><?php echo e($p['label']); ?></td>
+                    <td class="<?php echo e($p['eco'] ? 'gold' : ''); ?>"><?php echo e($p['total']); ?> FCFA</td>
+                    <td class="<?php echo e($p['eco'] ? 'gold' : ''); ?>"><?php echo e($p['mensuel']); ?> FCFA / mois</td>
                     <td style="text-align:center">
-                        @if($p['eco'])
-                        <span class="eco-pill">{{ $p['eco'] }}</span>
-                        @else
+                        <?php if($p['eco']): ?>
+                        <span class="eco-pill"><?php echo e($p['eco']); ?></span>
+                        <?php else: ?>
                         <span style="color:#484f58;font-size:12px">—</span>
-                        @endif
+                        <?php endif; ?>
                     </td>
                 </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
     </div>
 
-    {{-- Historique --}}
-    @if($historique->count() > 0)
+    
+    <?php if($historique->count() > 0): ?>
     <div class="hist-card">
         <div class="hist-head">
             <div class="hist-head-title">Historique des paiements</div>
-            <span style="background:#21262d;color:#8b949e;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px">{{ $historique->count() }} entrée{{ $historique->count() > 1 ? 's' : '' }}</span>
+            <span style="background:#21262d;color:#8b949e;font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px"><?php echo e($historique->count()); ?> entrée<?php echo e($historique->count() > 1 ? 's' : ''); ?></span>
         </div>
         <div style="overflow-x:auto">
             <table class="hist-table">
@@ -373,35 +375,37 @@ $estExpire = $subscription && !$estActif && !$estEssai;
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($historique as $paiement)
+                    <?php $__currentLoopData = $historique; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paiement): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td>{{ $paiement->created_at->format('d/m/Y') }}</td>
-                        <td><span class="plan-pill">{{ \App\Models\Subscription::LABELS[$paiement->plan] ?? $paiement->plan }}</span></td>
-                        <td>{{ \App\Models\SubscriptionPayment::METHODE_LABELS[$paiement->methode] ?? $paiement->methode }}</td>
+                        <td><?php echo e($paiement->created_at->format('d/m/Y')); ?></td>
+                        <td><span class="plan-pill"><?php echo e(\App\Models\Subscription::LABELS[$paiement->plan] ?? $paiement->plan); ?></span></td>
+                        <td><?php echo e(\App\Models\SubscriptionPayment::METHODE_LABELS[$paiement->methode] ?? $paiement->methode); ?></td>
                         <td style="font-size:11px">
-                            @if($paiement->periode_debut && $paiement->periode_fin)
-                                {{ $paiement->periode_debut->format('d/m/Y') }} → {{ $paiement->periode_fin->format('d/m/Y') }}
-                            @else — @endif
+                            <?php if($paiement->periode_debut && $paiement->periode_fin): ?>
+                                <?php echo e($paiement->periode_debut->format('d/m/Y')); ?> → <?php echo e($paiement->periode_fin->format('d/m/Y')); ?>
+
+                            <?php else: ?> — <?php endif; ?>
                         </td>
                         <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:700;color:#e6edf3">
-                            {{ number_format($paiement->montant, 0, ',', ' ') }} F
+                            <?php echo e(number_format($paiement->montant, 0, ',', ' ')); ?> F
                         </td>
                         <td style="text-align:center">
-                            @php $sc = ['payé'=>'paye','en_attente'=>'attente','échoué'=>'echoue']; @endphp
-                            <span class="hist-badge {{ $sc[$paiement->statut] ?? 'attente' }}">
-                                {{ \App\Models\SubscriptionPayment::STATUT_LABELS[$paiement->statut] ?? $paiement->statut }}
+                            <?php $sc = ['payé'=>'paye','en_attente'=>'attente','échoué'=>'echoue']; ?>
+                            <span class="hist-badge <?php echo e($sc[$paiement->statut] ?? 'attente'); ?>">
+                                <?php echo e(\App\Models\SubscriptionPayment::STATUT_LABELS[$paiement->statut] ?? $paiement->statut); ?>
+
                             </span>
                         </td>
-                        <td style="font-family:monospace;font-size:10px;color:#484f58">{{ $paiement->reference ?? '—' }}</td>
+                        <td style="font-family:monospace;font-size:10px;color:#484f58"><?php echo e($paiement->reference ?? '—'); ?></td>
                     </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
     </div>
-    @endif
+    <?php endif; ?>
 
-    {{-- Support --}}
+    
     <div class="support-card">
         <div class="support-left">
             <div class="support-icon">
@@ -425,4 +429,6 @@ $estExpire = $subscription && !$estActif && !$estEssai;
     </div>
 
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/subscription/index.blade.php ENDPATH**/ ?>

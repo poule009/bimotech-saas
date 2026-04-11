@@ -90,6 +90,24 @@
 
     <?php echo e($styles ?? ''); ?>
 
+
+    
+    <?php
+        $agencyColor = auth()->user()?->agency?->couleur_primaire ?? '#c9a84c';
+        $hex = ltrim($agencyColor, '#');
+        $cr  = hexdec(substr($hex, 0, 2));
+        $cg  = hexdec(substr($hex, 2, 2));
+        $cb  = hexdec(substr($hex, 4, 2));
+    ?>
+    <style>
+        :root {
+            --ac:   <?php echo e($agencyColor); ?>;
+            --ac-r: <?php echo e($cr); ?>;
+            --ac-g: <?php echo e($cg); ?>;
+            --ac-b: <?php echo e($cb); ?>;
+        }
+        .btn-primary { background: var(--ac) !important; }
+    </style>
 </head>
 <body>
 
