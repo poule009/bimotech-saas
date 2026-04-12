@@ -99,11 +99,11 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     $locataire    = $contrat?->locataire;
     $proprietaire = $bien?->proprietaire;
 
-    $loyerNu      = (float) ($paiement->loyer_nu ?? 0);
+    $loyerHt      = (float) ($paiement->loyer_ht ?? $paiement->loyer_nu ?? 0);
+    $tvaLoyer     = (float) ($paiement->tva_loyer ?? 0);
+    $loyerTtc     = (float) ($paiement->loyer_ttc ?? $loyerHt);
     $charges      = (float) ($paiement->charges_amount ?? 0);
     $tom          = (float) ($paiement->tom_amount ?? 0);
-    $tvaLoyer     = (float) ($paiement->tva_loyer ?? 0);
-    $loyerTtc     = (float) ($paiement->loyer_ttc ?? $loyerNu);
     $montant      = (float) $paiement->montant_encaisse;
     $commHt       = (float) ($paiement->commission_agence ?? 0);
     $tvaComm      = (float) ($paiement->tva_commission ?? 0);
@@ -111,7 +111,20 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     $netProprio   = (float) ($paiement->net_proprietaire ?? 0);
     $netAVerser   = (float) ($paiement->net_a_verser_proprietaire ?? $netProprio);
     $brs          = (float) ($paiement->brs_amount ?? 0);
+    $tauxBrs      = (float) ($paiement->taux_brs_applique ?? 0);
     $tauxComm     = (float) ($paiement->taux_commission_applique ?? 0);
+
+    // Frais d'entrée (0 pour les paiements récurrents)
+    $fraisHt      = (float) ($paiement->frais_agence_ht  ?? 0);
+    $tvaFrais     = (float) ($paiement->tva_frais_agence ?? 0);
+    $fraisTtc     = (float) ($paiement->frais_agence_ttc ?? 0);
+    $caution      = (float) ($paiement->caution_montant  ?? 0);
+    $totalInitial = (float) ($paiement->total_encaissement_initial ?? $montant);
+    $estPremier   = $fraisTtc > 0 || $caution > 0;
+
+    // Nets consolidés (persistés depuis FiscalService)
+    $netLocataire = (float) ($paiement->montant_net_locataire ?? ($totalInitial - $brs));
+    $netBailleur  = (float) ($paiement->montant_net_bailleur  ?? $netAVerser);
 
     $periode      = \Carbon\Carbon::parse($paiement->periode);
     $datePaiement = $paiement->date_paiement
@@ -216,10 +229,22 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
         </thead>
         <tbody>
             <tr>
-                <td>Loyer nu</td>
-                <td class="right">{{ number_format($loyerNu, 0, ',', ' ') }}</td>
+                <td>Loyer {{ $tvaLoyer > 0 ? 'HT' : 'nu' }}{{ $paiement->est_premier_paiement ? ' (proratisé)' : '' }}</td>
+                <td class="right">{{ number_format($loyerHt, 0, ',', ' ') }}</td>
                 <td class="right label">Base de calcul commission</td>
             </tr>
+            @if($tvaLoyer > 0)
+            <tr>
+                <td>TVA sur loyer (18% — bail commercial/meublé)</td>
+                <td class="right">{{ number_format($tvaLoyer, 0, ',', ' ') }}</td>
+                <td class="right label">Art. 357 CGI SN</td>
+            </tr>
+            <tr>
+                <td style="font-weight:600">Loyer TTC</td>
+                <td class="right" style="font-weight:700">{{ number_format($loyerTtc, 0, ',', ' ') }}</td>
+                <td class="right label">—</td>
+            </tr>
+            @endif
             @if($charges > 0)
             <tr>
                 <td>Charges récupérables</td>
@@ -234,22 +259,62 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
                 <td class="right label">Part locataire</td>
             </tr>
             @endif
-            @if($tvaLoyer > 0)
-            <tr>
-                <td>TVA sur loyer (18%)</td>
-                <td class="right">{{ number_format($tvaLoyer, 0, ',', ' ') }}</td>
-                <td class="right label">Art. 357 CGI SN</td>
-            </tr>
-            @endif
         </tbody>
         <tfoot>
             <tr class="total-row">
-                <td>Total encaissé</td>
+                <td>Loyer encaissé (mensuel)</td>
                 <td class="right gold">{{ number_format($montant, 0, ',', ' ') }} FCFA</td>
                 <td class="right"></td>
             </tr>
         </tfoot>
     </table>
+
+    {{-- FRAIS D'ENTRÉE (premier paiement uniquement) --}}
+    @if($estPremier)
+    <div class="section-title">Frais d'entrée — Premier versement</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Désignation</th>
+                <th class="right">Montant (FCFA)</th>
+                <th class="right">Observations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Loyer encaissé (mensuel)</td>
+                <td class="right">{{ number_format($montant, 0, ',', ' ') }}</td>
+                <td class="right label">Voir décompte ci-dessus</td>
+            </tr>
+            @if($fraisTtc > 0)
+            <tr>
+                <td>Honoraires d'agence HT</td>
+                <td class="right">{{ number_format($fraisHt, 0, ',', ' ') }}</td>
+                <td class="right label">One-shot — signature</td>
+            </tr>
+            <tr>
+                <td>TVA honoraires (18%)</td>
+                <td class="right">{{ number_format($tvaFrais, 0, ',', ' ') }}</td>
+                <td class="right label">Art. 357 CGI SN</td>
+            </tr>
+            @endif
+            @if($caution > 0)
+            <tr>
+                <td>Dépôt de garantie (caution)</td>
+                <td class="right">{{ number_format($caution, 0, ',', ' ') }}</td>
+                <td class="right label">Non taxable — restitué à la sortie</td>
+            </tr>
+            @endif
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td>Total versé à l'entrée dans les lieux</td>
+                <td class="right gold">{{ number_format($totalInitial, 0, ',', ' ') }} FCFA</td>
+                <td class="right"></td>
+            </tr>
+        </tfoot>
+    </table>
+    @endif
 
     {{-- COMMISSION AGENCE --}}
     <div class="section-title">Commission agence</div>
@@ -272,25 +337,43 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
                 <td class="right">18 %</td>
                 <td class="right">{{ number_format($tvaComm, 0, ',', ' ') }}</td>
             </tr>
-            @if($brs > 0)
-            <tr>
-                <td>BRS — Retenue à la source</td>
-                <td class="right">{{ $paiement->taux_brs_applique ?? 0 }} %</td>
-                <td class="right">{{ number_format($brs, 0, ',', ' ') }}</td>
-            </tr>
-            @endif
         </tbody>
         <tfoot>
             <tr>
                 <td colspan="2">Commission TTC</td>
                 <td class="right" style="font-weight:700;color:#c9a84c">{{ number_format($commTtc, 0, ',', ' ') }} FCFA</td>
             </tr>
+            @if($brs > 0)
+            <tr style="background:#fff1f2">
+                <td colspan="2" style="color:#9f1239">BRS — Retenue à la source ({{ $tauxBrs }}% × loyer HT — art. 196bis CGI SN)</td>
+                <td class="right" style="color:#dc2626;font-weight:700">- {{ number_format($brs, 0, ',', ' ') }} FCFA</td>
+            </tr>
+            @endif
             <tr class="net-row">
-                <td colspan="2">Net à reverser au propriétaire</td>
-                <td class="right gold">{{ number_format($netAVerser, 0, ',', ' ') }} FCFA</td>
+                <td colspan="2">Net à reverser au bailleur</td>
+                <td class="right gold">{{ number_format($netBailleur, 0, ',', ' ') }} FCFA</td>
             </tr>
         </tfoot>
     </table>
+
+    {{-- NET LOCATAIRE — encadré en gras --}}
+    <div style="background:#0d1117;border-radius:6px;padding:12px 16px;margin-bottom:20px;display:table;width:100%">
+        <div style="display:table-cell;vertical-align:middle">
+            <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(201,168,76,.6);margin-bottom:3px">
+                NET À PAYER PAR LE LOCATAIRE{{ $brs > 0 ? ' (après retenue BRS)' : '' }}
+            </div>
+            @if($brs > 0)
+            <div style="font-size:8px;color:rgba(255,255,255,.4)">
+                Le locataire retient {{ number_format($brs, 0, ',', ' ') }} FCFA de BRS et le verse directement à la DGI (art. 196bis CGI SN)
+            </div>
+            @endif
+        </div>
+        <div style="display:table-cell;vertical-align:middle;text-align:right">
+            <div style="font-size:20px;font-weight:700;color:#c9a84c;font-family:Arial,sans-serif">
+                {{ number_format($netLocataire, 0, ',', ' ') }} FCFA
+            </div>
+        </div>
+    </div>
 
     {{-- INFOS PAIEMENT --}}
     <div class="paiement-info">

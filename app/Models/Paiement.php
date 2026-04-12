@@ -50,8 +50,25 @@ class Paiement extends Model
         'reference_bail',      // Référence du bail (dénormalisée pour la quittance)
 
         // ── Champs spéciaux ────────────────────────────────────────────────
-        'caution_percue',      // Caution encaissée au premier paiement
-        'est_premier_paiement',// Flag premier mois du bail
+        'caution_percue',              // Caution saisie manuellement au premier paiement
+        'est_premier_paiement',        // Flag premier mois du bail
+
+        // ── Frais d'entrée (premier paiement uniquement, 0 sinon) ─────────
+        'frais_agence_ht',             // Honoraires agence HT à la signature
+        'tva_frais_agence',            // TVA 18% sur honoraires
+        'frais_agence_ttc',            // frais_agence_ht + tva_frais_agence
+        'caution_montant',             // Caution contractuelle (non taxable)
+        'total_encaissement_initial',  // montant_encaisse + frais_agence_ttc + caution_montant
+
+        // ── Nets consolidés (calculés par FiscalService, jamais dans les vues) ─
+        'montant_net_locataire',       // total_encaissement_initial - brs_amount
+        'montant_net_bailleur',        // net_a_verser_proprietaire [+ caution si remise]
+
+        // ── DGID — snapshot premier paiement (0 sur tous les paiements récurrents) ─
+        'dgid_droits_enregistrement',  // assiette × taux% (non nul uniquement au 1er paiement)
+        'dgid_timbre_fiscal',          // timbre fiscal fixe (2 000 FCFA)
+        'dgid_total',                  // droits_enregistrement + timbre_fiscal
+
         'notes',               // Observations libres
 
         // ── Annulation ────────────────────────────────────────────────────
@@ -83,6 +100,16 @@ class Paiement extends Model
         'taux_brs_applique'          => 'decimal:2',
         'net_a_verser_proprietaire'  => 'decimal:2',
         'caution_percue'             => 'decimal:2',
+        'frais_agence_ht'            => 'decimal:2',
+        'tva_frais_agence'           => 'decimal:2',
+        'frais_agence_ttc'           => 'decimal:2',
+        'caution_montant'            => 'decimal:2',
+        'total_encaissement_initial' => 'decimal:2',
+        'montant_net_locataire'        => 'decimal:2',
+        'montant_net_bailleur'         => 'decimal:2',
+        'dgid_droits_enregistrement'   => 'decimal:2',
+        'dgid_timbre_fiscal'           => 'decimal:2',
+        'dgid_total'                   => 'decimal:2',
 
         // Flags
         'est_premier_paiement'       => 'boolean',
@@ -122,6 +149,48 @@ class Paiement extends Model
     public function quittance(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Quittance::class);
+    }
+
+    /**
+     * Dépenses de gestion engagées par l'agence pour ce mois de gestion.
+     * (plombier, électricien, gardien, etc. — réglés pour le compte du bailleur)
+     */
+    public function depenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(DepenseGestion::class);
+    }
+
+    // ── Accesseurs calculés ───────────────────────────────────────────────────
+
+    /**
+     * Net final à reverser au bailleur après déduction des dépenses de gestion.
+     *
+     * Principe d'isolation (invariant métier) :
+     *   - Le locataire paie toujours montant_net_locataire — JAMAIS modifié.
+     *   - Les dépenses s'imputent UNIQUEMENT sur la part bailleur.
+     *
+     * Formule :
+     *   net_final_bailleur = montant_net_bailleur − SUM(depenses_gestion.montant)
+     *
+     * Exemple :
+     *   montant_net_bailleur = 264 600 F
+     *   Facture plombier     =  25 000 F
+     *   → net_final_bailleur = 239 600 F
+     *
+     * Note : charge les dépenses si pas déjà eager-loadées (relation depenses).
+     */
+    public function getNetFinalBailleurAttribute(): float
+    {
+        $totalDepenses = (float) $this->depenses->sum('montant');
+        return round((float) ($this->montant_net_bailleur ?? $this->net_a_verser_proprietaire ?? 0) - $totalDepenses, 2);
+    }
+
+    /**
+     * Somme des dépenses de gestion du mois (alias pratique pour les vues).
+     */
+    public function getTotalDepensesAttribute(): float
+    {
+        return (float) $this->depenses->sum('montant');
     }
 
     // ── Scopes ────────────────────────────────────────────────────────────────

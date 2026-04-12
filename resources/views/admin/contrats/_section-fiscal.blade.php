@@ -165,6 +165,40 @@
     </div>
 </div>
 
+{{-- ── Politique de caution ─────────────────────────────────────────────────── --}}
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:14px 16px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:600;color:#0d1117;margin-bottom:4px">Politique de la caution</div>
+    <div style="font-size:11px;color:#6b7280;margin-bottom:12px">
+        Détermine à qui est versé le dépôt de garantie lors du premier encaissement.
+    </div>
+    <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        {{-- Switch toggle --}}
+        <span style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+            <input type="hidden"   name="caution_gardee_par_agence" value="0">
+            <input type="checkbox" name="caution_gardee_par_agence" id="caution_gardee_par_agence" value="1"
+                   {{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? 'checked' : '' }}
+                   style="opacity:0;width:0;height:0;position:absolute"
+                   onchange="toggleCautionLabel()">
+            <span id="switch-track" onclick="document.getElementById('caution_gardee_par_agence').click()"
+                  style="position:absolute;inset:0;border-radius:99px;cursor:pointer;transition:.2s;
+                  background:{{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? '#c9a84c' : '#d1d5db' }}">
+                <span id="switch-knob"
+                      style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;
+                      left:{{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? '21px' : '3px' }}"></span>
+            </span>
+        </span>
+        <span>
+            <span style="font-size:13px;color:#374151;font-weight:500">Caution gardée par l'agence (séquestre)</span>
+            <span id="caution-policy-label" style="display:block;font-size:11px;margin-top:1px;
+                  color:{{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? '#8a6e2f' : '#16a34a' }}">
+                {{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false)
+                    ? 'L\'agence conserve la caution — non reversée au bailleur'
+                    : 'Caution reversée au bailleur lors du premier versement' }}
+            </span>
+        </span>
+    </label>
+</div>
+
 {{-- JS fiscal ────────────────────────────────────────────────────────────── --}}
 <script>
 function updateFiscalBadge() {
@@ -177,6 +211,24 @@ function updateFiscalBadge() {
     badge.style.background = checked ? '#fef3c7' : '#dcfce7';
     badge.style.color      = checked ? '#d97706'  : '#16a34a';
     champTaux.style.display = checked ? 'flex' : 'none';
+}
+
+function toggleCautionLabel() {
+    const cb    = document.getElementById('caution_gardee_par_agence');
+    const label = document.getElementById('caution-policy-label');
+    const track = document.getElementById('switch-track');
+    const knob  = document.getElementById('switch-knob');
+    if (cb.checked) {
+        track.style.background = '#c9a84c';
+        knob.style.left        = '21px';
+        label.style.color      = '#8a6e2f';
+        label.textContent      = "L'agence conserve la caution — non reversée au bailleur";
+    } else {
+        track.style.background = '#d1d5db';
+        knob.style.left        = '3px';
+        label.style.color      = '#16a34a';
+        label.textContent      = 'Caution reversée au bailleur lors du premier versement';
+    }
 }
 
 function toggleBrsChamp() {

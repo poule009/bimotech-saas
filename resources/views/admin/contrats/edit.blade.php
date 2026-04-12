@@ -258,9 +258,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Frais d'agence (FCFA)</label>
+                            <label class="form-label">Frais d'agence HT (FCFA)</label>
                             <input type="number" name="frais_agence" class="form-input"
                                    value="{{ old('frais_agence', $contrat->frais_agence ?? 0) }}" min="0" step="500">
+                            <div class="form-hint">Honoraires HT · TVA 18% ajoutée auto au premier paiement</div>
                         </div>
                     </div>
                 </div>

@@ -22,8 +22,16 @@ namespace App\Services;
  *  = commission_ttc
  *  ─────────────────────────────────────────────────────────────────
  *  net_proprietaire            ← montant_encaisse - commission_ttc
- *  - brs_amount                ← % × loyer_ttc si locataire entreprise (Art. 196bis)
+ *  - brs_amount                ← % × loyer_ht si locataire entreprise (Art. 196bis)
  *  = net_a_verser_proprietaire ← montant effectivement viré au propriétaire
+ *  ─────────────────────────────────────────────────────────────────
+ *  [Premier paiement uniquement]
+ *  frais_agence_ht             ← honoraires agence HT (one-shot, signature)
+ *  + tva_frais_agence (18%)    ← TVA sur honoraires
+ *  = frais_agence_ttc
+ *  + caution_montant           ← dépôt de garantie (non taxable)
+ *  + montant_encaisse
+ *  = total_encaissement_initial ← total versé à l'entrée dans les lieux
  */
 final class FiscalResult
 {
@@ -56,6 +64,27 @@ final class FiscalResult
         public readonly bool   $loyerAssujetti,       // TVA loyer s'applique ?
         public readonly string $regimeFiscal,          // label lisible pour UI/PDF
         public readonly float  $tauxTvaLoyerApplique,  // 0 ou 18
+
+        // ── Frais d'entrée (0 pour les paiements récurrents) ──────────────
+        public readonly float  $fraisAgenceHt           = 0.0,
+        public readonly float  $tvaFraisAgence          = 0.0,
+        public readonly float  $fraisAgenceTtc          = 0.0,
+        public readonly float  $cautionMontant          = 0.0,
+        public readonly float  $totalEncaissementInitial = 0.0,
+
+        // ── Nets consolidés ───────────────────────────────────────────────
+        // Calculés une seule fois par FiscalService pour éviter toute logique dans les vues.
+        public readonly float  $netLocataire = 0.0,  // total_encaissement_initial - brs_amount
+        public readonly float  $netBailleur  = 0.0,  // net_a_verser_proprietaire [+ caution si remise]
+
+        // ── Droits d'enregistrement DGID (CGI SN art. 442) ───────────────
+        // Non nuls UNIQUEMENT au premier paiement (avecDgid=true dans FiscalContext).
+        // Sur tous les paiements récurrents : 0.0 → section DGID masquée côté vues.
+        // Ces montants NE modifient PAS montant_encaisse ni net_locataire :
+        // ils sont une obligation fiscale séparée, réglée directement à la DGID.
+        public readonly float  $dgidDroitsEnregistrement = 0.0,
+        public readonly float  $dgidTimbreFiscal         = 0.0,
+        public readonly float  $dgidTotal                = 0.0,
     ) {}
 
     /**
@@ -92,6 +121,22 @@ final class FiscalResult
             'brs_applicable'             => $this->brsApplicable,
             'net_a_verser_proprietaire'  => $this->netAVerserProprietaire,
 
+            // Frais d'entrée
+            'frais_agence_ht'            => $this->fraisAgenceHt,
+            'tva_frais_agence'           => $this->tvaFraisAgence,
+            'frais_agence_ttc'           => $this->fraisAgenceTtc,
+            'caution_montant'            => $this->cautionMontant,
+            'total_encaissement_initial' => $this->totalEncaissementInitial,
+
+            // Nets consolidés
+            'montant_net_locataire'      => $this->netLocataire,
+            'montant_net_bailleur'       => $this->netBailleur,
+
+            // DGID (0 pour les paiements récurrents — sécurité affichage garantie)
+            'dgid_droits_enregistrement' => $this->dgidDroitsEnregistrement,
+            'dgid_timbre_fiscal'         => $this->dgidTimbreFiscal,
+            'dgid_total'                 => $this->dgidTotal,
+
             // Méta
             'regime_fiscal'              => $this->regimeFiscal,
             'calcule_le'                 => now()->toIso8601String(),
@@ -119,6 +164,16 @@ final class FiscalResult
             'brs_amount'                 => $this->brsAmount,
             'taux_brs_applique'          => $this->tauxBrsApplique,
             'net_a_verser_proprietaire'  => $this->netAVerserProprietaire,
+            'frais_agence_ht'            => $this->fraisAgenceHt,
+            'tva_frais_agence'           => $this->tvaFraisAgence,
+            'frais_agence_ttc'           => $this->fraisAgenceTtc,
+            'caution_montant'            => $this->cautionMontant,
+            'total_encaissement_initial' => $this->totalEncaissementInitial,
+            'montant_net_locataire'      => $this->netLocataire,
+            'montant_net_bailleur'       => $this->netBailleur,
+            'dgid_droits_enregistrement' => $this->dgidDroitsEnregistrement,
+            'dgid_timbre_fiscal'         => $this->dgidTimbreFiscal,
+            'dgid_total'                 => $this->dgidTotal,
             'regime_fiscal_snapshot'     => $this->toArray(),
         ];
     }

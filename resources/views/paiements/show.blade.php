@@ -152,53 +152,16 @@
                 </div>
             </div>
 
-            {{-- DÉCOMPTE --}}
+            {{-- DÉCOMPTE FISCAL COMPLET --}}
             <div class="card">
                 <div class="card-hd">
                     <div class="card-icon gold">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     </div>
-                    <div class="card-title">Décompte loyer</div>
+                    <div class="card-title">Décompte fiscal complet</div>
                 </div>
-                <div class="card-body">
-                    <div class="info-grid-3">
-                        <div>
-                            <div class="il">Loyer nu</div>
-                            <div class="iv">{{ number_format($paiement->loyer_nu ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Charges</div>
-                            <div class="iv">{{ number_format($paiement->charges_amount ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">TOM</div>
-                            <div class="iv">{{ number_format($paiement->tom_amount ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Commission HT</div>
-                            <div class="iv" style="color:#8a6e2f">{{ number_format($paiement->commission_agence ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">TVA commission</div>
-                            <div class="iv">{{ number_format($paiement->tva_commission ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Commission TTC</div>
-                            <div class="iv" style="color:#8a6e2f">{{ number_format($paiement->commission_ttc ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Net propriétaire</div>
-                            <div class="iv" style="color:#16a34a;font-weight:700">{{ number_format($paiement->net_proprietaire ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Net à verser</div>
-                            <div class="iv" style="color:#16a34a">{{ number_format($paiement->net_a_verser_proprietaire ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Taux commission</div>
-                            <div class="iv">{{ $paiement->taux_commission_applique ?? 0 }} %</div>
-                        </div>
-                    </div>
+                <div style="padding:0">
+                    <x-fiscal.decompte-paiement :paiement="$paiement" />
                 </div>
             </div>
 
@@ -246,20 +209,51 @@
                     </div>
                     <div class="fp-sep"></div>
                     <div class="fp-row">
-                        <span class="fp-lbl">Montant encaissé</span>
+                        <span class="fp-lbl">Loyer encaissé</span>
                         <span class="fp-val gold">{{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} F</span>
                     </div>
+                    @if(($paiement->frais_agence_ttc ?? 0) > 0)
                     <div class="fp-row">
-                        <span class="fp-lbl">Commission TTC</span>
-                        <span class="fp-val" style="color:#c9a84c">{{ number_format($paiement->commission_ttc ?? 0, 0, ',', ' ') }} F</span>
+                        <span class="fp-lbl">Honoraires TTC</span>
+                        <span class="fp-val" style="color:#60a5fa">{{ number_format($paiement->frais_agence_ttc, 0, ',', ' ') }} F</span>
                     </div>
+                    @endif
+                    @if(($paiement->caution_montant ?? 0) > 0)
+                    <div class="fp-row">
+                        <span class="fp-lbl">Caution</span>
+                        <span class="fp-val" style="color:#a78bfa">{{ number_format($paiement->caution_montant, 0, ',', ' ') }} F</span>
+                    </div>
+                    @endif
+                    @if(($paiement->total_encaissement_initial ?? 0) > $paiement->montant_encaisse)
+                    <div class="fp-row" style="border-top:1px solid rgba(201,168,76,.3)">
+                        <span class="fp-lbl" style="color:rgba(201,168,76,.7)">Total facturé</span>
+                        <span class="fp-val gold" style="font-size:14px">{{ number_format($paiement->total_encaissement_initial, 0, ',', ' ') }} F</span>
+                    </div>
+                    @endif
+                    @if(($paiement->brs_amount ?? 0) > 0)
+                    <div class="fp-row">
+                        <span class="fp-lbl" style="color:rgba(248,113,113,.7)">BRS retenu</span>
+                        <span class="fp-val" style="color:#f87171">- {{ number_format($paiement->brs_amount, 0, ',', ' ') }} F</span>
+                    </div>
+                    @endif
+                    <div class="fp-sep"></div>
+                    {{-- NET LOCATAIRE — en gras, ligne principale --}}
+                    <div style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+                        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:3px">Net à payer — Locataire</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#c9a84c">
+                            {{ number_format($paiement->montant_net_locataire ?? ($paiement->total_encaissement_initial ?? $paiement->montant_encaisse), 0, ',', ' ') }} F
+                        </div>
+                    </div>
+                    {{-- NET BAILLEUR --}}
                     <div class="fp-total">
-                        <div class="fp-total-lbl">Net propriétaire</div>
-                        <div class="fp-total-val">{{ number_format($paiement->net_proprietaire ?? 0, 0, ',', ' ') }} F</div>
+                        <div class="fp-total-lbl">Montant à reverser — Bailleur</div>
+                        <div class="fp-total-val">
+                            {{ number_format($paiement->montant_net_bailleur ?? ($paiement->net_a_verser_proprietaire ?? 0), 0, ',', ' ') }} F
+                        </div>
                     </div>
                     @if($paiement->caution_percue > 0)
                     <div style="margin-top:10px;padding:8px 10px;background:rgba(29,78,216,.1);border:1px solid rgba(29,78,216,.2);border-radius:7px">
-                        <div style="font-size:10px;color:rgba(29,78,216,.6);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Caution perçue</div>
+                        <div style="font-size:10px;color:rgba(29,78,216,.6);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Caution perçue (saisie manuelle)</div>
                         <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#1d4ed8">
                             {{ number_format($paiement->caution_percue, 0, ',', ' ') }} F
                         </div>

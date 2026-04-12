@@ -14,6 +14,7 @@ class Bien extends Model
     public const TYPES = [
         'appartement' => 'Appartement',
         'villa'       => 'Villa',
+        'studio'      => 'Studio',
         'bureau'      => 'Bureau',
         'commerce'    => 'Commerce',
         'terrain'     => 'Terrain',

@@ -45,6 +45,7 @@ class Contrat extends Model
         // ── Financier ─────────────────────────────────────────────────────
         'caution',
         'nombre_mois_caution',
+        'caution_gardee_par_agence',   // Bool — l'agence garde la caution en séquestre
         'frais_agence',
         'indexation_annuelle',
         'annee_derniere_indexation',
@@ -59,8 +60,9 @@ class Contrat extends Model
         'taux_tva_loyer',           // Taux TVA loyer (0 ou 18)
         'brs_applicable',           // Bool — BRS applicable
         'taux_brs_manuel',          // Override taux BRS (null = légal)
-        'date_enregistrement_dgid', // Date enregistrement bail à la DGID
-        'enregistrement_exonere',   // Bool — exonéré d'enregistrement
+        'date_enregistrement_dgid',    // Date enregistrement bail à la DGID
+        'enregistrement_exonere',      // Bool — exonéré d'enregistrement
+        'taux_enregistrement_dgid',    // Override taux DGID (null = légal : 1% hab / 2% comm)
 
         // ── Garant ────────────────────────────────────────────────────────
         'garant_nom',
@@ -87,9 +89,11 @@ class Contrat extends Model
         'taux_tva_loyer'            => 'decimal:2',
         'taux_brs_manuel'           => 'decimal:2',
         'nombre_mois_caution'       => 'integer',
-        'loyer_assujetti_tva'       => 'boolean',
-        'brs_applicable'            => 'boolean',
-        'enregistrement_exonere'    => 'boolean',
+        'loyer_assujetti_tva'          => 'boolean',
+        'brs_applicable'               => 'boolean',
+        'enregistrement_exonere'       => 'boolean',
+        'caution_gardee_par_agence'    => 'boolean',
+        'taux_enregistrement_dgid'     => 'decimal:2',
     ];
 
     // ── Global Scope + hooks ───────────────────────────────────────────────────

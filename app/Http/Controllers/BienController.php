@@ -67,7 +67,7 @@ class BienController extends Controller
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
-            'type'            => ['required', 'in:Appartement,Villa,Studio,Bureau,Commerce,Terrain'],
+            'type'            => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::TYPES))],
             'adresse'         => ['required', 'string', 'max:255'],
             'quartier'        => ['nullable', 'string', 'max:100'],
             'commune'         => ['nullable', 'string', 'max:100'],
@@ -81,6 +81,7 @@ class BienController extends Controller
         ], [
             'proprietaire_id.required' => 'Veuillez sélectionner un propriétaire.',
             'type.required'            => 'Le type de bien est obligatoire.',
+            'type.in'                  => 'Le type sélectionné est invalide.',
             'adresse.required'         => "L'adresse est obligatoire.",
             'ville.required'           => 'La ville est obligatoire.',
             'loyer_mensuel.required'   => 'Le loyer est obligatoire.',
@@ -144,7 +145,7 @@ if ($request->hasFile('photos')) {
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
-            'type'            => ['required', 'in:Appartement,Villa,Studio,Bureau,Commerce,Terrain'],
+            'type'            => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::TYPES))],
             'adresse'         => ['required', 'string', 'max:255'],
             'quartier'        => ['nullable', 'string', 'max:100'],
             'commune'         => ['nullable', 'string', 'max:100'],
@@ -154,8 +155,13 @@ if ($request->hasFile('photos')) {
             'loyer_mensuel'   => ['required', 'numeric', 'min:0'],
             'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'meuble'          => ['nullable', 'boolean'],
-            'statut'          => ['required', 'in:disponible,loue,en_travaux,archive'],
+            'statut'          => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::STATUTS))],
             'description'     => ['nullable', 'string'],
+        ], [
+            'type.required'   => 'Le type de bien est obligatoire.',
+            'type.in'         => 'Le type sélectionné est invalide.',
+            'statut.required' => 'Le statut est obligatoire.',
+            'statut.in'       => 'Le statut sélectionné est invalide.',
         ]);
 
         $validated['meuble'] = $request->boolean('meuble');

@@ -175,12 +175,34 @@ class PaiementController extends Controller
                 ->withErrors(['periode' => 'Un paiement valide existe déjà pour cette période.']);
         }
 
-        // Calcul fiscal via FiscalService (TVA loyer, BRS, commission, nets)
-        $ctx    = FiscalContext::fromContrat($contrat);
-        $result = FiscalService::calculer($ctx);
-
         // Vérifier si c'est le premier paiement du contrat
         $estPremier = Paiement::where('contrat_id', $contrat->id)->count() === 0;
+
+        // ── Prorata temporel (premier paiement en cours de mois) ────────────
+        // Si l'entrée n'est pas le 1er du mois, on proratise loyer + charges + TOM.
+        $dateDebutOccupation = null;
+        $dateFinPeriode      = null;
+
+        if ($estPremier && $contrat->date_debut) {
+            $dateDebut   = Carbon::parse($contrat->date_debut);
+            $periodeDebut = Carbon::parse($validated['periode'])->startOfMonth();
+
+            // Prorata uniquement si l'entrée tombe dans le même mois/année que la période
+            // ET que le locataire n'entre pas le 1er (sinon mois complet).
+            if (
+                $dateDebut->year  === $periodeDebut->year  &&
+                $dateDebut->month === $periodeDebut->month &&
+                $dateDebut->day   > 1
+            ) {
+                $dateDebutOccupation = $dateDebut;
+                $dateFinPeriode      = $periodeDebut->copy()->endOfMonth()->startOfDay();
+            }
+        }
+
+        // Calcul fiscal via FiscalService (TVA loyer, BRS, commission, nets, prorata, frais)
+        // $estPremier active la lecture de frais_agence + caution depuis le contrat
+        $ctx    = FiscalContext::fromContrat($contrat, $dateDebutOccupation, $dateFinPeriode, $estPremier);
+        $result = FiscalService::calculer($ctx);
 
         // Référence paiement unique
         $reference = 'PAY-' . strtoupper(Str::random(8));
@@ -295,21 +317,23 @@ class PaiementController extends Controller
         $result = FiscalService::calculer($ctx);
 
         return response()->json([
-            'loyer_nu'          => $result->loyerHt,
-            'tva_loyer'         => $result->tvaLoyer,
-            'loyer_ttc'         => $result->loyerTtc,
-            'charges'           => $result->chargesAmount,
-            'tom'               => $result->tomAmount,
-            'montant_encaisse'  => $result->montantEncaisse,
-            'taux_comm'         => $ctx->tauxCommission,
-            'comm_ht'           => $result->commissionHt,
-            'tva_comm'          => $result->tvaCommission,
-            'comm_ttc'          => $result->commissionTtc,
-            'net_proprietaire'  => $result->netProprietaire,
-            'brs_amount'        => $result->brsAmount,
-            'net_a_verser'      => $result->netAVerserProprietaire,
-            'regime_fiscal'     => $result->regimeFiscal,
-            'loyer_assujetti'   => $result->loyerAssujetti,
+            'loyer_nu'              => $result->loyerHt,
+            'tva_loyer'             => $result->tvaLoyer,
+            'loyer_ttc'             => $result->loyerTtc,
+            'charges'               => $result->chargesAmount,
+            'tom'                   => $result->tomAmount,
+            'montant_encaisse'      => $result->montantEncaisse,
+            'taux_comm'             => $ctx->tauxCommission,
+            'comm_ht'               => $result->commissionHt,
+            'tva_comm'              => $result->tvaCommission,
+            'comm_ttc'              => $result->commissionTtc,
+            'net_proprietaire'      => $result->netProprietaire,
+            'brs_amount'            => $result->brsAmount,
+            'net_a_verser'          => $result->netAVerserProprietaire,
+            'montant_net_locataire' => $result->netLocataire,
+            'montant_net_bailleur'  => $result->netBailleur,
+            'regime_fiscal'         => $result->regimeFiscal,
+            'loyer_assujetti'       => $result->loyerAssujetti,
         ]);
     }
 

@@ -30,12 +30,17 @@ class FiscalService
 {
     // ─── Constantes fiscales ────────────────────────────────────────────────
 
-    public const TVA_TAUX           = 18.0;   // 18% — CGI art. 357
-    public const TVA_TAUX_DECIMAL   = 0.18;
-    public const BRS_TAUX_LEGAL     = 15.0;   // 15% — CGI art. 196bis
-    public const COMMISSION_TAUX    = 10.0;   // 10% — standard marché SN
-    public const ABATTEMENT_IRPP    = 0.30;   // 30% forfaitaire — CGI art. 58
-    public const CFPB_TAUX          = 0.05;   // ~5% de la valeur locative brute
+    public const TVA_TAUX              = 18.0;   // 18% — CGI art. 357
+    public const TVA_TAUX_DECIMAL     = 0.18;
+    public const BRS_TAUX_LEGAL       = 15.0;   // 15% — CGI art. 196bis
+    public const COMMISSION_TAUX      = 10.0;   // 10% — standard marché SN
+    public const ABATTEMENT_IRPP      = 0.30;   // 30% forfaitaire — CGI art. 58
+    public const CFPB_TAUX            = 0.05;   // ~5% de la valeur locative brute
+
+    // ── Droits d'enregistrement DGID (CGI SN art. 442) ──────────────────────
+    public const DGID_TAUX_HABITATION = 1.0;    // 1% × loyer annuel — bail d'habitation
+    public const DGID_TAUX_COMMERCIAL = 2.0;    // 2% × loyer annuel — bail commercial/mixte
+    public const DGID_TIMBRE_FISCAL   = 2000.0; // Timbre fiscal fixe (FCFA)
 
     // Tranches IRPP progressif (CGI art. 65) — montants en FCFA
     public const IRPP_TRANCHES = [
@@ -71,6 +76,14 @@ class FiscalService
      */
     public static function calculer(FiscalContext $ctx): FiscalResult
     {
+        // ── 0. Prorata temporel ──────────────────────────────────────────────
+        // Coefficient = 1.0 pour un mois complet, < 1.0 pour une entrée en cours de mois.
+        // Loyer, charges et TOM sont tous proratisés sur la même base (jours réels / jours mois).
+        $coeff    = $ctx->coefficientProrata();
+        $loyerNu  = round($ctx->loyerNu       * $coeff, 2);
+        $charges  = round($ctx->chargesAmount * $coeff, 2);
+        $tom      = round($ctx->tomAmount     * $coeff, 2);
+
         // ── 1. TVA loyer ────────────────────────────────────────────────────
         $assujetti = $ctx->tauxTvaLoyerOverride !== null
             ? ($ctx->tauxTvaLoyerOverride > 0)
@@ -78,12 +91,12 @@ class FiscalService
 
         $tauxTvaLoyer = $ctx->tauxTvaLoyerOverride ?? ($assujetti ? self::TVA_TAUX : 0.0);
 
-        $loyerHt  = round($ctx->loyerNu, 2);
+        $loyerHt  = round($loyerNu, 2);
         $tvaLoyer = round($loyerHt * ($tauxTvaLoyer / 100), 2);
         $loyerTtc = round($loyerHt + $tvaLoyer, 2);
 
         // ── 2. Total encaissé ────────────────────────────────────────────────
-        $montantEncaisse = round($loyerTtc + $ctx->chargesAmount + $ctx->tomAmount, 2);
+        $montantEncaisse = round($loyerTtc + $charges + $tom, 2);
 
         // ── 3. Commission agence ────────────────────────────────────────────
         $commissionHt  = round($loyerHt * ($ctx->tauxCommission / 100), 2);
@@ -100,7 +113,7 @@ class FiscalService
 
         if ($brsApplicable) {
             $tauxBrs   = $ctx->tauxBrsContrat ?? $ctx->tauxBrsLocataire ?? self::BRS_TAUX_LEGAL;
-            $brsAmount = round($loyerTtc * ($tauxBrs / 100), 2);
+            $brsAmount = round($loyerHt * ($tauxBrs / 100), 2);
         }
 
         $netAVerser = round($netProprietaire - $brsAmount, 2);
@@ -113,24 +126,74 @@ class FiscalService
             default                      => 'habitation',
         };
 
+        // ── 7. Frais de dossier agence (premier paiement uniquement) ────────
+        // fraisAgenceHt = 0 pour tous les paiements récurrents → calculs neutres
+        $fraisAgenceHt           = round($ctx->fraisAgenceHt, 2);
+        $tvaFraisAgence          = round($fraisAgenceHt * (self::TVA_TAUX / 100), 2);
+        $fraisAgenceTtc          = round($fraisAgenceHt + $tvaFraisAgence, 2);
+        $cautionMontant          = round($ctx->cautionMontant, 2);
+        $totalEncaissementInitial = round($montantEncaisse + $fraisAgenceTtc + $cautionMontant, 2);
+
+        // ── 8. Nets consolidés ───────────────────────────────────────────────
+        // Net locataire : ce que le locataire verse effectivement après retenue BRS.
+        // Le BRS est une retenue à la source → il déduit avant de payer.
+        $netLocataire = round($totalEncaissementInitial - $brsAmount, 2);
+
+        // Net bailleur : dépend de qui détient la caution.
+        //  - false (défaut) : agence remet la caution au bailleur → incluse
+        //  - true           : agence garde la caution en séquestre → exclue
+        $netBailleur = $ctx->cautionGardeeParAgence
+            ? round($netAVerser, 2)
+            : round($netAVerser + $cautionMontant, 2);
+
+        // ── 9. Droits d'enregistrement DGID ─────────────────────────────────
+        // Calculés UNIQUEMENT au premier paiement (avecDgid = true).
+        // Obligation fiscale séparée — ne modifient PAS montant_encaisse ni netLocataire.
+        // Sur tous les paiements récurrents : avecDgid = false → tous à 0.0.
+        $dgidDroits = 0.0;
+        $dgidTimbre = 0.0;
+        $dgidTotal  = 0.0;
+
+        if ($ctx->avecDgid && !$ctx->enregistrementExonere) {
+            $dgidResult = self::calculerDroitsBail(
+                loyerMensuel:       $ctx->loyerMensuelDgid,
+                dureeMois:          $ctx->dureeMoisDgid,
+                tauxPct:            $ctx->tauxEnregistrementDgid ?? self::dgidTauxDefaut($ctx->typeBail),
+                timbreFiscal:       $ctx->timbreFiscalDgid,
+            );
+            $dgidDroits = $dgidResult['droits_enregistrement'];
+            $dgidTimbre = $dgidResult['timbre_fiscal'];
+            $dgidTotal  = $dgidResult['total_dgid'];
+        }
+
         return new FiscalResult(
-            loyerHt:                $loyerHt,
-            tvaLoyer:               $tvaLoyer,
-            loyerTtc:               $loyerTtc,
-            chargesAmount:          (float) $ctx->chargesAmount,
-            tomAmount:              (float) $ctx->tomAmount,
-            montantEncaisse:        $montantEncaisse,
-            commissionHt:           $commissionHt,
-            tvaCommission:          $tvaCommission,
-            commissionTtc:          $commissionTtc,
-            netProprietaire:        $netProprietaire,
-            tauxBrsApplique:        $tauxBrs,
-            brsAmount:              $brsAmount,
-            brsApplicable:          $brsApplicable,
-            netAVerserProprietaire: $netAVerser,
-            loyerAssujetti:         $assujetti,
-            regimeFiscal:           $regime,
-            tauxTvaLoyerApplique:   $tauxTvaLoyer,
+            loyerHt:                  $loyerHt,
+            tvaLoyer:                 $tvaLoyer,
+            loyerTtc:                 $loyerTtc,
+            chargesAmount:            $charges,
+            tomAmount:                $tom,
+            montantEncaisse:          $montantEncaisse,
+            commissionHt:             $commissionHt,
+            tvaCommission:            $tvaCommission,
+            commissionTtc:            $commissionTtc,
+            netProprietaire:          $netProprietaire,
+            tauxBrsApplique:          $tauxBrs,
+            brsAmount:                $brsAmount,
+            brsApplicable:            $brsApplicable,
+            netAVerserProprietaire:   $netAVerser,
+            loyerAssujetti:           $assujetti,
+            regimeFiscal:             $regime,
+            tauxTvaLoyerApplique:     $tauxTvaLoyer,
+            fraisAgenceHt:            $fraisAgenceHt,
+            tvaFraisAgence:           $tvaFraisAgence,
+            fraisAgenceTtc:           $fraisAgenceTtc,
+            cautionMontant:           $cautionMontant,
+            totalEncaissementInitial: $totalEncaissementInitial,
+            netLocataire:                $netLocataire,
+            netBailleur:                 $netBailleur,
+            dgidDroitsEnregistrement:    $dgidDroits,
+            dgidTimbreFiscal:            $dgidTimbre,
+            dgidTotal:                   $dgidTotal,
         );
     }
 
@@ -250,6 +313,67 @@ class FiscalService
             // Snapshot paiements pour le PDF
             'paiements'                 => $paiements,
         ];
+    }
+
+    /**
+     * Calcule les droits d'enregistrement DGID d'un bail (CGI SN art. 442).
+     *
+     * Formule :
+     *   Assiette   = loyerMensuel × dureeMois
+     *   Droits     = Assiette × tauxPct / 100
+     *   Total DGID = Droits + timbreFiscal
+     *
+     * Appelé par : FiscalService::calculer() (étape 9, premier paiement uniquement)
+     *              et directement depuis ContratController pour preview à la création.
+     *
+     * Scénario test :
+     *   loyerMensuel=250 000, dureeMois=12, tauxPct=5%, timbreFiscal=2 000
+     *   → assiette=3 000 000, droits=150 000, total=152 000
+     *
+     * @param  float $loyerMensuel   Loyer nu + charges (assiette mensuelle)
+     * @param  int   $dureeMois      Durée du bail en mois (default : 12)
+     * @param  float $tauxPct        Taux en % (1.0 hab / 2.0 commercial / override contrat)
+     * @param  float $timbreFiscal   Timbre fixe en FCFA (default : DGID_TIMBRE_FISCAL = 2 000)
+     * @return array{base_annuelle: float, taux_enregistrement: float, droits_enregistrement: float, timbre_fiscal: float, total_dgid: float}
+     */
+    public static function calculerDroitsBail(
+        float $loyerMensuel,
+        int   $dureeMois    = 12,
+        float $tauxPct      = self::DGID_TAUX_HABITATION,
+        float $timbreFiscal = self::DGID_TIMBRE_FISCAL,
+    ): array {
+        if ($loyerMensuel < 0 || $dureeMois <= 0 || $tauxPct < 0) {
+            throw new \InvalidArgumentException(
+                "calculerDroitsBail : paramètres invalides (loyerMensuel={$loyerMensuel}, dureeMois={$dureeMois}, tauxPct={$tauxPct})"
+            );
+        }
+
+        $baseAnnuelle = round($loyerMensuel * $dureeMois, 2);
+        $droits       = round($baseAnnuelle * ($tauxPct / 100), 2);
+        $total        = round($droits + $timbreFiscal, 2);
+
+        return [
+            'base_annuelle'          => $baseAnnuelle,
+            'taux_enregistrement'    => $tauxPct,
+            'droits_enregistrement'  => $droits,
+            'timbre_fiscal'          => $timbreFiscal,
+            'total_dgid'             => $total,
+        ];
+    }
+
+    /**
+     * Retourne le taux DGID légal selon le type de bail.
+     *
+     * CGI SN art. 442 :
+     *   Habitation / saisonnier → 1%
+     *   Commercial / mixte      → 2%
+     */
+    private static function dgidTauxDefaut(string $typeBail): float
+    {
+        return match($typeBail) {
+            'commercial', 'mixte' => self::DGID_TAUX_COMMERCIAL,
+            default               => self::DGID_TAUX_HABITATION,
+        };
     }
 
     /**

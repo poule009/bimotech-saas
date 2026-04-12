@@ -268,10 +268,10 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Frais d'agence (FCFA) <span class="opt">(optionnel)</span></label>
+                            <label class="form-label">Frais d'agence HT (FCFA) <span class="opt">(optionnel)</span></label>
                             <input type="number" name="frais_agence"
                                    class="form-input" value="{{ old('frais_agence', 0) }}" min="0" step="500">
-                            <div class="form-hint">Standard : 1 mois de loyer nu</div>
+                            <div class="form-hint">Honoraires HT perçus à la signature · TVA 18% ajoutée auto · Standard : 1 mois de loyer nu</div>
                         </div>
                     </div>
                 </div>
