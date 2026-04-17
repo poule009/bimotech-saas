@@ -56,15 +56,15 @@ class AgencyRegistrationController extends Controller
 
         try {
             $admin = DB::transaction(function () use ($request) {
-                $agency = Agency::create([
-                    'name'      => $request->agency_name,
-                    'email'     => $request->agency_email,
-                    'telephone' => $request->agency_telephone,
-                    'adresse'   => $request->agency_adresse,
-                    'slug'      => Str::slug($request->agency_name) . '-' . Str::random(6),
-                ]);
-
-                $agency->actif = true;
+                // slug et actif ne sont pas dans $fillable (sécurité intentionnelle)
+                // → new + assignation directe + save() pour un seul INSERT complet
+                $agency            = new Agency();
+                $agency->name      = $request->agency_name;
+                $agency->email     = $request->agency_email;
+                $agency->telephone = $request->agency_telephone;
+                $agency->adresse   = $request->agency_adresse;
+                $agency->slug      = Str::slug($request->agency_name) . '-' . Str::random(6);
+                $agency->actif     = true;
                 $agency->save();
 
                 $admin            = new User();

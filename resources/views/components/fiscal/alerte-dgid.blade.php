@@ -8,7 +8,10 @@
     Utilisation :
       <x-fiscal.alerte-dgid :contrat="$contrat" />
 --}}
-@props(['contrat'])
+@props(['contrat' => null])
+
+{{-- Si aucun contrat n'est fourni (locataire sans bail actif, etc.), on n'affiche rien. --}}
+@if($contrat)
 
 @php
     $enregistre   = ! empty($contrat->date_enregistrement_dgid);
@@ -85,3 +88,5 @@
         </div>
     </div>
 @endif
+
+@endif {{-- $contrat --}}

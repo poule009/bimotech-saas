@@ -472,6 +472,17 @@ function chargerInfosBien(select) {
     const nbMois = parseInt(document.getElementById('nombre_mois_caution').value) || 1;
     document.getElementById('caution').value = Math.round(loyer * nbMois);
 
+    // Synchroniser la case TVA loyer selon le type de bail + meublé (CGI SN art. 355)
+    // habitation meublée, commercial, mixte, saisonnier meublé → TVA applicable
+    const typeBailVal = typeBailSelect.value;
+    const tvaCheckbox = document.getElementById('loyer_assujetti_tva');
+    if (tvaCheckbox) {
+        const doitEtreTva = (typeBailVal === 'commercial' || typeBailVal === 'mixte')
+            || (meuble && (typeBailVal === 'habitation' || typeBailVal === 'saisonnier'));
+        tvaCheckbox.checked = doitEtreTva;
+        updateFiscalBadge();
+    }
+
     // Info proprio
     const infoProprio = document.getElementById('info-proprio');
     infoProprio.style.display = 'block';

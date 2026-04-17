@@ -74,8 +74,40 @@ class SubscriptionController extends Controller
 
     public function callbackPaydunya(Request $request): JsonResponse
     {
-        $payload  = $request->all();
-        Log::info('Callback PayDunya reçu', ['payload' => $payload]);
+        // ── Vérification de la signature PayDunya ──────────────────────────
+        // En mode simulation : aucun appel réel, on passe directement.
+        // En test/live : on vérifie le hash IPN pour s'assurer que l'appel
+        // provient bien de PayDunya et non d'un attaquant qui forgerait
+        // un faux callback pour activer un abonnement sans payer.
+        //
+        // PayDunya inclut dans le corps IPN un champ `data.hash` qui est
+        // le SHA-512 (majuscules) de la master_key. On compare avec
+        // hash_equals() pour éviter les timing attacks.
+        $mode = config('services.paydunya.mode', 'simulation');
+
+        if ($mode !== 'simulation') {
+            $ipnHash   = $request->input('data.hash', '');
+            $masterKey = config('services.paydunya.master_key', '');
+            $expected  = strtoupper(hash('sha512', $masterKey));
+
+            if (empty($masterKey) || ! hash_equals($expected, strtoupper($ipnHash))) {
+                Log::warning('Webhook PayDunya IPN — hash invalide ou master_key manquante', [
+                    'ip'      => $request->ip(),
+                    'mode'    => $mode,
+                    'recu'    => strtoupper($ipnHash),
+                    'attendu' => $expected,
+                ]);
+
+                return response()->json(['success' => false, 'message' => 'Hash invalide'], 403);
+            }
+        }
+
+        $payload = $request->all();
+        Log::info('Callback PayDunya reçu et vérifié', [
+            'mode'       => $mode,
+            'ip'         => $request->ip(),
+            'invoice_id' => $request->input('invoice.invoice_id'),
+        ]);
 
         $resultat = $this->paymentService->traiterCallbackIPN($payload);
 

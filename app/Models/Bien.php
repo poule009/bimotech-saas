@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BienStatut;
 use App\Models\Concerns\HasAgencyScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,6 +53,8 @@ class Bien extends Model
         'taux_commission' => 'decimal:2',
         'meuble'          => 'boolean',
         'deleted_at'      => 'datetime',
+        // Note : pas de cast Enum — $bien->statut reste une string en Blade.
+        // Utiliser BienStatut::from($bien->statut) dans le code PHP si l'enum est nécessaire.
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────
@@ -101,7 +104,8 @@ class Bien extends Model
 
     public function getEstLoueAttribute(): bool
     {
-        return $this->statut === 'loue';
+        // $this->statut est une string — BienStatut::Loue->value donne 'loue'.
+        return $this->statut === BienStatut::Loue->value;
     }
 
     public function getTypeLabelAttribute(): string
@@ -111,6 +115,9 @@ class Bien extends Model
 
     public function getStatutLabelAttribute(): string
     {
-        return self::STATUTS[$this->statut] ?? ucfirst($this->statut ?? '');
+        // tryFrom() : si la valeur est reconnue, on utilise le label de l'enum.
+        // Sinon fallback sur le tableau STATUTS ou ucfirst.
+        $enum = BienStatut::tryFrom($this->statut ?? '');
+        return $enum ? $enum->label() : (self::STATUTS[$this->statut] ?? ucfirst($this->statut ?? ''));
     }
 }

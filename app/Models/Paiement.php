@@ -224,6 +224,17 @@ class Paiement extends Model
     // ── Accesseurs ────────────────────────────────────────────────────────────
 
     /**
+     * Mois concerné au format Y-m (ex: "2025-06"), calculé depuis le champ `periode`.
+     * Utilisé par QuittanceService pour remplir quittances.mois_concerne.
+     */
+    public function getMoisConcerneAttribute(): string
+    {
+        return $this->periode
+            ? \Carbon\Carbon::instance($this->periode)->format('Y-m')
+            : '';
+    }
+
+    /**
      * Label lisible du mode de paiement.
      */
     public function getModePaiementLabelAttribute(): string

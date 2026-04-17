@@ -192,13 +192,65 @@ class ContratCrudTest extends TestCase
         ]);
 
         // Tentative d'un second contrat sur le même bien
-        $payload                = $this->payloadContratValide($admin);
-        $payload['bien_id']     = $bien->id;
+        $payload                 = $this->payloadContratValide($admin);
+        $payload['bien_id']      = $bien->id;
         $payload['locataire_id'] = $this->locataire($admin)->id;
 
         $this->actingAs($admin)
              ->post(route('admin.contrats.store'), $payload)
              ->assertSessionHasErrors('bien_id');
+    }
+
+    #[Test]
+    public function impossible_de_creer_un_second_contrat_actif_pour_le_meme_locataire()
+    {
+        $admin     = $this->adminAvecAgence();
+        $locataire = $this->locataire($admin);
+
+        // Premier contrat actif pour ce locataire (sur un premier bien)
+        $premierBien = $this->bienDisponible($admin);
+        Contrat::factory()->create([
+            'agency_id'    => $admin->agency_id,
+            'bien_id'      => $premierBien->id,
+            'locataire_id' => $locataire->id,
+            'statut'       => 'actif',
+        ]);
+
+        // Tentative d'un second contrat actif pour le même locataire (sur un autre bien)
+        $payload                 = $this->payloadContratValide($admin);
+        $payload['locataire_id'] = $locataire->id;
+
+        $this->actingAs($admin)
+             ->post(route('admin.contrats.store'), $payload)
+             ->assertSessionHasErrors('locataire_id');
+    }
+
+    #[Test]
+    public function locataire_avec_contrat_resilie_peut_obtenir_un_nouveau_contrat()
+    {
+        $admin     = $this->adminAvecAgence();
+        $locataire = $this->locataire($admin);
+
+        // Ancien contrat résilié — ne doit pas bloquer
+        $ancienBien = $this->bienDisponible($admin);
+        Contrat::factory()->create([
+            'agency_id'    => $admin->agency_id,
+            'bien_id'      => $ancienBien->id,
+            'locataire_id' => $locataire->id,
+            'statut'       => 'resilie',
+        ]);
+
+        $payload                 = $this->payloadContratValide($admin);
+        $payload['locataire_id'] = $locataire->id;
+
+        $this->actingAs($admin)
+             ->post(route('admin.contrats.store'), $payload)
+             ->assertRedirect();
+
+        $this->assertDatabaseHas('contrats', [
+            'locataire_id' => $locataire->id,
+            'statut'       => 'actif',
+        ]);
     }
 
     #[Test]
@@ -288,8 +340,8 @@ class ContratCrudTest extends TestCase
 
         $this->actingAs($admin)
              ->put(route('admin.contrats.update', $contrat), [
-                 'loyer_contractuel'   => 999999,
-                 'caution'             => 0,
+                 'loyer_nu'            => 999999,
+                 'caution'             => 80000,
                  'type_bail'           => 'habitation',
              ])
              ->assertSessionHasErrors('general');

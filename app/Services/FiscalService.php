@@ -362,6 +362,24 @@ class FiscalService
     }
 
     /**
+     * Estimation rapide du droit de bail DGID (sans timbre fiscal).
+     *
+     * Utilisée dans les alertes et aperçus (alerte-dgid.blade.php, etc.)
+     * pour donner un ordre de grandeur sans charger la DB.
+     *
+     * Formule : loyer_mensuel × 12 × taux (1% hab / 2% commercial)
+     *
+     * @param  float  $loyerMensuel  Loyer nu mensuel (FCFA)
+     * @param  string $typeBail      habitation | commercial | mixte | saisonnier
+     * @return float                 Droit estimé en FCFA (hors timbre)
+     */
+    public static function droitDeBailEstime(float $loyerMensuel, string $typeBail): float
+    {
+        $taux = self::dgidTauxDefaut($typeBail);
+        return round($loyerMensuel * 12 * ($taux / 100), 2);
+    }
+
+    /**
      * Retourne le taux DGID légal selon le type de bail.
      *
      * CGI SN art. 442 :

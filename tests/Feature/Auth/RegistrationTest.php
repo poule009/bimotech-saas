@@ -5,27 +5,27 @@ namespace Tests\Feature\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * L'inscription individuelle est désactivée (SaaS multi-agences).
+ * Les agences s'inscrivent via /register/agency.
+ * Ces tests vérifient que /register retourne bien 404.
+ */
 class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_registration_screen_can_be_rendered(): void
+    public function test_registration_screen_returns_404(): void
     {
-        $response = $this->get('/register');
-
-        $response->assertStatus(200);
+        $this->get('/register')->assertNotFound();
     }
 
-    public function test_new_users_can_register(): void
+    public function test_registration_post_returns_404(): void
     {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
+        $this->post('/register', [
+            'name'                  => 'Test User',
+            'email'                 => 'test@example.com',
+            'password'              => 'password',
             'password_confirmation' => 'password',
-        ]);
-
-        $this->assertAuthenticated();
-       $response->assertRedirect(route('redirect.home'));
+        ])->assertNotFound();
     }
 }

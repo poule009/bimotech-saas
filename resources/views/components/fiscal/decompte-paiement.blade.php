@@ -277,10 +277,10 @@
         <td>{{ $fmt($netLocataire) }} F</td>
     </tr>
 
-    {{-- Net bailleur : ce que l'agence reverse au bailleur --}}
+    {{-- Sous-total bailleur (avant déduction des dépenses) --}}
     <tr class="fd-row-bailleur">
         <td>
-            MONTANT À REVERSER AU BAILLEUR
+            SOUS-TOTAL BAILLEUR{{ $depensesPresente ? ' (avant déductions)' : '' }}
             @if($caution > 0)
                 <div style="font-size:11px;font-weight:400;color:#16a34a;opacity:.75;margin-top:2px">
                     Dont caution {{ $fmt($caution) }} F (dépôt de garantie)
@@ -288,6 +288,52 @@
             @endif
         </td>
         <td>{{ $fmt($netBailleur) }} F</td>
+    </tr>
+
+    {{-- ── DÉPENSES & TRAVAUX ─────────────────────────── --}}
+    {{-- Frais engagés par l'agence pour le compte du propriétaire.  --}}
+    {{-- N'impactent JAMAIS le montant payé par le locataire.        --}}
+    @if($depensesPresente)
+    <tr class="fd-group-header">
+        <td colspan="2">
+            Dépenses & Travaux
+            <span class="fd-badge fd-badge-red">Déduites sur reversement bailleur</span>
+        </td>
+    </tr>
+
+    @foreach($depenses as $depense)
+    <tr class="fd-row-depense">
+        <td>
+            {{ $depense->libelle }}
+            <div style="font-size:11px;color:#f87171;opacity:.8;margin-top:2px">
+                {{ \App\Models\DepenseGestion::CATEGORIES[$depense->categorie] ?? $depense->categorie }}
+                @if($depense->prestataire)
+                    · {{ $depense->prestataire }}
+                @endif
+                · {{ \Carbon\Carbon::parse($depense->date_depense)->format('d/m/Y') }}
+            </div>
+        </td>
+        <td>- {{ $fmt((float) $depense->montant) }} F</td>
+    </tr>
+    @endforeach
+
+    <tr class="fd-row-depense-total">
+        <td>Total déductions tiers</td>
+        <td>- {{ $fmt($totalDepenses) }} F</td>
+    </tr>
+    @endif
+
+    {{-- Net final bailleur : sous-total − dépenses --}}
+    <tr class="fd-row-net-final">
+        <td>
+            NET FINAL À REVERSER AU BAILLEUR
+            @if($depensesPresente)
+                <div style="font-size:11px;font-weight:400;color:rgba(255,255,255,.5);margin-top:2px">
+                    {{ $fmt($netBailleur) }} F − {{ $fmt($totalDepenses) }} F déductions
+                </div>
+            @endif
+        </td>
+        <td>{{ $fmt($netFinalBailleur) }} F</td>
     </tr>
 
 </table>

@@ -30,28 +30,27 @@ return new class extends Migration
         // ── Snapshot DGID sur le premier paiement ────────────────────────────
         Schema::table('paiements', function (Blueprint $table) {
             $table->decimal('dgid_droits_enregistrement', 12, 2)
-                  ->default(0)
-                  ->after('montant_net_bailleur')
-                  ->comment('Droits d\'enregistrement = assiette × taux% (non nul uniquement premier paiement)');
+                ->default(0)
+                ->after('montant_net_bailleur')
+                ->comment('Droits d\'enregistrement = assiette × taux% (non nul uniquement premier paiement)');
 
             $table->decimal('dgid_timbre_fiscal', 12, 2)
-                  ->default(0)
-                  ->after('dgid_droits_enregistrement')
-                  ->comment('Timbre fiscal fixe (défaut 2 000 FCFA — CGI SN)');
+                ->default(0)
+                ->after('dgid_droits_enregistrement')
+                ->comment('Timbre fiscal fixe (défaut 2 000 FCFA — CGI SN)');
 
             $table->decimal('dgid_total', 12, 2)
-                  ->default(0)
-                  ->after('dgid_timbre_fiscal')
-                  ->comment('Total DGID = droits_enregistrement + timbre_fiscal');
+                ->default(0)
+                ->after('dgid_timbre_fiscal')
+                ->comment('Total DGID = droits_enregistrement + timbre_fiscal');
         });
 
         // ── Taux d'enregistrement override sur le contrat ────────────────────
         // null → FiscalService applique le taux légal (1% habitation, 2% commercial)
         Schema::table('contrats', function (Blueprint $table) {
             $table->decimal('taux_enregistrement_dgid', 5, 2)
-                  ->nullable()
-                  ->after('enregistrement_exonere')
-                  ->comment('Override taux enregistrement DGID en %. null = légal (1% hab / 2% commercial)');
+                ->nullable()
+                ->comment('Override taux enregistrement DGID en %. null = légal (1% hab / 2% commercial)');
         });
     }
 

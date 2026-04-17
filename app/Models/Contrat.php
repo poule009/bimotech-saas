@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ContratStatut;
 use App\Models\Scopes\AgencyScope;
 use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -94,6 +95,7 @@ class Contrat extends Model
         'enregistrement_exonere'       => 'boolean',
         'caution_gardee_par_agence'    => 'boolean',
         'taux_enregistrement_dgid'     => 'decimal:2',
+        // Note : pas de cast Enum — $contrat->statut reste une string en Blade.
     ];
 
     // ── Global Scope + hooks ───────────────────────────────────────────────────

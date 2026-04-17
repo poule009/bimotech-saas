@@ -43,7 +43,8 @@ class PaiementController extends Controller
         $query = Paiement::where('agency_id', $agencyId)
             ->with([
                 'contrat:id,bien_id,locataire_id,reference_bail',
-                'contrat.bien:id,reference,adresse,ville',
+                'contrat.bien:id,reference,adresse,ville,proprietaire_id',
+                'contrat.bien.proprietaire:id,name',
                 'contrat.locataire:id,name',
             ])
             ->select([

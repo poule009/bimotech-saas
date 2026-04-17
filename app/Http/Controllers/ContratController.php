@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BienStatut;
+use App\Enums\ContratStatut;
+use App\Enums\UserRole;
+use App\Http\Requests\StoreContratRequest;
+use App\Http\Requests\UpdateContratRequest;
 use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\User;
@@ -106,59 +111,10 @@ class ContratController extends Controller
     // ENREGISTREMENT
     // ─────────────────────────────────────────────────────────────────────
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreContratRequest $request): RedirectResponse
     {
-        $this->authorize('create', Contrat::class);
-
-        $agencyId = Auth::user()->agency_id;
-
-        $validated = $request->validate([
-            'bien_id' => [
-                'required',
-                'exists:biens,id',
-                function ($attr, $value, $fail) use ($agencyId) {
-                    $bien = Bien::withoutGlobalScopes()->find($value);
-                    if (! $bien || $bien->agency_id !== $agencyId) {
-                        $fail('Ce bien n\'appartient pas à votre agence.');
-                    }
-                },
-            ],
-            'locataire_id' => [
-                'required',
-                'exists:users,id',
-                function ($attr, $value, $fail) use ($agencyId) {
-                    $loc = User::find($value);
-                    if (! $loc || $loc->agency_id !== $agencyId || $loc->role !== 'locataire') {
-                        $fail('Ce locataire n\'appartient pas à votre agence.');
-                    }
-                },
-            ],
-            'date_debut'          => ['required', 'date'],
-            'date_fin'            => ['nullable', 'date', 'after:date_debut'],
-            'loyer_nu'            => ['required', 'numeric', 'min:1'],
-            'charges_mensuelles'  => ['nullable', 'numeric', 'min:0'],
-            'tom_amount'          => ['nullable', 'numeric', 'min:0'],
-            'caution'             => ['required', 'numeric', 'min:0'],
-            'type_bail'           => ['required', 'in:habitation,commercial,mixte,saisonnier'],
-            'frais_agence'        => ['nullable', 'numeric', 'min:0'],
-            'indexation_annuelle' => ['nullable', 'numeric', 'min:0', 'max:20'],
-            'nombre_mois_caution' => ['nullable', 'integer', 'min:1', 'max:6'],
-            'garant_nom'          => ['nullable', 'string', 'max:150'],
-            'garant_telephone'    => ['nullable', 'string', 'max:20'],
-            'garant_adresse'      => ['nullable', 'string', 'max:255'],
-            'reference_bail'      => ['nullable', 'string', 'max:60'],
-            'observations'        => ['nullable', 'string', 'max:1000'],
-            // ── Fiscal ────────────────────────────────────────────────────
-            'loyer_assujetti_tva'      => ['nullable', 'boolean'],
-            'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],
-            'brs_applicable'           => ['nullable', 'boolean'],
-            'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],
-            // ── DGID ──────────────────────────────────────────────────────
-            'date_enregistrement_dgid' => ['nullable', 'date'],
-            'numero_quittance_dgid'    => ['nullable', 'string', 'max:60'],
-            'montant_droit_de_bail'    => ['nullable', 'numeric', 'min:0'],
-            'enregistrement_exonere'   => ['nullable', 'boolean'],
-        ]);
+        // authorize() et rules() sont gérés par StoreContratRequest.
+        $validated = $request->validated();
 
         if (Contrat::where('bien_id', $validated['bien_id'])->where('statut', 'actif')->exists()) {
             return back()->withInput()->withErrors(['bien_id' => 'Ce bien a déjà un contrat actif.']);
@@ -303,53 +259,14 @@ class ContratController extends Controller
     // MISE À JOUR
     // ─────────────────────────────────────────────────────────────────────
 
-    public function update(Request $request, Contrat $contrat): RedirectResponse
+    public function update(UpdateContratRequest $request, Contrat $contrat): RedirectResponse
     {
-        $this->authorize('update', $contrat);
-
-        if ($contrat->statut !== 'actif') {
+        // authorize() et rules() sont gérés par UpdateContratRequest.
+        if ($contrat->statut !== ContratStatut::Actif->value) {
             return back()->withErrors(['general' => 'Seul un contrat actif peut être modifié.']);
         }
 
-        $agencyId = Auth::user()->agency_id;
-
-        $validated = $request->validate([
-            'date_fin'            => ['nullable', 'date', 'after:date_debut'],
-            'loyer_nu'            => ['required', 'numeric', 'min:1'],
-            'charges_mensuelles'  => ['nullable', 'numeric', 'min:0'],
-            'tom_amount'          => ['nullable', 'numeric', 'min:0'],
-            'caution'             => ['required', 'numeric', 'min:0'],
-            'type_bail'           => ['required', 'in:habitation,commercial,mixte,saisonnier'],
-            'frais_agence'        => ['nullable', 'numeric', 'min:0'],
-            'indexation_annuelle' => ['nullable', 'numeric', 'min:0', 'max:20'],
-            'nombre_mois_caution' => ['nullable', 'integer', 'min:1', 'max:6'],
-            'garant_nom'          => ['nullable', 'string', 'max:150'],
-            'garant_telephone'    => ['nullable', 'string', 'max:20'],
-            'garant_adresse'      => ['nullable', 'string', 'max:255'],
-            'reference_bail'      => ['nullable', 'string', 'max:60'],
-            'observations'        => ['nullable', 'string', 'max:1000'],
-            'locataire_id'        => [
-                'nullable',
-                'exists:users,id',
-                function ($attr, $value, $fail) use ($agencyId) {
-                    if (empty($value)) return;
-                    $loc = User::find($value);
-                    if (! $loc || $loc->agency_id !== $agencyId || $loc->role !== 'locataire') {
-                        $fail('Ce locataire n\'appartient pas à votre agence.');
-                    }
-                },
-            ],
-            // ── Fiscal ────────────────────────────────────────────────────
-            'loyer_assujetti_tva'      => ['nullable', 'boolean'],
-            'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],
-            'brs_applicable'           => ['nullable', 'boolean'],
-            'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],
-            // ── DGID ──────────────────────────────────────────────────────
-            'date_enregistrement_dgid' => ['nullable', 'date'],
-            'numero_quittance_dgid'    => ['nullable', 'string', 'max:60'],
-            'montant_droit_de_bail'    => ['nullable', 'numeric', 'min:0'],
-            'enregistrement_exonere'   => ['nullable', 'boolean'],
-        ]);
+        $validated = $request->validated();
 
         $loyerNu           = (float) $validated['loyer_nu'];
         $chargesMensuelles = (float) ($validated['charges_mensuelles'] ?? 0);
@@ -402,14 +319,14 @@ class ContratController extends Controller
 
     public function destroy(Contrat $contrat): RedirectResponse
     {
-        $this->authorize('delete', $contrat);
+        $this->authorize('resilier', $contrat);
 
-        if ($contrat->statut !== 'actif') {
+        if ($contrat->statut !== ContratStatut::Actif->value) {
             return back()->withErrors(['general' => 'Ce contrat n\'est pas actif.']);
         }
 
-        $contrat->update(['statut' => 'resilié']);
-        $contrat->bien->update(['statut' => 'disponible']);
+        $contrat->update(['statut' => ContratStatut::Resilie->value]);
+        $contrat->bien->update(['statut' => BienStatut::Disponible->value]);
 
         return redirect()
             ->route('admin.contrats.index')
@@ -436,7 +353,7 @@ class ContratController extends Controller
         $user->email             = $validated['email'];
         $user->telephone         = $validated['telephone'] ?? null;
         $user->password          = Hash::make($validated['password']);
-        $user->role              = 'locataire';
+        $user->role              = UserRole::Locataire->value;
         $user->agency_id         = Auth::user()->agency_id;
         $user->email_verified_at = now();
         $user->save();

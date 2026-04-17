@@ -17,7 +17,7 @@ class BienFactory extends Factory
             'agency_id'        => $agencyId,
             'proprietaire_id'  => $proprietaire->id,
             'reference'       => 'BIEN-TEST-' . fake()->unique()->numerify('###'),
-            'type'            => fake()->randomElement(['Appartement', 'Villa', 'Studio', 'Bureau']),
+            'type'            => fake()->randomElement(['appartement', 'villa', 'studio', 'bureau']),
             'adresse'         => fake()->streetAddress(),
             'ville'           => 'Dakar',
             'surface_m2'      => fake()->numberBetween(30, 200),

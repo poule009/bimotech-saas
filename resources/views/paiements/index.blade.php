@@ -146,6 +146,16 @@
                             <div style="font-size:11px;color:#6b7280">
                                 {{ $p->contrat?->locataire?->name ?? '—' }}
                             </div>
+                            @php $proprio = $p->contrat?->bien?->proprietaire; @endphp
+                            @if($proprio)
+                            <div style="font-size:10px;margin-top:2px">
+                                <a href="{{ route('admin.bailleurs.show', $proprio->id) }}"
+                                   style="color:#c9a84c;text-decoration:none;font-weight:500"
+                                   title="Voir le portefeuille de {{ $proprio->name }}">
+                                    ↗ {{ $proprio->name }}
+                                </a>
+                            </div>
+                            @endif
                         </td>
                         <td>
                             <span style="display:inline-flex;padding:3px 9px;background:#f5e9c9;color:#8a6e2f;border-radius:99px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif">

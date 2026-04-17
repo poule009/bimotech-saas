@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Proprietaire extends Model
 {
@@ -20,24 +23,59 @@ class Proprietaire extends Model
 
     // ── Relations ────────────────────────────────────────────────────────────
 
-    // Appartient à un User (auth)
-    public function user()
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Ses biens immobiliers
-    public function biens()
+    /** Biens appartenant à ce propriétaire (filtrés par agence via HasAgencyScope). */
+    public function biens(): HasMany
     {
         return $this->hasMany(Bien::class, 'proprietaire_id', 'user_id');
     }
 
-    // Ses contrats actifs (via ses biens)
+    /**
+     * Contrats en cours via les biens (HasManyThrough).
+     * Chemin : Proprietaire.user_id → Bien.proprietaire_id → Contrat.bien_id
+     */
+    public function contrats(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Contrat::class,    // Modèle final
+            Bien::class,       // Modèle intermédiaire
+            'proprietaire_id', // FK sur Bien → Proprietaire.user_id
+            'bien_id',         // FK sur Contrat → Bien.id
+            'user_id',         // Clé locale sur Proprietaire
+            'id'               // Clé locale sur Bien
+        );
+    }
+
+    /**
+     * Contrats actifs (résultat en collection, usage hors Eloquent).
+     */
     public function contratsActifs()
     {
         return Contrat::whereIn('bien_id', $this->biens()->pluck('id'))
             ->where('statut', 'actif')
             ->get();
+    }
+
+    /**
+     * Builder de paiements isolé par agence — point d'entrée du BailleurController.
+     *
+     * Sécurité : double filtre agency_id + proprietaire_id.
+     * Les dépenses de gestion sont eager-loadées pour l'accesseur net_final_bailleur.
+     *
+     * @param  int $agencyId  agency_id de l'utilisateur connecté
+     * @return Builder        prêt pour ->get(), ->paginate(), ->sum()…
+     */
+    public function paiementsQuery(int $agencyId): Builder
+    {
+        $bienIds    = $this->biens()->pluck('biens.id');
+        $contratIds = Contrat::whereIn('bien_id', $bienIds)->pluck('id');
+
+        return Paiement::where('agency_id', $agencyId)
+                       ->whereIn('contrat_id', $contratIds);
     }
 
     // ── Accesseurs ───────────────────────────────────────────────────────────

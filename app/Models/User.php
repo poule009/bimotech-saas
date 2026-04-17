@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -45,6 +46,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
+        // Note : pas de cast Enum ici — $user->role reste une string en Blade.
+        // Utiliser UserRole::from($user->role) dans le code PHP si l'enum est nécessaire.
     ];
 
     // ── Hook de création ──────────────────────────────────────────────────
@@ -91,20 +94,22 @@ class User extends Authenticatable
     }
 
     // ── Helpers rôles ─────────────────────────────────────────────────────
+    // ->value extrait la string de l'enum → compatible avec la colonne DB string.
+    // Avantage : l'IDE autocompète UserRole::Admin, impossible de faire une faute.
 
-    public function isSuperAdmin(): bool   { return $this->role === 'superadmin'; }
-    public function isAdmin(): bool        { return $this->role === 'admin'; }
-    public function isProprietaire(): bool { return $this->role === 'proprietaire'; }
-    public function isLocataire(): bool    { return $this->role === 'locataire'; }
+    public function isSuperAdmin(): bool   { return $this->role === UserRole::SuperAdmin->value; }
+    public function isAdmin(): bool        { return $this->role === UserRole::Admin->value; }
+    public function isProprietaire(): bool { return $this->role === UserRole::Proprietaire->value; }
+    public function isLocataire(): bool    { return $this->role === UserRole::Locataire->value; }
 
     // ── Profil selon le rôle ──────────────────────────────────────────────
 
     public function profil(): Proprietaire|Locataire|null
     {
         return match ($this->role) {
-            'proprietaire' => $this->proprietaire,
-            'locataire'    => $this->locataire,
-            default        => null,
+            UserRole::Proprietaire->value => $this->proprietaire,
+            UserRole::Locataire->value    => $this->locataire,
+            default                       => null,
         };
     }
 }

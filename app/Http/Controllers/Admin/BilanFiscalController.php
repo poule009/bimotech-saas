@@ -36,12 +36,15 @@ class BilanFiscalController extends Controller
         $agencyId = $user->agency_id;
         $annee    = (int) $request->input('annee', now()->year);
 
-        // Propriétaires de l'agence
+        // Propriétaires de l'agence — paginés pour éviter de charger des milliers
+        // de lignes en mémoire sur des agences avec un grand portefeuille.
+        // La vue doit appeler {{ $proprietaires->appends(request()->query())->links() }}
+        // pour conserver le filtre 'annee' dans les liens de pagination.
         $proprietaires = User::where('agency_id', $agencyId)
             ->where('role', 'proprietaire')
             ->select(['id', 'name', 'email', 'telephone'])
             ->orderBy('name')
-            ->get();
+            ->paginate(30);
 
         // Bilans existants pour cette année
         $bilans = BilanFiscalProprietaire::where('agency_id', $agencyId)
@@ -70,7 +73,17 @@ class BilanFiscalController extends Controller
         $this->authorize('isAdmin');
 
         $agencyId = Auth::user()->agency_id;
-        $annee    = (int) $request->input('annee', now()->year);
+
+        // Vérification IDOR : le route model binding injecte n'importe quel User.
+        // Sans ce contrôle, un admin d'une agence A pourrait déclencher le calcul
+        // fiscal d'un propriétaire appartenant à une agence B.
+        abort_if(
+            $proprietaire->agency_id !== $agencyId || $proprietaire->role !== 'proprietaire',
+            403,
+            'Ce propriétaire n\'appartient pas à votre agence.'
+        );
+
+        $annee = (int) $request->input('annee', now()->year);
 
         $data = FiscalService::calculerBilanAnnuel($proprietaire->id, $annee, $agencyId);
 
@@ -97,7 +110,15 @@ class BilanFiscalController extends Controller
         $this->authorize('isAdmin');
 
         $agencyId = Auth::user()->agency_id;
-        $annee    = (int) $request->input('annee', now()->year);
+
+        // Vérification IDOR identique à calculate()
+        abort_if(
+            $proprietaire->agency_id !== $agencyId || $proprietaire->role !== 'proprietaire',
+            403,
+            'Ce propriétaire n\'appartient pas à votre agence.'
+        );
+
+        $annee = (int) $request->input('annee', now()->year);
 
         $bilan = BilanFiscalProprietaire::where('agency_id', $agencyId)
             ->where('proprietaire_id', $proprietaire->id)
@@ -151,7 +172,15 @@ class BilanFiscalController extends Controller
         $this->authorize('isAdmin');
 
         $agencyId = Auth::user()->agency_id;
-        $annee    = (int) $request->input('annee', now()->year);
+
+        // Vérification IDOR identique à calculate() et show()
+        abort_if(
+            $proprietaire->agency_id !== $agencyId || $proprietaire->role !== 'proprietaire',
+            403,
+            'Ce propriétaire n\'appartient pas à votre agence.'
+        );
+
+        $annee = (int) $request->input('annee', now()->year);
 
         $bilan = BilanFiscalProprietaire::where('agency_id', $agencyId)
             ->where('proprietaire_id', $proprietaire->id)

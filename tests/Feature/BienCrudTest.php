@@ -49,7 +49,7 @@ class BienCrudTest extends TestCase
     {
         return [
             'proprietaire_id' => $this->proprietaire($admin)->id,
-            'type'            => 'Appartement',
+            'type'            => 'appartement',
             'adresse'         => '25 Rue de Thiong',
             'ville'           => 'Dakar',
             'quartier'        => 'Plateau',
@@ -89,7 +89,7 @@ class BienCrudTest extends TestCase
 
         $this->assertDatabaseHas('biens', [
             'agency_id'  => $admin->agency_id,
-            'type'       => 'Appartement',
+            'type'       => 'appartement',
             'adresse'    => '25 Rue de Thiong',
             'ville'      => 'Dakar',
             'quartier'   => 'Plateau',

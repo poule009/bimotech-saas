@@ -126,6 +126,10 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     $netLocataire = (float) ($paiement->montant_net_locataire ?? ($totalInitial - $brs));
     $netBailleur  = (float) ($paiement->montant_net_bailleur  ?? $netAVerser);
 
+    // Proratisation réelle : loyer_ht < loyer_nu du contrat (coeff < 1)
+    $loyerNuContrat = (float) ($contrat?->loyer_nu ?? $loyerHt);
+    $estProratise   = $loyerNuContrat > 0 && $loyerHt < $loyerNuContrat;
+
     $periode      = \Carbon\Carbon::parse($paiement->periode);
     $datePaiement = $paiement->date_paiement
         ? \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y')
@@ -203,12 +207,12 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
                 — {{ $bien?->reference }}
                 @if($bien?->meuble) (Meublé) @endif
             </div>
-            <div class="bien-adresse">
-                {{ $bien?->adresse }}
-                @if($bien?->quartier), {{ $bien->quartier }} @endif
-                @if($bien?->commune), {{ $bien->commune }} @endif
-                — {{ $bien?->ville }}
-            </div>
+            <div class="bien-adresse">{{ implode('', array_filter([
+                $bien?->adresse,
+                $bien?->quartier ? ', '.$bien->quartier : null,
+                $bien?->commune  ? ', '.$bien->commune  : null,
+                $bien?->ville    ? ' — '.$bien->ville   : null,
+            ])) }}</div>
         </div>
         <div class="bien-right">
             <div class="loyer-label">Loyer mensuel</div>
@@ -229,7 +233,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
         </thead>
         <tbody>
             <tr>
-                <td>Loyer {{ $tvaLoyer > 0 ? 'HT' : 'nu' }}{{ $paiement->est_premier_paiement ? ' (proratisé)' : '' }}</td>
+                <td>Loyer {{ $tvaLoyer > 0 ? 'HT' : 'nu' }}{{ $estProratise ? ' (proratisé)' : '' }}</td>
                 <td class="right">{{ number_format($loyerHt, 0, ',', ' ') }}</td>
                 <td class="right label">Base de calcul commission</td>
             </tr>
@@ -347,6 +351,16 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             <tr style="background:#fff1f2">
                 <td colspan="2" style="color:#9f1239">BRS — Retenue à la source ({{ $tauxBrs }}% × loyer HT — art. 196bis CGI SN)</td>
                 <td class="right" style="color:#dc2626;font-weight:700">- {{ number_format($brs, 0, ',', ' ') }} FCFA</td>
+            </tr>
+            @endif
+            @if($caution > 0)
+            <tr>
+                <td colspan="2" style="color:#6b7280;font-size:9px">Net loyer (hors caution)</td>
+                <td class="right" style="color:#6b7280">{{ number_format($netAVerser, 0, ',', ' ') }} FCFA</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="color:#6b7280;font-size:9px">+ Caution restituable au bailleur</td>
+                <td class="right" style="color:#6b7280">{{ number_format($caution, 0, ',', ' ') }} FCFA</td>
             </tr>
             @endif
             <tr class="net-row">

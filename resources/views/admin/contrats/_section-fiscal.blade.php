@@ -11,12 +11,12 @@
 
 @php
     // Valeurs par défaut pour create (contrat null) vs edit
-    $typeBail     = old('type_bail', $contrat->type_bail ?? 'habitation');
-    $estMeuble    = old('meuble_bien', $contrat->bien->meuble ?? false);
+    $typeBail     = old('type_bail', $contrat?->type_bail ?? 'habitation');
+    $estMeuble    = old('meuble_bien', $contrat?->bien?->meuble ?? false);
     $loyerAssujetti = \App\Services\FiscalService::loyerEstAssujetti($typeBail, (bool) $estMeuble);
-    $brsApplicable = old('brs_applicable', $contrat->brs_applicable ?? false);
-    $tauxBrsManuel = old('taux_brs_manuel', $contrat->taux_brs_manuel ?? null);
-    $tvaLoyerOverride = old('taux_tva_loyer', $contrat->taux_tva_loyer ?? 18.0);
+    $brsApplicable = old('brs_applicable', $contrat?->brs_applicable ?? false);
+    $tauxBrsManuel = old('taux_brs_manuel', $contrat?->taux_brs_manuel ?? null);
+    $tvaLoyerOverride = old('taux_tva_loyer', $contrat?->taux_tva_loyer ?? 18.0);
 @endphp
 
 {{-- ─── SECTION : Paramètres fiscaux ─────────────────────────────────────── --}}
@@ -131,7 +131,7 @@
                 Date d'enregistrement
             </label>
             <input type="date" name="date_enregistrement_dgid"
-                   value="{{ old('date_enregistrement_dgid', $contrat->date_enregistrement_dgid?->format('Y-m-d') ?? '') }}"
+                   value="{{ old('date_enregistrement_dgid', $contrat?->date_enregistrement_dgid?->format('Y-m-d') ?? '') }}"
                    style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
         </div>
         <div>
@@ -139,7 +139,7 @@
                 N° quittance DGID
             </label>
             <input type="text" name="numero_quittance_dgid"
-                   value="{{ old('numero_quittance_dgid', $contrat->numero_quittance_dgid ?? '') }}"
+                   value="{{ old('numero_quittance_dgid', $contrat?->numero_quittance_dgid ?? '') }}"
                    placeholder="Ex: DGI-2025-000123"
                    style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
         </div>
@@ -148,7 +148,7 @@
                 Montant payé (FCFA)
             </label>
             <input type="number" name="montant_droit_de_bail"
-                   value="{{ old('montant_droit_de_bail', $contrat->montant_droit_de_bail ?? '') }}"
+                   value="{{ old('montant_droit_de_bail', $contrat?->montant_droit_de_bail ?? '') }}"
                    placeholder="Auto-calculé : 1% ou 2% loyer annuel"
                    min="0" step="500"
                    style="width:100%;padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
@@ -158,7 +158,7 @@
     <div style="margin-top:10px">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:#374151">
             <input type="checkbox" name="enregistrement_exonere" value="1"
-                   {{ old('enregistrement_exonere', $contrat->enregistrement_exonere ?? false) ? 'checked' : '' }}
+                   {{ old('enregistrement_exonere', $contrat?->enregistrement_exonere ?? false) ? 'checked' : '' }}
                    style="width:14px;height:14px;accent-color:#7c3aed">
             Exonéré d'enregistrement (bail public, diplomatique, ONG...)
         </label>
@@ -176,22 +176,22 @@
         <span style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
             <input type="hidden"   name="caution_gardee_par_agence" value="0">
             <input type="checkbox" name="caution_gardee_par_agence" id="caution_gardee_par_agence" value="1"
-                   {{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? 'checked' : '' }}
+                   {{ old('caution_gardee_par_agence', $contrat?->caution_gardee_par_agence ?? false) ? 'checked' : '' }}
                    style="opacity:0;width:0;height:0;position:absolute"
                    onchange="toggleCautionLabel()">
             <span id="switch-track" onclick="document.getElementById('caution_gardee_par_agence').click()"
                   style="position:absolute;inset:0;border-radius:99px;cursor:pointer;transition:.2s;
-                  background:{{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? '#c9a84c' : '#d1d5db' }}">
+                  background:{{ old('caution_gardee_par_agence', $contrat?->caution_gardee_par_agence ?? false) ? '#c9a84c' : '#d1d5db' }}">
                 <span id="switch-knob"
                       style="position:absolute;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;
-                      left:{{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? '21px' : '3px' }}"></span>
+                      left:{{ old('caution_gardee_par_agence', $contrat?->caution_gardee_par_agence ?? false) ? '21px' : '3px' }}"></span>
             </span>
         </span>
         <span>
             <span style="font-size:13px;color:#374151;font-weight:500">Caution gardée par l'agence (séquestre)</span>
             <span id="caution-policy-label" style="display:block;font-size:11px;margin-top:1px;
-                  color:{{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false) ? '#8a6e2f' : '#16a34a' }}">
-                {{ old('caution_gardee_par_agence', $contrat->caution_gardee_par_agence ?? false)
+                  color:{{ old('caution_gardee_par_agence', $contrat?->caution_gardee_par_agence ?? false) ? '#8a6e2f' : '#16a34a' }}">
+                {{ old('caution_gardee_par_agence', $contrat?->caution_gardee_par_agence ?? false)
                     ? 'L\'agence conserve la caution — non reversée au bailleur'
                     : 'Caution reversée au bailleur lors du premier versement' }}
             </span>

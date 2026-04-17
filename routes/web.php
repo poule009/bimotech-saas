@@ -4,11 +4,14 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Admin\BilanFiscalController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
+use App\Http\Controllers\BailleurController;
 use App\Http\Controllers\BienController;
 use App\Http\Controllers\BienPhotoController;
 use App\Http\Controllers\ContratController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Dashboard\AdminDashboardController;
+use App\Http\Controllers\Dashboard\LocataireDashboardController;
+use App\Http\Controllers\Dashboard\ProprietaireDashboardController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ImpayeController;
 use App\Http\Controllers\PaiementController;
@@ -78,7 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // avant les routes paramétrées ({contrat}, {paiement}…).
     Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function () {
 
-        Route::get('dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+        Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
 
         // Paramètres agence
         Route::get('agency/settings',   [AgencySettingsController::class, 'edit'])->name('agency.settings');
@@ -129,6 +132,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Rapports
         Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier');
         Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
+
+        // Portefeuille Bailleurs (Niveau 5)
+        Route::get('bailleurs',                     [BailleurController::class, 'index'])->name('bailleurs.index');
+        Route::get('bailleurs/{userId}',             [BailleurController::class, 'show'])->name('bailleurs.show');
+        Route::get('bailleurs/{userId}/export-pdf', [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf');
     });
 
     // ── Staff agence — lecture (admin + superadmin) ───────────────────────
@@ -157,13 +165,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── Propriétaire ───────────────────────────────────────────────────────
     Route::middleware('isProprietaire')->prefix('proprietaire')->name('proprietaire.')->group(function () {
-        Route::get('dashboard',                    [DashboardController::class, 'proprietaire'])->name('dashboard');
+        Route::get('dashboard',                    ProprietaireDashboardController::class)->name('dashboard');
         Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
     });
 
     // ── Locataire ──────────────────────────────────────────────────────────
     Route::middleware('isLocataire')->prefix('locataire')->name('locataire.')->group(function () {
-        Route::get('dashboard',                    [DashboardController::class, 'locataire'])->name('dashboard');
+        Route::get('dashboard',                    LocataireDashboardController::class)->name('dashboard');
         Route::get('mes-paiements',                [PaiementController::class,  'mesPaiements'])->name('paiements');
         Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
         Route::get('mon-contrat/{contrat}',        [ContratController::class,   'show'])->name('contrat.show');
