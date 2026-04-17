@@ -23,6 +23,37 @@ use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+// ── Health check (monitoring, load balancer) ───────────────────────────────
+// Accessible sans authentification. Retourne l'état de la DB, du cache et des queues.
+Route::get('/health', function () {
+    $checks = [];
+
+    // Vérification base de données
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $checks['database'] = 'ok';
+    } catch (\Throwable) {
+        $checks['database'] = 'error';
+    }
+
+    // Vérification cache
+    try {
+        \Illuminate\Support\Facades\Cache::put('health_check', true, 5);
+        $checks['cache'] = \Illuminate\Support\Facades\Cache::get('health_check') ? 'ok' : 'error';
+    } catch (\Throwable) {
+        $checks['cache'] = 'error';
+    }
+
+    $allOk  = collect($checks)->every(fn($v) => $v === 'ok');
+    $status = $allOk ? 200 : 503;
+
+    return response()->json([
+        'status'  => $allOk ? 'healthy' : 'degraded',
+        'checks'  => $checks,
+        'version' => config('app.version', '1.0'),
+    ], $status);
+})->name('health');
+
 // ── Pages publiques ────────────────────────────────────────────────────────
 Route::get('/', fn() => view('welcome'))->name('home');
 Route::get('/contact',          fn() => view('contact'))->name('contact');
@@ -53,7 +84,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('subscription')->name('subscription.')->group(function () {
         Route::get('/',         [SubscriptionController::class, 'index'])->name('index');
         Route::post('initier',  [SubscriptionController::class, 'initierPaiement'])->name('initier');
-        Route::post('callback', [SubscriptionController::class, 'callbackPaydunya'])
+        Route::post('callback', [SubscriptionController::class, 'callbackPaytech'])
             ->name('callback')
             ->withoutMiddleware(['auth', 'verified'])
             ->middleware('throttle:60,1');
@@ -145,6 +176,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:isStaff')->prefix('admin')->name('admin.')->group(function () {
 
         // Biens
+        Route::get('biens/wizard', [BienController::class, 'wizard'])->name('biens.wizard');
         Route::resource('biens', BienController::class);
         Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store');
         Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');

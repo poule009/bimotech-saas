@@ -119,7 +119,7 @@ class CleanInactiveAgenciesTest extends TestCase
             'plan'            => 'mensuel',
             'montant'         => 25000,
             'statut'          => 'payé',
-            'methode'         => 'paydunya',
+            'methode'         => 'paytech',
             'periode_debut'   => now()->subMonths(3),
             'periode_fin'     => now()->subMonths(2),
         ]);

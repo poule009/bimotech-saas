@@ -35,7 +35,7 @@ class SubscriptionController extends Controller
         $tarifs = Subscription::TARIFS;
         $labels = Subscription::LABELS;
         $durees = Subscription::DUREES_MOIS;
-        $mode   = config('services.paydunya.mode', 'simulation');
+        $mode   = config('services.paytech.mode', 'simulation');
 
         return view('subscription.index', compact(
             'agency', 'subscription', 'historique',
@@ -72,41 +72,37 @@ class SubscriptionController extends Controller
             ->with('success', "Abonnement {$labels[$plan]} activé avec succès !");
     }
 
-    public function callbackPaydunya(Request $request): JsonResponse
+    public function callbackPaytech(Request $request): JsonResponse
     {
-        // ── Vérification de la signature PayDunya ──────────────────────────
+        // ── Vérification de la signature PayTech ───────────────────────────
         // En mode simulation : aucun appel réel, on passe directement.
-        // En test/live : on vérifie le hash IPN pour s'assurer que l'appel
-        // provient bien de PayDunya et non d'un attaquant qui forgerait
-        // un faux callback pour activer un abonnement sans payer.
+        // En test/prod : on vérifie la signature IPN pour s'assurer que
+        // l'appel provient bien de PayTech et non d'un attaquant qui
+        // forgerait un faux callback pour activer un abonnement sans payer.
         //
-        // PayDunya inclut dans le corps IPN un champ `data.hash` qui est
-        // le SHA-512 (majuscules) de la master_key. On compare avec
-        // hash_equals() pour éviter les timing attacks.
-        $mode = config('services.paydunya.mode', 'simulation');
+        // PayTech supporte deux méthodes de vérification :
+        //  1. HMAC-SHA256(amount|ref_command|api_key, api_secret) — recommandée
+        //  2. SHA256(api_key) et SHA256(api_secret) — fallback
+        $mode = config('services.paytech.mode', 'simulation');
 
         if ($mode !== 'simulation') {
-            $ipnHash   = $request->input('data.hash', '');
-            $masterKey = config('services.paydunya.master_key', '');
-            $expected  = strtoupper(hash('sha512', $masterKey));
-
-            if (empty($masterKey) || ! hash_equals($expected, strtoupper($ipnHash))) {
-                Log::warning('Webhook PayDunya IPN — hash invalide ou master_key manquante', [
-                    'ip'      => $request->ip(),
-                    'mode'    => $mode,
-                    'recu'    => strtoupper($ipnHash),
-                    'attendu' => $expected,
+            if (! $this->paymentService->verifierSignatureIPN($request->all())) {
+                Log::warning('Webhook PayTech IPN — signature invalide', [
+                    'ip'          => $request->ip(),
+                    'mode'        => $mode,
+                    'ref_command' => $request->input('ref_command'),
                 ]);
 
-                return response()->json(['success' => false, 'message' => 'Hash invalide'], 403);
+                return response()->json(['success' => false, 'message' => 'Signature invalide'], 403);
             }
         }
 
         $payload = $request->all();
-        Log::info('Callback PayDunya reçu et vérifié', [
-            'mode'       => $mode,
-            'ip'         => $request->ip(),
-            'invoice_id' => $request->input('invoice.invoice_id'),
+        Log::info('Callback PayTech reçu et vérifié', [
+            'mode'        => $mode,
+            'ip'          => $request->ip(),
+            'type_event'  => $request->input('type_event'),
+            'ref_command' => $request->input('ref_command'),
         ]);
 
         $resultat = $this->paymentService->traiterCallbackIPN($payload);
@@ -117,52 +113,35 @@ class SubscriptionController extends Controller
         ], $resultat['success'] ? 200 : 422);
     }
 
-    // ✅ CORRECTION C2 : verrou DB + plan depuis PayDunya (pas la session)
-    // Avant : deux requêtes simultanées pouvaient activer 2 fois
-    // Avant : si la session expirait, le plan était perdu
-    // Après : lockForUpdate() + plan lu depuis l'API PayDunya
+    // ✅ Verrou DB + idempotence pour éviter les doubles activations.
+    // PayTech redirige vers success_url?ref={ref_command} après paiement.
+    // On utilise ref_command (pas un token) pour identifier le paiement.
     public function succes(Request $request): View|RedirectResponse
     {
-        $token  = $request->query('token');
+        $ref    = $request->query('ref');
         $agency = Auth::user()->agency;
 
-        if (! $token) {
+        if (! $ref) {
             return redirect()->route('subscription.index')
                 ->with('info', 'Votre paiement est en cours de traitement.');
         }
 
         try {
-            // On demande à PayDunya si le paiement est vraiment complété
-            $statut = $this->paymentService->verifierStatutFacture($token);
+            $planSession = session('subscription_plan_pending');
 
-            if (! $statut || ($statut['status'] ?? '') !== 'completed') {
+            if (! $planSession || ! array_key_exists($planSession, Subscription::TARIFS)) {
+                // Si la session a expiré, on vérifie via l'IPN déjà traité
+                if (SubscriptionPayment::where('reference', $ref)->where('statut', 'payé')->exists()) {
+                    session()->forget(['subscription_plan_pending', 'subscription_agency_id']);
+                    return view('subscription.succes', compact('agency'));
+                }
+
                 return redirect()->route('subscription.index')
-                    ->with('info', 'Votre paiement est en cours de traitement.');
-            }
-
-            // Le plan vient de PayDunya, pas de la session
-            $planPaydunya = $statut['custom_data']['plan'] ?? null;
-            $planSession  = session('subscription_plan_pending');
-
-            // Alerte si les deux ne correspondent pas
-            if ($planSession && $planPaydunya && $planSession !== $planPaydunya) {
-                Log::critical('Incohérence plan session vs PayDunya', [
-                    'session'   => $planSession,
-                    'paydunya'  => $planPaydunya,
-                    'token'     => $token,
-                    'agency_id' => $agency->id,
-                ]);
-            }
-
-            $plan = $planPaydunya ?? $planSession;
-
-            if (! $plan || ! array_key_exists($plan, Subscription::TARIFS)) {
-                return redirect()->route('subscription.index')
-                    ->with('error', 'Plan invalide. Contactez le support.');
+                    ->with('info', 'Votre paiement est en cours de vérification. Veuillez patienter.');
             }
 
             // Activation avec verrou — impossible de l'activer deux fois en même temps
-            DB::transaction(function () use ($agency, $plan, $token) {
+            DB::transaction(function () use ($agency, $planSession, $ref) {
                 $subscription = Subscription::where('agency_id', $agency->id)
                     ->lockForUpdate()
                     ->first();
@@ -176,8 +155,8 @@ class SubscriptionController extends Controller
                     ]);
                 }
 
-                if (! SubscriptionPayment::where('reference', $token)->exists()) {
-                    $subscription->activer($plan, $token, 'paydunya');
+                if (! SubscriptionPayment::where('reference', $ref)->exists()) {
+                    $subscription->activer($planSession, $ref, 'paytech');
                 }
             });
 
@@ -186,8 +165,8 @@ class SubscriptionController extends Controller
             return view('subscription.succes', compact('agency'));
 
         } catch (\Throwable $e) {
-            Log::error('Erreur retour PayDunya succes()', [
-                'token'     => $token,
+            Log::error('Erreur retour PayTech succes()', [
+                'ref'       => $ref,
                 'agency_id' => $agency->id,
                 'error'     => $e->getMessage(),
             ]);

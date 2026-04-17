@@ -10,11 +10,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * SubscriptionPaymentTest — Tests du flux de paiement d'abonnement (PayDunya).
+ * SubscriptionPaymentTest — Tests du flux de paiement d'abonnement (PayTech).
  *
  * Couvre (mode simulation — aucun appel API réel) :
  *  - Initiation du paiement : activation directe de l'abonnement
- *  - Callback IPN : traitement correct du payload PayDunya
+ *  - Callback IPN : traitement correct du payload PayTech
  *  - Idempotence : deux callbacks avec le même token n'activent qu'une fois
  *  - Sécurité : seul un admin authentifié peut initier un paiement
  *  - Accès anonyme bloqué
@@ -30,8 +30,8 @@ class SubscriptionPaymentTest extends TestCase
     {
         parent::setUp();
 
-        // Mode simulation activé par défaut (config services.paydunya.mode = simulation)
-        config(['services.paydunya.mode' => 'simulation']);
+        // Mode simulation activé par défaut (config services.paytech.mode = simulation)
+        config(['services.paytech.mode' => 'simulation']);
 
         $this->agency = Agency::factory()->create(['actif' => true]);
 
@@ -146,7 +146,7 @@ class SubscriptionPaymentTest extends TestCase
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // Callback IPN PayDunya
+    // Callback IPN PayTech
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]

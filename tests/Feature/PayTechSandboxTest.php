@@ -12,36 +12,38 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
- * PayDunyaSandboxTest — Tests du flux de paiement PayDunya.
+ * PayTechSandboxTest — Tests du flux de paiement PayTech.
+ *
+ * Documentation API PayTech : https://docs.intech.sn/doc_paytech.php
  *
  * Trois niveaux de tests :
  *
- *  1. Mode simulation (PAYDUNYA_MODE=simulation)
+ *  1. Mode simulation (PAYTECH_MODE=simulation)
  *     Aucun appel HTTP réel. L'abonnement est activé directement.
  *     C'est le mode utilisé en développement et dans les tests automatisés.
  *
  *  2. Mode test/sandbox (Http::fake())
- *     Les appels HTTP vers l'API PayDunya sont interceptés par Http::fake().
- *     Simule les réponses exactes de l'API sandbox PayDunya.
+ *     Les appels HTTP vers l'API PayTech sont interceptés par Http::fake().
+ *     Simule les réponses exactes de l'API sandbox PayTech.
  *     Permet de tester le parsing des réponses sans toucher au réseau.
  *
  *  3. Callback IPN (Instant Payment Notification)
- *     PayDunya POST sur notre endpoint après un paiement réussi.
- *     Teste l'idempotence, les données manquantes, le statut non-completed.
+ *     PayTech POST sur notre endpoint après un paiement réussi.
+ *     Format PayTech : type_event, ref_command, custom_field (base64 JSON)
+ *     Teste l'idempotence, les données manquantes, les événements non traités.
  *
  * Couvre :
  *  - Mode simulation → abonnement activé sans appel HTTP
- *  - Mode sandbox → redirect URL renvoyée depuis l'API PayDunya mockée
- *  - Callback IPN completed → abonnement activé
- *  - Callback IPN idempotent → même token traité deux fois sans doublon
- *  - Callback IPN token manquant → 422
- *  - Callback IPN statut non completed → 422
- *  - Callback IPN données custom_data manquantes → 422
- *  - Page succes() en simulation → abonnement activé
- *  - Page succes() sans token → redirect vers subscription.index
+ *  - Mode sandbox → redirect URL renvoyée depuis l'API PayTech mockée
+ *  - Callback IPN sale_complete → abonnement activé
+ *  - Callback IPN idempotent → même ref_command traité deux fois sans doublon
+ *  - Callback IPN ref_command manquante → 422
+ *  - Callback IPN événement non sale_complete → 422
+ *  - Callback IPN custom_field manquant → 422
+ *  - Page succes() sans ref → redirect vers subscription.index
  *  - Page echec() → vue echec
  */
-class PayDunyaSandboxTest extends TestCase
+class PayTechSandboxTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -75,10 +77,9 @@ class PayDunyaSandboxTest extends TestCase
     #[Test]
     public function mode_simulation_active_labonnement_directement_sans_appel_http(): void
     {
-        // Garantit que Http::fake() n'est PAS nécessaire → aucun appel réseau
         Http::preventStrayRequests();
 
-        config(['services.paydunya.mode' => 'simulation']);
+        config(['services.paytech.mode' => 'simulation']);
 
         $this->actingAs($this->admin)
             ->post(route('subscription.initier'), ['plan' => 'mensuel'])
@@ -102,14 +103,13 @@ class PayDunyaSandboxTest extends TestCase
     public function mode_simulation_tous_les_plans_fonctionnent(): void
     {
         Http::preventStrayRequests();
-        config(['services.paydunya.mode' => 'simulation']);
+        config(['services.paytech.mode' => 'simulation']);
 
         foreach (['mensuel', 'trimestriel', 'semestriel', 'annuel'] as $plan) {
-            // Remettre en essai pour chaque itération
             $this->subscription->update([
-                'statut'                => 'essai',
-                'plan'                  => null,
-                'date_fin_abonnement'   => null,
+                'statut'              => 'essai',
+                'plan'                => null,
+                'date_fin_abonnement' => null,
             ]);
 
             $this->actingAs($this->admin)
@@ -125,26 +125,26 @@ class PayDunyaSandboxTest extends TestCase
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 2. Mode sandbox — réponses PayDunya simulées avec Http::fake()
+    // 2. Mode sandbox — réponses PayTech simulées avec Http::fake()
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]
-    public function mode_sandbox_redirige_vers_url_paydunya_si_api_ok(): void
+    public function mode_sandbox_redirige_vers_url_paytech_si_api_ok(): void
     {
-        config(['services.paydunya.mode' => 'test']);
+        config(['services.paytech.mode' => 'test']);
 
         Http::fake([
-            'app.paydunya.com/sandbox-api/v1/checkout-invoice/create' => Http::response([
-                'response_code' => '00',
-                'response_text' => 'https://app.paydunya.com/sandbox/checkout/FAKE-TOKEN-123',
+            'paytech.sn/api/payment/request-payment' => Http::response([
+                'success'      => 1,
+                'token'        => 'FAKE-TOKEN-123',
+                'redirect_url' => 'https://paytech.sn/payment/checkout/FAKE-TOKEN-123',
             ], 200),
         ]);
 
         $response = $this->actingAs($this->admin)
             ->post(route('subscription.initier'), ['plan' => 'mensuel']);
 
-        // Doit rediriger vers l'URL PayDunya retournée par l'API
-        $response->assertRedirect('https://app.paydunya.com/sandbox/checkout/FAKE-TOKEN-123');
+        $response->assertRedirect('https://paytech.sn/payment/checkout/FAKE-TOKEN-123');
 
         // Pas encore activé (on attend le callback IPN)
         $this->assertDatabaseHas('subscriptions', [
@@ -154,14 +154,14 @@ class PayDunyaSandboxTest extends TestCase
     }
 
     #[Test]
-    public function mode_sandbox_retourne_erreur_si_api_paydunya_refuse(): void
+    public function mode_sandbox_retourne_erreur_si_api_paytech_refuse(): void
     {
-        config(['services.paydunya.mode' => 'test']);
+        config(['services.paytech.mode' => 'test']);
 
         Http::fake([
-            'app.paydunya.com/sandbox-api/v1/checkout-invoice/create' => Http::response([
-                'response_code' => '01',
-                'response_text' => 'Clés API invalides',
+            'paytech.sn/api/payment/request-payment' => Http::response([
+                'success' => 0,
+                'message' => 'Clés API invalides',
             ], 200),
         ]);
 
@@ -172,12 +172,12 @@ class PayDunyaSandboxTest extends TestCase
     }
 
     #[Test]
-    public function mode_sandbox_retourne_erreur_si_api_paydunya_inaccessible(): void
+    public function mode_sandbox_retourne_erreur_si_api_paytech_inaccessible(): void
     {
-        config(['services.paydunya.mode' => 'test']);
+        config(['services.paytech.mode' => 'test']);
 
         Http::fake([
-            'app.paydunya.com/*' => Http::response([], 500),
+            'paytech.sn/*' => Http::response([], 500),
         ]);
 
         $this->actingAs($this->admin)
@@ -189,37 +189,45 @@ class PayDunyaSandboxTest extends TestCase
     // ════════════════════════════════════════════════════════════════════════
     // 3. Callback IPN — endpoint POST /subscription/callback
     //    Ce endpoint est accessible sans authentification (withoutMiddleware)
+    //
+    //    Format IPN PayTech :
+    //      - type_event   : 'sale_complete' | 'sale_canceled'
+    //      - ref_command  : référence unique de la commande
+    //      - item_price   : montant
+    //      - custom_field : base64(JSON{'agency_id':..., 'plan':...})
     // ════════════════════════════════════════════════════════════════════════
 
     /**
-     * Payload IPN type retourné par PayDunya après paiement réussi.
+     * Construit un payload IPN PayTech valide.
      */
     private function ipnPayload(
-        string $token,
-        string $status = 'completed',
-        ?int   $agencyId = null,
-        string $plan     = 'mensuel'
+        string $refCommand,
+        string $typeEvent = 'sale_complete',
+        ?int   $agencyId  = null,
+        string $plan      = 'mensuel',
+        int    $montant   = 5000
     ): array {
+        $customField = base64_encode(json_encode([
+            'agency_id' => $agencyId ?? $this->agency->id,
+            'plan'      => $plan,
+        ]));
+
         return [
-            'data' => [
-                'invoice' => [
-                    'token'       => $token,
-                    'status'      => $status,
-                    'custom_data' => [
-                        'agency_id' => $agencyId ?? $this->agency->id,
-                        'plan'      => $plan,
-                    ],
-                ],
-            ],
+            'type_event'        => $typeEvent,
+            'ref_command'       => $refCommand,
+            'item_price'        => $montant,
+            'custom_field'      => $customField,
+            'api_key_sha256'    => hash('sha256', config('services.paytech.api_key', '')),
+            'api_secret_sha256' => hash('sha256', config('services.paytech.api_secret', '')),
         ];
     }
 
     #[Test]
-    public function callback_ipn_completed_active_labonnement(): void
+    public function callback_ipn_sale_complete_active_labonnement(): void
     {
         $response = $this->postJson(
             route('subscription.callback'),
-            $this->ipnPayload('TOKEN-IPN-001', 'completed', plan: 'mensuel')
+            $this->ipnPayload('REF-IPN-001', 'sale_complete', plan: 'mensuel')
         );
 
         $response->assertOk()
@@ -233,39 +241,37 @@ class PayDunyaSandboxTest extends TestCase
 
         $this->assertDatabaseHas('subscription_payments', [
             'agency_id' => $this->agency->id,
-            'reference' => 'TOKEN-IPN-001',
+            'reference' => 'REF-IPN-001',
             'statut'    => 'payé',
         ]);
     }
 
     #[Test]
-    public function callback_ipn_est_idempotent_meme_token_ne_duplique_pas(): void
+    public function callback_ipn_est_idempotent_meme_ref_ne_duplique_pas(): void
     {
-        $payload = $this->ipnPayload('TOKEN-IDEMPOTENT', 'completed', plan: 'mensuel');
+        $payload = $this->ipnPayload('REF-IDEMPOTENT', 'sale_complete', plan: 'mensuel');
 
         // Premier appel
         $this->postJson(route('subscription.callback'), $payload)->assertOk();
 
-        // Deuxième appel avec le même token
+        // Deuxième appel avec la même ref_command
         $this->postJson(route('subscription.callback'), $payload)->assertOk();
 
-        // Un seul paiement enregistré
         $this->assertEquals(
             1,
-            SubscriptionPayment::where('reference', 'TOKEN-IDEMPOTENT')->count(),
-            'Le même token IPN a généré plusieurs paiements — idempotence non respectée.'
+            SubscriptionPayment::where('reference', 'REF-IDEMPOTENT')->count(),
+            'La même ref_command IPN a généré plusieurs paiements — idempotence non respectée.'
         );
     }
 
     #[Test]
-    public function callback_ipn_statut_non_completed_retourne_422(): void
+    public function callback_ipn_evenement_non_sale_complete_retourne_422(): void
     {
         $this->postJson(
             route('subscription.callback'),
-            $this->ipnPayload('TOKEN-PENDING', 'pending')
+            $this->ipnPayload('REF-CANCEL', 'sale_canceled')
         )->assertStatus(422)->assertJson(['success' => false]);
 
-        // Abonnement toujours en essai
         $this->assertDatabaseHas('subscriptions', [
             'agency_id' => $this->agency->id,
             'statut'    => 'essai',
@@ -273,29 +279,22 @@ class PayDunyaSandboxTest extends TestCase
     }
 
     #[Test]
-    public function callback_ipn_token_manquant_retourne_422(): void
+    public function callback_ipn_ref_command_manquante_retourne_422(): void
     {
         $this->postJson(route('subscription.callback'), [
-            'data' => [
-                'invoice' => [
-                    // token absent
-                    'status' => 'completed',
-                ],
-            ],
+            'type_event'   => 'sale_complete',
+            'custom_field' => base64_encode(json_encode(['agency_id' => $this->agency->id, 'plan' => 'mensuel'])),
+            // ref_command absent
         ])->assertStatus(422)->assertJson(['success' => false]);
     }
 
     #[Test]
-    public function callback_ipn_custom_data_manquantes_retourne_422(): void
+    public function callback_ipn_custom_field_manquant_retourne_422(): void
     {
         $this->postJson(route('subscription.callback'), [
-            'data' => [
-                'invoice' => [
-                    'token'  => 'TOKEN-NO-DATA',
-                    'status' => 'completed',
-                    // custom_data absent → agency_id et plan inconnus
-                ],
-            ],
+            'type_event'  => 'sale_complete',
+            'ref_command' => 'REF-NO-CUSTOM',
+            // custom_field absent → agency_id et plan inconnus
         ])->assertStatus(422)->assertJson(['success' => false]);
     }
 
@@ -304,16 +303,16 @@ class PayDunyaSandboxTest extends TestCase
     {
         $this->postJson(
             route('subscription.callback'),
-            $this->ipnPayload('TOKEN-BAD-PLAN', 'completed', plan: 'inexistant')
+            $this->ipnPayload('REF-BAD-PLAN', 'sale_complete', plan: 'inexistant')
         )->assertStatus(422)->assertJson(['success' => false]);
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 4. Page succes() — retour PayDunya après paiement
+    // 4. Page succes() — retour PayTech après paiement (?ref=REF_COMMAND)
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]
-    public function page_succes_sans_token_redirige_vers_subscription_index(): void
+    public function page_succes_sans_ref_redirige_vers_subscription_index(): void
     {
         $this->actingAs($this->admin)
             ->get(route('subscription.succes'))
@@ -321,16 +320,14 @@ class PayDunyaSandboxTest extends TestCase
     }
 
     #[Test]
-    public function page_succes_en_simulation_avec_token_active_labonnement(): void
+    public function page_succes_avec_ref_et_plan_en_session_active_labonnement(): void
     {
-        config(['services.paydunya.mode' => 'simulation']);
+        config(['services.paytech.mode' => 'simulation']);
 
-        // En simulation verifierStatutFacture() retourne completed avec custom_data vide
-        // → on utilise la session pour le plan
         session(['subscription_plan_pending' => 'annuel']);
 
         $this->actingAs($this->admin)
-            ->get(route('subscription.succes', ['token' => 'SIM-TOKEN-XYZ']))
+            ->get(route('subscription.succes', ['ref' => 'BIMO-1-ABCDEF12']))
             ->assertOk()
             ->assertViewIs('subscription.succes');
 
@@ -342,51 +339,20 @@ class PayDunyaSandboxTest extends TestCase
     }
 
     #[Test]
-    public function page_succes_en_sandbox_avec_reponse_paydunya_mockee(): void
+    public function page_succes_ne_reactive_pas_si_ref_deja_traitee_via_ipn(): void
     {
-        config(['services.paydunya.mode' => 'test']);
-
-        Http::fake([
-            'app.paydunya.com/sandbox-api/v1/checkout-invoice/confirm/SANDBOX-TOKEN' => Http::response([
-                'status'      => 'completed',
-                'custom_data' => ['plan' => 'trimestriel'],
-            ], 200),
-        ]);
-
-        $this->actingAs($this->admin)
-            ->get(route('subscription.succes', ['token' => 'SANDBOX-TOKEN']))
-            ->assertOk()
-            ->assertViewIs('subscription.succes');
-
-        $this->assertDatabaseHas('subscriptions', [
-            'agency_id' => $this->agency->id,
-            'statut'    => 'actif',
-            'plan'      => 'trimestriel',
-        ]);
-    }
-
-    #[Test]
-    public function page_succes_ne_reactive_pas_si_token_deja_traite(): void
-    {
-        // On teste l'idempotence via le callback IPN (plus fiable que la page succes()
-        // qui dépend de la session pour le plan en mode simulation).
-        // La page succes() s'appuie sur la session pour le plan, qui est effacée
-        // dès le premier passage — c'est le bon comportement.
-        // La vraie protection anti-doublon est dans traiterCallbackIPN().
-
-        $payload = $this->ipnPayload('TOKEN-DOUBLE-SUCCES', 'completed', plan: 'annuel');
+        $payload = $this->ipnPayload('REF-DOUBLE-SUCCES', 'sale_complete', plan: 'annuel');
 
         // Premier callback IPN → abonnement activé
         $this->postJson(route('subscription.callback'), $payload)->assertOk();
 
-        // Deuxième callback IPN avec le même token → ignoré (idempotence)
+        // Deuxième callback IPN avec la même ref → ignoré (idempotence)
         $this->postJson(route('subscription.callback'), $payload)->assertOk();
 
-        // Un seul paiement enregistré malgré deux callbacks
         $this->assertEquals(
             1,
-            SubscriptionPayment::where('reference', 'TOKEN-DOUBLE-SUCCES')->count(),
-            'Le même token IPN a généré plusieurs paiements — idempotence non respectée.'
+            SubscriptionPayment::where('reference', 'REF-DOUBLE-SUCCES')->count(),
+            'La même ref IPN a généré plusieurs paiements — idempotence non respectée.'
         );
     }
 
@@ -410,7 +376,7 @@ class PayDunyaSandboxTest extends TestCase
     #[Test]
     public function initier_paiement_plan_invalide_retourne_erreur(): void
     {
-        config(['services.paydunya.mode' => 'simulation']);
+        config(['services.paytech.mode' => 'simulation']);
 
         $this->actingAs($this->admin)
             ->post(route('subscription.initier'), ['plan' => 'gratuit'])
@@ -421,7 +387,7 @@ class PayDunyaSandboxTest extends TestCase
     #[Test]
     public function initier_paiement_sans_plan_retourne_erreur(): void
     {
-        config(['services.paydunya.mode' => 'simulation']);
+        config(['services.paytech.mode' => 'simulation']);
 
         $this->actingAs($this->admin)
             ->post(route('subscription.initier'), [])

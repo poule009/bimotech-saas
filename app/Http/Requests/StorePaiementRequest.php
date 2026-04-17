@@ -42,7 +42,7 @@ class StorePaiementRequest extends FormRequest
                     }
                 },
             ],
-            'montant_encaisse'     => ['required', 'numeric', 'gt:0'],
+            'montant_encaisse'     => ['required', 'numeric', 'gt:0', 'max:999999999'],
             'mode_paiement'        => ['required', 'in:especes,virement,cheque,wave,orange_money,free_money,mobile_money'],
             'caution_percue'       => ['nullable', 'numeric', 'min:0'],
             'est_premier_paiement' => ['boolean'],
@@ -55,6 +55,7 @@ class StorePaiementRequest extends FormRequest
     {
         return [
             'montant_encaisse.gt'  => 'Le montant doit être supérieur à zéro.',
+            'montant_encaisse.max' => 'Le montant ne peut pas dépasser 999 999 999 FCFA.',
             'periode.date_format'  => 'Format attendu : AAAA-MM (ex: 2025-01).',
             'contrat_id.exists'    => 'Ce contrat n\'existe pas.',
         ];

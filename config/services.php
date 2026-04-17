@@ -35,15 +35,15 @@ return [
         ],
     ],
 
-    // ── PayDunya (paiement mobile Sénégal) ────────────────────────────────
-    // Modes disponibles : simulation | test | live
-    // En simulation : aucun appel API, abonnement activé directement
-    // En test/live  : appel API PayDunya avec les clés ci-dessous
-    'paydunya' => [
-        'mode'        => env('PAYDUNYA_MODE', 'simulation'),
-        'master_key'  => env('PAYDUNYA_MASTER_KEY', ''),
-        'private_key' => env('PAYDUNYA_PRIVATE_KEY', ''),
-        'token'       => env('PAYDUNYA_TOKEN', ''),
+    // ── PayTech (paiement mobile Sénégal) ─────────────────────────────────
+    // Modes disponibles : simulation | test | prod
+    // En simulation : aucun appel API, abonnement activé directement (dev)
+    // En test : sandbox PayTech (débite 100-150 XOF fictifs)
+    // En prod : production PayTech (débite le montant exact)
+    'paytech' => [
+        'mode'       => env('PAYTECH_MODE', 'simulation'),
+        'api_key'    => env('PAYTECH_API_KEY', ''),
+        'api_secret' => env('PAYTECH_API_SECRET', ''),
     ],
 
 ];

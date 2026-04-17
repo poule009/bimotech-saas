@@ -31,7 +31,7 @@ class SubscriptionPayment extends Model
     // ── Labels ────────────────────────────────────────────────────────────
 
     public const METHODE_LABELS = [
-        'paydunya'     => 'PayDunya',
+        'paytech'      => 'PayTech',
         'wave'         => 'Wave',
         'orange_money' => 'Orange Money',
         'free_money'   => 'Free Money',

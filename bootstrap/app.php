@@ -23,8 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         // ── Middlewares appliqués globalement sur le groupe web ──────────
+        // SecureHeaders ajoute les en-têtes de sécurité HTTP sur toutes les réponses
         // CheckSubscription vérifie l'abonnement sur toutes les routes auth
         $middleware->web(append: [
+            \App\Http\Middleware\SecureHeaders::class,
             \App\Http\Middleware\CheckSubscription::class,
         ]);
     })

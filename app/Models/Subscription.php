@@ -19,7 +19,7 @@ class Subscription extends Model
         'montant_paye',
         'date_debut_abonnement',
         'date_fin_abonnement',
-        'reference_paydunya',
+        'reference_paytech',
         'rappel_7j_envoye',
         'rappel_1j_envoye',
         'onboarding_j1_envoye',
@@ -142,7 +142,7 @@ class Subscription extends Model
             'montant_paye'          => $montant,
             'date_debut_abonnement' => $debut,
             'date_fin_abonnement'   => $fin,
-            'reference_paydunya'    => $referencePaydunya,
+            'reference_paytech'     => $referencePaydunya,
             'rappel_7j_envoye'      => false,
             'rappel_1j_envoye'      => false,
         ]);
