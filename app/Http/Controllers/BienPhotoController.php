@@ -31,18 +31,18 @@ class BienPhotoController extends Controller
         // NOTE SÉCURITÉ : SVG intentionnellement exclu car il peut contenir
         // du JavaScript (attaque XSS). On n'accepte que les formats raster.
 
-        $ordre = $bien->photos()->max('ordre') ?? 0;
+        // Requêtes sorties de la boucle pour éviter le N+1 (2 requêtes au lieu de 2×N).
+        $ordre       = $bien->photos()->max('ordre') ?? 0;
+        $estPremiere = $bien->photos()->count() === 0;
 
-        foreach ($request->file('photos') as $fichier) {
+        foreach ($request->file('photos') as $index => $fichier) {
             $chemin = $fichier->store('biens/' . $bien->id, 'public');
-
-            $estPremiere = $bien->photos()->count() === 0;
 
             BienPhoto::create([
                 'bien_id'        => $bien->id,
                 'chemin'         => $chemin,
                 'nom_original'   => $fichier->getClientOriginalName(),
-                'est_principale' => $estPremiere,
+                'est_principale' => ($index === 0 && $estPremiere),
                 'ordre'          => ++$ordre,
             ]);
         }

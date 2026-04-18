@@ -6,6 +6,7 @@ use App\Models\Contrat;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 /**
  * UpdateContratRequest — Validation de la mise à jour d'un contrat.
@@ -39,7 +40,14 @@ class UpdateContratRequest extends FormRequest
             'garant_nom'          => ['nullable', 'string', 'max:150'],
             'garant_telephone'    => ['nullable', 'string', 'max:20'],
             'garant_adresse'      => ['nullable', 'string', 'max:255'],
-            'reference_bail'      => ['nullable', 'string', 'max:60'],
+            'reference_bail'      => [
+                'nullable', 'string', 'max:60',
+                // Unicité par agence, en ignorant le contrat en cours de modification
+                Rule::unique('contrats', 'reference_bail')
+                    ->where('agency_id', $agencyId)
+                    ->whereNull('deleted_at')
+                    ->ignore($this->route('contrat')?->id),
+            ],
             'observations'        => ['nullable', 'string', 'max:1000'],
             'locataire_id'        => [
                 'nullable',

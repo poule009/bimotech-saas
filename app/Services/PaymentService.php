@@ -170,12 +170,15 @@ class PaymentService
      *
      * Deux méthodes de vérification supportées par PayTech :
      *
-     * Méthode 1 (HMAC) — recommandée :
+     * Méthode 1 (HMAC) — recommandée et obligatoire en production :
      *   HMAC-SHA256(amount|ref_command|api_key, api_secret) == hmac_compute
      *
-     * Méthode 2 (SHA256 simple) :
+     * Méthode 2 (SHA256 simple) — fallback accepté uniquement en mode test :
      *   SHA256(api_key) == api_key_sha256
      *   SHA256(api_secret) == api_secret_sha256
+     *
+     * En production, le fallback SHA256 est rejeté : un attaquant connaissant
+     * les hashes pourrait forger un webhook sans détenir le vrai secret HMAC.
      */
     public function verifierSignatureIPN(array $payload): bool
     {
@@ -189,8 +192,16 @@ class PaymentService
             return hash_equals($expected, $payload['hmac_compute']);
         }
 
-        // Méthode 2 — SHA256 (fallback)
+        // Méthode 2 — SHA256 (fallback, refusé en production)
         if (! empty($payload['api_key_sha256']) && ! empty($payload['api_secret_sha256'])) {
+            if ($this->mode === 'prod') {
+                Log::warning('IPN PayTech — fallback SHA256 rejeté en production (HMAC requis)', [
+                    'ip'          => request()->ip(),
+                    'ref_command' => $payload['ref_command'] ?? null,
+                ]);
+                return false;
+            }
+
             $keyValid    = hash_equals(hash('sha256', $this->apiKey),    $payload['api_key_sha256']);
             $secretValid = hash_equals(hash('sha256', $this->apiSecret), $payload['api_secret_sha256']);
 

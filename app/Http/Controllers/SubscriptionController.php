@@ -63,7 +63,19 @@ class SubscriptionController extends Controller
         }
 
         if ($resultat['mode'] !== 'simulation' && $resultat['redirect_url']) {
-            return redirect()->away($resultat['redirect_url']);
+            $redirectUrl = $resultat['redirect_url'];
+
+            // Sécurité : whitelist domaine PayTech pour éviter un open redirect.
+            // Un compromis de l'API key ne pourrait pas rediriger vers un site tiers.
+            if (! str_starts_with($redirectUrl, 'https://paytech.sn/')) {
+                Log::warning('PayTech — URL de redirection hors whitelist (open redirect bloqué)', [
+                    'redirect_url' => $redirectUrl,
+                    'agency_id'    => Auth::user()->agency_id,
+                ]);
+                return back()->withErrors(['general' => 'Erreur de paiement : réponse inattendue du service de paiement.']);
+            }
+
+            return redirect()->away($redirectUrl);
         }
 
         $labels = Subscription::LABELS;

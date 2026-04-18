@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Email de support
+    |--------------------------------------------------------------------------
+    |
+    | Adresse de contact affichée aux utilisateurs en cas de problème
+    | (agence suspendue, compte sans agence, etc.).
+    |
+    */
+
+    'support_email' => env('APP_SUPPORT_EMAIL', 'contact@bimotech.sn'),
+
 ];

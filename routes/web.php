@@ -87,7 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('callback', [SubscriptionController::class, 'callbackPaytech'])
             ->name('callback')
             ->withoutMiddleware(['auth', 'verified'])
-            ->middleware('throttle:60,1');
+            ->middleware('throttle:10,1'); // 10 req/min — PayTech légitime n'en envoie pas plus
         Route::get('succes', [SubscriptionController::class, 'succes'])->name('succes');
         Route::get('echec',  [SubscriptionController::class, 'echec'])->name('echec');
     });

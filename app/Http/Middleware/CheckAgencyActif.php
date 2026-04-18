@@ -46,7 +46,7 @@ class CheckAgencyActif
             $request->session()->regenerateToken();
 
             return redirect()->route('login')->withErrors([
-                'email' => "Votre agence « {$user->agency->name} » a été suspendue. Contactez le support à contact@bimotech.sn.",
+                'email' => "Votre agence « {$user->agency->name} » a été suspendue. Contactez le support à " . config('app.support_email') . '.',
             ]);
         }
 

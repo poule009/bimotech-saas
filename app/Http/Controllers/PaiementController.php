@@ -60,7 +60,12 @@ class PaiementController extends Controller
             $query->where('contrat_id', $request->contrat_id);
         }
         if ($request->filled('mois')) {
-            $query->whereRaw('DATE_FORMAT(periode, "%Y-%m") = ?', [$request->mois]);
+            // Utiliser whereYear/whereMonth plutôt que whereRaw pour éviter
+            // tout risque d'injection si la liaison est un jour omise.
+            [$annee, $mois] = explode('-', $request->mois) + [null, null];
+            if ($annee && $mois) {
+                $query->whereYear('periode', $annee)->whereMonth('periode', $mois);
+            }
         }
 
         $paiements = $query->orderByDesc('date_paiement')->paginate(20)->withQueryString();

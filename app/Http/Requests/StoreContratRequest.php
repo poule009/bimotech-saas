@@ -7,6 +7,7 @@ use App\Models\Contrat;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 /**
  * StoreContratRequest — Validation de la création d'un contrat.
@@ -64,7 +65,13 @@ class StoreContratRequest extends FormRequest
             'garant_nom'          => ['nullable', 'string', 'max:150'],
             'garant_telephone'    => ['nullable', 'string', 'max:20'],
             'garant_adresse'      => ['nullable', 'string', 'max:255'],
-            'reference_bail'      => ['nullable', 'string', 'max:60'],
+            'reference_bail'      => [
+                'nullable', 'string', 'max:60',
+                // Unicité par agence : deux contrats ne peuvent pas avoir la même référence
+                Rule::unique('contrats', 'reference_bail')
+                    ->where('agency_id', $agencyId)
+                    ->whereNull('deleted_at'),
+            ],
             'observations'        => ['nullable', 'string', 'max:1000'],
             // ── Fiscal ────────────────────────────────────────────────────────
             'loyer_assujetti_tva'      => ['nullable', 'boolean'],
