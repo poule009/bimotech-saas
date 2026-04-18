@@ -289,9 +289,9 @@
                             <?php $__currentLoopData = $paiements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr>
                                 <td>
-                                    <div style="font-size:13px;font-weight:500;color:#0d1117"><?php echo e($p->contrat->bien->reference); ?></div>
+                                    <div style="font-size:13px;font-weight:500;color:#0d1117"><?php echo e($p->contrat?->bien?->reference ?? '—'); ?></div>
                                 </td>
-                                <td style="font-size:12px;color:#6b7280"><?php echo e($p->contrat->locataire->name); ?></td>
+                                <td style="font-size:12px;color:#6b7280"><?php echo e($p->contrat?->locataire?->name ?? '—'); ?></td>
                                 <td><span class="periode-pill"><?php echo e(\Carbon\Carbon::parse($p->periode)->translatedFormat('M Y')); ?></span></td>
                                 <td style="font-size:12px;color:#6b7280"><?php echo e(\Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y')); ?></td>
                                 <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:600;color:#374151"><?php echo e(number_format($p->montant_encaisse, 0, ',', ' ')); ?> F</td>

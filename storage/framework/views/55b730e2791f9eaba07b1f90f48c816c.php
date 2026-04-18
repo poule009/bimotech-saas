@@ -1,8 +1,7 @@
-@extends('layouts.app')
-@section('title', 'Hub Bailleur — ' . $user->name)
-@section('breadcrumb', 'Portefeuille Bailleurs › ' . $user->name)
+<?php $__env->startSection('title', 'Hub Bailleur — ' . $user->name); ?>
+<?php $__env->startSection('breadcrumb', 'Portefeuille Bailleurs › ' . $user->name); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <style>
 /* ═══════════════════════════════════════════
    HUB BAILLEUR — Design System
@@ -340,14 +339,14 @@
 
 <div style="padding: 0 0 48px">
 
-    {{-- Breadcrumb + Actions --}}
+    
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
         <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280">
-            <a href="{{ route('admin.bailleurs.index') }}" style="color:#6b7280;text-decoration:none">Portefeuille Bailleurs</a>
+            <a href="<?php echo e(route('admin.bailleurs.index')); ?>" style="color:#6b7280;text-decoration:none">Portefeuille Bailleurs</a>
             <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            <span style="color:#0d1117;font-weight:600">{{ $user->name }}</span>
+            <span style="color:#0d1117;font-weight:600"><?php echo e($user->name); ?></span>
         </div>
-        <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $mois ?? now()->month]) }}"
+        <a href="<?php echo e(route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $mois ?? now()->month])); ?>"
            target="_blank"
            style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#0d1117;color:#c9a84c;border:1px solid rgba(201,168,76,.3);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s">
             <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -355,62 +354,63 @@
         </a>
     </div>
 
-    {{-- ═══ HERO ════════════════════════════════ --}}
+    
     <div class="hub-hero">
         <div class="hub-hero-left">
-            <div class="hub-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+            <div class="hub-avatar"><?php echo e(strtoupper(substr($user->name, 0, 1))); ?></div>
             <div>
-                <div class="hub-name">{{ $user->name }}</div>
+                <div class="hub-name"><?php echo e($user->name); ?></div>
                 <div class="hub-meta">
-                    @if($user->email) <strong>{{ $user->email }}</strong><br> @endif
-                    @if($user->telephone) {{ $user->telephone }}<br> @endif
-                    @php $profil = $user->proprietaire; @endphp
-                    @if($profil?->ninea) NINEA : <strong>{{ $profil->ninea }}</strong> @endif
+                    <?php if($user->email): ?> <strong><?php echo e($user->email); ?></strong><br> <?php endif; ?>
+                    <?php if($user->telephone): ?> <?php echo e($user->telephone); ?><br> <?php endif; ?>
+                    <?php $profil = $user->proprietaire; ?>
+                    <?php if($profil?->ninea): ?> NINEA : <strong><?php echo e($profil->ninea); ?></strong> <?php endif; ?>
                 </div>
             </div>
         </div>
         <div class="hub-kpi-row">
             <div class="hub-kpi">
                 <div class="hub-kpi-lbl">Loyers encaissés</div>
-                <div class="hub-kpi-val gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }}</div>
-                <div class="hub-kpi-sub">F CFA — {{ $annee }}</div>
+                <div class="hub-kpi-val gold"><?php echo e(number_format($dashboard['total_loyers'], 0, ',', ' ')); ?></div>
+                <div class="hub-kpi-sub">F CFA — <?php echo e($annee); ?></div>
             </div>
             <div class="hub-kpi">
                 <div class="hub-kpi-lbl">Net à reverser</div>
-                <div class="hub-kpi-val green">{{ number_format($dashboard['net_final'], 0, ',', ' ') }}</div>
+                <div class="hub-kpi-val green"><?php echo e(number_format($dashboard['net_final'], 0, ',', ' ')); ?></div>
                 <div class="hub-kpi-sub">F CFA net</div>
             </div>
             <div class="hub-kpi">
                 <div class="hub-kpi-lbl">Biens loués</div>
-                <div class="hub-kpi-val">{{ $dashboard['nb_biens_loues'] }}<span style="font-size:14px;color:rgba(255,255,255,.3)">/{{ $dashboard['nb_biens'] }}</span></div>
-                <div class="hub-kpi-sub">{{ $dashboard['nb_paiements'] }} paiement(s)</div>
+                <div class="hub-kpi-val"><?php echo e($dashboard['nb_biens_loues']); ?><span style="font-size:14px;color:rgba(255,255,255,.3)">/<?php echo e($dashboard['nb_biens']); ?></span></div>
+                <div class="hub-kpi-sub"><?php echo e($dashboard['nb_paiements']); ?> paiement(s)</div>
             </div>
         </div>
     </div>
 
-    {{-- ═══ FILTRE PÉRIODE ════════════════════ --}}
+    
     <form method="GET" class="hub-filter">
         <select name="annee" onchange="this.form.submit()">
-            @foreach($anneesDisponibles as $a)
-                <option value="{{ $a }}" @selected($a == $annee)>{{ $a }}</option>
-            @endforeach
+            <?php $__currentLoopData = $anneesDisponibles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <option value="<?php echo e($a); ?>" <?php if($a == $annee): echo 'selected'; endif; ?>><?php echo e($a); ?></option>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </select>
         <select name="mois" onchange="this.form.submit()">
             <option value="">Toute l'année</option>
-            @foreach(range(1,12) as $m)
-                <option value="{{ $m }}" @selected($m == $mois)>
-                    {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+            <?php $__currentLoopData = range(1,12); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $m): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <option value="<?php echo e($m); ?>" <?php if($m == $mois): echo 'selected'; endif; ?>>
+                    <?php echo e(\Carbon\Carbon::create()->month($m)->translatedFormat('F')); ?>
+
                 </option>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </select>
-        @if($mois)
-            <a href="{{ route('admin.bailleurs.show', $user->id) }}?annee={{ $annee }}" class="hub-filter-reset">
+        <?php if($mois): ?>
+            <a href="<?php echo e(route('admin.bailleurs.show', $user->id)); ?>?annee=<?php echo e($annee); ?>" class="hub-filter-reset">
                 Voir toute l'année
             </a>
-        @endif
+        <?php endif; ?>
     </form>
 
-    {{-- ═══ ONGLETS ════════════════════════════ --}}
+    
     <div class="hub-tabs" role="tablist">
         <button class="hub-tab active" role="tab" onclick="switchTab('synthese', this)" aria-selected="true">
             <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -419,55 +419,53 @@
         <button class="hub-tab" role="tab" onclick="switchTab('biens', this)">
             <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             Biens &amp; Locataires
-            <span class="hub-tab-badge">{{ $biens->count() }}</span>
+            <span class="hub-tab-badge"><?php echo e($biens->count()); ?></span>
         </button>
         <button class="hub-tab" role="tab" onclick="switchTab('paiements', this)">
             <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             Historique
-            <span class="hub-tab-badge">{{ $paiements->count() }}</span>
+            <span class="hub-tab-badge"><?php echo e($paiements->count()); ?></span>
         </button>
-        @if($dashboard['total_brs'] > 0 || $dashboard['total_dgid'] > 0)
+        <?php if($dashboard['total_brs'] > 0 || $dashboard['total_dgid'] > 0): ?>
         <button class="hub-tab" role="tab" onclick="switchTab('fiscal', this)">
             <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
             Fiscal
         </button>
-        @endif
+        <?php endif; ?>
     </div>
 
-    {{-- ═══════════════════════════════════════
-         PANEL 1 — SYNTHÈSE FINANCIÈRE
-         ═══════════════════════════════════════ --}}
+    
     <div id="tab-synthese" class="hub-panel active" role="tabpanel">
         <div class="synth-grid">
 
-            {{-- Colonne principale --}}
+            
             <div>
-                {{-- Équation financière --}}
+                
                 <div class="equation">
                     <div class="eq-block" style="background:#f5e9c9">
                         <div class="eq-block-lbl" style="color:#8a6e2f">Loyers encaissés</div>
-                        <div class="eq-block-val" style="color:#c9a84c">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} F</div>
+                        <div class="eq-block-val" style="color:#c9a84c"><?php echo e(number_format($dashboard['total_loyers'], 0, ',', ' ')); ?> F</div>
                     </div>
                     <div class="eq-op">−</div>
                     <div class="eq-block" style="background:#dbeafe">
                         <div class="eq-block-lbl" style="color:#1d4ed8">Commissions TTC</div>
-                        <div class="eq-block-val" style="color:#1d4ed8">{{ number_format($dashboard['total_commissions'], 0, ',', ' ') }} F</div>
+                        <div class="eq-block-val" style="color:#1d4ed8"><?php echo e(number_format($dashboard['total_commissions'], 0, ',', ' ')); ?> F</div>
                     </div>
-                    @if($dashboard['total_depenses'] > 0)
+                    <?php if($dashboard['total_depenses'] > 0): ?>
                     <div class="eq-op">−</div>
                     <div class="eq-block" style="background:#fee2e2">
                         <div class="eq-block-lbl" style="color:#dc2626">Dépenses</div>
-                        <div class="eq-block-val" style="color:#dc2626">{{ number_format($dashboard['total_depenses'], 0, ',', ' ') }} F</div>
+                        <div class="eq-block-val" style="color:#dc2626"><?php echo e(number_format($dashboard['total_depenses'], 0, ',', ' ')); ?> F</div>
                     </div>
-                    @endif
+                    <?php endif; ?>
                     <div class="eq-op" style="color:#0d1117">=</div>
                     <div class="eq-result">
                         <div class="eq-result-lbl">Net à verser</div>
-                        <div class="eq-result-val">{{ number_format($dashboard['net_final'], 0, ',', ' ') }} F</div>
+                        <div class="eq-result-val"><?php echo e(number_format($dashboard['net_final'], 0, ',', ' ')); ?> F</div>
                     </div>
                 </div>
 
-                {{-- Biens aperçu rapide --}}
+                
                 <div class="card">
                     <div class="card-hd">
                         <div class="card-hd-left">
@@ -480,81 +478,82 @@
                             Voir tout →
                         </button>
                     </div>
-                    @foreach($biens->take(3) as $bien)
+                    <?php $__currentLoopData = $biens->take(3); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bien): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <div style="display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid #f3f4f6">
                         <div style="flex:1">
-                            <a href="{{ route('admin.biens.show', $bien) }}" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#0d1117;text-decoration:none">{{ $bien->reference }}</a>
-                            <div style="font-size:11px;color:#6b7280">{{ $bien->adresse }}{{ $bien->ville ? ', '.$bien->ville : '' }}</div>
+                            <a href="<?php echo e(route('admin.biens.show', $bien)); ?>" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#0d1117;text-decoration:none"><?php echo e($bien->reference); ?></a>
+                            <div style="font-size:11px;color:#6b7280"><?php echo e($bien->adresse); ?><?php echo e($bien->ville ? ', '.$bien->ville : ''); ?></div>
                         </div>
-                        <span class="statut-badge s-{{ $bien->statut }}">
+                        <span class="statut-badge s-<?php echo e($bien->statut); ?>">
                             <span class="s-dot"></span>
-                            {{ \App\Models\Bien::STATUTS[$bien->statut] ?? $bien->statut }}
+                            <?php echo e(\App\Models\Bien::STATUTS[$bien->statut] ?? $bien->statut); ?>
+
                         </span>
-                        @if($bien->contratActif)
+                        <?php if($bien->contratActif): ?>
                         <div style="text-align:right;min-width:80px">
-                            <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117"><?php echo e(number_format($bien->loyer_mensuel, 0, ',', ' ')); ?> F</div>
                             <div style="font-size:10px;color:#9ca3af">/mois</div>
                         </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
-                    @endforeach
-                    @if($biens->count() > 3)
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php if($biens->count() > 3): ?>
                     <div style="padding:10px 18px;font-size:12px;color:#9ca3af;text-align:center">
-                        + {{ $biens->count() - 3 }} autre(s) bien(s) — <a href="#" onclick="switchTab('biens', document.querySelector('[onclick*=biens]'));return false" style="color:#c9a84c;text-decoration:none">voir tous</a>
+                        + <?php echo e($biens->count() - 3); ?> autre(s) bien(s) — <a href="#" onclick="switchTab('biens', document.querySelector('[onclick*=biens]'));return false" style="color:#c9a84c;text-decoration:none">voir tous</a>
                     </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
-            {{-- Colonne droite — résumé dark --}}
+            
             <div>
                 <div class="rp">
                     <div class="rp-hd">
                         <div class="rp-title">Résumé financier</div>
-                        <span style="font-size:11px;color:rgba(255,255,255,.25)">{{ $annee }}{{ $mois ? ' / M'.str_pad($mois,2,'0',STR_PAD_LEFT) : '' }}</span>
+                        <span style="font-size:11px;color:rgba(255,255,255,.25)"><?php echo e($annee); ?><?php echo e($mois ? ' / M'.str_pad($mois,2,'0',STR_PAD_LEFT) : ''); ?></span>
                     </div>
                     <div class="rp-body">
                         <div class="rp-row">
                             <span class="rp-lbl">Paiements</span>
-                            <span class="rp-val">{{ $dashboard['nb_paiements'] }}</span>
+                            <span class="rp-val"><?php echo e($dashboard['nb_paiements']); ?></span>
                         </div>
                         <div class="rp-row">
                             <span class="rp-lbl">Biens loués</span>
-                            <span class="rp-val">{{ $dashboard['nb_biens_loues'] }} / {{ $dashboard['nb_biens'] }}</span>
+                            <span class="rp-val"><?php echo e($dashboard['nb_biens_loues']); ?> / <?php echo e($dashboard['nb_biens']); ?></span>
                         </div>
                         <div class="rp-sep"></div>
                         <div class="rp-row">
                             <span class="rp-lbl">Loyers encaissés</span>
-                            <span class="rp-val gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} F</span>
+                            <span class="rp-val gold"><?php echo e(number_format($dashboard['total_loyers'], 0, ',', ' ')); ?> F</span>
                         </div>
                         <div class="rp-row">
                             <span class="rp-lbl">Commissions TTC</span>
-                            <span class="rp-val red">− {{ number_format($dashboard['total_commissions'], 0, ',', ' ') }} F</span>
+                            <span class="rp-val red">− <?php echo e(number_format($dashboard['total_commissions'], 0, ',', ' ')); ?> F</span>
                         </div>
-                        @if($dashboard['total_depenses'] > 0)
+                        <?php if($dashboard['total_depenses'] > 0): ?>
                         <div class="rp-row">
                             <span class="rp-lbl">Dépenses gestion</span>
-                            <span class="rp-val red">− {{ number_format($dashboard['total_depenses'], 0, ',', ' ') }} F</span>
+                            <span class="rp-val red">− <?php echo e(number_format($dashboard['total_depenses'], 0, ',', ' ')); ?> F</span>
                         </div>
-                        @endif
-                        @if($dashboard['total_brs'] > 0)
+                        <?php endif; ?>
+                        <?php if($dashboard['total_brs'] > 0): ?>
                         <div class="rp-sep"></div>
                         <div class="rp-row">
                             <span class="rp-lbl">BRS retenu</span>
-                            <span class="rp-val red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} F</span>
+                            <span class="rp-val red"><?php echo e(number_format($dashboard['total_brs'], 0, ',', ' ')); ?> F</span>
                         </div>
-                        @endif
-                        @if($dashboard['total_dgid'] > 0)
+                        <?php endif; ?>
+                        <?php if($dashboard['total_dgid'] > 0): ?>
                         <div class="rp-row">
                             <span class="rp-lbl">DGID enregistrement</span>
-                            <span class="rp-val" style="color:#a78bfa">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span>
+                            <span class="rp-val" style="color:#a78bfa"><?php echo e(number_format($dashboard['total_dgid'], 0, ',', ' ')); ?> F</span>
                         </div>
-                        @endif
+                        <?php endif; ?>
                         <div class="rp-net">
                             <div class="rp-net-lbl">Montant final à verser</div>
-                            <div class="rp-net-val">{{ number_format($dashboard['net_final'], 0, ',', ' ') }} F</div>
+                            <div class="rp-net-val"><?php echo e(number_format($dashboard['net_final'], 0, ',', ' ')); ?> F</div>
                         </div>
-                        <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $mois ?? now()->month]) }}"
+                        <a href="<?php echo e(route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $mois ?? now()->month])); ?>"
                            target="_blank" class="btn-pdf">
                             <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             Télécharger Rapport PDF
@@ -566,86 +565,86 @@
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════
-         PANEL 2 — BIENS & LOCATAIRES
-         ═══════════════════════════════════════ --}}
+    
     <div id="tab-biens" class="hub-panel" role="tabpanel">
 
-        @if($biens->isEmpty())
+        <?php if($biens->isEmpty()): ?>
         <div class="empty-state">
             <svg style="width:40px;height:40px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
             <div style="font-weight:600;color:#374151;margin-bottom:4px">Aucun bien associé</div>
             <div>Ajoutez des biens à ce propriétaire depuis la gestion des biens.</div>
-            <a href="{{ route('admin.biens.create') }}" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;padding:9px 18px;background:#c9a84c;color:#0d1117;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none">
+            <a href="<?php echo e(route('admin.biens.create')); ?>" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;padding:9px 18px;background:#c9a84c;color:#0d1117;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none">
                 + Créer un bien
             </a>
         </div>
-        @else
+        <?php else: ?>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px">
-            @foreach($biens as $bien)
+            <?php $__currentLoopData = $biens; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bien): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="bien-card">
                 <div class="bien-card-header">
                     <div class="bien-ref-block">
-                        <a href="{{ route('admin.biens.show', $bien) }}" style="text-decoration:none">
-                            <div class="bien-ref">{{ $bien->reference }}</div>
+                        <a href="<?php echo e(route('admin.biens.show', $bien)); ?>" style="text-decoration:none">
+                            <div class="bien-ref"><?php echo e($bien->reference); ?></div>
                         </a>
                         <div class="bien-addr">
-                            {{ $bien->adresse }}{{ $bien->ville ? ', '.$bien->ville : '' }}
-                            @if($bien->surface) · {{ $bien->surface }} m² @endif
+                            <?php echo e($bien->adresse); ?><?php echo e($bien->ville ? ', '.$bien->ville : ''); ?>
+
+                            <?php if($bien->surface): ?> · <?php echo e($bien->surface); ?> m² <?php endif; ?>
                         </div>
                     </div>
                     <div>
-                        <span class="statut-badge s-{{ $bien->statut }}">
+                        <span class="statut-badge s-<?php echo e($bien->statut); ?>">
                             <span class="s-dot"></span>
-                            {{ \App\Models\Bien::STATUTS[$bien->statut] ?? $bien->statut }}
+                            <?php echo e(\App\Models\Bien::STATUTS[$bien->statut] ?? $bien->statut); ?>
+
                         </span>
                     </div>
-                    @if($bien->contratActif)
+                    <?php if($bien->contratActif): ?>
                     <div style="text-align:right">
-                        <div class="bien-loyer">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
+                        <div class="bien-loyer"><?php echo e(number_format($bien->loyer_mensuel, 0, ',', ' ')); ?> F</div>
                         <div class="bien-loyer-sub">/mois</div>
                     </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
 
-                @if($bien->contratActif?->locataire)
+                <?php if($bien->contratActif?->locataire): ?>
                 <div class="bien-card-tenant">
                     <div class="tenant-avatar">
-                        {{ strtoupper(substr($bien->contratActif->locataire->name, 0, 1)) }}
+                        <?php echo e(strtoupper(substr($bien->contratActif->locataire->name, 0, 1))); ?>
+
                     </div>
                     <div>
-                        <div class="tenant-name">{{ $bien->contratActif->locataire->name }}</div>
+                        <div class="tenant-name"><?php echo e($bien->contratActif->locataire->name); ?></div>
                         <div class="tenant-meta">
                             Locataire actif
-                            @if($bien->contratActif->date_debut)
-                             · depuis {{ \Carbon\Carbon::parse($bien->contratActif->date_debut)->translatedFormat('M Y') }}
-                            @endif
+                            <?php if($bien->contratActif->date_debut): ?>
+                             · depuis <?php echo e(\Carbon\Carbon::parse($bien->contratActif->date_debut)->translatedFormat('M Y')); ?>
+
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <a href="{{ route('admin.contrats.show', $bien->contratActif) }}" class="tenant-contract-link">
+                    <a href="<?php echo e(route('admin.contrats.show', $bien->contratActif)); ?>" class="tenant-contract-link">
                         <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         Voir contrat
                     </a>
                 </div>
-                @else
+                <?php else: ?>
                 <div class="bien-card-empty">
                     <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     Aucun locataire actif
-                    <a href="{{ route('admin.contrats.create') }}?bien_id={{ $bien->id }}" class="btn-assign">
+                    <a href="<?php echo e(route('admin.contrats.create')); ?>?bien_id=<?php echo e($bien->id); ?>" class="btn-assign">
                         + Assigner un locataire
                     </a>
                 </div>
-                @endif
+                <?php endif; ?>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
-        @endif
+        <?php endif; ?>
 
     </div>
 
-    {{-- ═══════════════════════════════════════
-         PANEL 3 — HISTORIQUE PAIEMENTS
-         ═══════════════════════════════════════ --}}
+    
     <div id="tab-paiements" class="hub-panel" role="tabpanel">
         <div class="card">
             <div class="card-hd">
@@ -654,23 +653,24 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                     </div>
                     <div class="card-title">
-                        Paiements validés — {{ $annee }}{{ $mois ? ' / '.str_pad($mois,2,'0',STR_PAD_LEFT) : '' }}
+                        Paiements validés — <?php echo e($annee); ?><?php echo e($mois ? ' / '.str_pad($mois,2,'0',STR_PAD_LEFT) : ''); ?>
+
                     </div>
-                    <span class="count-pill">{{ $paiements->count() }}</span>
+                    <span class="count-pill"><?php echo e($paiements->count()); ?></span>
                 </div>
-                @if($paiements->count() > 0)
+                <?php if($paiements->count() > 0): ?>
                 <div style="font-size:11px;color:#6b7280">
-                    Total : <strong style="color:#16a34a;font-family:'Syne',sans-serif">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} F</strong> encaissés
+                    Total : <strong style="color:#16a34a;font-family:'Syne',sans-serif"><?php echo e(number_format($dashboard['total_loyers'], 0, ',', ' ')); ?> F</strong> encaissés
                 </div>
-                @endif
+                <?php endif; ?>
             </div>
 
-            @if($paiements->isEmpty())
+            <?php if($paiements->isEmpty()): ?>
             <div class="empty-state">
                 <svg style="width:36px;height:36px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 Aucun paiement validé sur cette période.
             </div>
-            @else
+            <?php else: ?>
             <div style="overflow-x:auto">
                 <table class="dt">
                     <thead>
@@ -685,54 +685,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($paiements as $p)
-                        @php
+                        <?php $__currentLoopData = $paiements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $depMois = (float) $p->depenses->sum('montant');
                             $netBailleur = (float)($p->montant_net_bailleur ?? $p->net_a_verser_proprietaire ?? 0);
                             $netFinalLigne = round($netBailleur - $depMois, 2);
-                        @endphp
+                        ?>
                         <tr>
                             <td>
                                 <span class="periode-badge">
-                                    {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
+                                    <?php echo e(\Carbon\Carbon::parse($p->periode)->translatedFormat('M Y')); ?>
+
                                 </span>
                             </td>
                             <td style="font-size:12px;font-weight:600;color:#374151">
-                                {{ $p->contrat?->bien?->reference ?? '—' }}
+                                <?php echo e($p->contrat?->bien?->reference ?? '—'); ?>
+
                             </td>
                             <td style="font-size:12px;color:#6b7280">
-                                {{ $p->contrat?->locataire?->name ?? '—' }}
+                                <?php echo e($p->contrat?->locataire?->name ?? '—'); ?>
+
                             </td>
                             <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:700;color:#0d1117">
-                                {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
+                                <?php echo e(number_format($p->montant_encaisse, 0, ',', ' ')); ?> F
                             </td>
                             <td style="text-align:right;color:#8a6e2f;font-size:12px">
-                                {{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F
+                                <?php echo e(number_format($p->commission_ttc ?? 0, 0, ',', ' ')); ?> F
                             </td>
                             <td style="text-align:right;font-weight:700;color:#16a34a;font-family:'Syne',sans-serif">
-                                {{ number_format($netFinalLigne, 0, ',', ' ') }} F
+                                <?php echo e(number_format($netFinalLigne, 0, ',', ' ')); ?> F
                             </td>
                             <td style="text-align:center">
-                                <a href="{{ route('admin.paiements.show', $p) }}" class="btn-icon" title="Voir quittance">
+                                <a href="<?php echo e(route('admin.paiements.show', $p)); ?>" class="btn-icon" title="Voir quittance">
                                     <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
                             </td>
                         </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 
-    {{-- ═══════════════════════════════════════
-         PANEL 4 — FISCAL (conditionnel)
-         ═══════════════════════════════════════ --}}
-    @if($dashboard['total_brs'] > 0 || $dashboard['total_dgid'] > 0)
+    
+    <?php if($dashboard['total_brs'] > 0 || $dashboard['total_dgid'] > 0): ?>
     <div id="tab-fiscal" class="hub-panel" role="tabpanel">
         <div class="fiscal-grid">
-            @if($dashboard['total_brs'] > 0)
+            <?php if($dashboard['total_brs'] > 0): ?>
             <div class="fiscal-card">
                 <div class="fiscal-card-title">
                     <div class="fiscal-icon" style="background:#fee2e2;color:#dc2626">
@@ -742,19 +743,19 @@
                 </div>
                 <div class="fiscal-row">
                     <span class="fiscal-lbl">Total BRS retenu</span>
-                    <span class="fiscal-val red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} F</span>
+                    <span class="fiscal-val red"><?php echo e(number_format($dashboard['total_brs'], 0, ',', ' ')); ?> F</span>
                 </div>
                 <div class="fiscal-row">
                     <span class="fiscal-lbl">Exercice</span>
-                    <span class="fiscal-val">{{ $annee }}</span>
+                    <span class="fiscal-val"><?php echo e($annee); ?></span>
                 </div>
                 <div style="margin-top:12px;padding:10px 12px;background:#fff5f5;border-radius:8px;font-size:11px;color:#6b7280;line-height:1.6">
                     La retenue à la source BRS est déduite avant reversement au propriétaire conformément à la réglementation fiscale en vigueur.
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
-            @if($dashboard['total_dgid'] > 0)
+            <?php if($dashboard['total_dgid'] > 0): ?>
             <div class="fiscal-card">
                 <div class="fiscal-card-title">
                     <div class="fiscal-icon" style="background:#ede9fe;color:#7c3aed">
@@ -764,20 +765,20 @@
                 </div>
                 <div class="fiscal-row">
                     <span class="fiscal-lbl">Total DGID</span>
-                    <span class="fiscal-val purple">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span>
+                    <span class="fiscal-val purple"><?php echo e(number_format($dashboard['total_dgid'], 0, ',', ' ')); ?> F</span>
                 </div>
                 <div class="fiscal-row">
                     <span class="fiscal-lbl">Exercice</span>
-                    <span class="fiscal-val">{{ $annee }}</span>
+                    <span class="fiscal-val"><?php echo e($annee); ?></span>
                 </div>
                 <div style="margin-top:12px;padding:10px 12px;background:#f5f3ff;border-radius:8px;font-size:11px;color:#6b7280;line-height:1.6">
                     Droits d'enregistrement des contrats de bail auprès de la DGID — Direction Générale des Impôts et Domaines.
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
-    @endif
+    <?php endif; ?>
 
 </div>
 
@@ -799,4 +800,6 @@ function switchTab(tabId, btn) {
     if (panel) panel.classList.add('active');
 }
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\ph\bimotech-immo\resources\views/bailleurs/show.blade.php ENDPATH**/ ?>

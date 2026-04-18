@@ -126,6 +126,11 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     $netLocataire = (float) ($paiement->montant_net_locataire ?? ($totalInitial - $brs));
     $netBailleur  = (float) ($paiement->montant_net_bailleur  ?? $netAVerser);
 
+    // Caution : selon qui la conserve, elle est ou non incluse dans $netBailleur
+    // caution_gardee_par_agence = true  → agence séquestre, caution HORS $netBailleur
+    // caution_gardee_par_agence = false → caution remise au bailleur, INCLUSE dans $netBailleur
+    $cautionGardeeParAgence = (bool) ($contrat?->caution_gardee_par_agence ?? false);
+
     // Proratisation réelle : loyer_ht < loyer_nu du contrat (coeff < 1)
     $loyerNuContrat = (float) ($contrat?->loyer_nu ?? $loyerHt);
     $estProratise   = $loyerNuContrat > 0 && $loyerHt < $loyerNuContrat;
@@ -353,13 +358,20 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
                 <td class="right" style="color:#dc2626;font-weight:700">- {{ number_format($brs, 0, ',', ' ') }} FCFA</td>
             </tr>
             @endif
-            @if($caution > 0)
+            @if($caution > 0 && !$cautionGardeeParAgence)
+            {{-- Caution transmise au bailleur : incluse dans $netBailleur, on décompose --}}
             <tr>
                 <td colspan="2" style="color:#6b7280;font-size:9px">Net loyer (hors caution)</td>
                 <td class="right" style="color:#6b7280">{{ number_format($netAVerser, 0, ',', ' ') }} FCFA</td>
             </tr>
             <tr>
-                <td colspan="2" style="color:#6b7280;font-size:9px">+ Caution restituable au bailleur</td>
+                <td colspan="2" style="color:#6b7280;font-size:9px">+ Dépôt de garantie remis au bailleur</td>
+                <td class="right" style="color:#6b7280">{{ number_format($caution, 0, ',', ' ') }} FCFA</td>
+            </tr>
+            @elseif($caution > 0 && $cautionGardeeParAgence)
+            {{-- Caution conservée en séquestre par l'agence : hors $netBailleur --}}
+            <tr>
+                <td colspan="2" style="color:#6b7280;font-size:9px">Dépôt de garantie (séquestre agence — non inclus)</td>
                 <td class="right" style="color:#6b7280">{{ number_format($caution, 0, ',', ' ') }} FCFA</td>
             </tr>
             @endif

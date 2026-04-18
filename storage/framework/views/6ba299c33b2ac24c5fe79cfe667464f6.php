@@ -313,11 +313,24 @@ unset($__errorArgs, $__bag); ?>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Frais d'agence (FCFA) <span class="opt">(optionnel)</span></label>
+                            <label class="form-label">Frais d'agence HT (FCFA) <span class="opt">(optionnel)</span></label>
                             <input type="number" name="frais_agence"
                                    class="form-input" value="<?php echo e(old('frais_agence', 0)); ?>" min="0" step="500">
-                            <div class="form-hint">Standard : 1 mois de loyer nu</div>
+                            <div class="form-hint">Honoraires HT perçus à la signature · TVA 18% ajoutée auto · Standard : 1 mois de loyer nu</div>
                         </div>
+                    </div>
+                </div>
+
+                
+                <div class="card">
+                    <div class="card-hd">
+                        <div class="card-icon" style="background:#fef3c7;color:#d97706">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="card-title">Paramètres fiscaux</div>
+                    </div>
+                    <div class="card-body">
+                        <?php echo $__env->make('admin.contrats._section-fiscal', ['contrat' => null], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                     </div>
                 </div>
 
@@ -503,6 +516,17 @@ function chargerInfosBien(select) {
     // Calculer caution auto (1 mois par défaut)
     const nbMois = parseInt(document.getElementById('nombre_mois_caution').value) || 1;
     document.getElementById('caution').value = Math.round(loyer * nbMois);
+
+    // Synchroniser la case TVA loyer selon le type de bail + meublé (CGI SN art. 355)
+    // habitation meublée, commercial, mixte, saisonnier meublé → TVA applicable
+    const typeBailVal = typeBailSelect.value;
+    const tvaCheckbox = document.getElementById('loyer_assujetti_tva');
+    if (tvaCheckbox) {
+        const doitEtreTva = (typeBailVal === 'commercial' || typeBailVal === 'mixte')
+            || (meuble && (typeBailVal === 'habitation' || typeBailVal === 'saisonnier'));
+        tvaCheckbox.checked = doitEtreTva;
+        updateFiscalBadge();
+    }
 
     // Info proprio
     const infoProprio = document.getElementById('info-proprio');

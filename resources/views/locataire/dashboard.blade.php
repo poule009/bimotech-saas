@@ -428,7 +428,8 @@
                         $tel = preg_replace('/\s+|-/', '', $agency->telephone);
                         if (!str_starts_with($tel, '+') && !str_starts_with($tel, '221')) $tel = '221'.ltrim($tel, '0');
                         $tel = ltrim($tel, '+');
-                        $msgWa = "Bonjour {$agency->name}, je suis {$contrat->locataire->name}, locataire du bien {$bien->reference}. Je souhaite vous contacter.";
+                        $locataireName = $contrat?->locataire?->name ?? auth()->user()->name;
+        $msgWa = "Bonjour {$agency->name}, je suis {$locataireName}, locataire du bien {$bien->reference}. Je souhaite vous contacter.";
                     @endphp
                     <a href="https://wa.me/{{ $tel }}?text={{ urlencode($msgWa) }}" target="_blank"
                        style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:12px;padding:10px;background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none"

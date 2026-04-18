@@ -41,7 +41,7 @@ class Bien extends Model
         'surface_m2',
         'nombre_pieces',
         'meuble',
-        'loyer_mensuel',    // ← colonne réelle
+        'loyer_mensuel',    // ← prix de référence du bien (snapshot annonce) — NE PAS confondre avec Contrat.loyer_nu
         'taux_commission',
         'statut',
         'description',

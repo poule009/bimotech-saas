@@ -15,6 +15,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -129,45 +130,54 @@ class ContratController extends Controller
             ? trim($validated['reference_bail'])
             : null;
 
-        $contrat = Contrat::create([
-            'bien_id'             => $validated['bien_id'],
-            'locataire_id'        => $validated['locataire_id'],
-            'date_debut'          => $validated['date_debut'],
-            'date_fin'            => $validated['date_fin'] ?? null,
-            'loyer_nu'            => $loyerNu,
-            'loyer_contractuel'   => $loyerContractuel,
-            'charges_mensuelles'  => $chargesMensuelles,
-            'tom_amount'          => $tomAmount,
-            'caution'             => $validated['caution'],
-            'statut'              => 'actif',
-            'type_bail'           => $validated['type_bail'],
-            'frais_agence'        => $validated['frais_agence'] ?? 0,
-            'indexation_annuelle' => $validated['indexation_annuelle'] ?? 0,
-            'nombre_mois_caution' => $validated['nombre_mois_caution'] ?? 1,
-            'garant_nom'          => $validated['garant_nom'] ?? null,
-            'garant_telephone'    => $validated['garant_telephone'] ?? null,
-            'garant_adresse'      => $validated['garant_adresse'] ?? null,
-            'observations'        => $validated['observations'] ?? null,
-            'reference_bail'      => $referenceBail,
-            // ── Fiscal (l'Observer ContratObserver calcule aussi automatiquement)
-            'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
-            'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
-            'brs_applicable'           => $request->boolean('brs_applicable'),
-            'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
-            // ── DGID
-            'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
-            'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,
-            'montant_droit_de_bail'    => $validated['montant_droit_de_bail'] ?? null,
-            'enregistrement_exonere'   => $request->boolean('enregistrement_exonere'),
-        ]);
+        $agencyId = Auth::user()->agency_id;
 
-        if (empty($referenceBail)) {
-            $contrat->update([
-                'reference_bail' => sprintf('BIMO-%s-%s', now()->year, str_pad($contrat->id, 5, '0', STR_PAD_LEFT)),
+        $contrat = DB::transaction(function () use ($validated, $loyerNu, $chargesMensuelles, $tomAmount, $loyerContractuel, $referenceBail, $request, $agencyId) {
+            $contrat = Contrat::create([
+                'bien_id'             => $validated['bien_id'],
+                'locataire_id'        => $validated['locataire_id'],
+                'date_debut'          => $validated['date_debut'],
+                'date_fin'            => $validated['date_fin'] ?? null,
+                'loyer_nu'            => $loyerNu,
+                'loyer_contractuel'   => $loyerContractuel,
+                'charges_mensuelles'  => $chargesMensuelles,
+                'tom_amount'          => $tomAmount,
+                'caution'             => $validated['caution'],
+                'statut'              => 'actif',
+                'type_bail'           => $validated['type_bail'],
+                'frais_agence'        => $validated['frais_agence'] ?? 0,
+                'indexation_annuelle' => $validated['indexation_annuelle'] ?? 0,
+                'nombre_mois_caution' => $validated['nombre_mois_caution'] ?? 1,
+                'garant_nom'          => $validated['garant_nom'] ?? null,
+                'garant_telephone'    => $validated['garant_telephone'] ?? null,
+                'garant_adresse'      => $validated['garant_adresse'] ?? null,
+                'observations'        => $validated['observations'] ?? null,
+                'reference_bail'      => $referenceBail,
+                // ── Fiscal (l'Observer ContratObserver calcule aussi automatiquement)
+                'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
+                'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
+                'brs_applicable'           => $request->boolean('brs_applicable'),
+                'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
+                // ── DGID
+                'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
+                'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,
+                'montant_droit_de_bail'    => $validated['montant_droit_de_bail'] ?? null,
+                'enregistrement_exonere'   => $request->boolean('enregistrement_exonere'),
             ]);
-        }
 
-        Bien::withoutGlobalScopes()->where('id', $contrat->bien_id)->update(['statut' => 'loue']);
+            if (empty($referenceBail)) {
+                $contrat->update([
+                    'reference_bail' => sprintf('BIMO-%s-%s', now()->year, str_pad($contrat->id, 5, '0', STR_PAD_LEFT)),
+                ]);
+            }
+
+            Bien::withoutGlobalScopes()
+                ->where('id', $contrat->bien_id)
+                ->where('agency_id', $agencyId)
+                ->update(['statut' => 'loue']);
+
+            return $contrat;
+        });
 
         return redirect()
             ->route('admin.contrats.show', $contrat)
@@ -325,8 +335,10 @@ class ContratController extends Controller
             return back()->withErrors(['general' => 'Ce contrat n\'est pas actif.']);
         }
 
-        $contrat->update(['statut' => ContratStatut::Resilie->value]);
-        $contrat->bien->update(['statut' => BienStatut::Disponible->value]);
+        DB::transaction(function () use ($contrat) {
+            $contrat->update(['statut' => ContratStatut::Resilie->value]);
+            $contrat->bien->update(['statut' => BienStatut::Disponible->value]);
+        });
 
         return redirect()
             ->route('admin.contrats.index')

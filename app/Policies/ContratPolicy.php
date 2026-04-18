@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ContratStatut;
 use App\Models\Contrat;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -77,7 +78,7 @@ class ContratPolicy
             return Response::deny('Seul un administrateur peut modifier un contrat.');
         }
 
-        if ($contrat->statut === 'resilie') {
+        if ($contrat->statut === ContratStatut::Resilie->value) {
             return Response::deny('Un contrat résilié ne peut plus être modifié.');
         }
 
@@ -114,7 +115,7 @@ class ContratPolicy
         }
 
         // Un contrat actif ou résilié ne doit jamais être supprimé (historique légal)
-        if (in_array($contrat->statut, ['actif', 'resilie'])) {
+        if (in_array($contrat->statut, [ContratStatut::Actif->value, ContratStatut::Resilie->value])) {
             return Response::deny('Les contrats actifs ou résiliés ne peuvent pas être supprimés (obligation légale de conservation).');
         }
 

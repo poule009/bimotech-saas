@@ -18,7 +18,11 @@
             </p>
         </div>
         @can('create', App\Models\Bien::class)
-            {{-- CORRIGÉ : admin.biens.create --}}
+            <a href="{{ route('admin.biens.wizard') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;border-radius:8px;text-decoration:none">
+                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                Assistant
+            </a>
             <a href="{{ route('admin.biens.create') }}"
                style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#c9a84c;color:#0d1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;border-radius:8px;text-decoration:none;transition:opacity .15s"
                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">

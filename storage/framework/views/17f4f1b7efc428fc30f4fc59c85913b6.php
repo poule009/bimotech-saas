@@ -34,13 +34,19 @@ unset($__defined_vars, $__key, $__value); ?>
 
     $navAdmin = [
         ['section' => null,           'route' => 'admin.dashboard',          'label' => 'Tableau de bord'],
-        ['section' => 'IMMOBILIER',   'route' => 'admin.biens.index',         'label' => 'Biens'],
+
+        ['section' => 'PATRIMOINE',   'route' => 'admin.biens.index',         'label' => 'Biens'],
+        ['section' => null,           'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
+        ['section' => null,           'route' => 'admin.bailleurs.index',     'label' => 'Portefeuille Bailleurs'],
+
+        ['section' => 'RELATIONS',    'route' => 'admin.users.locataires',    'label' => 'Locataires'],
         ['section' => null,           'route' => 'admin.contrats.index',      'label' => 'Contrats'],
-        ['section' => null,           'route' => 'admin.impayes.index',       'label' => 'Paiements'],
-        ['section' => 'PERSONNES',    'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
-        ['section' => null,           'route' => 'admin.users.locataires',    'label' => 'Locataires'],
+
+        ['section' => 'CAISSE',       'route' => 'admin.impayes.index',       'label' => 'Paiements & Quittances'],
+
         ['section' => 'ANALYTIQUE',   'route' => 'admin.rapports.financier',  'label' => 'Rapports'],
         ['section' => null,           'route' => 'admin.activity-logs.index', 'label' => 'Activité'],
+
         ['section' => 'AGENCE',       'route' => 'admin.agency.settings',     'label' => 'Paramètres'],
         ['section' => null,           'route' => 'subscription.index',        'label' => 'Abonnement'],
     ];
@@ -66,6 +72,7 @@ unset($__defined_vars, $__key, $__value); ?>
         'admin.contrats.index'      => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
         'admin.impayes.index'       => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
         'admin.users.proprietaires' => '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',
+        'admin.bailleurs.index'     => '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/><line x1="19" y1="11" x2="19" y2="17"/><line x1="22" y1="14" x2="16" y2="14"/>',
         'admin.users.locataires'    => '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>',
         'admin.rapports.financier'  => '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
         'admin.activity-logs.index' => '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
@@ -88,7 +95,7 @@ unset($__defined_vars, $__key, $__value); ?>
 .bm-sidebar-wrap * { box-sizing: border-box; }
 .bm-sidebar-wrap {
     width: 248px;
-    min-height: 100vh;
+    height: 100vh;
     background: #0d1117;
     display: flex;
     flex-direction: column;
@@ -96,6 +103,7 @@ unset($__defined_vars, $__key, $__value); ?>
     top: 0; left: 0;
     z-index: 100;
     border-right: 1px solid rgba(255,255,255,.05);
+    overflow: hidden;
 }
 
 /* ── Logo zone ── */
@@ -133,7 +141,7 @@ unset($__defined_vars, $__key, $__value); ?>
 }
 
 /* ── Nav ── */
-.bm-nav { padding: 10px 10px; flex: 1; overflow-y: auto; }
+.bm-nav { padding: 10px 10px; flex: 1 1 0; overflow-y: auto; min-height: 0; }
 .bm-nav::-webkit-scrollbar { width: 4px; }
 .bm-nav::-webkit-scrollbar-track { background: transparent; }
 .bm-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 2px; }
@@ -189,6 +197,8 @@ unset($__defined_vars, $__key, $__value); ?>
 .bm-footer {
     padding: 12px 10px;
     border-top: 1px solid rgba(255,255,255,.06);
+    flex-shrink: 0;
+    background: #0d1117;
 }
 .bm-profile {
     display: flex;

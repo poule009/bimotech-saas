@@ -49,6 +49,23 @@ class BienController extends Controller
         return view('biens.show', compact('bien'));
     }
 
+    public function wizard(): View
+    {
+        $this->authorize('isStaff');
+
+        $proprietaires = User::where('role', 'proprietaire')
+            ->where('agency_id', Auth::user()->agency_id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+
+        $locataires = User::where('role', 'locataire')
+            ->where('agency_id', Auth::user()->agency_id)
+            ->orderBy('name')
+            ->get(['id', 'name', 'email', 'telephone']);
+
+        return view('biens.wizard', compact('proprietaires', 'locataires'));
+    }
+
     public function create(): View
     {
         $this->authorize('isStaff');

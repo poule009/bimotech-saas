@@ -6,14 +6,19 @@
 
     $navAdmin = [
         ['section' => null,           'route' => 'admin.dashboard',          'label' => 'Tableau de bord'],
-        ['section' => 'IMMOBILIER',   'route' => 'admin.biens.index',         'label' => 'Biens'],
-        ['section' => null,           'route' => 'admin.contrats.index',      'label' => 'Contrats'],
-        ['section' => null,           'route' => 'admin.impayes.index',       'label' => 'Paiements'],
-        ['section' => 'PERSONNES',    'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
+
+        ['section' => 'PATRIMOINE',   'route' => 'admin.biens.index',         'label' => 'Biens'],
+        ['section' => null,           'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
         ['section' => null,           'route' => 'admin.bailleurs.index',     'label' => 'Portefeuille Bailleurs'],
-        ['section' => null,           'route' => 'admin.users.locataires',    'label' => 'Locataires'],
+
+        ['section' => 'RELATIONS',    'route' => 'admin.users.locataires',    'label' => 'Locataires'],
+        ['section' => null,           'route' => 'admin.contrats.index',      'label' => 'Contrats'],
+
+        ['section' => 'CAISSE',       'route' => 'admin.impayes.index',       'label' => 'Paiements & Quittances'],
+
         ['section' => 'ANALYTIQUE',   'route' => 'admin.rapports.financier',  'label' => 'Rapports'],
         ['section' => null,           'route' => 'admin.activity-logs.index', 'label' => 'Activité'],
+
         ['section' => 'AGENCE',       'route' => 'admin.agency.settings',     'label' => 'Paramètres'],
         ['section' => null,           'route' => 'subscription.index',        'label' => 'Abonnement'],
     ];
@@ -62,7 +67,7 @@
 .bm-sidebar-wrap * { box-sizing: border-box; }
 .bm-sidebar-wrap {
     width: 248px;
-    min-height: 100vh;
+    height: 100vh;
     background: #0d1117;
     display: flex;
     flex-direction: column;
@@ -70,6 +75,7 @@
     top: 0; left: 0;
     z-index: 100;
     border-right: 1px solid rgba(255,255,255,.05);
+    overflow: hidden;
 }
 
 /* ── Logo zone ── */
@@ -107,7 +113,7 @@
 }
 
 /* ── Nav ── */
-.bm-nav { padding: 10px 10px; flex: 1; overflow-y: auto; }
+.bm-nav { padding: 10px 10px; flex: 1 1 0; overflow-y: auto; min-height: 0; }
 .bm-nav::-webkit-scrollbar { width: 4px; }
 .bm-nav::-webkit-scrollbar-track { background: transparent; }
 .bm-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 2px; }
@@ -163,6 +169,8 @@
 .bm-footer {
     padding: 12px 10px;
     border-top: 1px solid rgba(255,255,255,.06);
+    flex-shrink: 0;
+    background: #0d1117;
 }
 .bm-profile {
     display: flex;

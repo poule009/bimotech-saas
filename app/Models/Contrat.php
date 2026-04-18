@@ -38,7 +38,7 @@ class Contrat extends Model
         'date_fin',
 
         // ── Ventilation du loyer ───────────────────────────────────────────
-        'loyer_nu',             // Loyer hors charges et hors TOM
+        'loyer_nu',             // Loyer hors charges et hors TOM — assiette commission et TVA (≠ Bien.loyer_mensuel qui est un prix de référence)
         'loyer_contractuel',    // Total = loyer_nu + charges_mensuelles + tom_amount
         'charges_mensuelles',   // Charges récupérables mensuelles
         'tom_amount',           // Taxe sur les Ordures Ménagères (FCFA fixe)
@@ -62,6 +62,8 @@ class Contrat extends Model
         'brs_applicable',           // Bool — BRS applicable
         'taux_brs_manuel',          // Override taux BRS (null = légal)
         'date_enregistrement_dgid',    // Date enregistrement bail à la DGID
+        'numero_quittance_dgid',       // N° quittance DGID après enregistrement
+        'montant_droit_de_bail',       // Montant droits enregistrement payé à la DGID
         'enregistrement_exonere',      // Bool — exonéré d'enregistrement
         'taux_enregistrement_dgid',    // Override taux DGID (null = légal : 1% hab / 2% comm)
 
@@ -95,6 +97,7 @@ class Contrat extends Model
         'enregistrement_exonere'       => 'boolean',
         'caution_gardee_par_agence'    => 'boolean',
         'taux_enregistrement_dgid'     => 'decimal:2',
+        'montant_droit_de_bail'        => 'decimal:2',
         // Note : pas de cast Enum — $contrat->statut reste une string en Blade.
     ];
 
