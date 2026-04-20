@@ -32,6 +32,7 @@ class Bien extends Model
     protected $fillable = [
         'agency_id',
         'proprietaire_id',
+        'immeuble_id',
         'reference',
         'type',
         'adresse',
@@ -87,6 +88,23 @@ class Bien extends Model
     public function photos(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(BienPhoto::class)->orderBy('ordre');
+    }
+
+    public function immeuble(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Immeuble::class);
+    }
+
+    // ── Scopes ────────────────────────────────────────────────────────────
+
+    public function scopeStandalone(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereNull('immeuble_id');
+    }
+
+    public function scopeUnite(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereNotNull('immeuble_id');
     }
 
     // ── Accesseurs ────────────────────────────────────────────────────────
