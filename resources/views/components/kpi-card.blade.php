@@ -56,7 +56,7 @@
             position: absolute; top: 12px; right: 14px;
             opacity: .08;
         ">
-            <x-feather-icon :name="$icon" size="32" color="{{ $c['border'] }}" />
+            <span style="font-size: 20px; color: {{ $c['border'] }};">◆</span>
         </div>
     @endif
 
