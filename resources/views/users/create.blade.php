@@ -304,13 +304,13 @@
                     <label class="field-label">Genre</label>
                     <div class="genre-grid">
                         <div class="genre-pill">
-                            <input type="radio" name="genre" id="genre_homme" value="homme"
-                                   {{ old('genre') === 'homme' ? 'checked':'' }}>
+                            <input type="radio" name="genre" id="genre_homme" value="M"
+                                   {{ old('genre') === 'M' ? 'checked':'' }}>
                             <label for="genre_homme">👨 Homme</label>
                         </div>
                         <div class="genre-pill">
-                            <input type="radio" name="genre" id="genre_femme" value="femme"
-                                   {{ old('genre') === 'femme' ? 'checked':'' }}>
+                            <input type="radio" name="genre" id="genre_femme" value="F"
+                                   {{ old('genre') === 'F' ? 'checked':'' }}>
                             <label for="genre_femme">👩 Femme</label>
                         </div>
                     </div>
@@ -456,18 +456,6 @@
                         <input type="text" name="ninea" class="field-input"
                                value="{{ old('ninea') }}" placeholder="Ex: 00123456789">
                         <div class="field-hint">Numéro d'Identification National des Entreprises</div>
-                    </div>
-                    <div style="padding-top:26px">
-                        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;transition:all .15s"
-                               onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='#e5e7eb'">
-                            <input type="checkbox" name="assujetti_tva" value="1"
-                                   {{ old('assujetti_tva') ? 'checked':'' }}
-                                   style="width:16px;height:16px;accent-color:var(--gold)">
-                            <div>
-                                <div style="font-size:13px;font-weight:500;color:#374151">Assujetti à la TVA</div>
-                                <div style="font-size:11px;color:#9ca3af">Le propriétaire est redevable de TVA</div>
-                            </div>
-                        </label>
                     </div>
                 </div>
             </div>
