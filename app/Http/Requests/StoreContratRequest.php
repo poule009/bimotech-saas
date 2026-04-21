@@ -78,6 +78,7 @@ class StoreContratRequest extends FormRequest
             'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],
             'brs_applicable'           => ['nullable', 'boolean'],
             'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'charges_assujetties_tva'  => ['nullable', 'boolean'],
             // ── DGID ──────────────────────────────────────────────────────────
             'date_enregistrement_dgid' => ['nullable', 'date'],
             'numero_quittance_dgid'    => ['nullable', 'string', 'max:60'],

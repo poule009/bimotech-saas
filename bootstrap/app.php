@@ -29,6 +29,12 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SecureHeaders::class,
             \App\Http\Middleware\CheckSubscription::class,
         ]);
+
+        // ── Exemption CSRF pour les webhooks externes ────────────────────
+        // PayTech envoie des POST sans token CSRF → 419 si non exempté
+        $middleware->validateCsrfTokens(except: [
+            'subscription/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

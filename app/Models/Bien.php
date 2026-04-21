@@ -34,6 +34,7 @@ class Bien extends Model
         'proprietaire_id',
         'immeuble_id',
         'reference',
+        'titre',
         'type',
         'adresse',
         'ville',
@@ -137,5 +138,18 @@ class Bien extends Model
         // Sinon fallback sur le tableau STATUTS ou ucfirst.
         $enum = BienStatut::tryFrom($this->statut ?? '');
         return $enum ? $enum->label() : (self::STATUTS[$this->statut] ?? ucfirst($this->statut ?? ''));
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    public static function generateReference(int $agencyId): string
+    {
+        $agId  = str_pad($agencyId, 2, '0', STR_PAD_LEFT);
+        $count = static::withoutGlobalScope(\App\Models\Scopes\AgencyScope::class)
+            ->where('agency_id', $agencyId)
+            ->withTrashed()
+            ->count() + 1;
+
+        return 'BT-AG' . $agId . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
     }
 }

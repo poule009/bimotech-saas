@@ -4,33 +4,9 @@
 
 @section('content')
 <style>
-.kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
-.kpi { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px; }
-.kpi.gold  { border-top:3px solid #c9a84c; }
-.kpi.green { border-top:3px solid #16a34a; }
-.kpi.blue  { border-top:3px solid #1d4ed8; }
-.kpi.dark  { border-top:3px solid #0d1117; }
-.kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;line-height:1.1; }
-.kpi-sub { font-size:11px;color:#9ca3af;margin-top:4px; }
-
-.table-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden; }
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-.dt td { padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#fafafa; }
-
-.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600; }
 .badge-valide  { background:#dcfce7;color:#16a34a; }
 .badge-annulé  { background:#fee2e2;color:#dc2626; }
 .badge-attente { background:#fef9c3;color:#a16207; }
-
-.act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;text-decoration:none;transition:all .15s;cursor:pointer; }
-.act-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
-.act-btn.danger:hover { border-color:#fca5a5;color:#dc2626;background:#fef2f2; }
-
-.empty-state { padding:56px;text-align:center; }
 </style>
 
 <div style="padding:0 0 48px">

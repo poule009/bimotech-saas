@@ -10,19 +10,19 @@ namespace App\Services;
  *
  * STRUCTURE DU DÉCOMPTE :
  *
- *  loyer_ht                    ← loyer hors TVA (assiette commission et BRS)
- *  + tva_loyer (0 ou 18%)      ← UNIQUEMENT sur loyer_ht, jamais sur charges/TOM
+ *  loyer_ht                    ← loyer nu hors TVA (assiette commission)
+ *  + tva_loyer (0 ou 18%)      ← sur (loyer_ht + TOM) — Art. 354 CGI SN
  *  = loyer_ttc
- *  + charges_amount            ← hors TVA, hors commission
- *  + tom_amount                ← hors TVA, hors commission
+ *  + charges_amount            ← hors TVA, hors commission, hors BRS
+ *  + tom_amount                ← inclus dans assiette TVA et BRS (pas dans commission)
  *  = montant_encaisse          ← total que le locataire doit régler
  *  ─────────────────────────────────────────────────────────────────
- *  commission_ht               ← % sur loyer_ht uniquement
+ *  commission_ht               ← % sur loyer_ht uniquement (jamais sur TVA/TOM/charges)
  *  + tva_commission            ← 18% sur commission_ht (Art. 357 CGI SN)
  *  = commission_ttc
  *  ─────────────────────────────────────────────────────────────────
  *  net_proprietaire            ← montant_encaisse - commission_ttc
- *  - brs_amount                ← % × loyer_ht si locataire entreprise (Art. 196bis)
+ *  - brs_amount                ← % × (loyer_ttc + TOM) si locataire entreprise (Art. 156 CGI SN)
  *  = net_a_verser_proprietaire ← montant effectivement viré au propriétaire
  *  ─────────────────────────────────────────────────────────────────
  *  [Premier paiement uniquement]
@@ -43,6 +43,8 @@ final class FiscalResult
 
         // ── Ventilation complète ──────────────────────────────────────────
         public readonly float  $chargesAmount,
+        public readonly float  $tvaCharges,     // TVA sur charges forfait (0 si débours ou bail exonéré)
+        public readonly float  $chargesTtc,     // chargesAmount + tvaCharges
         public readonly float  $tomAmount,
         public readonly float  $montantEncaisse,
 
@@ -104,6 +106,8 @@ final class FiscalResult
 
             // Ventilation
             'charges_amount'             => $this->chargesAmount,
+            'tva_charges'                => $this->tvaCharges,
+            'charges_ttc'                => $this->chargesTtc,
             'tom_amount'                 => $this->tomAmount,
             'montant_encaisse'           => $this->montantEncaisse,
 

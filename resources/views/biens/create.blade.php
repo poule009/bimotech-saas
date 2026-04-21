@@ -5,31 +5,10 @@
 @section('content')
 <style>
 .form-grid { display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start; }
-.card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:16px; }
-.card-hd { padding:14px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; gap:10px; }
-.card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.card-icon svg { width:15px;height:15px; }
-.card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
-.card-icon.blue   { background:#dbeafe;color:#1d4ed8; }
-.card-icon.green  { background:#dcfce7;color:#16a34a; }
-.card-icon.purple { background:#ede9fe;color:#7c3aed; }
+.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
+.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px; }
 .card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
 .card-body { padding:18px 20px; }
-.form-row { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
-.form-group { margin-bottom:14px; }
-.form-group:last-child { margin-bottom:0; }
-.form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
-.req { color:#dc2626; }
-.opt { color:#9ca3af;font-weight:400; }
-.form-input,.form-select,.form-textarea {
-    width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;
-    font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fff;
-    outline:none;transition:border .15s;
-}
-.form-input:focus,.form-select:focus,.form-textarea:focus { border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1); }
-.form-input.error,.form-select.error { border-color:#dc2626; }
-.form-error { font-size:11px;color:#dc2626;margin-top:3px; }
-.form-textarea { resize:vertical;min-height:80px; }
 .recap-card { background:#0d1117;border-radius:14px;overflow:hidden;position:sticky;top:24px; }
 .recap-hd { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
 .recap-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff; }
@@ -42,9 +21,6 @@
 .rp-total { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:12px 14px;margin-top:12px; }
 .rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
 .rp-total-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#c9a84c; }
-.submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f9fafb; }
-.btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
-.btn-submit { padding:8px 18px;border-radius:8px;border:none;background:#2a4a7f;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
 </style>
 
 <div style="padding:0 0 48px">
@@ -77,7 +53,7 @@
             {{-- ═══ COLONNE GAUCHE ═══ --}}
             <div>
 
-                {{-- PROPRIÉTAIRE --}}
+                {{-- PROPRIÉTAIRE & IMMEUBLE --}}
                 <div class="card">
                     <div class="card-hd">
                         <div class="card-icon gold">
@@ -91,12 +67,34 @@
                             <select name="proprietaire_id" class="form-select {{ $errors->has('proprietaire_id') ? 'error':'' }}">
                                 <option value="">— Sélectionner —</option>
                                 @foreach($proprietaires as $p)
-                                    <option value="{{ $p->id }}" {{ old('proprietaire_id') == $p->id ? 'selected':'' }}>
+                                    <option value="{{ $p->id }}" {{ old('proprietaire_id', $immeubleSelectionne?->proprietaire_id) == $p->id ? 'selected':'' }}>
                                         {{ $p->name }} — {{ $p->email }}
                                     </option>
                                 @endforeach
                             </select>
                             @error('proprietaire_id')<div class="form-error">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label">
+                                Immeuble
+                                <span class="opt">(optionnel — laisser vide pour un bien standalone)</span>
+                            </label>
+                            <select name="immeuble_id" class="form-select">
+                                <option value="">— Bien standalone (aucun immeuble) —</option>
+                                @foreach($immeubles as $imm)
+                                    <option value="{{ $imm->id }}"
+                                        {{ old('immeuble_id', $immeubleSelectionne?->id) == $imm->id ? 'selected':'' }}>
+                                        {{ $imm->nom }} — {{ $imm->ville }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if($immeubleSelectionne)
+                            <div style="font-size:11px;color:#16a34a;margin-top:4px;display:flex;align-items:center;gap:4px">
+                                <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                Unité de « {{ $immeubleSelectionne->nom }} » pré-sélectionnée
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -110,17 +108,122 @@
                         <div class="card-title">Informations générales</div>
                     </div>
                     <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Type <span class="req">*</span></label>
-                                <select name="type" class="form-select {{ $errors->has('type') ? 'error':'' }}" onchange="calcRecap()">
-                                    <option value="">— Choisir —</option>
-                                    @foreach(\App\Models\Bien::TYPES as $val => $label)
-                                        <option value="{{ $val }}" {{ old('type') === $val ? 'selected':'' }}>{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                                @error('type')<div class="form-error">{{ $message }}</div>@enderror
+                        <div class="form-group">
+                            <label class="form-label">Type <span class="req">*</span></label>
+                            <select name="type" id="select-type" class="form-select {{ $errors->has('type') ? 'error':'' }}" onchange="onTypeChange(this.value)">
+                                <option value="">— Choisir —</option>
+                                @foreach(\App\Models\Bien::TYPES as $val => $label)
+                                    <option value="{{ $val }}" {{ old('type') === $val ? 'selected':'' }}>{{ $label }}</option>
+                                @endforeach
+                                <option value="immeuble" {{ old('type') === 'immeuble' ? 'selected':'' }}>🏢 Immeuble (multi-unités)</option>
+                            </select>
+                            @error('type')<div class="form-error">{{ $message }}</div>@enderror
+                        </div>
+
+                        {{-- ═══ SECTION IMMEUBLE (cachée par défaut) ═══ --}}
+                        <div id="section-immeuble" style="display:none">
+                            <div style="background:#f0f7ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;margin-bottom:14px">
+                                <div style="font-size:12px;font-weight:600;color:#1d4ed8;margin-bottom:2px">Immeuble multi-unités</div>
+                                <div style="font-size:11px;color:#3b82f6">
+                                    L'immeuble sera créé automatiquement avec toutes ses unités liées au même propriétaire.
+                                </div>
                             </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Nom de l'immeuble <span class="req">*</span></label>
+                                <input type="text" name="nom" id="nom"
+                                       class="form-input {{ $errors->has('nom') ? 'error':'' }}"
+                                       value="{{ old('nom') }}"
+                                       placeholder="Ex: Immeuble Fann Résidence">
+                                @error('nom')<div class="form-error">{{ $message }}</div>@enderror
+                            </div>
+
+                            {{-- Mode de numérotation --}}
+                            <div class="form-group">
+                                <label class="form-label">Mode de numérotation <span class="req">*</span></label>
+                                <div style="display:flex;gap:10px;margin-top:4px">
+                                    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;padding:9px 14px;border:1px solid #e5e7eb;border-radius:8px;flex:1;transition:all .15s" id="lbl-simple">
+                                        <input type="radio" name="mode_numerotation" value="simple"
+                                               {{ old('mode_numerotation', 'simple') === 'simple' ? 'checked' : '' }}
+                                               onchange="onModeChange('simple')"
+                                               style="accent-color:#c9a84c">
+                                        <div>
+                                            <div style="font-weight:600;color:#0d1117">Simple</div>
+                                            <div style="font-size:11px;color:#6b7280">Appt 01, Appt 02…</div>
+                                        </div>
+                                    </label>
+                                    <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;padding:9px 14px;border:1px solid #e5e7eb;border-radius:8px;flex:1;transition:all .15s" id="lbl-etage">
+                                        <input type="radio" name="mode_numerotation" value="etage"
+                                               {{ old('mode_numerotation') === 'etage' ? 'checked' : '' }}
+                                               onchange="onModeChange('etage')"
+                                               style="accent-color:#c9a84c">
+                                        <div>
+                                            <div style="font-weight:600;color:#0d1117">Par étage</div>
+                                            <div style="font-size:11px;color:#6b7280">Appt 101, Appt 102…</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {{-- Simple --}}
+                            <div id="bloc-simple">
+                                <div class="form-group">
+                                    <label class="form-label">Nombre d'unités <span class="req">*</span></label>
+                                    <input type="number" name="nombre_unites" id="nombre_unites"
+                                           class="form-input {{ $errors->has('nombre_unites') ? 'error':'' }}"
+                                           value="{{ old('nombre_unites', 1) }}" min="1" max="999"
+                                           placeholder="Ex: 10" oninput="calcRecap()">
+                                    @error('nombre_unites')<div class="form-error">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+
+                            {{-- Par étage --}}
+                            <div id="bloc-etage" style="display:none">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Nombre de niveaux <span class="req">*</span></label>
+                                        <input type="number" name="nombre_niveaux" id="nombre_niveaux"
+                                               class="form-input {{ $errors->has('nombre_niveaux') ? 'error':'' }}"
+                                               value="{{ old('nombre_niveaux', 1) }}" min="1" max="99"
+                                               placeholder="Ex: 3" oninput="calcRecap()">
+                                        @error('nombre_niveaux')<div class="form-error">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Unités par niveau <span class="req">*</span></label>
+                                        <input type="number" name="unites_par_niveau" id="unites_par_niveau"
+                                               class="form-input {{ $errors->has('unites_par_niveau') ? 'error':'' }}"
+                                               value="{{ old('unites_par_niveau', 2) }}" min="1" max="99"
+                                               placeholder="Ex: 4" oninput="calcRecap()">
+                                        @error('unites_par_niveau')<div class="form-error">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Type des unités <span class="req">*</span></label>
+                                    <select name="type_unite" class="form-select {{ $errors->has('type_unite') ? 'error':'' }}">
+                                        <option value="">— Choisir —</option>
+                                        @foreach(\App\Models\Bien::TYPES as $val => $label)
+                                            <option value="{{ $val }}" {{ old('type_unite') === $val ? 'selected':'' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('type_unite')<div class="form-error">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Loyer par unité (FCFA) <span class="req">*</span></label>
+                                    <input type="number" name="loyer_par_unite" id="loyer_par_unite"
+                                           class="form-input {{ $errors->has('loyer_par_unite') ? 'error':'' }}"
+                                           value="{{ old('loyer_par_unite') }}" min="0" step="500"
+                                           oninput="calcRecap()">
+                                    @error('loyer_par_unite')<div class="form-error">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- ═══ SECTION BIEN STANDALONE (visible par défaut) ═══ --}}
+                        <div id="section-bien">
+                        <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Surface (m²) <span class="opt">(optionnel)</span></label>
                                 <input type="number" name="surface_m2" class="form-input"
@@ -142,6 +245,7 @@
                                 </label>
                             </div>
                         </div>
+                        </div>{{-- /section-bien --}}
                     </div>
                 </div>
 
@@ -181,8 +285,8 @@
                     </div>
                 </div>
 
-                {{-- FINANCIER --}}
-                <div class="card">
+                {{-- FINANCIER (caché en mode immeuble, le loyer est dans la section immeuble) --}}
+                <div class="card" id="card-financier">
                     <div class="card-hd">
                         <div class="card-icon gold">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
@@ -269,9 +373,9 @@
                     </div>
                     <div class="submit-bar">
                         <a href="{{ route('admin.biens.index') }}" class="btn-cancel">Annuler</a>
-                        <button type="submit" class="btn-submit">
+                        <button type="submit" class="btn-submit" id="btn-submit">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
-                            Créer le bien
+                            <span id="btn-submit-label">Créer le bien</span>
                         </button>
                     </div>
                 </div>
@@ -327,20 +431,79 @@ function fmt(n) {
     return Math.round(n).toLocaleString('fr-FR') + ' F';
 }
 
-function calcRecap() {
-    const loyer   = parseFloat(document.getElementById('loyer_mensuel').value) || 0;
-    const taux    = parseFloat(document.getElementById('taux_commission').value) || 0;
-    const commHt  = Math.round(loyer * taux / 100);
-    const tvaComm = Math.round(commHt * 0.18);
-    const commTtc = commHt + tvaComm;
-    const net     = loyer - commHt;
+const ROUTE_IMMEUBLES = '{{ route('admin.immeubles.store') }}';
+const ROUTE_BIENS     = '{{ route('admin.biens.store') }}';
 
-    document.getElementById('rp-loyer').textContent    = fmt(loyer);
-    document.getElementById('rp-comm').textContent     = fmt(commHt);
-    document.getElementById('rp-tva').textContent      = fmt(tvaComm);
-    document.getElementById('rp-comm-ttc').textContent = fmt(commTtc);
-    document.getElementById('rp-net').textContent      = fmt(net) + 'CFA';
+function onModeChange(mode) {
+    document.getElementById('bloc-simple').style.display = mode === 'simple' ? 'block' : 'none';
+    document.getElementById('bloc-etage').style.display  = mode === 'etage'  ? 'block' : 'none';
+    document.getElementById('lbl-simple').style.borderColor = mode === 'simple' ? '#c9a84c' : '#e5e7eb';
+    document.getElementById('lbl-etage').style.borderColor  = mode === 'etage'  ? '#c9a84c' : '#e5e7eb';
+    calcRecap();
 }
+
+function getNbUnites() {
+    const mode = document.querySelector('input[name="mode_numerotation"]:checked')?.value ?? 'simple';
+    if (mode === 'etage') {
+        const niveaux = parseInt(document.getElementById('nombre_niveaux')?.value) || 1;
+        const parNiveau = parseInt(document.getElementById('unites_par_niveau')?.value) || 1;
+        return niveaux * parNiveau;
+    }
+    return parseInt(document.getElementById('nombre_unites')?.value) || 1;
+}
+
+function onTypeChange(val) {
+    const isImmeuble  = val === 'immeuble';
+    document.getElementById('section-immeuble').style.display = isImmeuble ? 'block' : 'none';
+    document.getElementById('section-bien').style.display     = isImmeuble ? 'none'  : 'block';
+    document.getElementById('card-financier').style.display   = isImmeuble ? 'none'  : 'block';
+    document.getElementById('btn-submit-label').textContent   = isImmeuble
+        ? 'Créer l\'immeuble et ses unités'
+        : 'Créer le bien';
+    document.getElementById('form-bien').action = isImmeuble ? ROUTE_IMMEUBLES : ROUTE_BIENS;
+    calcRecap();
+}
+
+function calcRecap() {
+    const isImmeuble = document.getElementById('select-type').value === 'immeuble';
+
+    let loyer, taux;
+    if (isImmeuble) {
+        loyer = parseFloat(document.getElementById('loyer_par_unite')?.value) || 0;
+        taux  = parseFloat(document.getElementById('taux_commission')?.value) || 0;
+        const nb = getNbUnites();
+        const commHt  = Math.round(loyer * taux / 100);
+        const tvaComm = Math.round(commHt * 0.18);
+        const commTtc = commHt + tvaComm;
+        const net     = loyer - commHt;
+
+        document.getElementById('rp-loyer').textContent    = fmt(loyer) + ' × ' + nb + ' unités';
+        document.getElementById('rp-comm').textContent     = fmt(commHt) + ' / unité';
+        document.getElementById('rp-tva').textContent      = fmt(tvaComm) + ' / unité';
+        document.getElementById('rp-comm-ttc').textContent = fmt(commTtc) + ' / unité';
+        document.getElementById('rp-net').textContent      = fmt(net * nb) + 'CFA total';
+    } else {
+        loyer = parseFloat(document.getElementById('loyer_mensuel')?.value) || 0;
+        taux  = parseFloat(document.getElementById('taux_commission')?.value) || 0;
+        const commHt  = Math.round(loyer * taux / 100);
+        const tvaComm = Math.round(commHt * 0.18);
+        const commTtc = commHt + tvaComm;
+        const net     = loyer - commHt;
+
+        document.getElementById('rp-loyer').textContent    = fmt(loyer);
+        document.getElementById('rp-comm').textContent     = fmt(commHt);
+        document.getElementById('rp-tva').textContent      = fmt(tvaComm);
+        document.getElementById('rp-comm-ttc').textContent = fmt(commTtc);
+        document.getElementById('rp-net').textContent      = fmt(net) + 'CFA';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const type = document.getElementById('select-type').value;
+    if (type) onTypeChange(type);
+    const mode = document.querySelector('input[name="mode_numerotation"]:checked')?.value ?? 'simple';
+    onModeChange(mode);
+});
 
 function previewPhotos(files) {
     const grid = document.getElementById('preview-grid');

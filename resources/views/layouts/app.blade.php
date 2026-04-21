@@ -86,6 +86,68 @@
             border-left: 4px solid #E24B4A; color: #A32D2D;
             padding: 12px 16px; border-radius: 8px; font-size: 13.5px; margin-bottom: 1.5rem;
         }
+
+        /* ── Tables ── */
+        .table-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden; }
+        .dt { width:100%;border-collapse:collapse; }
+        .dt th { padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
+        .dt td { padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
+        .dt tbody tr:last-child td { border-bottom:none; }
+        .dt tbody tr:hover { background:#f9fafb; }
+
+        /* ── Badges ── */
+        .badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600; }
+        .bdot { width:5px;height:5px;border-radius:50%;background:currentColor; }
+
+        /* ── Boutons icône (tableaux) ── */
+        .act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;text-decoration:none;transition:all .15s;cursor:pointer; }
+        .act-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
+        .act-btn.danger:hover { border-color:#fca5a5;color:#dc2626;background:#fef2f2; }
+        .act-btn.primary { background:#2a4a7f;border-color:#2a4a7f;color:#fff; }
+        .act-btn.primary:hover { background:#1e3a6f; }
+
+        /* ── KPI ligne (pages index) ── */
+        .kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
+        .kpi { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px; }
+        .kpi.gold  { border-top:3px solid #c9a84c; }
+        .kpi.green { border-top:3px solid #16a34a; }
+        .kpi.blue  { border-top:3px solid #1d4ed8; }
+        .kpi.dark  { border-top:3px solid #0d1117; }
+        .kpi.amber { border-top:3px solid #d97706; }
+        .kpi.red   { border-top:3px solid #dc2626; }
+        .kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
+        .kpi-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;line-height:1.1; }
+        .kpi-sub { font-size:11px;color:#9ca3af;margin-top:4px; }
+
+        /* ── Icônes de card (formulaires) ── */
+        .card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        .card-icon svg { width:15px;height:15px; }
+        .card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
+        .card-icon.blue   { background:#dbeafe;color:#1d4ed8; }
+        .card-icon.green  { background:#dcfce7;color:#16a34a; }
+        .card-icon.purple { background:#ede9fe;color:#7c3aed; }
+        .card-icon.red    { background:#fee2e2;color:#dc2626; }
+
+        /* ── Champs de formulaire ── */
+        .form-row   { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+        .form-group { margin-bottom:14px; }
+        .form-group:last-child { margin-bottom:0; }
+        .form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
+        .req { color:#dc2626; }
+        .opt { color:#9ca3af;font-weight:400; }
+        .form-input,.form-select,.form-textarea { width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fff;outline:none;transition:border .15s; }
+        .form-input:focus,.form-select:focus,.form-textarea:focus { border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1); }
+        .form-input.error,.form-select.error { border-color:#dc2626; }
+        .form-error { font-size:11px;color:#dc2626;margin-top:3px; }
+        .form-textarea { resize:vertical;min-height:80px; }
+
+        /* ── Barre de soumission (formulaires) ── */
+        .submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f9fafb; }
+        .btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
+        .btn-submit { padding:8px 18px;border-radius:8px;border:none;background:#2a4a7f;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
+
+        /* ── État vide ── */
+        .empty-state { padding:56px 20px;text-align:center; }
     </style>
 
     {{ $styles ?? '' }}

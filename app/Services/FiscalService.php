@@ -92,11 +92,18 @@ class FiscalService
         $tauxTvaLoyer = $ctx->tauxTvaLoyerOverride ?? ($assujetti ? self::TVA_TAUX : 0.0);
 
         $loyerHt  = round($loyerNu, 2);
-        $tvaLoyer = round($loyerHt * ($tauxTvaLoyer / 100), 2);
+        // Art. 354 CGI SN : TVA sur loyer + TOM (les charges récupérables restent hors TVA)
+        $tvaLoyer = round(($loyerHt + $tom) * ($tauxTvaLoyer / 100), 2);
         $loyerTtc = round($loyerHt + $tvaLoyer, 2);
 
         // ── 2. Total encaissé ────────────────────────────────────────────────
-        $montantEncaisse = round($loyerTtc + $charges + $tom, 2);
+        // TVA sur charges : obligatoire si facturées en forfait (DGI SN — prestation de service).
+        // Même taux que le loyer : si bail exonéré (habitation), tauxTvaLoyer = 0 → tvaCharges = 0 automatiquement.
+        $tvaCharges      = $ctx->chargesAssujettiesATva
+            ? round($charges * ($tauxTvaLoyer / 100), 2)
+            : 0.0;
+        $chargesTtc      = round($charges + $tvaCharges, 2);
+        $montantEncaisse = round($loyerTtc + $chargesTtc + $tom, 2);
 
         // ── 3. Commission agence ────────────────────────────────────────────
         $commissionHt  = round($loyerHt * ($ctx->tauxCommission / 100), 2);
@@ -113,7 +120,8 @@ class FiscalService
 
         if ($brsApplicable) {
             $tauxBrs   = $ctx->tauxBrsContrat ?? $ctx->tauxBrsLocataire ?? self::BRS_TAUX_LEGAL;
-            $brsAmount = round($loyerHt * ($tauxBrs / 100), 2);
+            // Art. 156 CGI SN : BRS sur montant brut TTC = loyer TTC + TOM (hors charges)
+            $brsAmount = round(($loyerTtc + $tom) * ($tauxBrs / 100), 2);
         }
 
         $netAVerser = round($netProprietaire - $brsAmount, 2);
@@ -171,6 +179,8 @@ class FiscalService
             tvaLoyer:                 $tvaLoyer,
             loyerTtc:                 $loyerTtc,
             chargesAmount:            $charges,
+            tvaCharges:               $tvaCharges,
+            chargesTtc:               $chargesTtc,
             tomAmount:                $tom,
             montantEncaisse:          $montantEncaisse,
             commissionHt:             $commissionHt,
@@ -195,6 +205,20 @@ class FiscalService
             dgidTimbreFiscal:            $dgidTimbre,
             dgidTotal:                   $dgidTotal,
         );
+    }
+
+    /**
+     * Retourne le taux BRS applicable à un locataire.
+     *
+     * Priorité : override locataire → taux légal 15% → 0% si particulier.
+     * Utilisé par LocataireObserver pour propager les changements de profil fiscal.
+     */
+    public static function tauxBrs(bool $estEntreprise, ?float $overrideLocataire = null): float
+    {
+        if (! $estEntreprise) {
+            return 0.0;
+        }
+        return $overrideLocataire ?? self::BRS_TAUX_LEGAL;
     }
 
     /**

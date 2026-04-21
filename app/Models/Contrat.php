@@ -40,7 +40,8 @@ class Contrat extends Model
         // ── Ventilation du loyer ───────────────────────────────────────────
         'loyer_nu',             // Loyer hors charges et hors TOM — assiette commission et TVA (≠ Bien.loyer_mensuel qui est un prix de référence)
         'loyer_contractuel',    // Total = loyer_nu + charges_mensuelles + tom_amount
-        'charges_mensuelles',   // Charges récupérables mensuelles
+        'charges_mensuelles',        // Charges récupérables mensuelles
+        'charges_assujetties_tva',   // Bool — charges facturées en forfait → TVA 18% obligatoire (DGI SN)
         'tom_amount',           // Taxe sur les Ordures Ménagères (FCFA fixe)
 
         // ── Financier ─────────────────────────────────────────────────────
@@ -84,7 +85,8 @@ class Contrat extends Model
         'date_enregistrement_dgid'  => 'date',
         'loyer_nu'                  => 'decimal:2',
         'loyer_contractuel'         => 'decimal:2',
-        'charges_mensuelles'        => 'decimal:2',
+        'charges_mensuelles'          => 'decimal:2',
+        'charges_assujetties_tva'     => 'boolean',
         'tom_amount'                => 'decimal:2',
         'caution'                   => 'decimal:2',
         'frais_agence'              => 'decimal:2',

@@ -158,6 +158,7 @@ class ContratController extends Controller
                 'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
                 'brs_applicable'           => $request->boolean('brs_applicable'),
                 'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
+                'charges_assujetties_tva'  => $request->boolean('charges_assujetties_tva'),
                 // ── DGID
                 'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
                 'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,
@@ -305,6 +306,7 @@ class ContratController extends Controller
             'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
             'brs_applicable'           => $request->boolean('brs_applicable'),
             'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
+            'charges_assujetties_tva'  => $request->boolean('charges_assujetties_tva'),
             // ── DGID
             'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
             'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,

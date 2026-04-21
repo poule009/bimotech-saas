@@ -129,12 +129,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 18px;margin-bottom:18px;font-size:13px;color:#16a34a">
-        ✓ {{ session('success') }}
-    </div>
-    @endif
-
     {{-- FILTRE ANNÉE --}}
     <form method="GET" style="margin-bottom:20px">
         <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:10px 14px">

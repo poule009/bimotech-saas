@@ -70,7 +70,45 @@
         Bail mixte/saisonnier → TVA 18% |
         Habitation meublée → TVA 18% |
         Habitation nue → Exonéré.
-        <br>Les <strong>charges</strong> et la <strong>TOM</strong> ne sont <strong>jamais</strong> soumises à TVA (Art. 356 CGI SN).
+        <br><strong>Art. 354 CGI SN :</strong> la TVA s'applique sur <strong>loyer + TOM</strong>.
+        Les <strong>charges récupérables</strong> restent hors TVA.
+    </div>
+</div>
+
+{{-- ── TVA sur charges ─────────────────────────────────────────────────────── --}}
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:14px 16px;margin-bottom:12px" id="bloc-tva-charges">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+            <div style="font-size:13px;font-weight:600;color:#0d1117">TVA sur les charges locatives</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:2px">
+                DGI SN — Forfait = prestation de service assujettie · Débours = hors TVA
+            </div>
+        </div>
+        <span id="badge-tva-charges"
+              style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;
+              {{ old('charges_assujetties_tva', $contrat?->charges_assujetties_tva ?? false) ? 'background:#fef3c7;color:#d97706' : 'background:#dcfce7;color:#16a34a' }}">
+            <span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>
+            <span id="badge-tva-charges-label">
+                {{ old('charges_assujetties_tva', $contrat?->charges_assujetties_tva ?? false) ? 'TVA 18% sur charges' : 'Charges hors TVA' }}
+            </span>
+        </span>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#374151">
+        <input type="hidden"   name="charges_assujetties_tva" value="0">
+        <input type="checkbox" name="charges_assujetties_tva" id="charges_assujetties_tva" value="1"
+               {{ old('charges_assujetties_tva', $contrat?->charges_assujetties_tva ?? false) ? 'checked' : '' }}
+               onchange="toggleTvaCharges()"
+               style="width:16px;height:16px;accent-color:#c9a84c">
+        Charges facturées en forfait (TVA 18% applicable)
+    </label>
+
+    <div style="margin-top:10px;padding:8px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;font-size:11px;color:#92400e;line-height:1.6">
+        ⚠️ <strong>DGI SN :</strong>
+        Pour être exonérées de TVA, les charges doivent être des <strong>débours purs</strong> :
+        facture originale au nom du locataire, refacturation à l'identique, sans marge.
+        <br>Dès qu'un <strong>forfait</strong> est appliqué, la DGI exige TVA 18% sur ces montants.
+        En cas de contrôle fiscal, l'absence de TVA sur un forfait expose l'agence à un redressement.
     </div>
 </div>
 
@@ -112,9 +150,16 @@
 
     <div style="margin-top:10px;padding:8px 12px;background:#fff1f2;border-radius:7px;font-size:11px;color:#9f1239;line-height:1.6" id="note-brs"
          style="{{ $brsApplicable ? '' : 'display:none' }}">
-        <strong>BRS auto-activé si locataire = entreprise.</strong>
-        Taux standard : 15% × loyer TTC. Peut être réduit (ex: 5%) par convention fiscale.
+        <strong>Art. 156 CGI SN :</strong>
+        Taux standard 15% × <strong>(loyer TTC + TOM)</strong>. Peut être réduit par convention fiscale.
         Le BRS est retenu par le locataire et versé <strong>directement à la DGI</strong> — pas par l'agence.
+    </div>
+
+    {{-- Alerte bail commercial sans BRS --}}
+    <div id="alerte-brs-commercial" style="display:none;margin-top:8px;padding:8px 12px;background:#fef3c7;border:1px solid #fde68a;border-radius:7px;font-size:11px;color:#92400e;line-height:1.5">
+        ⚠️ <strong>Bail commercial détecté.</strong>
+        Si le locataire est une entreprise ou personne morale, la BRS est <strong>obligatoire</strong> (Art. 156 CGI SN).
+        Activez la case ci-dessus pour éviter un redressement fiscal.
     </div>
 </div>
 
@@ -242,5 +287,31 @@ function toggleBrsChamp() {
     badge.style.background = checked ? '#fee2e2' : '#f3f4f6';
     badge.style.color      = checked ? '#dc2626' : '#6b7280';
     badge.querySelector('span + span').textContent = checked ? 'BRS 15% applicable' : 'Non applicable';
+    verifierAlerteBrsCommercial();
+    if (typeof mettreAJourRecap === 'function') mettreAJourRecap();
 }
+
+function toggleTvaCharges() {
+    const checked = document.getElementById('charges_assujetties_tva').checked;
+    const badge   = document.getElementById('badge-tva-charges');
+    const label   = document.getElementById('badge-tva-charges-label');
+    if (label) label.textContent = checked ? 'TVA 18% sur charges' : 'Charges hors TVA';
+    if (badge) {
+        badge.style.background = checked ? '#fef3c7' : '#dcfce7';
+        badge.style.color      = checked ? '#d97706'  : '#16a34a';
+    }
+    if (typeof mettreAJourRecap === 'function') mettreAJourRecap();
+}
+window.toggleTvaCharges = toggleTvaCharges;
+
+function verifierAlerteBrsCommercial() {
+    const alerte   = document.getElementById('alerte-brs-commercial');
+    if (!alerte) return;
+    const typeBail = document.getElementById('type_bail')?.value ?? '';
+    const brsOk    = document.getElementById('brs_applicable')?.checked ?? false;
+    alerte.style.display = (typeBail === 'commercial' || typeBail === 'mixte') && !brsOk ? 'block' : 'none';
+}
+
+// Exposée globalement pour que chargerInfosBien() puisse l'appeler
+window.verifierAlerteBrsCommercial = verifierAlerteBrsCommercial;
 </script>

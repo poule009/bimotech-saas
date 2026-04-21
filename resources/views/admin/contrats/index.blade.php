@@ -4,32 +4,11 @@
 
 @section('content')
 <style>
-.kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
-.kpi { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px; }
-.kpi.gold  { border-top:3px solid #c9a84c; }
-.kpi.green { border-top:3px solid #16a34a; }
-.kpi.amber { border-top:3px solid #d97706; }
-.kpi.red   { border-top:3px solid #dc2626; }
-.kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#0d1117; }
-
-.table-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden; }
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-.dt td { padding:13px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#fafafa; }
-.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600; }
+.kpi-val { font-size:26px; }
 .badge-actif    { background:#dcfce7;color:#16a34a; }
 .badge-resilié  { background:#fee2e2;color:#dc2626; }
 .badge-expiré   { background:#f3f4f6;color:#6b7280; }
 .badge-bail     { background:#f5e9c9;color:#8a6e2f; }
-.act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;text-decoration:none;transition:all .15s;cursor:pointer; }
-.act-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
-.act-btn.danger:hover { border-color:#fca5a5;color:#dc2626;background:#fef2f2; }
-.act-btn.primary { background:#2a4a7f;border-color:#2a4a7f;color:#fff; }
-.act-btn.primary:hover { background:#1e3a6f; }
-.empty-state { padding:56px;text-align:center; }
 .empty-icon { width:52px;height:52px;border-radius:14px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
 </style>
 

@@ -208,24 +208,8 @@ $estExpire = $subscription && !$estActif && !$estEssai;
         <span style="color:#e6edf3;font-weight:500">Abonnement</span>
     </div>
 
-    {{-- Flash messages --}}
-    @if(session('success'))
-    <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#4ade80;display:flex;align-items:center;gap:10px">
-        <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        {{ session('success') }}
-    </div>
-    @endif
-    @if(session('warning'))
-    <div style="background:rgba(234,179,8,.07);border:1px solid rgba(234,179,8,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#fbbf24;display:flex;align-items:center;gap:10px">
-        <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        {{ session('warning') }}
-    </div>
-    @endif
     @if($errors->has('general'))
-    <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#f87171;display:flex;align-items:center;gap:10px">
-        <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        {{ $errors->first('general') }}
-    </div>
+    <div class="flash-error">{{ $errors->first('general') }}</div>
     @endif
 
     {{-- Statut actuel --}}

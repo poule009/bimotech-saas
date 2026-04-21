@@ -225,20 +225,6 @@
         <p style="font-size:13px;color:#8b949e;margin-top:4px">Identité visuelle, coordonnées et informations légales.</p>
     </div>
 
-    {{-- Flash --}}
-    @if(session('success'))
-    <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#4ade80;display:flex;align-items:center;gap:10px">
-        <svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        {{ session('success') }}
-    </div>
-    @endif
-    @if(session('error'))
-    <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:13px 18px;margin-bottom:20px;font-size:13px;color:#f87171;display:flex;align-items:center;gap:10px">
-        <svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        {{ session('error') }}
-    </div>
-    @endif
-
     <form method="POST" action="{{ route('admin.agency.settings.update') }}" enctype="multipart/form-data" id="settings-form">
         @csrf
         @method('PATCH')

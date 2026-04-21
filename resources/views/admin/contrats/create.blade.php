@@ -5,36 +5,12 @@
 @section('content')
 <style>
 .form-grid { display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start; }
-.card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:16px; }
-.card-hd { padding:14px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; gap:10px; }
-.card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.card-icon svg { width:15px;height:15px; }
-.card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
-.card-icon.blue   { background:#dbeafe;color:#1d4ed8; }
-.card-icon.green  { background:#dcfce7;color:#16a34a; }
-.card-icon.purple { background:#ede9fe;color:#7c3aed; }
-.card-icon.red    { background:#fee2e2;color:#dc2626; }
+.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
+.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px; }
 .card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
 .card-body { padding:18px 20px; }
-.form-row { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
 .form-row-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
-.form-group { margin-bottom:14px; }
-.form-group:last-child { margin-bottom:0; }
-.form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
-.req { color:#dc2626; }
-.opt { color:#9ca3af;font-weight:400; }
-.form-input,.form-select,.form-textarea {
-    width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;
-    font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fff;
-    outline:none;transition:border .15s;
-}
-.form-input:focus,.form-select:focus,.form-textarea:focus { border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1); }
-.form-input.error,.form-select.error { border-color:#dc2626; }
-.form-error { font-size:11px;color:#dc2626;margin-top:3px; }
-.form-textarea { resize:vertical;min-height:80px; }
 .form-hint { font-size:11px;color:#9ca3af;margin-top:3px; }
-
-/* Recap */
 .recap-card { background:#0d1117;border-radius:14px;overflow:hidden;position:sticky;top:24px; }
 .recap-hd { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
 .recap-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff; }
@@ -49,20 +25,12 @@
 .rp-total { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:12px 14px;margin-top:12px; }
 .rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
 .rp-total-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#c9a84c; }
-
-/* Bouton nouveau locataire */
 .btn-new-loc { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#2a4a7f;background:#dbeafe;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .15s; }
 .btn-new-loc:hover { background:#bfdbfe; }
-
-/* Modal */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center; }
 .modal-overlay.open { display:flex; }
 .modal-box { background:#fff;border-radius:14px;padding:24px;width:420px;max-width:90vw; }
 .modal-title { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#0d1117;margin-bottom:16px; }
-
-.submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f9fafb; }
-.btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
-.btn-submit { padding:8px 18px;border-radius:8px;border:none;background:#2a4a7f;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
 .btn-gold { padding:8px 18px;border-radius:8px;border:none;background:#c9a84c;color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
 </style>
 
@@ -353,15 +321,23 @@
                             <div class="rp-val" id="rp-loyer-nu">— F</div>
                         </div>
                         <div class="rp-row">
-                            <div class="rp-lbl">+ Charges</div>
+                            <div class="rp-lbl">+ Charges HT</div>
                             <div class="rp-val" id="rp-charges">— F</div>
+                        </div>
+                        <div class="rp-row" id="row-tva-charges" style="display:none">
+                            <div class="rp-lbl">+ TVA charges 18% <span style="font-size:10px;opacity:.6">(forfait)</span></div>
+                            <div class="rp-val" style="color:#f59e0b" id="rp-tva-charges">— F</div>
                         </div>
                         <div class="rp-row">
                             <div class="rp-lbl">+ TOM</div>
                             <div class="rp-val" id="rp-tom">— F</div>
                         </div>
+                        <div class="rp-row" id="row-tva-loyer" style="display:none">
+                            <div class="rp-lbl">+ TVA loyer 18% <span style="font-size:10px;opacity:.6">(Art.354)</span></div>
+                            <div class="rp-val" style="color:#f59e0b" id="rp-tva-loyer">— F</div>
+                        </div>
                         <div class="rp-row">
-                            <div class="rp-lbl" style="font-weight:600;color:rgba(255,255,255,.7)">= Loyer contractuel</div>
+                            <div class="rp-lbl" style="font-weight:600;color:rgba(255,255,255,.7)">= Total encaissé</div>
                             <div class="rp-val gold" id="rp-loyer-total">— F</div>
                         </div>
 
@@ -380,8 +356,12 @@
                             <div class="rp-val gold" id="rp-comm-ttc">— F</div>
                         </div>
 
+                        <div class="rp-row" id="row-brs" style="display:none">
+                            <div class="rp-lbl">− BRS 15% <span style="font-size:10px;opacity:.6">(Art.156)</span></div>
+                            <div class="rp-val" style="color:#f87171" id="rp-brs">— F</div>
+                        </div>
                         <div class="rp-total">
-                            <div class="rp-total-lbl">Net propriétaire</div>
+                            <div class="rp-total-lbl">Net à verser propriétaire</div>
                             <div class="rp-total-val" id="rp-net">— FCFA</div>
                         </div>
 
@@ -505,28 +485,64 @@ function mettreAJourRecap() {
     const charges    = parseFloat(document.getElementById('charges_mensuelles').value) || 0;
     const tom        = parseFloat(document.getElementById('tom_amount').value)          || 0;
     const caution    = parseFloat(document.getElementById('caution').value)             || 0;
+    const tvaChecked     = document.getElementById('loyer_assujetti_tva')?.checked ?? false;
+    const brsChecked     = document.getElementById('brs_applicable')?.checked ?? false;
+    const chargesForait  = document.getElementById('charges_assujetties_tva')?.checked ?? false;
 
-    // Récupérer taux commission depuis le bien sélectionné
     const bienSelect = document.getElementById('bien_id');
     const opt        = bienSelect.options[bienSelect.selectedIndex];
     const tauxComm   = parseFloat(opt?.dataset?.commission || 10);
 
-    const loyerTotal = loyerNu + charges + tom;
+    // TVA loyer — Art. 354 CGI SN : assiette = loyer + TOM
+    const tvaLoyer   = tvaChecked ? Math.round((loyerNu + tom) * 0.18) : 0;
+    const loyerTtc   = loyerNu + tvaLoyer;
+
+    // TVA charges — DGI SN : forfait = prestation de service assujettie (même taux que loyer)
+    const tvaCharges = chargesForait ? Math.round(charges * (tvaChecked ? 0.18 : 0)) : 0;
+    const chargesTtc = charges + tvaCharges;
+
+    const montantEncaisse = loyerTtc + chargesTtc + tom;
+
+    // Commission — uniquement sur loyer HT (jamais TVA/TOM/charges)
     const commHt     = Math.round(loyerNu * tauxComm / 100);
     const tvaComm    = Math.round(commHt * 0.18);
     const commTtc    = commHt + tvaComm;
-    const net        = loyerTotal - commTtc;
+    const netProprio = montantEncaisse - commTtc;
+
+    // BRS — Art. 156 CGI SN : assiette = loyer TTC + TOM
+    const brsAmount  = brsChecked ? Math.round((loyerTtc + tom) * 0.15) : 0;
+    const netAVerser = netProprio - brsAmount;
 
     document.getElementById('rp-loyer-nu').textContent    = fmt(loyerNu);
     document.getElementById('rp-charges').textContent     = fmt(charges);
+
+    const rowTvaCharges = document.getElementById('row-tva-charges');
+    if (rowTvaCharges) rowTvaCharges.style.display = (chargesForait && tvaCharges > 0) ? '' : 'none';
+    const elTvaCharges = document.getElementById('rp-tva-charges');
+    if (elTvaCharges) elTvaCharges.textContent = fmt(tvaCharges);
+
     document.getElementById('rp-tom').textContent         = fmt(tom);
-    document.getElementById('rp-loyer-total').textContent = fmt(loyerTotal);
+
+    const rowTva = document.getElementById('row-tva-loyer');
+    if (rowTva) rowTva.style.display = tvaChecked ? '' : 'none';
+    const elTvaLoyer = document.getElementById('rp-tva-loyer');
+    if (elTvaLoyer) elTvaLoyer.textContent = fmt(tvaLoyer);
+
+    document.getElementById('rp-loyer-total').textContent = fmt(montantEncaisse);
     document.getElementById('rp-comm-ht').textContent     = fmt(commHt);
     document.getElementById('rp-tva-comm').textContent    = fmt(tvaComm);
     document.getElementById('rp-comm-ttc').textContent    = fmt(commTtc);
-    document.getElementById('rp-net').textContent         = fmt(net) + 'CFA';
+
+    const rowBrs = document.getElementById('row-brs');
+    if (rowBrs) rowBrs.style.display = brsChecked ? '' : 'none';
+    const elBrs = document.getElementById('rp-brs');
+    if (elBrs) elBrs.textContent = fmt(brsAmount);
+
+    document.getElementById('rp-net').textContent         = fmt(netAVerser) + ' CFA';
     document.getElementById('rp-caution').textContent     = fmt(caution);
     document.getElementById('rp-taux-comm').textContent   = tauxComm + ' %';
+
+    if (typeof verifierAlerteBrsCommercial === 'function') verifierAlerteBrsCommercial();
 }
 
 // ── Modal nouveau locataire ────────────────────────────────────────────────

@@ -68,16 +68,15 @@ class ContratObserver
         }
 
         // ── Auto-calcul loyer_contractuel ────────────────────────────────────
-        // Reprend la logique existante de Contrat::booted() mais gère la TVA loyer
+        // loyer_contractuel = loyer_nu + charges + tom (SANS TVA)
+        // La TVA est calculée dynamiquement par FiscalService à chaque paiement.
+        // L'inclure ici créerait une incohérence avec ContratController et l'assiette DGID.
         if ($contrat->loyer_nu && ! $contrat->isDirty('loyer_contractuel')) {
-            $loyerNu    = (float) $contrat->loyer_nu;
-            $tvaLoyer   = $contrat->loyer_assujetti_tva
-                            ? round($loyerNu * ($contrat->taux_tva_loyer ?? 18.0) / 100, 2)
-                            : 0.0;
-            $charges    = (float) ($contrat->charges_mensuelles ?? 0);
-            $tom        = (float) ($contrat->tom_amount ?? 0);
+            $loyerNu = (float) $contrat->loyer_nu;
+            $charges = (float) ($contrat->charges_mensuelles ?? 0);
+            $tom     = (float) ($contrat->tom_amount ?? 0);
 
-            $contrat->loyer_contractuel = round($loyerNu + $tvaLoyer + $charges + $tom, 2);
+            $contrat->loyer_contractuel = round($loyerNu + $charges + $tom, 2);
         }
     }
 }

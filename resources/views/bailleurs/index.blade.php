@@ -95,7 +95,6 @@
 .net-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6); }
 .net-val { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#c9a84c; }
 
-.empty-state { padding:64px;text-align:center;background:#fff;border:1px solid #e5e7eb;border-radius:14px; }
 </style>
 
 <div style="padding:0 0 48px">
@@ -145,18 +144,10 @@
 
     {{-- Cards ──────────────────────────────────── --}}
     @if($bailleurs->isEmpty())
-        <div class="empty-state">
-            <div style="width:52px;height:52px;background:#f5e9c9;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
-                <svg style="width:24px;height:24px;color:#8a6e2f" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 010 7.75"/>
-                </svg>
-            </div>
-            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#0d1117;margin-bottom:8px">Aucun bailleur trouvé</div>
-            <div style="font-size:13px;color:#6b7280">Ajoutez des biens avec des propriétaires pour les voir apparaître ici.</div>
-        </div>
+        <x-empty-state
+            title="Aucun bailleur trouvé"
+            description="Ajoutez des biens avec des propriétaires pour les voir apparaître ici."
+        />
     @else
         <div class="cards-grid">
             @foreach($bailleurs as $b)

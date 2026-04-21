@@ -25,6 +25,17 @@ class GenerateMonthlyRent extends Command
         $this->info("Génération des loyers pour : {$periode->format('F Y')}");
         $this->newLine();
 
+        // ── Auto-expiration des contrats dont date_fin est dépassée ─────────
+        // Évite de générer des loyers fantômes sur des baux techniquement terminés.
+        $expires = Contrat::where('statut', 'actif')
+            ->whereNotNull('date_fin')
+            ->where('date_fin', '<', $periode->startOfMonth())
+            ->update(['statut' => 'expiré']);
+
+        if ($expires > 0) {
+            $this->warn("⚠️  {$expires} contrat(s) expiré(s) mis à jour automatiquement.");
+        }
+
         // Compter avant pour affichage
         $total = Contrat::where('statut', 'actif')->count();
         $this->info("Contrats actifs trouvés : {$total}");

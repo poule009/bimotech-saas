@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BailleurController;
 use App\Http\Controllers\BienController;
 use App\Http\Controllers\BienPhotoController;
+use App\Http\Controllers\ImmeubleController;
 use App\Http\Controllers\ContratController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Dashboard\AdminDashboardController;
@@ -176,11 +177,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:isStaff')->prefix('admin')->name('admin.')->group(function () {
 
         // Biens
-        Route::get('biens/wizard', [BienController::class, 'wizard'])->name('biens.wizard');
         Route::resource('biens', BienController::class);
         Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store');
         Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
         Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
+
+        // Immeubles
+        Route::resource('immeubles', ImmeubleController::class);
 
         // Contrats — lecture
         Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index');

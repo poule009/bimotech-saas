@@ -20,7 +20,7 @@ final class FiscalContext
     public function __construct(
         // ── Loyer de base ────────────────────────────────────────────────────
         public readonly float  $loyerNu,           // Loyer hors charges, hors TVA (FCFA)
-        public readonly float  $chargesAmount,      // Charges mensuelles (FCFA)
+        public readonly float  $chargesAmount,      // Charges mensuelles HT (FCFA)
         public readonly float  $tomAmount,          // Taxe sur Opérations Mobilières (FCFA)
 
         // ── Caractéristiques du contrat ──────────────────────────────────────
@@ -55,6 +55,11 @@ final class FiscalContext
         // 0.0 pour tous les paiements récurrents
         public readonly float   $fraisAgenceHt  = 0.0,  // Honoraires agence HT (contrat.frais_agence)
         public readonly float   $cautionMontant = 0.0,  // Dépôt de garantie (contrat.caution, non taxable)
+
+        // ── TVA sur charges ──────────────────────────────────────────────────
+        // false (défaut) = charges passées en débours (HT, hors TVA)
+        // true           = charges facturées en forfait → TVA 18% obligatoire (DGI SN)
+        public readonly bool    $chargesAssujettiesATva = false,
 
         // ── Politique de caution ─────────────────────────────────────────────
         // false (défaut) → caution remise au bailleur (incluse dans netBailleur)
@@ -162,6 +167,7 @@ final class FiscalContext
             dateFinPeriode:         $dateFinPeriode,
             fraisAgenceHt:          $avecFraisInitiaux ? (float) ($contrat->frais_agence ?? 0) : 0.0,
             cautionMontant:         $avecFraisInitiaux ? (float) ($contrat->caution       ?? 0) : 0.0,
+            chargesAssujettiesATva: (bool) ($contrat->charges_assujetties_tva ?? false),
             cautionGardeeParAgence: (bool) ($contrat->caution_gardee_par_agence ?? false),
 
             // ── DGID : actif uniquement au premier paiement non exonéré ──────

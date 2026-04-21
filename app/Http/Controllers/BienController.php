@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bien;
+use App\Models\Immeuble;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -49,7 +50,7 @@ class BienController extends Controller
         return view('biens.show', compact('bien'));
     }
 
-    public function wizard(): View
+    public function create(Request $request): View
     {
         $this->authorize('isStaff');
 
@@ -58,24 +59,13 @@ class BienController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'email']);
 
-        $locataires = User::where('role', 'locataire')
-            ->where('agency_id', Auth::user()->agency_id)
-            ->orderBy('name')
-            ->get(['id', 'name', 'email', 'telephone']);
+        $immeubles = Immeuble::orderBy('nom')->get(['id', 'nom', 'ville', 'proprietaire_id']);
 
-        return view('biens.wizard', compact('proprietaires', 'locataires'));
-    }
+        $immeubleSelectionne = $request->filled('immeuble_id')
+            ? $immeubles->firstWhere('id', (int) $request->immeuble_id)
+            : null;
 
-    public function create(): View
-    {
-        $this->authorize('isStaff');
-
-        $proprietaires = User::where('role', 'proprietaire')
-            ->where('agency_id', Auth::user()->agency_id)
-            ->orderBy('name')
-            ->get(['id', 'name', 'email']);
-
-        return view('biens.create', compact('proprietaires'));
+        return view('biens.create', compact('proprietaires', 'immeubles', 'immeubleSelectionne'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -84,6 +74,7 @@ class BienController extends Controller
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
+            'immeuble_id'     => ['nullable', 'exists:immeubles,id'],
             'type'            => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::TYPES))],
             'adresse'         => ['required', 'string', 'max:255'],
             'quartier'        => ['nullable', 'string', 'max:100'],
@@ -208,12 +199,6 @@ if ($request->hasFile('photos')) {
 
     private function genererReference(): string
     {
-        $agencyId = str_pad(Auth::user()->agency_id, 2, '0', STR_PAD_LEFT);
-        $count    = Bien::withoutGlobalScope(\App\Models\Scopes\AgencyScope::class)
-            ->where('agency_id', Auth::user()->agency_id)
-            ->withTrashed()
-            ->count() + 1;
-
-        return 'BT-AG' . $agencyId . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        return Bien::generateReference(Auth::user()->agency_id);
     }
 }
