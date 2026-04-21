@@ -162,7 +162,7 @@ class UserController extends Controller
             'password'  => ['required', 'confirmed', Password::min(8)],
             'cni'            => ['nullable', 'string', 'max:20'],
             'date_naissance' => ['nullable', 'date'],
-            'genre' => ['nullable', 'in:homme,femme'],
+            'genre' => ['nullable', 'in:M,F'],
             'ville'          => ['nullable', 'string', 'max:100'],
             'quartier'       => ['nullable', 'string', 'max:100'],
             'mode_paiement_prefere' => ['nullable', 'in:especes,virement,wave,orange_money,free_money,cheque,mobile_money'],
@@ -179,7 +179,7 @@ class UserController extends Controller
         ], [
             'email.unique'   => 'Cet email est déjà utilisé par un autre compte.',
             'name.required'  => 'Le nom complet est obligatoire.',
-            'genre.in'       => 'Genre invalide (homme ou femme).',
+            'genre.in'       => 'Genre invalide.',
             'mode_paiement_prefere.in' => 'Mode de paiement invalide.',
         ]);
 
