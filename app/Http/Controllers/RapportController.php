@@ -93,7 +93,7 @@ class RapportController extends Controller
             ]);
 
         $allContrats = Contrat::where('agency_id', $agencyId)->where('statut', 'actif')
-            ->select(['id', 'bien_id', 'locataire_id', 'loyer_contractuel'])
+            ->select(['id', 'bien_id', 'locataire_id', 'loyer_contractuel', 'date_debut'])
             ->with([
                 'bien:id,agency_id,proprietaire_id,reference,adresse,ville',
                 'bien.proprietaire:id,name',

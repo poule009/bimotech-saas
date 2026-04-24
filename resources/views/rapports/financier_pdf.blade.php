@@ -210,7 +210,7 @@
     {{-- ═══════════════════════════════════════════════════════════════
          KPI DU MOIS
     ═══════════════════════════════════════════════════════════════ --}}
-    <div class="section-title">📊 Indicateurs du mois</div>
+    <div class="section-title">Indicateurs du mois</div>
 
     <table style="border-collapse:separate;border-spacing:6px;width:100%;margin-bottom:16px;">
         <tr>
@@ -251,15 +251,15 @@
     <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
         <tr>
             <td style="padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:9px;">
-                🏠 <strong>{{ $statsGenerales['nb_biens'] }}</strong> biens
+                <strong>{{ $statsGenerales['nb_biens'] }}</strong> biens
                 (<strong>{{ $statsGenerales['nb_biens_loues'] }}</strong> loués —
                 taux d'occupation : <strong>{{ $statsGenerales['taux_occupation'] }}%</strong>)
             </td>
             <td style="padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:9px;">
-                📋 <strong>{{ $statsGenerales['nb_contrats'] }}</strong> contrats actifs
+                <strong>{{ $statsGenerales['nb_contrats'] }}</strong> contrats actifs
             </td>
             <td style="padding:6px 10px;background:#f1f5f9;border:1px solid #e2e8f0;font-size:9px;">
-                👥 <strong>{{ $statsGenerales['nb_proprietaires'] }}</strong> propriétaires ·
+                <strong>{{ $statsGenerales['nb_proprietaires'] }}</strong> proprietaires ·
                 <strong>{{ $statsGenerales['nb_locataires'] }}</strong> locataires
             </td>
         </tr>
@@ -268,7 +268,7 @@
     {{-- ═══════════════════════════════════════════════════════════════
          DÉTAIL DES PAIEMENTS
     ═══════════════════════════════════════════════════════════════ --}}
-    <div class="section-title">💳 Détail des paiements du mois</div>
+    <div class="section-title">Detail des paiements du mois</div>
 
     @if($paiementsMois->count() > 0)
         <table>
@@ -333,7 +333,7 @@
          PAR PROPRIÉTAIRE
     ═══════════════════════════════════════════════════════════════ --}}
     @if($parProprietaire->count() > 0)
-        <div class="section-title mt-4">👤 Récapitulatif par propriétaire</div>
+        <div class="section-title mt-4">Recapitulatif par proprietaire</div>
 
         <table class="proprio-table">
             <thead>
@@ -373,7 +373,7 @@
     ═══════════════════════════════════════════════════════════════ --}}
     @if($biensImpayés->count() > 0)
         <div class="section-title mt-4" style="color:#dc2626;border-color:#dc2626;">
-            ⚠️ Biens sans paiement ce mois ({{ $biensImpayés->count() }})
+            Biens sans paiement ce mois ({{ $biensImpayés->count() }})
         </div>
 
         <table class="impaye-table">
