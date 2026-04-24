@@ -471,12 +471,24 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     </div>
 
     {{-- SIGNATURES --}}
+    @php
+        // DomPDF ne charge pas les images via chemin filesystem.
+        // On encode en base64 pour l'injecter directement dans le src.
+        $sigBase64 = null;
+        if ($agence?->signature_path) {
+            $sigAbsPath = storage_path('app/public/' . $agence->signature_path);
+            if (file_exists($sigAbsPath)) {
+                $ext       = strtolower(pathinfo($sigAbsPath, PATHINFO_EXTENSION));
+                $mime      = $ext === 'jpg' ? 'image/jpeg' : 'image/' . $ext;
+                $sigBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($sigAbsPath));
+            }
+        }
+    @endphp
     <div class="signature-section">
         <div class="sig-cell">
             <div class="sig-label">Signature / Cachet agence</div>
-            @if($agence?->signature_path && file_exists(storage_path('app/public/' . $agence->signature_path)))
-                <img src="{{ storage_path('app/public/' . $agence->signature_path) }}"
-                     alt="Signature agence"
+            @if($sigBase64)
+                <img src="{{ $sigBase64 }}"
                      style="max-height:60px;max-width:180px;object-fit:contain;margin:8px auto;display:block">
             @else
                 <div class="sig-line">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
