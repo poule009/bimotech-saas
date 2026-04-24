@@ -1,34 +1,14 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abonnements — Super Admin</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
+@extends('layouts.app')
+@section('title', 'Abonnements')
+@section('breadcrumb', 'Abonnements')
 
-    {{-- ── Header ── --}}
-    <header class="bg-gray-900 text-white px-6 py-4 flex items-center justify-between shadow">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('superadmin.dashboard') }}"
-               class="text-gray-400 hover:text-white transition text-sm">
-                ← Retour
-            </a>
-            <div>
-                <h1 class="text-xl font-bold">💳 Gestion des abonnements</h1>
-                <p class="text-gray-400 text-sm">Super Administration — BIMO-Tech</p>
-            </div>
-        </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition">
-                Déconnexion
-            </button>
-        </form>
-    </header>
+@section('content')
+<div style="padding:0 0 48px">
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
+    <div style="margin-bottom:20px">
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#0d1117">Gestion des abonnements</div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:2px">Toutes les agences de la plateforme</div>
+    </div>
 
         {{-- Message succès --}}
         @if (session('success'))
@@ -248,7 +228,7 @@
             </div>
         </div>
 
-    </main>
+    </div>
 
-</body>
-</html>
+</div>
+@endsection

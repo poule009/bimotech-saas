@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer une agence — Super Admin BIMO-Tech</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
+@extends('layouts.app')
+@section('title', 'Nouvelle agence')
+@section('breadcrumb', 'Nouvelle agence')
+
+@section('content')
+@push('styles')
+<style>
         body { font-family: 'Inter', -apple-system, sans-serif; background: #f1f5f9; min-height: 100vh; }
         .form-group { margin-bottom: 20px; }
         .form-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
@@ -44,25 +43,15 @@
             font-size: 11px; color: #9ca3af; margin-top: 4px;
         }
     </style>
-</head>
-<body>
+@endpush
+<div style="padding:0 0 48px;max-width:720px">
 
-    {{-- ── Header ── --}}
-    <header class="bg-gray-900 text-white px-6 py-4 flex items-center justify-between shadow">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('superadmin.dashboard') }}"
-               class="text-gray-400 hover:text-white transition text-sm flex items-center gap-1">
-                ← Retour
-            </a>
-            <div>
-                <h1 class="text-xl font-bold">➕ Créer une nouvelle agence</h1>
-                <p class="text-gray-400 text-sm">Plateforme BIMO-Tech — Super Administration</p>
-            </div>
-        </div>
-        <span class="text-sm text-gray-300">{{ Auth::user()->name }}</span>
-    </header>
-
-    <main class="max-w-3xl mx-auto px-4 py-10">
+    {{-- Breadcrumb --}}
+    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:20px">
+        <a href="{{ route('superadmin.dashboard') }}" style="color:#6b7280;text-decoration:none">Agences</a>
+        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span style="color:#0d1117;font-weight:600">Nouvelle agence</span>
+    </div>
 
         {{-- Erreurs de validation --}}
         @if ($errors->any())
@@ -254,7 +243,5 @@
 
         </form>
 
-    </main>
-
-</body>
-</html>
+</div>
+@endsection

@@ -1,26 +1,18 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $agency->name }} — Super Admin</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-100 min-h-screen">
+@extends('layouts.app')
+@section('title', $agency->name)
+@section('breadcrumb', 'Agence — '.$agency->name)
 
-    {{-- ── Header ── --}}
-    <header class="bg-gray-900 text-white px-6 py-4 flex items-center justify-between shadow">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('superadmin.dashboard') }}"
-               class="text-gray-400 hover:text-white transition text-sm">
-                ← Retour
-            </a>
-            <div>
-                <h1 class="text-xl font-bold">{{ $agency->name }}</h1>
-                <p class="text-gray-400 text-sm">Détail de l'agence — Super Administration</p>
-            </div>
+@section('content')
+<div style="padding:0 0 48px">
+
+    {{-- Breadcrumb + actions --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280">
+            <a href="{{ route('superadmin.dashboard') }}" style="color:#6b7280;text-decoration:none">Agences</a>
+            <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span style="color:#0d1117;font-weight:600">{{ $agency->name }}</span>
         </div>
-        <div class="flex items-center gap-4">
+        <div style="display:flex;align-items:center;gap:8px">
             {{-- Statut --}}
             @if ($agency->actif)
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -59,9 +51,7 @@
                 </button>
             </form>
         </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 py-8">
+    </div>
 
         {{-- Message succès --}}
         @if (session('success'))
@@ -312,11 +302,8 @@
             </div>
         </div>
 
-    </main>
-
-</body>
-</html>
-{{-- ```
+</div>
+@endsection
 
 ---
 

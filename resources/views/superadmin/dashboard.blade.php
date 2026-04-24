@@ -1,338 +1,210 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Administration — BimoTech</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        :root {
-            --sa-bg:      #0f172a;
-            --sa-surface: #1e293b;
-            --sa-border:  #334155;
-            --sa-text:    #f1f5f9;
-            --sa-text-2:  #94a3b8;
-            --sa-accent:  #6366f1;
-            --sa-green:   #10b981;
-            --sa-amber:   #f59e0b;
-            --sa-red:     #ef4444;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: var(--sa-bg); color: var(--sa-text); font-family: system-ui, sans-serif; min-height: 100vh; }
+@extends('layouts.app')
+@section('title', 'Super Administration')
+@section('breadcrumb', 'Plateforme')
 
-        /* ── Header ── */
-        .sa-header {
-            background: var(--sa-surface);
-            border-bottom: 1px solid var(--sa-border);
-            padding: 0 24px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        .sa-logo { display: flex; align-items: center; gap: 10px; }
-        .sa-logo-badge {
-            width: 32px; height: 32px; border-radius: 8px;
-            background: var(--sa-accent);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px;
-        }
-        .sa-logo-name { font-size: 15px; font-weight: 700; color: var(--sa-text); }
-        .sa-logo-sub  { font-size: 11px; color: var(--sa-text-2); }
-        .sa-header-right { display: flex; align-items: center; gap: 12px; }
-        .sa-user { font-size: 13px; color: var(--sa-text-2); }
-        .sa-btn-logout {
-            font-size: 12px; padding: 6px 14px;
-            background: transparent; border: 1px solid var(--sa-border);
-            color: var(--sa-text-2); border-radius: 6px; cursor: pointer;
-            transition: all .15s;
-        }
-        .sa-btn-logout:hover { background: var(--sa-border); color: var(--sa-text); }
+@section('content')
+<style>
+.sa-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px; }
+.sa-kpi  { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px; }
+.sa-kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
+.sa-kpi-val { font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#0d1117;line-height:1; }
+.sa-kpi-sub { font-size:11px;color:#6b7280;margin-top:4px; }
+.sa-kpi.indigo .sa-kpi-val { color:#6366f1; }
+.sa-kpi.green  .sa-kpi-val { color:#16a34a; }
+.sa-kpi.amber  .sa-kpi-val { color:#d97706; }
+.sa-kpi.red    .sa-kpi-val { color:#dc2626; }
 
-        /* ── Nav tabs ── */
-        .sa-nav {
-            background: var(--sa-surface);
-            border-bottom: 1px solid var(--sa-border);
-            padding: 0 24px;
-            display: flex;
-            gap: 4px;
-        }
-        .sa-nav a {
-            font-size: 13px; font-weight: 500;
-            padding: 12px 16px;
-            color: var(--sa-text-2);
-            text-decoration: none;
-            border-bottom: 2px solid transparent;
-            transition: all .15s;
-        }
-        .sa-nav a:hover { color: var(--sa-text); }
-        .sa-nav a.active { color: var(--sa-accent); border-bottom-color: var(--sa-accent); }
+.card  { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:20px; }
+.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
+.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
 
-        /* ── Main ── */
-        .sa-main { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+.dt { width:100%;border-collapse:collapse; }
+.dt th { padding:9px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
+.dt td { padding:11px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
+.dt tbody tr:last-child td { border-bottom:none; }
+.dt tbody tr:hover { background:#fafafa; }
 
-        /* ── KPI grid ── */
-        .sa-kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 14px;
-            margin-bottom: 28px;
-        }
-        .sa-kpi {
-            background: var(--sa-surface);
-            border: 1px solid var(--sa-border);
-            border-radius: 12px;
-            padding: 18px 20px;
-        }
-        .sa-kpi-label { font-size: 11px; color: var(--sa-text-2); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
-        .sa-kpi-value { font-size: 26px; font-weight: 800; color: var(--sa-text); line-height: 1; }
-        .sa-kpi-sub   { font-size: 12px; color: var(--sa-text-2); margin-top: 5px; }
-        .sa-kpi.accent .sa-kpi-value { color: var(--sa-accent); }
-        .sa-kpi.green  .sa-kpi-value { color: var(--sa-green); }
-        .sa-kpi.amber  .sa-kpi-value { color: var(--sa-amber); }
-        .sa-kpi.red    .sa-kpi-value { color: var(--sa-red); }
+.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600; }
+.badge-green  { background:#dcfce7;color:#16a34a; }
+.badge-red    { background:#fee2e2;color:#dc2626; }
+.badge-amber  { background:#fef3c7;color:#d97706; }
+.badge-indigo { background:#ede9fe;color:#7c3aed; }
+.badge-gray   { background:#f3f4f6;color:#6b7280; }
+.badge-dot { width:6px;height:6px;border-radius:50%;background:currentColor; }
 
-        /* ── Section header ── */
-        .sa-section-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 16px;
-        }
-        .sa-section-title { font-size: 15px; font-weight: 700; color: var(--sa-text); }
-        .sa-section-sub   { font-size: 12px; color: var(--sa-text-2); margin-top: 2px; }
+.alert-warn { background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#92400e;display:flex;align-items:center;gap:10px; }
+.alert-success { background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#166534; }
+</style>
 
-        /* ── Buttons ── */
-        .sa-btn {
-            font-size: 12px; font-weight: 600; padding: 8px 16px;
-            border-radius: 8px; border: none; cursor: pointer;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
-            transition: filter .15s;
-        }
-        .sa-btn:hover { filter: brightness(.9); }
-        .sa-btn-primary { background: var(--sa-accent); color: #fff; }
-        .sa-btn-secondary { background: var(--sa-surface); color: var(--sa-text-2); border: 1px solid var(--sa-border); }
-
-        /* ── Table ── */
-        .sa-card {
-            background: var(--sa-surface);
-            border: 1px solid var(--sa-border);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 24px;
-        }
-        .sa-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .sa-table thead th {
-            padding: 11px 16px;
-            text-align: left;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--sa-text-2);
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            background: rgba(255,255,255,.03);
-            border-bottom: 1px solid var(--sa-border);
-        }
-        .sa-table tbody tr {
-            border-bottom: 1px solid rgba(255,255,255,.05);
-            transition: background .1s;
-        }
-        .sa-table tbody tr:last-child { border-bottom: none; }
-        .sa-table tbody tr:hover { background: rgba(255,255,255,.03); }
-        .sa-table td { padding: 13px 16px; color: var(--sa-text); vertical-align: middle; }
-        .sa-table td.dim { color: var(--sa-text-2); }
-        .sa-table td.right { text-align: right; }
-        .sa-table td.center { text-align: center; }
-
-        /* ── Badges ── */
-        .sa-badge {
-            display: inline-flex; align-items: center; gap: 5px;
-            font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
-        }
-        .sa-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .7; }
-        .sa-badge-green  { background: rgba(16,185,129,.12); color: var(--sa-green); }
-        .sa-badge-red    { background: rgba(239,68,68,.12);  color: var(--sa-red); }
-        .sa-badge-amber  { background: rgba(245,158,11,.12); color: var(--sa-amber); }
-        .sa-badge-indigo { background: rgba(99,102,241,.12); color: var(--sa-accent); }
-
-        /* ── Alert ── */
-        .sa-alert-success {
-            background: rgba(16,185,129,.1);
-            border: 1px solid rgba(16,185,129,.3);
-            color: var(--sa-green);
-            padding: 12px 16px; border-radius: 8px; font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        /* ── Actions ── */
-        .sa-action-btn {
-            font-size: 11px; padding: 5px 12px; border-radius: 6px;
-            border: 1px solid var(--sa-border); background: transparent;
-            color: var(--sa-text-2); cursor: pointer; text-decoration: none;
-            transition: all .15s; display: inline-block;
-        }
-        .sa-action-btn:hover { background: var(--sa-border); color: var(--sa-text); }
-        .sa-action-btn.danger:hover { background: rgba(239,68,68,.15); border-color: var(--sa-red); color: var(--sa-red); }
-        .sa-action-btn.success:hover { background: rgba(16,185,129,.15); border-color: var(--sa-green); color: var(--sa-green); }
-
-        @media (max-width: 768px) {
-            .sa-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-            .sa-table thead { display: none; }
-            .sa-table td { display: block; padding: 8px 16px; border: none; }
-            .sa-table tr { border-bottom: 1px solid var(--sa-border); padding: 8px 0; display: block; }
-        }
-    </style>
-</head>
-<body>
-
-{{-- ── Header ── --}}
-<header class="sa-header">
-    <div class="sa-logo">
-        <div class="sa-logo-badge">⚙️</div>
-        <div>
-            <div class="sa-logo-name">BimoTech</div>
-            <div class="sa-logo-sub">Super Administration</div>
-        </div>
-    </div>
-    <div class="sa-header-right">
-        <span class="sa-user">{{ Auth::user()->name }}</span>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="sa-btn-logout">Déconnexion</button>
-        </form>
-    </div>
-</header>
-
-{{-- ── Nav ── --}}
-<nav class="sa-nav">
-    <a href="{{ route('superadmin.dashboard') }}" class="active">🏢 Agences</a>
-    <a href="{{ route('superadmin.subscriptions') }}">💳 Abonnements</a>
-    <a href="{{ route('superadmin.activity-logs.index') }}">📋 Journal</a>
-    <a href="{{ route('superadmin.agencies.create') }}">+ Nouvelle agence</a>
-</nav>
-
-<main class="sa-main">
+<div style="padding:0 0 48px">
 
     @if(session('success'))
-        <div class="sa-alert-success">✅ {{ session('success') }}</div>
+    <div class="alert-success">{{ session('success') }}</div>
     @endif
 
-    {{-- ── KPI Plateforme ── --}}
-    <div class="sa-kpi-grid">
-        <div class="sa-kpi">
-            <div class="sa-kpi-label">Agences totales</div>
-            <div class="sa-kpi-value">{{ $stats['nb_agences'] }}</div>
+    {{-- Alerte agences expirant bientôt (< 7 jours) --}}
+    @php
+        $expirantBientot = $agences->filter(function($a) {
+            $sub = $a->subscription;
+            if (!$sub) return false;
+            $date = $sub->statut === 'essai' ? $sub->essai_fin : $sub->abonnement_fin;
+            return $date && \Carbon\Carbon::parse($date)->diffInDays(now(), false) >= -7 && \Carbon\Carbon::parse($date)->isFuture();
+        });
+    @endphp
+    @if($expirantBientot->count() > 0)
+    <div class="alert-warn">
+        <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span><strong>{{ $expirantBientot->count() }} agence(s)</strong> arrivent à expiration dans moins de 7 jours :
+            {{ $expirantBientot->pluck('name')->join(', ') }}
+        </span>
+    </div>
+    @endif
+
+    {{-- KPIs --}}
+    <div class="sa-grid">
+        <div class="sa-kpi indigo">
+            <div class="sa-kpi-lbl">Agences</div>
+            <div class="sa-kpi-val">{{ $stats['nb_agences'] }}</div>
             <div class="sa-kpi-sub">{{ $stats['nb_agences_actives'] }} actives</div>
         </div>
-        <div class="sa-kpi accent">
-            <div class="sa-kpi-label">Abonnements actifs</div>
-            <div class="sa-kpi-value">{{ $stats['nb_abonnements_actifs'] }}</div>
+        <div class="sa-kpi green">
+            <div class="sa-kpi-lbl">Abonnements actifs</div>
+            <div class="sa-kpi-val">{{ $stats['nb_abonnements_actifs'] }}</div>
             <div class="sa-kpi-sub">{{ $stats['nb_essai'] }} en essai</div>
         </div>
         <div class="sa-kpi">
-            <div class="sa-kpi-label">Utilisateurs</div>
-            <div class="sa-kpi-value">{{ $stats['nb_users'] }}</div>
-            <div class="sa-kpi-sub">Tous rôles</div>
-        </div>
-        <div class="sa-kpi">
-            <div class="sa-kpi-label">Biens gérés</div>
-            <div class="sa-kpi-value">{{ $stats['nb_biens'] }}</div>
+            <div class="sa-kpi-lbl">Biens gérés</div>
+            <div class="sa-kpi-val">{{ $stats['nb_biens'] }}</div>
             <div class="sa-kpi-sub">{{ $stats['nb_contrats'] }} contrats actifs</div>
         </div>
+        <div class="sa-kpi">
+            <div class="sa-kpi-lbl">Utilisateurs</div>
+            <div class="sa-kpi-val">{{ $stats['nb_users'] }}</div>
+            <div class="sa-kpi-sub">Tous rôles confondus</div>
+        </div>
         <div class="sa-kpi green">
-            <div class="sa-kpi-label">Loyers encaissés</div>
-            <div class="sa-kpi-value" style="font-size:18px;">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}</div>
+            <div class="sa-kpi-lbl">Loyers encaissés</div>
+            <div class="sa-kpi-val" style="font-size:18px">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}</div>
             <div class="sa-kpi-sub">FCFA — toutes agences</div>
         </div>
-        <div class="sa-kpi accent">
-            <div class="sa-kpi-label">Commissions plateforme</div>
-            <div class="sa-kpi-value" style="font-size:18px;">{{ number_format($stats['total_commissions'], 0, ',', ' ') }}</div>
+        <div class="sa-kpi indigo">
+            <div class="sa-kpi-lbl">Commissions plateforme</div>
+            <div class="sa-kpi-val" style="font-size:18px">{{ number_format($stats['total_commissions'], 0, ',', ' ') }}</div>
             <div class="sa-kpi-sub">FCFA TTC cumulés</div>
         </div>
         <div class="sa-kpi amber">
-            <div class="sa-kpi-label">Revenus abonnements</div>
-            <div class="sa-kpi-value" style="font-size:18px;">{{ number_format($stats['revenus_abonnements'], 0, ',', ' ') }}</div>
+            <div class="sa-kpi-lbl">Revenus abonnements</div>
+            <div class="sa-kpi-val" style="font-size:18px">{{ number_format($stats['revenus_abonnements'], 0, ',', ' ') }}</div>
             <div class="sa-kpi-sub">FCFA encaissés</div>
         </div>
-        <div class="sa-kpi red">
-            <div class="sa-kpi-label">Abonnements expirés</div>
-            <div class="sa-kpi-value">{{ $stats['nb_expires'] }}</div>
-            <div class="sa-kpi-sub">À relancer</div>
+        <div class="sa-kpi {{ $stats['nb_expires'] > 0 ? 'red' : '' }}">
+            <div class="sa-kpi-lbl">Expirés</div>
+            <div class="sa-kpi-val">{{ $stats['nb_expires'] }}</div>
+            <div class="sa-kpi-sub">{{ $stats['nb_expires'] > 0 ? 'À relancer' : 'Aucun' }}</div>
         </div>
     </div>
 
-    {{-- ── Table des agences ── --}}
-    <div class="sa-section-header">
-        <div>
-            <div class="sa-section-title">🏢 Toutes les agences</div>
-            <div class="sa-section-sub">{{ $agences->count() }} agence(s) enregistrée(s)</div>
+    {{-- Table agences --}}
+    <div class="card">
+        <div class="card-hd">
+            <div>
+                <div class="card-title">Toutes les agences</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:2px">{{ $agences->count() }} agence(s)</div>
+            </div>
+            <a href="{{ route('superadmin.agencies.create') }}"
+               style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#6366f1;color:#fff;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Nouvelle agence
+            </a>
         </div>
-        <a href="{{ route('superadmin.agencies.create') }}" class="sa-btn sa-btn-primary">
-            + Nouvelle agence
-        </a>
-    </div>
-
-    <div class="sa-card">
-        <table class="sa-table">
+        <div style="overflow-x:auto">
+        <table class="dt">
             <thead>
                 <tr>
                     <th>Agence</th>
-                    <th class="center">Statut</th>
-                    <th class="center">Admins</th>
-                    <th class="center">Biens</th>
-                    <th class="center">Contrats</th>
-                    <th class="right">Loyers (FCFA)</th>
-                    <th class="right">Commissions (FCFA)</th>
-                    <th class="center">Inscrite le</th>
-                    <th class="center">Actions</th>
+                    <th>Abonnement</th>
+                    <th style="text-align:center">Statut</th>
+                    <th style="text-align:center">Biens</th>
+                    <th style="text-align:center">Contrats</th>
+                    <th style="text-align:right">Loyers (F)</th>
+                    <th style="text-align:right">Commissions (F)</th>
+                    <th style="text-align:center">Depuis</th>
+                    <th style="text-align:center">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($agences as $agence)
-                    <tr style="{{ $agence->actif ? '' : 'opacity:.5;' }}">
-                        <td>
-                            <div style="font-weight:700;font-size:13px;">{{ $agence->name }}</div>
-                            <div class="dim" style="font-size:11px;margin-top:2px;">{{ $agence->email }}</div>
-                        </td>
-                        <td class="center">
-                            @if($agence->actif)
-                                <span class="sa-badge sa-badge-green">Active</span>
+                @php
+                    $sub  = $agence->subscription;
+                    $date = $sub ? ($sub->statut === 'essai' ? $sub->essai_fin : $sub->abonnement_fin) : null;
+                    $jours = $date ? (int)\Carbon\Carbon::parse($date)->diffInDays(now(), false) * -1 : null;
+                @endphp
+                <tr style="{{ !$agence->actif ? 'opacity:.5' : '' }}">
+                    <td>
+                        <div style="font-weight:700">{{ $agence->name }}</div>
+                        <div style="font-size:11px;color:#9ca3af;margin-top:1px">{{ $agence->email }}</div>
+                    </td>
+                    <td>
+                        @if($sub)
+                            @if($sub->statut === 'essai')
+                                <span class="badge badge-amber"><span class="badge-dot"></span>Essai</span>
+                            @elseif($sub->statut === 'actif')
+                                <span class="badge badge-green"><span class="badge-dot"></span>{{ ucfirst($sub->plan ?? 'Actif') }}</span>
+                            @elseif($sub->statut === 'expiré')
+                                <span class="badge badge-red"><span class="badge-dot"></span>Expiré</span>
                             @else
-                                <span class="sa-badge sa-badge-red">Suspendue</span>
+                                <span class="badge badge-gray">{{ $sub->statut }}</span>
                             @endif
-                        </td>
-                        <td class="center dim">{{ $agence->nb_admins }}</td>
-                        <td class="center dim">{{ $agence->biens_count }}</td>
-                        <td class="center dim">{{ $agence->contrats_count }}</td>
-                        <td class="right" style="font-weight:600;">{{ number_format($agence->total_loyers, 0, ',', ' ') }}</td>
-                        <td class="right" style="color:var(--sa-accent);font-weight:700;">{{ number_format($agence->total_commissions, 0, ',', ' ') }}</td>
-                        <td class="center dim" style="font-size:11px;">{{ $agence->created_at->format('d/m/Y') }}</td>
-                        <td class="center">
-                            <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
-                                <a href="{{ route('superadmin.agencies.show', $agence) }}" class="sa-action-btn">Détail</a>
-                                <form method="POST" action="{{ route('superadmin.agencies.toggle', $agence) }}"
-                                      onsubmit="return confirm('{{ $agence->actif ? 'Suspendre cette agence ?' : 'Activer cette agence ?' }}')">
-                                    @csrf @method('PATCH')
-                                    <button type="submit" class="sa-action-btn {{ $agence->actif ? 'danger' : 'success' }}">
-                                        {{ $agence->actif ? 'Suspendre' : 'Activer' }}
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                            @if($jours !== null)
+                                <div style="font-size:10px;margin-top:3px;color:{{ $jours <= 7 ? '#dc2626' : ($jours <= 30 ? '#d97706' : '#9ca3af') }}">
+                                    {{ $jours >= 0 ? $jours.' j restants' : abs($jours).' j dépassés' }}
+                                </div>
+                            @endif
+                        @else
+                            <span class="badge badge-gray">Aucun</span>
+                        @endif
+                    </td>
+                    <td style="text-align:center">
+                        @if($agence->actif)
+                            <span class="badge badge-green"><span class="badge-dot"></span>Active</span>
+                        @else
+                            <span class="badge badge-red"><span class="badge-dot"></span>Suspendue</span>
+                        @endif
+                    </td>
+                    <td style="text-align:center;color:#6b7280">{{ $agence->biens_count }}</td>
+                    <td style="text-align:center;color:#6b7280">{{ $agence->contrats_count }}</td>
+                    <td style="text-align:right;font-weight:600">{{ number_format($agence->total_loyers, 0, ',', ' ') }}</td>
+                    <td style="text-align:right;font-weight:700;color:#6366f1">{{ number_format($agence->total_commissions, 0, ',', ' ') }}</td>
+                    <td style="text-align:center;font-size:11px;color:#9ca3af">{{ $agence->created_at->format('d/m/Y') }}</td>
+                    <td style="text-align:center">
+                        <div style="display:flex;gap:6px;justify-content:center">
+                            <a href="{{ route('superadmin.agencies.show', $agence) }}"
+                               style="padding:5px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:11px;color:#374151;text-decoration:none;background:#fff">
+                                Détail
+                            </a>
+                            <form method="POST" action="{{ route('superadmin.agencies.toggle', $agence) }}"
+                                  onsubmit="return confirm('{{ $agence->actif ? 'Suspendre ?' : 'Activer ?' }}')">
+                                @csrf @method('PATCH')
+                                <button type="submit"
+                                    style="padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid {{ $agence->actif ? '#fecaca' : '#bbf7d0' }};background:{{ $agence->actif ? '#fee2e2' : '#dcfce7' }};color:{{ $agence->actif ? '#dc2626' : '#16a34a' }}">
+                                    {{ $agence->actif ? 'Suspendre' : 'Activer' }}
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
                 @empty
-                    <tr>
-                        <td colspan="9" style="text-align:center;padding:48px;color:var(--sa-text-2);">
-                            Aucune agence enregistrée.
-                            <a href="{{ route('superadmin.agencies.create') }}" style="color:var(--sa-accent);margin-left:8px;">Créer la première →</a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="9" style="text-align:center;padding:48px;color:#9ca3af">
+                        Aucune agence.
+                        <a href="{{ route('superadmin.agencies.create') }}" style="color:#6366f1;margin-left:6px">Créer la première →</a>
+                    </td>
+                </tr>
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
-</main>
-</body>
-</html>
+</div>
+@endsection
