@@ -193,6 +193,12 @@ class ContratController extends Controller
     {
         $this->authorize('view', $contrat);
 
+        // Le locataire est redirigé vers son dashboard qui affiche déjà son contrat.
+        // Évite qu'il atterrisse sur la vue admin avec des liens inaccessibles.
+        if (Auth::user()->isLocataire()) {
+            return redirect()->route('locataire.dashboard');
+        }
+
         $contrat->load([
             'bien:id,agency_id,proprietaire_id,reference,type,adresse,ville,quartier,commune,surface_m2,nombre_pieces,meuble,statut,taux_commission',
             'bien.proprietaire:id,name,telephone,adresse',
