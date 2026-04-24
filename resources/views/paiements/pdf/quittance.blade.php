@@ -93,6 +93,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
 <body>
 
 @php
+    $destinataire = $destinataire ?? 'agence'; // locataire | proprietaire | agence
     $agence       = $agence ?? auth()->user()?->agency;
     $contrat      = $paiement->contrat;
     $bien         = $contrat?->bien;
@@ -158,7 +159,12 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             @endif
         </div>
         <div class="header-right">
-            <div class="doc-title">Quittance de loyer</div>
+            <div class="doc-title">
+                @if($destinataire === 'proprietaire') Avis de versement
+                @elseif($destinataire === 'agence') Quittance — Copie agence
+                @else Quittance de loyer
+                @endif
+            </div>
             <div class="doc-ref">Réf. {{ $paiement->reference_paiement }}</div>
         </div>
     </div>
@@ -325,7 +331,8 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     </table>
     @endif
 
-    {{-- COMMISSION AGENCE --}}
+    {{-- COMMISSION AGENCE — masquée pour le locataire --}}
+    @if($destinataire !== 'locataire')
     <div class="section-title">Commission agence</div>
     <table>
         <thead>
@@ -381,9 +388,11 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             </tr>
         </tfoot>
     </table>
+    @endif {{-- fin masquage commission pour locataire --}}
 
-    {{-- NET LOCATAIRE — encadré en gras --}}
-    <div style="background:#0d1117;border-radius:6px;padding:12px 16px;margin-bottom:20px;display:table;width:100%">
+    {{-- ENCADRÉ NET — adapté selon destinataire --}}
+    @if($destinataire === 'locataire' || $destinataire === 'agence')
+    <div style="background:#0d1117;border-radius:6px;padding:12px 16px;margin-bottom:12px;display:table;width:100%">
         <div style="display:table-cell;vertical-align:middle">
             <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(201,168,76,.6);margin-bottom:3px">
                 NET À PAYER PAR LE LOCATAIRE{{ $brs > 0 ? ' (après retenue BRS)' : '' }}
@@ -400,6 +409,21 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             </div>
         </div>
     </div>
+    @endif
+    @if($destinataire === 'proprietaire' || $destinataire === 'agence')
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px 16px;margin-bottom:12px;display:table;width:100%">
+        <div style="display:table-cell;vertical-align:middle">
+            <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#15803d;margin-bottom:3px">
+                NET À VOUS REVERSER (après commission agence{{ $brs > 0 ? ' et BRS' : '' }})
+            </div>
+        </div>
+        <div style="display:table-cell;vertical-align:middle;text-align:right">
+            <div style="font-size:20px;font-weight:700;color:#15803d;font-family:Arial,sans-serif">
+                {{ number_format($netBailleur, 0, ',', ' ') }} FCFA
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- INFOS PAIEMENT --}}
     <div class="paiement-info">

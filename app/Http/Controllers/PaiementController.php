@@ -300,8 +300,15 @@ class PaiementController extends Controller
 
         $agence = Auth::user()->agency;
 
+        $user = Auth::user();
+        $destinataire = match(true) {
+            $user->isLocataire()    => 'locataire',
+            $user->isProprietaire() => 'proprietaire',
+            default                 => 'agence',
+        };
+
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('paiements.pdf.quittance', compact('paiement', 'agence'));
+        $pdf->loadView('paiements.pdf.quittance', compact('paiement', 'agence', 'destinataire'));
         $pdf->setPaper('A4', 'portrait');
 
         $filename = 'quittance-' . $paiement->reference_paiement . '.pdf';
