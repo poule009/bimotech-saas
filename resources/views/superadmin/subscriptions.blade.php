@@ -3,232 +3,183 @@
 @section('breadcrumb', 'Abonnements')
 
 @section('content')
+<style>
+.sub-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px; }
+.sub-kpi  { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px;text-align:center; }
+.sub-kpi-val { font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1; }
+.sub-kpi-lbl { font-size:11px;color:#9ca3af;margin-top:6px; }
+.dropdown { position:relative;display:inline-block; }
+.dropdown-menu { position:absolute;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:50;min-width:200px;display:none; }
+.dropdown-menu.open { display:block; }
+.dropdown-item { display:block;width:100%;padding:9px 14px;font-size:12px;color:#374151;background:none;border:none;text-align:left;cursor:pointer;border-bottom:1px solid #f3f4f6; }
+.dropdown-item:last-child { border-bottom:none; }
+.dropdown-item:hover { background:#f9fafb; }
+</style>
+
 <div style="padding:0 0 48px">
 
-    <div style="margin-bottom:20px">
-        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#0d1117">Gestion des abonnements</div>
-        <div style="font-size:12px;color:#9ca3af;margin-top:2px">Toutes les agences de la plateforme</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+            <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#0d1117">Abonnements</div>
+            <div style="font-size:12px;color:#9ca3af;margin-top:2px">Gestion des accès agences</div>
+        </div>
+        <a href="{{ route('superadmin.dashboard') }}"
+           style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;color:#374151;text-decoration:none;background:#fff">
+            ← Retour
+        </a>
     </div>
 
-        {{-- Message succès --}}
-        @if (session('success'))
-            <div class="mb-6 bg-green-50 border border-green-200 text-green-800 rounded-lg px-4 py-3 text-sm">
-                ✅ {{ session('success') }}
-            </div>
-        @endif
-
-        {{-- ── Stats globales abonnements ── --}}
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center">
-                <p class="text-3xl font-bold text-blue-600">{{ $stats['nb_essai'] }}</p>
-                <p class="text-sm text-gray-500 mt-1">En essai</p>
-            </div>
-
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center">
-                <p class="text-3xl font-bold text-green-600">{{ $stats['nb_actifs'] }}</p>
-                <p class="text-sm text-gray-500 mt-1">Abonnés actifs</p>
-            </div>
-
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center">
-                <p class="text-3xl font-bold text-red-500">{{ $stats['nb_expires'] }}</p>
-                <p class="text-sm text-gray-500 mt-1">Expirés</p>
-            </div>
-
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center">
-                <p class="text-xl font-bold text-gray-800">
-                    {{ number_format($stats['revenus_total'], 0, ',', ' ') }}
-                </p>
-                <p class="text-xs text-gray-400">FCFA</p>
-                <p class="text-sm text-gray-500 mt-1">Revenus encaissés</p>
-            </div>
-
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 text-center">
-                <p class="text-xl font-bold text-indigo-600">
-                    {{ number_format($stats['revenus_mensuel_equiv'], 0, ',', ' ') }}
-                </p>
-                <p class="text-xs text-gray-400">FCFA</p>
-                <p class="text-sm text-gray-500 mt-1">MRR estimé</p>
-            </div>
-
+    {{-- KPIs --}}
+    <div class="sub-grid">
+        <div class="sub-kpi">
+            <div class="sub-kpi-val" style="color:#6366f1">{{ $stats['nb_essai'] }}</div>
+            <div class="sub-kpi-lbl">En essai</div>
         </div>
-
-        {{-- ── Table des abonnements ── --}}
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">Toutes les agences</h2>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
-                        <tr>
-                            <th class="px-6 py-3 text-left">Agence</th>
-                            <th class="px-6 py-3 text-center">Statut</th>
-                            <th class="px-6 py-3 text-center">Plan</th>
-                            <th class="px-6 py-3 text-center">Début</th>
-                            <th class="px-6 py-3 text-center">Expiration</th>
-                            <th class="px-6 py-3 text-center">Jours restants</th>
-                            <th class="px-6 py-3 text-right">Montant payé</th>
-                            <th class="px-6 py-3 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse ($subscriptions as $sub)
-                            <tr class="hover:bg-gray-50 transition">
-
-                                {{-- Agence --}}
-                                <td class="px-6 py-4">
-                                    <p class="font-semibold text-gray-900">{{ $sub->agency->name }}</p>
-                                    <p class="text-xs text-gray-400">{{ $sub->agency->email }}</p>
-                                </td>
-
-                                {{-- Statut --}}
-                                <td class="px-6 py-4 text-center">
-                                    @if ($sub->estEnEssai())
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            🕐 Essai
-                                        </span>
-                                    @elseif ($sub->estActif())
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            ✅ Actif
-                                        </span>
-                                    @elseif ($sub->statut === 'expiré')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            ❌ Expiré
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            {{ $sub->statut }}
-                                        </span>
-                                    @endif
-                                </td>
-
-                                {{-- Plan --}}
-                                <td class="px-6 py-4 text-center text-gray-600">
-                                    {{ \App\Models\Subscription::LABELS[$sub->plan] ?? '—' }}
-                                </td>
-
-                                {{-- Début --}}
-                                <td class="px-6 py-4 text-center text-gray-500">
-                                    @if ($sub->estEnEssai())
-                                        {{ $sub->date_debut_essai?->format('d/m/Y') }}
-                                    @else
-                                        {{ $sub->date_debut_abonnement?->format('d/m/Y') ?? '—' }}
-                                    @endif
-                                </td>
-
-                                {{-- Expiration --}}
-                                <td class="px-6 py-4 text-center text-gray-500">
-                                    @if ($sub->estEnEssai())
-                                        {{ $sub->date_fin_essai?->format('d/m/Y') }}
-                                    @elseif ($sub->estActif())
-                                        {{ $sub->date_fin_abonnement?->format('d/m/Y') }}
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-
-                                {{-- Jours restants --}}
-                                <td class="px-6 py-4 text-center">
-                                    @if ($sub->estEnEssai())
-                                        @php $jours = $sub->joursRestantsEssai() @endphp
-                                        <span class="font-semibold {{ $jours <= 7 ? 'text-amber-600' : 'text-blue-600' }}">
-                                            {{ $jours }}j
-                                        </span>
-                                    @elseif ($sub->estActif())
-                                        @php $jours = $sub->joursRestantsAbonnement() @endphp
-                                        <span class="font-semibold {{ $jours <= 7 ? 'text-amber-600' : 'text-green-600' }}">
-                                            {{ $jours }}j
-                                        </span>
-                                    @else
-                                        <span class="text-gray-400">—</span>
-                                    @endif
-                                </td>
-
-                                {{-- Montant payé --}}
-                                <td class="px-6 py-4 text-right font-medium text-gray-800">
-                                    @if ($sub->montant_paye)
-                                        {{ number_format($sub->montant_paye, 0, ',', ' ') }} F
-                                    @else
-                                        <span class="text-gray-400">—</span>
-                                    @endif
-                                </td>
-
-                                {{-- Actions --}}
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center justify-center gap-2 flex-wrap">
-
-                                        {{-- Activer un abonnement --}}
-                                        <div x-data="{ open: false }" class="relative">
-                                            <button
-                                                @click="open = !open"
-                                                class="text-xs bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded transition font-medium"
-                                            >
-                                                ✅ Activer
-                                            </button>
-
-                                            {{-- Dropdown choix du plan --}}
-                                            <div
-                                                x-show="open"
-                                                @click.outside="open = false"
-                                                class="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-                                            >
-                                                @foreach (\App\Models\Subscription::LABELS as $plan => $label)
-                                                    <form
-                                                        method="POST"
-                                                        action="{{ route('superadmin.agencies.abonnement.activer', $sub->agency) }}"
-                                                        onsubmit="return confirm('Activer le plan {{ $label }} pour {{ $sub->agency->name }} ?')"
-                                                    >
-                                                        @csrf
-                                                        <input type="hidden" name="plan" value="{{ $plan }}">
-                                                        <button
-                                                            type="submit"
-                                                            class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
-                                                        >
-                                                            {{ $label }}
-                                                            <span class="text-gray-400 text-xs">
-                                                                — {{ number_format(\App\Models\Subscription::TARIFS[$plan], 0, ',', ' ') }} F
-                                                            </span>
-                                                        </button>
-                                                    </form>
-                                                @endforeach
-                                            </div>
-                                        </div>
-
-                                        {{-- Réinitialiser l'essai --}}
-                                        <form
-                                            method="POST"
-                                            action="{{ route('superadmin.agencies.essai.reinitialiser', $sub->agency) }}"
-                                            onsubmit="return confirm('Réinitialiser l\'essai de {{ $sub->agency->name }} ?')"
-                                        >
-                                            @csrf
-                                            <button
-                                                type="submit"
-                                                class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded transition font-medium"
-                                            >
-                                                🔄 Essai
-                                            </button>
-                                        </form>
-
-                                    </div>
-                                </td>
-
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="px-6 py-8 text-center text-gray-400">
-                                    Aucun abonnement enregistré.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+        <div class="sub-kpi">
+            <div class="sub-kpi-val" style="color:#16a34a">{{ $stats['nb_actifs'] }}</div>
+            <div class="sub-kpi-lbl">Abonnés actifs</div>
         </div>
+        <div class="sub-kpi">
+            <div class="sub-kpi-val" style="color:#dc2626">{{ $stats['nb_expires'] }}</div>
+            <div class="sub-kpi-lbl">Expirés</div>
+        </div>
+        <div class="sub-kpi">
+            <div class="sub-kpi-val" style="font-size:16px;color:#0d1117">{{ number_format($stats['revenus_total'], 0, ',', ' ') }}</div>
+            <div class="sub-kpi-lbl">FCFA encaissés</div>
+        </div>
+        <div class="sub-kpi">
+            <div class="sub-kpi-val" style="font-size:16px;color:#6366f1">{{ number_format($stats['revenus_mensuel_equiv'], 0, ',', ' ') }}</div>
+            <div class="sub-kpi-lbl">MRR estimé (FCFA)</div>
+        </div>
+    </div>
 
+    {{-- Table --}}
+    <div class="table-card">
+        <div style="padding:14px 20px;border-bottom:1px solid #e5e7eb">
+            <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117">Toutes les agences</div>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="dt">
+            <thead>
+                <tr>
+                    <th>Agence</th>
+                    <th style="text-align:center">Statut</th>
+                    <th style="text-align:center">Plan</th>
+                    <th style="text-align:center">Début</th>
+                    <th style="text-align:center">Expiration</th>
+                    <th style="text-align:center">Jours restants</th>
+                    <th style="text-align:right">Montant payé</th>
+                    <th style="text-align:center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($subscriptions as $sub)
+                <tr>
+                    <td>
+                        <div style="font-weight:600">{{ $sub->agency->name }}</div>
+                        <div style="font-size:11px;color:#9ca3af">{{ $sub->agency->email }}</div>
+                    </td>
+                    <td style="text-align:center">
+                        @if($sub->estEnEssai())
+                            <span class="badge" style="background:#ede9fe;color:#7c3aed"><span class="bdot"></span>Essai</span>
+                        @elseif($sub->estActif())
+                            <span class="badge" style="background:#dcfce7;color:#16a34a"><span class="bdot"></span>Actif</span>
+                        @elseif($sub->statut === 'expiré')
+                            <span class="badge" style="background:#fee2e2;color:#dc2626"><span class="bdot"></span>Expiré</span>
+                        @else
+                            <span class="badge" style="background:#f3f4f6;color:#6b7280">{{ $sub->statut }}</span>
+                        @endif
+                    </td>
+                    <td style="text-align:center;color:#6b7280;font-size:12px">
+                        {{ \App\Models\Subscription::LABELS[$sub->plan] ?? '—' }}
+                    </td>
+                    <td style="text-align:center;color:#6b7280;font-size:12px">
+                        @if($sub->estEnEssai())
+                            {{ $sub->date_debut_essai?->format('d/m/Y') }}
+                        @else
+                            {{ $sub->date_debut_abonnement?->format('d/m/Y') ?? '—' }}
+                        @endif
+                    </td>
+                    <td style="text-align:center;color:#6b7280;font-size:12px">
+                        @if($sub->estEnEssai())
+                            {{ $sub->date_fin_essai?->format('d/m/Y') }}
+                        @elseif($sub->estActif())
+                            {{ $sub->date_fin_abonnement?->format('d/m/Y') }}
+                        @else —
+                        @endif
+                    </td>
+                    <td style="text-align:center">
+                        @if($sub->estEnEssai())
+                            @php $j = $sub->joursRestantsEssai() @endphp
+                            <span style="font-weight:700;font-size:13px;color:{{ $j <= 7 ? '#dc2626' : '#6366f1' }}">{{ $j }}j</span>
+                        @elseif($sub->estActif())
+                            @php $j = $sub->joursRestantsAbonnement() @endphp
+                            <span style="font-weight:700;font-size:13px;color:{{ $j <= 7 ? '#dc2626' : '#16a34a' }}">{{ $j }}j</span>
+                        @else
+                            <span style="color:#9ca3af">—</span>
+                        @endif
+                    </td>
+                    <td style="text-align:right;font-weight:600">
+                        {{ $sub->montant_paye ? number_format($sub->montant_paye, 0, ',', ' ').' F' : '—' }}
+                    </td>
+                    <td style="text-align:center">
+                        <div style="display:flex;gap:6px;justify-content:center;align-items:center">
+                            {{-- Activer plan --}}
+                            <div class="dropdown" id="drop-{{ $sub->id }}">
+                                <button onclick="toggleDrop({{ $sub->id }})"
+                                    style="padding:5px 12px;border:1px solid #bbf7d0;background:#dcfce7;color:#16a34a;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
+                                    Activer
+                                </button>
+                                <div class="dropdown-menu" id="menu-{{ $sub->id }}">
+                                    @foreach(\App\Models\Subscription::LABELS as $plan => $label)
+                                    <form method="POST"
+                                          action="{{ route('superadmin.agencies.abonnement.activer', $sub->agency) }}"
+                                          onsubmit="return confirm('Activer {{ $label }} pour {{ $sub->agency->name }} ?')">
+                                        @csrf
+                                        <input type="hidden" name="plan" value="{{ $plan }}">
+                                        <button type="submit" class="dropdown-item">
+                                            {{ $label }}
+                                            <span style="color:#9ca3af;font-size:11px"> — {{ number_format(\App\Models\Subscription::TARIFS[$plan], 0, ',', ' ') }} F</span>
+                                        </button>
+                                    </form>
+                                    @endforeach
+                                </div>
+                            </div>
+                            {{-- Réinitialiser essai --}}
+                            <form method="POST"
+                                  action="{{ route('superadmin.agencies.essai.reinitialiser', $sub->agency) }}"
+                                  onsubmit="return confirm('Réinitialiser l\'essai de {{ $sub->agency->name }} ?')">
+                                @csrf
+                                <button type="submit"
+                                    style="padding:5px 12px;border:1px solid #bfdbfe;background:#dbeafe;color:#1d4ed8;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
+                                    Essai
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" style="text-align:center;padding:48px;color:#9ca3af">Aucun abonnement.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+        </div>
     </div>
 
 </div>
+
+<script>
+function toggleDrop(id) {
+    const menu = document.getElementById('menu-' + id);
+    menu.classList.toggle('open');
+    document.addEventListener('click', function close(e) {
+        if (!document.getElementById('drop-' + id).contains(e.target)) {
+            menu.classList.remove('open');
+            document.removeEventListener('click', close);
+        }
+    });
+}
+</script>
 @endsection

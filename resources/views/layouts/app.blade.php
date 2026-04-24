@@ -151,6 +151,7 @@
     </style>
 
     {{ $styles ?? '' }}
+    @stack('styles')
 
     {{-- Couleur de l'agence injectée en CSS variable --}}
     @php
