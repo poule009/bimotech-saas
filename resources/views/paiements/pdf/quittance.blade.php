@@ -473,8 +473,14 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     {{-- SIGNATURES --}}
     <div class="signature-section">
         <div class="sig-cell">
-            <div class="sig-label">Signature du bailleur / Cachet agence</div>
-            <div class="sig-line">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+            <div class="sig-label">Signature / Cachet agence</div>
+            @if($agence?->signature_path && file_exists(storage_path('app/public/' . $agence->signature_path)))
+                <img src="{{ storage_path('app/public/' . $agence->signature_path) }}"
+                     alt="Signature agence"
+                     style="max-height:60px;max-width:180px;object-fit:contain;margin:8px auto;display:block">
+            @else
+                <div class="sig-line">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+            @endif
         </div>
         <div class="sig-spacer"></div>
         <div class="sig-cell">

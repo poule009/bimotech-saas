@@ -46,7 +46,8 @@ class AgencySettingsController extends Controller
              *
              * Formats sûrs acceptés : PNG, JPG, JPEG, WEBP (formats raster)
              */
-            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'logo'      => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'signature' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024'],
         ], [
             'name.required'          => "Le nom de l'agence est obligatoire.",
             'email.required'         => "L'email est obligatoire.",
@@ -56,6 +57,9 @@ class AgencySettingsController extends Controller
             'logo.image'             => "Le fichier doit être une image.",
             'logo.mimes'             => "Formats acceptés : PNG, JPG, JPEG, WEBP.",
             'logo.max'               => "Le logo ne doit pas dépasser 2 Mo.",
+            'signature.image'        => "La signature doit être une image.",
+            'signature.mimes'        => "Formats acceptés : PNG, JPG, JPEG, WEBP.",
+            'signature.max'          => "La signature ne doit pas dépasser 1 Mo.",
         ]);
 
         // ── Gestion du logo ───────────────────────────────────────────────
@@ -69,9 +73,18 @@ class AgencySettingsController extends Controller
             $logoPath = $request->file('logo')->store('logos', 'public');
         }
 
+        // ── Gestion de la signature ───────────────────────────────────────
+
+        $signaturePath = $agency->signature_path;
+
+        if ($request->hasFile('signature')) {
+            if ($signaturePath && Storage::disk('public')->exists($signaturePath)) {
+                Storage::disk('public')->delete($signaturePath);
+            }
+            $signaturePath = $request->file('signature')->store('signatures', 'public');
+        }
+
         // ── Mise à jour de l'agence ───────────────────────────────────────
-        // NOTE : `actif` et `slug` ne sont pas dans Agency::$fillable,
-        // ils ne peuvent donc pas être modifiés ici même si injectés dans la requête.
 
         $agency->update([
             'name'             => $request->name,
@@ -81,6 +94,7 @@ class AgencySettingsController extends Controller
             'ninea'            => $request->ninea,
             'couleur_primaire' => $request->couleur_primaire ?? $agency->couleur_primaire,
             'logo_path'        => $logoPath,
+            'signature_path'   => $signaturePath,
         ]);
 
         $agency->refresh();
@@ -106,5 +120,22 @@ class AgencySettingsController extends Controller
         return redirect()
             ->route('admin.agency.settings')
             ->with('success', 'Logo supprimé ✓');
+    }
+
+    // ── Supprime la signature ─────────────────────────────────────────────
+
+    public function deleteSignature(): RedirectResponse
+    {
+        $agency = Auth::user()->agency;
+
+        if ($agency->signature_path && Storage::disk('public')->exists($agency->signature_path)) {
+            Storage::disk('public')->delete($agency->signature_path);
+        }
+
+        $agency->update(['signature_path' => null]);
+
+        return redirect()
+            ->route('admin.agency.settings')
+            ->with('success', 'Signature supprimée ✓');
     }
 }

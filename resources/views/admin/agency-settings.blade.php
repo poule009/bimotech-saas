@@ -278,6 +278,40 @@
                             @endif
                         </div>
 
+                        {{-- SIGNATURE --}}
+                        <div class="form-group" style="margin-top:20px">
+                            <label class="form-label">Signature / Tampon agence <span class="opt">PNG avec fond transparent · max 1 Mo</span></label>
+                            <div class="logo-zone" id="sig-zone" onclick="document.getElementById('sig-input').click()">
+                                <div class="logo-preview" id="sig-preview">
+                                    @if($agency->signature_path)
+                                        <img src="{{ Storage::url($agency->signature_path) }}" alt="Signature" id="sig-preview-img" style="max-height:60px;object-fit:contain">
+                                    @else
+                                        <div class="logo-preview-placeholder" id="sig-preview-placeholder" style="font-size:11px;color:#9ca3af;font-weight:500">
+                                            Aucune signature
+                                        </div>
+                                    @endif
+                                </div>
+                                <div>
+                                    <div class="logo-zone-text">Cliquer pour ajouter la signature</div>
+                                    <div class="logo-zone-hint">Image de votre signature ou tampon officiel · fond transparent recommandé</div>
+                                </div>
+                                <input type="file" name="signature" id="sig-input"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    style="display:none"
+                                    onchange="previewSignature(this)">
+                            </div>
+                            @error('signature')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                            @if($agency->signature_path)
+                            <button type="button" class="btn-danger-sm" style="margin-top:8px"
+                                    onclick="if(confirm('Supprimer la signature ?')) document.getElementById('form-delete-signature').submit()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                                Supprimer la signature
+                            </button>
+                            @endif
+                        </div>
+
                         {{-- COULEUR --}}
                         <div class="form-group">
                             <label class="form-label" for="couleur_primaire">Couleur principale</label>
@@ -545,6 +579,14 @@
 </form>
 @endif
 
+{{-- Form suppression signature --}}
+@if($agency->signature_path)
+<form id="form-delete-signature" method="POST" action="{{ route('admin.agency.signature.delete') }}" style="display:none">
+    @csrf
+    @method('DELETE')
+</form>
+@endif
+
 <script>
 function syncColor(hex) {
     if (!hex.startsWith('#')) hex = '#' + hex;
@@ -633,6 +675,25 @@ function previewLogo(input) {
             zone.appendChild(zoneImg);
         }
         zoneImg.src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+function previewSignature(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const zone = document.getElementById('sig-preview');
+        let img = document.getElementById('sig-preview-img');
+        if (!img) {
+            const ph = document.getElementById('sig-preview-placeholder');
+            if (ph) ph.remove();
+            img = document.createElement('img');
+            img.id = 'sig-preview-img';
+            img.style.cssText = 'max-height:60px;object-fit:contain';
+            zone.appendChild(img);
+        }
+        img.src = e.target.result;
     };
     reader.readAsDataURL(input.files[0]);
 }

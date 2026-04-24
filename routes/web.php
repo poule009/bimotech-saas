@@ -118,7 +118,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Paramètres agence
         Route::get('agency/settings',   [AgencySettingsController::class, 'edit'])->name('agency.settings');
         Route::patch('agency/settings', [AgencySettingsController::class, 'update'])->name('agency.settings.update');
-        Route::delete('agency/logo',    [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
+        Route::delete('agency/logo',      [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
+        Route::delete('agency/signature', [AgencySettingsController::class, 'deleteSignature'])->name('agency.signature.delete');
 
         // Logs
         Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
