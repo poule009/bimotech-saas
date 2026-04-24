@@ -52,7 +52,7 @@ class PaiementPolicy
                 ? Response::allow()
                 : Response::deny('Ce paiement ne concerne pas l\'un de vos biens.'),
 
-            'locataire' => $paiement->contrat?->locataire_id === $user->id
+            'locataire' => (int) $paiement->contrat?->locataire_id === (int) $user->id
                 ? Response::allow()
                 : Response::deny('Ce paiement ne vous concerne pas.'),
 

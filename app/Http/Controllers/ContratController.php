@@ -193,12 +193,6 @@ class ContratController extends Controller
     {
         $this->authorize('view', $contrat);
 
-        // Le locataire est redirigé vers son dashboard qui affiche déjà son contrat.
-        // Évite qu'il atterrisse sur la vue admin avec des liens inaccessibles.
-        if (Auth::user()->isLocataire()) {
-            return redirect()->route('locataire.dashboard');
-        }
-
         $contrat->load([
             'bien:id,agency_id,proprietaire_id,reference,type,adresse,ville,quartier,commune,surface_m2,nombre_pieces,meuble,statut,taux_commission',
             'bien.proprietaire:id,name,telephone,adresse',
@@ -223,12 +217,17 @@ class ContratController extends Controller
             ? Carbon::parse($dernierPaiement->periode)->addMonth()
             : Carbon::parse($contrat->date_debut);
 
-
-
         $paiements = $contrat->paiements()
             ->select(['id', 'contrat_id', 'agency_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'commission_ttc', 'mode_paiement', 'date_paiement', 'statut', 'reference_paiement'])
             ->orderByDesc('periode')
             ->get();
+
+        // Locataire → vue dédiée sans liens admin
+        if (Auth::user()->role === 'locataire') {
+            return view('locataire.contrat', compact(
+                'contrat', 'totalPaye', 'nbPaiements', 'prochainePeriode', 'paiements'
+            ));
+        }
 
         return view('admin.contrats.show', compact(
             'contrat',

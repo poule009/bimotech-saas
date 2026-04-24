@@ -113,13 +113,20 @@
                 {{ now()->translatedFormat('l d F Y') }}
             </p>
         </div>
-        <a href="{{ route('locataire.paiements') }}"
-           style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fff"
-           onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-           onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
-            <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-            Mes paiements
-        </a>
+        <div style="display:flex;gap:8px">
+            @if($contrat)
+            <a href="{{ route('locataire.contrat.show', $contrat) }}"
+               style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:#0d1117;color:#c9a84c;border:1px solid rgba(201,168,76,.3);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Mon contrat
+            </a>
+            @endif
+            <a href="{{ route('locataire.paiements') }}"
+               style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fff">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                Mes paiements
+            </a>
+        </div>
     </div>
 
     @if(!$contrat)
