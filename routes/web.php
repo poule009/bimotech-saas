@@ -209,6 +209,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('dashboard',                    LocataireDashboardController::class)->name('dashboard');
         Route::get('mes-paiements',                [PaiementController::class,  'mesPaiements'])->name('paiements');
         Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
+        Route::get('mon-contrat',                  [ContratController::class,   'monContrat'])->name('mon-contrat');
         Route::get('mon-contrat/{contrat}',        [ContratController::class,   'show'])->name('contrat.show');
     });
 

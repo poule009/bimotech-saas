@@ -186,6 +186,24 @@ class ContratController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────────
+    // MON CONTRAT — route sans paramètre pour la sidebar locataire
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function monContrat(): \Illuminate\Http\RedirectResponse
+    {
+        $contrat = Contrat::where('locataire_id', Auth::id())
+            ->where('statut', 'actif')
+            ->first();
+
+        if (! $contrat) {
+            return redirect()->route('locataire.dashboard')
+                ->with('info', 'Aucun contrat actif trouvé.');
+        }
+
+        return redirect()->route('locataire.contrat.show', $contrat);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     // DÉTAIL
     // ─────────────────────────────────────────────────────────────────────
 
