@@ -207,17 +207,39 @@
                 </div>
 
                 {{-- CAUTION & FRAIS --}}
+                @php $avecCaution = old('avec_caution', '1') === '1'; @endphp
                 <div class="card">
                     <div class="card-hd">
-                        <div class="card-icon green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div class="card-icon green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            </div>
+                            <div class="card-title">Caution & Frais</div>
                         </div>
-                        <div class="card-title">Caution & Frais</div>
+                        {{-- Toggle caution --}}
+                        <div style="display:flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:8px;padding:3px">
+                            <button type="button" id="btn-avec-caution"
+                                onclick="toggleCaution(true)"
+                                style="padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .15s;
+                                       background:{{ $avecCaution ? '#0d1117' : 'transparent' }};
+                                       color:{{ $avecCaution ? '#fff' : '#6b7280' }}">
+                                Avec caution
+                            </button>
+                            <button type="button" id="btn-sans-caution"
+                                onclick="toggleCaution(false)"
+                                style="padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .15s;
+                                       background:{{ !$avecCaution ? '#0d1117' : 'transparent' }};
+                                       color:{{ !$avecCaution ? '#fff' : '#6b7280' }}">
+                                Sans caution
+                            </button>
+                        </div>
                     </div>
+                    <input type="hidden" name="avec_caution" id="avec_caution" value="{{ old('avec_caution', '1') }}">
                     <div class="card-body">
+                        <div id="bloc-caution" style="{{ $avecCaution ? '' : 'display:none' }}">
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Caution (FCFA) <span class="req">*</span></label>
+                                <label class="form-label">Caution (FCFA)</label>
                                 <input type="number" name="caution" id="caution"
                                        class="form-input {{ $errors->has('caution') ? 'error':'' }}"
                                        value="{{ old('caution') }}" min="0" step="500">
@@ -234,6 +256,7 @@
                                     @endforeach
                                 </select>
                             </div>
+                        </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Frais d'agence HT (FCFA) <span class="opt">(optionnel)</span></label>
@@ -417,6 +440,24 @@
 </div>
 
 <script>
+// ── Toggle caution ─────────────────────────────────────────────────────────
+function toggleCaution(avec) {
+    document.getElementById('avec_caution').value = avec ? '1' : '0';
+    document.getElementById('bloc-caution').style.display = avec ? '' : 'none';
+
+    const btnAvec  = document.getElementById('btn-avec-caution');
+    const btnSans  = document.getElementById('btn-sans-caution');
+    btnAvec.style.background = avec  ? '#0d1117' : 'transparent';
+    btnAvec.style.color      = avec  ? '#fff'    : '#6b7280';
+    btnSans.style.background = !avec ? '#0d1117' : 'transparent';
+    btnSans.style.color      = !avec ? '#fff'    : '#6b7280';
+
+    // Vider le champ caution si désactivé
+    if (!avec) {
+        document.getElementById('caution').value = '';
+    }
+}
+
 // ── Données biens passées depuis PHP ───────────────────────────────────────
 const biensData = @json($biens->keyBy('id'));
 
