@@ -6,6 +6,14 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ auth()->user()?->agency?->name ?? config('app.name') }} — BimoTech Immo</title>
 
+    {{-- ── PWA : manifest + icône + couleur de thème ── --}}
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#c9a84c">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="BIMO-tech">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
@@ -211,5 +219,19 @@
     </div>
 
     {{ $scripts ?? '' }}
+
+    {{-- ── PWA : enregistrement du Service Worker ── --}}
+    <script>
+        if ('serviceWorker' in navigator) {
+            /* On attend que la page soit totalement chargée
+               pour ne pas ralentir le rendu initial. */
+            window.addEventListener('load', () => {
+                navigator.serviceWorker
+                    .register('/sw.js')
+                    .then(reg => console.log('[PWA] Service Worker enregistré :', reg.scope))
+                    .catch(err => console.warn('[PWA] Échec enregistrement SW :', err));
+            });
+        }
+    </script>
 </body>
 </html>
