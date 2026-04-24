@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -28,7 +29,7 @@ class AdminDashboardController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __invoke(): View|RedirectResponse
+    public function __invoke(Request $request): View|RedirectResponse
     {
         $this->authorize('isAdmin');
 
@@ -40,6 +41,29 @@ class AdminDashboardController extends Controller
         }
 
         $agencyId = $user->agency_id;
+
+        // ── Période sélectionnée par le filtre (défaut : mois) ────────────
+        $periode = in_array($request->input('periode'), ['mois', 'trimestre', 'annee'])
+            ? $request->input('periode')
+            : 'mois';
+
+        [$debut, $fin, $periodeLabel] = match($periode) {
+            'trimestre' => [
+                now()->copy()->firstOfQuarter()->startOfDay(),
+                now()->copy()->lastOfQuarter()->endOfDay(),
+                'ce trimestre',
+            ],
+            'annee' => [
+                now()->copy()->startOfYear()->startOfDay(),
+                now()->copy()->endOfYear()->endOfDay(),
+                'cette année',
+            ],
+            default => [
+                now()->copy()->startOfMonth()->startOfDay(),
+                now()->copy()->endOfMonth()->endOfDay(),
+                'ce mois',
+            ],
+        };
 
         // ── Stats all-time (cache 30 min) ─────────────────────────────────
         // Clé incluant agencyId → chaque agence a son propre cache.
@@ -86,13 +110,12 @@ class AdminDashboardController extends Controller
             ];
         });
 
-        // ── Stats du mois courant (cache 10 min) ──────────────────────────
-        $moisKey   = now()->format('Y-m');
-        $statsMois = Cache::remember("admin_stats_mois_{$agencyId}_{$moisKey}", 600, function () use ($agencyId) {
+        // ── Stats de la période sélectionnée (cache 10 min) ──────────────
+        $periodeKey = "{$agencyId}_{$periode}_{$debut->format('Y-m-d')}";
+        $statsMois  = Cache::remember("admin_stats_periode_{$periodeKey}", 600, function () use ($agencyId, $debut, $fin) {
             $raw = Paiement::where('agency_id', $agencyId)
                 ->where('statut', 'valide')
-                ->whereYear('periode', now()->year)
-                ->whereMonth('periode', now()->month)
+                ->whereBetween('periode', [$debut->toDateString(), $fin->toDateString()])
                 ->selectRaw('
                     COALESCE(SUM(montant_encaisse), 0)  AS loyers,
                     COALESCE(SUM(commission_ttc), 0)    AS commissions,
@@ -109,14 +132,12 @@ class AdminDashboardController extends Controller
             ];
         });
 
-        // ── Impayés du mois (pas de cache — données critiques) ────────────
-        $debutMois  = now()->startOfMonth()->toDateString();
-        $finMois    = now()->endOfMonth()->toDateString();
+        // ── Impayés de la période (pas de cache — données critiques) ──────
         $contratIds = Contrat::where('agency_id', $agencyId)->where('statut', 'actif')->pluck('id');
 
         $payes = Paiement::where('agency_id', $agencyId)
             ->where('statut', 'valide')
-            ->whereBetween('periode', [$debutMois, $finMois])
+            ->whereBetween('periode', [$debut->toDateString(), $fin->toDateString()])
             ->pluck('contrat_id')
             ->toArray();
 
@@ -216,7 +237,9 @@ class AdminDashboardController extends Controller
             'derniersPaiements',
             'loyersParMois',
             'bilanMois',
-            'onboarding'
+            'onboarding',
+            'periode',
+            'periodeLabel'
         ));
     }
 }

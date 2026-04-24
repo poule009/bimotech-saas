@@ -109,9 +109,12 @@
         </div>
         <div style="display:flex;align-items:center;gap:10px">
             <div class="tabs">
-                <button class="tab active">Ce mois</button>
-                <button class="tab">Trimestre</button>
-                <button class="tab">Année</button>
+                <a href="{{ route('admin.dashboard', ['periode' => 'mois']) }}"
+                   class="tab {{ $periode === 'mois' ? 'active' : '' }}" style="text-decoration:none">Ce mois</a>
+                <a href="{{ route('admin.dashboard', ['periode' => 'trimestre']) }}"
+                   class="tab {{ $periode === 'trimestre' ? 'active' : '' }}" style="text-decoration:none">Trimestre</a>
+                <a href="{{ route('admin.dashboard', ['periode' => 'annee']) }}"
+                   class="tab {{ $periode === 'annee' ? 'active' : '' }}" style="text-decoration:none">Année</a>
             </div>
             <a href="{{ route('admin.rapports.financier.export-pdf') }}" class="btn-outline">
                 <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -126,7 +129,7 @@
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
             <div class="kpi-label">Loyers encaissés</div>
             <div class="kpi-value">{{ number_format($statsMois['loyers'], 0, ',', ' ') }}<span class="kpi-unit">F</span></div>
-            <div class="kpi-sub">{{ $statsMois['nb_payes'] }} paiements ce mois</div>
+            <div class="kpi-sub">{{ $statsMois['nb_payes'] }} paiements {{ $periodeLabel }}</div>
         </div>
         <div class="kpi-card green">
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
@@ -543,13 +546,7 @@ new Chart(document.getElementById('chartStatuts'), {
     }
 });
 
-// ── Tabs ───────────────────────────────────────────────────────────
-document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-    });
-});
+// Les onglets sont des liens (<a>) avec ?periode=xxx — pas de JS nécessaire.
 </script>
 
 </x-app-layout>
