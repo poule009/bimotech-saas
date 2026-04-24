@@ -50,7 +50,7 @@ class ContratPolicy
                 ? Response::allow()
                 : Response::deny('Vous n\'êtes pas le propriétaire du bien concerné.'),
 
-            'locataire' => $contrat->locataire_id === $user->locataire?->id
+            'locataire' => $contrat->locataire_id === $user->id
                 ? Response::allow()
                 : Response::deny('Ce contrat ne vous concerne pas.'),
 
