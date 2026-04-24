@@ -338,6 +338,12 @@
 .fiscal-val.red { color: #dc2626; }
 </style>
 
+@php
+    $moisPdf = $mois ?? ($paiements->isNotEmpty()
+        ? (int)\Carbon\Carbon::parse($paiements->first()->periode)->format('n')
+        : now()->month);
+@endphp
+
 <div style="padding: 0 0 48px">
 
     {{-- Breadcrumb + Actions --}}
@@ -347,12 +353,20 @@
             <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             <span style="color:#0d1117;font-weight:600">{{ $user->name }}</span>
         </div>
-        <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $mois ?? now()->month]) }}"
-           target="_blank"
-           style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#0d1117;color:#c9a84c;border:1px solid rgba(201,168,76,.3);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s">
-            <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Rapport PDF
-        </a>
+        <div style="display:flex;gap:8px">
+            <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $moisPdf]) }}"
+               target="_blank"
+               style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#0d1117;color:#c9a84c;border:1px solid rgba(201,168,76,.3);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Rapport mensuel
+            </a>
+            <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee]) }}"
+               target="_blank"
+               style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#f9fafb;color:#374151;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Rapport annuel {{ $annee }}
+            </a>
+        </div>
     </div>
 
     {{-- ═══ HERO ════════════════════════════════ --}}
@@ -554,10 +568,15 @@
                             <div class="rp-net-lbl">Montant final à verser</div>
                             <div class="rp-net-val">{{ number_format($dashboard['net_final'], 0, ',', ' ') }} F</div>
                         </div>
-                        <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $mois ?? now()->month]) }}"
+                        <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $moisPdf]) }}"
                            target="_blank" class="btn-pdf">
                             <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            Télécharger Rapport PDF
+                            Rapport mensuel PDF
+                        </a>
+                        <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee]) }}"
+                           target="_blank" class="btn-pdf" style="margin-top:8px;background:#f9fafb;color:#374151;border-color:#e5e7eb">
+                            <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            Rapport annuel {{ $annee }}
                         </a>
                     </div>
                 </div>

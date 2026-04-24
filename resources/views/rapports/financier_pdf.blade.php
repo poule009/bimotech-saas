@@ -360,9 +360,9 @@
                 <tr>
                     <td class="font-bold">TOTAL</td>
                     <td class="right font-bold">{{ $parProprietaire->sum('nb_paiements') }}</td>
-                    <td class="right font-bold">{{ number_format($parProprietaire->sum('loyers'), 0, ',', ' ') }} FCFA</td>
-                    <td class="right font-bold">{{ number_format($parProprietaire->sum('commission'), 0, ',', ' ') }} FCFA</td>
-                    <td class="right font-bold text-green">{{ number_format($parProprietaire->sum('net'), 0, ',', ' ') }} FCFA</td>
+                    <td class="right font-bold">{{ number_format($parProprietaire->sum('total_encaisse'), 0, ',', ' ') }} FCFA</td>
+                    <td class="right font-bold">{{ number_format($parProprietaire->sum('total_commission'), 0, ',', ' ') }} FCFA</td>
+                    <td class="right font-bold text-green">{{ number_format($parProprietaire->sum('total_net'), 0, ',', ' ') }} FCFA</td>
                 </tr>
             </tfoot>
         </table>

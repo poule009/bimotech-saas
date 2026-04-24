@@ -152,13 +152,13 @@
     <div class="header-table">
         <div class="header-left">
             <div class="agency-name">{{ $agency->name ?? 'BIMO-tech' }}</div>
-            <h1>Rapport de Gestion Mensuel</h1>
+            <h1>Rapport de Gestion {{ $mois !== null ? 'Mensuel' : 'Annuel' }}</h1>
             <h2>Document isolé · Données exclusives du bailleur</h2>
         </div>
         <div class="header-right">
             <div class="periode-badge">
                 <div class="periode-lbl">Période</div>
-                <div class="periode-val">{{ $periode->translatedFormat('F Y') }}</div>
+                <div class="periode-val">{{ $mois !== null ? $periode->translatedFormat('F Y') : 'Année '.$annee }}</div>
             </div>
         </div>
     </div>
@@ -219,12 +219,19 @@
 {{-- Détail des paiements ──────────────────────────── --}}
 <div class="section-title">Détail des paiements — {{ $paiements->count() }} enregistrement(s)</div>
 
+@if($paiements->isEmpty())
+<div style="margin:0 28px 18px;padding:20px;background:#f9fafb;border:1px dashed #d1d5db;border-radius:8px;text-align:center;color:#6b7280;font-size:11px;">
+    Aucun paiement validé pour {{ $mois !== null ? $periode->translatedFormat('F Y') : 'l\'année '.$annee }}.
+</div>
+@else
+@php $parMois = $paiements->groupBy(fn($p) => \Carbon\Carbon::parse($p->periode)->format('Y-m')); @endphp
+
 <table class="dt">
     <thead>
         <tr>
             <th>Référence</th>
             <th>Bien</th>
-            <th class="text-center">Période</th>
+            @if($mois === null)<th class="text-center">Période</th>@endif
             <th class="text-right">Loyer encaissé</th>
             <th class="text-right">Commission TTC</th>
             <th class="text-right">Dépenses</th>
@@ -232,18 +239,29 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($paiements as $p)
+        @foreach($parMois as $cle => $groupe)
+        @if($mois === null)
+        <tr style="background:#f3f4f6">
+            <td colspan="7" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#6b7280;padding:6px 10px">
+                {{ \Carbon\Carbon::createFromFormat('Y-m', $cle)->translatedFormat('F Y') }}
+                — {{ $groupe->count() }} paiement(s)
+            </td>
+        </tr>
+        @endif
+        @foreach($groupe as $p)
         @php
-            $depMois     = (float) $p->depenses->sum('montant');
-            $netB        = (float)($p->montant_net_bailleur ?? $p->net_a_verser_proprietaire ?? 0);
-            $netLigne    = round($netB - $depMois, 2);
+            $depMois  = (float) $p->depenses->sum('montant');
+            $netB     = (float)($p->net_a_verser_proprietaire ?? 0);
+            $netLigne = round($netB - $depMois, 2);
         @endphp
         <tr>
             <td style="font-size:9px;color:#9ca3af">{{ $p->reference_paiement }}</td>
             <td>{{ $p->contrat?->bien?->reference ?? '—' }}</td>
+            @if($mois === null)
             <td class="text-center">
                 <span class="badge-periode">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
             </td>
+            @endif
             <td class="text-right" style="font-weight:700">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
             <td class="text-right" style="color:#1d4ed8">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</td>
             <td class="text-right" style="color:{{ $depMois > 0 ? '#dc2626' : '#9ca3af' }}">
@@ -251,27 +269,42 @@
             </td>
             <td class="text-right" style="font-weight:700;color:#16a34a">{{ number_format($netLigne, 0, ',', ' ') }} F</td>
         </tr>
-        {{-- Sous-lignes dépenses si présentes --}}
         @foreach($p->depenses as $dep)
         <tr style="background:#fef2f2">
             <td colspan="2" style="padding-left:20px;color:#b91c1c;font-size:9px">
                 ↳ {{ $dep->libelle }}
                 @if($dep->prestataire) · {{ $dep->prestataire }} @endif
             </td>
+            @if($mois === null)<td></td>@endif
             <td class="text-center" style="color:#b91c1c;font-size:9px">
                 {{ \Carbon\Carbon::parse($dep->date_depense)->format('d/m/Y') }}
             </td>
-            <td colspan="3"></td>
+            <td colspan="2"></td>
             <td class="text-right" style="color:#dc2626;font-size:9px;font-weight:700">
                 − {{ number_format($dep->montant, 0, ',', ' ') }} F
             </td>
         </tr>
         @endforeach
         @endforeach
+        @if($mois === null)
+        @php
+            $sLoyers = (float)$groupe->sum('montant_encaisse');
+            $sComm   = (float)$groupe->sum('commission_ttc');
+            $sDep    = (float)$groupe->flatMap->depenses->sum('montant');
+        @endphp
+        <tr style="background:#f9fafb;border-top:1px solid #e5e7eb">
+            <td colspan="3" style="font-size:9px;color:#9ca3af;font-style:italic">Sous-total {{ \Carbon\Carbon::createFromFormat('Y-m', $cle)->translatedFormat('F') }}</td>
+            <td class="text-right" style="font-weight:600">{{ number_format($sLoyers, 0, ',', ' ') }} F</td>
+            <td class="text-right" style="color:#1d4ed8;font-weight:600">{{ number_format($sComm, 0, ',', ' ') }} F</td>
+            <td class="text-right" style="color:#dc2626;font-weight:600">{{ $sDep > 0 ? number_format($sDep, 0, ',', ' ').' F' : '—' }}</td>
+            <td class="text-right" style="color:#16a34a;font-weight:600">{{ number_format($sLoyers - $sComm - $sDep, 0, ',', ' ') }} F</td>
+        </tr>
+        @endif
+        @endforeach
 
         {{-- Ligne totaux ─────────────────────────────────────────── --}}
         <tr class="tr-total">
-            <td colspan="3" style="color:#6b7280;font-size:10px">TOTAUX</td>
+            <td colspan="{{ $mois !== null ? 3 : 4 }}" style="color:#6b7280;font-size:10px">TOTAUX {{ $mois === null ? $annee : '' }}</td>
             <td class="text-right">{{ number_format($totalLoyers, 0, ',', ' ') }} F</td>
             <td class="text-right" style="color:#1d4ed8">{{ number_format($totalCommissions, 0, ',', ' ') }} F</td>
             <td class="text-right" style="color:#dc2626">
@@ -281,11 +314,12 @@
         </tr>
     </tbody>
 </table>
+@endif
 
 {{-- Net final ───────────────────────────────────────── --}}
 <div class="net-final-box">
     <div class="net-left">
-        <div class="net-label">Montant Net Final à Reverser au Bailleur</div>
+        <div class="net-label">{{ $mois !== null ? 'Montant Net Final à Reverser au Bailleur' : 'Total Net à Reverser — Année '.$annee }}</div>
         <div class="net-equa">
             {{ number_format($totalLoyers, 0, ',', ' ') }} F
             − {{ number_format($totalCommissions, 0, ',', ' ') }} F commissions

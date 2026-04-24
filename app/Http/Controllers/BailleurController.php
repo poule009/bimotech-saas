@@ -88,37 +88,43 @@ class BailleurController extends Controller
 
         $contratIds = Contrat::whereIn('bien_id', $bienIds)->pluck('id');
 
-        // Période : mois + année passés en paramètre (défaut = mois en cours)
         $annee = (int) request('annee', now()->year);
-        $mois  = (int) request('mois',  now()->month);
+        $mois  = request('mois') !== null ? (int) request('mois') : null;
 
-        $paiements = Paiement::where('agency_id', $agencyId)
+        $query = Paiement::where('agency_id', $agencyId)
             ->whereIn('contrat_id', $contratIds)
             ->where('statut', 'valide')
             ->whereYear('periode', $annee)
-            ->whereMonth('periode', $mois)
             ->with([
                 'depenses',
                 'contrat:id,bien_id,reference_bail',
                 'contrat.bien:id,reference,adresse,ville',
             ])
-            ->orderBy('periode')
-            ->get();
+            ->orderBy('periode');
+
+        if ($mois !== null) {
+            $query->whereMonth('periode', $mois);
+        }
+
+        $paiements = $query->get();
 
         $totalLoyers      = (float) $paiements->sum('montant_encaisse');
         $totalCommissions = (float) $paiements->sum('commission_ttc');
         $totalDepenses    = (float) $paiements->flatMap->depenses->sum('montant');
         $netFinal         = round($totalLoyers - $totalCommissions - $totalDepenses, 2);
 
-        $periode = Carbon::createFromDate($annee, $mois, 1);
+        $periode = $mois !== null
+            ? Carbon::createFromDate($annee, $mois, 1)
+            : Carbon::createFromDate($annee, 1, 1);
 
         $pdf = Pdf::loadView('bailleurs.pdf.rapport-gestion', compact(
-            'user', 'agency', 'paiements',
+            'user', 'agency', 'paiements', 'mois',
             'totalLoyers', 'totalCommissions', 'totalDepenses', 'netFinal',
-            'periode'
+            'periode', 'annee'
         ))->setPaper('a4', 'portrait');
 
-        $filename = 'rapport-gestion-' . $user->name . '-' . $periode->format('Y-m') . '.pdf';
+        $suffix   = $mois !== null ? $periode->format('Y-m') : $annee;
+        $filename = 'rapport-gestion-' . $user->name . '-' . $suffix . '.pdf';
 
         return $pdf->download(str_replace(' ', '-', $filename));
     }
