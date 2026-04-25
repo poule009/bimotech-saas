@@ -24,8 +24,11 @@ use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// ── Health check (monitoring, load balancer) ───────────────────────────────
-// Accessible sans authentification. Retourne l'état de la DB, du cache et des queues.
+// ── Routes sans session (health + sitemap) ────────────────────────────────
+// Exclues du middleware StartSession pour fonctionner même si la DB est indisponible.
+Route::withoutMiddleware([\Illuminate\Session\Middleware\StartSession::class])
+    ->group(function () {
+
 Route::get('/health', function () {
     $checks = [];
 
@@ -55,9 +58,6 @@ Route::get('/health', function () {
     ], $status);
 })->name('health');
 
-// ── Pages publiques ────────────────────────────────────────────────────────
-Route::get('/', fn() => view('welcome'))->name('home');
-
 Route::get('/sitemap.xml', function () {
     $urls = [
         ['loc' => url('/'),                 'priority' => '1.0',  'changefreq' => 'weekly'],
@@ -70,6 +70,11 @@ Route::get('/sitemap.xml', function () {
     $content = view('sitemap', compact('urls'))->render();
     return response($content, 200)->header('Content-Type', 'application/xml');
 })->name('sitemap');
+
+}); // fin groupe withoutMiddleware(StartSession)
+
+// ── Pages publiques ────────────────────────────────────────────────────────
+Route::get('/', fn() => view('welcome'))->name('home');
 Route::get('/contact',          fn() => view('contact'))->name('contact');
 Route::get('/demo',             fn() => view('demo'))->name('demo');
 Route::get('/faq',              fn() => view('faq'))->name('faq');
