@@ -46,8 +46,9 @@ class AgencySettingsController extends Controller
              *
              * Formats sûrs acceptés : PNG, JPG, JPEG, WEBP (formats raster)
              */
-            'logo'      => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
-            'signature' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024'],
+            'logo'             => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'signature'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024'],
+            'modele_contrat'   => ['nullable', 'string', 'max:10000'],
         ], [
             'name.required'          => "Le nom de l'agence est obligatoire.",
             'email.required'         => "L'email est obligatoire.",
@@ -95,6 +96,7 @@ class AgencySettingsController extends Controller
             'couleur_primaire' => $request->couleur_primaire ?? $agency->couleur_primaire,
             'logo_path'        => $logoPath,
             'signature_path'   => $signaturePath,
+            'modele_contrat'   => $request->modele_contrat ?? $agency->modele_contrat,
         ]);
 
         $agency->refresh();

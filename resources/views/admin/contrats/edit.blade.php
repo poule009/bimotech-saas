@@ -288,6 +288,17 @@
                     </div>
                     <div class="card-body">
                         <textarea name="observations" class="form-textarea">{{ old('observations', $contrat->observations) }}</textarea>
+
+                        <div style="margin-top:16px">
+                            <label class="form-label" style="margin-bottom:6px;display:block">
+                                Clauses particulières
+                                <span style="font-weight:400;color:#9ca3af;font-size:11px">Conditions spécifiques à ce bail uniquement</span>
+                            </label>
+                            <textarea name="clauses_particulieres" class="form-textarea" rows="5"
+                                placeholder="Ex : Le locataire bénéficie d'une place de parking désignée n°3…&#10;Autorisation de sous-louer la chambre B uniquement avec accord écrit…"
+                            >{{ old('clauses_particulieres', $contrat->clauses_particulieres) }}</textarea>
+                            <div class="form-hint" style="margin-top:4px">Ces clauses s'ajouteront aux clauses générales de l'agence dans le bail PDF.</div>
+                        </div>
                     </div>
                     <div class="submit-bar">
                         <a href="{{ route('admin.contrats.show', $contrat) }}" class="btn-cancel">Annuler</a>

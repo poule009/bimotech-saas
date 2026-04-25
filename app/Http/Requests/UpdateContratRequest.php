@@ -48,7 +48,8 @@ class UpdateContratRequest extends FormRequest
                     ->whereNull('deleted_at')
                     ->ignore($this->route('contrat')?->id),
             ],
-            'observations'        => ['nullable', 'string', 'max:1000'],
+            'observations'          => ['nullable', 'string', 'max:1000'],
+            'clauses_particulieres' => ['nullable', 'string', 'max:5000'],
             'locataire_id'        => [
                 'nullable',
                 'exists:users,id',

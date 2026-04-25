@@ -319,7 +319,29 @@
                     </div>
                     <div class="card-body">
                         <textarea name="observations" class="form-textarea"
-                            placeholder="Clauses particulières, état des lieux…">{{ old('observations') }}</textarea>
+                            rows="3"
+                            placeholder="État des lieux, observations générales…">{{ old('observations') }}</textarea>
+
+                        <div class="form-group" style="margin-top:14px">
+                            <label class="form-label">
+                                Clauses particulières
+                                <span class="opt">(spécifiques à ce bail)</span>
+                            </label>
+                            <textarea name="clauses_particulieres" class="form-textarea"
+                                rows="5"
+                                placeholder="Ex : interdiction d'animaux, travaux autorisés, conditions de résiliation anticipée…&#10;&#10;Votre modèle de clauses agence sera automatiquement ajouté dans le bail PDF.">{{ old('clauses_particulieres') }}</textarea>
+                            @if(auth()->user()->agency?->modele_contrat)
+                            <div style="font-size:11px;color:#16a34a;margin-top:4px;display:flex;align-items:center;gap:4px">
+                                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                Modèle de clauses agence configuré — inclus automatiquement dans le bail PDF
+                            </div>
+                            @else
+                            <div style="font-size:11px;color:#9ca3af;margin-top:4px;display:flex;align-items:center;gap:4px">
+                                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <a href="{{ route('admin.agency.settings') }}" style="color:#c9a84c;text-decoration:none">Configurer votre modèle de clauses agence →</a>
+                            </div>
+                            @endif
+                        </div>
                     </div>
                     <div class="submit-bar">
                         <a href="{{ route('admin.contrats.index') }}" class="btn-cancel">Annuler</a>

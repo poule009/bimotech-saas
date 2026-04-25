@@ -73,7 +73,8 @@ class StoreContratRequest extends FormRequest
                     ->where('agency_id', $agencyId)
                     ->whereNull('deleted_at'),
             ],
-            'observations'        => ['nullable', 'string', 'max:1000'],
+            'observations'          => ['nullable', 'string', 'max:1000'],
+            'clauses_particulieres' => ['nullable', 'string', 'max:5000'],
             // ── Fiscal ────────────────────────────────────────────────────────
             'loyer_assujetti_tva'      => ['nullable', 'boolean'],
             'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],

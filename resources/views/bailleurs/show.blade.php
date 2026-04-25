@@ -353,7 +353,7 @@
             <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             <span style="color:#0d1117;font-weight:600">{{ $user->name }}</span>
         </div>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
             <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $moisPdf]) }}"
                target="_blank"
                style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#0d1117;color:#c9a84c;border:1px solid rgba(201,168,76,.3);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
@@ -365,6 +365,12 @@
                style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#f9fafb;color:#374151;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
                 <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Rapport annuel {{ $annee }}
+            </a>
+            <a href="{{ route('admin.bailleurs.releve-pdf', [$user->id, 'annee' => $annee, 'mois' => $moisPdf]) }}"
+               target="_blank"
+               style="display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Relevé propriétaire
             </a>
         </div>
     </div>

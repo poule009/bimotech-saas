@@ -374,6 +374,86 @@ class PaiementController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────────
+    // EXPORT CSV PAIEMENTS
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function exportCsv(\Illuminate\Http\Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $this->authorize('isStaff');
+
+        $agencyId = Auth::user()->agency_id;
+
+        $query = Paiement::where('agency_id', $agencyId)
+            ->with([
+                'contrat:id,bien_id,locataire_id,reference_bail',
+                'contrat.bien:id,reference,adresse',
+                'contrat.bien.proprietaire:id,name',
+                'contrat.locataire:id,name',
+            ])
+            ->select([
+                'id', 'contrat_id', 'reference_paiement', 'periode',
+                'date_paiement', 'montant_encaisse', 'commission_agence',
+                'tva_commission', 'commission_ttc', 'brs_amount',
+                'net_proprietaire', 'net_a_verser_proprietaire',
+                'mode_paiement', 'statut', 'reference_bail',
+            ])
+            ->orderByDesc('date_paiement');
+
+        // Appliquer les mêmes filtres que la vue index
+        if ($request->filled('statut'))   $query->where('statut', $request->statut);
+        if ($request->filled('mois'))     $query->whereMonth('periode', $request->mois);
+        if ($request->filled('annee'))    $query->whereYear('periode', $request->annee);
+        if ($request->filled('contrat_id')) $query->where('contrat_id', $request->contrat_id);
+
+        $paiements = $query->get();
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="paiements-' . now()->format('Y-m-d') . '.csv"',
+        ];
+
+        $colonnes = [
+            'Référence', 'Période', 'Date paiement', 'Bien', 'Adresse',
+            'Référence bail', 'Locataire', 'Propriétaire',
+            'Loyer encaissé (F)', 'Commission HT (F)', 'TVA comm. (F)',
+            'Commission TTC (F)', 'BRS (F)', 'Net propriétaire (F)',
+            'Net à verser (F)', 'Mode paiement', 'Statut',
+        ];
+
+        $callback = function () use ($paiements, $colonnes) {
+            $handle = fopen('php://output', 'w');
+            // BOM UTF-8 pour Excel
+            fputs($handle, "\xEF\xBB\xBF");
+            fputcsv($handle, $colonnes, ';');
+
+            foreach ($paiements as $p) {
+                fputcsv($handle, [
+                    $p->reference_paiement,
+                    $p->periode ? \Carbon\Carbon::parse($p->periode)->format('m/Y') : '',
+                    $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '',
+                    $p->contrat?->bien?->reference ?? '',
+                    $p->contrat?->bien?->adresse ?? '',
+                    $p->reference_bail ?? $p->contrat?->reference_bail ?? '',
+                    $p->contrat?->locataire?->name ?? '',
+                    $p->contrat?->bien?->proprietaire?->name ?? '',
+                    number_format($p->montant_encaisse, 0, ',', ' '),
+                    number_format($p->commission_agence ?? 0, 0, ',', ' '),
+                    number_format($p->tva_commission ?? 0, 0, ',', ' '),
+                    number_format($p->commission_ttc ?? 0, 0, ',', ' '),
+                    number_format($p->brs_amount ?? 0, 0, ',', ' '),
+                    number_format($p->net_proprietaire ?? 0, 0, ',', ' '),
+                    number_format($p->net_a_verser_proprietaire ?? 0, 0, ',', ' '),
+                    $p->mode_paiement ?? '',
+                    $p->statut ?? '',
+                ], ';');
+            }
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     // MES PAIEMENTS (LOCATAIRE)
     // ─────────────────────────────────────────────────────────────────────
 

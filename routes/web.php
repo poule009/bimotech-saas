@@ -180,9 +180,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
 
         // Portefeuille Bailleurs (Niveau 5)
-        Route::get('bailleurs',                     [BailleurController::class, 'index'])->name('bailleurs.index');
-        Route::get('bailleurs/{userId}',             [BailleurController::class, 'show'])->name('bailleurs.show');
-        Route::get('bailleurs/{userId}/export-pdf', [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf');
+        Route::get('bailleurs',                          [BailleurController::class, 'index'])->name('bailleurs.index');
+        Route::get('bailleurs/{userId}',                 [BailleurController::class, 'show'])->name('bailleurs.show');
+        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf');
+        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf');
+
+        // Export CSV paiements
+        Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv');
+
+        // Contrat de bail PDF
+        Route::get('contrats/{contrat}/bail-pdf', [ContratController::class, 'bailPdf'])->name('contrats.bail-pdf');
     });
 
     // ── Staff agence — lecture (admin + superadmin) ───────────────────────

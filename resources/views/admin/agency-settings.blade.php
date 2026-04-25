@@ -430,6 +430,25 @@
 
                         <div class="form-hint">Ces informations apparaissent sur toutes les quittances PDF.</div>
 
+                        {{-- Modèle de bail --}}
+                        <div style="margin-top:24px;border-top:1px solid #e5e7eb;padding-top:20px">
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:14px">Modèle de contrat de bail</div>
+                            <div class="form-group">
+                                <label class="form-label" for="modele_contrat">
+                                    Clauses générales de l'agence
+                                    <span class="opt">Insérées automatiquement dans tous vos baux PDF</span>
+                                </label>
+                                <textarea name="modele_contrat" id="modele_contrat"
+                                    class="form-textarea"
+                                    rows="8"
+                                    maxlength="10000"
+                                    placeholder="Ex : Le locataire s'interdit tout dépôt d'ordures dans les parties communes...&#10;Le bailleur se réserve le droit de visite avec préavis de 48h...&#10;Toute modification structurelle est soumise à accord écrit du bailleur...">{{ old('modele_contrat', $agency->modele_contrat) }}</textarea>
+                                <div class="form-hint" style="margin-top:6px">
+                                    Écrivez vos clauses habituelles ici une seule fois — elles s'ajouteront à chaque contrat. Pour les conditions spécifiques à un bail, utilisez le champ "Clauses particulières" sur la fiche du contrat.
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <div class="submit-bar">
                         <button type="submit" class="btn-submit">

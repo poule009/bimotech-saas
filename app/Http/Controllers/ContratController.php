@@ -151,7 +151,8 @@ class ContratController extends Controller
                 'garant_nom'          => $validated['garant_nom'] ?? null,
                 'garant_telephone'    => $validated['garant_telephone'] ?? null,
                 'garant_adresse'      => $validated['garant_adresse'] ?? null,
-                'observations'        => $validated['observations'] ?? null,
+                'observations'           => $validated['observations'] ?? null,
+                'clauses_particulieres'  => $validated['clauses_particulieres'] ?? null,
                 'reference_bail'      => $referenceBail,
                 // ── Fiscal (l'Observer ContratObserver calcule aussi automatiquement)
                 'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
@@ -258,6 +259,31 @@ class ContratController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────────
+    // BAIL PDF — contrat de bail complet avec clauses agence + particulières
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function bailPdf(Contrat $contrat): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $contrat);
+
+        $contrat->load([
+            'bien:id,reference,type,adresse,ville,quartier,surface_m2,nombre_pieces,meuble',
+            'bien.proprietaire:id,name,email,telephone,adresse',
+            'locataire:id,name,email,telephone,adresse',
+        ]);
+
+        $agency = Auth::user()->agency;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('contrats.pdf.bail', compact(
+            'contrat', 'agency'
+        ))->setPaper('a4', 'portrait');
+
+        $filename = 'bail-' . ($contrat->reference_bail ?? 'contrat-' . $contrat->id) . '.pdf';
+
+        return $pdf->download(str_replace(' ', '-', $filename));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     // FORMULAIRE ÉDITION
     // ─────────────────────────────────────────────────────────────────────
 
@@ -323,7 +349,8 @@ class ContratController extends Controller
             'reference_bail'      => ! empty($validated['reference_bail'])
                 ? trim($validated['reference_bail'])
                 : $contrat->reference_bail,
-            'observations'        => $validated['observations'] ?? null,
+            'observations'          => $validated['observations'] ?? null,
+            'clauses_particulieres' => $validated['clauses_particulieres'] ?? null,
             // ── Fiscal
             'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
             'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,

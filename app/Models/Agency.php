@@ -30,6 +30,7 @@ class Agency extends Model
         'telephone',
         'logo_path',
         'signature_path',
+        'modele_contrat',
         'couleur_primaire',
         'adresse',
         'ninea',

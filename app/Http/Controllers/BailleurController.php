@@ -128,4 +128,57 @@ class BailleurController extends Controller
 
         return $pdf->download(str_replace(' ', '-', $filename));
     }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // RELEVÉ DE COMPTE PROPRIÉTAIRE — document épuré envoyable au bailleur
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function relevePdf(int $userId): \Illuminate\Http\Response
+    {
+        $this->authorize('isStaff');
+
+        $agencyId = Auth::user()->agency_id;
+        $agency   = Auth::user()->agency;
+
+        $user = User::where('id', $userId)
+            ->where('agency_id', $agencyId)
+            ->where('role', 'proprietaire')
+            ->with('proprietaire')
+            ->firstOrFail();
+
+        $annee = (int) request('annee', now()->year);
+        $mois  = request('mois') !== null ? (int) request('mois') : null;
+
+        $bienIds    = Bien::where('agency_id', $agencyId)->where('proprietaire_id', $userId)->pluck('id');
+        if ($bienIds->isEmpty()) abort(403);
+
+        $contratIds = Contrat::whereIn('bien_id', $bienIds)->pluck('id');
+
+        $query = Paiement::where('agency_id', $agencyId)
+            ->whereIn('contrat_id', $contratIds)
+            ->where('statut', 'valide')
+            ->whereYear('periode', $annee)
+            ->with(['contrat:id,bien_id,reference_bail', 'contrat.bien:id,reference,adresse,ville'])
+            ->orderBy('periode');
+
+        if ($mois !== null) $query->whereMonth('periode', $mois);
+
+        $paiements = $query->get();
+
+        $totalLoyers      = (float) $paiements->sum('montant_encaisse');
+        $totalCommissions = (float) $paiements->sum('commission_ttc');
+        $totalDepenses    = (float) $paiements->flatMap->depenses->sum('montant');
+        $netFinal         = round($totalLoyers - $totalCommissions - $totalDepenses, 2);
+        $periode          = $mois !== null ? Carbon::createFromDate($annee, $mois, 1) : Carbon::createFromDate($annee, 1, 1);
+
+        $pdf = Pdf::loadView('bailleurs.pdf.releve-proprietaire', compact(
+            'user', 'agency', 'paiements', 'mois', 'annee',
+            'totalLoyers', 'totalCommissions', 'totalDepenses', 'netFinal', 'periode'
+        ))->setPaper('a4', 'portrait');
+
+        $suffix   = $mois !== null ? $periode->format('Y-m') : $annee;
+        $filename = 'releve-' . $user->name . '-' . $suffix . '.pdf';
+
+        return $pdf->download(str_replace(' ', '-', $filename));
+    }
 }

@@ -75,6 +75,7 @@ class Contrat extends Model
 
         // ── Divers ────────────────────────────────────────────────────────
         'observations',
+        'clauses_particulieres',
     ];
 
     // ── Casts ─────────────────────────────────────────────────────────────────
