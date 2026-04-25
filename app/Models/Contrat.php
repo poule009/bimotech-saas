@@ -31,7 +31,7 @@ class Contrat extends Model
     // ── Fillable ──────────────────────────────────────────────────────────────
 
     protected $fillable = [
-        'agency_id',
+        // agency_id exclu du fillable — injecté uniquement via booted() hook
         'bien_id',
         'locataire_id',
         'date_debut',

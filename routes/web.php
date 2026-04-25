@@ -75,8 +75,8 @@ Route::get('/demo',             fn() => view('demo'))->name('demo');
 Route::get('/faq',              fn() => view('faq'))->name('faq');
 Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mentions-legales');
 Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
-Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
-Route::post('/demo',    [DemoController::class,    'send'])->name('demo.send');
+Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,60')->name('contact.send');
+Route::post('/demo',    [DemoController::class,    'send'])->middleware('throttle:5,60')->name('demo.send');
 
 // ── Inscription agence (invités) ───────────────────────────────────────────
 Route::middleware('guest')->group(function () {

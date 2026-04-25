@@ -245,7 +245,7 @@ return [
          *
          * @var bool
          */
-        'enable_javascript' => true,
+        'enable_javascript' => false, // Désactivé — risque XSS dans les PDFs générés
 
         /**
          * Enable remote file access
