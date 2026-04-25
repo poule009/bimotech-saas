@@ -75,21 +75,29 @@ class RapportController extends Controller
             ->orderByRaw('DATE_FORMAT(date_paiement, "%Y-%m")')
             ->get();
 
-        $parProprietaire = Paiement::with([
-                'contrat:id,bien_id',
-                'contrat.bien:id,proprietaire_id,reference',
-                'contrat.bien.proprietaire:id,name',
-            ])
-            ->select(['id', 'contrat_id', 'montant_encaisse', 'net_proprietaire', 'commission_ttc'])
-            ->where('statut', 'valide')
-            ->whereBetween('date_paiement', [$debutMois, $finMois])
+        // Groupement SQL → évite de charger tous les paiements en mémoire PHP
+        $parProprietaire = Paiement::withoutGlobalScopes()
+            ->join('contrats',        'paiements.contrat_id', '=', 'contrats.id')
+            ->join('biens',           'contrats.bien_id',     '=', 'biens.id')
+            ->join('users',           'biens.proprietaire_id','=', 'users.id')
+            ->where('paiements.agency_id', $agencyId)
+            ->where('paiements.statut', 'valide')
+            ->whereBetween('paiements.date_paiement', [$debutMois, $finMois])
+            ->selectRaw('
+                users.name                                      AS proprietaire_nom,
+                COUNT(*)                                        AS nb_paiements,
+                COALESCE(SUM(paiements.montant_encaisse), 0)   AS total_encaisse,
+                COALESCE(SUM(paiements.net_proprietaire), 0)   AS total_net,
+                COALESCE(SUM(paiements.commission_ttc), 0)     AS total_commission
+            ')
+            ->groupBy('users.id', 'users.name')
             ->get()
-            ->groupBy(fn($p) => $p->contrat?->bien?->proprietaire?->name ?? 'Inconnu')
-            ->map(fn($group) => [
-                'nb_paiements'     => $group->count(),
-                'total_encaisse'   => $group->sum('montant_encaisse'),
-                'total_net'        => $group->sum('net_proprietaire'),
-                'total_commission' => $group->sum('commission_ttc'),
+            ->keyBy('proprietaire_nom')
+            ->map(fn($row) => [
+                'nb_paiements'     => (int)   $row->nb_paiements,
+                'total_encaisse'   => (float) $row->total_encaisse,
+                'total_net'        => (float) $row->total_net,
+                'total_commission' => (float) $row->total_commission,
             ]);
 
         $allContrats = Contrat::where('agency_id', $agencyId)->where('statut', 'actif')

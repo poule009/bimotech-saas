@@ -64,6 +64,18 @@ class SuperAdminController extends Controller
             'revenus_abonnements'   => (float) ($statsAbonnements->revenus           ?? 0),
         ];
 
+        // 1 requête groupée pour tous les totaux paiements → plus de N+1
+        $paiementsTotaux = Paiement::withoutGlobalScopes()
+            ->where('statut', 'valide')
+            ->selectRaw('
+                agency_id,
+                COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
+                COALESCE(SUM(commission_ttc), 0)   AS total_commissions
+            ')
+            ->groupBy('agency_id')
+            ->get()
+            ->keyBy('agency_id');
+
         $agences = Agency::withCount([
                 'users',
                 'biens',
@@ -72,15 +84,8 @@ class SuperAdminController extends Controller
             ->with(['users:id,agency_id,role', 'subscription'])
             ->orderByDesc('created_at')
             ->get()
-            ->map(function ($agency) {
-                $p = Paiement::withoutGlobalScopes()
-                    ->where('agency_id', $agency->id)
-                    ->where('statut', 'valide')
-                    ->selectRaw('
-                        COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
-                        COALESCE(SUM(commission_ttc), 0)   AS total_commissions
-                    ')
-                    ->first();
+            ->map(function ($agency) use ($paiementsTotaux) {
+                $p = $paiementsTotaux->get($agency->id);
 
                 $agency->total_loyers      = (float) ($p->total_loyers      ?? 0);
                 $agency->total_commissions = (float) ($p->total_commissions ?? 0);
