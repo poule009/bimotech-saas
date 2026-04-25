@@ -400,9 +400,12 @@ class PaiementController extends Controller
             ->orderByDesc('date_paiement');
 
         // Appliquer les mêmes filtres que la vue index
-        if ($request->filled('statut'))   $query->where('statut', $request->statut);
-        if ($request->filled('mois'))     $query->whereMonth('periode', $request->mois);
-        if ($request->filled('annee'))    $query->whereYear('periode', $request->annee);
+        if ($request->filled('statut'))     $query->where('statut', $request->statut);
+        if ($request->filled('mois')) {
+            [$annee, $mois] = explode('-', $request->mois) + [null, null];
+            if ($annee && $mois) $query->whereYear('periode', $annee)->whereMonth('periode', $mois);
+        }
+        if ($request->filled('annee'))      $query->whereYear('periode', $request->annee);
         if ($request->filled('contrat_id')) $query->where('contrat_id', $request->contrat_id);
 
         $paiements = $query->get();
