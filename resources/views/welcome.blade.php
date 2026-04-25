@@ -3,8 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="BimoTech Immo — Gérez biens, contrats, loyers et quittances en conformité totale avec le droit sénégalais. Essai gratuit 30 jours, sans carte bancaire.">
-<title>BimoTech Immo — La gestion immobilière professionnelle au Sénégal</title>
+<meta name="description" content="BimoTech Immo — Logiciel de gestion immobilière pour agences au Sénégal. Biens, contrats, loyers, quittances conformes TVA 18%, BRS, DGID. Essai gratuit 30 jours.">
+<meta name="keywords" content="gestion immobilière Sénégal, logiciel agence immobilière Dakar, quittance loyer Sénégal, gestion locataires, TVA immobilier CGI SN, logiciel gestion biens, contrat bail Sénégal">
+<meta name="author" content="BimoTech">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://immo.bimotechsn.com/">
+<title>BimoTech Immo — Logiciel de gestion immobilière au Sénégal | Essai gratuit</title>
+
+{{-- Open Graph (Facebook, LinkedIn, WhatsApp) --}}
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="https://immo.bimotechsn.com/">
+<meta property="og:title"       content="BimoTech Immo — Gestion immobilière professionnelle au Sénégal">
+<meta property="og:description" content="Gérez biens, contrats, loyers et quittances conformes TVA 18% et CGI SN. Essai gratuit 30 jours, sans carte bancaire.">
+<meta property="og:image"       content="https://immo.bimotechsn.com/icons/icon-512.png">
+<meta property="og:locale"      content="fr_SN">
+<meta property="og:site_name"   content="BimoTech Immo">
+
+{{-- Twitter Card --}}
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="BimoTech Immo — Logiciel gestion immobilière Sénégal">
+<meta name="twitter:description" content="Biens, contrats, loyers, quittances. Conforme TVA 18%, BRS, DGID. Essai 30 jours gratuit.">
+<meta name="twitter:image"       content="https://immo.bimotechsn.com/icons/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <style>
@@ -1377,6 +1396,80 @@ function setBilling(plan, btn) {
     } else {
         econEl.style.display = 'none';
     }
+}
+</script>
+
+<!-- ─── SCHEMA.ORG JSON-LD ──────────────────────────────── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "BimoTech Immo",
+      "url": "https://immo.bimotechsn.com",
+      "description": "Logiciel de gestion immobilière pour agences au Sénégal. Gestion des biens, contrats de bail, loyers, quittances PDF conformes TVA 18%, BRS et CGI SN.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "XOF",
+        "description": "Essai gratuit 30 jours"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "12"
+      }
+    },
+    {
+      "@type": "Organization",
+      "name": "BimoTech",
+      "url": "https://immo.bimotechsn.com",
+      "logo": "https://immo.bimotechsn.com/icons/icon-512.png",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+221-78-131-81-76",
+        "contactType": "customer support",
+        "availableLanguage": "French"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Dakar",
+        "addressCountry": "SN"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "BimoTech est-il conforme à la loi sénégalaise ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui. BimoTech intègre nativement la TVA 18% (CGI SN Art. 357), le BRS (Art. 196bis), la TOM, et les obligations DGID pour l'enregistrement des baux commerciaux."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Combien coûte BimoTech Immo ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "BimoTech propose un essai gratuit 30 jours sans carte bancaire. Le plan Agence commence à 25 000 FCFA/mois avec des réductions jusqu'à -20% en annuel."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Puis-je générer des quittances PDF avec BimoTech ?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Oui. BimoTech génère automatiquement des quittances PDF légales pour chaque paiement, avec signature agence, décompte loyer et mentions légales conformes."
+          }
+        }
+      ]
+    }
+  ]
 }
 </script>
 

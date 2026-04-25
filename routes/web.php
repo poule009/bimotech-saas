@@ -57,6 +57,19 @@ Route::get('/health', function () {
 
 // ── Pages publiques ────────────────────────────────────────────────────────
 Route::get('/', fn() => view('welcome'))->name('home');
+
+Route::get('/sitemap.xml', function () {
+    $urls = [
+        ['loc' => url('/'),                 'priority' => '1.0',  'changefreq' => 'weekly'],
+        ['loc' => url('/contact'),          'priority' => '0.7',  'changefreq' => 'monthly'],
+        ['loc' => url('/demo'),             'priority' => '0.8',  'changefreq' => 'monthly'],
+        ['loc' => url('/faq'),              'priority' => '0.7',  'changefreq' => 'monthly'],
+        ['loc' => url('/mentions-legales'), 'priority' => '0.3',  'changefreq' => 'yearly'],
+        ['loc' => url('/confidentialite'),  'priority' => '0.3',  'changefreq' => 'yearly'],
+    ];
+    $content = view('sitemap', compact('urls'))->render();
+    return response($content, 200)->header('Content-Type', 'application/xml');
+})->name('sitemap');
 Route::get('/contact',          fn() => view('contact'))->name('contact');
 Route::get('/demo',             fn() => view('demo'))->name('demo');
 Route::get('/faq',              fn() => view('faq'))->name('faq');

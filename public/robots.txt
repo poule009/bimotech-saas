@@ -1,2 +1,17 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /superadmin/
+Disallow: /locataire/
+Disallow: /proprietaire/
+Disallow: /dashboard
+Disallow: /subscription/
+Disallow: /profile
+
+Allow: /
+Allow: /contact
+Allow: /demo
+Allow: /faq
+Allow: /mentions-legales
+Allow: /confidentialite
+
+Sitemap: https://immo.bimotechsn.com/sitemap.xml
