@@ -1,10 +1,9 @@
 {{--
-    Partial : @include('partials.public-nav')
-    À inclure dans toutes les pages publiques.
-    Props via @include(['active' => 'contact']) pour surligner le lien actif.
+    Partial : @include('partials.public-nav', ['active' => 'contact'])
+    $active : '', 'fonctionnalites', 'conformite', 'tarifs', 'faq', 'contact'
 --}}
 
-@props(['active' => ''])
+@php $active = $active ?? ''; @endphp
 
 <style>
 .pub-nav{
