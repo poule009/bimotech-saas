@@ -18,22 +18,41 @@
     --dark2:#0d1117;
     --dark3:#161b22;
     --dark4:#21262d;
-    /* Thème lumineux */
-    --bg:#ffffff;
-    --bg2:#fafbfc;
-    --bg3:#f4f6f8;
+    /* Thème doré glacé */
+    --bg:#faf9f6;           /* fond page : blanc chaud imperceptible */
+    --bg2:#f5f3ee;          /* sections alternées */
+    --bg3:#f0ede6;          /* sections encore plus chaudes */
     --bg-warm:#fffdf7;
+    /* Card glacée dorée */
+    --card-bg:linear-gradient(145deg,#fffef5 0%,#ffffff 55%,#fffef8 100%);
+    --card-border:rgba(201,168,76,.16);
+    --card-shadow:0 2px 16px rgba(201,168,76,.07),0 1px 3px rgba(0,0,0,.05);
+    --card-shadow-hover:0 10px 32px rgba(201,168,76,.14),0 3px 8px rgba(0,0,0,.07);
     --text:#0d1117;
     --text2:#374151;
     --muted:#6b7280;
     --muted2:#9ca3af;
-    --border:rgba(0,0,0,.07);
-    --border2:rgba(0,0,0,.12);
+    --border:rgba(201,168,76,.1);
+    --border2:rgba(201,168,76,.2);
     --radius:14px;
     --radius-sm:10px;
 }
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ─── CARD GLACÉE DORÉE ─────────────────────────────────── */
+.gold-card{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    box-shadow:var(--card-shadow);
+    transition:all .22s cubic-bezier(.4,0,.2,1);
+}
+.gold-card:hover{
+    box-shadow:var(--card-shadow-hover);
+    border-color:rgba(201,168,76,.3);
+    transform:translateY(-3px);
+}
 
 /* ─── HERO ──────────────────────────────────────────────── */
 .hero{
@@ -232,7 +251,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
     padding:2.5rem 5%;
     border-top:1px solid var(--border);
     border-bottom:1px solid var(--border);
-    background:var(--bg-warm);
+    background:var(--bg3);
 }
 .trust-inner{
     max-width:1000px;margin:0 auto;
@@ -289,22 +308,22 @@ h2 em{
     overflow:hidden;
 }
 .feat{
-    background:#fff;
-    border:1px solid var(--border);
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
     border-radius:var(--radius);
     padding:2rem 1.75rem;
-    transition:all .2s;
+    transition:all .22s cubic-bezier(.4,0,.2,1);
     position:relative;
     overflow:hidden;
-    box-shadow:0 1px 4px rgba(0,0,0,.04);
+    box-shadow:var(--card-shadow);
 }
 .feat::after{
     content:'';
     position:absolute;inset:0;
-    background:linear-gradient(135deg, rgba(201,168,76,.04) 0%, transparent 60%);
+    background:linear-gradient(135deg, rgba(201,168,76,.05) 0%, transparent 55%);
     opacity:0;transition:opacity .3s;pointer-events:none;
 }
-.feat:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.08);border-color:rgba(201,168,76,.2)}
+.feat:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-hover);border-color:rgba(201,168,76,.3)}
 .feat:hover::after{opacity:1}
 .feat-icon{
     width:44px;height:44px;
@@ -324,7 +343,7 @@ h2 em{
 /* ─── TESTIMONIALS ──────────────────────────────────────── */
 .testimonials-section{
     padding:6rem 5%;
-    background:var(--bg3);
+    background:var(--bg2);
     border-top:1px solid var(--border);
     border-bottom:1px solid var(--border);
 }
@@ -335,15 +354,15 @@ h2 em{
     margin-top:3rem;
 }
 .testi-card{
-    background:#fff;
-    border:1px solid var(--border);
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
     border-radius:var(--radius);
     padding:1.75rem;
     position:relative;
-    transition:all .2s;
-    box-shadow:0 1px 6px rgba(0,0,0,.04);
+    transition:all .22s cubic-bezier(.4,0,.2,1);
+    box-shadow:var(--card-shadow);
 }
-.testi-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.testi-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
 .testi-quote{
     font-size:32px;color:var(--gold);
     opacity:.4;line-height:1;
@@ -372,11 +391,11 @@ h2 em{
 
 /* ─── COMPLIANCE ────────────────────────────────────────── */
 .compliance-card{
-    background:#fff;
-    border:1px solid var(--border);
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
     border-radius:20px;padding:3rem;
     position:relative;overflow:hidden;margin-top:3rem;
-    box-shadow:0 2px 12px rgba(0,0,0,.05);
+    box-shadow:var(--card-shadow);
 }
 .compliance-card::before{
     content:'';position:absolute;
@@ -437,7 +456,7 @@ h2 em{
 /* ─── PRICING ────────────────────────────────────────────── */
 .pricing-section{
     padding:6rem 5%;
-    background:var(--bg-warm);
+    background:var(--bg2);
     border-top:1px solid var(--border);
 }
 /* Billing toggle */
@@ -480,20 +499,20 @@ h2 em{
     margin-top:2.5rem;
 }
 .plan{
-    background:#fff;
-    border:1px solid var(--border);
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
     border-radius:var(--radius);
     padding:2rem;
-    transition:all .2s;
+    transition:all .22s cubic-bezier(.4,0,.2,1);
     position:relative;
     display:flex;flex-direction:column;
-    box-shadow:0 1px 6px rgba(0,0,0,.05);
+    box-shadow:var(--card-shadow);
 }
-.plan:hover{border-color:rgba(201,168,76,.25);transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.08)}
+.plan:hover{border-color:rgba(201,168,76,.32);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
 .plan.featured{
     border-color:var(--gold);
-    background:linear-gradient(160deg, rgba(201,168,76,.04) 0%, #fff 50%);
-    box-shadow:0 0 0 1px rgba(201,168,76,.15), 0 12px 40px rgba(201,168,76,.12);
+    background:linear-gradient(160deg, #fffae8 0%, #fffef5 40%, #ffffff 100%);
+    box-shadow:0 0 0 1px rgba(201,168,76,.2), 0 16px 48px rgba(201,168,76,.16);
 }
 .plan-badge-top{
     position:absolute;top:-13px;left:50%;transform:translateX(-50%);

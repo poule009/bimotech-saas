@@ -11,7 +11,7 @@
     position:fixed;top:0;left:0;right:0;z-index:200;
     padding:0 5%;height:64px;
     display:flex;align-items:center;justify-content:space-between;
-    background:rgba(255,255,255,.95);
+    background:rgba(250,249,246,.97);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
     border-bottom:1px solid rgba(0,0,0,.07);
