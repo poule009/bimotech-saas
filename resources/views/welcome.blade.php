@@ -1404,78 +1404,81 @@ function setBilling(plan, btn) {
 </script>
 
 <!-- ─── SCHEMA.ORG JSON-LD ──────────────────────────────── -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "SoftwareApplication",
-      "name": "BimoTech Immo",
-      "url": "https://immo.bimotechsn.com",
-      "description": "Logiciel de gestion immobilière pour agences au Sénégal. Gestion des biens, contrats de bail, loyers, quittances PDF conformes TVA 18%, BRS et CGI SN.",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "XOF",
-        "description": "Essai gratuit 30 jours"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "reviewCount": "12"
-      }
-    },
-    {
-      "@type": "Organization",
-      "name": "BimoTech",
-      "url": "https://immo.bimotechsn.com",
-      "logo": "https://immo.bimotechsn.com/icons/icon-512.png",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+221-78-131-81-76",
-        "contactType": "customer support",
-        "availableLanguage": "French"
-      },
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Dakar",
-        "addressCountry": "SN"
-      }
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "BimoTech est-il conforme à la loi sénégalaise ?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Oui. BimoTech intègre nativement la TVA 18% (CGI SN Art. 357), le BRS (Art. 196bis), la TOM, et les obligations DGID pour l'enregistrement des baux commerciaux."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Combien coûte BimoTech Immo ?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "BimoTech propose un essai gratuit 30 jours sans carte bancaire. Le plan Agence commence à 25 000 FCFA/mois avec des réductions jusqu'à -20% en annuel."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Puis-je générer des quittances PDF avec BimoTech ?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Oui. BimoTech génère automatiquement des quittances PDF légales pour chaque paiement, avec signature agence, décompte loyer et mentions légales conformes."
-          }
-        }
-      ]
-    }
-  ]
-}
-</script>
+{{-- Les @ dans le JSON-LD (@type, @context, @graph) doivent être
+     passés via PHP pour éviter que Blade les interprète comme directives --}}
+@php
+$schemaOrg = json_encode([
+    '@context' => 'https://schema.org',
+    '@graph'   => [
+        [
+            '@type'               => 'SoftwareApplication',
+            'name'                => 'BimoTech Immo',
+            'url'                 => 'https://immo.bimotechsn.com',
+            'description'         => 'Logiciel de gestion immobilière pour agences au Sénégal. Gestion des biens, contrats de bail, loyers, quittances PDF conformes TVA 18%, BRS et CGI SN.',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem'     => 'Web',
+            'offers' => [
+                '@type'       => 'Offer',
+                'price'       => '0',
+                'priceCurrency' => 'XOF',
+                'description' => 'Essai gratuit 30 jours',
+            ],
+            'aggregateRating' => [
+                '@type'       => 'AggregateRating',
+                'ratingValue' => '4.9',
+                'reviewCount' => '12',
+            ],
+        ],
+        [
+            '@type'  => 'Organization',
+            'name'   => 'BimoTech',
+            'url'    => 'https://immo.bimotechsn.com',
+            'logo'   => 'https://immo.bimotechsn.com/icons/icon-512.png',
+            'contactPoint' => [
+                '@type'             => 'ContactPoint',
+                'telephone'         => '+221-78-131-81-76',
+                'contactType'       => 'customer support',
+                'availableLanguage' => 'French',
+            ],
+            'address' => [
+                '@type'           => 'PostalAddress',
+                'addressLocality' => 'Dakar',
+                'addressCountry'  => 'SN',
+            ],
+        ],
+        [
+            '@type'      => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name'  => 'BimoTech est-il conforme à la loi sénégalaise ?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => 'Oui. BimoTech intègre nativement la TVA 18% (CGI SN Art. 357), le BRS (Art. 196bis), la TOM, et les obligations DGID pour l\'enregistrement des baux commerciaux.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name'  => 'Combien coûte BimoTech Immo ?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => 'BimoTech propose un essai gratuit 30 jours sans carte bancaire. Le plan Agence commence à 25 000 FCFA/mois avec des réductions jusqu\'à -20% en annuel.',
+                    ],
+                ],
+                [
+                    '@type' => 'Question',
+                    'name'  => 'Puis-je générer des quittances PDF avec BimoTech ?',
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => 'Oui. BimoTech génère automatiquement des quittances PDF légales pour chaque paiement, avec signature agence, décompte loyer et mentions légales conformes.',
+                    ],
+                ],
+            ],
+        ],
+    ],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+@endphp
+<script type="application/ld+json">{!! $schemaOrg !!}</script>
 
 <!-- ─── BOUTON WHATSAPP FLOTTANT ────────────────────────── -->
 <a href="https://wa.me/221781318176?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9mo%20de%20BimoTech%20Immo"
