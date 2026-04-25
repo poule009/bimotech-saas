@@ -553,6 +553,7 @@
                                 ['label' => 'NINEA fiscal',     'done' => !empty($agency->ninea)],
                                 ['label' => 'Logo uploadé',     'done' => !empty($agency->logo_path)],
                                 ['label' => 'Couleur définie',  'done' => !empty($agency->couleur_primaire)],
+                                ['label' => 'Modèle de bail',   'done' => !empty($agency->modele_contrat)],
                             ];
                             $nbDone = collect($checks)->where('done', true)->count();
                             $pct    = round($nbDone / count($checks) * 100);
