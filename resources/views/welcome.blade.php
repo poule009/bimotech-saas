@@ -896,15 +896,15 @@ footer{
     <div class="section-inner" style="max-width:860px">
         <div class="section-header" style="text-align:center">
             <div class="section-tag" style="justify-content:center">Démonstration</div>
-            <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:.8rem">Voyez BimoTech en action</h2>
-            <p class="section-sub" style="max-width:520px;margin:0 auto">De la création du contrat à la quittance PDF — regardez comment une agence gère son portefeuille en moins de 5 minutes.</p>
+            <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:.8rem">La gestion locative <em>automatisée</em></h2>
+            <p class="section-sub" style="max-width:520px;margin:0 auto">Découvrez comment les agences modernes automatisent leur gestion — loyers, quittances, relances — en quelques clics.</p>
         </div>
 
         {{-- Conteneur vidéo avec fallback --}}
         <div style="position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(201,168,76,.2);box-shadow:0 0 60px rgba(201,168,76,.07);background:#0d1117;margin-top:2.5rem">
 
             {{-- 🔧 REMPLACEZ l'URL ci-dessous par votre lien YouTube ou vidéo MP4 --}}
-            @php $videoUrl = ''; /* ex: https://www.youtube.com/embed/XXXXXXX */ @endphp
+            @php $videoUrl = 'https://www.youtube.com/embed/WyBF6L5veeE'; /* Remplacer par la vraie démo BimoTech */ @endphp
 
             @if($videoUrl)
             <div style="position:relative;padding-bottom:56.25%;height:0">
