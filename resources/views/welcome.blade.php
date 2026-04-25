@@ -8,14 +8,16 @@
 <meta name="author" content="BimoTech">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://immo.bimotechsn.com/">
-<title>BimoTech Immo — Logiciel de gestion immobilière au Sénégal | Essai gratuit</title>
+<title>BimoTech Immo — Gestion immobilière Sénégal</title>
 
 {{-- Open Graph (Facebook, LinkedIn, WhatsApp) --}}
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="https://immo.bimotechsn.com/">
 <meta property="og:title"       content="BimoTech Immo — Gestion immobilière professionnelle au Sénégal">
 <meta property="og:description" content="Gérez biens, contrats, loyers et quittances conformes TVA 18% et CGI SN. Essai gratuit 30 jours, sans carte bancaire.">
-<meta property="og:image"       content="https://immo.bimotechsn.com/icons/icon-512.png">
+<meta property="og:image"       content="https://immo.bimotechsn.com/og-image.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale"      content="fr_SN">
 <meta property="og:site_name"   content="BimoTech Immo">
 
@@ -23,7 +25,7 @@
 <meta name="twitter:card"        content="summary_large_image">
 <meta name="twitter:title"       content="BimoTech Immo — Logiciel gestion immobilière Sénégal">
 <meta name="twitter:description" content="Biens, contrats, loyers, quittances. Conforme TVA 18%, BRS, DGID. Essai 30 jours gratuit.">
-<meta name="twitter:image"       content="https://immo.bimotechsn.com/icons/icon-512.png">
+<meta name="twitter:image"       content="https://immo.bimotechsn.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <style>
@@ -946,42 +948,42 @@ footer{
                 <div class="feat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
                 </div>
-                <div class="feat-title">Gestion des biens</div>
+                <h3 class="feat-title" style="font-size:15px">Gestion des biens</h3>
                 <div class="feat-desc">Ajoutez vos biens avec photos, surface, type et loyer. Suivez l'occupation en temps réel avec des statuts clairs.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
                 </div>
-                <div class="feat-title">Contrats de bail</div>
+                <h3 class="feat-title" style="font-size:15px">Contrats de bail</h3>
                 <div class="feat-desc">Créez vos contrats de bail vide ou meublé. Durée, dépôt de garantie, clauses — tout est archivé et accessible.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
-                <div class="feat-title">Encaissement des loyers</div>
+                <h3 class="feat-title" style="font-size:15px">Encaissement des loyers</h3>
                 <div class="feat-desc">Espèces, virement, Wave, Orange Money, Free Money. Chaque paiement enregistré génère automatiquement une quittance légale.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
-                <div class="feat-title">Espace propriétaire</div>
+                <h3 class="feat-title" style="font-size:15px">Espace propriétaire</h3>
                 <div class="feat-desc">Chaque propriétaire accède à ses biens, ses revenus nets et l'historique de ses paiements. En temps réel, sans appel.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </div>
-                <div class="feat-title">Espace locataire</div>
+                <h3 class="feat-title" style="font-size:15px">Espace locataire</h3>
                 <div class="feat-desc">Vos locataires accèdent à leurs quittances, suivent leur bail et contactent l'agence via WhatsApp en un clic.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </div>
-                <div class="feat-title">Rapports financiers</div>
+                <h3 class="feat-title" style="font-size:15px">Rapports financiers</h3>
                 <div class="feat-desc">Commission HT/TTC, TVA, TOM, BRS, net propriétaire. Bilans mensuels et annuels exportables avec taux d'occupation.</div>
             </div>
         </div>
