@@ -1253,7 +1253,7 @@ footer{
             {{-- Réseaux sociaux — remplacez # par vos vrais liens --}}
             <div style="display:flex;gap:10px;margin-top:1.2rem">
                 {{-- WhatsApp --}}
-                <a href="https://wa.me/221787783787" target="_blank" rel="noopener"
+                <a href="https://wa.me/221781318176" target="_blank" rel="noopener"
                    style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:all .15s"
                    onmouseover="this.style.background='rgba(37,211,102,.15)';this.style.borderColor='rgba(37,211,102,.3)'"
                    onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.borderColor='rgba(255,255,255,.08)'"
@@ -1351,7 +1351,7 @@ function setBilling(plan, btn) {
 </script>
 
 <!-- ─── BOUTON WHATSAPP FLOTTANT ────────────────────────── -->
-<a href="https://wa.me/221787783787?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9mo%20de%20BimoTech%20Immo"
+<a href="https://wa.me/221781318176?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9mo%20de%20BimoTech%20Immo"
    target="_blank" rel="noopener"
    id="wa-btn"
    title="Discuter sur WhatsApp"
