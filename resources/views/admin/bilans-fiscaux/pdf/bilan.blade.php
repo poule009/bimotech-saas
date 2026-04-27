@@ -176,8 +176,8 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             <td>{{ number_format($bilan->revenus_bruts_loyers, 0, ',', ' ') }}</td>
         </tr>
         @if($bilan->revenus_bruts_charges > 0)
-        <tr class="sub">
-            <td>&nbsp;&nbsp;+ Charges refacturées aux locataires</td>
+        <tr class="sub" style="opacity:.65;font-style:italic">
+            <td>&nbsp;&nbsp;Charges refacturées (informatif — non incluses dans la base IRPP)</td>
             <td>{{ number_format($bilan->revenus_bruts_charges, 0, ',', ' ') }}</td>
         </tr>
         @endif
