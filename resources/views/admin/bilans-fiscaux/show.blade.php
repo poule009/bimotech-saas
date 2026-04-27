@@ -186,12 +186,12 @@
                             <div class="calc-val">{{ number_format($bilan->revenus_bruts_loyers, 0, ',', ' ') }} F</div>
                         </div>
                         @if($bilan->revenus_bruts_charges > 0)
-                        <div class="calc-row sub" style="opacity:.6">
-                            <div class="calc-lbl" style="font-style:italic">
-                                Charges refacturées
-                                <span style="font-size:10px;font-weight:400;margin-left:4px">(informatif — non incluses dans la base IRPP)</span>
+                        <div class="calc-row sub">
+                            <div class="calc-lbl">
+                                + Charges refacturées
+                                <span style="font-size:10px;color:#9ca3af;font-weight:400;margin-left:4px">Art. 56 CGI SN</span>
                             </div>
-                            <div class="calc-val" style="font-style:italic">{{ number_format($bilan->revenus_bruts_charges, 0, ',', ' ') }} F</div>
+                            <div class="calc-val">{{ number_format($bilan->revenus_bruts_charges, 0, ',', ' ') }} F</div>
                         </div>
                         @endif
 

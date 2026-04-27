@@ -299,9 +299,10 @@ class FiscalService
 
         $nbBiensGeres = $paiements->pluck('bien_reference')->unique()->count();
 
-        // ── Calcul IRPP (CGI art. 58 et 65) ────────────────────────────────
-        $abattement30      = round($revenusBrutsLoyers * self::ABATTEMENT_IRPP, 2);
-        $baseImposable     = round($revenusBrutsLoyers - $abattement30, 2);
+        // ── Calcul IRPP (CGI art. 56-58 et 65) ─────────────────────────────
+        // Art. 56 : revenus bruts = toutes recettes perçues (loyers + charges refacturées)
+        $abattement30      = round($revenusBrutsTotal * self::ABATTEMENT_IRPP, 2);
+        $baseImposable     = round($revenusBrutsTotal - $abattement30, 2);
         $irppEstime        = self::calculerIRPP($baseImposable);
 
         // ── CFPB (CGI art. 95-110) ──────────────────────────────────────────
