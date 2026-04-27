@@ -181,9 +181,9 @@
         <div class="kpi green">
             <div class="kpi-lbl">Net propriétaire</div>
             <div class="kpi-val" style="color:#16a34a">
-                {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100), 0, ',', ' ') }}
+                {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') }}
             </div>
-            <div class="kpi-sub">FCFA après commission</div>
+            <div class="kpi-sub">FCFA après commission TTC</div>
         </div>
         <div class="kpi blue">
             <div class="kpi-lbl">Contrats</div>
@@ -505,7 +505,7 @@
                     <div class="side-row">
                         <span class="side-lbl">Net proprio</span>
                         <span class="side-val" style="color:#4ade80">
-                            {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100), 0, ',', ' ') }} F
+                            {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') }} F
                         </span>
                     </div>
                     <div class="side-row">
