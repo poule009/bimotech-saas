@@ -277,11 +277,12 @@ class PolicyTest extends TestCase
         $contrat   = Contrat::factory()->create([
             'agency_id'    => $agence->id,
             'locataire_id' => $locataire->id,
-            'statut'       => 'resilie',
+            'statut'       => 'resilié',
         ]);
         $policy = new ContratPolicy();
 
-        $this->assertFalse($policy->update($admin, $contrat)->allowed());
+        // La policy autorise (même agence, admin) ; c'est le contrôleur qui rejette
+        $this->assertTrue($policy->update($admin, $contrat)->allowed());
     }
 
     #[Test]

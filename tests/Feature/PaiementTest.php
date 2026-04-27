@@ -9,6 +9,7 @@ use App\Models\Paiement;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -64,6 +65,7 @@ class PaiementTest extends TestCase
             'statut'          => 'loue',
         ]);
 
+        Auth::login($this->admin);
         $this->contrat = Contrat::create([
             'agency_id'          => $this->agency->id,
             'bien_id'            => $bien->id,
@@ -77,6 +79,7 @@ class PaiementTest extends TestCase
             'statut'             => 'actif',
             'type_bail'          => 'habitation',
         ]);
+        Auth::logout();
     }
 
     #[Test]

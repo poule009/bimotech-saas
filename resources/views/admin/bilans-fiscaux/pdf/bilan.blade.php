@@ -139,16 +139,16 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
     <div class="kpi-grid">
         <div class="kpi-cell">
             <div class="kpi-box gold">
-                <div class="kpi-lbl">Revenus bruts</div>
-                <div class="kpi-val gold">{{ number_format($bilan->revenus_bruts_loyers, 0, ',', ' ') }}</div>
-                <div style="font-size:8px;color:#8a6e2f;margin-top:2px">FCFA</div>
+                <div class="kpi-lbl">Revenus bruts (loyers + charges)</div>
+                <div class="kpi-val gold">{{ number_format($bilan->revenus_bruts_total, 0, ',', ' ') }}</div>
+                <div style="font-size:8px;color:#8a6e2f;margin-top:2px">Assiette IRPP (Art. 56 CGI SN)</div>
             </div>
         </div>
         <div class="kpi-cell">
             <div class="kpi-box green">
                 <div class="kpi-lbl">Base imposable</div>
                 <div class="kpi-val green">{{ number_format($bilan->base_imposable, 0, ',', ' ') }}</div>
-                <div style="font-size:8px;color:#16a34a;margin-top:2px">Après abatt. 30%</div>
+                <div style="font-size:8px;color:#16a34a;margin-top:2px">Après abatt. 30% (Art. 58)</div>
             </div>
         </div>
         <div class="kpi-cell">
@@ -159,10 +159,11 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             </div>
         </div>
         <div class="kpi-cell">
+            @php $netAffiche = $bilan->net_a_verser_total ?? ($bilan->net_proprietaire_total - ($bilan->brs_retenu_total ?? 0)); @endphp
             <div class="kpi-box blue">
-                <div class="kpi-lbl">Net reversé</div>
-                <div class="kpi-val blue">{{ number_format($bilan->net_proprietaire_total, 0, ',', ' ') }}</div>
-                <div style="font-size:8px;color:#1d4ed8;margin-top:2px">Après commissions</div>
+                <div class="kpi-lbl">Net reversé au propriétaire</div>
+                <div class="kpi-val blue">{{ number_format($netAffiche, 0, ',', ' ') }}</div>
+                <div style="font-size:8px;color:#1d4ed8;margin-top:2px">Après commissions{{ ($bilan->brs_retenu_total ?? 0) > 0 ? ' + BRS' : '' }}</div>
             </div>
         </div>
     </div>
@@ -239,14 +240,26 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         </tr>
         @if($bilan->tva_loyer_collectee > 0)
         <tr>
-            <td>TVA loyer collectée à reverser DGI (Art. 355 CGI SN)</td>
+            <td>TVA loyer collectée à reverser DGI (Art. 354-355 CGI SN)</td>
             <td>{{ number_format($bilan->tva_loyer_collectee, 0, ',', ' ') }}</td>
+        </tr>
+        @endif
+        @if(($bilan->tva_charges_total ?? 0) > 0)
+        <tr>
+            <td>TVA sur charges forfaitaires à reverser DGI (Art. 357 CGI SN — bail commercial)</td>
+            <td>{{ number_format($bilan->tva_charges_total, 0, ',', ' ') }}</td>
         </tr>
         @endif
         @if($bilan->brs_retenu_total > 0)
         <tr class="sub">
             <td>&nbsp;&nbsp;BRS retenu par locataires entreprises — déjà versé DGI (Art. 196bis)</td>
             <td>{{ number_format($bilan->brs_retenu_total, 0, ',', ' ') }}</td>
+        </tr>
+        @endif
+        @if(($bilan->tom_total ?? 0) > 0)
+        <tr class="sub" style="color:#7c3aed">
+            <td>&nbsp;&nbsp;TOM collecté (taxe municipale) — à reverser à la commune compétente</td>
+            <td>{{ number_format($bilan->tom_total, 0, ',', ' ') }}</td>
         </tr>
         @endif
     </table>
@@ -317,7 +330,12 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
     <strong>⚠ Document d'estimation fiscale — République du Sénégal</strong><br>
     Ce bilan est établi sur la base des paiements de loyers enregistrés par <strong>{{ $agency?->name }}</strong>
     pour l'année <strong>{{ $annee }}</strong>. L'IRPP est calculé selon le barème progressif Art. 65 CGI SN
-    après abattement forfaitaire de 30% (Art. 58 CGI SN). La CFPB est estimée à 5% de la valeur locative annuelle.
+    après abattement forfaitaire de 30% (Art. 58 CGI SN) sur la base loyers + charges refacturées (Art. 56 CGI SN).
+    La CFPB est estimée à 5% de la valeur locative annuelle.
+    @if(($bilan->tom_total ?? 0) > 0)
+    <strong>⚠ TOM : le montant de {{ number_format($bilan->tom_total, 0, ',', ' ') }} FCFA collecté est inclus dans
+    le net reversé — le propriétaire doit le reverser à la commune compétente.</strong>
+    @endif
     Ce document est fourni à titre indicatif et ne constitue pas une déclaration fiscale officielle.
     <strong>Consultez un expert-comptable agréé ou la Direction Générale des Impôts et Domaines (DGID) pour toute déclaration.</strong>
     Document généré le {{ now()->format('d/m/Y à H:i') }} par {{ $agency?->name }}.

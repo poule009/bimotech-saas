@@ -40,8 +40,8 @@ return new class extends Migration
             $table->timestamp('date_debut_abonnement')->nullable();
             $table->timestamp('date_fin_abonnement')->nullable();
 
-            // ── Référence paiement PayDunya (pour plus tard) ──────────────
-            $table->string('reference_paydunya')->nullable();
+            // ── Référence paiement PayTech ────────────────────────────────
+            $table->string('reference_paytech')->nullable();
 
             // ── Rappels envoyés ───────────────────────────────────────────
             $table->boolean('rappel_7j_envoye')->default(false);

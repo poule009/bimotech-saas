@@ -164,6 +164,7 @@ class BailleurPortfolioService
 
         $totalLoyers      = (float) $paiements->sum('montant_encaisse');
         $totalCommissions = (float) $paiements->sum('commission_ttc');
+        $totalBrs         = (float) $paiements->sum('brs_amount');
         $totalDepenses    = (float) $paiements->flatMap->depenses->sum('montant');
 
         return [
@@ -172,8 +173,9 @@ class BailleurPortfolioService
             'nb_biens_loues'    => $biens->where('statut', BienStatut::Loue->value)->count(),
             'total_loyers'      => $totalLoyers,
             'total_commissions' => $totalCommissions,
+            'total_brs'         => $totalBrs,
             'total_depenses'    => $totalDepenses,
-            'net_final'         => round($totalLoyers - $totalCommissions - $totalDepenses, 2),
+            'net_final'         => round($totalLoyers - $totalCommissions - $totalBrs - $totalDepenses, 2),
             'nb_paiements'      => $paiements->count(),
         ];
     }
@@ -192,7 +194,7 @@ class BailleurPortfolioService
             'total_brs'         => $totalBrs,
             'total_dgid'        => $totalDgid,
             'total_depenses'    => $totalDepenses,
-            'net_final'         => round($totalLoyers - $totalCommissions - $totalDepenses, 2),
+            'net_final'         => round($totalLoyers - $totalCommissions - $totalBrs - $totalDepenses, 2),
             'nb_paiements'      => $paiements->count(),
             'nb_biens'          => $biens->count(),
             'nb_biens_loues'    => $biens->where('statut', BienStatut::Loue->value)->count(),

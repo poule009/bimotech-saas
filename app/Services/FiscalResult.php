@@ -13,7 +13,9 @@ namespace App\Services;
  *  loyer_ht                    ← loyer nu hors TVA (assiette commission)
  *  + tva_loyer (0 ou 18%)      ← sur (loyer_ht + TOM) — Art. 354 CGI SN
  *  = loyer_ttc
- *  + charges_amount            ← hors TVA, hors commission, hors BRS
+ *  + charges_amount            ← HT hors commission hors BRS
+ *  + tva_charges (0 ou 18%)    ← sur charges si forfait bail commercial/meublé (Art. 357 CGI SN)
+ *  = charges_ttc
  *  + tom_amount                ← inclus dans assiette TVA et BRS (pas dans commission)
  *  = montant_encaisse          ← total que le locataire doit régler
  *  ─────────────────────────────────────────────────────────────────
@@ -22,7 +24,7 @@ namespace App\Services;
  *  = commission_ttc
  *  ─────────────────────────────────────────────────────────────────
  *  net_proprietaire            ← montant_encaisse - commission_ttc
- *  - brs_amount                ← % × (loyer_ttc + TOM) si locataire entreprise (Art. 156 CGI SN)
+ *  - brs_amount                ← % × (loyer_ttc + TOM) si locataire entreprise (Art. 196bis CGI SN)
  *  = net_a_verser_proprietaire ← montant effectivement viré au propriétaire
  *  ─────────────────────────────────────────────────────────────────
  *  [Premier paiement uniquement]
@@ -159,6 +161,8 @@ final class FiscalResult
             'tva_loyer'                  => $this->tvaLoyer,
             'loyer_ttc'                  => $this->loyerTtc,
             'charges_amount'             => $this->chargesAmount,
+            'tva_charges'                => $this->tvaCharges,
+            'charges_ttc'                => $this->chargesTtc,
             'tom_amount'                 => $this->tomAmount,
             'montant_encaisse'           => $this->montantEncaisse,
             'commission_agence'          => $this->commissionHt,

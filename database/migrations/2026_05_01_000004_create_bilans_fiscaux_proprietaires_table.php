@@ -64,15 +64,27 @@ return new class extends Migration
                   ->default(0)
                   ->comment('Impôt estimé selon barème IRPP progressif sénégalais');
 
+            $table->json('irpp_detail')
+                  ->nullable()
+                  ->comment('Détail IRPP par tranche — évite recalcul en Blade');
+
             // ── CFPB (Art. 95-110 CGI SN) ────────────────────────────────
             $table->decimal('cfpb_estimee', 12, 2)
                   ->default(0)
                   ->comment('Contribution Foncière des Propriétés Bâties estimée');
 
-            // ── TVA LOYER COLLECTÉE ───────────────────────────────────────
+            // ── TVA & TAXES COLLECTÉES ────────────────────────────────────
             $table->decimal('tva_loyer_collectee', 12, 2)
                   ->default(0)
                   ->comment('TVA 18% collectée sur loyers commerciaux/meublés — à reverser DGI');
+
+            $table->decimal('tva_charges_total', 12, 2)
+                  ->default(0)
+                  ->comment('TVA collectée sur charges forfaitaires (baux commercial/mixte) — à reverser DGI');
+
+            $table->decimal('tom_total', 12, 2)
+                  ->default(0)
+                  ->comment('TOM annuel collecté — à reverser à la municipalité compétente');
 
             // ── BRS RETENU PAR LES LOCATAIRES ────────────────────────────
             $table->decimal('brs_retenu_total', 12, 2)
@@ -91,7 +103,11 @@ return new class extends Migration
             // ── NETS ──────────────────────────────────────────────────────
             $table->decimal('net_proprietaire_total', 15, 2)
                   ->default(0)
-                  ->comment('Net total reversé au propriétaire sur l\'année');
+                  ->comment('Net total reversé au propriétaire sur l\'année (avant BRS)');
+
+            $table->decimal('net_a_verser_total', 15, 2)
+                  ->default(0)
+                  ->comment('Montant effectivement viré au propriétaire (après BRS)');
 
             $table->integer('nb_paiements')
                   ->default(0);

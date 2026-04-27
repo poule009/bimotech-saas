@@ -69,17 +69,13 @@ class ContratPolicy
 
     /**
      * Modifier un contrat.
-     * Règle métier : un contrat avec statut 'actif' ne peut être modifié
-     * que par l'admin. Un contrat 'résilié' est en lecture seule.
+     * La règle métier "resilié = lecture seule" est gérée dans ContratController::update()
+     * pour renvoyer un message d'erreur convivial plutôt qu'un 403.
      */
     public function update(User $user, Contrat $contrat): Response
     {
         if ($user->role !== 'admin') {
             return Response::deny('Seul un administrateur peut modifier un contrat.');
-        }
-
-        if ($contrat->statut === ContratStatut::Resilie->value) {
-            return Response::deny('Un contrat résilié ne peut plus être modifié.');
         }
 
         return $user->agency_id === $contrat->agency_id

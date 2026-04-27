@@ -110,8 +110,9 @@ class BailleurController extends Controller
 
         $totalLoyers      = (float) $paiements->sum('montant_encaisse');
         $totalCommissions = (float) $paiements->sum('commission_ttc');
+        $totalBrs         = (float) $paiements->sum('brs_amount');
         $totalDepenses    = (float) $paiements->flatMap->depenses->sum('montant');
-        $netFinal         = round($totalLoyers - $totalCommissions - $totalDepenses, 2);
+        $netFinal         = round($totalLoyers - $totalCommissions - $totalBrs - $totalDepenses, 2);
 
         $periode = $mois !== null
             ? Carbon::createFromDate($annee, $mois, 1)
@@ -119,7 +120,7 @@ class BailleurController extends Controller
 
         $pdf = Pdf::loadView('bailleurs.pdf.rapport-gestion', compact(
             'user', 'agency', 'paiements', 'mois',
-            'totalLoyers', 'totalCommissions', 'totalDepenses', 'netFinal',
+            'totalLoyers', 'totalCommissions', 'totalBrs', 'totalDepenses', 'netFinal',
             'periode', 'annee'
         ))->setPaper('a4', 'portrait');
 
@@ -167,13 +168,14 @@ class BailleurController extends Controller
 
         $totalLoyers      = (float) $paiements->sum('montant_encaisse');
         $totalCommissions = (float) $paiements->sum('commission_ttc');
+        $totalBrs         = (float) $paiements->sum('brs_amount');
         $totalDepenses    = (float) $paiements->flatMap->depenses->sum('montant');
-        $netFinal         = round($totalLoyers - $totalCommissions - $totalDepenses, 2);
+        $netFinal         = round($totalLoyers - $totalCommissions - $totalBrs - $totalDepenses, 2);
         $periode          = $mois !== null ? Carbon::createFromDate($annee, $mois, 1) : Carbon::createFromDate($annee, 1, 1);
 
         $pdf = Pdf::loadView('bailleurs.pdf.releve-proprietaire', compact(
             'user', 'agency', 'paiements', 'mois', 'annee',
-            'totalLoyers', 'totalCommissions', 'totalDepenses', 'netFinal', 'periode'
+            'totalLoyers', 'totalCommissions', 'totalBrs', 'totalDepenses', 'netFinal', 'periode'
         ))->setPaper('a4', 'portrait');
 
         $suffix   = $mois !== null ? $periode->format('Y-m') : $annee;

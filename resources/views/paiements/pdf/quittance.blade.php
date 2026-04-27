@@ -104,6 +104,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     $tvaLoyer     = (float) ($paiement->tva_loyer ?? 0);
     $loyerTtc     = (float) ($paiement->loyer_ttc ?? $loyerHt);
     $charges      = (float) ($paiement->charges_amount ?? 0);
+    $tvaCharges   = (float) ($paiement->tva_charges ?? 0);
     $tom          = (float) ($paiement->tom_amount ?? 0);
     $montant      = (float) $paiement->montant_encaisse;
     $commHt       = (float) ($paiement->commission_agence ?? 0);
@@ -252,7 +253,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             <tr>
                 <td>TVA sur loyer (18% — bail commercial/meublé)</td>
                 <td class="right">{{ number_format($tvaLoyer, 0, ',', ' ') }}</td>
-                <td class="right label">Art. 357 CGI SN</td>
+                <td class="right label">Art. 354-355 CGI SN</td>
             </tr>
             <tr>
                 <td style="font-weight:600">Loyer TTC</td>
@@ -262,10 +263,17 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             @endif
             @if($charges > 0)
             <tr>
-                <td>Charges récupérables</td>
+                <td>Charges récupérables{{ $tvaCharges > 0 ? ' HT' : '' }}</td>
                 <td class="right">{{ number_format($charges, 0, ',', ' ') }}</td>
                 <td class="right label">Eau, électricité, etc.</td>
             </tr>
+            @if($tvaCharges > 0)
+            <tr>
+                <td>TVA sur charges (18% — forfait — Art. 357 CGI SN)</td>
+                <td class="right">{{ number_format($tvaCharges, 0, ',', ' ') }}</td>
+                <td class="right label">Bail commercial/meublé</td>
+            </tr>
+            @endif
             @endif
             @if($tom > 0)
             <tr>
@@ -466,7 +474,8 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     <div class="mention">
         Quittance délivrée conformément au contrat de bail ref. {{ $refBail }}.
         Cette quittance atteste que le loyer du mois de {{ $periode->translatedFormat('F Y') }}
-        a été intégralement acquitté. Commission calculée conformément à l'Art. 357 du CGI SN.
+        a été intégralement acquitté. Honoraires d'agence calculés conformément au mandat de gestion —
+        TVA 18% incluse (Art. 357 CGI SN).
         Document généré le {{ now()->format('d/m/Y') }} par {{ $agence?->name ?? 'BimoTech Immo' }}.
     </div>
 

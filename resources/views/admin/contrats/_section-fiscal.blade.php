@@ -150,7 +150,7 @@
 
     <div style="margin-top:10px;padding:8px 12px;background:#fff1f2;border-radius:7px;font-size:11px;color:#9f1239;line-height:1.6" id="note-brs"
          style="{{ $brsApplicable ? '' : 'display:none' }}">
-        <strong>Art. 156 CGI SN :</strong>
+        <strong>Art. 196bis CGI SN :</strong>
         Taux standard 15% × <strong>(loyer TTC + TOM)</strong>. Peut être réduit par convention fiscale.
         Le BRS est retenu par le locataire et versé <strong>directement à la DGI</strong> — pas par l'agence.
     </div>
@@ -158,7 +158,7 @@
     {{-- Alerte bail commercial sans BRS --}}
     <div id="alerte-brs-commercial" style="display:none;margin-top:8px;padding:8px 12px;background:#fef3c7;border:1px solid #fde68a;border-radius:7px;font-size:11px;color:#92400e;line-height:1.5">
         ⚠️ <strong>Bail commercial détecté.</strong>
-        Si le locataire est une entreprise ou personne morale, la BRS est <strong>obligatoire</strong> (Art. 156 CGI SN).
+        Si le locataire est une entreprise ou personne morale, la BRS est <strong>obligatoire</strong> (Art. 196bis CGI SN).
         Activez la case ci-dessus pour éviter un redressement fiscal.
     </div>
 </div>

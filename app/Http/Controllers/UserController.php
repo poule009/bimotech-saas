@@ -213,7 +213,7 @@ class UserController extends Controller
                 'cni'                   => $validated['cni'] ?? null,
                 'date_naissance'        => $validated['date_naissance'] ?? null,
                 'genre'                 => $validated['genre'] ?? null,
-                'nationalite'           => $validated['nationalite'] ?? null,
+                'nationalite'           => $validated['nationalite'] ?? 'Sénégalaise',
                 'ville'                 => $validated['ville'] ?? 'Dakar',
                 'quartier'              => $validated['quartier'] ?? null,
                 'mode_paiement_prefere' => $validated['mode_paiement_prefere'] ?? 'virement',
@@ -234,7 +234,7 @@ class UserController extends Controller
             'cni'                  => $validated['cni'] ?? null,
             'date_naissance'       => $validated['date_naissance'] ?? null,
             'genre'                => $validated['genre'] ?? null,
-            'nationalite'          => $validated['nationalite'] ?? null,
+            'nationalite'          => $validated['nationalite'] ?? 'Sénégalaise',
             'ville'                => $validated['ville'] ?? 'Dakar',
             'quartier'             => $validated['quartier'] ?? null,
             // Statut fiscal — critique pour le calcul BRS

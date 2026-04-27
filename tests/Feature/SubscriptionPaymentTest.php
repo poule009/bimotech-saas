@@ -213,19 +213,17 @@ class SubscriptionPaymentTest extends TestCase
     // Helper
     // ════════════════════════════════════════════════════════════════════════
 
-    private function buildIpnPayload(string $token, string $status, string $plan): array
+    private function buildIpnPayload(string $refCommand, string $status, string $plan): array
     {
+        $typeEvent = $status === 'completed' ? 'sale_complete' : 'sale_canceled';
+
         return [
-            'data' => [
-                'invoice' => [
-                    'token'  => $token,
-                    'status' => $status,
-                    'custom_data' => [
-                        'agency_id' => $this->agency->id,
-                        'plan'      => $plan,
-                    ],
-                ],
-            ],
+            'type_event'   => $typeEvent,
+            'ref_command'  => $refCommand,
+            'custom_field' => base64_encode(json_encode([
+                'agency_id' => $this->agency->id,
+                'plan'      => $plan,
+            ])),
         ];
     }
 }

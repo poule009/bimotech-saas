@@ -572,7 +572,7 @@ function mettreAJourRecap() {
     const commTtc    = commHt + tvaComm;
     const netProprio = montantEncaisse - commTtc;
 
-    // BRS — Art. 156 CGI SN : assiette = loyer TTC + TOM
+    // BRS — Art. 196bis CGI SN : assiette = loyer TTC + TOM
     const brsAmount  = brsChecked ? Math.round((loyerTtc + tom) * 0.15) : 0;
     const netAVerser = netProprio - brsAmount;
 

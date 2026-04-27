@@ -27,6 +27,7 @@
     $netAVerser = (float) ($paiement->net_a_verser_proprietaire ?? $netProprio);
 
     // Frais d'entrée (valeurs non nulles uniquement au premier paiement)
+    $tvaCharges = (float) ($paiement->tva_charges ?? 0);
     $fraisHt    = (float) ($paiement->frais_agence_ht   ?? 0);
     $tvaFrais   = (float) ($paiement->tva_frais_agence  ?? 0);
     $fraisTtc   = (float) ($paiement->frais_agence_ttc  ?? 0);
@@ -127,9 +128,15 @@
 
     @if($charges > 0)
     <tr class="fd-sub">
-        <td>+ Charges locatives récupérables</td>
+        <td>+ Charges locatives récupérables{{ $tvaCharges > 0 ? ' HT' : '' }}</td>
         <td>{{ $fmt($charges) }} F</td>
     </tr>
+    @if($tvaCharges > 0)
+    <tr class="fd-sub" style="color:#92400e;background:#fff7ed">
+        <td>&nbsp;&nbsp;↳ TVA sur charges (18% — forfait — Art. 357 CGI SN)</td>
+        <td style="color:#92400e">{{ $fmt($tvaCharges) }} F</td>
+    </tr>
+    @endif
     @endif
 
     @if($tom > 0)

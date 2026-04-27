@@ -14,10 +14,11 @@ class BilanFiscalProprietaire extends Model
         'agency_id', 'proprietaire_id', 'annee',
         'revenus_bruts_loyers', 'revenus_bruts_charges', 'revenus_bruts_total',
         'abattement_forfaitaire_30', 'base_imposable', 'irpp_estime', 'irpp_detail',
-        'cfpb_estimee', 'tva_loyer_collectee', 'brs_retenu_total',
+        'cfpb_estimee',
+        'tva_loyer_collectee', 'tva_charges_total', 'brs_retenu_total', 'tom_total',
         'commissions_agence_ht', 'tva_commissions',
-        'net_proprietaire_total', 'nb_paiements', 'nb_biens_geres',
-        'calcule_le',
+        'net_proprietaire_total', 'net_a_verser_total',
+        'nb_paiements', 'nb_biens_geres', 'calcule_le',
     ];
 
     protected $casts = [
@@ -30,10 +31,13 @@ class BilanFiscalProprietaire extends Model
         'irpp_detail'               => 'array',
         'cfpb_estimee'              => 'decimal:2',
         'tva_loyer_collectee'       => 'decimal:2',
+        'tva_charges_total'         => 'decimal:2',
         'brs_retenu_total'          => 'decimal:2',
+        'tom_total'                 => 'decimal:2',
         'commissions_agence_ht'     => 'decimal:2',
         'tva_commissions'           => 'decimal:2',
         'net_proprietaire_total'    => 'decimal:2',
+        'net_a_verser_total'        => 'decimal:2',
         'calcule_le'                => 'datetime',
     ];
 

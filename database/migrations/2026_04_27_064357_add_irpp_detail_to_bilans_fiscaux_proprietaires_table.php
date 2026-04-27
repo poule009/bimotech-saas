@@ -8,15 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('bilans_fiscaux_proprietaires') || Schema::hasColumn('bilans_fiscaux_proprietaires', 'irpp_detail')) {
+            return;
+        }
+
         Schema::table('bilans_fiscaux_proprietaires', function (Blueprint $table) {
-            // Détail IRPP par tranche — évite de recalculer en Blade
-            // Format : [{"min":0,"max":1500000,"taux":0,"assiette":xxx,"impot":0}, ...]
             $table->json('irpp_detail')->nullable()->after('irpp_estime');
         });
     }
 
     public function down(): void
     {
+        if (!Schema::hasColumn('bilans_fiscaux_proprietaires', 'irpp_detail')) {
+            return;
+        }
+
         Schema::table('bilans_fiscaux_proprietaires', function (Blueprint $table) {
             $table->dropColumn('irpp_detail');
         });

@@ -47,6 +47,7 @@ class ContratCrudTest extends TestCase
             'proprietaire_id' => $proprio->id,
             'statut'          => 'disponible',
             'loyer_mensuel'   => 300000,
+            'surface_m2'      => null, // Évite le plafond Loi 81-18 dans les tests de contrat
         ]);
     }
 

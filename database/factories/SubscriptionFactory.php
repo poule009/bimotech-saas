@@ -18,7 +18,7 @@ class SubscriptionFactory extends Factory
             'montant_paye'        => null,
             'date_debut_abonnement' => null,
             'date_fin_abonnement' => null,
-            'reference_paydunya'  => null,
+            'reference_paytech'   => null,
             'rappel_7j_envoye'    => false,
             'rappel_1j_envoye'    => false,
         ];

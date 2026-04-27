@@ -290,6 +290,7 @@
         @php
             $sLoyers = (float)$groupe->sum('montant_encaisse');
             $sComm   = (float)$groupe->sum('commission_ttc');
+            $sBrs    = (float)$groupe->sum('brs_amount');
             $sDep    = (float)$groupe->flatMap->depenses->sum('montant');
         @endphp
         <tr style="background:#f9fafb;border-top:1px solid #e5e7eb">
@@ -297,7 +298,7 @@
             <td class="text-right" style="font-weight:600">{{ number_format($sLoyers, 0, ',', ' ') }} F</td>
             <td class="text-right" style="color:#1d4ed8;font-weight:600">{{ number_format($sComm, 0, ',', ' ') }} F</td>
             <td class="text-right" style="color:#dc2626;font-weight:600">{{ $sDep > 0 ? number_format($sDep, 0, ',', ' ').' F' : '—' }}</td>
-            <td class="text-right" style="color:#16a34a;font-weight:600">{{ number_format($sLoyers - $sComm - $sDep, 0, ',', ' ') }} F</td>
+            <td class="text-right" style="color:#16a34a;font-weight:600">{{ number_format($sLoyers - $sComm - $sBrs - $sDep, 0, ',', ' ') }} F</td>
         </tr>
         @endif
         @endforeach
@@ -323,6 +324,9 @@
         <div class="net-equa">
             {{ number_format($totalLoyers, 0, ',', ' ') }} F
             − {{ number_format($totalCommissions, 0, ',', ' ') }} F commissions
+            @if(($totalBrs ?? 0) > 0)
+                − {{ number_format($totalBrs, 0, ',', ' ') }} F BRS (Art. 196bis)
+            @endif
             @if($totalDepenses > 0)
                 − {{ number_format($totalDepenses, 0, ',', ' ') }} F dépenses
             @endif

@@ -120,7 +120,7 @@ class FiscalService
 
         if ($brsApplicable) {
             $tauxBrs   = $ctx->tauxBrsContrat ?? $ctx->tauxBrsLocataire ?? self::BRS_TAUX_LEGAL;
-            // Art. 156 CGI SN : BRS sur montant brut TTC = loyer TTC + TOM (hors charges)
+            // Art. 196bis CGI SN : BRS sur montant brut TTC = loyer TTC + TOM (hors charges)
             $brsAmount = round(($loyerTtc + $tom) * ($tauxBrs / 100), 2);
         }
 
@@ -273,11 +273,14 @@ class FiscalService
                 'paiements.loyer_nu',
                 'paiements.tva_loyer',
                 'paiements.charges_amount',
+                'paiements.tva_charges',
                 'paiements.commission_agence',
                 'paiements.tva_commission',
                 'paiements.commission_ttc',
                 'paiements.brs_amount',
                 'paiements.net_proprietaire',
+                'paiements.net_a_verser_proprietaire',
+                'paiements.tom_amount',
                 'paiements.date_paiement',
                 'biens.reference as bien_reference',
                 'biens.meuble as bien_meuble',
@@ -291,11 +294,14 @@ class FiscalService
         $revenusBrutsCharges = (float) $paiements->sum('charges_amount');
         $revenusBrutsTotal   = $revenusBrutsLoyers + $revenusBrutsCharges;
 
-        $commissionsHt    = (float) $paiements->sum('commission_agence');
-        $tvaCommissions   = (float) $paiements->sum('tva_commission');
-        $tvaLoyerCollecte = (float) $paiements->sum('tva_loyer');
-        $brsRetenuTotal   = (float) $paiements->sum('brs_amount');
-        $netProprietaire  = (float) $paiements->sum('net_proprietaire');
+        $commissionsHt      = (float) $paiements->sum('commission_agence');
+        $tvaCommissions     = (float) $paiements->sum('tva_commission');
+        $tvaLoyerCollecte   = (float) $paiements->sum('tva_loyer');
+        $tvaChargesCollecte = (float) $paiements->sum('tva_charges');   // C1/R5 — TVA charges forfait
+        $brsRetenuTotal     = (float) $paiements->sum('brs_amount');
+        $netProprietaire    = (float) $paiements->sum('net_proprietaire');
+        $netAVerserTotal    = (float) $paiements->sum('net_a_verser_proprietaire'); // C3 — après BRS
+        $tomTotal           = (float) $paiements->sum('tom_amount');                // C5 — TOM annuel
 
         $nbBiensGeres = $paiements->pluck('bien_reference')->unique()->count();
 
@@ -323,7 +329,9 @@ class FiscalService
 
             // Taxes collectées
             'tva_loyer_collectee'       => $tvaLoyerCollecte,
+            'tva_charges_total'         => $tvaChargesCollecte,  // C1/R5
             'brs_retenu_total'          => $brsRetenuTotal,
+            'tom_total'                 => $tomTotal,            // C5
 
             // Commissions agence
             'commissions_agence_ht'     => $commissionsHt,
@@ -331,6 +339,7 @@ class FiscalService
 
             // Net propriétaire
             'net_proprietaire_total'    => $netProprietaire,
+            'net_a_verser_total'        => $netAVerserTotal,     // C3 — après BRS
 
             // Détail IRPP par tranche (C5 — évite recalcul en Blade)
             'irpp_detail'               => $irppDetail,

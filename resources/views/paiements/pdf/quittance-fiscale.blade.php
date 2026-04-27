@@ -208,11 +208,20 @@ body {
 </div>
 
 {{-- ══ BADGE RÉGIME FISCAL ════════════════════════════════════════════════ --}}
+@php
+$regimeLabels = [
+    'habitation'          => 'Habitation — Exonéré TVA',
+    'habitation_avec_brs' => 'Habitation — BRS applicable',
+    'commercial'          => 'Commercial — TVA 18%',
+    'commercial_avec_brs' => 'Commercial — TVA 18% + BRS',
+];
+$regimeLabel = $regimeLabels[$regime_fiscal] ?? ucwords(str_replace('_', ' ', $regime_fiscal));
+@endphp
 <div class="regime-band">
     @if($loyer_assujetti ?? false)
-        <span class="regime-badge regime-commercial">{{ $regime_fiscal }}</span>
+        <span class="regime-badge regime-commercial">{{ $regimeLabel }}</span>
     @else
-        <span class="regime-badge regime-habitation">{{ $regime_fiscal }}</span>
+        <span class="regime-badge regime-habitation">{{ $regimeLabel }}</span>
     @endif
     @if($brs_applicable ?? false)
         <span class="regime-badge regime-brs">BRS {{ $taux_brs_applique }}% — Locataire Entreprise</span>
@@ -292,7 +301,7 @@ body {
             @if($bien->meuble) &nbsp;·&nbsp; <em>Meublé</em> @endif
         </div>
         <div style="font-size:9.5px;color:#374151">
-            {{ $bien->adresse }}@if($bien->quartier), {{ $bien->quartier }}@endif@if($bien->commune), {{ $bien->commune }}@endif, {{ $bien->ville }}
+            {{ $bien->adresse }}{{ $bien->quartier ? ', '.$bien->quartier : '' }}{{ $bien->commune ? ', '.$bien->commune : '' }}, {{ $bien->ville }}
             @if($bien->surface_m2) &nbsp;·&nbsp; {{ $bien->surface_m2 }} m²@endif
             @if($bien->nombre_pieces) &nbsp;·&nbsp; {{ $bien->nombre_pieces }} pièce(s)@endif
         </div>
@@ -314,6 +323,7 @@ body {
         $tvaLoyer   = (float) ($tva_loyer ?? $paiement->tva_loyer ?? 0);
         $loyerTtc   = (float) ($loyer_ttc ?? $paiement->loyer_ttc ?? $loyerHt);
         $charges    = (float) ($charges_amount ?? $paiement->charges_amount ?? 0);
+        $tvaCharges = (float) ($tva_charges ?? $paiement->tva_charges ?? 0);
         $tom        = (float) ($tom_amount ?? $paiement->tom_amount ?? 0);
         $totalEnc   = (float) $paiement->montant_encaisse;
         $commHt     = (float) $paiement->commission_agence;
@@ -358,12 +368,18 @@ body {
         </tr>
         @endif
 
-        {{-- ── Charges (jamais taxées) ── --}}
+        {{-- ── Charges HT (+ TVA si forfait commercial) ── --}}
         @if($charges > 0)
         <tr class="row-charges">
-            <td>&nbsp;&nbsp;&nbsp;+ Charges locatives récupérables (Art. 356 al.2 — hors TVA)</td>
+            <td>&nbsp;&nbsp;&nbsp;+ Charges locatives récupérables{{ $tvaCharges > 0 ? ' HT' : ' (Art. 356 al.2 — hors TVA)' }}</td>
             <td>{{ $fmt($charges) }}</td>
         </tr>
+        @if($tvaCharges > 0)
+        <tr class="row-tva-loyer" style="color:#92400e;background:#fff7ed">
+            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ TVA sur charges (18% — forfait — Art. 357 CGI SN — bail commercial/meublé)</td>
+            <td>{{ $fmt($tvaCharges) }}</td>
+        </tr>
+        @endif
         @endif
 
         {{-- ── TOM (jamais taxée) ── --}}
@@ -419,7 +435,7 @@ body {
         </tr>
         <tr class="row-brs">
             <td>
-                BRS ({{ $tauxBrsAff }}% × loyer TTC = {{ $fmt($loyerTtc) }} FCFA)
+                BRS ({{ $tauxBrsAff }}% × {{ $tom > 0 ? '(loyer TTC + TOM)' : 'loyer TTC' }} = {{ $fmt($loyerTtc + $tom) }} FCFA — Art. 196bis CGI SN)
                 <span style="font-size:8px;font-style:italic;font-weight:normal">
                     — Versée directement à la DGI par le locataire
                 </span>

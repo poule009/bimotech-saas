@@ -199,7 +199,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
 
     <div style="font-size:8.5px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:10px;line-height:1.6">
         Ce relevé est établi par {{ $agency->name ?? 'BimoTech Immo' }} conformément aux paiements enregistrés sur la période.
-        Commission calculée conformément à l'Art. 357 du CGI SN.
+        Honoraires d'agence calculés conformément au mandat de gestion — TVA 18% incluse (Art. 357 CGI SN).
         Document confidentiel — réservé au propriétaire mentionné.
     </div>
 

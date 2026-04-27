@@ -39,6 +39,7 @@ return new class extends Migration
             // ── Référence paiement ────────────────────────────────────────
             $table->string('reference')->nullable(); // référence PayDunya ou MANUEL
             $table->enum('methode', [
+                'paytech',
                 'paydunya',
                 'wave',
                 'orange_money',
