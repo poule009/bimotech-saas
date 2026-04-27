@@ -142,7 +142,7 @@ class BilanFiscalController extends Controller
             ->where('paiements.agency_id', $agencyId)
             ->where('paiements.statut', 'valide')
             ->whereYear('paiements.date_paiement', $annee)
-            ->select('paiements.*', 'biens.reference as bien_reference', 'contrats.type_bail')
+            ->select('paiements.*', 'biens.reference as bien_reference', 'biens.meuble as bien_meuble', 'contrats.type_bail')
             ->with(['contrat.locataire:id,name'])
             ->orderBy('paiements.date_paiement')
             ->get();

@@ -280,6 +280,7 @@ class FiscalService
                 'paiements.net_proprietaire',
                 'paiements.date_paiement',
                 'biens.reference as bien_reference',
+                'biens.meuble as bien_meuble',
                 'contrats.type_bail',
             ])
             ->orderBy('paiements.periode')

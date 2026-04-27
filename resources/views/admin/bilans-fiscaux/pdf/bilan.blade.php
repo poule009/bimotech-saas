@@ -289,7 +289,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             <tr>
                 <td>{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</td>
                 <td>{{ $p->bien_reference ?? '—' }}</td>
-                <td>{{ ucfirst($p->type_bail ?? '—') }}</td>
+                <td>{{ ucfirst($p->type_bail ?? '—') }}{{ ($p->type_bail === 'habitation' && ($p->bien_meuble ?? false)) ? ' meublée' : '' }}</td>
                 <td class="r">{{ number_format($p->loyer_ht ?? $p->loyer_nu ?? 0, 0, ',', ' ') }}</td>
                 <td class="r">{{ ($p->tva_loyer ?? 0) > 0 ? number_format($p->tva_loyer, 0, ',', ' ') : '—' }}</td>
                 <td class="r">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }}</td>

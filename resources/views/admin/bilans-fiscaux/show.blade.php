@@ -362,7 +362,9 @@
                                 <td>{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</td>
                                 <td>
                                     <div style="font-weight:600;color:#0d1117">{{ $p->bien_reference ?? '—' }}</div>
-                                    <div style="font-size:11px;color:#9ca3af">{{ ucfirst($p->type_bail ?? '—') }}</div>
+                                    <div style="font-size:11px;color:#9ca3af">
+                                        {{ ucfirst($p->type_bail ?? '—') }}{{ ($p->type_bail === 'habitation' && $p->bien_meuble) ? ' meublée' : '' }}
+                                    </div>
                                 </td>
                                 <td style="font-size:12px;color:#6b7280">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
                                 <td>
