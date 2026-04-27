@@ -120,10 +120,13 @@ class PaiementController extends Controller
             ->with([
                 'bien:id,reference,adresse,ville,taux_commission',
                 'locataire:id,name',
+                'locataire.locataire:id,user_id,est_entreprise,taux_brs_override',
             ])
             ->select(['id', 'bien_id', 'locataire_id', 'loyer_nu',
                       'charges_mensuelles', 'tom_amount', 'loyer_contractuel',
-                      'reference_bail', 'date_debut'])
+                      'reference_bail', 'date_debut', 'type_bail',
+                      'brs_applicable', 'taux_brs_manuel',
+                      'loyer_assujetti_tva', 'taux_tva_loyer'])
             ->orderBy('reference_bail')
             ->get();
 

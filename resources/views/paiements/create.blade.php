@@ -62,6 +62,22 @@
 /* Badge montant correct */
 .montant-ok   { color:#16a34a;font-size:11px;margin-top:3px;display:none; }
 .montant-diff { color:#d97706;font-size:11px;margin-top:3px;display:none; }
+
+/* Badge BRS */
+.brs-badge {
+    display:none;
+    margin-top:10px;
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    border-left:4px solid #dc2626;
+    border-radius:0 8px 8px 0;
+    padding:10px 14px;
+    font-size:12px;
+    color:#991b1b;
+}
+.brs-badge-title { font-weight:700; font-size:12px; margin-bottom:4px; color:#dc2626; }
+.brs-badge-body  { color:#7f1d1d; line-height:1.6; }
+.brs-badge-link  { color:#dc2626; font-weight:600; text-decoration:underline; font-size:11px; }
 </style>
 
 <div style="padding:0 0 48px">
@@ -113,6 +129,20 @@
                                     onchange="chargerContrat(this.value)">
                                 <option value="">— Sélectionner un contrat actif —</option>
                                 @foreach($contrats as $c)
+                                    @php
+                                        $locProfile  = $c->locataire?->locataire;
+                                        $estEntreprise = (bool) ($locProfile?->est_entreprise
+                                            ?? in_array($c->type_bail ?? '', ['commercial', 'mixte']));
+                                        $tauxBrs = $c->taux_brs_manuel
+                                            ?? $locProfile?->taux_brs_override
+                                            ?? 15;
+                                        $brsApplicable = $estEntreprise ? 1 : 0;
+                                        $loyerAssujetti = $c->loyer_assujetti_tva
+                                            ?? in_array($c->type_bail ?? '', ['commercial', 'mixte'])
+                                            ? 1 : 0;
+                                        $tauxTva = $c->taux_tva_loyer ?? 18;
+                                        $locataireId = $c->locataire_id ?? 0;
+                                    @endphp
                                     <option value="{{ $c->id }}"
                                         data-loyer-nu="{{ $c->loyer_nu }}"
                                         data-charges="{{ $c->charges_mensuelles ?? 0 }}"
@@ -122,6 +152,11 @@
                                         data-bien="{{ $c->bien?->reference }} — {{ $c->bien?->adresse }}"
                                         data-locataire="{{ $c->locataire?->name }}"
                                         data-ref="{{ $c->reference_bail ?? 'BAIL-'.$c->id }}"
+                                        data-brs-applicable="{{ $brsApplicable }}"
+                                        data-taux-brs="{{ $tauxBrs }}"
+                                        data-loyer-assujetti="{{ $loyerAssujetti }}"
+                                        data-taux-tva="{{ $tauxTva }}"
+                                        data-locataire-id="{{ $locataireId }}"
                                         {{ old('contrat_id', $contrat?->id) == $c->id ? 'selected':'' }}>
                                         {{ $c->reference_bail ?? 'BAIL-'.$c->id }}
                                         — {{ $c->bien?->reference }}
@@ -146,6 +181,25 @@
                                 <div style="display:flex;justify-content:space-between;padding:3px 0">
                                     <span style="color:#6b7280">Loyer contractuel</span>
                                     <span style="font-weight:700;color:#c9a84c;font-family:'Syne',sans-serif" id="info-loyer">—</span>
+                                </div>
+                            </div>
+
+                            {{-- Badge BRS --}}
+                            <div class="brs-badge" id="brs-badge">
+                                <div class="brs-badge-title">
+                                    ⚠ Retenue BRS applicable — Locataire entreprise (Art. 196bis CGI SN)
+                                </div>
+                                <div class="brs-badge-body">
+                                    Ce locataire est identifié comme une <strong>personne morale</strong>.
+                                    Le BRS de <strong id="brs-taux-display">15%</strong> sera retenu sur le loyer TTC
+                                    et versé directement à la DGI par le locataire.<br>
+                                    Montant BRS estimé : <strong id="brs-montant-display">— F</strong> &nbsp;·&nbsp;
+                                    Net à verser au propriétaire : <strong id="brs-net-display">— F</strong>
+                                </div>
+                                <div style="margin-top:6px">
+                                    <a href="#" id="brs-profil-link" class="brs-badge-link">
+                                        → Modifier le profil du locataire (décocher "Entreprise" si particulier)
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -303,10 +357,29 @@
                                 <div class="rp-total-val" id="rp-net">— FCFA</div>
                             </div>
 
-                            <div style="margin-top:12px;padding:10px 12px;background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.15);border-radius:8px">
-                                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(74,222,128,.5);margin-bottom:4px">Net à verser</div>
+                            {{-- Section BRS (cachée si non applicable) --}}
+                            <div id="rp-brs-section" style="display:none;margin-top:10px;padding:10px 12px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:8px">
+                                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(248,113,113,.7);margin-bottom:6px">
+                                    BRS — Retenue à la source (Art. 196bis)
+                                </div>
+                                <div class="rp-row" style="border-color:rgba(255,255,255,.05)">
+                                    <div class="rp-lbl">Taux BRS</div>
+                                    <div class="rp-val red" id="rp-brs-taux">— %</div>
+                                </div>
+                                <div class="rp-row" style="border-color:rgba(255,255,255,.05)">
+                                    <div class="rp-lbl">Assiette (loyer TTC + TOM)</div>
+                                    <div class="rp-val red" id="rp-brs-base">— F</div>
+                                </div>
+                                <div class="rp-row" style="border-bottom:none">
+                                    <div class="rp-lbl" style="color:rgba(248,113,113,.8)">BRS retenu</div>
+                                    <div class="rp-val red" id="rp-brs-montant">— F</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:10px;padding:10px 12px;background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.15);border-radius:8px">
+                                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(74,222,128,.5);margin-bottom:4px" id="rp-net-label">Net à verser</div>
                                 <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#4ade80" id="rp-net-verser">— F</div>
-                                <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">Après commission TTC</div>
+                                <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px" id="rp-net-sublabel">Après commission TTC</div>
                             </div>
                         </div>
 
@@ -335,24 +408,49 @@ function chargerContrat(id) {
     const select = document.getElementById('contrat_id');
     const opt    = select.options[select.selectedIndex];
 
-    const loyerNu  = parseFloat(opt.dataset.loyerNu)    || 0;
-    const charges  = parseFloat(opt.dataset.charges)     || 0;
-    const tom      = parseFloat(opt.dataset.tom)          || 0;
-    const total    = parseFloat(opt.dataset.loyerTotal)  || 0;
-    const tauxComm = parseFloat(opt.dataset.tauxComm)    || 10;
+    const loyerNu      = parseFloat(opt.dataset.loyerNu)       || 0;
+    const charges      = parseFloat(opt.dataset.charges)        || 0;
+    const tom          = parseFloat(opt.dataset.tom)             || 0;
+    const total        = parseFloat(opt.dataset.loyerTotal)     || 0;
+    const tauxComm     = parseFloat(opt.dataset.tauxComm)       || 10;
+    const brsApplicable = parseInt(opt.dataset.brsApplicable)   === 1;
+    const tauxBrs      = parseFloat(opt.dataset.tauxBrs)        || 15;
+    const loyerAssujetti = parseInt(opt.dataset.loyerAssujetti) === 1;
+    const tauxTva      = parseFloat(opt.dataset.tauxTva)        || 18;
+    const locataireId  = opt.dataset.locataireId || '';
     loyerContractuel = total;
 
-    const commHt  = Math.round(loyerNu * tauxComm / 100);
-    const tvaComm = Math.round(commHt * 0.18);
-    const commTtc = commHt + tvaComm;
-    const net     = loyerNu - commHt;
-    const netVerser = loyerNu - commTtc;
+    // Calcul commission
+    const commHt   = Math.round(loyerNu * tauxComm / 100);
+    const tvaComm  = Math.round(commHt * 0.18);
+    const commTtc  = commHt + tvaComm;
+    const netProprio = total - commTtc;
+
+    // Calcul BRS (assiette = loyer TTC + TOM)
+    const loyerTtc = loyerAssujetti ? Math.round(loyerNu * (1 + tauxTva / 100)) : loyerNu;
+    const brsBase  = loyerTtc + tom;
+    const brsAmt   = brsApplicable ? Math.round(brsBase * tauxBrs / 100) : 0;
+    const netAVerser = netProprio - brsAmt;
 
     // Infos contrat
     document.getElementById('info-bien').textContent      = opt.dataset.bien;
     document.getElementById('info-locataire').textContent = opt.dataset.locataire;
     document.getElementById('info-loyer').textContent     = fmt(total);
     document.getElementById('contrat-details').style.display = 'block';
+
+    // Badge BRS
+    const badge = document.getElementById('brs-badge');
+    if (brsApplicable) {
+        badge.style.display = 'block';
+        document.getElementById('brs-taux-display').textContent  = tauxBrs + '%';
+        document.getElementById('brs-montant-display').textContent = fmt(brsAmt);
+        document.getElementById('brs-net-display').textContent   = fmt(netAVerser);
+        if (locataireId) {
+            document.getElementById('brs-profil-link').href = '/admin/users/' + locataireId + '/edit';
+        }
+    } else {
+        badge.style.display = 'none';
+    }
 
     // Recap fiscal
     document.getElementById('rp-loyer-nu').textContent    = fmt(loyerNu);
@@ -363,8 +461,23 @@ function chargerContrat(id) {
     document.getElementById('rp-comm-ht').textContent     = fmt(commHt);
     document.getElementById('rp-tva').textContent         = fmt(tvaComm);
     document.getElementById('rp-comm-ttc').textContent    = fmt(commTtc);
-    document.getElementById('rp-net').textContent         = fmt(net) + 'CFA';
-    document.getElementById('rp-net-verser').textContent  = fmt(netVerser) + 'CFA';
+    document.getElementById('rp-net').textContent         = fmt(netProprio) + ' CFA';
+
+    // Section BRS dans le recap
+    const rpBrsSection = document.getElementById('rp-brs-section');
+    if (brsApplicable) {
+        rpBrsSection.style.display = 'block';
+        document.getElementById('rp-brs-taux').textContent    = tauxBrs + ' %';
+        document.getElementById('rp-brs-base').textContent    = fmt(brsBase);
+        document.getElementById('rp-brs-montant').textContent = '−' + fmt(brsAmt);
+        document.getElementById('rp-net-label').textContent    = 'Net à verser (après BRS)';
+        document.getElementById('rp-net-sublabel').textContent = 'Après commission TTC et BRS';
+    } else {
+        rpBrsSection.style.display = 'none';
+        document.getElementById('rp-net-label').textContent    = 'Net à verser';
+        document.getElementById('rp-net-sublabel').textContent = 'Après commission TTC';
+    }
+    document.getElementById('rp-net-verser').textContent = fmt(netAVerser) + ' CFA';
 
     document.getElementById('recap-vide').style.display    = 'none';
     document.getElementById('recap-content').style.display = 'block';
@@ -380,7 +493,7 @@ function chargerContrat(id) {
         .then(data => {
             const periodeInput = document.getElementById('periode');
             if (data.periode) {
-                periodeInput.value = data.periode.substring(0, 7); // YYYY-MM
+                periodeInput.value = data.periode.substring(0, 7);
             }
         });
 
