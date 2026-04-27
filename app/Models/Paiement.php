@@ -50,14 +50,19 @@ class Paiement extends Model
         'reference_bail',      // Référence du bail (dénormalisée pour la quittance)
 
         // ── Champs spéciaux ────────────────────────────────────────────────
-        'caution_percue',              // Caution saisie manuellement au premier paiement
+        // DEUX champs caution coexistent intentionnellement :
+        //   caution_percue  = montant réellement versé par le locataire (input formulaire)
+        //   caution_montant = montant contractuel calculé par FiscalService depuis Contrat.caution
+        // → Afficher caution_percue dans les documents officiels (reçu réel).
+        // → Utiliser caution_montant pour les calculs FiscalResult (nets, totaux).
+        'caution_percue',              // Reçu réel — peut différer du contractuel
         'est_premier_paiement',        // Flag premier mois du bail
 
         // ── Frais d'entrée (premier paiement uniquement, 0 sinon) ─────────
         'frais_agence_ht',             // Honoraires agence HT à la signature
         'tva_frais_agence',            // TVA 18% sur honoraires
         'frais_agence_ttc',            // frais_agence_ht + tva_frais_agence
-        'caution_montant',             // Caution contractuelle (non taxable)
+        'caution_montant',             // Caution contractuelle depuis FiscalService
         'total_encaissement_initial',  // montant_encaisse + frais_agence_ttc + caution_montant
 
         // ── Nets consolidés (calculés par FiscalService, jamais dans les vues) ─

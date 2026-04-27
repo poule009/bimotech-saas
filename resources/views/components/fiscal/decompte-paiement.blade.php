@@ -250,7 +250,7 @@
         </td>
     </tr>
     <tr class="fd-row-brs">
-        <td>BRS retenue ({{ $tauxBrs }}% × loyer HT — art. 196bis CGI SN)</td>
+        <td>BRS retenue ({{ $tauxBrs }}% × loyer TTC{{ $tom > 0 ? ' + TOM' : '' }} — art. 196bis CGI SN)</td>
         <td style="font-weight:700">- {{ $fmt($brs) }} F</td>
     </tr>
     <tr class="fd-row-averser">

@@ -304,6 +304,7 @@ class FiscalService
         $abattement30      = round($revenusBrutsTotal * self::ABATTEMENT_IRPP, 2);
         $baseImposable     = round($revenusBrutsTotal - $abattement30, 2);
         $irppEstime        = self::calculerIRPP($baseImposable);
+        $irppDetail        = self::calculerIRPPDetail($baseImposable);
 
         // ── CFPB (CGI art. 95-110) ──────────────────────────────────────────
         $cfpbEstimee = round($revenusBrutsLoyers * self::CFPB_TAUX, 2);
@@ -330,6 +331,9 @@ class FiscalService
 
             // Net propriétaire
             'net_proprietaire_total'    => $netProprietaire,
+
+            // Détail IRPP par tranche (C5 — évite recalcul en Blade)
+            'irpp_detail'               => $irppDetail,
 
             // Méta
             'nb_paiements'              => $paiements->count(),
@@ -418,6 +422,27 @@ class FiscalService
             'commercial', 'mixte' => self::DGID_TAUX_COMMERCIAL,
             default               => self::DGID_TAUX_HABITATION,
         };
+    }
+
+    /**
+     * Calcule le détail IRPP tranche par tranche (stocké en JSON dans le bilan).
+     * Permet d'afficher le barème sans recalculer côté Blade.
+     *
+     * @return array  [{min, max, taux, assiette_tranche, impot_tranche}, ...]
+     */
+    public static function calculerIRPPDetail(float $baseImposable): array
+    {
+        $detail = [];
+        foreach (self::IRPP_TRANCHES as $tranche) {
+            if ($baseImposable <= $tranche['min']) {
+                $detail[] = ['min' => $tranche['min'], 'max' => $tranche['max'], 'taux' => $tranche['taux'], 'assiette' => 0.0, 'impot' => 0.0];
+                continue;
+            }
+            $assiette = min($baseImposable, (float) $tranche['max']) - $tranche['min'];
+            $impot    = round($assiette * ($tranche['taux'] / 100), 2);
+            $detail[] = ['min' => $tranche['min'], 'max' => $tranche['max'], 'taux' => $tranche['taux'], 'assiette' => round($assiette, 2), 'impot' => $impot];
+        }
+        return $detail;
     }
 
     /**
@@ -598,5 +623,71 @@ class FiscalService
                 "Le taux '{$champ}' doit être entre 0 et 1 (ex: 0.10 pour 10%). Valeur reçue : {$taux}"
             );
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // MONTANT EN LETTRES (français — FCFA)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    public static function montantEnLettresFr(float $amount): string
+    {
+        $n = (int) round(abs($amount));
+        if ($n === 0) return 'Zéro franc CFA';
+        return ucfirst(self::_nombreFr($n)) . ' francs CFA';
+    }
+
+    private static function _nombreFr(int $n): string
+    {
+        if ($n === 0) return '';
+
+        $units = [
+            '', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
+            'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize',
+            'dix-sept', 'dix-huit', 'dix-neuf',
+        ];
+
+        if ($n < 20) return $units[$n];
+
+        if ($n < 100) {
+            $t = intdiv($n, 10);
+            $u = $n % 10;
+            // 70-79 : soixante-dix... | 90-99 : quatre-vingt-dix...
+            if ($t === 7 || $t === 9) {
+                return ($t === 7 ? 'soixante-' : 'quatre-vingt-') . $units[10 + $u];
+            }
+            // 80-89 : quatre-vingts, quatre-vingt-un...
+            if ($t === 8) {
+                return $u === 0 ? 'quatre-vingts' : 'quatre-vingt-' . $units[$u];
+            }
+            $tens = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante'];
+            if ($u === 0) return $tens[$t];
+            return $tens[$t] . ($u === 1 ? '-et-' : '-') . $units[$u];
+        }
+
+        if ($n < 1_000) {
+            $h = intdiv($n, 100);
+            $r = $n % 100;
+            $s = ($h === 1 ? 'cent' : $units[$h] . ' cent') . ($r === 0 && $h > 1 ? 's' : '');
+            return $s . ($r > 0 ? ' ' . self::_nombreFr($r) : '');
+        }
+
+        if ($n < 1_000_000) {
+            $m = intdiv($n, 1_000);
+            $r = $n % 1_000;
+            $s = ($m === 1 ? 'mille' : self::_nombreFr($m) . ' mille');
+            return $s . ($r > 0 ? ' ' . self::_nombreFr($r) : '');
+        }
+
+        if ($n < 1_000_000_000) {
+            $m = intdiv($n, 1_000_000);
+            $r = $n % 1_000_000;
+            $s = self::_nombreFr($m) . ' million' . ($m > 1 ? 's' : '');
+            return $s . ($r > 0 ? ' ' . self::_nombreFr($r) : '');
+        }
+
+        $b = intdiv($n, 1_000_000_000);
+        $r = $n % 1_000_000_000;
+        $s = self::_nombreFr($b) . ' milliard' . ($b > 1 ? 's' : '');
+        return $s . ($r > 0 ? ' ' . self::_nombreFr($r) : '');
     }
 }

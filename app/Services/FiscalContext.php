@@ -157,7 +157,9 @@ final class FiscalContext
             tomAmount:              (float) ($contrat->tom_amount ?? 0),
             typeBail:               $contrat->type_bail ?? 'habitation',
             estMeuble:              (bool)  ($bien?->meuble ?? false),
-            locataireEstEntreprise: (bool)  ($locProfile?->est_entreprise ?? false),
+            // C3 : si profil locataire absent et bail commercial/mixte → entreprise présumée
+            locataireEstEntreprise: (bool)  ($locProfile?->est_entreprise
+                ?? in_array($contrat->type_bail ?? '', ['commercial', 'mixte'])),
             tauxCommission:         (float) ($bien?->taux_commission ?? FiscalService::COMMISSION_TAUX),
             tauxTvaCommission:      FiscalService::TVA_TAUX,
             tauxTvaLoyerOverride:   $tauxTvaOverride,
@@ -167,7 +169,9 @@ final class FiscalContext
             dateFinPeriode:         $dateFinPeriode,
             fraisAgenceHt:          $avecFraisInitiaux ? (float) ($contrat->frais_agence ?? 0) : 0.0,
             cautionMontant:         $avecFraisInitiaux ? (float) ($contrat->caution       ?? 0) : 0.0,
-            chargesAssujettiesATva: (bool) ($contrat->charges_assujetties_tva ?? false),
+            // C4 : charges assujetties TVA si commercial/mixte sans override explicite
+            chargesAssujettiesATva: (bool) ($contrat->charges_assujetties_tva
+                ?? in_array($contrat->type_bail ?? '', ['commercial', 'mixte'])),
             cautionGardeeParAgence: (bool) ($contrat->caution_gardee_par_agence ?? false),
 
             // ── DGID : actif uniquement au premier paiement non exonéré ──────
@@ -177,9 +181,9 @@ final class FiscalContext
             loyerMensuelDgid:       (float) ($contrat->loyer_contractuel
                                         ?? ((float)($contrat->loyer_nu ?? 0)
                                            + (float)($contrat->charges_mensuelles ?? 0))),
-            // Durée : de date_debut à date_fin si connues, sinon 12 mois par défaut
+            // C2 : durée clampée à 12 mois max — Art. 442 CGI SN = assiette loyer annuel
             dureeMoisDgid:          ($contrat->date_debut && $contrat->date_fin)
-                                        ? max(1, (int) $contrat->date_debut->diffInMonths($contrat->date_fin))
+                                        ? max(1, min(12, (int) $contrat->date_debut->diffInMonths($contrat->date_fin)))
                                         : 12,
             // Override de taux par le contrat (null = FiscalService détermine via type_bail)
             tauxEnregistrementDgid: $contrat->taux_enregistrement_dgid !== null

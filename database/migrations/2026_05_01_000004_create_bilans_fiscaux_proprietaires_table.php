@@ -53,11 +53,11 @@ return new class extends Migration
             // ── ABATTEMENT 30% (Art. 58 CGI SN) ──────────────────────────
             $table->decimal('abattement_forfaitaire_30', 15, 2)
                   ->default(0)
-                  ->comment('30% × revenus_bruts_loyers (art.58 — hors charges)');
+                  ->comment('30% × revenus_bruts_total (art.56-58 — loyers + charges refacturées)');
 
             $table->decimal('base_imposable', 15, 2)
                   ->default(0)
-                  ->comment('revenus_bruts_loyers × 70% = base pour IRPP');
+                  ->comment('revenus_bruts_total × 70% = base pour IRPP (loyers + charges)');
 
             // ── IRPP ESTIMÉ (Art. 65 CGI SN) ─────────────────────────────
             $table->decimal('irpp_estime', 12, 2)

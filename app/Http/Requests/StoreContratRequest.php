@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\User;
+use App\Services\FiscalService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -54,7 +55,17 @@ class StoreContratRequest extends FormRequest
             ],
             'date_debut'          => ['required', 'date'],
             'date_fin'            => ['nullable', 'date', 'after:date_debut'],
-            'loyer_nu'            => ['required', 'numeric', 'min:1'],
+            'loyer_nu'            => [
+                'required', 'numeric', 'min:1',
+                function ($attr, $value, $fail) {
+                    $bien = Bien::withoutGlobalScopes()->find($this->input('bien_id'));
+                    $surface = $bien?->surface_m2;
+                    $check = FiscalService::verifierLoi8118((float) $value, $surface ? (int) $surface : null);
+                    if (!$check['conforme'] && $check['plafond']) {
+                        $fail("Loyer {$value} F dépasse le plafond Loi 81-18 ({$check['plafond']} F pour {$surface} m²). Vérifiez avant de continuer.");
+                    }
+                },
+            ],
             'charges_mensuelles'  => ['nullable', 'numeric', 'min:0'],
             'tom_amount'          => ['nullable', 'numeric', 'min:0'],
             'avec_caution'        => ['nullable', 'boolean'],
@@ -76,7 +87,18 @@ class StoreContratRequest extends FormRequest
             'observations'          => ['nullable', 'string', 'max:1000'],
             'clauses_particulieres' => ['nullable', 'string', 'max:5000'],
             // ── Fiscal ────────────────────────────────────────────────────────
-            'loyer_assujetti_tva'      => ['nullable', 'boolean'],
+            // M1 : bail commercial/mixte → TVA loyer obligatoirement vraie (Art. 355 CGI SN)
+            'loyer_assujetti_tva'      => [
+                'nullable', 'boolean',
+                function ($attr, $value, $fail) {
+                    if ($value === false || $value === '0' || $value === 0) {
+                        $type = $this->input('type_bail');
+                        if (in_array($type, ['commercial', 'mixte'], true)) {
+                            $fail('Un bail commercial ou mixte est obligatoirement assujetti à la TVA (Art. 355 CGI SN). Vous ne pouvez pas le désactiver.');
+                        }
+                    }
+                },
+            ],
             'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],
             'brs_applicable'           => ['nullable', 'boolean'],
             'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],

@@ -216,13 +216,8 @@
                         </div>
 
                         @php
-                            $base = (float) $bilan->base_imposable;
-                            $tranches = [
-                                ['label' => '0 — 1 500 000 F',         'taux' => 0,   'min' => 0,         'max' => 1500000],
-                                ['label' => '1 500 001 — 4 000 000 F', 'taux' => 20,  'min' => 1500001,   'max' => 4000000],
-                                ['label' => '4 000 001 — 8 000 000 F', 'taux' => 30,  'min' => 4000001,   'max' => 8000000],
-                                ['label' => '> 8 000 000 F',           'taux' => 40,  'min' => 8000001,   'max' => PHP_INT_MAX],
-                            ];
+                            $irppTranches = $bilan->irpp_detail ?? \App\Services\FiscalService::calculerIRPPDetail((float) $bilan->base_imposable);
+                            $labels = ['0 — 1 500 000 F', '1 500 001 — 4 000 000 F', '4 000 001 — 8 000 000 F', '> 8 000 000 F'];
                         @endphp
 
                         <table class="bareme-table" style="margin-bottom:12px">
@@ -232,16 +227,18 @@
                                 <th>Impôt sur tranche</th>
                                 <th style="width:100px">Progression</th>
                             </tr>
-                            @foreach($tranches as $t)
+                            @foreach($irppTranches as $i => $t)
                             @php
-                                $active = $base > $t['min'];
-                                $imposable = $active ? min($base, $t['max']) - $t['min'] : 0;
-                                $imposable = max(0, $imposable);
-                                $impot = round($imposable * $t['taux'] / 100, 0);
-                                $pct = $t['max'] === PHP_INT_MAX ? ($base > $t['min'] ? 100 : 0) : ($base >= $t['max'] ? 100 : max(0, ($base - $t['min']) / ($t['max'] - $t['min']) * 100));
+                                $active = ($t['assiette'] ?? 0) > 0;
+                                $impot  = $t['impot'] ?? 0;
+                                $maxVal = $t['max'] ?? PHP_INT_MAX;
+                                $minVal = $t['min'] ?? 0;
+                                $pct = $maxVal >= PHP_INT_MAX ? ($active ? 100 : 0)
+                                     : ($minVal >= (float)$bilan->base_imposable ? 0
+                                        : min(100, max(0, ((float)$bilan->base_imposable - $minVal) / ($maxVal - $minVal) * 100)));
                             @endphp
                             <tr class="{{ $active ? 'active' : 'inactive' }}">
-                                <td>{{ $t['label'] }}</td>
+                                <td>{{ $labels[$i] ?? ($minVal.' — '.$maxVal.' F') }}</td>
                                 <td>{{ $t['taux'] }}%</td>
                                 <td>{{ $active && $impot > 0 ? number_format($impot, 0, ',', ' ').' F' : '—' }}</td>
                                 <td>

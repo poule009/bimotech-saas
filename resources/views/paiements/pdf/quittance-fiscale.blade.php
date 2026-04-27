@@ -495,6 +495,11 @@ body {
         ✓ Bail enregistré à la DGID le {{ \Carbon\Carbon::parse($contrat->date_enregistrement_dgid)->format('d/m/Y') }}
         @if($contrat->numero_quittance_dgid) — N° {{ $contrat->numero_quittance_dgid }} @endif
     </div>
+    @elseif(($paiement->dgid_total ?? 0) > 0)
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:4px;padding:7px 12px;margin-top:8px;font-size:8.5px;color:#dc2626">
+        ⚠ Droits d'enregistrement DGID calculés ({{ number_format($paiement->dgid_total, 0, ',', ' ') }} FCFA) mais aucune date d'enregistrement renseignée.
+        L'enregistrement à la DGID est obligatoire (Art. 442 CGI SN) — à régulariser.
+    </div>
     @endif
 
 </div>{{-- /body --}}

@@ -64,7 +64,17 @@ class UpdateContratRequest extends FormRequest
                 },
             ],
             // ── Fiscal ────────────────────────────────────────────────────────
-            'loyer_assujetti_tva'      => ['nullable', 'boolean'],
+            'loyer_assujetti_tva'      => [
+                'nullable', 'boolean',
+                function ($attr, $value, $fail) {
+                    if ($value === false || $value === '0' || $value === 0) {
+                        $type = $this->input('type_bail');
+                        if (in_array($type, ['commercial', 'mixte'], true)) {
+                            $fail('Un bail commercial ou mixte est obligatoirement assujetti à la TVA (Art. 355 CGI SN). Vous ne pouvez pas le désactiver.');
+                        }
+                    }
+                },
+            ],
             'taux_tva_loyer'           => ['nullable', 'numeric', 'min:0', 'max:20'],
             'brs_applicable'           => ['nullable', 'boolean'],
             'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],

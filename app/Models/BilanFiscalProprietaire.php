@@ -13,7 +13,7 @@ class BilanFiscalProprietaire extends Model
     protected $fillable = [
         'agency_id', 'proprietaire_id', 'annee',
         'revenus_bruts_loyers', 'revenus_bruts_charges', 'revenus_bruts_total',
-        'abattement_forfaitaire_30', 'base_imposable', 'irpp_estime',
+        'abattement_forfaitaire_30', 'base_imposable', 'irpp_estime', 'irpp_detail',
         'cfpb_estimee', 'tva_loyer_collectee', 'brs_retenu_total',
         'commissions_agence_ht', 'tva_commissions',
         'net_proprietaire_total', 'nb_paiements', 'nb_biens_geres',
@@ -27,6 +27,7 @@ class BilanFiscalProprietaire extends Model
         'abattement_forfaitaire_30' => 'decimal:2',
         'base_imposable'            => 'decimal:2',
         'irpp_estime'               => 'decimal:2',
+        'irpp_detail'               => 'array',
         'cfpb_estimee'              => 'decimal:2',
         'tva_loyer_collectee'       => 'decimal:2',
         'brs_retenu_total'          => 'decimal:2',

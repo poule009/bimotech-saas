@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Contrat;
 use App\Models\Paiement;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -22,7 +23,15 @@ class StorePaiementRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'contrat_id'           => ['required', 'exists:contrats,id'],
+            'contrat_id'           => [
+                'required', 'exists:contrats,id',
+                function ($attribute, $value, $fail) {
+                    $contrat = Contrat::withoutGlobalScopes()->find($value);
+                    if ($contrat && (float)($contrat->loyer_nu ?? 0) <= 0) {
+                        $fail('Le contrat sélectionné a un loyer nu à zéro. Corrigez le contrat avant d\'enregistrer un paiement.');
+                    }
+                },
+            ],
             'periode'              => [
                 'required',
                 'date_format:Y-m',

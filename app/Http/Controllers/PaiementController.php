@@ -294,11 +294,19 @@ class PaiementController extends Controller
 
         $paiement->load([
             'contrat.bien.proprietaire:id,name,email,telephone,adresse',
-            'contrat.locataire:id,name,email,telephone,adresse',
             'contrat.bien.agency',
+            'contrat.locataire:id,name,email,telephone,adresse',
+            'contrat.locataire.locataire',
         ]);
 
-        $agence = Auth::user()->agency;
+        $contrat      = $paiement->contrat;
+        $bien         = $contrat?->bien;
+        $locataire    = $contrat?->locataire;
+        $proprietaire = $bien?->proprietaire;
+        $agenceModel  = Auth::user()->agency ?? $bien?->agency;
+        $referenceBail = $paiement->reference_bail
+            ?? $contrat?->reference_bail
+            ?? ('BAIL-' . ($contrat?->id ?? ''));
 
         $user = Auth::user();
         $destinataire = match(true) {
@@ -307,13 +315,64 @@ class PaiementController extends Controller
             default                 => 'agence',
         };
 
+        // Locataire → quittance simple (pas de détail fiscal)
+        if ($destinataire === 'locataire') {
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('paiements.pdf.quittance', [
+                'paiement'     => $paiement,
+                'agence'       => $agenceModel,
+                'destinataire' => $destinataire,
+            ]);
+            $pdf->setPaper('A4', 'portrait');
+            return $pdf->download('quittance-' . $paiement->reference_paiement . '.pdf');
+        }
+
+        // Admin / propriétaire → quittance fiscale détaillée
+        $snapshot = $paiement->regime_fiscal_snapshot;
+        $snapshotData = $snapshot
+            ? (is_array($snapshot) ? $snapshot : json_decode((string) $snapshot, true))
+            : [];
+        $regimeFiscalKey = $snapshotData['regimeFiscal'] ?? $snapshotData['regime_fiscal']
+            ?? (($paiement->tva_loyer > 0)
+                ? (($paiement->brs_amount > 0) ? 'commercial_avec_brs' : 'commercial')
+                : (($paiement->brs_amount > 0) ? 'habitation_avec_brs' : 'habitation'));
+
+        $regimeFiscalLabels = [
+            'habitation'          => 'Habitation — Exonéré TVA (Art. 355 CGI SN)',
+            'habitation_avec_brs' => 'Habitation — BRS applicable (Art. 196bis CGI SN)',
+            'commercial'          => 'Commercial — TVA 18% (Art. 355 CGI SN)',
+            'commercial_avec_brs' => 'Commercial — TVA 18% + BRS (Art. 355 & 196bis CGI SN)',
+        ];
+        $regime_fiscal    = $regimeFiscalLabels[$regimeFiscalKey] ?? ucfirst($regimeFiscalKey);
+        $loyer_assujetti  = (bool) ($paiement->tva_loyer > 0);
+        $brs_applicable   = (bool) ($paiement->brs_amount > 0);
+        $taux_brs_applique = (float) ($paiement->taux_brs_applique ?? 0);
+
+        $montantEnLettres    = FiscalService::montantEnLettresFr((float) $paiement->montant_encaisse);
+        $loyerNuEnLettres    = FiscalService::montantEnLettresFr((float) ($paiement->loyer_ht ?? $paiement->loyer_nu ?? 0));
+        $netAVerserEnLettres = FiscalService::montantEnLettresFr((float) ($paiement->net_a_verser_proprietaire ?? $paiement->net_proprietaire ?? 0));
+        $netEnLettres        = FiscalService::montantEnLettresFr((float) ($paiement->net_proprietaire ?? 0));
+
+        $agence = $agenceModel ? [
+            'nom'       => $agenceModel->name ?? '',
+            'adresse'   => $agenceModel->adresse ?? '',
+            'telephone' => $agenceModel->telephone ?? '',
+            'email'     => $agenceModel->email ?? '',
+            'ninea'     => $agenceModel->ninea ?? '',
+            'rccm'      => '',
+            'logo_path' => $agenceModel->logo_path ?? '',
+        ] : ['nom' => config('app.name'), 'adresse' => '', 'telephone' => '', 'email' => '', 'ninea' => '', 'rccm' => '', 'logo_path' => ''];
+
         $pdf = app('dompdf.wrapper');
-        $pdf->loadView('paiements.pdf.quittance', compact('paiement', 'agence', 'destinataire'));
+        $pdf->loadView('paiements.pdf.quittance-fiscale', compact(
+            'paiement', 'agence', 'contrat', 'bien', 'locataire', 'proprietaire', 'referenceBail',
+            'regime_fiscal', 'loyer_assujetti', 'brs_applicable', 'taux_brs_applique',
+            'montantEnLettres', 'loyerNuEnLettres', 'netAVerserEnLettres', 'netEnLettres'
+        ));
         $pdf->setPaper('A4', 'portrait');
+        $pdf->setOption('defaultFont', 'DejaVu Sans');
 
-        $filename = 'quittance-' . $paiement->reference_paiement . '.pdf';
-
-        return $pdf->download($filename);
+        return $pdf->download('quittance-fiscale-' . $paiement->reference_paiement . '.pdf');
     }
 
     // ─────────────────────────────────────────────────────────────────────
