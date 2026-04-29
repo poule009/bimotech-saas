@@ -9,6 +9,7 @@ use App\Services\FiscalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -93,7 +94,7 @@ class BilanFiscalController extends Controller
                 'proprietaire_id'  => $proprietaire->id,
                 'annee'            => $annee,
             ],
-            $data
+            Arr::except($data, ['paiements'])
         );
 
         return redirect()
@@ -126,26 +127,31 @@ class BilanFiscalController extends Controller
             ->first();
 
         // Si pas encore calculé, on le calcule à la volée
+        $paiements = null;
         if (! $bilan) {
-            $data  = FiscalService::calculerBilanAnnuel($proprietaire->id, $annee, $agencyId);
-            $bilan = BilanFiscalProprietaire::updateOrCreate(
+            $data      = FiscalService::calculerBilanAnnuel($proprietaire->id, $annee, $agencyId);
+            $paiements = $data['paiements'];
+            $bilan     = BilanFiscalProprietaire::updateOrCreate(
                 ['agency_id' => $agencyId, 'proprietaire_id' => $proprietaire->id, 'annee' => $annee],
-                $data
+                Arr::except($data, ['paiements'])
             );
         }
 
-        // Détail des paiements de l'année pour ce propriétaire
-        $paiements = \App\Models\Paiement::query()
-            ->join('contrats', 'contrats.id', '=', 'paiements.contrat_id')
-            ->join('biens', 'biens.id', '=', 'contrats.bien_id')
-            ->where('biens.proprietaire_id', $proprietaire->id)
-            ->where('paiements.agency_id', $agencyId)
-            ->where('paiements.statut', 'valide')
-            ->whereYear('paiements.date_paiement', $annee)
-            ->select('paiements.*', 'biens.reference as bien_reference', 'biens.meuble as bien_meuble', 'contrats.type_bail')
-            ->with(['contrat.locataire:id,name'])
-            ->orderBy('paiements.date_paiement')
-            ->get();
+        // Détail des paiements : réutilise ceux déjà chargés si calcul à la volée,
+        // sinon recharge depuis la DB (locataire eager-loadé pour l'affichage).
+        if ($paiements === null) {
+            $paiements = \App\Models\Paiement::query()
+                ->join('contrats', 'contrats.id', '=', 'paiements.contrat_id')
+                ->join('biens', 'biens.id', '=', 'contrats.bien_id')
+                ->where('biens.proprietaire_id', $proprietaire->id)
+                ->where('paiements.agency_id', $agencyId)
+                ->where('paiements.statut', 'valide')
+                ->whereYear('paiements.date_paiement', $annee)
+                ->select('paiements.*', 'biens.reference as bien_reference', 'biens.meuble as bien_meuble', 'contrats.type_bail')
+                ->with(['contrat.locataire:id,name'])
+                ->orderBy('paiements.date_paiement')
+                ->get();
+        }
 
         $anneesDisponibles = \App\Models\Paiement::query()
             ->join('contrats', 'contrats.id', '=', 'paiements.contrat_id')
@@ -185,7 +191,13 @@ class BilanFiscalController extends Controller
         $bilan = BilanFiscalProprietaire::where('agency_id', $agencyId)
             ->where('proprietaire_id', $proprietaire->id)
             ->where('annee', $annee)
-            ->firstOrFail();
+            ->first();
+
+        if (! $bilan) {
+            return redirect()
+                ->route('admin.bilans-fiscaux.show', [$proprietaire, 'annee' => $annee])
+                ->with('warning', "Calculez d'abord le bilan {$annee} avant de l'exporter.");
+        }
 
         $agency = Auth::user()->agency;
 
