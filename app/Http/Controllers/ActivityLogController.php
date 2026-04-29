@@ -42,6 +42,7 @@ class ActivityLogController extends Controller
         }
         // Totaux par action sur l'ensemble des résultats filtrés (pas juste la page)
         $actionStats = (clone $query)
+            ->reorder()
             ->selectRaw('action, COUNT(*) as total')
             ->groupBy('action')
             ->pluck('total', 'action');
