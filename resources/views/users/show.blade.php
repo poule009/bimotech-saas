@@ -99,7 +99,9 @@
             Retour
         </a>
         <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
-              onsubmit="return confirm('Supprimer cet utilisateur ? Cette action est irréversible.')">
+              data-confirm="L'utilisateur {{ $user->name }} sera supprimé définitivement. Toutes ses données associées seront perdues."
+              data-confirm-title="Supprimer cet utilisateur ?"
+              data-confirm-ok="Oui, supprimer">
             @csrf @method('DELETE')
             <button type="submit" class="btn-act btn-red">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>

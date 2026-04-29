@@ -158,6 +158,34 @@
 
         /* ── État vide ── */
         .empty-state { padding:56px 20px;text-align:center; }
+
+        /* ── Tooltip ── */
+        .tip-wrap { position:relative;display:inline-flex;align-items:center; }
+        .tip-icon { width:15px;height:15px;border-radius:50%;background:#e5e7eb;color:#6b7280;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:help;margin-left:5px;flex-shrink:0;font-style:normal; }
+        .tip-icon::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#0d1117;color:#fff;font-size:11px;font-weight:400;padding:7px 11px;border-radius:7px;width:230px;white-space:normal;text-align:left;z-index:200;pointer-events:none;opacity:0;transition:opacity .15s;line-height:1.5; }
+        .tip-icon::before { content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#0d1117;opacity:0;transition:opacity .15s; }
+        .tip-icon:hover::after,.tip-icon:hover::before { opacity:1; }
+
+        /* ── Flash messages (fermeture + transition) ── */
+        .flash-success,.flash-warning,.flash-error { display:flex;align-items:flex-start;justify-content:space-between;gap:12px;transition:opacity .4s,transform .4s; }
+        .flash-close { background:none;border:none;cursor:pointer;opacity:.45;font-size:16px;line-height:1;padding:0;flex-shrink:0;margin-top:1px; }
+        .flash-close:hover { opacity:.8; }
+
+        /* ── Modale de confirmation ── */
+        #g-confirm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center; }
+        #g-confirm-overlay.open { display:flex; }
+        #g-confirm-box { background:#fff;border-radius:14px;padding:28px 28px 22px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:confirmIn .18s ease; }
+        @keyframes confirmIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+        #g-confirm-icon-wrap { width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+        #g-confirm-actions { display:flex;gap:10px;justify-content:flex-end;margin-top:22px; }
+        .g-btn-cancel { padding:8px 18px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer; }
+        .g-btn-cancel:hover { background:#f9fafb; }
+        .g-btn-ok { padding:8px 18px;border-radius:8px;border:none;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer; }
+
+        /* ── Spinner anti-double-submit ── */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .btn-spinning { opacity:.7;pointer-events:none; }
+        .btn-spin-icon { display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px; }
     </style>
 
     {{ $styles ?? '' }}
@@ -189,7 +217,7 @@
 
         <header class="topbar">
             <div class="topbar-breadcrumb">
-                {{ auth()->user()?->agency?->name ?? 'BimoTech' }}
+                <a href="{{ route('dashboard') }}" style="color:inherit;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='inherit'">{{ auth()->user()?->agency?->name ?? 'BimoTech' }}</a>
                 <span style="color:#d0d7de">›</span>
                 <strong>{{ $header ?? 'Dashboard' }}</strong>
             </div>
@@ -201,13 +229,13 @@
         <main class="page-content">
 
             @if(session('success'))
-                <div class="flash-success">{{ session('success') }}</div>
+                <div class="flash-success"><span>{{ session('success') }}</span><button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button></div>
             @endif
             @if(session('warning'))
-                <div class="flash-warning">{{ session('warning') }}</div>
+                <div class="flash-warning"><span>{{ session('warning') }}</span><button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button></div>
             @endif
             @if(session('error'))
-                <div class="flash-error">{{ session('error') }}</div>
+                <div class="flash-error"><span>{{ session('error') }}</span><button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button></div>
             @endif
             @if($errors->any() && !$errors->hasBag('default') === false)
                 {{-- Les erreurs de formulaire sont gérées dans chaque vue --}}
@@ -220,13 +248,109 @@
         </main>
     </div>
 
+    {{-- ── Modale de confirmation globale ── --}}
+    <div id="g-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="g-confirm-title">
+        <div id="g-confirm-box">
+            <div style="display:flex;align-items:flex-start;gap:14px">
+                <div id="g-confirm-icon-wrap">
+                    <svg id="g-confirm-icon" style="width:20px;height:20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </div>
+                <div style="flex:1">
+                    <div id="g-confirm-title" style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:4px"></div>
+                    <div id="g-confirm-msg" style="font-size:13px;color:#6b7280;line-height:1.55"></div>
+                </div>
+            </div>
+            <div id="g-confirm-actions">
+                <button class="g-btn-cancel" id="g-confirm-cancel">Annuler</button>
+                <button class="g-btn-ok" id="g-confirm-ok">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
     {{ $scripts ?? '' }}
 
     {{-- ── PWA : enregistrement du Service Worker ── --}}
     <script>
+        // ── Modale de confirmation globale ─────────────────────────────────────
+        (function () {
+            var overlay    = document.getElementById('g-confirm-overlay');
+            var titleEl    = document.getElementById('g-confirm-title');
+            var msgEl      = document.getElementById('g-confirm-msg');
+            var okBtn      = document.getElementById('g-confirm-ok');
+            var cancelBtn  = document.getElementById('g-confirm-cancel');
+            var iconWrap   = document.getElementById('g-confirm-icon-wrap');
+            var pendingForm = null;
+
+            function open(title, msg, okLabel, okColor, iconColor) {
+                titleEl.textContent    = title   || 'Confirmer l\'action';
+                msgEl.textContent      = msg     || 'Cette action est irréversible.';
+                okBtn.textContent      = okLabel || 'Confirmer';
+                okBtn.style.background = okColor || '#dc2626';
+                iconWrap.style.background = iconColor || '#fee2e2';
+                iconWrap.querySelector('svg').style.color = okColor || '#dc2626';
+                overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                okBtn.focus();
+            }
+
+            function close() {
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+                pendingForm = null;
+            }
+
+            cancelBtn.addEventListener('click', close);
+            overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
+
+            okBtn.addEventListener('click', function () {
+                if (pendingForm) { pendingForm._gConfirmed = true; pendingForm.requestSubmit(); }
+                close();
+            });
+
+            // Intercepte tous les formulaires ayant data-confirm
+            document.addEventListener('submit', function (e) {
+                var form = e.target;
+                if (!form.dataset.confirm) return;
+                if (form._gConfirmed) return;
+                e.preventDefault();
+                pendingForm = form;
+                open(
+                    form.dataset.confirmTitle,
+                    form.dataset.confirm,
+                    form.dataset.confirmOk,
+                    form.dataset.confirmColor,
+                    form.dataset.confirmIconBg
+                );
+            }, true);
+        })();
+
+        // ── Anti double-submit ──────────────────────────────────────────────────
+        document.addEventListener('submit', function (e) {
+            var form = e.target;
+            // Ne pas désactiver si la confirmation modale n'a pas encore validé
+            if (form.dataset.confirm && !form._gConfirmed) return;
+            var btn = form.querySelector('button[type=submit]');
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+            btn.classList.add('btn-spinning');
+            btn.insertAdjacentHTML('afterbegin', '<span class="btn-spin-icon"></span>');
+        });
+
+        // ── Flash messages auto-dismiss (5 s) ──────────────────────────────────
+        document.querySelectorAll('.flash-success,.flash-warning,.flash-error').forEach(function (el) {
+            setTimeout(function () {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-6px)';
+                setTimeout(function () { el.remove(); }, 420);
+            }, 5000);
+        });
+
+        // ── PWA ─────────────────────────────────────────────────────────────────
         if ('serviceWorker' in navigator) {
-            /* On attend que la page soit totalement chargée
-               pour ne pas ralentir le rendu initial. */
             window.addEventListener('load', () => {
                 navigator.serviceWorker
                     .register('/sw.js')

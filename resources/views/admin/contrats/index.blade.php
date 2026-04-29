@@ -172,7 +172,9 @@
                                     <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </a>
                                 <form method="POST" action="{{ route('admin.contrats.destroy', $contrat) }}"
-                                      onsubmit="return confirm('Résilier ce contrat ?')">
+                                      data-confirm="Le contrat {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }} sera résilié et le bien repassera en Disponible."
+                                      data-confirm-title="Résilier ce contrat ?"
+                                      data-confirm-ok="Oui, résilier">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="act-btn danger" title="Résilier">
                                         <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>

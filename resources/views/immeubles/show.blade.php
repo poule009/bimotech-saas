@@ -85,7 +85,9 @@
 
         @if(!$immeuble->biens->contains(fn($b) => $b->contratActif !== null))
         <form method="POST" action="{{ route('admin.immeubles.destroy', $immeuble) }}"
-              onsubmit="return confirm('Archiver cet immeuble et ses {{ $immeuble->biens->count() }} unité(s) ?')">
+              data-confirm="L'immeuble {{ $immeuble->nom }} et ses {{ $immeuble->biens->count() }} unité(s) seront archivés. Cette action est irréversible."
+              data-confirm-title="Archiver cet immeuble ?"
+              data-confirm-ok="Oui, archiver">
             @csrf @method('DELETE')
             <button type="submit" class="btn-act btn-red">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>

@@ -121,7 +121,9 @@
 
         @if(!$bien->contratActif)
         <form method="POST" action="{{ route('admin.biens.destroy', $bien) }}"
-              onsubmit="return confirm('Archiver ce bien ?')">
+              data-confirm="Le bien {{ $bien->reference }} sera archivé. Cette action est irréversible."
+              data-confirm-title="Archiver ce bien ?"
+              data-confirm-ok="Oui, archiver">
             @csrf @method('DELETE')
             <button type="submit" class="btn-act btn-red">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>

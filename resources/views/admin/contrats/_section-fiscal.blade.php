@@ -31,7 +31,10 @@
 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:14px 16px;margin-bottom:12px" id="bloc-tva-loyer">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div>
-            <div style="font-size:13px;font-weight:600;color:#0d1117">TVA sur le loyer</div>
+            <div style="font-size:13px;font-weight:600;color:#0d1117;display:flex;align-items:center">
+                TVA sur le loyer
+                <i class="tip-icon" data-tip="Taxe sur la Valeur Ajoutée (18%). Obligatoire pour les baux commerciaux, mixtes, et habitation meublée. Exonéré pour habitation non meublée. Appliquée sur loyer + TOM. Art. 355-359 CGI SN.">?</i>
+            </div>
             <div style="font-size:11px;color:#6b7280;margin-top:2px">
                 Art. 355-359 CGI SN · Auto selon type de bail et meublé/non meublé
             </div>
@@ -79,7 +82,10 @@
 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:14px 16px;margin-bottom:12px" id="bloc-tva-charges">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div>
-            <div style="font-size:13px;font-weight:600;color:#0d1117">TVA sur les charges locatives</div>
+            <div style="font-size:13px;font-weight:600;color:#0d1117;display:flex;align-items:center">
+                TVA sur les charges locatives
+                <i class="tip-icon" data-tip="Si les charges sont facturées en forfait fixe (non justifié), la DGI les considère comme une prestation de service → TVA 18% obligatoire. Si ce sont des débours purs (facture originale au nom du locataire), elles sont exonérées.">?</i>
+            </div>
             <div style="font-size:11px;color:#6b7280;margin-top:2px">
                 DGI SN — Forfait = prestation de service assujettie · Débours = hors TVA
             </div>
@@ -116,7 +122,10 @@
 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:14px 16px;margin-bottom:12px" id="bloc-brs">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div>
-            <div style="font-size:13px;font-weight:600;color:#0d1117">Retenue à la Source (BRS)</div>
+            <div style="font-size:13px;font-weight:600;color:#0d1117;display:flex;align-items:center">
+                Retenue à la Source (BRS)
+                <i class="tip-icon" data-tip="Retenue à la source de 15% (Art. 196bis CGI SN). Obligatoire si le locataire est une société (SARL, SA, GIE…). Le locataire retient 15% du loyer TTC + TOM et le verse directement à la DGI chaque mois. Non payer expose à un redressement fiscal.">?</i>
+            </div>
             <div style="font-size:11px;color:#6b7280;margin-top:2px">
                 Art. 196bis CGI SN · Obligatoire si locataire = entreprise/personne morale
             </div>
@@ -165,7 +174,10 @@
 
 {{-- ── Enregistrement DGID ─────────────────────────────────────────────────── --}}
 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:14px 16px;margin-bottom:12px">
-    <div style="font-size:13px;font-weight:600;color:#0d1117;margin-bottom:4px">Enregistrement DGID</div>
+    <div style="font-size:13px;font-weight:600;color:#0d1117;margin-bottom:4px;display:flex;align-items:center">
+        Enregistrement DGID
+        <i class="tip-icon" data-tip="Droit de bail obligatoire (Art. 442 CGI SN). À déposer à la DGI dans les 2 mois suivant la signature. Taux : 1% du loyer annuel pour habitation, 2% pour commercial/mixte + timbre fiscal 2 000 F. Sans enregistrement, le bail est inopposable aux tiers.">?</i>
+    </div>
     <div style="font-size:11px;color:#6b7280;margin-bottom:12px">
         Art. 442 CGI SN · Délai : 2 mois après signature · Sanction : nullité opposable aux tiers
     </div>
