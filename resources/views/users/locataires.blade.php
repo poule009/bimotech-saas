@@ -146,7 +146,13 @@
                         $avClasses = ['av-blue','av-purple','av-teal'];
                         $avClass = $avClasses[$idx % 3];
                         $profil = $user->locataire ?? null;
-                        $telDigits = preg_replace('/[^0-9]/', '', $user->telephone ?? '');
+                        $telRaw    = preg_replace('/[\s\-\(\)]/', '', $user->telephone ?? '');
+                        $telDigits = preg_replace('/[^0-9+]/', '', $telRaw);
+                        // Ajouter indicatif Sénégal +221 si absent
+                        if ($telDigits && !str_starts_with($telDigits, '+') && !str_starts_with($telDigits, '221')) {
+                            $telDigits = '221' . ltrim($telDigits, '0');
+                        }
+                        $telDigits = ltrim($telDigits, '+');
                         $waMsg = urlencode("Bonjour {$user->name}, nous vous contactons concernant votre location. Cordialement, votre agence.");
                         $waLink = $telDigits ? "https://wa.me/{$telDigits}?text={$waMsg}" : null;
                         $estEntreprise = (bool) ($profil?->est_entreprise ?? false);

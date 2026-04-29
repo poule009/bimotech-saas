@@ -87,6 +87,7 @@
 /* Barre durée */
 .duree-bar  { height:6px;background:#f3f4f6;border-radius:99px;overflow:hidden;margin-top:8px; }
 .duree-fill { height:100%;border-radius:99px;background:linear-gradient(90deg,#c9a84c,#f5e9c9); }
+</style>
 
 @php
     $modes = [
@@ -99,7 +100,6 @@
         'e_money'      => 'E-Money',
     ];
 @endphp
-</style>
 
 <div style="padding:0 0 48px">
 
@@ -145,7 +145,7 @@
     @php
         $bien          = $contrat->bien;
         $proprietaire  = $bien?->proprietaire ?? null;
-        $agency        = $currentAgency ?? auth()->user()->agency;
+        $agency        = auth()->user()->agency;
         $debut         = \Carbon\Carbon::parse($contrat->date_debut);
         $fin           = $contrat->date_fin ? \Carbon\Carbon::parse($contrat->date_fin) : null;
         $today         = now();

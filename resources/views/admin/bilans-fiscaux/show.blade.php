@@ -164,8 +164,8 @@
                 </div>
                 <div class="kpi blue">
                     <div class="kpi-lbl">Net reversé</div>
-                    <div class="kpi-val">{{ number_format($bilan->net_proprietaire_total, 0, ',', ' ') }}<span class="kpi-u">F</span></div>
-                    <div class="kpi-sub">Après commissions</div>
+                    <div class="kpi-val">{{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total, 0, ',', ' ') }}<span class="kpi-u">F</span></div>
+                    <div class="kpi-sub">Après commissions{{ ($bilan->brs_retenu_total ?? 0) > 0 ? ' + BRS' : '' }}</div>
                 </div>
             </div>
 
@@ -269,7 +269,7 @@
             </div>
 
             {{-- TVA ET BRS --}}
-            @if($bilan->tva_loyer_collectee > 0 || $bilan->brs_retenu_total > 0)
+            @if($bilan->tva_loyer_collectee > 0 || ($bilan->tva_charges_total ?? 0) > 0 || $bilan->brs_retenu_total > 0)
             <div class="card">
                 <div class="card-hd">
                     <div class="card-title">
@@ -287,6 +287,18 @@
                             </div>
                             <div style="font-size:11px;color:#9a3412;margin-top:6px;line-height:1.5">
                                 TVA 18% sur loyers commerciaux/meublés.<br>
+                                <strong>À reverser à la DGI</strong> par le propriétaire.
+                            </div>
+                        </div>
+                        @endif
+                        @if(($bilan->tva_charges_total ?? 0) > 0)
+                        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px">
+                            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#d97706;margin-bottom:8px">TVA charges forfaitaires (Art. 357 CGI SN)</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#d97706">
+                                {{ number_format($bilan->tva_charges_total, 0, ',', ' ') }} F
+                            </div>
+                            <div style="font-size:11px;color:#9a3412;margin-top:6px;line-height:1.5">
+                                TVA 18% sur charges forfait bail commercial.<br>
                                 <strong>À reverser à la DGI</strong> par le propriétaire.
                             </div>
                         </div>
@@ -327,8 +339,15 @@
                             <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#6b7280">{{ number_format($bilan->tva_commissions, 0, ',', ' ') }} F</div>
                         </div>
                         <div style="text-align:center;padding:14px;background:#f0fdf4;border-radius:10px;border:1px solid #bbf7d0">
-                            <div style="font-size:10px;color:#16a34a;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Net propriétaire</div>
-                            <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#16a34a">{{ number_format($bilan->net_proprietaire_total, 0, ',', ' ') }} F</div>
+                            <div style="font-size:10px;color:#16a34a;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">
+                                Net versé propriétaire{{ ($bilan->brs_retenu_total ?? 0) > 0 ? ' (après BRS)' : '' }}
+                            </div>
+                            <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#16a34a">
+                                {{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total, 0, ',', ' ') }} F
+                            </div>
+                            @if(($bilan->brs_retenu_total ?? 0) > 0)
+                            <div style="font-size:10px;color:#9ca3af;margin-top:4px">Avant BRS : {{ number_format($bilan->net_proprietaire_total, 0, ',', ' ') }} F</div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -381,7 +400,7 @@
                                 <td class="r" style="{{ ($p->brs_amount ?? 0) > 0 ? 'color:#dc2626' : 'color:#9ca3af' }}">
                                     {{ ($p->brs_amount ?? 0) > 0 ? number_format($p->brs_amount, 0, ',', ' ').' F' : '—' }}
                                 </td>
-                                <td class="r" style="color:#16a34a">{{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F</td>
+                                <td class="r" style="color:#16a34a">{{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F</td>
                             </tr>
                             @empty
                             <tr>
@@ -398,7 +417,7 @@
                                 <td class="r" style="padding:10px 14px;font-family:'Syne',sans-serif">{{ number_format($paiements->sum(fn($p) => $p->loyer_ht ?? $p->loyer_nu ?? 0), 0, ',', ' ') }} F</td>
                                 <td class="r" style="padding:10px 14px;color:#d97706;font-family:'Syne',sans-serif">{{ number_format($paiements->sum('tva_loyer'), 0, ',', ' ') }} F</td>
                                 <td class="r" style="padding:10px 14px;color:#dc2626;font-family:'Syne',sans-serif">{{ number_format($paiements->sum('brs_amount'), 0, ',', ' ') }} F</td>
-                                <td class="r" style="padding:10px 14px;color:#16a34a;font-family:'Syne',sans-serif">{{ number_format($paiements->sum('net_proprietaire'), 0, ',', ' ') }} F</td>
+                                <td class="r" style="padding:10px 14px;color:#16a34a;font-family:'Syne',sans-serif">{{ number_format($paiements->sum(fn($p) => $p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0), 0, ',', ' ') }} F</td>
                             </tr>
                         </tfoot>
                         @endif

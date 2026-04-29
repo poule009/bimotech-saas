@@ -22,9 +22,11 @@ class Paiement extends Model
         'loyer_ht',            // = loyer_nu pour habitation, loyer HT pour commercial
         'tva_loyer',           // TVA 18% sur loyer_ht (0 pour habitation)
         'loyer_ttc',           // loyer_ht + tva_loyer
-        'charges_amount',      // Charges récupérables (jamais taxées)
+        'charges_amount',      // Charges récupérables HT
+        'tva_charges',         // TVA 18% sur charges forfait bail commercial/meublé (Art. 357 CGI SN)
+        'charges_ttc',         // charges_amount + tva_charges
         'tom_amount',          // Taxe ordures ménagères (jamais taxée)
-        'montant_encaisse',    // Total encaissé = loyer_ttc + charges + TOM
+        'montant_encaisse',    // Total encaissé = loyer_ttc + charges_ttc + TOM
 
         // ── Commission agence ──────────────────────────────────────────────
         'taux_commission_applique', // % figé à la création
@@ -94,6 +96,8 @@ class Paiement extends Model
         'tva_loyer'                  => 'decimal:2',
         'loyer_ttc'                  => 'decimal:2',
         'charges_amount'             => 'decimal:2',
+        'tva_charges'                => 'decimal:2',
+        'charges_ttc'                => 'decimal:2',
         'tom_amount'                 => 'decimal:2',
         'montant_encaisse'           => 'decimal:2',
         'taux_commission_applique'   => 'decimal:2',

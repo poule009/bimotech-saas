@@ -38,7 +38,9 @@ class ContratObserver
 
         if ($doitRecalculerTva) {
             // Charger le bien si pas déjà en mémoire
-            $bien = $contrat->bien ?? ($contrat->bien_id ? \App\Models\Bien::find($contrat->bien_id) : null);
+            $bien = $contrat->bien ?? ($contrat->bien_id
+                ? \App\Models\Bien::withoutGlobalScopes()->find($contrat->bien_id)
+                : null);
             $estMeuble = (bool) ($bien?->meuble ?? false);
 
             $assujetti = FiscalService::loyerEstAssujetti(

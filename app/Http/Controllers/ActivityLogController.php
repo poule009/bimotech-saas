@@ -23,26 +23,29 @@ class ActivityLogController extends Controller
             $query->where('agency_id', $user->agency_id);
         }
 
-        /**
-         * PERFORMANCE — select() sur les relations :
-         *
-         * La vue affiche uniquement user->name et agency->name.
-         * Avant : with(['user', 'agency']) chargeait toutes les colonnes
-         * (password hash, remember_token, couleur_primaire, logo_path...).
-         *
-         * Après : on ne charge que id + name pour chaque relation.
-         */            if ($request->filled('q')) {
-            $query->where('description', 'like', '%' . $request->q . '%');
+        // with() sélectif : on ne charge que id + name (pas password, remember_token…)
+        if ($request->filled('q')) {
+            // Echapper les wildcards LIKE pour que % et _ soient traités littéralement
+            $q = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->q);
+            $query->where('description', 'like', '%' . $q . '%');
         }
         if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
         if ($request->filled('model')) {
-            $query->where('model_type', 'like', '%' . $request->model);
+            // Filtre exact sur le basename du modèle (ex: 'Paiement' → '%\\Paiement')
+            $m = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->model);
+            $query->where('model_type', 'like', '%\\\\' . $m);
         }
         if ($request->filled('date')) {
             $query->whereDate('created_at', $request->date);
         }
+        // Totaux par action sur l'ensemble des résultats filtrés (pas juste la page)
+        $actionStats = (clone $query)
+            ->selectRaw('action, COUNT(*) as total')
+            ->groupBy('action')
+            ->pluck('total', 'action');
+
         $logs = $query
             ->with([
                 'user:id,name',
@@ -50,6 +53,6 @@ class ActivityLogController extends Controller
             ])
             ->paginate(30);
 
-        return view('activity-logs.index', compact('logs'));
+        return view('activity-logs.index', compact('logs', 'actionStats'));
     }
 }

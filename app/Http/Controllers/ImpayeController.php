@@ -22,8 +22,8 @@ class ImpayeController extends Controller
     {
         $this->authorize('isStaff');
 
-        $mois    = (int) $request->input('mois',  now()->month);
-        $annee   = (int) $request->input('annee', now()->year);
+        $mois    = max(1, min(12,   (int) $request->input('mois',  now()->month)));
+        $annee   = max(2000, min(2100, (int) $request->input('annee', now()->year)));
         $periode = Carbon::create($annee, $mois, 1)->startOfMonth();
 
         /**
@@ -62,9 +62,8 @@ class ImpayeController extends Controller
         $payes   = collect();
 
         foreach ($contrats as $contrat) {
-            $paiementMois = $contrat->paiements
-                ->filter(fn($p) => $p->statut !== 'annule')
-                ->first(fn($p) => Carbon::parse($p->periode)->format('Y-m') === $periode->format('Y-m'));
+            // Paiements déjà filtrés par SQL (année, mois, statut != annule)
+            $paiementMois = $contrat->paiements->first();
 
             if ($paiementMois) {
                 $payes->push([
@@ -107,8 +106,8 @@ class ImpayeController extends Controller
     {
         $this->authorize('isStaff');
 
-        $mois    = (int) $request->input('mois',  now()->month);
-        $annee   = (int) $request->input('annee', now()->year);
+        $mois    = max(1, min(12,   (int) $request->input('mois',  now()->month)));
+        $annee   = max(2000, min(2100, (int) $request->input('annee', now()->year)));
         $periode = Carbon::create($annee, $mois, 1)->startOfMonth();
 
         // Charge uniquement ce qui est nécessaire à la notification
@@ -116,6 +115,12 @@ class ImpayeController extends Controller
             'bien:id,reference,adresse,ville',
             'locataire:id,name,email',
         ]);
+
+        if (! $contrat->locataire || ! $contrat->locataire->email) {
+            return back()->withErrors([
+                'general' => 'Impossible d\'envoyer la relance : locataire sans adresse email.',
+            ]);
+        }
 
         try {
             $contrat->locataire->notify(

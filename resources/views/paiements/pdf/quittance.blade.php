@@ -369,7 +369,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             </tr>
             @if($brs > 0)
             <tr style="background:#fff1f2">
-                <td colspan="2" style="color:#9f1239">BRS — Retenue à la source ({{ $tauxBrs }}% × loyer HT — art. 196bis CGI SN)</td>
+                <td colspan="2" style="color:#9f1239">BRS — Retenue à la source ({{ $tauxBrs }}% × (loyer TTC + TOM) — art. 196bis CGI SN)</td>
                 <td class="right" style="color:#dc2626;font-weight:700">- {{ number_format($brs, 0, ',', ' ') }} FCFA</td>
             </tr>
             @endif

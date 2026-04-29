@@ -371,9 +371,9 @@
     {{-- ═══════════════════════════════════════════════════════════════
          BIENS IMPAYÉS
     ═══════════════════════════════════════════════════════════════ --}}
-    @if($biensImpayés->count() > 0)
+    @if($biensImpayes->count() > 0)
         <div class="section-title mt-4" style="color:#dc2626;border-color:#dc2626;">
-            Biens sans paiement ce mois ({{ $biensImpayés->count() }})
+            Biens sans paiement ce mois ({{ $biensImpayes->count() }})
         </div>
 
         <table class="impaye-table">
@@ -387,7 +387,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($biensImpayés as $contrat)
+                @foreach($biensImpayes as $contrat)
                     <tr>
                         <td><strong>{{ $contrat->bien?->reference }}</strong></td>
                         <td>{{ $contrat->bien?->adresse }}</td>

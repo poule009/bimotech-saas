@@ -64,7 +64,7 @@ class BailleurPortfolioService
                 ->whereIn('contrat_id', $tousLesContratIds)
                 ->where('statut', 'valide')
                 ->whereYear('periode', now()->year)
-                ->select(['id', 'contrat_id', 'montant_encaisse', 'commission_ttc'])
+                ->select(['id', 'contrat_id', 'montant_encaisse', 'commission_ttc', 'brs_amount'])
                 ->with(['depenses:id,paiement_id,montant'])
                 ->get()
                 ->groupBy('contrat_id');

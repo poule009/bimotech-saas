@@ -473,6 +473,13 @@
                         <div class="eq-block-lbl" style="color:#1d4ed8">Commissions TTC</div>
                         <div class="eq-block-val" style="color:#1d4ed8">{{ number_format($dashboard['total_commissions'], 0, ',', ' ') }} F</div>
                     </div>
+                    @if(($dashboard['total_brs'] ?? 0) > 0)
+                    <div class="eq-op">−</div>
+                    <div class="eq-block" style="background:#fef2f2">
+                        <div class="eq-block-lbl" style="color:#dc2626">BRS retenu</div>
+                        <div class="eq-block-val" style="color:#dc2626">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} F</div>
+                    </div>
+                    @endif
                     @if($dashboard['total_depenses'] > 0)
                     <div class="eq-op">−</div>
                     <div class="eq-block" style="background:#fee2e2">

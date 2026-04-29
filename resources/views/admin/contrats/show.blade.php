@@ -336,7 +336,7 @@
                                     {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
                                 </td>
                                 <td style="text-align:right;color:#16a34a;font-weight:600">
-                                    {{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F
+                                    {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
                                 </td>
                                 <td style="text-align:right;color:#8a6e2f">
                                     {{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F

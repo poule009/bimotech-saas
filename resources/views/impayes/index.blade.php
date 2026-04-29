@@ -220,7 +220,7 @@
                                     <input type="hidden" name="mois" value="{{ $mois }}">
                                     <input type="hidden" name="annee" value="{{ $annee }}">
                                     <button type="submit" class="btn-relance" title="Envoyer relance email"
-                                            onclick="return confirm('Envoyer une relance à {{ $item['contrat']->locataire?->name }} ?')">
+                                            onclick="return confirm('Envoyer une relance email à ce locataire ?')">
                                         <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                                         Relancer
                                     </button>

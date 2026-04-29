@@ -68,6 +68,7 @@ final class FiscalResult
         public readonly bool   $loyerAssujetti,       // TVA loyer s'applique ?
         public readonly string $regimeFiscal,          // label lisible pour UI/PDF
         public readonly float  $tauxTvaLoyerApplique,  // 0 ou 18
+        public readonly float  $tauxCommission    = 0.0, // % commission agence — figé au moment du calcul
 
         // ── Frais d'entrée (0 pour les paiements récurrents) ──────────────
         public readonly float  $fraisAgenceHt           = 0.0,
@@ -145,6 +146,7 @@ final class FiscalResult
 
             // Méta
             'regime_fiscal'              => $this->regimeFiscal,
+            'taux_commission_applique'   => $this->tauxCommission,
             'calcule_le'                 => now()->toIso8601String(),
         ];
     }
@@ -165,6 +167,7 @@ final class FiscalResult
             'charges_ttc'                => $this->chargesTtc,
             'tom_amount'                 => $this->tomAmount,
             'montant_encaisse'           => $this->montantEncaisse,
+            'taux_commission_applique'   => $this->tauxCommission,
             'commission_agence'          => $this->commissionHt,
             'tva_commission'             => $this->tvaCommission,
             'commission_ttc'             => $this->commissionTtc,

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -69,7 +70,7 @@ class ImmeubleController extends Controller
 
         if ($hasUnites) {
             $rules['type_unite']        = ['required', Rule::in(array_keys(Bien::TYPES))];
-            $rules['loyer_par_unite']   = ['required', 'numeric', 'min:0'];
+            $rules['loyer_par_unite']   = ['required', 'numeric', 'min:1000'];
             $rules['taux_commission']   = ['nullable', 'numeric', 'min:0', 'max:30'];
             $rules['mode_numerotation'] = ['nullable', Rule::in(['simple', 'etage'])];
 
@@ -104,17 +105,21 @@ class ImmeubleController extends Controller
                 ->withInput();
         }
 
-        $immeuble = Immeuble::create([
-            'agency_id'       => $agencyId,
-            'proprietaire_id' => $validated['proprietaire_id'],
-            'nom'             => $validated['nom'],
-            'adresse'         => $validated['adresse'],
-            'ville'           => $validated['ville'],
-            'nombre_niveaux'  => $validated['nombre_niveaux'] ?? null,
-            'description'     => $validated['description'] ?? null,
-        ]);
+        [$immeuble, $nbCreees] = DB::transaction(function () use ($validated, $agencyId, $hasUnites, $request) {
+            $immeuble = Immeuble::create([
+                'agency_id'       => $agencyId,
+                'proprietaire_id' => $validated['proprietaire_id'],
+                'nom'             => $validated['nom'],
+                'adresse'         => $validated['adresse'],
+                'ville'           => $validated['ville'],
+                'nombre_niveaux'  => $validated['nombre_niveaux'] ?? null,
+                'description'     => $validated['description'] ?? null,
+            ]);
 
-        if ($hasUnites) {
+            if (! $hasUnites) {
+                return [$immeuble, 0];
+            }
+
             $taux = $validated['taux_commission'] ?? 10;
             $nom  = $validated['nom'];
             $mode = $request->input('mode_numerotation', 'simple');
@@ -122,9 +127,9 @@ class ImmeubleController extends Controller
             $titres = [];
 
             if ($mode === 'etage') {
-                $niveaux       = (int) ($validated['nombre_niveaux'] ?? 1);
+                $niveaux         = (int) ($validated['nombre_niveaux'] ?? 1);
                 $unitesParNiveau = (int) ($validated['unites_par_niveau'] ?? 1);
-                for ($etage = 0; $etage <= $niveaux - 1; $etage++) {
+                for ($etage = 0; $etage < $niveaux; $etage++) {
                     $prefixe = $etage === 0 ? '0' : (string) $etage;
                     for ($porte = 1; $porte <= $unitesParNiveau; $porte++) {
                         $titres[] = $nom . ' — Appt ' . $prefixe . str_pad($porte, 2, '0', STR_PAD_LEFT);
@@ -153,12 +158,12 @@ class ImmeubleController extends Controller
                 ]);
             }
 
-            $nbCreees = count($titres);
-        }
+            return [$immeuble, count($titres)];
+        });
 
         return redirect()
             ->route('admin.immeubles.show', $immeuble)
-            ->with('success', $hasUnites
+            ->with('success', $nbCreees > 0
                 ? "Immeuble créé avec {$nbCreees} unité(s) liées."
                 : 'Immeuble créé avec succès.');
     }
@@ -192,6 +197,17 @@ class ImmeubleController extends Controller
             'ville.required'   => 'La ville est obligatoire.',
         ]);
 
+        $proprioValide = User::where('id', $validated['proprietaire_id'])
+            ->where('agency_id', Auth::user()->agency_id)
+            ->where('role', 'proprietaire')
+            ->exists();
+
+        if (! $proprioValide) {
+            return back()
+                ->withErrors(['proprietaire_id' => "Ce propriétaire n'appartient pas à votre agence."])
+                ->withInput();
+        }
+
         $immeuble->update($validated);
 
         return redirect()
@@ -203,20 +219,26 @@ class ImmeubleController extends Controller
     {
         $this->authorize('isStaff');
 
-        $hasContratActif = $immeuble->biens()
-            ->whereHas('contratActif')
-            ->exists();
-
-        if ($hasContratActif) {
+        if ($immeuble->biens()->whereHas('contratActif')->exists()) {
             return back()->withErrors([
                 'general' => 'Impossible de supprimer un immeuble avec des unités sous contrat actif.',
             ]);
         }
 
-        $immeuble->delete();
+        DB::transaction(function () use ($immeuble) {
+            // Archiver et soft-delete les biens liés sans contrat actif
+            // pour éviter les immeuble_id orphelins après le soft-delete de l'immeuble.
+            $immeuble->biens()->each(function (Bien $bien) {
+                $bien->statut = 'archive';
+                $bien->save();
+                $bien->delete();
+            });
+
+            $immeuble->delete();
+        });
 
         return redirect()
             ->route('admin.immeubles.index')
-            ->with('success', 'Immeuble archivé avec succès.');
+            ->with('success', 'Immeuble et ses unités archivés avec succès.');
     }
 }

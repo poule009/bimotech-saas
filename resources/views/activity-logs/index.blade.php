@@ -95,31 +95,31 @@
     </div>
 
     {{-- KPI ROW --}}
-    @php
-        $nbCreated = $logs->getCollection()->where('action','created')->count();
-        $nbUpdated = $logs->getCollection()->where('action','updated')->count();
-        $nbDeleted = $logs->getCollection()->where('action','deleted')->count();
-    @endphp
     <div class="kpi-row">
         <div class="kpi-mini green">
-            <div class="kpi-lbl">Créations (cette page)</div>
-            <div class="kpi-val green">{{ $nbCreated }}</div>
+            <div class="kpi-lbl">Créations</div>
+            <div class="kpi-val green">{{ $actionStats['created'] ?? 0 }}</div>
             <div class="kpi-s">Nouveaux enregistrements</div>
         </div>
         <div class="kpi-mini orange">
-            <div class="kpi-lbl">Modifications (cette page)</div>
-            <div class="kpi-val orange">{{ $nbUpdated }}</div>
+            <div class="kpi-lbl">Modifications</div>
+            <div class="kpi-val orange">{{ $actionStats['updated'] ?? 0 }}</div>
             <div class="kpi-s">Données mises à jour</div>
         </div>
         <div class="kpi-mini red">
-            <div class="kpi-lbl">Suppressions (cette page)</div>
-            <div class="kpi-val red">{{ $nbDeleted }}</div>
+            <div class="kpi-lbl">Suppressions</div>
+            <div class="kpi-val red">{{ $actionStats['deleted'] ?? 0 }}</div>
             <div class="kpi-s">Enregistrements supprimés</div>
         </div>
     </div>
 
     {{-- FILTRES --}}
-    <form method="GET" action="{{ route('admin.activity-logs.index') }}">
+    @php
+        $logsRoute = auth()->user()->isSuperAdmin()
+            ? route('superadmin.activity-logs.index')
+            : route('admin.activity-logs.index');
+    @endphp
+    <form method="GET" action="{{ $logsRoute }}">
         <div class="filter-bar">
             {{-- Recherche --}}
             <div style="position:relative;flex:1;min-width:180px">
@@ -151,7 +151,7 @@
             <button type="submit" class="filter-btn">Filtrer</button>
 
             @if(request()->hasAny(['q','action','model','date']))
-                <a href="{{ route('admin.activity-logs.index') }}" class="filter-reset">
+                <a href="{{ $logsRoute }}" class="filter-reset">
                     <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     Effacer
                 </a>
@@ -186,7 +186,7 @@
             <div class="empty-sub">
                 @if(request()->hasAny(['q','action','model','date']))
                     Aucun résultat pour ces filtres.
-                    <a href="{{ route('admin.activity-logs.index') }}" style="color:#c9a84c;font-weight:500">Effacer les filtres</a>
+                    <a href="{{ $logsRoute }}" style="color:#c9a84c;font-weight:500">Effacer les filtres</a>
                 @else
                     Les actions sur la plateforme apparaîtront ici.
                 @endif

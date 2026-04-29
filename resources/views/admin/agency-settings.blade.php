@@ -36,7 +36,7 @@
 .form-label { display:block; font-size:12px; font-weight:600; color:#c9d1d9; margin-bottom:5px; }
 .req { color:#f87171; margin-left:2px; }
 .opt { font-size:11px; font-weight:400; color:#6e7681; margin-left:4px; }
-.form-input, .form-select {
+.form-input, .form-select, .form-textarea {
     width:100%; padding:9px 12px;
     border:1px solid rgba(255,255,255,.1);
     border-radius:8px;
@@ -45,8 +45,9 @@
     background:#0d1117;
     outline:none; transition:border-color .15s, box-shadow .15s;
 }
-.form-input::placeholder { color:#484f58; }
-.form-input:focus, .form-select:focus {
+.form-textarea { resize:vertical; min-height:120px; line-height:1.6; }
+.form-input::placeholder, .form-textarea::placeholder { color:#484f58; }
+.form-input:focus, .form-select:focus, .form-textarea:focus {
     border-color:#c9a84c;
     box-shadow:0 0 0 3px rgba(201,168,76,.1);
 }
@@ -249,7 +250,7 @@
                             <label class="form-label">Logo <span class="opt">PNG, JPG · max 2 Mo</span></label>
                             <div class="logo-zone" id="logo-zone" onclick="document.getElementById('logo-input').click()">
                                 <div class="logo-preview" id="logo-preview">
-                                    @if($agency->logo_path)
+                                    @if($agency->logo_path && Storage::disk('public')->exists($agency->logo_path))
                                         <img src="{{ Storage::url($agency->logo_path) }}" alt="{{ $agency->name }}" id="logo-preview-img">
                                     @else
                                         <div class="logo-preview-placeholder" id="logo-preview-placeholder">
@@ -283,7 +284,7 @@
                             <label class="form-label">Signature / Tampon agence <span class="opt">PNG avec fond transparent · max 1 Mo</span></label>
                             <div class="logo-zone" id="sig-zone" onclick="document.getElementById('sig-input').click()">
                                 <div class="logo-preview" id="sig-preview">
-                                    @if($agency->signature_path)
+                                    @if($agency->signature_path && Storage::disk('public')->exists($agency->signature_path))
                                         <img src="{{ Storage::url($agency->signature_path) }}" alt="Signature" id="sig-preview-img" style="max-height:60px;object-fit:contain">
                                     @else
                                         <div class="logo-preview-placeholder" id="sig-preview-placeholder" style="font-size:11px;color:#9ca3af;font-weight:500">
@@ -475,7 +476,7 @@
                             <div class="mini-sidebar-top">
                                 <div class="mini-logo-box" id="preview-logo-box"
                                      style="background:{{ $agency->couleur_primaire ?? '#c9a84c' }}">
-                                    @if($agency->logo_path)
+                                    @if($agency->logo_path && Storage::disk('public')->exists($agency->logo_path))
                                         <img src="{{ Storage::url($agency->logo_path) }}"
                                              class="mini-logo-img" id="preview-logo-img" alt="">
                                     @else

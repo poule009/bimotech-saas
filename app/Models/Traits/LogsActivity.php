@@ -54,7 +54,7 @@ trait LogsActivity
                 'model_id'    => (int) $model->getKey(),
                 'ip_address'  => request()?->ip(),
             ]);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             // Ne jamais bloquer le flux métier si le log échoue
         }
     }
@@ -63,13 +63,9 @@ trait LogsActivity
     {
         $changes = array_keys($model->getChanges());
 
-        $hiddenFields = property_exists(static::class, 'hiddenFields')
-            ? static::$hiddenFields
-            : ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
-
-        // On retire updated_at ET les champs sensibles de la liste
+        // On retire updated_at ET les champs sensibles définis dans $hiddenFields
         $changes = array_values(
-            array_diff($changes, array_merge(['updated_at'], $hiddenFields))
+            array_diff($changes, array_merge(['updated_at'], static::$hiddenFields))
         );
 
         if (empty($changes)) {

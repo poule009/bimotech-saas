@@ -5,7 +5,7 @@
 @section('content')
 <style>
 .badge-valide  { background:#dcfce7;color:#16a34a; }
-.badge-annulé  { background:#fee2e2;color:#dc2626; }
+.badge-annule  { background:#fee2e2;color:#dc2626; }
 .badge-attente { background:#fef9c3;color:#a16207; }
 </style>
 
@@ -68,7 +68,7 @@
                 style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer">
             <option value="">Tous les statuts</option>
             <option value="valide"  @selected(request('statut')==='valide')>Validé</option>
-            <option value="annulé"  @selected(request('statut')==='annulé')>Annulé</option>
+            <option value="annule"  @selected(request('statut')==='annule')>Annulé</option>
         </select>
         @if(request()->hasAny(['mois','statut','contrat_id']))
             <a href="{{ route('admin.paiements.index') }}"
@@ -156,7 +156,7 @@
                             {{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F
                         </td>
                         <td style="text-align:right;color:#16a34a;font-weight:600">
-                            {{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F
+                            {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
                         </td>
                         <td style="font-size:12px;color:#6b7280">
                             {{ \App\Http\Controllers\PaiementController::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}

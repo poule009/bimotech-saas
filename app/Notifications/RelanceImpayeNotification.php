@@ -44,7 +44,7 @@ class RelanceImpayeNotification extends Notification
             ->line("Bien concerné : {$bienReference}")
             ->line('Montant dû : ' . number_format($montant, 0, ',', ' ') . ' FCFA')
             ->line('Merci de régulariser la situation dans les meilleurs délais.')
-            ->salutation('Cordialement,');
+            ->salutation('Cordialement, ' . ($this->contrat->bien?->agency?->name ?? 'Votre agence immobilière'));
     }
 
     /**

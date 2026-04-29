@@ -60,6 +60,16 @@ class UpdateContratRequest extends FormRequest
                     $loc = User::find($value);
                     if (! $loc || $loc->agency_id !== $agencyId || $loc->role !== 'locataire') {
                         $fail('Ce locataire n\'appartient pas à votre agence.');
+                        return;
+                    }
+                    // Vérifier qu'il n'a pas déjà un autre contrat actif
+                    $contratEnCours = $this->route('contrat');
+                    $autreContratActif = \App\Models\Contrat::where('locataire_id', $value)
+                        ->where('statut', 'actif')
+                        ->when($contratEnCours, fn($q) => $q->where('id', '!=', $contratEnCours->id))
+                        ->exists();
+                    if ($autreContratActif) {
+                        $fail('Ce locataire a déjà un contrat actif. Un locataire ne peut avoir qu\'un seul contrat actif à la fois.');
                     }
                 },
             ],

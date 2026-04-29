@@ -223,6 +223,12 @@
 
                         {{-- ═══ SECTION BIEN STANDALONE (visible par défaut) ═══ --}}
                         <div id="section-bien">
+                        <div class="form-group">
+                            <label class="form-label">Titre <span class="opt">(optionnel — apparaît sur la fiche)</span></label>
+                            <input type="text" name="titre" class="form-input"
+                                   value="{{ old('titre') }}"
+                                   placeholder="Ex: Villa F4 avec piscine — Almadies">
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Surface (m²) <span class="opt">(optionnel)</span></label>
@@ -475,26 +481,26 @@ function calcRecap() {
         const commHt  = Math.round(loyer * taux / 100);
         const tvaComm = Math.round(commHt * 0.18);
         const commTtc = commHt + tvaComm;
-        const net     = loyer - commHt;
+        const net     = loyer - commTtc;   // net après commission TTC (HT + TVA 18%)
 
         document.getElementById('rp-loyer').textContent    = fmt(loyer) + ' × ' + nb + ' unités';
         document.getElementById('rp-comm').textContent     = fmt(commHt) + ' / unité';
         document.getElementById('rp-tva').textContent      = fmt(tvaComm) + ' / unité';
         document.getElementById('rp-comm-ttc').textContent = fmt(commTtc) + ' / unité';
-        document.getElementById('rp-net').textContent      = fmt(net * nb) + 'CFA total';
+        document.getElementById('rp-net').textContent      = fmt(net * nb) + ' FCFA total';
     } else {
         loyer = parseFloat(document.getElementById('loyer_mensuel')?.value) || 0;
         taux  = parseFloat(document.getElementById('taux_commission')?.value) || 0;
         const commHt  = Math.round(loyer * taux / 100);
         const tvaComm = Math.round(commHt * 0.18);
         const commTtc = commHt + tvaComm;
-        const net     = loyer - commHt;
+        const net     = loyer - commTtc;   // net après commission TTC (HT + TVA 18%)
 
         document.getElementById('rp-loyer').textContent    = fmt(loyer);
         document.getElementById('rp-comm').textContent     = fmt(commHt);
         document.getElementById('rp-tva').textContent      = fmt(tvaComm);
         document.getElementById('rp-comm-ttc').textContent = fmt(commTtc);
-        document.getElementById('rp-net').textContent      = fmt(net) + 'CFA';
+        document.getElementById('rp-net').textContent      = fmt(net) + ' FCFA';
     }
 }
 

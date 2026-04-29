@@ -192,17 +192,16 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         </tr>
     </table>
 
-    {{-- BARÈME IRPP --}}
+    {{-- BARÈME IRPP — données pré-calculées par FiscalService::calculerIRPPDetail() --}}
     <div class="section-title">Barème IRPP progressif (Art. 65 CGI SN)</div>
     @php
-        $base = (float) $bilan->base_imposable;
-        $tranches = [
-            ['label' => '0 — 1 500 000',         'taux' => 0,  'min' => 0,       'max' => 1500000],
-            ['label' => '1 500 001 — 4 000 000', 'taux' => 20, 'min' => 1500001, 'max' => 4000000],
-            ['label' => '4 000 001 — 8 000 000', 'taux' => 30, 'min' => 4000001, 'max' => 8000000],
-            ['label' => '> 8 000 000',           'taux' => 40, 'min' => 8000001, 'max' => PHP_INT_MAX],
+        $trancheLabels = [
+            '0 — 1 500 000 F',
+            '1 500 001 — 4 000 000 F',
+            '4 000 001 — 8 000 000 F',
+            '> 8 000 000 F',
         ];
-        $totalIrpp = 0;
+        $irppDetail = $bilan->irpp_detail ?? [];
     @endphp
     <table class="bareme-table">
         <tr>
@@ -211,19 +210,15 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             <th>Montant imposable</th>
             <th>Impôt sur tranche</th>
         </tr>
-        @foreach($tranches as $t)
+        @foreach($irppDetail as $i => $t)
         @php
-            $active = $base > $t['min'];
-            $imposable = $active ? (min($base, $t['max'] === PHP_INT_MAX ? $base : $t['max']) - $t['min']) : 0;
-            $imposable = max(0, $imposable);
-            $impot = round($imposable * $t['taux'] / 100, 0);
-            if($active) $totalIrpp += $impot;
+            $hasImpot = ($t['assiette'] ?? 0) > 0;
         @endphp
-        <tr class="{{ $active && $imposable > 0 ? 'active' : 'inactive' }}">
-            <td>{{ $t['label'] }}</td>
+        <tr class="{{ $hasImpot ? 'active' : 'inactive' }}">
+            <td>{{ $trancheLabels[$i] ?? ('Tranche '.($i+1)) }}</td>
             <td>{{ $t['taux'] }}%</td>
-            <td>{{ $active && $imposable > 0 ? number_format($imposable, 0, ',', ' ').' F' : '—' }}</td>
-            <td>{{ $active && $impot > 0 ? number_format($impot, 0, ',', ' ').' F' : '—' }}</td>
+            <td>{{ $hasImpot ? number_format($t['assiette'], 0, ',', ' ').' F' : '—' }}</td>
+            <td>{{ $hasImpot ? number_format($t['impot'], 0, ',', ' ').' F' : '—' }}</td>
         </tr>
         @endforeach
     </table>
@@ -277,9 +272,19 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             <td>{{ number_format($bilan->tva_commissions, 0, ',', ' ') }}</td>
         </tr>
         <tr>
-            <td style="background:#f0fdf4;font-weight:bold;color:#16a34a">Net total reversé au propriétaire</td>
+            <td style="background:#f0fdf4;font-weight:bold;color:#16a34a">Net propriétaire avant BRS</td>
             <td style="background:#f0fdf4;font-weight:bold;color:#16a34a">{{ number_format($bilan->net_proprietaire_total, 0, ',', ' ') }}</td>
         </tr>
+        @if(($bilan->brs_retenu_total ?? 0) > 0)
+        <tr>
+            <td style="background:#fef2f2;font-weight:bold;color:#dc2626">&nbsp;&nbsp;− BRS retenu par locataires entreprises (Art. 196bis CGI SN)</td>
+            <td style="background:#fef2f2;font-weight:bold;color:#dc2626">− {{ number_format($bilan->brs_retenu_total, 0, ',', ' ') }}</td>
+        </tr>
+        <tr>
+            <td style="background:#0d1117;font-weight:bold;color:#4ade80;padding:8px 12px">NET RÉELLEMENT VERSÉ AU PROPRIÉTAIRE (après BRS)</td>
+            <td style="background:#0d1117;font-weight:bold;color:#6ee7b7;padding:8px 12px">{{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total, 0, ',', ' ') }}</td>
+        </tr>
+        @endif
     </table>
 
     {{-- PAIEMENTS --}}
@@ -294,7 +299,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
                 <th class="r">TVA loyer</th>
                 <th class="r">Commission</th>
                 <th class="r">BRS</th>
-                <th class="r">Net proprio</th>
+                <th class="r">Net versé</th>
             </tr>
         </thead>
         <tbody>
@@ -307,7 +312,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
                 <td class="r">{{ ($p->tva_loyer ?? 0) > 0 ? number_format($p->tva_loyer, 0, ',', ' ') : '—' }}</td>
                 <td class="r">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }}</td>
                 <td class="r">{{ ($p->brs_amount ?? 0) > 0 ? number_format($p->brs_amount, 0, ',', ' ') : '—' }}</td>
-                <td class="r">{{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }}</td>
+                <td class="r">{{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }}</td>
             </tr>
             @endforeach
         </tbody>
@@ -318,7 +323,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
                 <td class="r">{{ number_format($bilan->tva_loyer_collectee, 0, ',', ' ') }}</td>
                 <td class="r">{{ number_format($bilan->commissions_agence_ht + $bilan->tva_commissions, 0, ',', ' ') }}</td>
                 <td class="r">{{ number_format($bilan->brs_retenu_total, 0, ',', ' ') }}</td>
-                <td class="r">{{ number_format($bilan->net_proprietaire_total, 0, ',', ' ') }}</td>
+                <td class="r">{{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total, 0, ',', ' ') }}</td>
             </tr>
         </tfoot>
     </table>

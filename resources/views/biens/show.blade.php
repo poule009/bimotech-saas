@@ -138,9 +138,12 @@
                 {{ $bien->reference }}
             </div>
             <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px">
-                {{ $bien->type_label }}
+                {{ $bien->titre ?? $bien->type_label }}
                 @if($bien->meuble) <span style="font-size:13px;color:rgba(201,168,76,.7);font-weight:400">· Meublé</span> @endif
             </div>
+            @if($bien->titre)
+            <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:2px">{{ $bien->type_label }}</div>
+            @endif
             <div style="font-size:13px;color:rgba(255,255,255,.5)">
                 {{ $bien->adresse }}
                 @if($bien->quartier) · {{ $bien->quartier }} @endif
@@ -366,16 +369,7 @@
                     @endif
                 </div>
 
-                @php
-                    $paiements = $bien->contratActif
-                        ? \App\Models\Paiement::where('contrat_id', $bien->contratActif->id)
-                            ->where('statut', 'valide')
-                            ->select(['id', 'contrat_id', 'periode', 'date_paiement', 'montant_encaisse', 'net_proprietaire', 'commission_ttc', 'mode_paiement', 'statut'])
-                            ->orderByDesc('periode')
-                            ->limit(10)
-                            ->get()
-                        : collect();
-                @endphp
+                {{-- $paiements est préparé dans BienController::show() --}}
 
                 @if($paiements->isEmpty())
                 <div style="padding:28px;text-align:center;color:#9ca3af;font-size:13px">
@@ -413,7 +407,7 @@
                                     {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
                                 </td>
                                 <td style="text-align:right;color:#16a34a;font-weight:600">
-                                    {{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F
+                                    {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
                                 </td>
                                 <td style="font-size:12px;color:#6b7280">
                                     {{ \App\Http\Controllers\PaiementController::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}

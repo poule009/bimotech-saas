@@ -274,7 +274,7 @@
                                         {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
                                     </td>
                                     <td style="text-align:right;color:#16a34a;font-weight:600">
-                                        {{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F
+                                        {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
                                     </td>
                                     <td style="text-align:center">
                                         <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
@@ -473,6 +473,14 @@
                         <div class="side-row">
                             <span class="side-lbl">Employeur</span>
                             <span class="side-val">{{ $user->locataire->employeur }}</span>
+                        </div>
+                        @endif
+                        @if($user->locataire?->taux_effort)
+                        <div class="side-row">
+                            <span class="side-lbl">Taux d'effort</span>
+                            <span class="side-val" style="color:{{ (float)$user->locataire->taux_effort > 33 ? '#dc2626' : '#16a34a' }}">
+                                {{ $user->locataire->taux_effort }}
+                            </span>
                         </div>
                         @endif
                         @if($user->locataire?->contact_urgence_nom)

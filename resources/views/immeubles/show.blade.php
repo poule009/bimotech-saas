@@ -83,9 +83,9 @@
             Retour
         </a>
 
-        @if($immeuble->biens->isEmpty())
+        @if(!$immeuble->biens->contains(fn($b) => $b->contratActif !== null))
         <form method="POST" action="{{ route('admin.immeubles.destroy', $immeuble) }}"
-              onsubmit="return confirm('Archiver cet immeuble ?')">
+              onsubmit="return confirm('Archiver cet immeuble et ses {{ $immeuble->biens->count() }} unité(s) ?')">
             @csrf @method('DELETE')
             <button type="submit" class="btn-act btn-red">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
@@ -120,6 +120,13 @@
                 <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:3px">
                     {{ $immeuble->biens->where('statut','loue')->count() }} louée(s)
                 </div>
+                @php $loyerTotal = $immeuble->biens->sum('loyer_mensuel'); @endphp
+                @if($loyerTotal > 0)
+                <div style="font-size:13px;font-weight:700;color:#c9a84c;margin-top:6px">
+                    {{ number_format($loyerTotal, 0, ',', ' ') }} F/mois
+                </div>
+                <div style="font-size:10px;color:rgba(255,255,255,.25)">Loyer total mensuel</div>
+                @endif
             </div>
         </div>
     </div>
@@ -159,7 +166,7 @@
                         <thead>
                             <tr>
                                 <th>Référence</th>
-                                <th>Type</th>
+                                <th>Unité / Type</th>
                                 <th>Surface</th>
                                 <th>Loyer</th>
                                 <th>Statut</th>
@@ -175,7 +182,14 @@
                                         {{ $bien->reference }}
                                     </span>
                                 </td>
-                                <td>{{ $bien->type_label }}</td>
+                                <td>
+                                    @if($bien->titre)
+                                        <div style="font-weight:600;color:#0d1117;font-size:12px">{{ $bien->titre }}</div>
+                                        <div style="font-size:11px;color:#9ca3af">{{ $bien->type_label }}</div>
+                                    @else
+                                        {{ $bien->type_label }}
+                                    @endif
+                                </td>
                                 <td style="color:#6b7280">
                                     {{ $bien->surface_m2 ? $bien->surface_m2.' m²' : '—' }}
                                 </td>

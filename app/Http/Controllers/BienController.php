@@ -47,7 +47,20 @@ class BienController extends Controller
             'photos',
         ]);
 
-        return view('biens.show', compact('bien'));
+        $paiements = $bien->contratActif
+            ? \App\Models\Paiement::where('contrat_id', $bien->contratActif->id)
+                ->where('statut', 'valide')
+                ->select([
+                    'id', 'contrat_id', 'periode', 'date_paiement',
+                    'montant_encaisse', 'net_proprietaire', 'net_a_verser_proprietaire',
+                    'commission_ttc', 'mode_paiement', 'statut',
+                ])
+                ->orderByDesc('periode')
+                ->limit(10)
+                ->get()
+            : collect();
+
+        return view('biens.show', compact('bien', 'paiements'));
     }
 
     public function create(Request $request): View
@@ -75,6 +88,7 @@ class BienController extends Controller
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
             'immeuble_id'     => ['nullable', 'exists:immeubles,id'],
+            'titre'           => ['nullable', 'string', 'max:255'],
             'type'            => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::TYPES))],
             'adresse'         => ['required', 'string', 'max:255'],
             'quartier'        => ['nullable', 'string', 'max:100'],
@@ -82,7 +96,7 @@ class BienController extends Controller
             'ville'           => ['required', 'string', 'max:100'],
             'surface_m2'      => ['nullable', 'numeric', 'min:1'],
             'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
-            'loyer_mensuel'   => ['required', 'numeric', 'min:0'],
+            'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
             'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'meuble'          => ['nullable', 'boolean'],
             'description'     => ['nullable', 'string'],
@@ -93,6 +107,7 @@ class BienController extends Controller
             'adresse.required'         => "L'adresse est obligatoire.",
             'ville.required'           => 'La ville est obligatoire.',
             'loyer_mensuel.required'   => 'Le loyer est obligatoire.',
+            'loyer_mensuel.min'        => 'Le loyer doit être d\'au moins 1 000 FCFA.',
         ]);
 
         $agencyId = Auth::user()->agency_id;
@@ -116,19 +131,18 @@ class BienController extends Controller
         $validated['taux_commission'] = $validated['taux_commission'] ?? 10;
 
         $bien = Bien::create($validated);
-        // Enregistrement des photos si présentes
-if ($request->hasFile('photos')) {
-    foreach ($request->file('photos') as $index => $photo) {
-        $chemin = $photo->store('biens', 'public');
-        \App\Models\BienPhoto::create([
-            'bien_id'      => $bien->id,
-            'chemin'       => $chemin,
-            'nom_original' => $photo->getClientOriginalName(),
-            'est_principale' => $index === 0,
-            'ordre'        => $index,
-        ]);
-    }
-}
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $index => $photo) {
+                \App\Models\BienPhoto::create([
+                    'bien_id'        => $bien->id,
+                    'chemin'         => $photo->store('biens/' . $bien->id, 'public'),
+                    'nom_original'   => $photo->getClientOriginalName(),
+                    'est_principale' => $index === 0,
+                    'ordre'          => $index + 1,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('admin.biens.show', $bien)
@@ -153,6 +167,7 @@ if ($request->hasFile('photos')) {
 
         $validated = $request->validate([
             'proprietaire_id' => ['required', 'exists:users,id'],
+            'titre'           => ['nullable', 'string', 'max:255'],
             'type'            => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::TYPES))],
             'adresse'         => ['required', 'string', 'max:255'],
             'quartier'        => ['nullable', 'string', 'max:100'],
@@ -160,17 +175,30 @@ if ($request->hasFile('photos')) {
             'ville'           => ['required', 'string', 'max:100'],
             'surface_m2'      => ['nullable', 'numeric', 'min:1'],
             'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
-            'loyer_mensuel'   => ['required', 'numeric', 'min:0'],
+            'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
             'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'meuble'          => ['nullable', 'boolean'],
             'statut'          => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::STATUTS))],
             'description'     => ['nullable', 'string'],
         ], [
-            'type.required'   => 'Le type de bien est obligatoire.',
-            'type.in'         => 'Le type sélectionné est invalide.',
-            'statut.required' => 'Le statut est obligatoire.',
-            'statut.in'       => 'Le statut sélectionné est invalide.',
+            'type.required'          => 'Le type de bien est obligatoire.',
+            'type.in'                => 'Le type sélectionné est invalide.',
+            'statut.required'        => 'Le statut est obligatoire.',
+            'statut.in'              => 'Le statut sélectionné est invalide.',
+            'loyer_mensuel.min'      => 'Le loyer doit être d\'au moins 1 000 FCFA.',
         ]);
+
+        // Vérification IDOR : empêche de rattacher ce bien à un propriétaire d'une autre agence
+        $proprioValide = \App\Models\User::where('id', $validated['proprietaire_id'])
+            ->where('agency_id', Auth::user()->agency_id)
+            ->where('role', 'proprietaire')
+            ->exists();
+
+        if (! $proprioValide) {
+            return back()
+                ->withErrors(['proprietaire_id' => 'Ce propriétaire n\'appartient pas à votre agence.'])
+                ->withInput();
+        }
 
         $validated['meuble'] = $request->boolean('meuble');
         $bien->update($validated);
@@ -190,6 +218,8 @@ if ($request->hasFile('photos')) {
             ]);
         }
 
+        $bien->statut = 'archive';
+        $bien->save();
         $bien->delete();
 
         return redirect()

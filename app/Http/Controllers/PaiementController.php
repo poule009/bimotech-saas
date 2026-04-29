@@ -9,9 +9,11 @@ use App\Services\FiscalContext;
 use App\Services\FiscalService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Requests\StorePaiementRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -49,8 +51,8 @@ class PaiementController extends Controller
             ])
             ->select([
                 'id', 'agency_id', 'contrat_id', 'periode', 'date_paiement',
-                'montant_encaisse', 'net_proprietaire', 'commission_ttc',
-                'mode_paiement', 'statut', 'reference_paiement',
+                'montant_encaisse', 'net_proprietaire', 'net_a_verser_proprietaire',
+                'commission_ttc', 'mode_paiement', 'statut', 'reference_paiement',
             ]);
 
         if ($request->filled('statut')) {
@@ -76,10 +78,10 @@ class PaiementController extends Controller
             ->whereYear('periode', now()->year)
             ->whereMonth('periode', now()->month)
             ->selectRaw('
-                COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
-                COALESCE(SUM(commission_ttc), 0)   AS total_commissions,
-                COALESCE(SUM(net_proprietaire), 0) AS total_net,
-                COUNT(*)                            AS nb_payes
+                COALESCE(SUM(montant_encaisse), 0)          AS total_loyers,
+                COALESCE(SUM(commission_ttc), 0)            AS total_commissions,
+                COALESCE(SUM(net_a_verser_proprietaire), 0) AS total_net,
+                COUNT(*)                                     AS nb_payes
             ')
             ->first();
 
@@ -143,25 +145,12 @@ class PaiementController extends Controller
     // ENREGISTREMENT
     // ─────────────────────────────────────────────────────────────────────
 
-    public function store(Request $request): RedirectResponse
+    public function store(StorePaiementRequest $request): RedirectResponse
     {
-        $this->authorize('isStaff');
-
         $agencyId = Auth::user()->agency_id;
 
-        $validated = $request->validate([
-            'contrat_id'    => ['required', 'exists:contrats,id'],
-            'periode'       => ['required', 'date'],
-            'date_paiement' => ['required', 'date'],
-            'mode_paiement' => ['required', 'in:' . implode(',', array_keys(self::MODES_PAIEMENT))],
-            'caution_percue'=> ['nullable', 'numeric', 'min:0'],
-            'notes'         => ['nullable', 'string', 'max:500'],
-        ], [
-            'contrat_id.required'    => 'Veuillez sélectionner un contrat.',
-            'periode.required'       => 'La période est obligatoire.',
-            'date_paiement.required' => 'La date de paiement est obligatoire.',
-            'mode_paiement.required' => 'Le mode de paiement est obligatoire.',
-        ]);
+        // StorePaiementRequest gère authorize() + rules() + messages()
+        $validated = $request->validated();
 
         // Vérifier appartenance du contrat + charger les relations nécessaires au calcul fiscal
         $contrat = Contrat::with([
@@ -171,20 +160,8 @@ class PaiementController extends Controller
             ->where('agency_id', $agencyId)
             ->findOrFail($validated['contrat_id']);
 
-        // Vérifier doublon : un seul paiement valide par contrat par mois
-        $periodeDebut = Carbon::parse($validated['periode'])->startOfMonth();
-        $doublonExiste = Paiement::where('contrat_id', $contrat->id)
-            ->where('periode', $periodeDebut)
-            ->where('statut', '!=', 'annule')
-            ->exists();
-
-        if ($doublonExiste) {
-            return back()
-                ->withInput()
-                ->withErrors(['periode' => 'Un paiement valide existe déjà pour cette période.']);
-        }
-
         // Vérifier si c'est le premier paiement du contrat
+        // (anti-doublon déjà géré par StorePaiementRequest::rules())
         $estPremier = Paiement::where('contrat_id', $contrat->id)->count() === 0;
 
         // ── Prorata temporel (premier paiement en cours de mois) ────────────
@@ -235,6 +212,9 @@ class PaiementController extends Controller
             ]
         ));
 
+        // Invalider le cache du dashboard locataire pour qu'il voie le nouveau paiement immédiatement
+        Cache::forget("locataire_dashboard_{$contrat->locataire_id}");
+
         // Notifier le propriétaire par email
         try {
             $proprio = $contrat->bien->proprietaire ?? null;
@@ -284,6 +264,9 @@ class PaiementController extends Controller
 
         $paiement->update(['statut' => 'annule']);
 
+        // Invalider le cache locataire — il verrait encore le paiement comme "validé"
+        Cache::forget("locataire_dashboard_{$paiement->contrat->locataire_id}");
+
         return back()->with('success', 'Paiement annulé ✓');
     }
 
@@ -311,6 +294,7 @@ class PaiementController extends Controller
             ?? $contrat?->reference_bail
             ?? ('BAIL-' . ($contrat?->id ?? ''));
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $destinataire = match(true) {
             $user->isLocataire()    => 'locataire',
@@ -335,7 +319,7 @@ class PaiementController extends Controller
         $snapshotData = $snapshot
             ? (is_array($snapshot) ? $snapshot : json_decode((string) $snapshot, true))
             : [];
-        $regimeFiscalKey = $snapshotData['regimeFiscal'] ?? $snapshotData['regime_fiscal']
+        $regimeFiscalKey = $snapshotData['regime_fiscal']
             ?? (($paiement->tva_loyer > 0)
                 ? (($paiement->brs_amount > 0) ? 'commercial_avec_brs' : 'commercial')
                 : (($paiement->brs_amount > 0) ? 'habitation_avec_brs' : 'habitation'));

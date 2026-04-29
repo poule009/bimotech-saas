@@ -100,7 +100,7 @@
                 @php
                     $bs = match($paiement->statut) {
                         'valide' => 'background:rgba(74,222,128,.15);color:#4ade80',
-                        'annulé' => 'background:rgba(248,113,113,.15);color:#f87171',
+                        'annule' => 'background:rgba(248,113,113,.15);color:#f87171',
                         default  => 'background:rgba(255,255,255,.1);color:#9ca3af',
                     };
                 @endphp

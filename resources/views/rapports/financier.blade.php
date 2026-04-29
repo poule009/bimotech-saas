@@ -282,11 +282,11 @@
     </div>
 
     {{-- Impayés ce mois --}}
-    @if(isset($biensImpayés) && $biensImpayés->count() > 0)
+    @if(isset($biensImpayes) && $biensImpayes->count() > 0)
     <div class="table-card">
         <div class="table-hd">
             <div class="table-title" style="color:#dc2626">
-                Impayés — {{ $biensImpayés->count() }} contrat(s)
+                Impayés — {{ $biensImpayes->count() }} contrat(s)
             </div>
         </div>
         <div style="overflow-x:auto">
@@ -301,7 +301,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($biensImpayés as $c)
+                    @foreach($biensImpayes as $c)
                     <tr>
                         <td style="font-weight:500">{{ $c->bien?->reference ?? '—' }}</td>
                         <td>{{ $c->locataire?->name ?? '—' }}</td>

@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -107,6 +108,7 @@ class UserController extends Controller
                     ->where('statut', 'actif')
                     ->select(['id', 'locataire_id', 'bien_id', 'statut', 'loyer_contractuel'])
                     ->with(['bien:id,reference,adresse,ville']),
+                'locataire:user_id,est_entreprise,profession,employeur,revenu_mensuel',
             ])
             ->withCount([
                 'contrats',
@@ -196,63 +198,66 @@ class UserController extends Controller
         ]);
 
         // agency_id forcé côté serveur — jamais depuis le formulaire
-        $user           = new User();
-        $user->name     = $validated['name'];
-        $user->email    = $validated['email'];
-        $user->telephone = $validated['telephone'] ?? null;
-        $user->adresse  = $validated['adresse'] ?? null;
-        $user->password = Hash::make($validated['password']);
-        $user->role     = $validated['role'];
-        $user->agency_id         = Auth::user()->agency_id;
-        $user->email_verified_at = now();
-        $user->save();
+        $user = DB::transaction(function () use ($validated, $request) {
+            $user                    = new User();
+            $user->name              = $validated['name'];
+            $user->email             = $validated['email'];
+            $user->telephone         = $validated['telephone'] ?? null;
+            $user->adresse           = $validated['adresse'] ?? null;
+            $user->password          = Hash::make($validated['password']);
+            $user->role              = $validated['role'];
+            $user->agency_id         = Auth::user()->agency_id;
+            $user->email_verified_at = now();
+            $user->save();
+
+            if ($validated['role'] === 'proprietaire') {
+                Proprietaire::create([
+                    'user_id'               => $user->id,
+                    'cni'                   => $validated['cni'] ?? null,
+                    'date_naissance'        => $validated['date_naissance'] ?? null,
+                    'genre'                 => $validated['genre'] ?? null,
+                    'nationalite'           => $validated['nationalite'] ?? 'Sénégalaise',
+                    'ville'                 => $validated['ville'] ?? 'Dakar',
+                    'quartier'              => $validated['quartier'] ?? null,
+                    'mode_paiement_prefere' => $validated['mode_paiement_prefere'] ?? 'virement',
+                    'banque'                => $validated['banque'] ?? null,
+                    'numero_compte'         => $validated['numero_compte'] ?? null,
+                    'numero_wave'           => $validated['numero_wave'] ?? null,
+                    'numero_om'             => $validated['numero_om'] ?? null,
+                    'ninea'                 => $validated['ninea'] ?? null,
+                ]);
+            } else {
+                Locataire::create([
+                    'user_id'              => $user->id,
+                    'cni'                  => $validated['cni'] ?? null,
+                    'date_naissance'       => $validated['date_naissance'] ?? null,
+                    'genre'                => $validated['genre'] ?? null,
+                    'nationalite'          => $validated['nationalite'] ?? 'Sénégalaise',
+                    'ville'                => $validated['ville'] ?? 'Dakar',
+                    'quartier'             => $validated['quartier'] ?? null,
+                    'type_locataire'       => $validated['type_locataire'] ?? 'particulier',
+                    'est_entreprise'       => filter_var($request->input('est_entreprise'), FILTER_VALIDATE_BOOLEAN),
+                    'nom_entreprise'       => $validated['nom_entreprise'] ?? null,
+                    'ninea_locataire'      => $validated['ninea_locataire'] ?? null,
+                    'rccm_locataire'       => $validated['rccm_locataire'] ?? null,
+                    'taux_brs_override'    => $validated['taux_brs_override'] ?? null,
+                    'profession'           => $validated['profession'] ?? null,
+                    'employeur'            => $validated['employeur'] ?? null,
+                    'revenu_mensuel'       => $validated['revenu_mensuel'] ?? null,
+                    'contact_urgence_nom'  => $validated['contact_urgence_nom'] ?? null,
+                    'contact_urgence_tel'  => $validated['contact_urgence_tel'] ?? null,
+                    'contact_urgence_lien' => $validated['contact_urgence_lien'] ?? null,
+                ]);
+            }
+
+            return $user;
+        });
 
         if ($validated['role'] === 'proprietaire') {
-            Proprietaire::create([
-                'user_id'               => $user->id,
-                'cni'                   => $validated['cni'] ?? null,
-                'date_naissance'        => $validated['date_naissance'] ?? null,
-                'genre'                 => $validated['genre'] ?? null,
-                'nationalite'           => $validated['nationalite'] ?? 'Sénégalaise',
-                'ville'                 => $validated['ville'] ?? 'Dakar',
-                'quartier'              => $validated['quartier'] ?? null,
-                'mode_paiement_prefere' => $validated['mode_paiement_prefere'] ?? 'virement',
-                'banque'                => $validated['banque'] ?? null,
-                'numero_compte'         => $validated['numero_compte'] ?? null,
-                'numero_wave'           => $validated['numero_wave'] ?? null,
-                'numero_om'             => $validated['numero_om'] ?? null,
-                'ninea'                 => $validated['ninea'] ?? null,
-            ]);
-
             return redirect()
                 ->route('admin.users.proprietaires')
                 ->with('success', "Propriétaire {$user->name} créé ✓");
         }
-
-        Locataire::create([
-            'user_id'              => $user->id,
-            'cni'                  => $validated['cni'] ?? null,
-            'date_naissance'       => $validated['date_naissance'] ?? null,
-            'genre'                => $validated['genre'] ?? null,
-            'nationalite'          => $validated['nationalite'] ?? 'Sénégalaise',
-            'ville'                => $validated['ville'] ?? 'Dakar',
-            'quartier'             => $validated['quartier'] ?? null,
-            // Statut fiscal — critique pour le calcul BRS
-            'type_locataire'       => $validated['type_locataire'] ?? 'particulier',
-            'est_entreprise'       => filter_var($request->input('est_entreprise'), FILTER_VALIDATE_BOOLEAN),
-            'nom_entreprise'       => $validated['nom_entreprise'] ?? null,
-            'ninea_locataire'      => $validated['ninea_locataire'] ?? null,
-            'rccm_locataire'       => $validated['rccm_locataire'] ?? null,
-            'taux_brs_override'    => $validated['taux_brs_override'] ?? null,
-            // Situation professionnelle
-            'profession'           => $validated['profession'] ?? null,
-            'employeur'            => $validated['employeur'] ?? null,
-            'revenu_mensuel'       => $validated['revenu_mensuel'] ?? null,
-            // Contact d'urgence
-            'contact_urgence_nom'  => $validated['contact_urgence_nom'] ?? null,
-            'contact_urgence_tel'  => $validated['contact_urgence_tel'] ?? null,
-            'contact_urgence_lien' => $validated['contact_urgence_lien'] ?? null,
-        ]);
 
         return redirect()
             ->route('admin.users.locataires')
@@ -283,10 +288,10 @@ class UserController extends Controller
             $aggr = Paiement::whereIn('contrat_id', $contratIds)
                 ->where('statut', 'valide')
                 ->selectRaw('
-                    COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
-                    COALESCE(SUM(net_proprietaire), 0) AS total_net,
-                    COALESCE(SUM(commission_ttc), 0)   AS total_commission,
-                    COUNT(*)                            AS nb_paiements
+                    COALESCE(SUM(montant_encaisse), 0)          AS total_loyers,
+                    COALESCE(SUM(net_a_verser_proprietaire), 0) AS total_net,
+                    COALESCE(SUM(commission_ttc), 0)            AS total_commission,
+                    COUNT(*)                                     AS nb_paiements
                 ')
                 ->first();
 
@@ -310,7 +315,7 @@ class UserController extends Controller
 
             $paiements = Paiement::whereIn('contrat_id', $contratIds)
                 ->where('statut', 'valide')
-                ->select(['id', 'agency_id', 'contrat_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'mode_paiement', 'date_paiement', 'reference_paiement'])
+                ->select(['id', 'agency_id', 'contrat_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'net_a_verser_proprietaire', 'mode_paiement', 'date_paiement', 'reference_paiement'])
                 ->with(['contrat:id,bien_id', 'contrat.bien:id,reference'])
                 ->orderByDesc('date_paiement')
                 ->paginate(10);
@@ -390,14 +395,15 @@ class UserController extends Controller
         'name.required' => 'Le nom complet est obligatoire.',
     ]);
 
-    $user->update($validated);
+    DB::transaction(function () use ($user, $validated, $request) {
+        $user->update($validated);
 
     // ── Profil PROPRIÉTAIRE ───────────────────────────────────────────
     if ($user->isProprietaire() && $user->proprietaire) {
         $profilData = $request->validate([
             'cni'                   => ['nullable', 'string', 'max:20'],
             'date_naissance'        => ['nullable', 'date'],
-            'genre'                 => ['nullable', 'in:homme,femme'],
+            'genre'                 => ['nullable', 'in:M,F'],
             'nationalite'           => ['nullable', 'string', 'max:50'],
             'telephone_secondaire'  => ['nullable', 'string', 'max:30'],
             'adresse_domicile'      => ['nullable', 'string', 'max:255'],
@@ -421,7 +427,7 @@ class UserController extends Controller
         $profilData = $request->validate([
             'cni'                  => ['nullable', 'string', 'max:20'],
             'date_naissance'       => ['nullable', 'date'],
-            'genre'                => ['nullable', 'in:homme,femme'],
+            'genre'                => ['nullable', 'in:M,F'],
             'nationalite'          => ['nullable', 'string', 'max:50'],
             'ville'                => ['nullable', 'string', 'max:100'],
             'quartier'             => ['nullable', 'string', 'max:100'],
@@ -457,6 +463,7 @@ class UserController extends Controller
         // LocataireObserver::updated() se déclenche automatiquement
         // si est_entreprise a changé → propage BRS aux contrats actifs
     }
+    }); // fin DB::transaction
 
     return redirect()
         ->route('admin.users.show', $user)
@@ -478,9 +485,9 @@ class UserController extends Controller
             ]);
         }
 
-        if ($user->isProprietaire() && $user->biens()->where('statut', 'loue')->exists()) {
+        if ($user->isProprietaire() && $user->biens()->whereIn('statut', ['loue', 'disponible', 'en_travaux'])->exists()) {
             return back()->withErrors([
-                'general' => 'Impossible de supprimer un propriétaire avec des biens loués.',
+                'general' => 'Impossible de supprimer un propriétaire avec des biens actifs. Archivez tous ses biens avant de continuer.',
             ]);
         }
 

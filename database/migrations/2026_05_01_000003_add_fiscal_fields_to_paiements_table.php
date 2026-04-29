@@ -13,8 +13,10 @@ use Illuminate\Support\Facades\DB;
  *  Loyer HT (loyer_ht)
  *  + TVA loyer 18% (tva_loyer)         ← si bail commercial/meublé
  *  = Loyer TTC (loyer_ttc)
- *  + Charges (charges_amount)           ← JAMAIS taxées
- *  + TOM (tom_amount)                   ← JAMAIS taxée
+ *  + Charges HT (charges_amount)        ← TVA applicable si forfait bail commercial/meublé (Art. 357 CGI SN)
+ *  + TVA charges (tva_charges)          ← 18% si chargesAssujettiesATva=true, 0 sinon
+ *  = Charges TTC (charges_ttc)
+ *  + TOM (tom_amount)                   ← taxe municipale — jamais soumise à TVA
  *  = TOTAL ENCAISSÉ (montant_encaisse)
  *
  *  Commission HT sur loyer_ht

@@ -32,6 +32,7 @@ class AgencySettingsController extends Controller
             'telephone'        => ['nullable', 'string', 'max:20'],
             'adresse'          => ['nullable', 'string', 'max:255'],
             'ninea'            => ['nullable', 'string', 'max:30'],
+            'rccm'             => ['nullable', 'string', 'max:50'],
             'couleur_primaire' => ['nullable', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
 
             /**
@@ -64,40 +65,67 @@ class AgencySettingsController extends Controller
         ]);
 
         // ── Gestion du logo ───────────────────────────────────────────────
+        // Upload avant la mise à jour DB. En cas d'échec DB, on supprime le nouveau
+        // fichier et on restaure l'ancien chemin (évite les fichiers orphelins).
 
-        $logoPath = $agency->logo_path;
+        $logoPath          = $agency->logo_path;
+        $newLogoUploaded   = null;
+        $oldLogoToDelete   = null;
 
         if ($request->hasFile('logo')) {
-            if ($logoPath && Storage::disk('public')->exists($logoPath)) {
-                Storage::disk('public')->delete($logoPath);
-            }
-            $logoPath = $request->file('logo')->store('logos', 'public');
+            $newLogoUploaded = $request->file('logo')->store('logos', 'public');
+            $oldLogoToDelete = $logoPath;
+            $logoPath        = $newLogoUploaded;
         }
 
         // ── Gestion de la signature ───────────────────────────────────────
 
-        $signaturePath = $agency->signature_path;
+        $signaturePath           = $agency->signature_path;
+        $newSignatureUploaded    = null;
+        $oldSignatureToDelete    = null;
 
         if ($request->hasFile('signature')) {
-            if ($signaturePath && Storage::disk('public')->exists($signaturePath)) {
-                Storage::disk('public')->delete($signaturePath);
-            }
-            $signaturePath = $request->file('signature')->store('signatures', 'public');
+            $newSignatureUploaded = $request->file('signature')->store('signatures', 'public');
+            $oldSignatureToDelete = $signaturePath;
+            $signaturePath        = $newSignatureUploaded;
         }
 
         // ── Mise à jour de l'agence ───────────────────────────────────────
+        // Strip tags sur modele_contrat pour éviter le XSS si rendu sans échappement dans les PDFs
 
-        $agency->update([
-            'name'             => $request->name,
-            'email'            => $request->email,
-            'telephone'        => $request->telephone,
-            'adresse'          => $request->adresse,
-            'ninea'            => $request->ninea,
-            'couleur_primaire' => $request->couleur_primaire ?? $agency->couleur_primaire,
-            'logo_path'        => $logoPath,
-            'signature_path'   => $signaturePath,
-            'modele_contrat'   => $request->modele_contrat ?? $agency->modele_contrat,
-        ]);
+        try {
+            $agency->update([
+                'name'             => $request->name,
+                'email'            => $request->email,
+                'telephone'        => $request->telephone,
+                'adresse'          => $request->adresse,
+                'ninea'            => $request->ninea,
+                'rccm'             => $request->rccm,
+                'couleur_primaire' => $request->couleur_primaire ?? $agency->couleur_primaire,
+                'logo_path'        => $logoPath,
+                'signature_path'   => $signaturePath,
+                'modele_contrat'   => $request->modele_contrat
+                    ? strip_tags($request->modele_contrat)
+                    : $agency->modele_contrat,
+            ]);
+        } catch (\Throwable $e) {
+            // DB a échoué → supprimer les nouveaux fichiers uploadés (évite les orphelins)
+            if ($newLogoUploaded) {
+                Storage::disk('public')->delete($newLogoUploaded);
+            }
+            if ($newSignatureUploaded) {
+                Storage::disk('public')->delete($newSignatureUploaded);
+            }
+            throw $e;
+        }
+
+        // DB OK → supprimer les anciens fichiers remplacés
+        if ($oldLogoToDelete && Storage::disk('public')->exists($oldLogoToDelete)) {
+            Storage::disk('public')->delete($oldLogoToDelete);
+        }
+        if ($oldSignatureToDelete && Storage::disk('public')->exists($oldSignatureToDelete)) {
+            Storage::disk('public')->delete($oldSignatureToDelete);
+        }
 
         $agency->refresh();
         $agency->checkOnboarding();

@@ -27,18 +27,25 @@ class StorePaiementRequest extends FormRequest
                 'required', 'exists:contrats,id',
                 function ($attribute, $value, $fail) {
                     $contrat = Contrat::withoutGlobalScopes()->find($value);
-                    if ($contrat && (float)($contrat->loyer_nu ?? 0) <= 0) {
+                    if (! $contrat) {
+                        $fail('Ce contrat est introuvable.');
+                        return;
+                    }
+                    if ((float)($contrat->loyer_nu ?? 0) <= 0) {
                         $fail('Le contrat sélectionné a un loyer nu à zéro. Corrigez le contrat avant d\'enregistrer un paiement.');
+                    }
+                    if ($contrat->statut !== 'actif') {
+                        $fail('Seul un contrat actif peut recevoir un paiement.');
                     }
                 },
             ],
             'periode'              => [
                 'required',
-                'date_format:Y-m',
+                'date',  // accepte Y-m, Y-m-d et ISO (formulaire + tests)
                 // ── Règle anti-doublon ──────────────────────────────────
                 function ($attribute, $value, $fail) {
                     $contratId   = $this->input('contrat_id');
-                    $periodeDate = Carbon::createFromFormat('Y-m', $value)->startOfMonth();
+                    $periodeDate = Carbon::parse($value)->startOfMonth();
 
                     $existe = Paiement::where('contrat_id', $contratId)
                         ->whereYear('periode',  $periodeDate->year)
@@ -51,10 +58,9 @@ class StorePaiementRequest extends FormRequest
                     }
                 },
             ],
-            'montant_encaisse'     => ['required', 'numeric', 'gt:0', 'max:999999999'],
-            'mode_paiement'        => ['required', 'in:especes,virement,cheque,wave,orange_money,free_money,mobile_money'],
+            // montant_encaisse est calculé par FiscalService côté serveur — non soumis par le formulaire
+            'mode_paiement'        => ['required', 'in:' . implode(',', array_keys(\App\Http\Controllers\PaiementController::MODES_PAIEMENT))],
             'caution_percue'       => ['nullable', 'numeric', 'min:0'],
-            'est_premier_paiement' => ['boolean'],
             'date_paiement'        => ['required', 'date', 'before_or_equal:today'],
             'notes'                => ['nullable', 'string', 'max:500'],
         ];

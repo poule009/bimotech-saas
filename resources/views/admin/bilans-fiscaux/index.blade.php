@@ -59,14 +59,14 @@
 
     {{-- KPIs globaux --}}
     @php
-        $totalBrut    = $bilans->sum('revenus_bruts_loyers');
+        $totalBrut    = $bilans->sum('revenus_bruts_total');   // loyers + charges (Art. 56 CGI SN)
         $totalIrpp    = $bilans->sum('irpp_estime');
         $totalTvaCol  = $bilans->sum('tva_loyer_collectee');
         $totalBrs     = $bilans->sum('brs_retenu_total');
     @endphp
     <div class="kpi-row">
         <div class="kpi-mini gold">
-            <div class="kpi-lbl">Revenus bruts totaux {{ $annee }}</div>
+            <div class="kpi-lbl">Revenus bruts totaux {{ $annee }} (loyers + charges)</div>
             <div class="kpi-val">{{ number_format($totalBrut, 0, ',', ' ') }}<span class="kpi-u">F</span></div>
             <div class="kpi-s">{{ $proprietaires->count() }} propriétaire(s)</div>
         </div>

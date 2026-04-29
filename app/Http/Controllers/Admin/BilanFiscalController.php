@@ -34,7 +34,7 @@ class BilanFiscalController extends Controller
 
         $user     = Auth::user();
         $agencyId = $user->agency_id;
-        $annee    = (int) $request->input('annee', now()->year);
+        $annee    = max(2000, min(2100, (int) $request->input('annee', now()->year)));
 
         // Propriétaires de l'agence — paginés pour éviter de charger des milliers
         // de lignes en mémoire sur des agences avec un grand portefeuille.

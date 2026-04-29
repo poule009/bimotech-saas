@@ -44,10 +44,10 @@ class FiscalService
 
     // Tranches IRPP progressif (CGI art. 65) — montants en FCFA
     public const IRPP_TRANCHES = [
-        ['min' => 0,        'max' => 1_500_000,  'taux' => 0],
-        ['min' => 1_500_001, 'max' => 4_000_000,  'taux' => 20],
-        ['min' => 4_000_001, 'max' => 8_000_000,  'taux' => 30],
-        ['min' => 8_000_001, 'max' => PHP_INT_MAX, 'taux' => 40],
+        ['min' => 0,         'max' => 1_500_000,  'taux' => 0],
+        ['min' => 1_500_000, 'max' => 4_000_000,  'taux' => 20],
+        ['min' => 4_000_000, 'max' => 8_000_000,  'taux' => 30],
+        ['min' => 8_000_000, 'max' => PHP_INT_MAX, 'taux' => 40],
     ];
 
     // Tranches loi 81-18 (plafonds loyer mensuel en FCFA selon surface m²)
@@ -194,6 +194,7 @@ class FiscalService
             loyerAssujetti:           $assujetti,
             regimeFiscal:             $regime,
             tauxTvaLoyerApplique:     $tauxTvaLoyer,
+            tauxCommission:           $ctx->tauxCommission,
             fraisAgenceHt:            $fraisAgenceHt,
             tvaFraisAgence:           $tvaFraisAgence,
             fraisAgenceTtc:           $fraisAgenceTtc,

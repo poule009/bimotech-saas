@@ -95,11 +95,19 @@ final class FiscalContext
             return 1.0;
         }
 
+        if ($this->dateDebutOccupation->gt($this->dateFinPeriode)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Prorata invalide : dateDebutOccupation (%s) est postérieure à dateFinPeriode (%s).',
+                $this->dateDebutOccupation->toDateString(),
+                $this->dateFinPeriode->toDateString()
+            ));
+        }
+
         $joursDansMois = (int) $this->dateFinPeriode->daysInMonth;
         // +1 car le jour d'entrée est inclus (ex: 16 au 30 = 15 jours)
         $joursOccupes  = (int) $this->dateDebutOccupation->diffInDays($this->dateFinPeriode) + 1;
 
-        return min(1.0, max(0.0, $joursOccupes / $joursDansMois));
+        return min(1.0, $joursOccupes / $joursDansMois);
     }
 
     /**

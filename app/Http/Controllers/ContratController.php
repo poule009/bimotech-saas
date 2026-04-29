@@ -221,8 +221,8 @@ class ContratController extends Controller
         $aggrContrat = $contrat->paiements()
             ->where('statut', 'valide')
             ->selectRaw('
-                COALESCE(SUM(montant_encaisse), 0) AS total_paye,
-                COALESCE(SUM(net_proprietaire), 0) AS total_net,
+                COALESCE(SUM(montant_encaisse), 0)          AS total_paye,
+                COALESCE(SUM(net_a_verser_proprietaire), 0) AS total_net,
                 COUNT(*) AS nb_paiements
             ')
             ->first();
@@ -237,7 +237,7 @@ class ContratController extends Controller
             : Carbon::parse($contrat->date_debut);
 
         $paiements = $contrat->paiements()
-            ->select(['id', 'contrat_id', 'agency_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'commission_ttc', 'mode_paiement', 'date_paiement', 'statut', 'reference_paiement'])
+            ->select(['id', 'contrat_id', 'agency_id', 'periode', 'montant_encaisse', 'net_proprietaire', 'net_a_verser_proprietaire', 'commission_ttc', 'mode_paiement', 'date_paiement', 'statut', 'reference_paiement'])
             ->orderByDesc('periode')
             ->get();
 
@@ -412,15 +412,26 @@ class ContratController extends Controller
             'password'  => ['required', Password::min(8)],
         ], ['email.unique' => 'Cet email est déjà utilisé.']);
 
-        $user                    = new User();
-        $user->name              = $validated['name'];
-        $user->email             = $validated['email'];
-        $user->telephone         = $validated['telephone'] ?? null;
-        $user->password          = Hash::make($validated['password']);
-        $user->role              = UserRole::Locataire->value;
-        $user->agency_id         = Auth::user()->agency_id;
-        $user->email_verified_at = now();
-        $user->save();
+        $user = DB::transaction(function () use ($validated) {
+            $user                    = new User();
+            $user->name              = $validated['name'];
+            $user->email             = $validated['email'];
+            $user->telephone         = $validated['telephone'] ?? null;
+            $user->password          = Hash::make($validated['password']);
+            $user->role              = UserRole::Locataire->value;
+            $user->agency_id         = Auth::user()->agency_id;
+            $user->email_verified_at = now();
+            $user->save();
+
+            // Créer le profil Locataire pour que BRS et taux d'effort soient calculables
+            \App\Models\Locataire::create([
+                'user_id'        => $user->id,
+                'type_locataire' => 'particulier',
+                'est_entreprise' => false,
+            ]);
+
+            return $user;
+        });
 
         return response()->json(['success' => true, 'id' => $user->id, 'name' => $user->name]);
     }

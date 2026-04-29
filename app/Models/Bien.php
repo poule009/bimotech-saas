@@ -144,12 +144,22 @@ class Bien extends Model
 
     public static function generateReference(int $agencyId): string
     {
-        $agId  = str_pad($agencyId, 2, '0', STR_PAD_LEFT);
-        $count = static::withoutGlobalScope(\App\Models\Scopes\AgencyScope::class)
-            ->where('agency_id', $agencyId)
-            ->withTrashed()
-            ->count() + 1;
+        $agId    = str_pad($agencyId, 2, '0', STR_PAD_LEFT);
+        $prefixe = 'BT-AG' . $agId . '-';
 
-        return 'BT-AG' . $agId . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        // Verrou pessimiste pour éviter les doublons en cas de requêtes concurrentes.
+        $derniere = static::withoutGlobalScope(\App\Models\Scopes\AgencyScope::class)
+            ->where('agency_id', $agencyId)
+            ->where('reference', 'like', $prefixe . '%')
+            ->withTrashed()
+            ->lockForUpdate()
+            ->orderByDesc('reference')
+            ->value('reference');
+
+        $seq = $derniere
+            ? ((int) substr($derniere, strrpos($derniere, '-') + 1)) + 1
+            : 1;
+
+        return $prefixe . str_pad($seq, 4, '0', STR_PAD_LEFT);
     }
 }

@@ -10,11 +10,16 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class RapportController extends Controller
 {
     private function getData(int $annee, int $mois): array
     {
+        // Clampage défensif — Carbon::create() crash sur mois/annee invalides
+        $mois  = max(1, min(12,   $mois));
+        $annee = max(2000, min(2100, $annee));
+
         $agencyId  = Auth::user()->agency_id;
         $debutMois = Carbon::create($annee, $mois, 1)->startOfMonth();
         $finMois   = Carbon::create($annee, $mois, 1)->endOfMonth();
@@ -32,7 +37,8 @@ class RapportController extends Controller
             'id', 'contrat_id', 'agency_id', 'periode',
             'loyer_nu', 'charges_amount', 'tom_amount',
             'montant_encaisse', 'commission_agence', 'tva_commission',
-            'commission_ttc', 'net_proprietaire', 'taux_commission_applique',
+            'commission_ttc', 'net_proprietaire', 'net_a_verser_proprietaire',
+            'taux_commission_applique',
             'mode_paiement', 'date_paiement', 'reference_paiement', 'reference_bail',
         ])
         ->where('statut', 'valide')
@@ -43,12 +49,12 @@ class RapportController extends Controller
         $kpiRaw = Paiement::where('statut', 'valide')
             ->whereBetween('date_paiement', [$debutMois, $finMois])
             ->selectRaw('
-                COALESCE(SUM(montant_encaisse), 0)  AS total_loyers,
-                COALESCE(SUM(commission_agence), 0) AS total_commission,
-                COALESCE(SUM(tva_commission), 0)    AS total_tva,
-                COALESCE(SUM(commission_ttc), 0)    AS total_ttc,
-                COALESCE(SUM(net_proprietaire), 0)  AS total_net_proprio,
-                COUNT(*)                             AS nb_paiements
+                COALESCE(SUM(montant_encaisse), 0)          AS total_loyers,
+                COALESCE(SUM(commission_agence), 0)         AS total_commission,
+                COALESCE(SUM(tva_commission), 0)            AS total_tva,
+                COALESCE(SUM(commission_ttc), 0)            AS total_ttc,
+                COALESCE(SUM(net_a_verser_proprietaire), 0) AS total_net_proprio,
+                COUNT(*)                                     AS nb_paiements
             ')
             ->first();
 
@@ -87,7 +93,7 @@ class RapportController extends Controller
                 users.name                                      AS proprietaire_nom,
                 COUNT(*)                                        AS nb_paiements,
                 COALESCE(SUM(paiements.montant_encaisse), 0)   AS total_encaisse,
-                COALESCE(SUM(paiements.net_proprietaire), 0)   AS total_net,
+                COALESCE(SUM(paiements.net_a_verser_proprietaire), 0) AS total_net,
                 COALESCE(SUM(paiements.commission_ttc), 0)     AS total_commission
             ')
             ->groupBy('users.id', 'users.name')
@@ -116,7 +122,7 @@ class RapportController extends Controller
             ->pluck('contrat_id')
             ->toArray();
 
-        $biensImpayés = $allContrats->filter(
+        $biensImpayes = $allContrats->filter(
             fn($c) => ! in_array($c->id, $contratsPaies)
         );
 
@@ -141,7 +147,7 @@ class RapportController extends Controller
             'annee', 'mois', 'debutMois',
             'paiementsMois', 'kpiMois',
             'evolution', 'parProprietaire',
-            'biensImpayés', 'statsGenerales',
+            'biensImpayes', 'statsGenerales',
             'anneesDisponibles'
         );
     }
@@ -184,7 +190,7 @@ class RapportController extends Controller
         $filename = sprintf(
             'rapport-financier-%04d-%02d-%s.pdf',
             $annee, $mois,
-            Auth::user()->agency?->name ?? 'agence'
+            Str::slug(Auth::user()->agency?->name ?? 'agence')
         );
 
         return $pdf->download($filename);

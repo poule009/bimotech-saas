@@ -131,6 +131,12 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">Titre <span class="opt">(optionnel — apparaît sur la fiche)</span></label>
+                            <input type="text" name="titre" class="form-input"
+                                   value="{{ old('titre', $bien->titre) }}"
+                                   placeholder="Ex: Villa F4 avec piscine — Almadies">
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Surface (m²)</label>
