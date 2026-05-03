@@ -212,14 +212,28 @@ tfoot td.right { text-align:right; color:#c9a84c; font-size:12px; }
     </div>
 </div>
 
+{{-- AVERTISSEMENT DOCUMENT RÉSUMÉ --}}
+<div class="section">
+    <div style="background:#fef3c7;border:1px solid #fbbf24;border-left:4px solid #f59e0b;border-radius:0 4px 4px 0;padding:8px 12px;font-size:8.5px;color:#78350f;line-height:1.65">
+        <strong>Document récapitulatif — usage interne.</strong>
+        Ce document est un résumé des conditions du bail à des fins de gestion.
+        Il ne constitue pas un acte juridique complet.
+        Pour la signature légale, utiliser le <strong>Bail formel PDF</strong>
+        qui contient les 10 articles obligatoires, les préavis chiffrés,
+        la clause d'enregistrement DGID et les obligations d'assurance.
+    </div>
+</div>
+
 {{-- CLAUSES LÉGALES --}}
 <div class="section">
-    <div class="section-title">Clauses légales — Loi 81-18</div>
+    <div class="section-title">Dispositions légales applicables — Loi 81-18</div>
     <div class="clause-legal">
-Le présent contrat est régi par la loi sénégalaise n° 81-18 du 30 mars 1981 relative aux rapports entre bailleurs et locataires.<br>
-Le locataire s'engage à payer le loyer aux termes convenus, à user paisiblement des lieux conformément à leur destination, à ne pas sous-louer sans accord écrit du bailleur.<br>
-Le bailleur s'engage à délivrer le bien en bon état, à en assurer la jouissance paisible et à effectuer les réparations relevant de sa charge.<br>
-Tout litige sera porté devant les juridictions compétentes de Dakar, Sénégal.
+Le présent bail est régi par la loi sénégalaise n° 81-18 du 30 mars 1981 relative aux rapports entre bailleurs et locataires.<br>
+<strong>Préavis :</strong> 3 mois (bailleur) / 1 mois (preneur) pour bail habitation — 6 mois / 3 mois pour bail commercial (Art. 17-18 loi 81-18).<br>
+<strong>Enregistrement :</strong> Le présent bail doit être enregistré à la DGID dans les 2 mois suivant la signature (Art. 442 CGI SN).<br>
+Le locataire s'engage à payer le loyer aux termes convenus, user paisiblement des lieux, ne pas sous-louer sans accord écrit du bailleur, et souscrire une assurance multirisque locative.<br>
+Le bailleur s'engage à délivrer le bien en bon état et à en assurer la jouissance paisible.<br>
+Tout litige sera porté devant les juridictions compétentes de la ville du bien loué, République du Sénégal.
     </div>
 </div>
 

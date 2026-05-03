@@ -301,10 +301,17 @@
                                        value="{{ old('garant_telephone') }}" placeholder="+221 7X XXX XX XX">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Adresse</label>
-                            <input type="text" name="garant_adresse" class="form-input"
-                                   value="{{ old('garant_adresse') }}" placeholder="Adresse complète">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Adresse</label>
+                                <input type="text" name="garant_adresse" class="form-input"
+                                       value="{{ old('garant_adresse') }}" placeholder="Adresse complète">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CNI / Pièce d'identité</label>
+                                <input type="text" name="garant_cni" class="form-input"
+                                       value="{{ old('garant_cni') }}" placeholder="N° CNI ou passeport">
+                            </div>
                         </div>
                     </div>
                 </div>

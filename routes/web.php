@@ -195,6 +195,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Contrat de bail PDF
         Route::get('contrats/{contrat}/bail-pdf', [ContratController::class, 'bailPdf'])->name('contrats.bail-pdf');
+        Route::get('contrats/{contrat}/bail-formel-pdf', [ContratController::class, 'bailFormelPdf'])->name('contrats.bail-formel-pdf');
     });
 
     // ── Staff agence — lecture (admin + superadmin) ───────────────────────

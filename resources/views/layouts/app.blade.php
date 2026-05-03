@@ -24,7 +24,7 @@
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #f6f8fa;
+            background: #f9f7f2;
             color: #1c2128;
             display: flex;
             min-height: 100vh;
@@ -39,8 +39,8 @@
         }
 
         .topbar {
-            background: #fff;
-            border-bottom: 1px solid #eaeef2;
+            background: #fffef9;
+            border-bottom: 1px solid #ede9e0;
             padding: 0 2rem;
             height: 56px;
             display: flex;
@@ -98,19 +98,19 @@
         }
 
         /* ── Tables ── */
-        .table-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden; }
+        .table-card { background:#fffef9;border:1px solid #e8e3d8;border-radius:14px;overflow:hidden; }
         .dt { width:100%;border-collapse:collapse; }
-        .dt th { padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-        .dt td { padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
+        .dt th { padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f5f2ea;border-bottom:1px solid #e8e3d8; }
+        .dt td { padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f0ece3;vertical-align:middle; }
         .dt tbody tr:last-child td { border-bottom:none; }
-        .dt tbody tr:hover { background:#f9fafb; }
+        .dt tbody tr:hover { background:#f5f2ea; }
 
         /* ── Badges ── */
         .badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600; }
         .bdot { width:5px;height:5px;border-radius:50%;background:currentColor; }
 
         /* ── Boutons icône (tableaux) ── */
-        .act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;text-decoration:none;transition:all .15s;cursor:pointer; }
+        .act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e8e3d8;background:#fffef9;color:#6b7280;text-decoration:none;transition:all .15s;cursor:pointer; }
         .act-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
         .act-btn.danger:hover { border-color:#fca5a5;color:#dc2626;background:#fef2f2; }
         .act-btn.primary { background:#2a4a7f;border-color:#2a4a7f;color:#fff; }
@@ -118,7 +118,7 @@
 
         /* ── KPI ligne (pages index) ── */
         .kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
-        .kpi { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px; }
+        .kpi { background:#fffef9;border:1px solid #e8e3d8;border-radius:12px;padding:16px 18px; }
         .kpi.gold  { border-top:3px solid #c9a84c; }
         .kpi.green { border-top:3px solid #16a34a; }
         .kpi.blue  { border-top:3px solid #1d4ed8; }
@@ -145,15 +145,15 @@
         .form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
         .req { color:#dc2626; }
         .opt { color:#9ca3af;font-weight:400; }
-        .form-input,.form-select,.form-textarea { width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fff;outline:none;transition:border .15s; }
+        .form-input,.form-select,.form-textarea { width:100%;padding:9px 12px;border:1px solid #e8e3d8;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fffef9;outline:none;transition:border .15s; }
         .form-input:focus,.form-select:focus,.form-textarea:focus { border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1); }
         .form-input.error,.form-select.error { border-color:#dc2626; }
         .form-error { font-size:11px;color:#dc2626;margin-top:3px; }
         .form-textarea { resize:vertical;min-height:80px; }
 
         /* ── Barre de soumission (formulaires) ── */
-        .submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f9fafb; }
-        .btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
+        .submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e8e3d8;background:#f5f2ea; }
+        .btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e8e3d8;background:#fffef9;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
         .btn-submit { padding:8px 18px;border-radius:8px;border:none;background:#2a4a7f;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
 
         /* ── État vide ── */
@@ -174,12 +174,12 @@
         /* ── Modale de confirmation ── */
         #g-confirm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center; }
         #g-confirm-overlay.open { display:flex; }
-        #g-confirm-box { background:#fff;border-radius:14px;padding:28px 28px 22px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:confirmIn .18s ease; }
+        #g-confirm-box { background:#fffef9;border-radius:14px;padding:28px 28px 22px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:confirmIn .18s ease; }
         @keyframes confirmIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
         #g-confirm-icon-wrap { width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
         #g-confirm-actions { display:flex;gap:10px;justify-content:flex-end;margin-top:22px; }
-        .g-btn-cancel { padding:8px 18px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer; }
-        .g-btn-cancel:hover { background:#f9fafb; }
+        .g-btn-cancel { padding:8px 18px;border-radius:8px;border:1px solid #e8e3d8;background:#fffef9;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer; }
+        .g-btn-cancel:hover { background:#f5f2ea; }
         .g-btn-ok { padding:8px 18px;border-radius:8px;border:none;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer; }
 
         /* ── Spinner anti-double-submit ── */

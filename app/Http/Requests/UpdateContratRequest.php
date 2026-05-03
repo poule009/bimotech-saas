@@ -40,6 +40,7 @@ class UpdateContratRequest extends FormRequest
             'garant_nom'          => ['nullable', 'string', 'max:150'],
             'garant_telephone'    => ['nullable', 'string', 'max:20'],
             'garant_adresse'      => ['nullable', 'string', 'max:255'],
+            'garant_cni'          => ['nullable', 'string', 'max:30'],
             'reference_bail'      => [
                 'nullable', 'string', 'max:60',
                 // Unicité par agence, en ignorant le contrat en cours de modification

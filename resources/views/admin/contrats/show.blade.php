@@ -111,6 +111,11 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Bail PDF
         </a>
+        <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" target="_blank"
+           class="btn-act" style="background:#f5e9c9;color:#8a6e2f;border:1px solid rgba(201,168,76,.4)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Bail formel PDF
+        </a>
         <a href="{{ route('admin.contrats.index') }}" class="btn-act btn-outline">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Retour
@@ -278,6 +283,9 @@
                             <div class="il">Nom</div>
                             <div class="iv">{{ $contrat->garant_nom }}</div>
                             <div class="iv-sub">{{ $contrat->garant_telephone ?? '' }}</div>
+                            @if($contrat->garant_cni)
+                            <div class="iv-sub" style="margin-top:4px">CNI : {{ $contrat->garant_cni }}</div>
+                            @endif
                         </div>
                         <div>
                             <div class="il">Adresse</div>

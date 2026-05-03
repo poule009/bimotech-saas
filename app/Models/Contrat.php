@@ -72,6 +72,7 @@ class Contrat extends Model
         'garant_nom',
         'garant_telephone',
         'garant_adresse',
+        'garant_cni',
 
         // ── Divers ────────────────────────────────────────────────────────
         'observations',

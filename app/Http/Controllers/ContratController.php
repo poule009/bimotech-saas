@@ -151,6 +151,7 @@ class ContratController extends Controller
                 'garant_nom'          => $validated['garant_nom'] ?? null,
                 'garant_telephone'    => $validated['garant_telephone'] ?? null,
                 'garant_adresse'      => $validated['garant_adresse'] ?? null,
+                'garant_cni'          => $validated['garant_cni'] ?? null,
                 'observations'           => $validated['observations'] ?? null,
                 'clauses_particulieres'  => $validated['clauses_particulieres'] ?? null,
                 'reference_bail'      => $referenceBail,
@@ -284,6 +285,33 @@ class ContratController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────────
+    // BAIL FORMEL PDF — format notarial sénégalais avec articles numérotés
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function bailFormelPdf(Contrat $contrat): \Illuminate\Http\Response
+    {
+        $this->authorize('view', $contrat);
+
+        $contrat->load([
+            'bien:id,reference,type,adresse,ville,quartier,commune,surface_m2,nombre_pieces,meuble',
+            'bien.proprietaire:id,name,email,telephone,adresse',
+            'bien.proprietaire.proprietaire',
+            'locataire:id,name,email,telephone,adresse',
+            'locataire.locataire',
+        ]);
+
+        $agency = Auth::user()->agency;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('contrats.pdf.bail-formel', compact(
+            'contrat', 'agency'
+        ))->setPaper('a4', 'portrait');
+
+        $filename = 'bail-formel-' . ($contrat->reference_bail ?? 'contrat-' . $contrat->id) . '.pdf';
+
+        return $pdf->download(str_replace(' ', '-', $filename));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     // FORMULAIRE ÉDITION
     // ─────────────────────────────────────────────────────────────────────
 
@@ -346,6 +374,7 @@ class ContratController extends Controller
             'garant_nom'          => $validated['garant_nom'] ?? null,
             'garant_telephone'    => $validated['garant_telephone'] ?? null,
             'garant_adresse'      => $validated['garant_adresse'] ?? null,
+            'garant_cni'          => $validated['garant_cni'] ?? null,
             'reference_bail'      => ! empty($validated['reference_bail'])
                 ? trim($validated['reference_bail'])
                 : $contrat->reference_bail,

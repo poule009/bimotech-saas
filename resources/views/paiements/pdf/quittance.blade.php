@@ -472,11 +472,16 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
 
     {{-- MENTION LÉGALE --}}
     <div class="mention">
-        Quittance délivrée conformément au contrat de bail ref. {{ $refBail }}.
-        Cette quittance atteste que le loyer du mois de {{ $periode->translatedFormat('F Y') }}
-        a été intégralement acquitté. Honoraires d'agence calculés conformément au mandat de gestion —
-        TVA 18% incluse (Art. 357 CGI SN).
-        Document généré le {{ now()->format('d/m/Y') }} par {{ $agence?->name ?? 'BimoTech Immo' }}.
+        Quittance délivrée conformément à la loi n° 81-18 du 30 mars 1981 (Art. 19) et au contrat de bail
+        réf. <strong>{{ $refBail }}</strong>.
+        Cette quittance atteste que <strong>{{ $locataire?->name ?? 'le locataire' }}</strong>
+        s'est acquitté(e) du loyer de <strong>{{ $periode->translatedFormat('F Y') }}</strong>
+        pour le bien sis <strong>{{ $bien?->adresse }}{{ $bien?->ville ? ', '.$bien->ville : '' }}</strong>.
+        @if($estProratise) Paiement proratisé (prorata temporis — entrée en cours de mois). @endif
+        <strong>Cette quittance ne vaut pas renonciation aux créances antérieures éventuellement dues.</strong>
+        Honoraires d'agence calculés sur loyer nu, TVA 18% incluse (Art. 357 CGI SN).
+        {{ $agence?->name ?? 'BimoTech Immo' }} agit en qualité de Mandataire du Propriétaire Bailleur.
+        Document généré le {{ now()->format('d/m/Y') }}.
     </div>
 
     {{-- SIGNATURES --}}
