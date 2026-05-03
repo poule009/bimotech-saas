@@ -438,7 +438,7 @@ class ContratController extends Controller
             'name'      => ['required', 'string', 'max:255'],
             'email'     => ['required', 'email', 'unique:users,email'],
             'telephone' => ['nullable', 'string', 'max:30'],
-            'password'  => ['required', Password::min(8)],
+            'password'  => ['required', Password::min(8)->letters()->numbers()],
         ], ['email.unique' => 'Cet email est déjà utilisé.']);
 
         $user = DB::transaction(function () use ($validated) {

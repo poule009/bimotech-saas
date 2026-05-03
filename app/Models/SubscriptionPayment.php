@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAgencyScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SubscriptionPayment extends Model
 {
-    use HasFactory;
+    use HasFactory, HasAgencyScope;
 
     protected $fillable = [
         'subscription_id',

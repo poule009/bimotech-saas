@@ -282,7 +282,7 @@ class SuperAdminController extends Controller
                 $admin            = new User();
                 $admin->name      = $request->admin_name;
                 $admin->email     = $request->admin_email;
-                $admin->password  = bcrypt($request->admin_password);
+                $admin->password  = \Illuminate\Support\Facades\Hash::make($request->admin_password);
                 $admin->role      = 'admin';
                 $admin->agency_id = $agency->id;
                 $admin->email_verified_at = now();
@@ -296,7 +296,7 @@ class SuperAdminController extends Controller
                 ]);
 
                 try {
-                    $admin->notify(new AgencyWelcomeNotification($agency, $request->admin_password));
+                    $admin->notify(new AgencyWelcomeNotification($agency));
                 } catch (\Throwable $e) {
                     Log::warning('Email de bienvenue non envoyé', ['error' => $e->getMessage()]);
                 }

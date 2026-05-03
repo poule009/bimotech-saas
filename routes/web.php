@@ -150,7 +150,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
 
         // Contrats — écriture
-        Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide');
+        Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide')->middleware('throttle:20,1');
         Route::get('contrats/create',            [ContratController::class, 'create'])->name('contrats.create');
         Route::post('contrats',                  [ContratController::class, 'store'])->name('contrats.store');
         Route::get('contrats/{contrat}/edit',    [ContratController::class, 'edit'])->name('contrats.edit');

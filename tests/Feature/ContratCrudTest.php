@@ -373,7 +373,7 @@ class ContratCrudTest extends TestCase
              ->postJson(route('admin.contrats.locataire-rapide'), [
                  'name'     => 'Ibrahima Sow',
                  'email'    => 'ibrahima.sow@test.com',
-                 'password' => 'password123',
+                 'password' => 'SecurePass1!',
              ])
              ->assertOk()
              ->assertJsonStructure(['success', 'id', 'name']);
@@ -393,7 +393,7 @@ class ContratCrudTest extends TestCase
         $this->actingAs($admin)
              ->postJson(route('admin.contrats.locataire-rapide'), [
                  'name'     => 'Ibrahima Sow',
-                 'password' => 'password123',
+                 'password' => 'SecurePass1!',
              ])
              ->assertUnprocessable();
     }

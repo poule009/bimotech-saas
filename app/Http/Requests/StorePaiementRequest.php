@@ -25,10 +25,15 @@ class StorePaiementRequest extends FormRequest
         return [
             'contrat_id'           => [
                 'required', 'exists:contrats,id',
-                function ($attribute, $value, $fail) {
+                function ($_attr, $value, $fail) {
                     $contrat = Contrat::withoutGlobalScopes()->find($value);
                     if (! $contrat) {
                         $fail('Ce contrat est introuvable.');
+                        return;
+                    }
+                    $user = \Illuminate\Support\Facades\Auth::user();
+                    if ($user->role !== 'superadmin' && $contrat->agency_id !== $user->agency_id) {
+                        $fail('Ce contrat n\'appartient pas à votre agence.');
                         return;
                     }
                     if ((float)($contrat->loyer_nu ?? 0) <= 0) {
@@ -43,7 +48,7 @@ class StorePaiementRequest extends FormRequest
                 'required',
                 'date',  // accepte Y-m, Y-m-d et ISO (formulaire + tests)
                 // ── Règle anti-doublon ──────────────────────────────────
-                function ($attribute, $value, $fail) {
+                function ($_attr, $value, $fail) {
                     $contratId   = $this->input('contrat_id');
                     $periodeDate = Carbon::parse($value)->startOfMonth();
 

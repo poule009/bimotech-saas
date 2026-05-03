@@ -34,6 +34,7 @@ class Agency extends Model
         'couleur_primaire',
         'adresse',
         'ninea',
+        'rccm',
         'onboarding_completed',
         'taux_tva',
     ];

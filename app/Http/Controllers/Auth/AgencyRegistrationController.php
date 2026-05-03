@@ -70,7 +70,7 @@ class AgencyRegistrationController extends Controller
                 $admin            = new User();
                 $admin->name      = $request->admin_name;
                 $admin->email     = $request->admin_email;
-                $admin->password  = bcrypt($request->admin_password);
+                $admin->password  = \Illuminate\Support\Facades\Hash::make($request->admin_password);
                 $admin->role      = 'admin';
                 $admin->agency_id = $agency->id;
                 $admin->save();

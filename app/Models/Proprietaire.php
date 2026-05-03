@@ -6,9 +6,25 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Facades\Auth;
 
 class Proprietaire extends Model
 {
+    protected static function booted(): void
+    {
+        static::addGlobalScope('agency', function ($builder) {
+            if (! Auth::check() || Auth::user()->role === 'superadmin') {
+                return;
+            }
+            if (! Auth::user()->agency_id) {
+                $builder->whereRaw('1 = 0');
+                return;
+            }
+            $agencyId = Auth::user()->agency_id;
+            $builder->whereHas('user', fn($q) => $q->where('agency_id', $agencyId));
+        });
+    }
+
     protected $fillable = [
         'user_id', 'cni', 'date_naissance', 'genre', 'nationalite',
         'telephone_secondaire', 'adresse_domicile', 'ville', 'quartier',

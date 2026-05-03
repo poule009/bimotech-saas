@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAgencyScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Subscription extends Model
 {
-    use HasFactory;
+    use HasFactory, HasAgencyScope;
 
     protected $fillable = [
+        // agency_id en fillable car créé uniquement par code serveur contrôlé
+        // (SuperAdmin, IPN PayTech vérifié HMAC, inscription) — jamais par form utilisateur
         'agency_id',
         'statut',
         'date_debut_essai',

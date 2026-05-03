@@ -256,7 +256,7 @@ class PaiementController extends Controller
 
     public function annuler(Paiement $paiement): RedirectResponse
     {
-        $this->authorize('isStaff');
+        $this->authorize('update', $paiement);
 
         if ($paiement->statut !== 'valide') {
             return back()->withErrors(['general' => 'Seul un paiement valide peut être annulé.']);

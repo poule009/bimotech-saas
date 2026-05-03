@@ -3,9 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Locataire extends Model
 {
+    protected static function booted(): void
+    {
+        static::addGlobalScope('agency', function ($builder) {
+            if (! Auth::check() || Auth::user()->role === 'superadmin') {
+                return;
+            }
+            if (! Auth::user()->agency_id) {
+                $builder->whereRaw('1 = 0');
+                return;
+            }
+            $agencyId = Auth::user()->agency_id;
+            $builder->whereHas('user', fn($q) => $q->where('agency_id', $agencyId));
+        });
+    }
+
     protected $fillable = [
         'user_id',
         'cni', 'date_naissance', 'genre', 'nationalite',

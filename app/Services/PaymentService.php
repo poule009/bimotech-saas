@@ -104,6 +104,11 @@ class PaymentService
                 return ['success' => false, 'message' => 'Données custom_data manquantes'];
             }
 
+            if (! array_key_exists($plan, Subscription::TARIFS)) {
+                Log::error('IPN PayTech — plan invalide', ['plan' => $plan, 'ref' => $refCommand]);
+                return ['success' => false, 'message' => 'Plan invalide'];
+            }
+
             DB::transaction(function () use ($agencyId, $plan, $refCommand) {
                 // Idempotence — on ne traite pas deux fois la même commande
                 if (SubscriptionPayment::where('reference', $refCommand)->exists()) {

@@ -43,6 +43,9 @@ class AgencyScope implements Scope
         // Tous les autres rôles sont cloisonnés à leur agence
         if ($user->agency_id) {
             $builder->where($model->getTable() . '.agency_id', $user->agency_id);
+        } else {
+            // Utilisateur sans agence (données corrompues) → aucun résultat par sécurité
+            $builder->whereRaw('1 = 0');
         }
     }
 }

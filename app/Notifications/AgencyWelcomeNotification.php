@@ -6,6 +6,7 @@ use App\Models\Agency;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Password;
 
 class AgencyWelcomeNotification extends Notification
 {
@@ -13,7 +14,6 @@ class AgencyWelcomeNotification extends Notification
 
     public function __construct(
         public Agency $agency,
-        public string $plainPassword,
     ) {}
 
     public function via(object $notifiable): array
@@ -23,28 +23,24 @@ class AgencyWelcomeNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $verificationUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            [
-                'id'   => $notifiable->getKey(),
-                'hash' => sha1($notifiable->getEmailForVerification()),
-            ]
-        );
+        // Génère un token de réinitialisation valable 60 min — jamais le mot de passe en clair
+        $resetToken = Password::createToken($notifiable);
+        $resetUrl   = url(route('password.reset', [
+            'token' => $resetToken,
+            'email' => $notifiable->getEmailForVerification(),
+        ], false));
 
         return (new MailMessage)
-            ->subject("Bienvenue sur BIMO-Tech — Confirmez votre email")
+            ->subject("Bienvenue sur BIMO-Tech — Définissez votre mot de passe")
             ->greeting("Bonjour {$notifiable->name},")
             ->line("Votre espace agence **{$this->agency->name}** a été créé avec succès sur la plateforme BIMO-Tech.")
             ->line('---')
             ->line('**Vos informations de connexion :**')
             ->line("• Email : {$notifiable->email}")
-            ->line("• Mot de passe : {$this->plainPassword}")
+            ->line("• Cliquez sur le bouton ci-dessous pour définir votre mot de passe.")
             ->line('---')
-            ->action('✅ Confirmer mon email', $verificationUrl)
-            ->line('Ce lien expire dans **60 minutes**.')
-            ->line('---')
-            ->line('Pour des raisons de sécurité, nous vous recommandons de changer votre mot de passe dès votre première connexion.')
+            ->action('Définir mon mot de passe', $resetUrl)
+            ->line('Ce lien expire dans **60 minutes**. Passé ce délai, contactez votre administrateur de plateforme.')
             ->line('Si vous avez des questions, contactez-nous à **support@bimotech.sn**.')
             ->salutation('Cordialement, — L\'équipe BIMO-Tech');
     }
