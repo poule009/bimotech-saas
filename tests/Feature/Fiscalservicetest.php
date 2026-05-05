@@ -39,7 +39,7 @@ class FiscalServiceTest extends TestCase
             tomAmount:              0,
             typeBail:               'habitation',
             estMeuble:              false,
-            locataireEstEntreprise: false,
+            brsApplicable: false,
             tauxCommission:         10.0,
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   null,
@@ -66,7 +66,7 @@ class FiscalServiceTest extends TestCase
             tomAmount:              0,
             typeBail:               'commercial',
             estMeuble:              false,
-            locataireEstEntreprise: false,
+            brsApplicable: false,
             tauxCommission:         10.0,
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   null,
@@ -91,7 +91,7 @@ class FiscalServiceTest extends TestCase
             tomAmount:              0,
             typeBail:               'habitation',
             estMeuble:              true,   // ← meublé = assujetti
-            locataireEstEntreprise: false,
+            brsApplicable: false,
             tauxCommission:         10.0,
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   null,
@@ -106,29 +106,30 @@ class FiscalServiceTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    public function calculer_brs_applique_si_locataire_entreprise(): void
+    public function calculer_brs_applique_si_bailleur_personne_physique(): void
     {
-        // BRS 15% sur loyer TTC si locataire est une entreprise (CGI art. 196bis)
+        // Art. 201 §3 CGI SN : "5% du montant brut hors taxes des loyers encaissés"
+        // BRS actif quand bailleur = personne physique (pas quand bailleur est PM IS)
         $ctx = new FiscalContext(
             loyerNu:                200_000,
             chargesAmount:          0,
             tomAmount:              0,
             typeBail:               'commercial',
             estMeuble:              false,
-            locataireEstEntreprise: true,   // ← entreprise
+            brsApplicable:          true,   // bailleur personne physique → BRS actif
             tauxCommission:         10.0,
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   null,
-            tauxBrsContrat:         null,   // → taux légal 15%
+            tauxBrsContrat:         null,   // → taux légal 5%
             tauxBrsLocataire:       null,
         );
 
         $result = FiscalService::calculer($ctx);
 
-        $loyerTtcAttendu = 236_000.0; // 200 000 + 18%
-        $brsAttendu      = round($loyerTtcAttendu * 0.15, 2); // 35 400
+        // Assiette = loyer HT brut (PAS TTC) — Art. 201 §3 : "montant brut hors taxes"
+        $brsAttendu = round(200_000 * 0.05, 2); // 10 000 F (et non 11 800 sur TTC)
 
-        $this->assertSame(15.0,      $result->tauxBrsApplique);
+        $this->assertSame(5.0,         $result->tauxBrsApplique);
         $this->assertSame($brsAttendu, $result->brsAmount);
         $this->assertSame('commercial_avec_brs', $result->regimeFiscal);
     }
@@ -136,14 +137,14 @@ class FiscalServiceTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function calculer_brs_priorite_contrat_sur_legal(): void
     {
-        // Si le contrat spécifie un taux BRS, il prime sur les 15% légaux
+        // Si le contrat spécifie un taux BRS, il prime sur le 5% légal
         $ctx = new FiscalContext(
             loyerNu:                200_000,
             chargesAmount:          0,
             tomAmount:              0,
             typeBail:               'commercial',
             estMeuble:              false,
-            locataireEstEntreprise: true,
+            brsApplicable: true,
             tauxCommission:         10.0,
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   null,
@@ -165,7 +166,7 @@ class FiscalServiceTest extends TestCase
             tomAmount:              0,
             typeBail:               'habitation',
             estMeuble:              false,
-            locataireEstEntreprise: false,
+            brsApplicable: false,
             tauxCommission:         10.0,
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   null,
@@ -197,7 +198,7 @@ class FiscalServiceTest extends TestCase
             tomAmount:              0,
             typeBail:               'commercial',
             estMeuble:              false,
-            locataireEstEntreprise: false,
+            brsApplicable: false,
             tauxCommission:         10.0,
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   0.0, // ← forcé exonéré
@@ -217,7 +218,7 @@ class FiscalServiceTest extends TestCase
         $ctx = new FiscalContext(
             loyerNu: 100_000, chargesAmount: 0, tomAmount: 0,
             typeBail: 'habitation', estMeuble: false,
-            locataireEstEntreprise: false,
+            brsApplicable: false,
             tauxCommission: 10.0, tauxTvaCommission: 18.0,
             tauxTvaLoyerOverride: null, tauxBrsContrat: null, tauxBrsLocataire: null,
         );
@@ -233,7 +234,7 @@ class FiscalServiceTest extends TestCase
         $ctx = new FiscalContext(
             loyerNu: 200_000, chargesAmount: 0, tomAmount: 0,
             typeBail: 'habitation', estMeuble: false,
-            locataireEstEntreprise: false,
+            brsApplicable: false,
             tauxCommission: 10.0, tauxTvaCommission: 18.0,
             tauxTvaLoyerOverride: null, tauxBrsContrat: null, tauxBrsLocataire: null,
         );
@@ -291,29 +292,32 @@ class FiscalServiceTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function irpp_zero_sous_le_seuil_exonere(): void
     {
-        // Tranche 0% : revenus < 1 500 000 FCFA
-        $this->assertSame(0.0, FiscalService::calculerIRPP(1_000_000));
+        // CGI art. 173 : tranche 0% = 0 à 630 000 FCFA
+        $this->assertSame(0.0, FiscalService::calculerIRPP(500_000));
+        $this->assertSame(0.0, FiscalService::calculerIRPP(630_000));
         $this->assertSame(0.0, FiscalService::calculerIRPP(0));
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
     public function irpp_tranche_20_pourcent(): void
     {
-        // Tranche 2 commence à 1 500 001 → (2 000 000 - 1 500 001) × 20% ≈ 99 999.8
-        $this->assertEqualsWithDelta(100_000.0, FiscalService::calculerIRPP(2_000_000), 1.0);
+        // CGI art. 173 : tranche 20% = 630 001 à 1 500 000 FCFA
+        // Base = 1 000 000 → (1 000 000 - 630 000) × 20% = 370 000 × 20% = 74 000
+        $this->assertEqualsWithDelta(74_000.0, FiscalService::calculerIRPP(1_000_000), 1.0);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
     public function irpp_calcul_progressif_multi_tranches(): void
     {
-        // Base = 5 000 000
-        // Tranche 1 : (1 500 000 - 0) × 0%    =       0
-        // Tranche 2 : (4 000 000 - 1 500 001) × 20% = 499 999.8 ≈ 500 000
-        // Tranche 3 : (5 000 000 - 4 000 001) × 30% = 299 999.7 ≈ 300 000
-        // Total ≈ 800 000
+        // CGI art. 173 — Base = 5 000 000 FCFA :
+        // Tranche 0%  [0 → 630k]       =         0
+        // Tranche 20% [630k → 1,5M]    = 870 000 × 20% = 174 000
+        // Tranche 30% [1,5M → 4M]      = 2 500 000 × 30% = 750 000
+        // Tranche 35% [4M → 5M]        = 1 000 000 × 35% = 350 000
+        // Total = 1 274 000 F
         $irpp = FiscalService::calculerIRPP(5_000_000);
-        $this->assertGreaterThan(700_000.0, $irpp);
-        $this->assertLessThan(900_000.0,   $irpp);
+        $this->assertGreaterThan(1_200_000.0, $irpp);
+        $this->assertLessThan(1_400_000.0,   $irpp);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

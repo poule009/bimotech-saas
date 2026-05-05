@@ -187,11 +187,11 @@
                             {{-- Badge BRS --}}
                             <div class="brs-badge" id="brs-badge">
                                 <div class="brs-badge-title">
-                                    ⚠ Retenue BRS applicable — Locataire entreprise (Art. 196bis CGI SN)
+                                    ⚠ Retenue BRS applicable — Locataire entreprise (Art. 201 CGI SN)
                                 </div>
                                 <div class="brs-badge-body">
                                     Ce locataire est identifié comme une <strong>personne morale</strong>.
-                                    Le BRS de <strong id="brs-taux-display">15%</strong> sera retenu sur le loyer TTC
+                                    Le BRS de <strong id="brs-taux-display">5%</strong> sera retenu sur le loyer TTC
                                     et versé directement à la DGI par le locataire.<br>
                                     Montant BRS estimé : <strong id="brs-montant-display">— F</strong> &nbsp;·&nbsp;
                                     Net à verser au propriétaire : <strong id="brs-net-display">— F</strong>
@@ -360,7 +360,7 @@
                             {{-- Section BRS (cachée si non applicable) --}}
                             <div id="rp-brs-section" style="display:none;margin-top:10px;padding:10px 12px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:8px">
                                 <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(248,113,113,.7);margin-bottom:6px">
-                                    BRS — Retenue à la source (Art. 196bis)
+                                    BRS — Retenue à la source (Art. 201)
                                 </div>
                                 <div class="rp-row" style="border-color:rgba(255,255,255,.05)">
                                     <div class="rp-lbl">Taux BRS</div>

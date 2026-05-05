@@ -23,7 +23,7 @@ class Paiement extends Model
         'tva_loyer',           // TVA 18% sur loyer_ht (0 pour habitation)
         'loyer_ttc',           // loyer_ht + tva_loyer
         'charges_amount',      // Charges récupérables HT
-        'tva_charges',         // TVA 18% sur charges forfait bail commercial/meublé (Art. 357 CGI SN)
+        'tva_charges',         // TVA 18% sur charges forfait bail commercial/meublé (Art. 364 + 369 CGI SN)
         'charges_ttc',         // charges_amount + tva_charges
         'tom_amount',          // Taxe ordures ménagères (jamais taxée)
         'montant_encaisse',    // Total encaissé = loyer_ttc + charges_ttc + TOM
@@ -36,8 +36,8 @@ class Paiement extends Model
 
         // ── Nets propriétaire ──────────────────────────────────────────────
         'net_proprietaire',          // montant_encaisse - commission_ttc
-        'brs_amount',                // BRS retenu (Art. 196bis CGI SN)
-        'taux_brs_applique',         // Taux BRS figé (0, 5 ou 15%)
+        'brs_amount',                // BRS retenu (Art. 201 CGI SN)
+        'taux_brs_applique',         // Taux BRS figé (0 ou 5% légal — Art. 201 §3 CGI SN)
         'net_a_verser_proprietaire', // net_proprietaire - brs_amount
 
         // ── Snapshot fiscal immuable ───────────────────────────────────────

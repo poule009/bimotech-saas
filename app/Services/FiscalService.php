@@ -9,12 +9,12 @@ use InvalidArgumentException;
  * FiscalService — Moteur de calcul fiscal pour le marché sénégalais.
  *
  * Références légales :
- *  - TVA 18%         : Code Général des Impôts (CGI), article 357
- *  - BRS 15%         : CGI article 196bis — Retenue à la source locataire entreprise
+ *  - TVA 18%         : Code Général des Impôts (CGI), article 369
+ *  - BRS 5%          : CGI article 201 §3 — Retenue à la source sur loyers (texte officiel vérifié)
  *  - Commission HT   : Base de facturation de l'agence hors taxes
  *  - Loi 81-18       : Encadrement des loyers au Sénégal
- *  - IRPP            : CGI article 65, barème progressif, abattement 30% (Art. 58)
- *  - CFPB            : CGI articles 95-110 (Contribution Foncière des Propriétés Bâties)
+ *  - IRPP            : CGI article 65, barème progressif, abattement 30% (Art. 68 §c)
+ *  - CFPB            : CGI articles 283-294 (Contribution Foncière des Propriétés Bâties)
  *
  * ARCHITECTURE :
  *  Méthodes statiques (API principale) :
@@ -30,24 +30,30 @@ class FiscalService
 {
     // ─── Constantes fiscales ────────────────────────────────────────────────
 
-    public const TVA_TAUX              = 18.0;   // 18% — CGI art. 357
+    public const TVA_TAUX              = 18.0;   // 18% — CGI art. 369 (texte officiel lu)
     public const TVA_TAUX_DECIMAL     = 0.18;
-    public const BRS_TAUX_LEGAL       = 15.0;   // 15% — CGI art. 196bis
-    public const COMMISSION_TAUX      = 10.0;   // 10% — standard marché SN
-    public const ABATTEMENT_IRPP      = 0.30;   // 30% forfaitaire — CGI art. 58
-    public const CFPB_TAUX            = 0.05;   // ~5% de la valeur locative brute
+    public const BRS_TAUX_LEGAL       = 5.0;    // 5% — CGI art. 201 §3 (texte officiel lu)
+    public const COMMISSION_TAUX      = 10.0;   // 10% — standard marché SN (taux libre, non encadré)
+    public const ABATTEMENT_IRPP      = 0.30;   // 30% forfaitaire — CGI art. 68 §c (texte officiel lu)
+    public const CFPB_TAUX            = 0.05;   // 5% — CGI art. 294 (texte officiel lu)
+                                                // ATTENTION : assiette légale = valeur locative CADASTRALE
+                                                // (Art. 290-291), pas les loyers réels. Valeur indicative.
 
-    // ── Droits d'enregistrement DGID (CGI SN art. 442) ──────────────────────
-    public const DGID_TAUX_HABITATION = 1.0;    // 1% × loyer annuel — bail d'habitation
-    public const DGID_TAUX_COMMERCIAL = 2.0;    // 2% × loyer annuel — bail commercial/mixte
-    public const DGID_TIMBRE_FISCAL   = 2000.0; // Timbre fiscal fixe (FCFA)
+    // ── Droits d'enregistrement DGID (CGI SN art. 464 B + 472 IV.6) ────────
+    public const DGID_TAUX_HABITATION = 2.0;    // 2% — Art. 472 IV.6 : TOUS baux à durée limitée
+    public const DGID_TAUX_COMMERCIAL = 2.0;    // 2% — identique (pas de distinction hab/commercial)
+    public const DGID_TIMBRE_FISCAL   = 2000.0; // Timbre fiscal fixe (FCFA) — à confirmer DGID
 
-    // Tranches IRPP progressif (CGI art. 65) — montants en FCFA
+    // Tranches IRPP progressif — CGI SN art. 173 — montants en FCFA
+    // Source : CGI Sénégal annoté Janvier 2023 (kof-experts.sn) — texte officiel lu intégralement
     public const IRPP_TRANCHES = [
-        ['min' => 0,         'max' => 1_500_000,  'taux' => 0],
-        ['min' => 1_500_000, 'max' => 4_000_000,  'taux' => 20],
-        ['min' => 4_000_000, 'max' => 8_000_000,  'taux' => 30],
-        ['min' => 8_000_000, 'max' => PHP_INT_MAX, 'taux' => 40],
+        ['min' => 0,           'max' => 630_000,     'taux' => 0],
+        ['min' => 630_000,     'max' => 1_500_000,   'taux' => 20],
+        ['min' => 1_500_000,   'max' => 4_000_000,   'taux' => 30],
+        ['min' => 4_000_000,   'max' => 8_000_000,   'taux' => 35],
+        ['min' => 8_000_000,   'max' => 13_500_000,  'taux' => 37],
+        ['min' => 13_500_000,  'max' => 50_000_000,  'taux' => 40],
+        ['min' => 50_000_000,  'max' => PHP_INT_MAX,  'taux' => 43],
     ];
 
     // Tranches loi 81-18 (plafonds loyer mensuel en FCFA selon surface m²)
@@ -68,11 +74,12 @@ class FiscalService
      * Point d'entrée unique pour tout enregistrement de paiement.
      * Appelé par : PaiementService, PaiementController.
      *
-     * Règles d'assiette :
-     *   - TVA loyer   → sur loyer_ht uniquement (jamais charges ni TOM)
-     *   - Commission  → % × loyer_ht uniquement
-     *   - BRS         → % × loyer_ttc (si locataire entreprise)
-     *   - Charges/TOM → hors TVA, hors commission, hors BRS
+     * Règles d'assiette (Art. CGI SN vérifiés) :
+     *   - TVA loyer   → sur (loyer_ht + TOM) — Art. 364 §2a
+     *   - Commission  → % × loyer_ht uniquement (jamais TVA/TOM/charges)
+     *   - BRS         → % × loyer_ht brut — Art. 201 §3 ("montant brut hors taxes")
+     *   - BRS actif   → si bailleur est personne physique — Art. 201 §2
+     *   - Charges     → hors commission, hors BRS ; TVA si bail commercial/mixte
      */
     public static function calculer(FiscalContext $ctx): FiscalResult
     {
@@ -92,7 +99,7 @@ class FiscalService
         $tauxTvaLoyer = $ctx->tauxTvaLoyerOverride ?? ($assujetti ? self::TVA_TAUX : 0.0);
 
         $loyerHt  = round($loyerNu, 2);
-        // Art. 354 CGI SN : TVA sur loyer + TOM (les charges récupérables restent hors TVA)
+        // Art. 364 §2a CGI SN : base TVA = contrepartie + taxes/impôts inclus (dont TOM)
         $tvaLoyer = round(($loyerHt + $tom) * ($tauxTvaLoyer / 100), 2);
         $loyerTtc = round($loyerHt + $tvaLoyer, 2);
 
@@ -113,15 +120,17 @@ class FiscalService
         // ── 4. Net propriétaire (avant BRS) ─────────────────────────────────
         $netProprietaire = round($montantEncaisse - $commissionTtc, 2);
 
-        // ── 5. BRS — priorité : contrat > locataire > légal 15% ────────────
-        $brsApplicable = $ctx->locataireEstEntreprise;
+        // ── 5. BRS — priorité : contrat > locataire > légal 5% ─────────────
+        // Art. 201 §2 CGI SN : la retenue est faite par l'agence pour le compte du bailleur
+        // personne physique. Elle ne s'applique PAS si le bailleur est une personne morale IS.
+        $brsApplicable = $ctx->brsApplicable;
         $tauxBrs       = 0.0;
         $brsAmount     = 0.0;
 
         if ($brsApplicable) {
             $tauxBrs   = $ctx->tauxBrsContrat ?? $ctx->tauxBrsLocataire ?? self::BRS_TAUX_LEGAL;
-            // Art. 196bis CGI SN : BRS sur montant brut TTC = loyer TTC + TOM (hors charges)
-            $brsAmount = round(($loyerTtc + $tom) * ($tauxBrs / 100), 2);
+            // Art. 201 §3 CGI SN : "5% du montant brut hors taxes des loyers encaissés"
+            $brsAmount = round($loyerHt * ($tauxBrs / 100), 2);
         }
 
         $netAVerser = round($netProprietaire - $brsAmount, 2);
@@ -143,9 +152,10 @@ class FiscalService
         $totalEncaissementInitial = round($montantEncaisse + $fraisAgenceTtc + $cautionMontant, 2);
 
         // ── 8. Nets consolidés ───────────────────────────────────────────────
-        // Net locataire : ce que le locataire verse effectivement après retenue BRS.
-        // Le BRS est une retenue à la source → il déduit avant de payer.
-        $netLocataire = round($totalEncaissementInitial - $brsAmount, 2);
+        // Net locataire : ce que le locataire verse effectivement à l'agence.
+        // Dans le contexte agence, le locataire paie le montant total.
+        // Le BRS est retenu par l'agence et déduit du reversement au bailleur (netAVerser) — pas du paiement locataire.
+        $netLocataire = round($totalEncaissementInitial, 2);
 
         // Net bailleur : dépend de qui détient la caution.
         //  - false (défaut) : agence remet la caution au bailleur → incluse
@@ -166,7 +176,7 @@ class FiscalService
             $dgidResult = self::calculerDroitsBail(
                 loyerMensuel:       $ctx->loyerMensuelDgid,
                 dureeMois:          $ctx->dureeMoisDgid,
-                tauxPct:            $ctx->tauxEnregistrementDgid ?? self::dgidTauxDefaut($ctx->typeBail),
+                tauxPct:            $ctx->tauxEnregistrementDgid ?? self::dgidTauxDefaut(),
                 timbreFiscal:       $ctx->timbreFiscalDgid,
             );
             $dgidDroits = $dgidResult['droits_enregistrement'];
@@ -209,9 +219,9 @@ class FiscalService
     }
 
     /**
-     * Retourne le taux BRS applicable à un locataire.
+     * Retourne le taux BRS applicable.
      *
-     * Priorité : override locataire → taux légal 15% → 0% si particulier.
+     * Priorité : override → taux légal 5% (Art. 201 §3) → 0% si non applicable.
      * Utilisé par LocataireObserver pour propager les changements de profil fiscal.
      */
     public static function tauxBrs(bool $estEntreprise, ?float $overrideLocataire = null): float
@@ -306,14 +316,16 @@ class FiscalService
 
         $nbBiensGeres = $paiements->pluck('bien_reference')->unique()->count();
 
-        // ── Calcul IRPP (CGI art. 56-58 et 65) ─────────────────────────────
-        // Art. 56 : revenus bruts = toutes recettes perçues (loyers + charges refacturées)
+        // ── Calcul IRPP (CGI art. 67-68 et 173) ────────────────────────────
+        // Art. 67 : revenus bruts = recettes perçues + charges incombant au proprio mises à la charge du locataire
         $abattement30      = round($revenusBrutsTotal * self::ABATTEMENT_IRPP, 2);
         $baseImposable     = round($revenusBrutsTotal - $abattement30, 2);
         $irppEstime        = self::calculerIRPP($baseImposable);
         $irppDetail        = self::calculerIRPPDetail($baseImposable);
 
-        // ── CFPB (CGI art. 95-110) ──────────────────────────────────────────
+        // ── CFPB estimée (CGI art. 283-294) ─────────────────────────────────
+        // Art. 290-291 : assiette légale = valeur locative CADASTRALE (méthode cadastrale)
+        // Faute de données cadastrales, on approxime sur les loyers réels — indicatif uniquement.
         $cfpbEstimee = round($revenusBrutsLoyers * self::CFPB_TAUX, 2);
 
         return [
@@ -356,10 +368,10 @@ class FiscalService
     }
 
     /**
-     * Calcule les droits d'enregistrement DGID d'un bail (CGI SN art. 442).
+     * Calcule les droits d'enregistrement DGID d'un bail (CGI SN art. 464 B + 472 IV.6).
      *
      * Formule :
-     *   Assiette   = loyerMensuel × dureeMois
+     *   Assiette   = loyerMensuel × dureeMois (loyer nu + charges du preneur — Art. 468 §5)
      *   Droits     = Assiette × tauxPct / 100
      *   Total DGID = Droits + timbreFiscal
      *
@@ -367,12 +379,12 @@ class FiscalService
      *              et directement depuis ContratController pour preview à la création.
      *
      * Scénario test :
-     *   loyerMensuel=250 000, dureeMois=12, tauxPct=5%, timbreFiscal=2 000
-     *   → assiette=3 000 000, droits=150 000, total=152 000
+     *   loyerMensuel=250 000, dureeMois=12, tauxPct=2%, timbreFiscal=2 000
+     *   → assiette=3 000 000, droits=60 000, total=62 000
      *
-     * @param  float $loyerMensuel   Loyer nu + charges (assiette mensuelle)
-     * @param  int   $dureeMois      Durée du bail en mois (default : 12)
-     * @param  float $tauxPct        Taux en % (1.0 hab / 2.0 commercial / override contrat)
+     * @param  float $loyerMensuel   Loyer nu + charges (assiette mensuelle — Art. 468 §5)
+     * @param  int   $dureeMois      Durée du bail en mois
+     * @param  float $tauxPct        Taux en % (2.0 pour tous les baux — Art. 472 IV.6)
      * @param  float $timbreFiscal   Timbre fixe en FCFA (default : DGID_TIMBRE_FISCAL = 2 000)
      * @return array{base_annuelle: float, taux_enregistrement: float, droits_enregistrement: float, timbre_fiscal: float, total_dgid: float}
      */
@@ -407,7 +419,7 @@ class FiscalService
      * Utilisée dans les alertes et aperçus (alerte-dgid.blade.php, etc.)
      * pour donner un ordre de grandeur sans charger la DB.
      *
-     * Formule : loyer_mensuel × 12 × taux (1% hab / 2% commercial)
+     * Formule : loyer_mensuel × 12 × 2% (Art. 472 IV.6 — taux unique tous baux)
      *
      * @param  float  $loyerMensuel  Loyer nu mensuel (FCFA)
      * @param  string $typeBail      habitation | commercial | mixte | saisonnier
@@ -415,23 +427,19 @@ class FiscalService
      */
     public static function droitDeBailEstime(float $loyerMensuel, string $typeBail): float
     {
-        $taux = self::dgidTauxDefaut($typeBail);
+        $taux = self::dgidTauxDefaut();
         return round($loyerMensuel * 12 * ($taux / 100), 2);
     }
 
     /**
      * Retourne le taux DGID légal selon le type de bail.
      *
-     * CGI SN art. 442 :
-     *   Habitation / saisonnier → 1%
-     *   Commercial / mixte      → 2%
+     * CGI SN art. 472 IV.6 : 2% pour TOUS les baux à durée limitée.
+     * Pas de distinction habitation / commercial dans le texte officiel.
      */
-    private static function dgidTauxDefaut(string $typeBail): float
+    private static function dgidTauxDefaut(): float
     {
-        return match($typeBail) {
-            'commercial', 'mixte' => self::DGID_TAUX_COMMERCIAL,
-            default               => self::DGID_TAUX_HABITATION,
-        };
+        return self::DGID_TAUX_HABITATION; // 2% — Art. 472 IV.6 (tous types confondus)
     }
 
     /**

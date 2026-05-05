@@ -1454,7 +1454,7 @@ $schemaOrg = json_encode([
                     'name'  => 'BimoTech est-il conforme à la loi sénégalaise ?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text'  => 'Oui. BimoTech intègre nativement la TVA 18% (CGI SN Art. 357), le BRS (Art. 196bis), la TOM, et les obligations DGID pour l\'enregistrement des baux commerciaux.',
+                        'text'  => 'Oui. BimoTech intègre nativement la TVA 18% (CGI SN Art. 357), le BRS (Art. 201), la TOM, et les obligations DGID pour l\'enregistrement des baux commerciaux.',
                     ],
                 ],
                 [

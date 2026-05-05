@@ -60,9 +60,9 @@
         </div>
         <div style="color:#374151;line-height:1.6">
             Ce bail devait être enregistré avant le <strong>{{ $dateLimite->format('d/m/Y') }}</strong>
-            (2 mois après signature — Art. 442 CGI SN).<br>
+            (1 mois après entrée en possession — Art. 464 B CGI SN).<br>
             Droit estimé à régulariser : <strong>{{ number_format($droitEstime, 0, ',', ' ') }} F</strong>
-            ({{ $contrat->type_bail === 'habitation' ? '1%' : '2%' }} × loyer annuel).
+            (2% × loyer annuel — Art. 472 IV.6, taux uniforme tous types de bail).
         </div>
         <div style="margin-top:10px">
             <a href="{{ route('admin.contrats.edit', $contrat) }}#dgid"

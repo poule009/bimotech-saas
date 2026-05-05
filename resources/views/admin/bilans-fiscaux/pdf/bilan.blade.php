@@ -134,6 +134,18 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 {{-- CORPS --}}
 <div class="body">
 
+    {{-- AVERTISSEMENT RÉGIME FISCAL : CGF vs IRPP --}}
+    @php $seuilCgf = 30_000_000; @endphp
+    @if(($bilan->revenus_bruts_total ?? 0) < $seuilCgf)
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #d97706;border-radius:0 4px 4px 0;padding:8px 12px;margin-bottom:12px;font-size:8px;color:#78350f;line-height:1.7">
+        <strong>⚠ Régime CGF applicable :</strong>
+        Les revenus locatifs bruts ({{ number_format($bilan->revenus_bruts_total, 0, ',', ' ') }} FCFA) sont inférieurs au seuil de 30 000 000 FCFA.
+        Ce propriétaire relève du régime forfaitaire <strong>CGF (Contribution Globale Foncière)</strong>, pas du régime réel IRPP.
+        Le calcul IRPP ci-dessous est fourni à titre indicatif uniquement.
+        <strong>Consultez la DGID pour votre déclaration CGF.</strong>
+    </div>
+    @endif
+
     {{-- KPI --}}
     <div class="section-title">Indicateurs annuels</div>
     <div class="kpi-grid">
@@ -196,10 +208,13 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
     <div class="section-title">Barème IRPP progressif (Art. 65 CGI SN)</div>
     @php
         $trancheLabels = [
-            '0 — 1 500 000 F',
+            '0 — 630 000 F',
+            '630 001 — 1 500 000 F',
             '1 500 001 — 4 000 000 F',
             '4 000 001 — 8 000 000 F',
-            '> 8 000 000 F',
+            '8 000 001 — 13 500 000 F',
+            '13 500 001 — 50 000 000 F',
+            '> 50 000 000 F',
         ];
         $irppDetail = $bilan->irpp_detail ?? [];
     @endphp
@@ -247,7 +262,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         @endif
         @if($bilan->brs_retenu_total > 0)
         <tr class="sub">
-            <td>&nbsp;&nbsp;BRS retenu par locataires entreprises — déjà versé DGI (Art. 196bis)</td>
+            <td>&nbsp;&nbsp;BRS retenu par locataires entreprises — déjà versé DGI (Art. 201)</td>
             <td>{{ number_format($bilan->brs_retenu_total, 0, ',', ' ') }}</td>
         </tr>
         @endif
@@ -277,7 +292,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         </tr>
         @if(($bilan->brs_retenu_total ?? 0) > 0)
         <tr>
-            <td style="background:#fef2f2;font-weight:bold;color:#dc2626">&nbsp;&nbsp;− BRS retenu par locataires entreprises (Art. 196bis CGI SN)</td>
+            <td style="background:#fef2f2;font-weight:bold;color:#dc2626">&nbsp;&nbsp;− BRS retenu par locataires entreprises (Art. 201 CGI SN)</td>
             <td style="background:#fef2f2;font-weight:bold;color:#dc2626">− {{ number_format($bilan->brs_retenu_total, 0, ',', ' ') }}</td>
         </tr>
         <tr>

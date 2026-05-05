@@ -492,7 +492,7 @@
                             <label for="type_{{ $k }}">
                                 <span style="font-size:18px">{{ $ico }}</span>
                                 {{ $lbl }}
-                                @if($brs)<span style="font-size:9px;color:var(--red);font-weight:700">BRS 15%</span>@endif
+                                @if($brs)<span style="font-size:9px;color:var(--red);font-weight:700">BRS 5%</span>@endif
                             </label>
                         </div>
                         @endforeach
@@ -506,7 +506,7 @@
                      id="bloc-entreprise">
                     <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:6px">
                         <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        BRS 15% — Retenue à la source automatique sur les paiements futurs
+                        BRS 5% — Retenue à la source automatique sur les paiements futurs (Art. 201 CGI SN)
                     </div>
                     <div class="field-group">
                         <label class="field-label">Raison sociale</label>
@@ -528,8 +528,8 @@
                     <div style="max-width:180px">
                         <label class="field-label">Taux BRS personnalisé <span class="field-opt">(%)</span></label>
                         <input type="number" name="taux_brs_override" class="field-input"
-                               value="{{ old('taux_brs_override') }}" placeholder="15" min="0" max="20" step="0.5">
-                        <div class="field-hint">Vide = 15% légal</div>
+                               value="{{ old('taux_brs_override') }}" placeholder="5" min="0" max="20" step="0.5">
+                        <div class="field-hint">Vide = 5% légal (Art. 201 CGI SN)</div>
                     </div>
                 </div>
             </div>

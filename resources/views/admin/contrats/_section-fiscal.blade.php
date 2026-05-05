@@ -124,16 +124,16 @@
         <div>
             <div style="font-size:13px;font-weight:600;color:#0d1117;display:flex;align-items:center">
                 Retenue à la Source (BRS)
-                <i class="tip-icon" data-tip="Retenue à la source de 15% (Art. 196bis CGI SN). Obligatoire si le locataire est une société (SARL, SA, GIE…). Le locataire retient 15% du loyer TTC + TOM et le verse directement à la DGI chaque mois. Non payer expose à un redressement fiscal.">?</i>
+                <i class="tip-icon" data-tip="Retenue à la source de 5% (Art. 201 CGI SN). Obligatoire si le locataire est une société (SARL, SA, GIE…). Le locataire retient 5% du loyer TTC + TOM et le verse directement à la DGI chaque mois. Non payer expose à un redressement fiscal.">?</i>
             </div>
             <div style="font-size:11px;color:#6b7280;margin-top:2px">
-                Art. 196bis CGI SN · Obligatoire si locataire = entreprise/personne morale
+                Art. 201 CGI SN · Obligatoire si locataire = entreprise/personne morale
             </div>
         </div>
         <span id="badge-brs"
               style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;{{ $brsApplicable ? 'background:#fee2e2;color:#dc2626' : 'background:#f3f4f6;color:#6b7280' }}">
             <span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>
-            {{ $brsApplicable ? 'BRS 15% applicable' : 'Non applicable' }}
+            {{ $brsApplicable ? 'BRS 5% applicable' : 'Non applicable' }}
         </span>
     </div>
 
@@ -153,21 +153,21 @@
                    value="{{ $tauxBrsManuel }}"
                    min="0" max="20" step="0.5" placeholder="15"
                    style="width:70px;padding:6px 8px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
-            <span style="font-size:11px;color:#9ca3af">Laisser vide = 15% légal</span>
+            <span style="font-size:11px;color:#9ca3af">Laisser vide = 5% légal (Art. 201 CGI SN)</span>
         </div>
     </div>
 
     <div style="margin-top:10px;padding:8px 12px;background:#fff1f2;border-radius:7px;font-size:11px;color:#9f1239;line-height:1.6" id="note-brs"
          style="{{ $brsApplicable ? '' : 'display:none' }}">
-        <strong>Art. 196bis CGI SN :</strong>
-        Taux standard 15% × <strong>(loyer TTC + TOM)</strong>. Peut être réduit par convention fiscale.
+        <strong>Art. 201 CGI SN :</strong>
+        Taux légal 5% × <strong>(loyer TTC + TOM)</strong> (Art. 201 §3 CGI SN — texte officiel). Peut être modifié par convention.
         Le BRS est retenu par le locataire et versé <strong>directement à la DGI</strong> — pas par l'agence.
     </div>
 
     {{-- Alerte bail commercial sans BRS --}}
     <div id="alerte-brs-commercial" style="display:none;margin-top:8px;padding:8px 12px;background:#fef3c7;border:1px solid #fde68a;border-radius:7px;font-size:11px;color:#92400e;line-height:1.5">
         ⚠️ <strong>Bail commercial détecté.</strong>
-        Si le locataire est une entreprise ou personne morale, la BRS est <strong>obligatoire</strong> (Art. 196bis CGI SN).
+        Si le locataire est une entreprise ou personne morale, la BRS est <strong>obligatoire</strong> (Art. 201 CGI SN).
         Activez la case ci-dessus pour éviter un redressement fiscal.
     </div>
 </div>
@@ -176,10 +176,10 @@
 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:14px 16px;margin-bottom:12px">
     <div style="font-size:13px;font-weight:600;color:#0d1117;margin-bottom:4px;display:flex;align-items:center">
         Enregistrement DGID
-        <i class="tip-icon" data-tip="Droit de bail obligatoire (Art. 442 CGI SN). À déposer à la DGI dans les 2 mois suivant la signature. Taux : 1% du loyer annuel pour habitation, 2% pour commercial/mixte + timbre fiscal 2 000 F. Sans enregistrement, le bail est inopposable aux tiers.">?</i>
+        <i class="tip-icon" data-tip="Droit de bail obligatoire (Art. 464 B + 472 IV.6 CGI SN). À déposer à la DGI dans le mois suivant l'entrée en possession. Taux : 2% du loyer annuel (habitation ET commercial — taux uniforme) + timbre fiscal. Sans enregistrement, le bail est inopposable aux tiers.">?</i>
     </div>
     <div style="font-size:11px;color:#6b7280;margin-bottom:12px">
-        Art. 442 CGI SN · Délai : 2 mois après signature · Sanction : nullité opposable aux tiers
+        Art. 464 B + 472 IV.6 CGI SN · Délai : 1 mois après entrée en possession · Sanction : nullité opposable aux tiers
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
@@ -298,7 +298,7 @@ function toggleBrsChamp() {
     if (note) note.style.display = checked ? '' : 'none';
     badge.style.background = checked ? '#fee2e2' : '#f3f4f6';
     badge.style.color      = checked ? '#dc2626' : '#6b7280';
-    badge.querySelector('span + span').textContent = checked ? 'BRS 15% applicable' : 'Non applicable';
+    badge.querySelector('span + span').textContent = checked ? 'BRS 5% applicable' : 'Non applicable';
     verifierAlerteBrsCommercial();
     if (typeof mettreAJourRecap === 'function') mettreAJourRecap();
 }

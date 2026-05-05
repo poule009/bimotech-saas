@@ -230,7 +230,7 @@ tfoot td.right { text-align:right; color:#c9a84c; font-size:12px; }
     <div class="clause-legal">
 Le présent bail est régi par la loi sénégalaise n° 81-18 du 30 mars 1981 relative aux rapports entre bailleurs et locataires.<br>
 <strong>Préavis :</strong> 3 mois (bailleur) / 1 mois (preneur) pour bail habitation — 6 mois / 3 mois pour bail commercial (Art. 17-18 loi 81-18).<br>
-<strong>Enregistrement :</strong> Le présent bail doit être enregistré à la DGID dans les 2 mois suivant la signature (Art. 442 CGI SN).<br>
+<strong>Enregistrement :</strong> Le présent bail doit être enregistré à la DGID dans le mois suivant la signature (Art. 442 CGI SN).<br>
 Le locataire s'engage à payer le loyer aux termes convenus, user paisiblement des lieux, ne pas sous-louer sans accord écrit du bailleur, et souscrire une assurance multirisque locative.<br>
 Le bailleur s'engage à délivrer le bien en bon état et à en assurer la jouissance paisible.<br>
 Tout litige sera porté devant les juridictions compétentes de la ville du bien loué, République du Sénégal.

@@ -45,7 +45,7 @@
                 <div style="font-size:16px;margin-bottom:4px">{{ $info['icon'] }}</div>
                 <div style="font-size:11px;font-weight:{{ $typeLocataire === $key ? '600' : '500' }};color:{{ $typeLocataire === $key ? '#8a6e2f' : '#6b7280' }}">{{ $info['label'] }}</div>
                 @if($info['brs'])
-                <div style="font-size:9px;color:#dc2626;margin-top:2px;font-weight:600">BRS 15%</div>
+                <div style="font-size:9px;color:#dc2626;margin-top:2px;font-weight:600">BRS 5%</div>
                 @endif
             </div>
         </label>
@@ -114,7 +114,7 @@
 
         <div style="margin-top:12px;padding:9px 12px;background:#fee2e2;border-radius:7px;font-size:11px;color:#dc2626;line-height:1.6">
             <strong>⚠ BRS automatique :</strong> Tous les <strong>paiements futurs</strong> de ce locataire
-            incluront une Retenue à la Source de <strong>15%</strong> sur le loyer TTC (Art. 196bis CGI SN).
+            incluront une Retenue à la Source de <strong>5%</strong> sur le loyer TTC (Art. 201 §3 CGI SN).
             Les paiements passés ne sont pas modifiés (immutabilité comptable).
         </div>
     </div>

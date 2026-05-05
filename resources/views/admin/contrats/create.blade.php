@@ -409,7 +409,7 @@
                         </div>
 
                         <div class="rp-row" id="row-brs" style="display:none">
-                            <div class="rp-lbl">− BRS 15% <span style="font-size:10px;opacity:.6">(Art.156)</span></div>
+                            <div class="rp-lbl">− BRS 5% <span style="font-size:10px;opacity:.6">(Art. 201 CGI SN)</span></div>
                             <div class="rp-val" style="color:#f87171" id="rp-brs">— F</div>
                         </div>
                         <div class="rp-total">
@@ -579,8 +579,8 @@ function mettreAJourRecap() {
     const commTtc    = commHt + tvaComm;
     const netProprio = montantEncaisse - commTtc;
 
-    // BRS — Art. 196bis CGI SN : assiette = loyer TTC + TOM
-    const brsAmount  = brsChecked ? Math.round((loyerTtc + tom) * 0.15) : 0;
+    // BRS — Art. 201 §3 CGI SN : 5% du montant brut hors taxes (loyer HT uniquement)
+    const brsAmount  = brsChecked ? Math.round(loyerNu * 0.05) : 0;
     const netAVerser = netProprio - brsAmount;
 
     document.getElementById('rp-loyer-nu').textContent    = fmt(loyerNu);

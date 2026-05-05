@@ -421,7 +421,7 @@
                             <div style="font-size:11px;color:rgba(255,255,255,.35);line-height:1.6">
                                 Commission HT × 18% = TVA (Art. 357 CGI SN)<br>
                                 TVA loyer 18% si bail commercial/meublé<br>
-                                BRS 15% si locataire entreprise
+                                BRS 5% si locataire entreprise (Art. 201 CGI SN)
                             </div>
                         </div>
                     </div>

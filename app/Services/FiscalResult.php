@@ -10,21 +10,21 @@ namespace App\Services;
  *
  * STRUCTURE DU DÉCOMPTE :
  *
- *  loyer_ht                    ← loyer nu hors TVA (assiette commission)
- *  + tva_loyer (0 ou 18%)      ← sur (loyer_ht + TOM) — Art. 354 CGI SN
+ *  loyer_ht                    ← loyer nu hors TVA (assiette commission + BRS)
+ *  + tva_loyer (0 ou 18%)      ← sur (loyer_ht + TOM) — Art. 364 §2a CGI SN
  *  = loyer_ttc
  *  + charges_amount            ← HT hors commission hors BRS
- *  + tva_charges (0 ou 18%)    ← sur charges si forfait bail commercial/meublé (Art. 357 CGI SN)
+ *  + tva_charges (0 ou 18%)    ← sur charges si forfait bail commercial/meublé (Art. 364 + 369 CGI SN)
  *  = charges_ttc
- *  + tom_amount                ← inclus dans assiette TVA et BRS (pas dans commission)
+ *  + tom_amount                ← inclus dans assiette TVA (pas dans commission ni BRS)
  *  = montant_encaisse          ← total que le locataire doit régler
  *  ─────────────────────────────────────────────────────────────────
  *  commission_ht               ← % sur loyer_ht uniquement (jamais sur TVA/TOM/charges)
- *  + tva_commission            ← 18% sur commission_ht (Art. 357 CGI SN)
+ *  + tva_commission            ← 18% sur commission_ht (Art. 364 + 369 CGI SN)
  *  = commission_ttc
  *  ─────────────────────────────────────────────────────────────────
  *  net_proprietaire            ← montant_encaisse - commission_ttc
- *  - brs_amount                ← % × (loyer_ttc + TOM) si locataire entreprise (Art. 196bis CGI SN)
+ *  - brs_amount                ← 5% × loyer_ht si bailleur personne physique (Art. 201 §3 CGI SN)
  *  = net_a_verser_proprietaire ← montant effectivement viré au propriétaire
  *  ─────────────────────────────────────────────────────────────────
  *  [Premier paiement uniquement]
@@ -82,7 +82,7 @@ final class FiscalResult
         public readonly float  $netLocataire = 0.0,  // total_encaissement_initial - brs_amount
         public readonly float  $netBailleur  = 0.0,  // net_a_verser_proprietaire [+ caution si remise]
 
-        // ── Droits d'enregistrement DGID (CGI SN art. 442) ───────────────
+        // ── Droits d'enregistrement DGID (CGI SN art. 464 B + 472 IV.6) ─
         // Non nuls UNIQUEMENT au premier paiement (avecDgid=true dans FiscalContext).
         // Sur tous les paiements récurrents : 0.0 → section DGID masquée côté vues.
         // Ces montants NE modifient PAS montant_encaisse ni net_locataire :

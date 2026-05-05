@@ -10,9 +10,9 @@ use Illuminate\Notifications\Notification;
  * DGIDReminderNotification — Rappel des échéances fiscales DGID pour les propriétaires.
  *
  * Échéances fiscales sénégalaises concernées :
- *  - 31 janvier  : Déclaration retenue à la source BRS (CGI art. 196bis)
- *  - 30 avril    : Déclaration IRPP revenus locatifs (CGI art. 65)
- *  - 30 septembre: Paiement CFPB (CGI art. 95-110)
+ *  - 31 janvier  : Déclaration retenue à la source BRS (CGI art. 201)
+ *  - 30 avril    : Déclaration IRPP revenus locatifs (CGI art. 173 + abattement art. 68 §c)
+ *  - 30 septembre: Paiement CFPB (CGI art. 283-294 — assiette = valeur locative cadastrale)
  */
 class DGIDReminderNotification extends Notification
 {
@@ -55,15 +55,15 @@ class DGIDReminderNotification extends Notification
         return match ($this->typeEcheance) {
             'brs' => [
                 'titre'       => 'Déclaration BRS (Retenue à la source)',
-                'description' => "Si vous avez des locataires **entreprises**, vous devez déclarer et reverser la retenue BRS de 15% prélevée sur leurs loyers {$this->annee}. Référence : CGI art. 196bis.",
+                'description' => "Si vous avez des locataires **entreprises**, vous devez déclarer et reverser la retenue BRS de 5% prélevée sur leurs loyers {$this->annee}. Référence : CGI art. 201 §3.",
             ],
             'irpp' => [
                 'titre'       => 'Déclaration IRPP — Revenus locatifs',
-                'description' => "Vous devez déclarer vos revenus locatifs {$this->annee} à la DGID. L'impôt est calculé sur la base imposable après abattement forfaitaire de 30%. Référence : CGI art. 58 et 65.",
+                'description' => "Vous devez déclarer vos revenus locatifs {$this->annee} à la DGID. L'impôt est calculé sur la base imposable après abattement forfaitaire de 30% (Art. 68 §c). Référence : CGI art. 173.",
             ],
             'cfpb' => [
                 'titre'       => 'Contribution Foncière des Propriétés Bâties (CFPB)',
-                'description' => "La CFPB est due sur la valeur locative brute de vos biens. Taux approximatif : 5%. Référence : CGI art. 95-110.",
+                'description' => "La CFPB est due sur la valeur locative cadastrale de vos biens (Art. 290-291). Taux : 5% (Art. 294). Référence : CGI art. 283-294.",
             ],
             default => [
                 'titre'       => 'Échéance fiscale',

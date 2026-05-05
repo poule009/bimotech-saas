@@ -426,7 +426,7 @@ $regimeLabel = $regimeLabels[$regime_fiscal] ?? ucwords(str_replace('_', ' ', $r
         @if($brsApplic)
         <tr class="row-brs-sep">
             <th colspan="2">
-                Retenue à la Source (BRS) — Locataire Personne Morale (Art. 196bis CGI SN)
+                Retenue à la Source (BRS) — Locataire Personne Morale (Art. 201 CGI SN)
                 — Retenue opérée par : {{ $nomQuittance ?? $locataire->name }}
                 @if(isset($locataireProfile) && $locataireProfile?->ninea_locataire)
                     — NINEA : {{ $locataireProfile->ninea_locataire }}
@@ -435,7 +435,7 @@ $regimeLabel = $regimeLabels[$regime_fiscal] ?? ucwords(str_replace('_', ' ', $r
         </tr>
         <tr class="row-brs">
             <td>
-                BRS ({{ $tauxBrsAff }}% × {{ $tom > 0 ? '(loyer TTC + TOM)' : 'loyer TTC' }} = {{ $fmt($loyerTtc + $tom) }} FCFA — Art. 196bis CGI SN)
+                BRS ({{ $tauxBrsAff }}% × {{ $tom > 0 ? '(loyer TTC + TOM)' : 'loyer TTC' }} = {{ $fmt($loyerTtc + $tom) }} FCFA — Art. 201 CGI SN)
                 <span style="font-size:8px;font-style:italic;font-weight:normal">
                     — Versée directement à la DGI par le locataire
                 </span>
@@ -523,13 +523,13 @@ $regimeLabel = $regimeLabels[$regime_fiscal] ?? ucwords(str_replace('_', ' ', $r
 {{-- ══ MENTIONS LÉGALES ═══════════════════════════════════════════════════ --}}
 <div class="mentions">
     <div class="mentions-titre">⚖ Mentions légales — République du Sénégal</div>
-    Quittance délivrée conformément à la loi n° 81-18 du 25/06/1981 et au bail
+    Quittance délivrée conformément à la loi n° 81-18 du 30/03/1981 et au bail
     <strong>{{ $referenceBail }}</strong> signé le <strong>{{ \Carbon\Carbon::parse($contrat->date_debut)->format('d/m/Y') }}</strong>.
     Atteste que <strong>{{ $nomQuittance ?? $locataire->name }}</strong> s'est acquitté(e) du loyer de
     <strong>{{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}</strong>
     pour le bien sis <strong>{{ $bien->adresse }}@if($bien->quartier), {{ $bien->quartier }}@endif, {{ $bien->ville }}</strong>.
     @if($loyerAssuj) TVA collectée sur loyer (Art. 355 CGI SN) : <strong>{{ number_format($tvaLoyer, 0, ',', ' ') }} FCFA</strong>. @endif
-    @if($brsApplic) BRS retenue à la source (Art. 196bis CGI SN) : <strong>{{ number_format($brsAmt, 0, ',', ' ') }} FCFA</strong> — versée à la DGI par le locataire. @endif
+    @if($brsApplic) BRS retenue à la source (Art. 201 CGI SN) : <strong>{{ number_format($brsAmt, 0, ',', ' ') }} FCFA</strong> — versée à la DGI par le locataire. @endif
     Ce paiement ne vaut pas renonciation aux créances antérieures.
     <strong>{{ $agence['nom'] }}</strong> agit en qualité de Mandataire du Propriétaire.
     Commission calculée sur loyer nu (hors TVA loyer, hors charges, hors TOM).

@@ -166,7 +166,7 @@
         <td>{{ $fmt($fraisHt) }} F</td>
     </tr>
     <tr class="fd-sub" style="background:#eff6ff">
-        <td>↳ TVA honoraires (18% — art. 357 CGI SN)</td>
+        <td>↳ TVA honoraires (18% — art. 364 + 369 CGI SN)</td>
         <td style="color:#1d4ed8">{{ $fmt($tvaFrais) }} F</td>
     </tr>
     <tr class="fd-row-frais">
@@ -196,7 +196,7 @@
     <tr class="fd-group-header">
         <td colspan="2">
             Droits d'enregistrement — DGID
-            <span class="fd-badge fd-badge-purple">CGI SN art. 442</span>
+            <span class="fd-badge fd-badge-purple">CGI SN art. 464 B + 472 IV.6</span>
             <span class="fd-badge" style="background:#fef3c7;color:#92400e">Premier versement</span>
         </td>
     </tr>
@@ -234,7 +234,7 @@
         <td style="color:#8a6e2f">{{ $fmt($commHt) }} F</td>
     </tr>
     <tr class="fd-sub">
-        <td>↳ TVA sur commission (18% — art. 357 CGI SN)</td>
+        <td>↳ TVA sur commission (18% — art. 364 + 369 CGI SN)</td>
         <td>{{ $fmt($tvaComm) }} F</td>
     </tr>
     <tr>
@@ -257,7 +257,7 @@
         </td>
     </tr>
     <tr class="fd-row-brs">
-        <td>BRS retenue ({{ $tauxBrs }}% × loyer TTC{{ $tom > 0 ? ' + TOM' : '' }} — art. 196bis CGI SN)</td>
+        <td>BRS retenue ({{ $tauxBrs }}% × loyer TTC{{ $tom > 0 ? ' + TOM' : '' }} — Art. 201 CGI SN)</td>
         <td style="font-weight:700">- {{ $fmt($brs) }} F</td>
     </tr>
     <tr class="fd-row-averser">

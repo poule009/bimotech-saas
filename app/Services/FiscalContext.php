@@ -27,8 +27,12 @@ final class FiscalContext
         public readonly string $typeBail,           // habitation | commercial | mixte | saisonnier
         public readonly bool   $estMeuble,          // Détermine l'assujettissement TVA habitation
 
-        // ── Locataire ────────────────────────────────────────────────────────
-        public readonly bool   $locataireEstEntreprise, // Active le calcul BRS (CGI art. 196bis)
+        // ── BRS ──────────────────────────────────────────────────────────────
+        // Art. 201 §2 CGI SN : la retenue s'applique quand le BAILLEUR est une personne physique.
+        // Elle ne s'applique PAS quand les loyers sont perçus pour le compte d'une personne morale IS.
+        // TRUE  = bailleur personne physique → agence opère la retenue BRS
+        // FALSE = bailleur personne morale IS → pas de retenue
+        public readonly bool   $brsApplicable,
 
         // ── Taux agence ──────────────────────────────────────────────────────
         public readonly float  $tauxCommission,     // Ex: 10.0 pour 10% (format pourcentage)
@@ -66,16 +70,16 @@ final class FiscalContext
         // true           → caution conservée par l'agence (exclue du versement bailleur)
         public readonly bool    $cautionGardeeParAgence = false,
 
-        // ── Droits d'enregistrement DGID (CGI SN art. 442) ──────────────────
+        // ── Droits d'enregistrement DGID (CGI SN art. 464 B + 472 IV.6) ────
         // avecDgid = true UNIQUEMENT au premier paiement et si non exonéré.
         // Sur tous les paiements récurrents : avecDgid = false → résultats à 0.
         public readonly bool    $avecDgid               = false,
         public readonly bool    $enregistrementExonere  = false,
-        // Loyer mensuel de l'assiette DGID = loyer_nu + charges_mensuelles (loyer_contractuel)
+        // Assiette mensuelle = loyer_nu + charges_mensuelles (Art. 468 §5 : prix + charges du preneur)
         public readonly float   $loyerMensuelDgid       = 0.0,
-        // Durée du bail en mois pour l'assiette annuelle (max 12 pour la première année)
+        // Durée du bail en mois (Art. 510 : fractionnement triennal en pratique)
         public readonly int     $dureeMoisDgid          = 12,
-        // null → FiscalService::dgidTauxDefaut(typeBail) : 1% hab / 2% commercial
+        // null → FiscalService::dgidTauxDefaut() : 2% pour tous les baux (Art. 472 IV.6)
         public readonly ?float  $tauxEnregistrementDgid = null,
         // Timbre fiscal fixe (2 000 FCFA — CGI SN) ; surchargeable si législation change
         public readonly float   $timbreFiscalDgid       = 2000.0,
@@ -166,8 +170,9 @@ final class FiscalContext
             typeBail:               $contrat->type_bail ?? 'habitation',
             estMeuble:              (bool)  ($bien?->meuble ?? false),
             // C3 : si profil locataire absent et bail commercial/mixte → entreprise présumée
-            locataireEstEntreprise: (bool)  ($locProfile?->est_entreprise
-                ?? in_array($contrat->type_bail ?? '', ['commercial', 'mixte'])),
+            // Art. 201 §2 CGI SN : BRS applicable si bailleur = personne physique.
+            // On lit est_personne_morale_is sur le propriétaire ; défaut FALSE = BRS actif.
+            brsApplicable: !(bool) ($bien?->proprietaire?->est_personne_morale_is ?? false),
             tauxCommission:         (float) ($bien?->taux_commission ?? FiscalService::COMMISSION_TAUX),
             tauxTvaCommission:      FiscalService::TVA_TAUX,
             tauxTvaLoyerOverride:   $tauxTvaOverride,
@@ -189,7 +194,7 @@ final class FiscalContext
             loyerMensuelDgid:       (float) ($contrat->loyer_contractuel
                                         ?? ((float)($contrat->loyer_nu ?? 0)
                                            + (float)($contrat->charges_mensuelles ?? 0))),
-            // C2 : durée clampée à 12 mois max — Art. 442 CGI SN = assiette loyer annuel
+            // Art. 510 CGI SN : fractionnement triennal ; on clamp à 12 mois pour la 1ʳᵉ période
             dureeMoisDgid:          ($contrat->date_debut && $contrat->date_fin)
                                         ? max(1, min(12, (int) $contrat->date_debut->diffInMonths($contrat->date_fin)))
                                         : 12,

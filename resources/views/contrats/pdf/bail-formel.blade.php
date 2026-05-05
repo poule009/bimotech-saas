@@ -250,7 +250,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 
     @if($contrat->garant_nom)
     <div class="garant-box">
-        <div class="garant-role">Garant — Caution solidaire (Art. 1200 et s. C. civ.)</div>
+        <div class="garant-role">Garant — Caution solidaire (Art. 783 et s. COCC SN)</div>
         <div style="display:table;width:100%">
             <div style="display:table-cell;width:50%;vertical-align:top">
                 <div style="font-size:10px;font-weight:bold;color:#0d1117">{{ $contrat->garant_nom }}</div>
@@ -495,7 +495,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             <p>
                 Le présent bail est soumis à l'obligation d'enregistrement auprès de la
                 <strong>Direction Générale des Impôts et Domaines (DGID)</strong> dans un délai de
-                <strong>deux (2) mois</strong> à compter de sa date de signature,
+                <strong>un (1) mois</strong> à compter de sa date de signature,
                 conformément à l'article 442 du Code Général des Impôts du Sénégal.
             </p>
             <p>
@@ -560,8 +560,8 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 
     {{-- FAIT À --}}
     <div class="fait-a">
-        Fait à <strong>{{ $ville }}</strong>, le <strong>{{ now()->format('d/m/Y') }}</strong>,
-        en deux (2) exemplaires originaux ayant chacun force originale.
+        Fait à <strong>{{ $ville }}</strong>, le <strong>{{ ($contrat->created_at ?? now())->format('d/m/Y') }}</strong>,
+        en trois (3) exemplaires originaux ayant chacun force originale.
     </div>
 
     {{-- SIGNATURES --}}
@@ -605,7 +605,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         <div class="mentions-titre">⚖ Mentions légales — République du Sénégal</div>
         Contrat régi par la loi n° 81-18 du 30 mars 1981 relative aux rapports entre bailleurs et locataires.
         @if($contrat->loyer_assujetti_tva) TVA applicable sur le loyer (Art. 355 CGI SN — bail commercial/meublé).@endif
-        @if($contrat->brs_applicable) BRS applicable (Art. 196bis CGI SN — locataire personne morale).@endif
+        @if($contrat->brs_applicable) BRS applicable (Art. 201 CGI SN — locataire personne morale).@endif
         Document établi par <strong>{{ $agency->name ?? 'BimoTech Immo' }}</strong> en qualité de Mandataire.
         Toute modification manuelle annule ce document.
     </div>

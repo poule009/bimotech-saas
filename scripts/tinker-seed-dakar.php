@@ -353,7 +353,7 @@ foreach ($contrats as $ci => $contrat) {
             tomAmount:              (float)($contrat->tom_amount ?? 0),
             typeBail:               $contrat->type_bail,
             estMeuble:              (bool)($bien->meuble ?? false),
-            locataireEstEntreprise: (bool)($locProfile?->est_entreprise ?? false),
+            brsApplicable: !(bool)($bien->proprietaire?->est_personne_morale_is ?? false),
             tauxCommission:         (float)($bien->taux_commission ?? 10.0),
             tauxTvaCommission:      18.0,
             tauxTvaLoyerOverride:   $tauxTvaOverride,

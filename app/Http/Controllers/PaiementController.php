@@ -326,9 +326,9 @@ class PaiementController extends Controller
 
         $regimeFiscalLabels = [
             'habitation'          => 'Habitation — Exonéré TVA (Art. 355 CGI SN)',
-            'habitation_avec_brs' => 'Habitation — BRS applicable (Art. 196bis CGI SN)',
+            'habitation_avec_brs' => 'Habitation — BRS applicable (Art. 201 CGI SN)',
             'commercial'          => 'Commercial — TVA 18% (Art. 355 CGI SN)',
-            'commercial_avec_brs' => 'Commercial — TVA 18% + BRS (Art. 355 & 196bis CGI SN)',
+            'commercial_avec_brs' => 'Commercial — TVA 18% + BRS (Art. 355 & 201 CGI SN)',
         ];
         $regime_fiscal    = $regimeFiscalLabels[$regimeFiscalKey] ?? ucfirst($regimeFiscalKey);
         $loyer_assujetti  = (bool) ($paiement->tva_loyer > 0);

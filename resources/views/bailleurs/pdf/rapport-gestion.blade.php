@@ -325,7 +325,7 @@
             {{ number_format($totalLoyers, 0, ',', ' ') }} F
             − {{ number_format($totalCommissions, 0, ',', ' ') }} F commissions
             @if(($totalBrs ?? 0) > 0)
-                − {{ number_format($totalBrs, 0, ',', ' ') }} F BRS (Art. 196bis)
+                − {{ number_format($totalBrs, 0, ',', ' ') }} F BRS (Art. 201)
             @endif
             @if($totalDepenses > 0)
                 − {{ number_format($totalDepenses, 0, ',', ' ') }} F dépenses
