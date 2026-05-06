@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Admin\BilanFiscalController;
 use App\Http\Controllers\Admin\EtatTrimestrielController;
+use App\Http\Controllers\Admin\TvaAgenceController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BailleurController;
 use App\Http\Controllers\BienController;
@@ -187,6 +188,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('{annee}/{trimestre}',              [EtatTrimestrielController::class, 'show'])->name('show');
             Route::get('{annee}/{trimestre}/pdf',          [EtatTrimestrielController::class, 'exportPdf'])->name('pdf');
             Route::get('{annee}/{trimestre}/csv',          [EtatTrimestrielController::class, 'exportCsv'])->name('csv');
+        });
+
+        // Déclarations TVA mensuelle agence — Art. 369-370 CGI Sénégal
+        Route::prefix('tva-agence')->name('tva-agence.')->group(function () {
+            Route::get('/',                              [TvaAgenceController::class, 'index'])->name('index');
+            Route::get('{annee}/{mois}',                 [TvaAgenceController::class, 'show'])->name('show');
+            Route::put('{annee}/{mois}',                 [TvaAgenceController::class, 'update'])->name('update');
+            Route::post('{annee}/{mois}/valider',        [TvaAgenceController::class, 'valider'])->name('valider');
+            Route::post('{annee}/{mois}/deposee',        [TvaAgenceController::class, 'marquerDeposee'])->name('deposee');
+            Route::get('{annee}/{mois}/pdf',             [TvaAgenceController::class, 'exportPdf'])->name('pdf');
+            Route::post('{annee}/{mois}/recalculer',     [TvaAgenceController::class, 'recalculer'])->name('recalculer');
         });
 
         // Rapports

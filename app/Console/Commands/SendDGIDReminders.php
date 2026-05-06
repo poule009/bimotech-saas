@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\TvaDeclaration;
 use App\Models\User;
 use App\Notifications\BrsTrimestrielReminderNotification;
 use App\Notifications\DGIDReminderNotification;
+use App\Notifications\TvaMensuelleReminderNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -138,6 +140,64 @@ class SendDGIDReminders extends Command
             }
 
             $this->line("    ✅ {$admins->count()} rappel(s) envoyé(s)");
+        }
+
+        // ── Rappel TVA mensuelle (J-3 avant le 15 du mois) — admins agence ──
+        $this->newLine();
+        $this->line('Vérification du rappel TVA mensuelle...');
+
+        $dateEcheanceTva = Carbon::create($annee, $aujourd_hui->month, 15)
+            ->timezone('Africa/Dakar')
+            ->endOfDay();
+
+        $joursAvantTva = (int) $aujourd_hui->diffInDays($dateEcheanceTva, false);
+
+        if ($joursAvantTva === 3) {
+            // On déclare le mois précédent
+            $moisDeclaration  = $aujourd_hui->month === 1 ? 12 : $aujourd_hui->month - 1;
+            $anneeDeclaration = $aujourd_hui->month === 1 ? $annee - 1 : $annee;
+
+            $admins = User::where('role', 'admin')
+                ->whereNotNull('email')
+                ->whereHas('agency', fn ($q) => $q->where('actif', true))
+                ->get();
+
+            $envoyesTva = 0;
+
+            foreach ($admins as $admin) {
+                $declaration = TvaDeclaration::where('agency_id', $admin->agency_id)
+                    ->where('mois', $moisDeclaration)
+                    ->where('annee', $anneeDeclaration)
+                    ->where('statut', '!=', 'deposee')
+                    ->first();
+
+                if (! $declaration) {
+                    continue; // Pas de déclaration en attente pour cette agence
+                }
+
+                try {
+                    $admin->notify(new TvaMensuelleReminderNotification(
+                        moisDeclaration:  $moisDeclaration,
+                        anneeDeclaration: $anneeDeclaration,
+                        dateEcheance:     $dateEcheanceTva->translatedFormat('d F Y'),
+                        tvaNetteDue:      (float) $declaration->tva_nette_due,
+                    ));
+                    $envoyes++;
+                    $envoyesTva++;
+                } catch (\Throwable $e) {
+                    $this->warn("    ⚠ Admin #{$admin->id} : {$e->getMessage()}");
+                    Log::warning('Rappel TVA mensuelle non envoyé', [
+                        'admin_id'  => $admin->id,
+                        'mois'      => $moisDeclaration,
+                        'annee'     => $anneeDeclaration,
+                        'error'     => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            $this->line("    ✅ {$envoyesTva} rappel(s) TVA mensuelle J-3 envoyé(s)");
+        } else {
+            $this->line("  [tva_mensuelle] J-{$joursAvantTva} avant le 15 — pas de rappel aujourd'hui");
         }
 
         $this->newLine();
