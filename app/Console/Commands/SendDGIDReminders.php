@@ -29,14 +29,22 @@ class SendDGIDReminders extends Command
     protected $signature   = 'dgid:reminders {--force : Envoie les rappels même si déjà envoyés}';
     protected $description = 'Envoie les rappels d\'échéances fiscales DGID aux propriétaires';
 
-    // Échéances fixes (mois-jour)
+    // Échéances fixes (mois-jour).
+    // 'destinataire' : 'proprietaire' (défaut) | 'admin'
+    // 'rappels'      : jours avant échéance (défaut : [30, 7])
+    // 'formes_juridiques' : filtre sur agency.forme_juridique (null = toutes)
     private const ECHEANCES = [
-        'brs_annuel' => ['mois' => 1,  'jour' => 31],   // État récap annuel — CGI art. 200 §5
-        'irpp'       => ['mois' => 4,  'jour' => 30],
-        'cfpb'       => ['mois' => 9,  'jour' => 30],
+        'brs_annuel'   => ['mois' => 1, 'jour' => 31],                                                                                            // proprietaires — CGI art. 200 §5
+        'cel_vl'       => ['mois' => 1, 'jour' => 31, 'destinataire' => 'admin'],                                                                 // admins — Art. 320-338 CGI SN
+        'is_acompte_1' => ['mois' => 2, 'jour' => 15, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 36-37 CGI SN
+        'irpp'         => ['mois' => 4, 'jour' => 30],                                                                                            // proprietaires
+        'cel_va'       => ['mois' => 4, 'jour' => 30, 'destinataire' => 'admin'],                                                                 // admins — Art. 320-338 CGI SN
+        'is_acompte_2' => ['mois' => 4, 'jour' => 30, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 36-37 CGI SN
+        'is_solde'     => ['mois' => 6, 'jour' => 15, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 37 CGI SN (IMF)
+        'cfpb'         => ['mois' => 9, 'jour' => 30],                                                                                            // proprietaires
     ];
 
-    // On envoie à J-30 et J-7
+    // Rappels par défaut (jours avant l'échéance) — surchargeable par entrée
     private const JOURS_AVANT_RAPPEL = [30, 7];
 
     public function handle(): int
@@ -61,40 +69,55 @@ class SendDGIDReminders extends Command
             }
 
             $joursRestants = (int) $aujourd_hui->diffInDays($dateEcheance, false);
+            $rappels       = $echeance['rappels'] ?? self::JOURS_AVANT_RAPPEL;
 
-            if (! in_array($joursRestants, self::JOURS_AVANT_RAPPEL)) {
+            if (! in_array($joursRestants, $rappels)) {
                 $this->line("  [{$type}] J-{$joursRestants} — pas de rappel aujourd'hui");
                 continue;
             }
 
             $this->line("  [{$type}] J-{$joursRestants} — envoi des rappels...");
 
-            // Envoyer à tous les propriétaires actifs
-            $proprietaires = User::where('role', 'proprietaire')
-                ->whereNotNull('email')
-                ->whereHas('agency', fn($q) => $q->where('actif', true))
-                ->get();
+            $destinataire     = $echeance['destinataire']     ?? 'proprietaire';
+            $formesJuridiques = $echeance['formes_juridiques'] ?? null;
 
-            foreach ($proprietaires as $proprio) {
+            if ($destinataire === 'admin') {
+                $users = User::where('role', 'admin')
+                    ->whereNotNull('email')
+                    ->whereHas('agency', function ($q) use ($formesJuridiques) {
+                        $q->where('actif', true);
+                        if ($formesJuridiques !== null) {
+                            $q->whereIn('forme_juridique', $formesJuridiques);
+                        }
+                    })
+                    ->get();
+            } else {
+                $users = User::where('role', 'proprietaire')
+                    ->whereNotNull('email')
+                    ->whereHas('agency', fn($q) => $q->where('actif', true))
+                    ->get();
+            }
+
+            foreach ($users as $user) {
                 try {
-                    $proprio->notify(new DGIDReminderNotification(
+                    $user->notify(new DGIDReminderNotification(
                         typeEcheance:  $type,
                         dateEcheance:  $dateEcheance->translatedFormat('d F Y'),
                         joursRestants: $joursRestants,
-                        annee:         $annee - 1,  // On déclare l'année précédente
+                        annee:         $annee - 1,
                     ));
                     $envoyes++;
                 } catch (\Throwable $e) {
-                    $this->warn("    ⚠ Proprio #{$proprio->id} : {$e->getMessage()}");
+                    $this->warn("    ⚠ #{$user->id} : {$e->getMessage()}");
                     Log::warning('Rappel DGID non envoyé', [
-                        'proprio_id' => $proprio->id,
-                        'type'       => $type,
-                        'error'      => $e->getMessage(),
+                        'user_id' => $user->id,
+                        'type'    => $type,
+                        'error'   => $e->getMessage(),
                     ]);
                 }
             }
 
-            $this->line("    ✅ {$proprietaires->count()} rappel(s) envoyé(s)");
+            $this->line("    ✅ {$users->count()} rappel(s) envoyé(s)");
         }
 
         // ── Rappels trimestriels BRS (J-7 et J-3) — envoyés aux admins d'agence ──

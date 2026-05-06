@@ -19,7 +19,7 @@ class DGIDReminderNotification extends Notification
     use Queueable;
 
     public function __construct(
-        public readonly string $typeEcheance,  // 'brs_annuel' | 'irpp' | 'cfpb'
+        public readonly string $typeEcheance,  // 'brs_annuel'|'irpp'|'cfpb'|'cel_vl'|'cel_va'|'is_acompte_1'|'is_acompte_2'|'is_solde'
         public readonly string $dateEcheance,  // ex: "31 janvier 2026"
         public readonly int    $joursRestants,
         public readonly int    $annee,
@@ -64,6 +64,26 @@ class DGIDReminderNotification extends Notification
             'cfpb' => [
                 'titre'       => 'Contribution Foncière des Propriétés Bâties (CFPB)',
                 'description' => "La CFPB est due sur la valeur locative cadastrale de vos biens (Art. 290-291). Taux : 5% (Art. 294). Référence : CGI art. 283-294.",
+            ],
+            'cel_vl' => [
+                'titre'       => 'Déclaration CEL-VL (Valeur Locative)',
+                'description' => "Vous devez déclarer la valeur locative de vos locaux professionnels à la DGID avant le 31 janvier. Formulaire disponible au Centre des Services Fiscaux. Référence : Art. 320-338 CGI SN. Note : les agences immobilières sont exclues de la CGU et relèvent obligatoirement de la CEL.",
+            ],
+            'cel_va' => [
+                'titre'       => 'Déclaration CEL-VA (Valeur Ajoutée)',
+                'description' => "La CEL-VA est à déposer simultanément avec votre liasse fiscale IS avant le 30 avril. Assiette : valeur ajoutée de l'exercice N-1. Référence : Art. 320-338 CGI SN.",
+            ],
+            'is_acompte_1' => [
+                'titre'       => '1er acompte IS à verser',
+                'description' => "Le premier tiers de votre IS N-1 est dû avant le 15 février. Montant = IS {$this->annee} / 3. Si vous ne connaissez pas votre IS N-1, rapprochez-vous de votre comptable. Référence : Art. 36-37 CGI SN.",
+            ],
+            'is_acompte_2' => [
+                'titre'       => '2ème acompte IS + dépôt liasse fiscale',
+                'description' => "Deux obligations simultanées avant le 30 avril : (1) Versement du 2ème tiers de votre IS N-1. (2) Dépôt de votre liasse fiscale (résultats exercice {$this->annee}). (3) Dépôt simultané CEL-VA. Référence : Art. 36-37 CGI SN.",
+            ],
+            'is_solde' => [
+                'titre'       => 'Solde IS + régularisation IMF',
+                'description' => "Le solde IS est dû avant le 15 juin : IS réel {$this->annee} - acomptes versés = solde à payer. Si IS réel < IMF (0,5% CA HT, min 500 000 FCFA, max 5 000 000 FCFA), l'IMF est due à la place. Référence : Art. 37 CGI SN.",
             ],
             default => [
                 'titre'       => 'Échéance fiscale',

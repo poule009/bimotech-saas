@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Admin\BilanFiscalController;
+use App\Http\Controllers\Admin\EcheancesFiscalesController;
 use App\Http\Controllers\Admin\EtatTrimestrielController;
 use App\Http\Controllers\Admin\TvaAgenceController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
@@ -200,6 +201,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('{annee}/{mois}/pdf',             [TvaAgenceController::class, 'exportPdf'])->name('pdf');
             Route::post('{annee}/{mois}/recalculer',     [TvaAgenceController::class, 'recalculer'])->name('recalculer');
         });
+
+        // Échéances fiscales agence (CEL, IS, calendrier annuel)
+        Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index');
 
         // Rapports
         Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier');
