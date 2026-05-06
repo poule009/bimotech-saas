@@ -245,7 +245,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             <td>{{ number_format($bilan->irpp_estime, 0, ',', ' ') }}</td>
         </tr>
         <tr class="cfpb">
-            <td>CFPB estimée (Contribution Foncière — Art. 95-110 CGI SN — ~5%)</td>
+            <td>CFPB estimée (Contribution Foncière — Art. 95-110 CGI SN)<br><small style="color:#9ca3af;font-size:9px">Estimation indicative — assiette réelle = valeur locative cadastrale fixée par la DGID (Art. 290-291 CGI SN)</small></td>
             <td>{{ number_format($bilan->cfpb_estimee, 0, ',', ' ') }}</td>
         </tr>
         @if($bilan->tva_loyer_collectee > 0)
@@ -351,7 +351,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
     Ce bilan est établi sur la base des paiements de loyers enregistrés par <strong>{{ $agency?->name }}</strong>
     pour l'année <strong>{{ $annee }}</strong>. L'IRPP est calculé selon le barème progressif Art. 65 CGI SN
     après abattement forfaitaire de 30% (Art. 58 CGI SN) sur la base loyers + charges refacturées (Art. 56 CGI SN).
-    La CFPB est estimée à 5% de la valeur locative annuelle.
+    La CFPB est une estimation indicative — assiette réelle = valeur locative cadastrale fixée par la DGID (Art. 290-291 CGI SN).
     @if(($bilan->tom_total ?? 0) > 0)
     <strong>⚠ TOM : le montant de {{ number_format($bilan->tom_total, 0, ',', ' ') }} FCFA collecté est inclus dans
     le net reversé — le propriétaire doit le reverser à la commune compétente.</strong>

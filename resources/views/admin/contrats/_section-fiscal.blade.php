@@ -151,9 +151,9 @@
             <label style="font-size:12px;color:#6b7280">Taux override (%)</label>
             <input type="number" name="taux_brs_manuel" id="taux_brs_manuel"
                    value="{{ $tauxBrsManuel }}"
-                   min="0" max="20" step="0.5" placeholder="15"
+                   min="0" max="20" step="0.5" placeholder="5"
                    style="width:70px;padding:6px 8px;border:1px solid #e5e7eb;border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif">
-            <span style="font-size:11px;color:#9ca3af">Laisser vide = 5% légal (Art. 201 CGI SN)</span>
+            <span style="font-size:11px;color:#9ca3af">Laisser vide = 5% légal (Art. 201 §3 CGI SN). Ne modifier que sur instruction écrite de la DGI.</span>
         </div>
     </div>
 

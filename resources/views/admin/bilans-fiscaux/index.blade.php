@@ -194,7 +194,7 @@
     <div style="margin-top:14px;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:12px;color:#92400e;line-height:1.6">
         <strong>Note :</strong> Ces bilans sont des <strong>estimations</strong> basées sur les paiements enregistrés dans BimoTech.
         L'IRPP est calculé selon le barème progressif sénégalais (Art. 65 CGI SN) après abattement forfaitaire 30% (Art. 58 CGI SN).
-        La CFPB est estimée à 5% de la valeur locative. <strong>Consultez un comptable ou la DGI avant toute déclaration.</strong>
+        La CFPB est une estimation indicative — assiette réelle = valeur locative cadastrale fixée par la DGID (Art. 290-291 CGI SN). <strong>Consultez un comptable ou la DGI avant toute déclaration.</strong>
     </div>
 
 </div>

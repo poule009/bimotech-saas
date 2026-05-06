@@ -33,11 +33,15 @@ class FiscalService
     public const TVA_TAUX              = 18.0;   // 18% — CGI art. 369 (texte officiel lu)
     public const TVA_TAUX_DECIMAL     = 0.18;
     public const BRS_TAUX_LEGAL       = 5.0;    // 5% — CGI art. 201 §3 (texte officiel lu)
+    public const BRS_SEUIL_MENSUEL   = 150000.0; // Art. 200 §4 CGI SN — retenue non obligatoire si loyer mensuel < 150 000 F
     public const COMMISSION_TAUX      = 10.0;   // 10% — standard marché SN (taux libre, non encadré)
     public const ABATTEMENT_IRPP      = 0.30;   // 30% forfaitaire — CGI art. 68 §c (texte officiel lu)
-    public const CFPB_TAUX            = 0.05;   // 5% — CGI art. 294 (texte officiel lu)
-                                                // ATTENTION : assiette légale = valeur locative CADASTRALE
-                                                // (Art. 290-291), pas les loyers réels. Valeur indicative.
+    /**
+     * ESTIMATION INDICATIVE — L'assiette légale de la CFPB est la valeur locative CADASTRALE
+     * fixée par la DGID (Art. 290-291 CGI SN), pas le loyer réel perçu.
+     * Ce taux appliqué aux loyers réels est une approximation ; ne pas utiliser pour déclaration officielle.
+     */
+    public const CFPB_TAUX            = 0.05;
 
     // ── Droits d'enregistrement DGID (CGI SN art. 464 B + 472 IV.6) ────────
     public const DGID_TAUX_HABITATION = 2.0;    // 2% — Art. 472 IV.6 : TOUS baux à durée limitée
@@ -128,9 +132,15 @@ class FiscalService
         $brsAmount     = 0.0;
 
         if ($brsApplicable) {
-            $tauxBrs   = $ctx->tauxBrsContrat ?? $ctx->tauxBrsLocataire ?? self::BRS_TAUX_LEGAL;
-            // Art. 201 §3 CGI SN : "5% du montant brut hors taxes des loyers encaissés"
-            $brsAmount = round($loyerHt * ($tauxBrs / 100), 2);
+            $hasOverride = ($ctx->tauxBrsContrat !== null || $ctx->tauxBrsLocataire !== null);
+            // Art. 200 §4 CGI SN : retenue non obligatoire si loyer mensuel < 150 000 F (sauf override manuel)
+            if (!$hasOverride && $ctx->loyerNu < self::BRS_SEUIL_MENSUEL) {
+                $brsApplicable = false;
+            } else {
+                $tauxBrs   = $ctx->tauxBrsContrat ?? $ctx->tauxBrsLocataire ?? self::BRS_TAUX_LEGAL;
+                // Art. 201 §3 CGI SN : "5% du montant brut hors taxes des loyers encaissés"
+                $brsAmount = round($loyerHt * ($tauxBrs / 100), 2);
+            }
         }
 
         $netAVerser = round($netProprietaire - $brsAmount, 2);

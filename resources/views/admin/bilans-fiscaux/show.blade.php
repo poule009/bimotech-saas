@@ -260,7 +260,7 @@
                         <div class="calc-row" style="margin-top:12px">
                             <div class="calc-lbl">
                                 CFPB estimée
-                                <span style="font-size:11px;color:#9ca3af;font-weight:400;margin-left:4px">Art. 95-110 CGI SN — ~5% valeur locative</span>
+                                <span style="font-size:11px;color:#9ca3af;font-weight:400;margin-left:4px">Estimation indicative — assiette réelle = valeur locative cadastrale fixée par la DGID (Art. 290-291 CGI SN)</span>
                             </div>
                             <div class="calc-val" style="color:#d97706">{{ number_format($bilan->cfpb_estimee, 0, ',', ' ') }} F</div>
                         </div>
@@ -428,7 +428,7 @@
             {{-- AVERTISSEMENT --}}
             <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 18px;font-size:12px;color:#92400e;line-height:1.7">
                 <strong>⚠ Estimation fiscale</strong> — Ce bilan est calculé sur la base des paiements enregistrés dans BimoTech.
-                L'IRPP est une estimation selon le barème Art. 65 CGI SN. La CFPB est estimée à 5% de la valeur locative.
+                L'IRPP est une estimation selon le barème Art. 65 CGI SN. La CFPB est une estimation indicative — assiette réelle = valeur locative cadastrale fixée par la DGID (Art. 290-291 CGI SN).
                 <strong>Consultez un comptable agréé ou la DGI avant toute déclaration officielle.</strong>
             </div>
 
