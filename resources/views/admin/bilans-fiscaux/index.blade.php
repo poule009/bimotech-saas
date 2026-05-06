@@ -98,6 +98,7 @@
                         <th style="text-align:right">Revenus bruts</th>
                         <th style="text-align:right">Base imposable (70%)</th>
                         <th style="text-align:right">IRPP estimé</th>
+                        <th style="text-align:center">Régime conseillé</th>
                         <th style="text-align:right">TVA collectée</th>
                         <th style="text-align:right">BRS retenu</th>
                         <th style="text-align:center">Statut</th>
@@ -127,6 +128,27 @@
                             @if($bilan)
                                 <span class="amt-red">{{ number_format($bilan->irpp_estime, 0, ',', ' ') }} F</span>
                             @else <span style="color:#9ca3af">—</span> @endif
+                        </td>
+                        <td style="text-align:center">
+                            @if($bilan)
+                            @php
+                                $rc = \App\Services\FiscalService::comparerRegimes(
+                                    (float) $bilan->revenus_bruts_total,
+                                    (float) $bilan->irpp_estime
+                                )['regime_recommande'];
+                            @endphp
+                            @if($rc === 'cgf')
+                                <span class="badge g">CGF</span>
+                                <div style="font-size:10px;color:#9ca3af;margin-top:2px">Art. 80 CGI SN</div>
+                            @elseif($rc === 'irpp')
+                                <span class="badge" style="background:#dbeafe;color:#1d4ed8">IRPP</span>
+                                <div style="font-size:10px;color:#9ca3af;margin-top:2px">Art. 65 CGI SN</div>
+                            @else
+                                <span class="badge" style="background:#f3f4f6;color:#9ca3af">N/A &gt;30M</span>
+                            @endif
+                            @else
+                                <span style="color:#9ca3af">—</span>
+                            @endif
                         </td>
                         <td style="text-align:right">
                             @if($bilan && $bilan->tva_loyer_collectee > 0)

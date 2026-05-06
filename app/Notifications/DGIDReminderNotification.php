@@ -58,8 +58,8 @@ class DGIDReminderNotification extends Notification
                 'description' => "Vous devez remettre à la DGID l'état annuel nominatif des retenues BRS effectuées sur les loyers {$this->annee}. Cet état liste chaque propriétaire, son NINEA, les loyers versés et la BRS retenue. Référence : CGI art. 200 §5.",
             ],
             'irpp' => [
-                'titre'       => 'Déclaration IRPP — Revenus locatifs',
-                'description' => "Vous devez déclarer vos revenus locatifs {$this->annee} à la DGID. L'impôt est calculé sur la base imposable après abattement forfaitaire de 30% (Art. 68 §c). Référence : CGI art. 173.",
+                'titre'       => 'Déclaration IRPP/CGF — Revenus locatifs',
+                'description' => "Si vos revenus locatifs {$this->annee} sont inférieurs à 30 000 000 FCFA, vous relevez du régime **CGF** (déclaration prévisionnelle N, Art. 77-94 CGI SN) ou du régime réel **IRPP** (déclaration revenus N-1 après abattement 30%, Art. 68 §c). Consultez votre bilan Bimotech pour savoir quel régime est le plus avantageux pour vous. Référence : CGI Art. 77-94 (CGF) et Art. 173 (IRPP).",
             ],
             'cfpb' => [
                 'titre'       => 'Contribution Foncière des Propriétés Bâties (CFPB)',

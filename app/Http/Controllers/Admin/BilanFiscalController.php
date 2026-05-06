@@ -88,6 +88,14 @@ class BilanFiscalController extends Controller
 
         $data = FiscalService::calculerBilanAnnuel($proprietaire->id, $annee, $agencyId);
 
+        $cgfResult     = FiscalService::calculerCGF((float) $data['revenus_bruts_total']);
+        $regimesResult = FiscalService::comparerRegimes((float) $data['revenus_bruts_total'], (float) $data['irpp_estime']);
+        $data['cgf_applicable']       = $cgfResult['applicable'];
+        $data['cgf_montant']          = $cgfResult['montant'];
+        $data['cgf_taux_applique']    = $cgfResult['taux_applique'];
+        $data['regime_recommande']    = $regimesResult['regime_recommande'];
+        $data['economie_potentielle'] = $regimesResult['economie_potentielle'];
+
         BilanFiscalProprietaire::updateOrCreate(
             [
                 'agency_id'        => $agencyId,
@@ -164,8 +172,11 @@ class BilanFiscalController extends Controller
             ->orderByDesc('annee')
             ->pluck('annee');
 
+        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_total);
+        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_total, (float) $bilan->irpp_estime);
+
         return view('admin.bilans-fiscaux.show', compact(
-            'proprietaire', 'bilan', 'annee', 'paiements', 'anneesDisponibles'
+            'proprietaire', 'bilan', 'annee', 'paiements', 'anneesDisponibles', 'cgfData', 'regimes'
         ));
     }
 
@@ -201,7 +212,10 @@ class BilanFiscalController extends Controller
 
         $agency = Auth::user()->agency;
 
-        $pdf = Pdf::loadView('admin.bilans-fiscaux.pdf.bilan', compact('bilan', 'proprietaire', 'agency', 'annee'))
+        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_total);
+        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_total, (float) $bilan->irpp_estime);
+
+        $pdf = Pdf::loadView('admin.bilans-fiscaux.pdf.bilan', compact('bilan', 'proprietaire', 'agency', 'annee', 'cgfData', 'regimes'))
             ->setPaper('a4', 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('dpi', 96)

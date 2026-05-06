@@ -60,6 +60,18 @@ class FiscalService
         ['min' => 50_000_000,  'max' => PHP_INT_MAX,  'taux' => 43],
     ];
 
+    // Seuil et barème CGF — Contribution Globale Foncière (Art. 77-94 CGI SN)
+    // Régime forfaitaire réservé aux personnes physiques avec revenus locatifs ≤ 30 000 000 F
+    public const CGF_SEUIL = 30_000_000;
+
+    public const CGF_TRANCHES = [
+        ['min' => 0,          'max' => 2_000_000,  'taux' => 4.0],
+        ['min' => 2_000_001,  'max' => 5_000_000,  'taux' => 6.0],
+        ['min' => 5_000_001,  'max' => 10_000_000, 'taux' => 9.0],
+        ['min' => 10_000_001, 'max' => 20_000_000, 'taux' => 14.0],
+        ['min' => 20_000_001, 'max' => 30_000_000, 'taux' => 20.0],
+    ];
+
     // Tranches loi 81-18 (plafonds loyer mensuel en FCFA selon surface m²)
     public const LOI_8118_TRANCHES = [
         ['surface_max' => 60,   'loyer_max' => 150_000],
@@ -492,6 +504,97 @@ class FiscalService
         }
 
         return round($irpp, 2);
+    }
+
+    /**
+     * Calcule la CGF (Contribution Globale Foncière) — Art. 77-94 CGI SN.
+     *
+     * Régime forfaitaire : taux UNIQUE de la tranche (pas progressif).
+     * Assiette = revenus bruts annuels (sans abattement).
+     * Non applicable si revenus > 30 000 000 FCFA.
+     *
+     * @return array{applicable: bool, montant: float, taux_applique: float, tranche_label: string}
+     */
+    public static function calculerCGF(float $revenusbrutsAnnuels): array
+    {
+        if ($revenusbrutsAnnuels > self::CGF_SEUIL) {
+            return [
+                'applicable'    => false,
+                'montant'       => 0.0,
+                'taux_applique' => 0.0,
+                'tranche_label' => 'Hors CGF (revenus > 30 000 000 F)',
+            ];
+        }
+
+        foreach (self::CGF_TRANCHES as $tranche) {
+            if ($revenusbrutsAnnuels >= $tranche['min'] && $revenusbrutsAnnuels <= $tranche['max']) {
+                return [
+                    'applicable'    => true,
+                    'montant'       => round($revenusbrutsAnnuels * ($tranche['taux'] / 100), 2),
+                    'taux_applique' => $tranche['taux'],
+                    'tranche_label' => number_format($tranche['min'], 0, ',', ' ')
+                        . ' — ' . number_format($tranche['max'], 0, ',', ' ') . ' F',
+                ];
+            }
+        }
+
+        // Sécurité : revenus = 0 (toujours tranche 1)
+        return [
+            'applicable'    => true,
+            'montant'       => 0.0,
+            'taux_applique' => 4.0,
+            'tranche_label' => '0 — 2 000 000 F',
+        ];
+    }
+
+    /**
+     * Compare le régime CGF et le régime IRPP pour un propriétaire.
+     *
+     * Retourne le régime le plus avantageux et l'économie potentielle.
+     *
+     * @return array{
+     *   regime_recommande: 'cgf'|'irpp'|'hors_cgf',
+     *   cgf_montant: float,
+     *   irpp_montant: float,
+     *   economie_potentielle: float,
+     *   message: string
+     * }
+     */
+    public static function comparerRegimes(float $revenusbruts, float $irppEstime): array
+    {
+        $cgf = self::calculerCGF($revenusbruts);
+
+        if (! $cgf['applicable']) {
+            return [
+                'regime_recommande'    => 'hors_cgf',
+                'cgf_montant'          => 0.0,
+                'irpp_montant'         => $irppEstime,
+                'economie_potentielle' => 0.0,
+                'message'              => 'Revenus supérieurs à 30 000 000 FCFA : régime réel IRPP obligatoire (Art. 77 CGI SN).',
+            ];
+        }
+
+        $economie = round(abs($cgf['montant'] - $irppEstime), 2);
+
+        if ($cgf['montant'] <= $irppEstime) {
+            return [
+                'regime_recommande'    => 'cgf',
+                'cgf_montant'          => $cgf['montant'],
+                'irpp_montant'         => $irppEstime,
+                'economie_potentielle' => $economie,
+                'message'              => 'Le régime CGF est plus avantageux : économie de '
+                    . number_format($economie, 0, ',', ' ') . ' FCFA vs l\'IRPP.',
+            ];
+        }
+
+        return [
+            'regime_recommande'    => 'irpp',
+            'cgf_montant'          => $cgf['montant'],
+            'irpp_montant'         => $irppEstime,
+            'economie_potentielle' => $economie,
+            'message'              => 'Le régime réel IRPP est plus avantageux : économie de '
+                . number_format($economie, 0, ',', ' ') . ' FCFA vs la CGF.',
+        ];
     }
 
     /**

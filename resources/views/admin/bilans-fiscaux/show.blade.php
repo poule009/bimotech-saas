@@ -268,6 +268,96 @@
                 </div>
             </div>
 
+            {{-- COMPARAISON RÉGIMES FISCAUX CGF vs IRPP ──────────────────── --}}
+            <div class="card">
+                <div class="card-hd">
+                    <div class="card-title">
+                        <svg style="width:15px;height:15px;color:#7c3aed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                        Comparaison des régimes fiscaux — CGF vs IRPP
+                    </div>
+                    <span class="badge badge-blue">Art. 77-94 CGI SN</span>
+                </div>
+                <div class="card-body">
+
+                    @if($regimes['regime_recommande'] === 'hors_cgf')
+
+                        {{-- Hors CGF : revenus > 30M --}}
+                        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:#92400e">
+                            ⚠ <strong>CGF non applicable</strong> — Revenus bruts ({{ number_format($bilan->revenus_bruts_total, 0, ',', ' ') }} F) supérieurs à 30 000 000 FCFA.
+                            Le régime réel <strong>IRPP</strong> est obligatoire (Art. 77 CGI SN).
+                        </div>
+                        <div style="background:#fff1f2;border:1px solid #fecaca;border-radius:12px;padding:18px;text-align:center">
+                            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9f1239;margin-bottom:8px">IRPP estimé (Art. 65 CGI SN)</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#dc2626">{{ number_format($bilan->irpp_estime, 0, ',', ' ') }} F</div>
+                            <div style="font-size:11px;color:#9f1239;margin-top:6px">Base imposable {{ number_format($bilan->base_imposable, 0, ',', ' ') }} F (70% des revenus)</div>
+                        </div>
+
+                    @else
+
+                        {{-- Deux cartes côte à côte --}}
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+
+                            {{-- CARTE CGF --}}
+                            @php $cgfRecommande = $regimes['regime_recommande'] === 'cgf'; @endphp
+                            <div style="border:2px solid {{ $cgfRecommande ? '#16a34a' : '#e5e7eb' }};border-radius:12px;padding:18px;position:relative;background:{{ $cgfRecommande ? '#f0fdf4' : '#fff' }}">
+                                @if($cgfRecommande)
+                                <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:99px;white-space:nowrap">
+                                    ✓ RECOMMANDÉ
+                                </div>
+                                @endif
+                                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:{{ $cgfRecommande ? '#16a34a' : '#6b7280' }};margin-bottom:10px">Régime CGF (Art. 80 CGI SN)</div>
+                                <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:{{ $cgfRecommande ? '#16a34a' : '#0d1117' }}">
+                                    {{ number_format($cgfData['montant'], 0, ',', ' ') }} F
+                                </div>
+                                <div style="margin-top:10px;font-size:11.5px;color:#6b7280;line-height:1.7">
+                                    <div>Taux : <strong>{{ $cgfData['taux_applique'] }}%</strong></div>
+                                    <div>Tranche : {{ $cgfData['tranche_label'] }}</div>
+                                    <div style="margin-top:4px;font-size:10.5px;color:#9ca3af">Calcul sur revenus bruts (sans abattement)</div>
+                                </div>
+                            </div>
+
+                            {{-- CARTE IRPP --}}
+                            @php $irppRecommande = $regimes['regime_recommande'] === 'irpp'; @endphp
+                            <div style="border:2px solid {{ $irppRecommande ? '#16a34a' : '#e5e7eb' }};border-radius:12px;padding:18px;position:relative;background:{{ $irppRecommande ? '#f0fdf4' : '#fff' }}">
+                                @if($irppRecommande)
+                                <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;font-size:10px;font-weight:700;padding:2px 10px;border-radius:99px;white-space:nowrap">
+                                    ✓ RECOMMANDÉ
+                                </div>
+                                @endif
+                                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:{{ $irppRecommande ? '#16a34a' : '#6b7280' }};margin-bottom:10px">Régime IRPP (Art. 65 CGI SN)</div>
+                                <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:{{ $irppRecommande ? '#16a34a' : '#0d1117' }}">
+                                    {{ number_format($bilan->irpp_estime, 0, ',', ' ') }} F
+                                </div>
+                                <div style="margin-top:10px;font-size:11.5px;color:#6b7280;line-height:1.7">
+                                    <div>Base imposable : <strong>{{ number_format($bilan->base_imposable, 0, ',', ' ') }} F</strong></div>
+                                    <div>Après abattement 30% (Art. 68 §c)</div>
+                                    <div style="margin-top:4px;font-size:10.5px;color:#9ca3af">Calcul sur 70% des revenus bruts</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Économie potentielle --}}
+                        @if($regimes['economie_potentielle'] > 0)
+                        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;font-size:13px;color:#16a34a;display:flex;align-items:center;gap:8px">
+                            <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>
+                                En optant pour le régime <strong>{{ strtoupper($regimes['regime_recommande']) }}</strong>,
+                                ce propriétaire économise <strong>{{ number_format($regimes['economie_potentielle'], 0, ',', ' ') }} FCFA</strong>
+                                sur l'année {{ $annee }}.
+                            </span>
+                        </div>
+                        @endif
+
+                    @endif
+
+                    {{-- Note de bas de section --}}
+                    <div style="margin-top:14px;font-size:11px;color:#9ca3af;line-height:1.6;padding-top:10px;border-top:1px solid #f3f4f6">
+                        Ces estimations sont indicatives. La déclaration CGF est prévisionnelle (revenus attendus N) et doit être déposée avant le 30 avril.
+                        <strong>Consultez la DGID ou un comptable agréé avant toute déclaration officielle.</strong>
+                    </div>
+                </div>
+            </div>
+
             {{-- TVA ET BRS --}}
             @if($bilan->tva_loyer_collectee > 0 || ($bilan->tva_charges_total ?? 0) > 0 || $bilan->brs_retenu_total > 0)
             <div class="card">

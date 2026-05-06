@@ -274,6 +274,48 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         @endif
     </table>
 
+    {{-- COMPARAISON CGF vs IRPP --}}
+    <div class="section-title">Comparaison des régimes fiscaux — CGF vs IRPP (Art. 77-94 CGI SN)</div>
+
+    @if($regimes['regime_recommande'] === 'hors_cgf')
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:4px;padding:8px 12px;margin-bottom:12px;font-size:8.5px;color:#92400e">
+        CGF non applicable — Revenus bruts supérieurs à 30 000 000 FCFA.
+        Régime réel IRPP obligatoire (Art. 77 CGI SN).
+    </div>
+    @else
+    <table class="calc-table" style="margin-bottom:8px">
+        <tr>
+            <th style="width:40%">Régime</th>
+            <th>Assiette de calcul</th>
+            <th>Montant estimé</th>
+            <th>Avantage</th>
+        </tr>
+        <tr @if($regimes['regime_recommande'] === 'cgf') style="background:#f0fdf4;color:#16a34a;font-weight:bold" @endif>
+            <td>CGF — Art. 80 CGI SN<br><small style="color:#6b7280;font-size:8px">Taux {{ $cgfData['taux_applique'] }}% · Tranche {{ $cgfData['tranche_label'] }}</small></td>
+            <td style="font-size:9px;color:#6b7280">Revenus bruts (sans abattement)</td>
+            <td style="text-align:right;font-weight:bold">{{ number_format($cgfData['montant'], 0, ',', ' ') }} F</td>
+            <td style="text-align:center">
+                @if($regimes['regime_recommande'] === 'cgf')
+                    <span style="color:#16a34a;font-weight:bold;font-size:9px">✓ Économie {{ number_format($regimes['economie_potentielle'], 0, ',', ' ') }} F</span>
+                @else — @endif
+            </td>
+        </tr>
+        <tr @if($regimes['regime_recommande'] === 'irpp') style="background:#f0fdf4;color:#16a34a;font-weight:bold" @endif>
+            <td>IRPP — Art. 65 CGI SN<br><small style="color:#6b7280;font-size:8px">Barème progressif après abattement 30%</small></td>
+            <td style="font-size:9px;color:#6b7280">Base imposable {{ number_format($bilan->base_imposable, 0, ',', ' ') }} F (70%)</td>
+            <td style="text-align:right;font-weight:bold">{{ number_format($bilan->irpp_estime, 0, ',', ' ') }} F</td>
+            <td style="text-align:center">
+                @if($regimes['regime_recommande'] === 'irpp')
+                    <span style="color:#16a34a;font-weight:bold;font-size:9px">✓ Économie {{ number_format($regimes['economie_potentielle'], 0, ',', ' ') }} F</span>
+                @else — @endif
+            </td>
+        </tr>
+    </table>
+    <div style="font-size:7.5px;color:#9ca3af;margin-bottom:14px;line-height:1.6">
+        {{ $regimes['message'] }} — Ces montants sont des estimations indicatives. La déclaration CGF est prévisionnelle (revenus attendus N) · Dépôt avant le 30 avril · CGI Art. 77-94.
+    </div>
+    @endif
+
     {{-- COMMISSION AGENCE --}}
     <div class="section-title">Commissions d'agence {{ $annee }}</div>
     <table class="calc-table" style="margin-bottom:16px">
