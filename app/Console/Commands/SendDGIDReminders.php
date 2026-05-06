@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
  * SendDGIDReminders — Envoie des rappels aux propriétaires pour les échéances DGID.
  *
  * Échéances fiscales sénégalaises gérées :
- *  - BRS  : 31 janvier  (retenue à la source locataires entreprises)
+ *  - BRS annuel (état récap) : 31 janvier  (CGI art. 200 §5 — état nominatif des retenues N)
  *  - IRPP : 30 avril    (déclaration revenus locatifs)
  *  - CFPB : 30 septembre (contribution foncière)
  *
@@ -26,9 +26,9 @@ class SendDGIDReminders extends Command
 
     // Échéances fixes (mois-jour)
     private const ECHEANCES = [
-        'brs'  => ['mois' => 1,  'jour' => 31],
-        'irpp' => ['mois' => 4,  'jour' => 30],
-        'cfpb' => ['mois' => 9,  'jour' => 30],
+        'brs_annuel' => ['mois' => 1,  'jour' => 31],   // État récap annuel — CGI art. 200 §5
+        'irpp'       => ['mois' => 4,  'jour' => 30],
+        'cfpb'       => ['mois' => 9,  'jour' => 30],
     ];
 
     // On envoie à J-30 et J-7

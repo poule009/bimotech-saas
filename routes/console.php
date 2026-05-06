@@ -62,3 +62,10 @@ Schedule::command('dgid:reminders')
     ->timezone('Africa/Dakar')
     ->withoutOverlapping()
     ->runInBackground();
+
+// Rappel versement BRS mensuel DGI — avant le 15 du mois (Art. 200 §4 CGI SN)
+Schedule::command('brs:mensuel-reminder')
+    ->dailyAt('09:00')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground();

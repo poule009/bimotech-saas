@@ -10,7 +10,7 @@ use Illuminate\Notifications\Notification;
  * DGIDReminderNotification — Rappel des échéances fiscales DGID pour les propriétaires.
  *
  * Échéances fiscales sénégalaises concernées :
- *  - 31 janvier  : Déclaration retenue à la source BRS (CGI art. 201)
+ *  - 31 janvier  : État annuel récapitulatif BRS — liste nominative des retenues N (CGI art. 200 §5)
  *  - 30 avril    : Déclaration IRPP revenus locatifs (CGI art. 173 + abattement art. 68 §c)
  *  - 30 septembre: Paiement CFPB (CGI art. 283-294 — assiette = valeur locative cadastrale)
  */
@@ -19,7 +19,7 @@ class DGIDReminderNotification extends Notification
     use Queueable;
 
     public function __construct(
-        public readonly string $typeEcheance,  // 'brs' | 'irpp' | 'cfpb'
+        public readonly string $typeEcheance,  // 'brs_annuel' | 'irpp' | 'cfpb'
         public readonly string $dateEcheance,  // ex: "31 janvier 2026"
         public readonly int    $joursRestants,
         public readonly int    $annee,
@@ -53,9 +53,9 @@ class DGIDReminderNotification extends Notification
     private function infosByType(): array
     {
         return match ($this->typeEcheance) {
-            'brs' => [
-                'titre'       => 'Déclaration BRS (Retenue à la source)',
-                'description' => "Si vous avez des locataires **entreprises**, vous devez déclarer et reverser la retenue BRS de 5% prélevée sur leurs loyers {$this->annee}. Référence : CGI art. 201 §3.",
+            'brs_annuel' => [
+                'titre'       => 'État annuel récapitulatif BRS (Retenue à la source)',
+                'description' => "Vous devez remettre à la DGID l'état annuel nominatif des retenues BRS effectuées sur les loyers {$this->annee}. Cet état liste chaque propriétaire, son NINEA, les loyers versés et la BRS retenue. Référence : CGI art. 200 §5.",
             ],
             'irpp' => [
                 'titre'       => 'Déclaration IRPP — Revenus locatifs',
