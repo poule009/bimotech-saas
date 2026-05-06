@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Admin\BilanFiscalController;
+use App\Http\Controllers\Admin\EtatTrimestrielController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\BailleurController;
 use App\Http\Controllers\BienController;
@@ -178,6 +179,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('{proprietaire}/calculate', [BilanFiscalController::class, 'calculate'])->name('calculate');
             Route::get('{proprietaire}',            [BilanFiscalController::class, 'show'])->name('show');
             Route::get('{proprietaire}/pdf',        [BilanFiscalController::class, 'exportPdf'])->name('pdf');
+        });
+
+        // États trimestriels BRS — Art. 200 §5 CGI Sénégal
+        Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->group(function () {
+            Route::get('/',                                [EtatTrimestrielController::class, 'index'])->name('index');
+            Route::get('{annee}/{trimestre}',              [EtatTrimestrielController::class, 'show'])->name('show');
+            Route::get('{annee}/{trimestre}/pdf',          [EtatTrimestrielController::class, 'exportPdf'])->name('pdf');
+            Route::get('{annee}/{trimestre}/csv',          [EtatTrimestrielController::class, 'exportCsv'])->name('csv');
         });
 
         // Rapports
