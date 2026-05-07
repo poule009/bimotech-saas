@@ -29,7 +29,7 @@
         ['section' => 'FISCAL',       'route' => 'admin.tva-agence.index',         'label' => 'TVA mensuelle'],
         ['section' => null,           'route' => 'admin.etats-trimestriels.index', 'label' => 'États BRS trimestriels'],
         ['section' => null,           'route' => 'admin.echeances-fiscales.index', 'label' => 'Échéances fiscales'],
-        ['section' => null,           'route' => 'admin.activity-logs.index',      'label' => 'Activité'],
+        ['section' => 'JOURNAL',      'route' => 'admin.activity-logs.index',      'label' => 'Activité'],
 
         ['section' => 'AGENCE',       'route' => 'admin.agency.settings',     'label' => 'Paramètres'],
         ['section' => null,           'route' => 'subscription.index',        'label' => 'Abonnement'],
