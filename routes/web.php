@@ -25,6 +25,7 @@ use App\Http\Controllers\RapportController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -182,6 +183,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('{user}/edit',    [UserController::class, 'edit'])->name('edit');
             Route::patch('{user}',       [UserController::class, 'update'])->name('update');
             Route::delete('{user}',      [UserController::class, 'destroy'])->name('destroy');
+        });
+
+        // Import Excel
+        Route::prefix('import')->name('import.')->group(function () {
+            Route::get('/',                         [ImportController::class, 'index'])->name('index');
+            Route::post('proprietaires',            [ImportController::class, 'proprietaires'])->name('proprietaires');
+            Route::post('locataires',               [ImportController::class, 'locataires'])->name('locataires');
+            Route::post('biens',                    [ImportController::class, 'biens'])->name('biens');
+            Route::get('template/proprietaires',    [ImportController::class, 'templateProprietaires'])->name('template.proprietaires');
+            Route::get('template/locataires',       [ImportController::class, 'templateLocataires'])->name('template.locataires');
+            Route::get('template/biens',            [ImportController::class, 'templateBiens'])->name('template.biens');
         });
 
         // Bilans fiscaux
