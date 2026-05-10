@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\EcheancesFiscalesController;
 use App\Http\Controllers\Admin\EtatTrimestrielController;
 use App\Http\Controllers\Admin\TvaAgenceController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BailleurController;
 use App\Http\Controllers\BienController;
 use App\Http\Controllers\BienPhotoController;
@@ -90,7 +91,15 @@ Route::post('/demo',    [DemoController::class,    'send'])->middleware('throttl
 Route::middleware('guest')->group(function () {
     Route::get('/register/agency',  [AgencyRegistrationController::class, 'create'])->name('agency.register');
     Route::post('/register/agency', [AgencyRegistrationController::class, 'store'])->name('agency.register.store');
+
+    // Étape finale inscription Google (nom d'agence)
+    Route::get('/register/google/complete',  [GoogleAuthController::class, 'showComplete'])->name('agency.register.google.complete');
+    Route::post('/register/google/complete', [GoogleAuthController::class, 'storeComplete'])->name('agency.register.google.store');
 });
+
+// ── Google OAuth (hors middleware guest pour que le callback fonctionne) ───
+Route::get('/auth/google',          [GoogleAuthController::class, 'redirect'])->name('auth.google');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('auth.google.callback');
 
 // ── Zone authentifiée ──────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
