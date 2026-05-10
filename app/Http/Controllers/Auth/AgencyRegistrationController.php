@@ -27,25 +27,18 @@ class AgencyRegistrationController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'agency_name'      => ['required', 'string', 'min:2', 'max:100'],
-            'agency_email'     => ['required', 'email', 'max:255', 'unique:agencies,email'],
-            'agency_telephone' => ['nullable', 'string', 'max:20'],
-            'agency_adresse'   => ['nullable', 'string', 'max:255'],
-            'admin_name'       => ['required', 'string', 'min:2', 'max:100'],
-            'admin_email'      => ['required', 'email', 'max:255', 'unique:users,email'],
-            // ✅ CORRECTION H3 : même règle que SuperAdminController
-            'admin_password'   => ['required', 'confirmed', PasswordPolicy::rules()],
-            'cgu'              => ['required', 'accepted'],
+            'agency_name'    => ['required', 'string', 'min:2', 'max:100'],
+            'admin_name'     => ['required', 'string', 'min:2', 'max:100'],
+            'admin_email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'admin_password' => ['required', 'confirmed', PasswordPolicy::rules()],
+            'cgu'            => ['required', 'accepted'],
         ], [
             'agency_name.required'     => "Le nom de l'agence est obligatoire.",
             'agency_name.min'          => "Le nom de l'agence doit contenir au moins 2 caractères.",
-            'agency_email.required'    => "L'email de l'agence est obligatoire.",
-            'agency_email.email'       => "L'email de l'agence n'est pas valide.",
-            'agency_email.unique'      => "Cet email est déjà utilisé par une autre agence.",
-            'admin_name.required'      => "Le nom de l'administrateur est obligatoire.",
-            'admin_email.required'     => "L'email de connexion est obligatoire.",
-            'admin_email.email'        => "L'email de connexion n'est pas valide.",
-            'admin_email.unique'       => "Cet email est déjà utilisé par un autre compte.",
+            'admin_name.required'      => "Votre nom est obligatoire.",
+            'admin_email.required'     => "L'email est obligatoire.",
+            'admin_email.email'        => "L'email n'est pas valide.",
+            'admin_email.unique'       => "Cet email est déjà utilisé.",
             'admin_password.required'  => "Le mot de passe est obligatoire.",
             'admin_password.confirmed' => "Les deux mots de passe ne correspondent pas.",
             'admin_password.mixed'     => "Le mot de passe doit contenir majuscule et minuscule.",
@@ -56,13 +49,9 @@ class AgencyRegistrationController extends Controller
 
         try {
             $admin = DB::transaction(function () use ($request) {
-                // slug et actif ne sont pas dans $fillable (sécurité intentionnelle)
-                // → new + assignation directe + save() pour un seul INSERT complet
                 $agency            = new Agency();
                 $agency->name      = $request->agency_name;
-                $agency->email     = $request->agency_email;
-                $agency->telephone = $request->agency_telephone;
-                $agency->adresse   = $request->agency_adresse;
+                $agency->email     = $request->admin_email;
                 $agency->slug      = Str::slug($request->agency_name) . '-' . Str::random(6);
                 $agency->actif     = true;
                 $agency->save();

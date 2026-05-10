@@ -30,11 +30,14 @@ class Proprietaire extends Model
         'telephone_secondaire', 'adresse_domicile', 'ville', 'quartier',
         'mode_paiement_prefere', 'banque', 'numero_compte',
         'numero_wave', 'numero_om', 'ninea', 'assujetti_tva',
+        'est_personne_morale_is',
+        'forme_juridique_bailleur',
     ];
 
     protected $casts = [
-        'date_naissance'  => 'date',
-        'assujetti_tva'   => 'boolean',
+        'date_naissance'          => 'date',
+        'assujetti_tva'           => 'boolean',
+        'est_personne_morale_is'  => 'boolean',
     ];
 
     // ── Relations ────────────────────────────────────────────────────────────

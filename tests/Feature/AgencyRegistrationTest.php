@@ -12,13 +12,11 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
- * AgencyRegistrationTest — Inscription d'une nouvelle agence (onboarding SaaS).
+ * Tests du formulaire d'inscription agence simplifié.
  *
- * Vérifie que le formulaire crée en transaction atomique :
- *  - l'agence (Agency)
- *  - l'admin (User role='admin')
- *  - l'abonnement d'essai 30 jours (Subscription statut='essai')
- * Et que les validations bloquent les données invalides.
+ * Le formulaire ne demande plus que 4 champs :
+ * agency_name, admin_name, admin_email, admin_password (+ cgu).
+ * L'email admin sert aussi d'email de contact pour l'agence.
  */
 class AgencyRegistrationTest extends TestCase
 {
@@ -29,32 +27,35 @@ class AgencyRegistrationTest extends TestCase
     private function payloadValide(): array
     {
         return [
-            'agency_name'              => 'Agence Alpha Dakar',
-            'agency_email'             => 'alpha@agence.sn',
-            'agency_telephone'         => '+221 77 000 00 00',
-            'agency_adresse'           => '12 Rue Félix Faure, Dakar',
-            'admin_name'               => 'Mamadou Diallo',
-            'admin_email'              => 'mamadou@agence.sn',
-            'admin_password'           => 'Secret@123',
+            'agency_name'                 => 'Agence Alpha Dakar',
+            'admin_name'                  => 'Mamadou Diallo',
+            'admin_email'                 => 'mamadou@agence.sn',
+            'admin_password'              => 'Secret@123',
             'admin_password_confirmation' => 'Secret@123',
-            'cgu'                      => '1',
+            'cgu'                         => '1',
         ];
     }
 
-    // ── Tests formulaire ──────────────────────────────────────────────────
+    // ── Accès au formulaire ───────────────────────────────────────────────
 
     #[Test]
-    public function formulaire_inscription_accessible_aux_invites()
+    public function formulaire_inscription_accessible_aux_invites(): void
     {
         $this->get(route('agency.register'))
              ->assertOk();
     }
 
     #[Test]
-    public function utilisateur_connecte_ne_voit_pas_le_formulaire_inscription()
+    public function utilisateur_connecte_ne_voit_pas_le_formulaire_inscription(): void
     {
         $agency = Agency::factory()->create(['actif' => true]);
-        Subscription::factory()->create(['agency_id' => $agency->id, 'statut' => 'actif', 'plan' => 'annuel', 'date_debut_abonnement' => now()->subMonth(), 'date_fin_abonnement' => now()->addYear()]);
+        Subscription::factory()->create([
+            'agency_id'             => $agency->id,
+            'statut'                => 'actif',
+            'plan'                  => 'annuel',
+            'date_debut_abonnement' => now()->subMonth(),
+            'date_fin_abonnement'   => now()->addYear(),
+        ]);
         $admin = User::factory()->create(['role' => 'admin', 'agency_id' => $agency->id]);
 
         $this->actingAs($admin)
@@ -62,20 +63,20 @@ class AgencyRegistrationTest extends TestCase
              ->assertRedirect();
     }
 
-    // ── Tests inscription complète ────────────────────────────────────────
+    // ── Inscription complète ──────────────────────────────────────────────
 
     #[Test]
-    public function inscription_complete_cree_agence_admin_et_abonnement_essai()
+    public function inscription_complete_cree_agence_admin_et_abonnement_essai(): void
     {
         Event::fake([Registered::class]);
 
         $this->post(route('agency.register.store'), $this->payloadValide())
              ->assertRedirect();
 
-        // Agence créée et active
+        // Agence créée avec l'email admin comme email de contact
         $this->assertDatabaseHas('agencies', [
             'name'  => 'Agence Alpha Dakar',
-            'email' => 'alpha@agence.sn',
+            'email' => 'mamadou@agence.sn',
             'actif' => true,
         ]);
 
@@ -87,7 +88,7 @@ class AgencyRegistrationTest extends TestCase
         ]);
 
         // Abonnement d'essai créé
-        $agency = Agency::where('email', 'alpha@agence.sn')->first();
+        $agency = Agency::where('email', 'mamadou@agence.sn')->first();
         $this->assertDatabaseHas('subscriptions', [
             'agency_id' => $agency->id,
             'statut'    => 'essai',
@@ -95,7 +96,7 @@ class AgencyRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function inscription_connecte_automatiquement_ladmin()
+    public function inscription_connecte_automatiquement_ladmin(): void
     {
         Event::fake([Registered::class]);
 
@@ -106,7 +107,7 @@ class AgencyRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function evenement_registered_est_dispatche()
+    public function evenement_registered_est_dispatche(): void
     {
         Event::fake([Registered::class]);
 
@@ -115,72 +116,54 @@ class AgencyRegistrationTest extends TestCase
         Event::assertDispatched(Registered::class);
     }
 
-    // ── Tests validation ──────────────────────────────────────────────────
-
     #[Test]
-    public function email_agence_deja_utilise_est_rejete()
+    public function admin_est_rattache_a_lagence_creee(): void
     {
-        Agency::factory()->create(['email' => 'alpha@agence.sn']);
-        $payload = $this->payloadValide();
+        Event::fake([Registered::class]);
 
-        $this->post(route('agency.register.store'), $payload)
-             ->assertSessionHasErrors('agency_email');
+        $this->post(route('agency.register.store'), $this->payloadValide());
+
+        $user   = User::where('email', 'mamadou@agence.sn')->first();
+        $agency = Agency::where('email', 'mamadou@agence.sn')->first();
+
+        $this->assertNotNull($user);
+        $this->assertNotNull($agency);
+        $this->assertEquals($agency->id, $user->agency_id);
     }
 
     #[Test]
-    public function email_admin_deja_utilise_est_rejete()
+    public function agence_a_un_slug_unique(): void
     {
-        User::factory()->create(['email' => 'mamadou@agence.sn']);
-        $payload = $this->payloadValide();
+        Event::fake([Registered::class]);
 
-        $this->post(route('agency.register.store'), $payload)
-             ->assertSessionHasErrors('admin_email');
+        $this->post(route('agency.register.store'), $this->payloadValide());
+
+        $agency = Agency::where('email', 'mamadou@agence.sn')->first();
+        $this->assertNotNull($agency->slug);
+        $this->assertStringContainsString('agence-alpha-dakar', $agency->slug);
     }
 
     #[Test]
-    public function cgu_non_cochee_est_rejetee()
+    public function essai_dure_30_jours(): void
     {
-        $payload = $this->payloadValide();
-        unset($payload['cgu']);
+        Event::fake([Registered::class]);
 
-        $this->post(route('agency.register.store'), $payload)
-             ->assertSessionHasErrors('cgu');
+        $this->post(route('agency.register.store'), $this->payloadValide());
+
+        $agency = Agency::where('email', 'mamadou@agence.sn')->first();
+        $sub    = Subscription::where('agency_id', $agency->id)->first();
+
+        $this->assertNotNull($sub->date_fin_essai);
+        $this->assertEquals(
+            now()->addDays(30)->toDateString(),
+            $sub->date_fin_essai->toDateString()
+        );
     }
 
-    #[Test]
-    public function mot_de_passe_trop_court_est_rejete()
-    {
-        $payload = $this->payloadValide();
-        $payload['admin_password']              = 'abc';
-        $payload['admin_password_confirmation'] = 'abc';
-
-        $this->post(route('agency.register.store'), $payload)
-             ->assertSessionHasErrors('admin_password');
-    }
+    // ── Validation des champs ─────────────────────────────────────────────
 
     #[Test]
-    public function mot_de_passe_sans_caractere_special_est_rejete()
-    {
-        $payload = $this->payloadValide();
-        $payload['admin_password']              = 'Secret12345';
-        $payload['admin_password_confirmation'] = 'Secret12345';
-
-        $this->post(route('agency.register.store'), $payload)
-             ->assertSessionHasErrors('admin_password');
-    }
-
-    #[Test]
-    public function mots_de_passe_non_identiques_sont_rejetes()
-    {
-        $payload = $this->payloadValide();
-        $payload['admin_password_confirmation'] = 'AutreMotDePasse@99';
-
-        $this->post(route('agency.register.store'), $payload)
-             ->assertSessionHasErrors('admin_password');
-    }
-
-    #[Test]
-    public function nom_agence_manquant_est_rejete()
+    public function nom_agence_manquant_est_rejete(): void
     {
         $payload = $this->payloadValide();
         unset($payload['agency_name']);
@@ -190,16 +173,136 @@ class AgencyRegistrationTest extends TestCase
     }
 
     #[Test]
-    public function champs_optionnels_telephone_et_adresse_non_requis()
+    public function nom_agence_trop_court_est_rejete(): void
     {
-        Event::fake([Registered::class]);
-
-        $payload = $this->payloadValide();
-        unset($payload['agency_telephone'], $payload['agency_adresse']);
+        $payload = array_merge($this->payloadValide(), ['agency_name' => 'A']);
 
         $this->post(route('agency.register.store'), $payload)
-             ->assertRedirect();
+             ->assertSessionHasErrors('agency_name');
+    }
 
-        $this->assertDatabaseHas('agencies', ['name' => 'Agence Alpha Dakar']);
+    #[Test]
+    public function nom_admin_manquant_est_rejete(): void
+    {
+        $payload = $this->payloadValide();
+        unset($payload['admin_name']);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_name');
+    }
+
+    #[Test]
+    public function email_admin_manquant_est_rejete(): void
+    {
+        $payload = $this->payloadValide();
+        unset($payload['admin_email']);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_email');
+    }
+
+    #[Test]
+    public function email_admin_invalide_est_rejete(): void
+    {
+        $payload = array_merge($this->payloadValide(), ['admin_email' => 'pas-un-email']);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_email');
+    }
+
+    #[Test]
+    public function email_admin_deja_utilise_est_rejete(): void
+    {
+        User::factory()->create(['email' => 'mamadou@agence.sn']);
+
+        $this->post(route('agency.register.store'), $this->payloadValide())
+             ->assertSessionHasErrors('admin_email');
+    }
+
+    #[Test]
+    public function mot_de_passe_trop_court_est_rejete(): void
+    {
+        $payload = array_merge($this->payloadValide(), [
+            'admin_password'              => 'abc',
+            'admin_password_confirmation' => 'abc',
+        ]);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_password');
+    }
+
+    #[Test]
+    public function mot_de_passe_sans_majuscule_est_rejete(): void
+    {
+        $payload = array_merge($this->payloadValide(), [
+            'admin_password'              => 'secret@123',
+            'admin_password_confirmation' => 'secret@123',
+        ]);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_password');
+    }
+
+    #[Test]
+    public function mot_de_passe_sans_chiffre_est_rejete(): void
+    {
+        $payload = array_merge($this->payloadValide(), [
+            'admin_password'              => 'Secret@abc',
+            'admin_password_confirmation' => 'Secret@abc',
+        ]);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_password');
+    }
+
+    #[Test]
+    public function mot_de_passe_sans_caractere_special_est_rejete(): void
+    {
+        $payload = array_merge($this->payloadValide(), [
+            'admin_password'              => 'Secret12345',
+            'admin_password_confirmation' => 'Secret12345',
+        ]);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_password');
+    }
+
+    #[Test]
+    public function mots_de_passe_non_identiques_sont_rejetes(): void
+    {
+        $payload = array_merge($this->payloadValide(), [
+            'admin_password_confirmation' => 'AutreMotDePasse@99',
+        ]);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('admin_password');
+    }
+
+    #[Test]
+    public function cgu_non_cochee_est_rejetee(): void
+    {
+        $payload = $this->payloadValide();
+        unset($payload['cgu']);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('cgu');
+    }
+
+    #[Test]
+    public function payload_vide_genere_toutes_les_erreurs_obligatoires(): void
+    {
+        $this->post(route('agency.register.store'), [])
+             ->assertSessionHasErrors(['agency_name', 'admin_name', 'admin_email', 'admin_password', 'cgu']);
+    }
+
+    // ── Isolation (pas de création partielle si erreur) ───────────────────
+
+    #[Test]
+    public function aucune_agence_creee_si_validation_echoue(): void
+    {
+        $this->post(route('agency.register.store'), []);
+
+        $this->assertDatabaseCount('agencies', 0);
+        $this->assertDatabaseCount('subscriptions', 0);
     }
 }
