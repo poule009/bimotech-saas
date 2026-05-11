@@ -57,15 +57,17 @@ Schedule::command('onboarding:emails')
     ->runInBackground();
 
 // Rappels échéances fiscales DGID — quotidien à 09:00
-Schedule::command('dgid:reminders')
-    ->dailyAt('09:00')
-    ->timezone('Africa/Dakar')
-    ->withoutOverlapping()
-    ->runInBackground();
+if (config('features.fiscalite')) {
+    Schedule::command('dgid:reminders')
+        ->dailyAt('09:00')
+        ->timezone('Africa/Dakar')
+        ->withoutOverlapping()
+        ->runInBackground();
 
-// Rappel versement BRS mensuel DGI — avant le 15 du mois (Art. 200 §4 CGI SN)
-Schedule::command('brs:mensuel-reminder')
-    ->dailyAt('09:00')
-    ->timezone('Africa/Dakar')
-    ->withoutOverlapping()
-    ->runInBackground();
+    // Rappel versement BRS mensuel DGI — avant le 15 du mois (Art. 200 §4 CGI SN)
+    Schedule::command('brs:mensuel-reminder')
+        ->dailyAt('09:00')
+        ->timezone('Africa/Dakar')
+        ->withoutOverlapping()
+        ->runInBackground();
+}

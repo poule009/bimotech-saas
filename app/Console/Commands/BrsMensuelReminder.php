@@ -23,6 +23,11 @@ class BrsMensuelReminder extends Command
 
     public function handle(): int
     {
+        if (! config('features.fiscalite')) {
+            $this->line('Module fiscal désactivé — aucun rappel BRS envoyé.');
+            return self::SUCCESS;
+        }
+
         $aujourd_hui = now()->timezone('Africa/Dakar')->startOfDay();
         $jourCourant = (int) $aujourd_hui->day;
 

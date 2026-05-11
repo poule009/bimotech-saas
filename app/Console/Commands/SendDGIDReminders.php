@@ -49,6 +49,11 @@ class SendDGIDReminders extends Command
 
     public function handle(): int
     {
+        if (! config('features.fiscalite')) {
+            $this->line('Module fiscal désactivé — aucun rappel envoyé.');
+            return self::SUCCESS;
+        }
+
         $aujourd_hui = now()->timezone('Africa/Dakar')->startOfDay();
         $annee       = (int) $aujourd_hui->year;
 

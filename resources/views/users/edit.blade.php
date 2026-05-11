@@ -309,6 +309,7 @@
                     </div>
                 </div>
 
+                @if(config('features.fiscalite'))
                 {{-- STATUT FISCAL LOCATAIRE --}}
                 <div class="card">
                     <div class="card-hd">
@@ -321,6 +322,7 @@
                         @include('admin.users._section-type-locataire', ['user' => $user])
                     </div>
                 </div>
+                @endif
                 @endif
 
                 {{-- BOUTONS --}}
