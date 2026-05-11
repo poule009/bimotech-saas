@@ -8,10 +8,32 @@ use App\Imports\ProprietairesImport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class ImportController extends Controller
 {
+    /**
+     * Configuration centralisée des trois imports supportés.
+     * Évite la duplication de code entre proprietaires / locataires / biens.
+     */
+    private const IMPORTS = [
+        'proprietaires' => [
+            'class' => ProprietairesImport::class,
+            'label' => 'propriétaire(s)',
+        ],
+        'locataires' => [
+            'class' => LocatairesImport::class,
+            'label' => 'locataire(s)',
+        ],
+        'biens' => [
+            'class' => BiensImport::class,
+            'label' => 'bien(s)',
+        ],
+    ];
+
     public function index()
     {
         $this->authorize('isAdmin');
@@ -20,49 +42,23 @@ class ImportController extends Controller
 
     public function proprietaires(Request $request): RedirectResponse
     {
-        $this->authorize('isAdmin');
-
-        $request->validate([
-            'fichier' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
-        ], [
-            'fichier.required' => 'Veuillez sélectionner un fichier.',
-            'fichier.mimes'    => 'Format accepté : xlsx, xls ou csv.',
-            'fichier.max'      => 'Le fichier ne doit pas dépasser 5 Mo.',
-        ]);
-
-        $import = new ProprietairesImport(Auth::user()->agency_id);
-        Excel::import($import, $request->file('fichier'));
-
-        return back()
-            ->with('import_created', $import->created)
-            ->with('import_skipped', $import->skipped)
-            ->with('import_errors',  $import->errors)
-            ->with('import_type',    'proprietaires');
+        return $this->handleImport($request, 'proprietaires');
     }
 
     public function locataires(Request $request): RedirectResponse
     {
-        $this->authorize('isAdmin');
-
-        $request->validate([
-            'fichier' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
-        ], [
-            'fichier.required' => 'Veuillez sélectionner un fichier.',
-            'fichier.mimes'    => 'Format accepté : xlsx, xls ou csv.',
-            'fichier.max'      => 'Le fichier ne doit pas dépasser 5 Mo.',
-        ]);
-
-        $import = new LocatairesImport(Auth::user()->agency_id);
-        Excel::import($import, $request->file('fichier'));
-
-        return back()
-            ->with('import_created', $import->created)
-            ->with('import_skipped', $import->skipped)
-            ->with('import_errors',  $import->errors)
-            ->with('import_type',    'locataires');
+        return $this->handleImport($request, 'locataires');
     }
 
     public function biens(Request $request): RedirectResponse
+    {
+        return $this->handleImport($request, 'biens');
+    }
+
+    // ── Méthode mutualisée ───────────────────────────────────────────────
+    // Une seule source de vérité pour validation, exécution et gestion d'erreur.
+
+    private function handleImport(Request $request, string $type): RedirectResponse
     {
         $this->authorize('isAdmin');
 
@@ -70,23 +66,40 @@ class ImportController extends Controller
             'fichier' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
         ], [
             'fichier.required' => 'Veuillez sélectionner un fichier.',
+            'fichier.file'     => 'Le fichier transmis est invalide.',
             'fichier.mimes'    => 'Format accepté : xlsx, xls ou csv.',
             'fichier.max'      => 'Le fichier ne doit pas dépasser 5 Mo.',
         ]);
 
-        $import = new BiensImport(Auth::user()->agency_id);
-        Excel::import($import, $request->file('fichier'));
+        $config   = self::IMPORTS[$type];
+        $importer = new ($config['class'])(Auth::user()->agency_id);
+
+        try {
+            Excel::import($importer, $request->file('fichier'));
+        } catch (Throwable $e) {
+            // Log technique pour l'admin, message générique pour l'utilisateur final.
+            Log::error('Import Excel échoué', [
+                'type'      => $type,
+                'agency_id' => Auth::user()->agency_id,
+                'filename'  => $request->file('fichier')?->getClientOriginalName(),
+                'message'   => $e->getMessage(),
+            ]);
+
+            return back()
+                ->with('import_type',  $type)
+                ->with('import_error', "Le fichier n'a pas pu être lu. Vérifiez qu'il respecte le modèle fourni puis réessayez.");
+        }
 
         return back()
-            ->with('import_created', $import->created)
-            ->with('import_skipped', $import->skipped)
-            ->with('import_errors',  $import->errors)
-            ->with('import_type',    'biens');
+            ->with('import_created', $importer->created)
+            ->with('import_skipped', $importer->skipped)
+            ->with('import_errors',  $importer->errors)
+            ->with('import_type',    $type);
     }
 
-    // ── Téléchargement des modèles Excel ────────────────────────────────────
+    // ── Téléchargement des modèles CSV ───────────────────────────────────
 
-    public function templateProprietaires()
+    public function templateProprietaires(): StreamedResponse
     {
         $this->authorize('isAdmin');
         return $this->streamCsv('modele_proprietaires.csv', [
@@ -99,7 +112,7 @@ class ImportController extends Controller
         ]);
     }
 
-    public function templateLocataires()
+    public function templateLocataires(): StreamedResponse
     {
         $this->authorize('isAdmin');
         return $this->streamCsv('modele_locataires.csv', [
@@ -114,7 +127,7 @@ class ImportController extends Controller
         ]);
     }
 
-    public function templateBiens()
+    public function templateBiens(): StreamedResponse
     {
         $this->authorize('isAdmin');
         return $this->streamCsv('modele_biens.csv', [
@@ -127,18 +140,31 @@ class ImportController extends Controller
         ]);
     }
 
-    private function streamCsv(string $filename, array $rows)
+    /**
+     * Stream un CSV au navigateur.
+     *
+     *  - BOM UTF-8 ajouté en tête : Excel ouvre alors le fichier en UTF-8 et les
+     *    accents (é, à, ç) s'affichent correctement.
+     *  - Séparateur point-virgule : c'est celui attendu par Excel en environnement
+     *    francophone (la virgule sert de séparateur décimal).
+     *  - Streamé via streamDownload pour ne pas charger tout le CSV en mémoire.
+     */
+    private function streamCsv(string $filename, array $rows): StreamedResponse
     {
-        $handle = fopen('php://temp', 'r+');
-        foreach ($rows as $row) {
-            fputcsv($handle, $row, ',');
-        }
-        rewind($handle);
-        $content = stream_get_contents($handle);
-        fclose($handle);
+        return response()->streamDownload(function () use ($rows) {
+            $handle = fopen('php://output', 'w');
 
-        return response($content, 200, [
+            // BOM UTF-8 — indispensable pour qu'Excel affiche les accents.
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            foreach ($rows as $row) {
+                fputcsv($handle, $row, ';');
+            }
+
+            fclose($handle);
+        }, $filename, [
             'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Cache-Control'       => 'no-store, no-cache, must-revalidate',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }

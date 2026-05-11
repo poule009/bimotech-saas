@@ -138,13 +138,20 @@ class AdminDashboardController extends Controller
         $payes = Paiement::where('agency_id', $agencyId)
             ->where('statut', 'valide')
             ->whereBetween('periode', [$debut->toDateString(), $fin->toDateString()])
+            ->whereIn('contrat_id', $contratIds)
             ->pluck('contrat_id')
             ->toArray();
 
-        $nb_impayes_mois = $contratIds->count() - count(array_unique($payes));
+        $nb_impayes_mois = max(0, $contratIds->count() - count(array_unique($payes)));
+
+        $periodeMultiplier = match($periode) {
+            'trimestre' => 3,
+            'annee'     => 12,
+            default     => 1,
+        };
         $montant_du_mois = Contrat::where('agency_id', $agencyId)
             ->where('statut', 'actif')
-            ->sum('loyer_contractuel');
+            ->sum('loyer_contractuel') * $periodeMultiplier;
 
         $impayes_urgents = Contrat::where('agency_id', $agencyId)
             ->where('statut', 'actif')
@@ -202,6 +209,28 @@ class AdminDashboardController extends Controller
             ->orderBy('mois')
             ->get();
 
+        // ── Répartition des biens par type ───────────────────────────────
+        $repartitionBiens = Bien::where('agency_id', $agencyId)
+            ->whereNull('deleted_at')
+            ->selectRaw('type, COUNT(*) AS total')
+            ->groupBy('type')
+            ->pluck('total', 'type');
+
+        // ── Net reversé par propriétaire (12 mois) ────────────────────────
+        $netParProprietaire = DB::select("
+            SELECT u.name AS proprietaire,
+                   COALESCE(SUM(p.net_proprietaire), 0) AS net_total
+            FROM users u
+            INNER JOIN biens b ON b.proprietaire_id = u.id AND b.agency_id = ?
+            INNER JOIN contrats c ON c.bien_id = b.id
+            INNER JOIN paiements p ON p.contrat_id = c.id
+                AND p.statut = 'valide'
+                AND p.periode >= ?
+            GROUP BY u.id, u.name
+            ORDER BY net_total DESC
+            LIMIT 8
+        ", [$agencyId, now()->subMonths(11)->startOfMonth()->toDateString()]);
+
         // ── Bilan du mois ─────────────────────────────────────────────────
         $bilanMois = [
             'loyers'      => $statsMois['loyers'],
@@ -239,7 +268,9 @@ class AdminDashboardController extends Controller
             'bilanMois',
             'onboarding',
             'periode',
-            'periodeLabel'
+            'periodeLabel',
+            'repartitionBiens',
+            'netParProprietaire'
         ));
     }
 }

@@ -156,7 +156,7 @@
         <div class="bilan-col">
             <div class="bilan-lbl">Attendu ce mois</div>
             <div class="bilan-val">{{ number_format($bilanMois['attendu'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
-            <div class="bilan-tag m">{{ $contratsActifs->count() }} contrats actifs</div>
+            <div class="bilan-tag m">{{ $stats['nb_contrats'] }} contrats actifs</div>
         </div>
         <div class="bilan-col">
             <div class="bilan-lbl">Encaissé</div>
@@ -205,15 +205,37 @@
         <div class="card">
             <div class="card-hd">
                 <div class="card-title">Répartition des biens</div>
+                <span style="font-size:11px;color:#9ca3af">{{ $stats['nb_biens'] }} biens au total</span>
             </div>
             <div style="position:relative;height:180px;padding:20px 20px 0;display:flex;align-items:center;justify-content:center">
                 <canvas id="chartTypes"></canvas>
             </div>
+            @php
+                $typeColors = [
+                    'appartement' => '#c9a84c',
+                    'villa'       => '#0d1117',
+                    'studio'      => '#3b82f6',
+                    'bureau'      => '#16a34a',
+                    'commerce'    => '#f59e0b',
+                    'terrain'     => '#9ca3af',
+                ];
+                $typeLabels = [
+                    'appartement' => 'Appartements',
+                    'villa'       => 'Villas',
+                    'studio'      => 'Studios',
+                    'bureau'      => 'Bureaux',
+                    'commerce'    => 'Commerces',
+                    'terrain'     => 'Terrains',
+                ];
+            @endphp
             <div class="donut-legend">
-                <div class="donut-leg"><div class="donut-dot" style="background:#c9a84c"></div>Appartements</div>
-                <div class="donut-leg"><div class="donut-dot" style="background:#0d1117"></div>Villas</div>
-                <div class="donut-leg"><div class="donut-dot" style="background:#16a34a"></div>Bureaux</div>
-                <div class="donut-leg"><div class="donut-dot" style="background:#9ca3af"></div>Autres</div>
+                @foreach($repartitionBiens as $type => $count)
+                <div class="donut-leg">
+                    <div class="donut-dot" style="background:{{ $typeColors[$type] ?? '#9ca3af' }}"></div>
+                    {{ $typeLabels[$type] ?? ucfirst($type) }}
+                    <span style="color:#0d1117;font-weight:600">{{ $count }}</span>
+                </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -227,7 +249,8 @@
                 <div class="card-title">Net reversé par propriétaire</div>
                 <a href="{{ route('admin.rapports.financier') }}" class="card-act">Rapport détaillé →</a>
             </div>
-            <div style="position:relative;height:220px;padding:16px 20px">
+            <div style="font-size:11px;color:#9ca3af;padding:0 22px 8px">12 derniers mois</div>
+            <div style="position:relative;height:220px;padding:0 20px 16px">
                 <canvas id="chartProprio"></canvas>
             </div>
         </div>
@@ -458,14 +481,23 @@ new Chart(ctx1, {
 });
 
 // ── 2. RÉPARTITION BIENS (donut) ───────────────────────────────────
-// À terme : injecter les vraies données depuis le contrôleur
+@php
+    $typeColorsJs = [];
+    $typeLabelsJs = [];
+    $typeCountsJs = [];
+    foreach ($repartitionBiens as $type => $count) {
+        $typeLabelsJs[] = $typeLabels[$type] ?? ucfirst($type);
+        $typeCountsJs[] = (int) $count;
+        $typeColorsJs[] = $typeColors[$type] ?? '#9ca3af';
+    }
+@endphp
 new Chart(document.getElementById('chartTypes'), {
     type: 'doughnut',
     data: {
-        labels: ['Appartements', 'Villas', 'Bureaux', 'Autres'],
+        labels: @json($typeLabelsJs),
         datasets: [{
-            data: [37, 25, 19, 19],
-            backgroundColor: ['#c9a84c', '#0d1117', '#16a34a', '#e5e7eb'],
+            data: @json($typeCountsJs),
+            backgroundColor: @json($typeColorsJs),
             borderColor: '#ffffff',
             borderWidth: 3,
             hoverOffset: 6,
@@ -477,23 +509,24 @@ new Chart(document.getElementById('chartTypes'), {
         cutout: '72%',
         plugins: {
             legend: { display: false },
-            tooltip: { ...tooltipStyle, callbacks: { label: c => ' ' + c.parsed + '%' } }
+            tooltip: { ...tooltipStyle, callbacks: { label: c => ' ' + c.label + ' : ' + c.parsed } }
         }
     }
 });
 
-// ── 3. NET PROPRIÉTAIRES (horizontal bars) ─────────────────────────
-// Données réelles depuis le rapport — à connecter plus tard
+// ── 3. NET REVERSÉ PAR PROPRIÉTAIRE (horizontal bars) ─────────────
+const netProprioLabels = @json(collect($netParProprietaire)->pluck('proprietaire'));
+const netProprioData   = @json(collect($netParProprietaire)->pluck('net_total'));
 new Chart(document.getElementById('chartProprio'), {
     type: 'bar',
     data: {
-        labels: @json($loyersParMois->pluck('mois')),
+        labels: netProprioLabels,
         datasets: [{
-            label: 'Loyers (F)',
-            data: @json($loyersParMois->pluck('total')),
+            label: 'Net reversé (F)',
+            data: netProprioData,
             backgroundColor: function(ctx) {
-                const alpha = 0.9 - (ctx.dataIndex * 0.12);
-                return `rgba(201,168,76,${Math.max(alpha, 0.2)})`;
+                const alpha = 0.9 - (ctx.dataIndex * 0.10);
+                return `rgba(22,163,74,${Math.max(alpha, 0.2)})`;
             },
             borderRadius: 6,
             borderSkipped: false,
@@ -505,18 +538,22 @@ new Chart(document.getElementById('chartProprio'), {
         maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
-            tooltip: { ...tooltipStyle, callbacks: { label: c => ' ' + Number(c.parsed.x).toLocaleString('fr-FR') + ' F' } }
+            tooltip: { ...tooltipStyle, callbacks: { label: c => ' Net : ' + Number(c.parsed.x).toLocaleString('fr-FR') + ' F' } }
         },
         scales: {
             x: {
                 grid: { color: '#f3f4f6', drawTicks: false },
                 border: { display: false },
-                ticks: { font: { size: 10 }, callback: v => (v/1000) + 'k' }
+                ticks: { font: { size: 10 }, callback: v => (v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000) + 'k') }
             },
             y: {
                 grid: { display: false },
                 border: { display: false },
-                ticks: { font: { size: 11 }, color: '#374151' }
+                ticks: {
+                    font: { size: 11 },
+                    color: '#374151',
+                    callback: v => netProprioLabels[v]?.split(' ')[0] ?? v
+                }
             }
         }
     }
@@ -528,7 +565,7 @@ new Chart(document.getElementById('chartStatuts'), {
     data: {
         labels: ['Validés', 'Impayés'],
         datasets: [{
-            data: [{{ $statsMois['nb_payes'] }}, {{ $nb_impayes_mois }}],
+            data: [{{ $statsMois['nb_payes'] }}, {{ max(0, $nb_impayes_mois) }}],
             backgroundColor: ['#16a34a', '#dc2626'],
             borderColor: '#ffffff',
             borderWidth: 3,
