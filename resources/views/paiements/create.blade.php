@@ -124,6 +124,17 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label class="form-label">Contrat concerné <span class="req">*</span></label>
+                            {{-- Filtre texte pour retrouver rapidement un contrat --}}
+                            <div style="position:relative;margin-bottom:6px">
+                                <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#9ca3af;pointer-events:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input type="text" id="contrat-search"
+                                       placeholder="Filtrer par locataire, bien ou référence…"
+                                       autocomplete="off"
+                                       style="width:100%;padding:8px 12px 8px 30px;border:1px solid #e8e3d8;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#f9f7f2;outline:none"
+                                       oninput="filtrerContrats(this.value)"
+                                       onfocus="this.style.borderColor='#c9a84c';this.style.background='#fff'"
+                                       onblur="this.style.borderColor='#e8e3d8';this.style.background='#f9f7f2'">
+                            </div>
                             <select name="contrat_id" id="contrat_id"
                                     class="form-select {{ $errors->has('contrat_id') ? 'error':'' }}"
                                     onchange="chargerContrat(this.value)">
@@ -514,6 +525,19 @@ function verifierMontant() {
         ok.style.display   = 'none';
         diff.style.display = 'block';
     }
+}
+
+// ── Filtre contrats ────────────────────────────────────────────────────────
+function filtrerContrats(q) {
+    q = q.toLowerCase().trim();
+    var select = document.getElementById('contrat_id');
+    Array.from(select.options).forEach(function (opt) {
+        if (!opt.value) return; // garder le placeholder
+        var txt = opt.text.toLowerCase();
+        var bien = (opt.dataset.bien || '').toLowerCase();
+        var loc  = (opt.dataset.locataire || '').toLowerCase();
+        opt.hidden = q !== '' && !txt.includes(q) && !bien.includes(q) && !loc.includes(q);
+    });
 }
 
 // Init si contrat présélectionné

@@ -97,6 +97,15 @@ class ProprietaireDashboardController extends Controller
 
         $currentAgency = $user->agency;
 
-        return view('proprietaire.dashboard', compact('biens', 'stats', 'paiements', 'currentAgency'));
+        // ── Évolution mensuelle des loyers nets (12 derniers mois) ──────────
+        $loyersParMois = Paiement::whereIn('contrat_id', $contratIds)
+            ->where('statut', 'valide')
+            ->where('periode', '>=', now()->subMonths(11)->startOfMonth()->toDateString())
+            ->selectRaw("DATE_FORMAT(periode,'%b %Y') AS mois, COALESCE(SUM(net_proprietaire),0) AS net")
+            ->groupBy('mois', \Illuminate\Support\Facades\DB::raw("DATE_FORMAT(periode,'%Y-%m')"))
+            ->orderBy(\Illuminate\Support\Facades\DB::raw("DATE_FORMAT(periode,'%Y-%m')"))
+            ->get();
+
+        return view('proprietaire.dashboard', compact('biens', 'stats', 'paiements', 'currentAgency', 'loyersParMois'));
     }
 }

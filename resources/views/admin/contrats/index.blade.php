@@ -119,10 +119,13 @@
                 <tbody>
                     @foreach($contrats as $contrat)
                     <tr>
-                        <td>
-                            <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:#9ca3af">
-                                {{ $contrat->reference_bail_affichee }}
-                            </span>
+                        <td style="white-space:nowrap">
+                            <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:#9ca3af">{{ $contrat->reference_bail_affichee }}</span>
+                            <button onclick="copyRef('{{ $contrat->reference_bail_affichee }}', this)"
+                                    style="margin-left:4px;background:none;border:1px solid #e8e3d8;border-radius:5px;cursor:pointer;padding:2px 5px;vertical-align:middle;display:inline-flex;align-items:center"
+                                    title="Copier la référence">
+                                <svg style="width:11px;height:11px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                            </button>
                         </td>
                         <td>
                             <div style="font-weight:500;font-size:13px;color:#0d1117">{{ $contrat->bien?->reference ?? '—' }}</div>

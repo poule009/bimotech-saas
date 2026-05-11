@@ -248,9 +248,45 @@
             .btn-submit,
             .btn-cancel      { flex: 1; justify-content:center; padding:11px 16px; }
 
-            /* ── Tables : scroll horizontal ── */
-            .table-card,
-            .dt-wrap         { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            /* ── Tables → cartes verticales ── */
+            .dt thead { display:none; }
+            .dt, .dt tbody { display:block; width:100%; }
+            .dt tr {
+                display:block;
+                background:#fffef9;
+                border:1px solid #e8e3d8;
+                border-radius:12px;
+                margin-bottom:10px;
+                overflow:hidden;
+            }
+            .dt td {
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding:10px 14px;
+                border-bottom:1px solid #f0ece3;
+                font-size:13px;
+                text-align:right;
+                gap:10px;
+                min-height:36px;
+            }
+            .dt td:last-child { border-bottom:none; }
+            .dt td::before {
+                content:attr(data-label);
+                font-size:10px;
+                font-weight:700;
+                text-transform:uppercase;
+                letter-spacing:.6px;
+                color:#9ca3af;
+                text-align:left;
+                flex-shrink:0;
+                max-width:40%;
+            }
+            /* Colonne actions : centrée sans label */
+            .dt td[data-label="Actions"],
+            .dt td[data-label=""] { justify-content:center; }
+            .dt td[data-label="Actions"]::before,
+            .dt td[data-label=""]::before { display:none; }
 
             /* ── Topbar breadcrumb tronqué ── */
             .topbar-breadcrumb { max-width: calc(100vw - 120px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -525,6 +561,58 @@
                 });
             });
         })();
+
+        // ── Alerte formulaire non sauvegardé ────────────────────────────────────
+        (function () {
+            var dirty = false;
+
+            // Marquer comme modifié dès le premier changement dans un formulaire principal
+            document.addEventListener('change', function (e) {
+                var form = e.target.closest('form');
+                if (form && !form.dataset.noWarn && !form.dataset.confirm) {
+                    dirty = true;
+                }
+            });
+            document.addEventListener('input', function (e) {
+                var form = e.target.closest('form');
+                if (form && !form.dataset.noWarn && !form.dataset.confirm) {
+                    dirty = true;
+                }
+            });
+
+            // Réinitialiser au submit (l'utilisateur sauvegarde)
+            document.addEventListener('submit', function () { dirty = false; });
+
+            window.addEventListener('beforeunload', function (e) {
+                if (dirty) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        })();
+
+        // ── Copier référence ─────────────────────────────────────────────────────
+        function copyRef(text, btn) {
+            navigator.clipboard.writeText(text).then(function () {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<svg style="width:11px;height:11px;color:#16a34a" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+                btn.style.borderColor = '#bbf7d0';
+                setTimeout(function () { btn.innerHTML = orig; btn.style.borderColor = ''; }, 1500);
+            });
+        }
+
+        // ── Tables → cartes mobile : data-label auto depuis les headers ─────────
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('table.dt').forEach(function (table) {
+                var headers = Array.from(table.querySelectorAll('thead th'))
+                    .map(function (th) { return th.innerText.trim(); });
+                table.querySelectorAll('tbody tr').forEach(function (row) {
+                    Array.from(row.cells).forEach(function (cell, i) {
+                        cell.setAttribute('data-label', headers[i] || '');
+                    });
+                });
+            });
+        });
 
         // ── Recherche globale ────────────────────────────────────────────────────
         (function () {

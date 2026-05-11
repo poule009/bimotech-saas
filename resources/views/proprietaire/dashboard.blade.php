@@ -260,6 +260,72 @@
                 @endif
             </div>
 
+            {{-- GRAPHIQUE NET MENSUEL --}}
+            @if($loyersParMois->isNotEmpty())
+            <div class="card" style="margin-bottom:18px">
+                <div class="card-hd">
+                    <div class="card-title">Net reversé par mois</div>
+                    <span style="font-size:11px;color:#9ca3af">12 derniers mois · après commission</span>
+                </div>
+                <div style="padding:16px 20px 20px;position:relative;height:180px">
+                    <canvas id="chartNetMensuel"></canvas>
+                </div>
+            </div>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+            <script>
+            (function () {
+                var labels = @json($loyersParMois->pluck('mois'));
+                var data   = @json($loyersParMois->pluck('net'));
+                var ctx    = document.getElementById('chartNetMensuel').getContext('2d');
+                var grad   = ctx.createLinearGradient(0, 0, 0, 160);
+                grad.addColorStop(0, 'rgba(22,163,74,.18)');
+                grad.addColorStop(1, 'rgba(22,163,74,.00)');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Net reversé',
+                            data: data,
+                            borderColor: '#16a34a',
+                            backgroundColor: grad,
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#16a34a',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            fill: true,
+                            tension: 0.4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0d1117',
+                                titleColor: '#fff',
+                                bodyColor: '#9ca3af',
+                                padding: 10,
+                                cornerRadius: 8,
+                                callbacks: { label: function(c) { return ' ' + Number(c.parsed.y).toLocaleString('fr-FR') + ' FCFA'; } }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
+                            y: {
+                                grid: { color: '#f3f4f6', drawTicks: false },
+                                border: { display: false },
+                                ticks: { font: { size: 10 }, callback: function(v) { return v >= 1000000 ? (v/1000000).toFixed(1)+'M' : (v/1000)+'k'; } }
+                            }
+                        }
+                    }
+                });
+            })();
+            </script>
+            @endif
+
             {{-- DERNIERS PAIEMENTS --}}
             <div class="card">
                 <div class="card-hd">
