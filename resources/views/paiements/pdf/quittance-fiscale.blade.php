@@ -174,16 +174,19 @@ body {
     <div class="header-inner">
         <div class="header-left">
             @php
-                $logoSrcFiscal = null;
-                if (!empty($agence['logo_path'])) {
-                    $lp = storage_path('app/public/' . $agence['logo_path']);
-                    if (file_exists($lp)) {
-                        $logoSrcFiscal = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
-                    }
+                $logoSrcFiscal    = null;
+                $logoInvertFiscal = false;
+                $dp = !empty($agence['logo_dark_path']) ? storage_path('app/public/' . $agence['logo_dark_path']) : null;
+                $lp = !empty($agence['logo_path'])      ? storage_path('app/public/' . $agence['logo_path'])      : null;
+                if ($dp && file_exists($dp)) {
+                    $logoSrcFiscal = 'data:' . mime_content_type($dp) . ';base64,' . base64_encode(file_get_contents($dp));
+                } elseif ($lp && file_exists($lp)) {
+                    $logoSrcFiscal    = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
+                    $logoInvertFiscal = true;
                 }
             @endphp
             @if($logoSrcFiscal)
-                <img src="{{ $logoSrcFiscal }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;">
+                <img src="{{ $logoSrcFiscal }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;{{ $logoInvertFiscal ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
                 <div class="agence-nom">{{ $agence['nom'] }}</div>
             @endif

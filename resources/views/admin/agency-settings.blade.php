@@ -279,6 +279,50 @@
                             @endif
                         </div>
 
+                        {{-- LOGO FOND SOMBRE --}}
+                        <div class="form-group" style="margin-top:20px">
+                            <label class="form-label">
+                                Logo fond sombre
+                                <span class="opt">Version claire/blanche · utilisée sur les PDF à en-tête noir</span>
+                            </label>
+                            <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px;font-size:11px;color:#8b949e;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px">
+                                <svg style="width:13px;height:13px;flex-shrink:0;margin-top:1px;color:#c9a84c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                Utilisé dans les en-têtes sombres des quittances, baux et relevés. Idéalement un logo blanc sur fond transparent (PNG). Si absent, votre logo principal sera inversé automatiquement.
+                            </div>
+                            <div class="logo-zone" id="logo-dark-zone" onclick="document.getElementById('logo-dark-input').click()"
+                                 style="background:rgba(13,17,23,.6);border-color:rgba(255,255,255,.12)">
+                                <div class="logo-preview" id="logo-dark-preview"
+                                     style="background:#0d1117;border:1px solid rgba(255,255,255,.08)">
+                                    @if($agency->logo_dark_path && Storage::disk('public')->exists($agency->logo_dark_path))
+                                        <img src="{{ Storage::url($agency->logo_dark_path) }}" alt="Logo fond sombre" id="logo-dark-preview-img">
+                                    @else
+                                        <div class="logo-preview-placeholder" id="logo-dark-preview-placeholder"
+                                             style="background:#0d1117;color:rgba(255,255,255,.3)">
+                                            <svg style="width:20px;height:20px;opacity:.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div>
+                                    <div class="logo-zone-text" style="color:#c9d1d9">Cliquer pour ajouter le logo fond sombre</div>
+                                    <div class="logo-zone-hint">Logo blanc sur fond transparent · PNG recommandé</div>
+                                </div>
+                                <input type="file" name="logo_dark" id="logo-dark-input"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    style="display:none"
+                                    onchange="previewLogoDark(this)">
+                            </div>
+                            @error('logo_dark')
+                                <div class="form-error">{{ $message }}</div>
+                            @enderror
+                            @if($agency->logo_dark_path)
+                            <button type="button" class="btn-danger-sm" style="margin-top:8px"
+                                    onclick="if(confirm('Supprimer le logo fond sombre ?')) document.getElementById('form-delete-logo-dark').submit()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                                Supprimer
+                            </button>
+                            @endif
+                        </div>
+
                         {{-- SIGNATURE --}}
                         <div class="form-group" style="margin-top:20px">
                             <label class="form-label">Signature / Tampon agence <span class="opt">PNG avec fond transparent · max 1 Mo</span></label>
@@ -600,6 +644,14 @@
 </form>
 @endif
 
+{{-- Form suppression logo fond sombre --}}
+@if($agency->logo_dark_path)
+<form id="form-delete-logo-dark" method="POST" action="{{ route('admin.agency.logo-dark.delete') }}" style="display:none">
+    @csrf
+    @method('DELETE')
+</form>
+@endif
+
 {{-- Form suppression signature --}}
 @if($agency->signature_path)
 <form id="form-delete-signature" method="POST" action="{{ route('admin.agency.signature.delete') }}" style="display:none">
@@ -696,6 +748,25 @@ function previewLogo(input) {
             zone.appendChild(zoneImg);
         }
         zoneImg.src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+function previewLogoDark(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const zone = document.getElementById('logo-dark-preview');
+        let img = document.getElementById('logo-dark-preview-img');
+        if (!img) {
+            const ph = document.getElementById('logo-dark-preview-placeholder');
+            if (ph) ph.remove();
+            img = document.createElement('img');
+            img.id = 'logo-dark-preview-img';
+            img.style.cssText = 'width:100%;height:100%;object-fit:contain';
+            zone.appendChild(img);
+        }
+        img.src = e.target.result;
     };
     reader.readAsDataURL(input.files[0]);
 }

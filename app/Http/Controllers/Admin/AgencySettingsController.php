@@ -53,6 +53,7 @@ class AgencySettingsController extends Controller
              * Formats sûrs acceptés : PNG, JPG, JPEG, WEBP (formats raster).
              */
             'logo'             => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'logo_dark'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
             'signature'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024'],
             'modele_contrat'   => ['nullable', 'string', 'max:10000'],
         ], [
@@ -81,16 +82,25 @@ class AgencySettingsController extends Controller
         // pour éviter les orphelins.
 
         $logoPath             = $agency->logo_path;
+        $logoDarkPath         = $agency->logo_dark_path;
         $signaturePath        = $agency->signature_path;
         $newLogoUploaded      = null;
+        $newLogoDarkUploaded  = null;
         $newSignatureUploaded = null;
         $oldLogoToDelete      = null;
+        $oldLogoDarkToDelete  = null;
         $oldSignatureToDelete = null;
 
         if ($request->hasFile('logo')) {
             $newLogoUploaded = $request->file('logo')->store('logos', self::DISK);
             $oldLogoToDelete = $logoPath;
             $logoPath        = $newLogoUploaded;
+        }
+
+        if ($request->hasFile('logo_dark')) {
+            $newLogoDarkUploaded = $request->file('logo_dark')->store('logos', self::DISK);
+            $oldLogoDarkToDelete = $logoDarkPath;
+            $logoDarkPath        = $newLogoDarkUploaded;
         }
 
         if ($request->hasFile('signature')) {
@@ -104,7 +114,7 @@ class AgencySettingsController extends Controller
         // le rendu PDF (où Blade pourrait être contourné par {!! !!}).
 
         try {
-            DB::transaction(function () use ($agency, $validated, $logoPath, $signaturePath) {
+            DB::transaction(function () use ($agency, $validated, $logoPath, $logoDarkPath, $signaturePath) {
                 $agency->update([
                     'name'             => $validated['name'],
                     'email'            => $validated['email'],
@@ -114,6 +124,7 @@ class AgencySettingsController extends Controller
                     'rccm'             => $validated['rccm']      ?? null,
                     'couleur_primaire' => $validated['couleur_primaire'] ?? $agency->couleur_primaire,
                     'logo_path'        => $logoPath,
+                    'logo_dark_path'   => $logoDarkPath,
                     'signature_path'   => $signaturePath,
                     'modele_contrat'   => isset($validated['modele_contrat'])
                         ? strip_tags($validated['modele_contrat'])
@@ -121,9 +132,8 @@ class AgencySettingsController extends Controller
                 ]);
             });
         } catch (Throwable $e) {
-            // Rollback fichiers : la DB n'a pas pu être mise à jour, on supprime
-            // les nouveaux fichiers téléversés pour éviter les orphelins.
             $this->safeDelete($newLogoUploaded);
+            $this->safeDelete($newLogoDarkUploaded);
             $this->safeDelete($newSignatureUploaded);
 
             Log::error('Mise à jour paramètres agence échouée', [
@@ -138,6 +148,7 @@ class AgencySettingsController extends Controller
 
         // DB OK → suppression des anciens fichiers remplacés (best-effort, non bloquant).
         $this->safeDelete($oldLogoToDelete);
+        $this->safeDelete($oldLogoDarkToDelete);
         $this->safeDelete($oldSignatureToDelete);
 
         $agency->refresh();
@@ -207,6 +218,30 @@ class AgencySettingsController extends Controller
         return redirect()
             ->route('admin.agency.settings')
             ->with('success', 'Signature supprimée ✓');
+    }
+
+    // ── Supprime le logo fond sombre ─────────────────────────────────────
+
+    public function deleteLogoDark(): RedirectResponse
+    {
+        $agency  = Auth::user()->agency;
+        $oldPath = $agency->logo_dark_path;
+
+        if (! $oldPath) {
+            return redirect()->route('admin.agency.settings');
+        }
+
+        try {
+            DB::transaction(fn () => $agency->update(['logo_dark_path' => null]));
+        } catch (Throwable) {
+            return back()->with('error', "La suppression du logo fond sombre a échoué.");
+        }
+
+        $this->safeDelete($oldPath);
+
+        return redirect()
+            ->route('admin.agency.settings')
+            ->with('success', 'Logo fond sombre supprimé ✓');
     }
 
     // ── Masque la checklist d'onboarding ─────────────────────────────────

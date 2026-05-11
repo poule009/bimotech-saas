@@ -341,14 +341,15 @@ class PaiementController extends Controller
         $netEnLettres        = FiscalService::montantEnLettresFr((float) ($paiement->net_proprietaire ?? 0));
 
         $agence = $agenceModel ? [
-            'nom'       => $agenceModel->name ?? '',
-            'adresse'   => $agenceModel->adresse ?? '',
-            'telephone' => $agenceModel->telephone ?? '',
-            'email'     => $agenceModel->email ?? '',
-            'ninea'     => $agenceModel->ninea ?? '',
-            'rccm'      => '',
-            'logo_path' => $agenceModel->logo_path ?? '',
-        ] : ['nom' => config('app.name'), 'adresse' => '', 'telephone' => '', 'email' => '', 'ninea' => '', 'rccm' => '', 'logo_path' => ''];
+            'nom'            => $agenceModel->name ?? '',
+            'adresse'        => $agenceModel->adresse ?? '',
+            'telephone'      => $agenceModel->telephone ?? '',
+            'email'          => $agenceModel->email ?? '',
+            'ninea'          => $agenceModel->ninea ?? '',
+            'rccm'           => '',
+            'logo_path'      => $agenceModel->logo_path ?? '',
+            'logo_dark_path' => $agenceModel->logo_dark_path ?? '',
+        ] : ['nom' => config('app.name'), 'adresse' => '', 'telephone' => '', 'email' => '', 'ninea' => '', 'rccm' => '', 'logo_path' => '', 'logo_dark_path' => ''];
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('paiements.pdf.quittance-fiscale', compact(

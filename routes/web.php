@@ -152,6 +152,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('agency/settings',   [AgencySettingsController::class, 'edit'])->name('agency.settings');
         Route::patch('agency/settings', [AgencySettingsController::class, 'update'])->name('agency.settings.update');
         Route::delete('agency/logo',      [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
+        Route::delete('agency/logo-dark', [AgencySettingsController::class, 'deleteLogoDark'])->name('agency.logo-dark.delete');
         Route::delete('agency/signature', [AgencySettingsController::class, 'deleteSignature'])->name('agency.signature.delete');
 
         // Logs
@@ -279,7 +280,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('dashboard',                    ProprietaireDashboardController::class)->name('dashboard');
         Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
         Route::get('releve-pdf', function () {
-            return app(\App\Http\Controllers\BailleurController::class)->relevePdf(auth()->id());
+            return app(\App\Http\Controllers\BailleurController::class)
+                ->relevePdf(\Illuminate\Support\Facades\Auth::id());
         })->name('releve-pdf');
     });
 

@@ -69,12 +69,14 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
 </div>
 
 @php
-    $logoSrc = null;
-    if (!empty($agency->logo_path)) {
-        $lp = storage_path('app/public/' . $agency->logo_path);
-        if (file_exists($lp)) {
-            $logoSrc = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
-        }
+    $logoSrc = null; $logoInvert = false;
+    $dp = !empty($agency->logo_dark_path) ? storage_path('app/public/' . $agency->logo_dark_path) : null;
+    $lp = !empty($agency->logo_path)      ? storage_path('app/public/' . $agency->logo_path)      : null;
+    if ($dp && file_exists($dp)) {
+        $logoSrc = 'data:' . mime_content_type($dp) . ';base64,' . base64_encode(file_get_contents($dp));
+    } elseif ($lp && file_exists($lp)) {
+        $logoSrc = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
+        $logoInvert = true;
     }
 @endphp
 
@@ -83,7 +85,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
     <div class="header-inner">
         <div class="header-left">
             @if($logoSrc)
-                <img src="{{ $logoSrc }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;filter:brightness(0) invert(1);opacity:.9;">
+                <img src="{{ $logoSrc }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;{{ $logoInvert ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
                 <div class="agency-name">{{ $agency->name ?? 'BimoTech Immo' }}</div>
             @endif

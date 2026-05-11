@@ -29,6 +29,7 @@ class Agency extends Model
         'email',
         'telephone',
         'logo_path',
+        'logo_dark_path',
         'signature_path',
         'modele_contrat',
         'couleur_primaire',

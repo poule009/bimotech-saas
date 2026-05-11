@@ -148,12 +148,14 @@
 </div>
 
 @php
-    $logoSrc = null;
-    if (!empty($agency->logo_path)) {
-        $lp = storage_path('app/public/' . $agency->logo_path);
-        if (file_exists($lp)) {
-            $logoSrc = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
-        }
+    $logoSrc = null; $logoInvert = false;
+    $dp = !empty($agency->logo_dark_path) ? storage_path('app/public/' . $agency->logo_dark_path) : null;
+    $lp = !empty($agency->logo_path)      ? storage_path('app/public/' . $agency->logo_path)      : null;
+    if ($dp && file_exists($dp)) {
+        $logoSrc = 'data:' . mime_content_type($dp) . ';base64,' . base64_encode(file_get_contents($dp));
+    } elseif ($lp && file_exists($lp)) {
+        $logoSrc = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
+        $logoInvert = true;
     }
 @endphp
 
@@ -162,7 +164,7 @@
     <div class="header-table">
         <div class="header-left">
             @if($logoSrc)
-                <img src="{{ $logoSrc }}" style="height:36px;max-width:140px;object-fit:contain;display:block;margin-bottom:6px;filter:brightness(0) invert(1);opacity:.9;">
+                <img src="{{ $logoSrc }}" style="height:36px;max-width:140px;object-fit:contain;display:block;margin-bottom:6px;{{ $logoInvert ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
                 <div class="agency-name">{{ $agency->name ?? 'BIMO-tech' }}</div>
             @endif

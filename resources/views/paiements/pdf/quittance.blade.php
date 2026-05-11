@@ -144,13 +144,16 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
 
     $refBail = $paiement->reference_bail ?? ($contrat?->reference_bail ?? 'BAIL-'.$contrat?->id);
 
-    // Logo en base64 (DomPDF ne supporte pas les URL Storage)
-    $logoSrc = null;
-    if (!empty($agence?->logo_path)) {
-        $logoPath = storage_path('app/public/' . $agence->logo_path);
-        if (file_exists($logoPath)) {
-            $logoSrc = 'data:' . mime_content_type($logoPath) . ';base64,' . base64_encode(file_get_contents($logoPath));
-        }
+    // Logo en base64 — fond sombre en priorité, sinon logo principal avec inversion CSS
+    $logoSrc    = null;
+    $logoInvert = false;
+    $darkPath   = !empty($agence?->logo_dark_path) ? storage_path('app/public/' . $agence->logo_dark_path) : null;
+    $lightPath  = !empty($agence?->logo_path)      ? storage_path('app/public/' . $agence->logo_path)      : null;
+    if ($darkPath && file_exists($darkPath)) {
+        $logoSrc = 'data:' . mime_content_type($darkPath) . ';base64,' . base64_encode(file_get_contents($darkPath));
+    } elseif ($lightPath && file_exists($lightPath)) {
+        $logoSrc    = 'data:' . mime_content_type($lightPath) . ';base64,' . base64_encode(file_get_contents($lightPath));
+        $logoInvert = true;
     }
 @endphp
 
@@ -159,7 +162,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     <div class="header-inner">
         <div class="header-left">
             @if($logoSrc)
-                <img src="{{ $logoSrc }}" style="height:44px;max-width:160px;object-fit:contain;display:block;margin-bottom:6px;">
+                <img src="{{ $logoSrc }}" style="height:44px;max-width:160px;object-fit:contain;display:block;margin-bottom:6px;{{ $logoInvert ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
                 <div class="agency-name">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
             @endif
