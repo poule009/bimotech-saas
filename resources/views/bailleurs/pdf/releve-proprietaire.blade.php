@@ -189,7 +189,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
             <div class="net-sub">
                 {{ number_format($totalLoyers, 0, ',', ' ') }} F encaissés
                 − {{ number_format($totalCommissions, 0, ',', ' ') }} F commissions
-                @if($totalDepenses > 0) − {{ number_format($totalDepenses, 0, ',', ' ') }} F dépenses@endif
+                @if($totalDepenses > 0) − {{ number_format($totalDepenses, 0, ',', ' ') }} F dépenses @endif
             </div>
         </div>
         <div class="net-right">
