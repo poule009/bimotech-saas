@@ -4,24 +4,21 @@
 ═══════════════════════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-/* Remplace Inter par DM Sans comme police de base */
-body {
-    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-}
 /* ── Variables globales ── */
 :root {
-    --agency-color: #1a3c5e;
+    --agency-color: #c9a84c;
+    --ac: var(--agency-color);
     --agency-color-light: color-mix(in srgb, var(--agency-color) 10%, white);
     --sidebar-width: 256px;
 
-    --color-bg: #f8fafc;
-    --color-surface: #ffffff;
-    --color-border: #f1f5f9;
-    --color-border-md: #e2e8f0;
+    --color-bg: #f9f7f2;
+    --color-surface: #fffef9;
+    --color-border: #f0ece3;
+    --color-border-md: #e8e3d8;
 
-    --color-text-primary: #0f172a;
-    --color-text-secondary: #64748b;
-    --color-text-muted: #94a3b8;
+    --color-text-primary: #0d1117;
+    --color-text-secondary: #6b7280;
+    --color-text-muted: #9ca3af;
 
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -38,7 +35,7 @@ body {
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--color-bg);
     color: var(--color-text-primary);
     -webkit-font-smoothing: antialiased;

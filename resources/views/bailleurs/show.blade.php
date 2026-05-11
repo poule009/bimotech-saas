@@ -608,7 +608,7 @@
             <svg style="width:40px;height:40px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
             <div style="font-weight:600;color:#374151;margin-bottom:4px">Aucun bien associé</div>
             <div>Ajoutez des biens à ce propriétaire depuis la gestion des biens.</div>
-            <a href="{{ route('admin.biens.create') }}" style="display:inline-flex;align-items:center;gap:6px;margin-top:16px;padding:9px 18px;background:#c9a84c;color:#0d1117;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none">
+            <a href="{{ route('admin.biens.create') }}" class="btn-primary" style="margin-top:16px">
                 + Créer un bien
             </a>
         </div>

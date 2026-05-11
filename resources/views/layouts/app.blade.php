@@ -195,6 +195,29 @@
         .bm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;opacity:0;transition:opacity .25s; }
         .bm-overlay.open { display:block;opacity:1; }
 
+        /* ── Topbar scroll shadow ── */
+        .topbar { transition: box-shadow .2s ease; }
+        .topbar.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.07); }
+
+        /* ── Hamburger → X quand sidebar ouverte ── */
+        .bm-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .bm-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .bm-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ── Icônes dans les flash messages ── */
+        .flash-icon { width:16px;height:16px;flex-shrink:0;margin-top:2px; }
+
+        /* ── Recherche globale cachée sur très petit écran ── */
+        @media (max-width: 479px) {
+            #global-search-wrap { display:none !important; }
+        }
+
+        /* ── Mobile card table : état actif tactile ── */
+        @media (max-width: 768px) {
+            .dt tr { transition: background .12s ease; }
+            .dt tr:active { background: #f0ece3 !important; }
+        }
+
         /* ─────────────── RESPONSIVE ──────────────────────────────── */
         @media (max-width: 768px) {
 
@@ -315,6 +338,10 @@
             --ac-b: {{ $cb }};
         }
         .btn-primary { background: var(--ac) !important; }
+        /* ── Accent agence : décoration KPI + boutons dorés ── */
+        .kpi-card.gold::before, .kpi.gold::before,
+        .kpi-mini.gold::before, .kpi5.gold::before { background: var(--ac,#c9a84c) !important; }
+        .btn-gold { background: var(--ac,#c9a84c) !important; }
     </style>
 </head>
 <body>
@@ -365,17 +392,30 @@
         <main class="page-content">
 
             @if(session('success'))
-                <div class="flash-success"><span>{{ session('success') }}</span><button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button></div>
+                <div class="flash-success">
+                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <span style="flex:1">{{ session('success') }}</span>
+                    <button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button>
+                </div>
             @endif
             @if(session('warning'))
-                <div class="flash-warning"><span>{{ session('warning') }}</span><button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button></div>
+                <div class="flash-warning">
+                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span style="flex:1">{{ session('warning') }}</span>
+                    <button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button>
+                </div>
             @endif
             @if(session('error'))
-                <div class="flash-error"><span>{{ session('error') }}</span><button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button></div>
+                <div class="flash-error">
+                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <span style="flex:1">{{ session('error') }}</span>
+                    <button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button>
+                </div>
             @endif
             @if($errors->any())
                 <div class="flash-error">
-                    <span>
+                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span style="flex:1">
                         <strong>Veuillez corriger les erreurs suivantes :</strong>
                         @foreach($errors->all() as $e)
                             <br>{{ $e }}
@@ -695,12 +735,14 @@
             function openSidebar() {
                 sidebar.classList.add('open');
                 overlay.classList.add('open');
+                hamburger.classList.add('open');
                 hamburger.setAttribute('aria-expanded', 'true');
                 document.body.style.overflow = 'hidden';
             }
             function closeSidebar() {
                 sidebar.classList.remove('open');
                 overlay.classList.remove('open');
+                hamburger.classList.remove('open');
                 hamburger.setAttribute('aria-expanded', 'false');
                 document.body.style.overflow = '';
             }
@@ -712,6 +754,15 @@
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') closeSidebar();
             });
+        })();
+
+        // ── Ombre topbar au scroll ───────────────────────────────────────────────
+        (function () {
+            var tb = document.querySelector('.topbar');
+            if (!tb) return;
+            window.addEventListener('scroll', function () {
+                tb.classList.toggle('scrolled', window.scrollY > 4);
+            }, { passive: true });
         })();
 
         // ── PWA ─────────────────────────────────────────────────────────────────

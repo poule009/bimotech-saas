@@ -4,6 +4,74 @@
 @section('breadcrumb', 'Biens')
 
 @section('content')
+<style>
+/* ── KPI biens ── */
+.bien-kpi { background:#fffef9;border:1px solid #e8e3d8;border-radius:12px;padding:16px 18px;transition:box-shadow .15s; }
+.bien-kpi:hover { box-shadow:0 2px 12px rgba(0,0,0,.06); }
+.bien-kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:8px; }
+.bien-kpi-val { font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#0d1117; }
+
+/* ── Filtres ── */
+.filtre-input {
+    width:100%;padding:8px 12px 8px 32px;
+    border:1px solid #e8e3d8;border-radius:8px;
+    font-size:13px;font-family:'DM Sans',sans-serif;
+    color:#1c2128;background:#fffef9;
+    outline:none;transition:border .15s,box-shadow .15s;
+}
+.filtre-input:focus { border-color:var(--ac,#c9a84c);box-shadow:0 0 0 3px rgba(201,168,76,.1); }
+.filtre-select {
+    font-family:'DM Sans',sans-serif;font-size:13px;
+    border:1px solid #e8e3d8;border-radius:8px;
+    padding:8px 12px;background:#fffef9;color:#1c2128;
+    cursor:pointer;transition:border .15s;outline:none;
+}
+.filtre-select:focus { border-color:var(--ac,#c9a84c); }
+.btn-effacer {
+    display:inline-flex;align-items:center;
+    padding:8px 14px;border:1px solid #e8e3d8;
+    border-radius:8px;font-size:13px;color:#6b7280;
+    text-decoration:none;background:#fffef9;transition:all .15s;
+}
+.btn-effacer:hover { border-color:#9ca3af;color:#374151; }
+
+/* ── Carte bien ── */
+.bien-card {
+    background:#fffef9;border:1px solid #e8e3d8;
+    border-radius:14px;overflow:hidden;
+    transition:box-shadow .2s, transform .2s;
+}
+.bien-card:hover { box-shadow:0 8px 28px -4px rgba(0,0,0,.1);transform:translateY(-2px); }
+.bien-card:active { transform:translateY(0);box-shadow:0 2px 8px rgba(0,0,0,.06); }
+
+.bien-photo { height:160px;background:#f5f2ea;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+.bien-photo img { width:100%;height:100%;object-fit:cover; }
+
+.bien-loyer { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ac,#c9a84c); }
+.bien-loyer-u { font-size:11px;color:#9ca3af;margin-left:2px; }
+.bien-locataire { font-size:11px;color:#6b7280;margin-top:2px; }
+
+.btn-voir {
+    display:inline-flex;align-items:center;gap:4px;
+    padding:7px 14px;border:1px solid #e8e3d8;
+    border-radius:8px;font-size:12px;font-weight:500;
+    color:#374151;text-decoration:none;background:#fffef9;
+    transition:all .15s;
+}
+.btn-voir:hover { border-color:var(--ac,#c9a84c);color:#8a6e2f;background:#fdf8ed; }
+
+/* ── Pagination ── */
+.pag-wrap { display:flex;justify-content:center;gap:6px;margin-top:24px; }
+.pag-btn {
+    display:inline-flex;align-items:center;justify-content:center;
+    width:32px;height:32px;border:1px solid #e8e3d8;border-radius:8px;
+    font-size:13px;font-weight:500;color:#374151;
+    text-decoration:none;background:#fffef9;transition:all .15s;
+}
+.pag-btn:hover { border-color:var(--ac,#c9a84c);color:#8a6e2f; }
+.pag-btn.active { background:#0d1117;border-color:#0d1117;color:#fff;font-weight:700; }
+.pag-btn.nav { color:#6b7280; }
+</style>
 
 <div style="padding:0 0 48px">
 
@@ -19,8 +87,7 @@
         </div>
         @can('create', App\Models\Bien::class)
             <a href="{{ route('admin.biens.create') }}"
-               style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#c9a84c;color:#0d1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;border-radius:8px;text-decoration:none;transition:opacity .15s"
-               onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+               class="btn-primary">
                 <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Nouveau bien
             </a>
@@ -29,21 +96,21 @@
 
     {{-- KPIs --}}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px">
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;border-top:3px solid #c9a84c">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:8px">Total biens</div>
-            <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#0d1117">{{ $biens->total() }}</div>
+        <div class="bien-kpi" style="border-top:3px solid var(--ac,#c9a84c)">
+            <div class="bien-kpi-lbl">Total biens</div>
+            <div class="bien-kpi-val">{{ $biens->total() }}</div>
         </div>
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;border-top:3px solid #16a34a">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:8px">Loués</div>
-            <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#16a34a">{{ $biens->where('statut','loue')->count() }}</div>
+        <div class="bien-kpi" style="border-top:3px solid #16a34a">
+            <div class="bien-kpi-lbl">Loués</div>
+            <div class="bien-kpi-val" style="color:#16a34a">{{ $biens->where('statut','loue')->count() }}</div>
         </div>
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;border-top:3px solid #1d4ed8">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:8px">Disponibles</div>
-            <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#1d4ed8">{{ $biens->where('statut','disponible')->count() }}</div>
+        <div class="bien-kpi" style="border-top:3px solid #1d4ed8">
+            <div class="bien-kpi-lbl">Disponibles</div>
+            <div class="bien-kpi-val" style="color:#1d4ed8">{{ $biens->where('statut','disponible')->count() }}</div>
         </div>
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;border-top:3px solid #9ca3af">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:8px">En travaux</div>
-            <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#6b7280">{{ $biens->where('statut','en_travaux')->count() }}</div>
+        <div class="bien-kpi" style="border-top:3px solid #9ca3af">
+            <div class="bien-kpi-lbl">En travaux</div>
+            <div class="bien-kpi-val" style="color:#6b7280">{{ $biens->where('statut','en_travaux')->count() }}</div>
         </div>
     </div>
 
@@ -53,19 +120,16 @@
             <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af;pointer-events:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" name="q" value="{{ request('q') }}"
                    placeholder="Référence, adresse, ville, propriétaire…"
-                   style="width:100%;padding:8px 12px 8px 32px;border:1px solid #d0d7de;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#1c2128;background:#fff;outline:none;transition:border .15s"
-                   onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='#d0d7de'">
+                   class="filtre-input">
         </div>
-        <select name="statut" onchange="this.form.submit()"
-                style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid #d0d7de;border-radius:8px;padding:8px 12px;background:#fff;color:#1c2128;cursor:pointer">
+        <select name="statut" onchange="this.form.submit()" class="filtre-select">
             <option value="">Tous les statuts</option>
             <option value="disponible" @selected(request('statut')==='disponible')>Disponible</option>
             <option value="loue"       @selected(request('statut')==='loue')>Loué</option>
             <option value="en_travaux" @selected(request('statut')==='en_travaux')>En travaux</option>
             <option value="archive"    @selected(request('statut')==='archive')>Archivé</option>
         </select>
-        <select name="type" onchange="this.form.submit()"
-                style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid #d0d7de;border-radius:8px;padding:8px 12px;background:#fff;color:#1c2128;cursor:pointer">
+        <select name="type" onchange="this.form.submit()" class="filtre-select">
             <option value="">Tous les types</option>
             <option value="appartement" @selected(request('type')==='appartement')>Appartement</option>
             <option value="villa"       @selected(request('type')==='villa')>Villa</option>
@@ -73,14 +137,9 @@
             <option value="commerce"    @selected(request('type')==='commerce')>Commerce</option>
             <option value="terrain"     @selected(request('type')==='terrain')>Terrain</option>
         </select>
-        <button type="submit"
-                style="padding:8px 16px;border-radius:8px;border:none;background:var(--ac,#c9a84c);color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s"
-                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Rechercher</button>
+        <button type="submit" class="btn-submit">Rechercher</button>
         @if(request()->hasAny(['statut','type','q']))
-            <a href="{{ route('admin.biens.index') }}"
-               style="display:inline-flex;align-items:center;padding:8px 14px;border:1px solid #d0d7de;border-radius:8px;font-size:13px;color:#6b7280;text-decoration:none;background:#fff">
-                Effacer les filtres
-            </a>
+            <a href="{{ route('admin.biens.index') }}" class="btn-effacer">Effacer les filtres</a>
         @endif
     </form>
 
@@ -96,18 +155,15 @@
     @else
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
             @foreach($biens as $bien)
-            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;transition:box-shadow .2s"
-                 onmouseover="this.style.boxShadow='0 4px 20px -4px rgba(0,0,0,.1)'"
-                 onmouseout="this.style.boxShadow='none'">
+            <div class="bien-card">
 
                 {{-- Photo ou placeholder --}}
-                <div style="height:160px;background:#f9fafb;display:flex;align-items:center;justify-content:center;overflow:hidden">
+                <div class="bien-photo">
                     @php $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first(); @endphp
                     @if($photo)
-                        <img src="{{ asset('storage/'.$photo->chemin) }}" alt="{{ $bien->titre }}"
-                             style="width:100%;height:100%;object-fit:cover">
+                        <img src="{{ asset('storage/'.$photo->chemin) }}" alt="{{ $bien->titre }}">
                     @else
-                        <svg style="width:40px;height:40px;color:#d1d5db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <svg style="width:40px;height:40px;color:#d1c9b0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <rect x="3" y="3" width="18" height="18" rx="2"/>
                             <circle cx="8.5" cy="8.5" r="1.5"/>
                             <polyline points="21 15 16 10 5 21"/>
@@ -126,7 +182,7 @@
                                 'loue'       => 'background:#dbeafe;color:#1d4ed8',
                                 'disponible' => 'background:#dcfce7;color:#16a34a',
                                 'en_travaux' => 'background:#fef9c3;color:#a16207',
-                                default      => 'background:#f3f4f6;color:#6b7280',
+                                default      => 'background:#f0ece3;color:#6b7280',
                             };
                         @endphp
                         <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;{{ $badgeStyle }}">
@@ -141,22 +197,18 @@
                         {{ $bien->quartier }}, {{ $bien->ville }}
                     </p>
 
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid #f3f4f6">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid #f0ece3">
                         <div>
-                            <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#c9a84c">
-                                {{ number_format($bien->loyer_hors_charges, 0, ',', ' ') }} <span style="font-size:11px;color:#9ca3af">F/mois</span>
+                            <div class="bien-loyer">
+                                {{ number_format($bien->loyer_hors_charges, 0, ',', ' ') }}<span class="bien-loyer-u">F/mois</span>
                             </div>
                             @if($bien->contratActif)
-                                <div style="font-size:11px;color:#6b7280;margin-top:2px">
+                                <div class="bien-locataire">
                                     {{ $bien->contratActif->locataire?->name ?? '—' }}
                                 </div>
                             @endif
                         </div>
-                        {{-- CORRIGÉ : admin.biens.show --}}
-                        <a href="{{ route('admin.biens.show', $bien) }}"
-                           style="display:inline-flex;align-items:center;gap:4px;padding:7px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;transition:all .15s"
-                           onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-                           onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
+                        <a href="{{ route('admin.biens.show', $bien) }}" class="btn-voir">
                             Voir
                             <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                         </a>
@@ -168,19 +220,17 @@
 
         {{-- PAGINATION --}}
         @if($biens->hasPages())
-        <div style="display:flex;justify-content:center;gap:6px;margin-top:24px">
+        <div class="pag-wrap">
             @if(!$biens->onFirstPage())
-                <a href="{{ $biens->previousPageUrl() }}" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid #e5e7eb;border-radius:8px;color:#6b7280;text-decoration:none">
+                <a href="{{ $biens->previousPageUrl() }}" class="pag-btn nav">
                     <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                 </a>
             @endif
             @foreach($biens->getUrlRange(max(1,$biens->currentPage()-2), min($biens->lastPage(),$biens->currentPage()+2)) as $page => $url)
-                <a href="{{ $url }}" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid {{ $page===$biens->currentPage() ? '#0d1117' : '#e5e7eb' }};border-radius:8px;font-size:13px;font-weight:500;color:{{ $page===$biens->currentPage() ? '#fff' : '#374151' }};background:{{ $page===$biens->currentPage() ? '#0d1117' : '#fff' }};text-decoration:none">
-                    {{ $page }}
-                </a>
+                <a href="{{ $url }}" class="pag-btn {{ $page === $biens->currentPage() ? 'active' : '' }}">{{ $page }}</a>
             @endforeach
             @if($biens->hasMorePages())
-                <a href="{{ $biens->nextPageUrl() }}" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid #e5e7eb;border-radius:8px;color:#6b7280;text-decoration:none">
+                <a href="{{ $biens->nextPageUrl() }}" class="pag-btn nav">
                     <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
             @endif

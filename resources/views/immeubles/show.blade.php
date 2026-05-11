@@ -158,7 +158,7 @@
                     Aucune unité enregistrée pour cet immeuble.
                     <br>
                     <a href="{{ route('admin.biens.create', ['immeuble_id' => $immeuble->id]) }}"
-                       style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 16px;background:#c9a84c;color:#0d1117;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">
+                       class="btn-primary" style="margin-top:12px">
                         Ajouter la première unité
                     </a>
                 </div>

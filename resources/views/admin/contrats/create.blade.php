@@ -4,34 +4,52 @@
 
 @section('content')
 <style>
-.form-grid { display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start; }
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
-.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px; }
+/* ══ GRILLE ══════════════════════════════════════════════════════ */
+.form-grid { display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start; }
+@media (max-width:900px) { .form-grid { grid-template-columns:1fr 260px;gap:16px; } }
+@media (max-width:767px) { .form-grid { grid-template-columns:1fr; } }
+@media (max-width:767px) { .recap-card { position:static !important; } }
+
+/* ══ CARDS ════════════════════════════════════════════════════════ */
+.card { background:#fffef9;border:1px solid #e8e3d8;border-radius:14px;overflow:hidden;margin-bottom:16px; }
+.card-hd { padding:14px 20px;border-bottom:1px solid #e8e3d8;display:flex;align-items:center;justify-content:space-between;gap:10px; }
 .card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
 .card-body { padding:18px 20px; }
 .form-row-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
-.form-hint { font-size:11px;color:#9ca3af;margin-top:3px; }
+
+/* ══ TOGGLE CAUTION ══════════════════════════════════════════════ */
+.toggle-bar { display:flex;align-items:center;gap:6px;background:#f0ece3;border-radius:8px;padding:3px;flex-shrink:0; }
+
+/* ══ RÉCAPITULATIF DARK ══════════════════════════════════════════ */
 .recap-card { background:#0d1117;border-radius:14px;overflow:hidden;position:sticky;top:24px; }
-.recap-hd { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
+.recap-hd  { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
 .recap-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff; }
 .recap-body { padding:16px 18px; }
 .rp-row { display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06); }
 .rp-row:last-child { border-bottom:none; }
 .rp-lbl { font-size:12px;color:rgba(255,255,255,.4); }
 .rp-val { font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#fff; }
-.rp-val.gold { color:#c9a84c; }
+.rp-val.gold  { color:var(--ac,#c9a84c); }
 .rp-val.green { color:#4ade80; }
 .rp-sep { height:1px;background:rgba(255,255,255,.07);margin:10px 0; }
-.rp-total { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:12px 14px;margin-top:12px; }
-.rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
-.rp-total-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#c9a84c; }
+.rp-total {
+    background:rgba(var(--ac-r,201),var(--ac-g,168),var(--ac-b,76),.1);
+    border:1px solid rgba(var(--ac-r,201),var(--ac-g,168),var(--ac-b,76),.2);
+    border-radius:9px;padding:12px 14px;margin-top:12px;
+}
+.rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(var(--ac-r,201),var(--ac-g,168),var(--ac-b,76),.6);margin-bottom:4px; }
+.rp-total-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--ac,#c9a84c); }
+
+/* ══ BOUTON NOUVEAU LOCATAIRE ════════════════════════════════════ */
 .btn-new-loc { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#2a4a7f;background:#dbeafe;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all .15s; }
 .btn-new-loc:hover { background:#bfdbfe; }
+
+/* ══ MODAL ════════════════════════════════════════════════════════ */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center; }
-.modal-overlay.open { display:flex; }
-.modal-box { background:#fff;border-radius:14px;padding:24px;width:420px;max-width:90vw; }
+.modal-overlay.open { display:flex;animation:fadeIn .15s ease; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal-box { background:#fffef9;border:1px solid #e8e3d8;border-radius:14px;padding:24px;width:420px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.25); }
 .modal-title { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#0d1117;margin-bottom:16px; }
-.btn-gold { padding:8px 18px;border-radius:8px;border:none;background:#c9a84c;color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
 </style>
 
 <div style="padding:0 0 48px">
@@ -107,7 +125,7 @@
                                 @endforeach
                             </select>
                             @error('bien_id')<div class="form-error">{{ $message }}</div>@enderror
-                            <div id="info-proprio" style="display:none;margin-top:6px;padding:8px 10px;background:#f9fafb;border-radius:7px;font-size:11px;color:#6b7280"></div>
+                            <div id="info-proprio" style="display:none;margin-top:6px;padding:8px 10px;background:#f9f7f2;border:1px solid #e8e3d8;border-radius:7px;font-size:11px;color:#6b7280"></div>
                         </div>
 
                         <div class="form-group">
@@ -238,7 +256,7 @@
                             <div class="card-title">Caution & Frais</div>
                         </div>
                         {{-- Toggle caution --}}
-                        <div style="display:flex;align-items:center;gap:6px;background:#f3f4f6;border-radius:8px;padding:3px">
+                        <div class="toggle-bar">
                             <button type="button" id="btn-avec-caution"
                                 onclick="toggleCaution(true)"
                                 style="padding:5px 14px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .15s;
@@ -368,7 +386,7 @@
                             @else
                             <div style="font-size:11px;color:#9ca3af;margin-top:4px;display:flex;align-items:center;gap:4px">
                                 <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                <a href="{{ route('admin.agency.settings') }}" style="color:#c9a84c;text-decoration:none">Configurer votre modèle de clauses agence →</a>
+                                <a href="{{ route('admin.agency.settings') }}" style="color:var(--ac,#c9a84c);text-decoration:none">Configurer votre modèle de clauses agence →</a>
                             </div>
                             @endif
                         </div>
@@ -386,7 +404,7 @@
 
             {{-- ═══ COLONNE DROITE : RÉCAPITULATIF ═══ --}}
             <div>
-                <div class="recap-mobile-sep" style="display:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;padding:4px 0 10px;border-top:1px solid #e5e7eb;margin-top:4px">
+                <div class="recap-mobile-sep" style="display:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;padding:4px 0 10px;border-top:1px solid #e8e3d8;margin-top:4px">
                     Récapitulatif du contrat
                 </div>
                 <div class="recap-card">

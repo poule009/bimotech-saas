@@ -4,9 +4,15 @@
 
 @section('content')
 <style>
-.form-grid { display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start; }
-.card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:16px; }
-.card-hd { padding:14px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; gap:10px; }
+/* ══ GRILLE FORMULAIRE ══════════════════════════════════════════ */
+.form-grid { display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start; }
+@media (max-width:900px) { .form-grid { grid-template-columns:1fr 260px;gap:16px; } }
+@media (max-width:767px) { .form-grid { grid-template-columns:1fr; } }
+@media (max-width:767px) { .recap-card { position:static !important; } }
+
+/* ══ CARDS ══════════════════════════════════════════════════════ */
+.card { background:#fffef9;border:1px solid #e8e3d8;border-radius:14px;overflow:hidden;margin-bottom:16px; }
+.card-hd { padding:14px 20px;border-bottom:1px solid #e8e3d8;display:flex;align-items:center;gap:10px; }
 .card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
 .card-icon svg { width:15px;height:15px; }
 .card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
@@ -15,69 +21,100 @@
 .card-icon.purple { background:#ede9fe;color:#7c3aed; }
 .card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
 .card-body { padding:18px 20px; }
-.form-row { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+
+/* ══ CHAMPS ══════════════════════════════════════════════════════ */
+.form-row   { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
 .form-group { margin-bottom:14px; }
 .form-group:last-child { margin-bottom:0; }
 .form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
 .req { color:#dc2626; }
 .opt { color:#9ca3af;font-weight:400; }
 .form-input,.form-select,.form-textarea {
-    width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;
-    font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fff;
-    outline:none;transition:border .15s;
+    width:100%;padding:9px 12px;
+    border:1px solid #e8e3d8;border-radius:8px;
+    font-size:13px;font-family:'DM Sans',sans-serif;
+    color:#0d1117;background:#fffef9;
+    outline:none;transition:border .15s,box-shadow .15s;
 }
-.form-input:focus,.form-select:focus,.form-textarea:focus { border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1); }
+.form-input:focus,.form-select:focus,.form-textarea:focus {
+    border-color:var(--ac,#c9a84c);
+    box-shadow:0 0 0 3px rgba(var(--ac-r,201),var(--ac-g,168),var(--ac-b,76),.1);
+}
 .form-input.error,.form-select.error { border-color:#dc2626; }
 .form-error { font-size:11px;color:#dc2626;margin-top:3px; }
-.form-hint { font-size:11px;color:#9ca3af;margin-top:3px; }
+.form-hint  { font-size:11px;color:#9ca3af;margin-top:3px; }
 .form-textarea { resize:vertical;min-height:70px; }
 
-/* Recap */
+/* Input recherche contrat */
+.search-input {
+    width:100%;padding:8px 12px 8px 30px;
+    border:1px solid #e8e3d8;border-radius:8px;
+    font-size:13px;font-family:'DM Sans',sans-serif;
+    color:#0d1117;background:#f9f7f2;
+    outline:none;transition:border .15s,background .15s;
+}
+.search-input:focus { border-color:var(--ac,#c9a84c);background:#fffef9; }
+
+/* Info contrat dynamique */
+.contrat-info-box { background:#f9f7f2;border:1px solid #e8e3d8;border-radius:8px;padding:12px 14px;font-size:12px; }
+.ci-row { display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f0ece3; }
+.ci-row:last-child { border-bottom:none; }
+.ci-lbl2 { color:#6b7280; }
+.ci-val2 { font-weight:500;color:#0d1117; }
+.ci-val2.gold { color:var(--ac,#c9a84c);font-family:'Syne',sans-serif;font-weight:700; }
+
+/* ══ RÉCAPITULATIF DARK ══════════════════════════════════════════ */
 .recap-card { background:#0d1117;border-radius:14px;overflow:hidden;position:sticky;top:24px; }
-.recap-hd { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
+.recap-hd  { padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07); }
 .recap-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff; }
 .recap-body { padding:16px 18px; }
 .rp-row { display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06); }
 .rp-row:last-child { border-bottom:none; }
 .rp-lbl { font-size:12px;color:rgba(255,255,255,.4); }
 .rp-val { font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#fff; }
-.rp-val.gold  { color:#c9a84c; }
+.rp-val.gold  { color:var(--ac,#c9a84c); }
 .rp-val.green { color:#4ade80; }
 .rp-val.red   { color:#f87171; }
 .rp-sep { height:1px;background:rgba(255,255,255,.07);margin:10px 0; }
-.rp-total { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:12px 14px;margin-top:12px; }
-.rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
-.rp-total-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#c9a84c; }
+.rp-total {
+    background:rgba(var(--ac-r,201),var(--ac-g,168),var(--ac-b,76),.1);
+    border:1px solid rgba(var(--ac-r,201),var(--ac-g,168),var(--ac-b,76),.2);
+    border-radius:9px;padding:12px 14px;margin-top:12px;
+}
+.rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(var(--ac-r,201),var(--ac-g,168),var(--ac-b,76),.6);margin-bottom:4px; }
+.rp-total-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--ac,#c9a84c); }
 
-/* Contrat sélectionné */
+/* Contrat info dans recap (contexte dark) */
 .contrat-info { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:12px 14px;margin-top:10px; }
 .contrat-info-row { display:flex;justify-content:space-between;font-size:12px;padding:3px 0; }
 .ci-lbl { color:rgba(255,255,255,.4); }
 .ci-val { color:#e6edf3;font-weight:500; }
 
-.submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e5e7eb;background:#f9fafb; }
-.btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
-/* btn-submit hérite du layout global (couleur agence) */
+/* ══ BARRE SOUMISSION ════════════════════════════════════════════ */
+.submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e8e3d8;background:#f5f2ea; }
+.btn-cancel {
+    padding:8px 16px;border-radius:8px;border:1px solid #e8e3d8;
+    background:#fffef9;color:#6b7280;font-size:13px;
+    font-family:'DM Sans',sans-serif;cursor:pointer;
+    text-decoration:none;display:inline-flex;align-items:center;
+    transition:all .15s;
+}
+.btn-cancel:hover { background:#f0ece3;border-color:#9ca3af; }
 
-/* Badge montant correct */
+/* ══ INDICATEURS MONTANT ═════════════════════════════════════════ */
 .montant-ok   { color:#16a34a;font-size:11px;margin-top:3px;display:none; }
 .montant-diff { color:#d97706;font-size:11px;margin-top:3px;display:none; }
 
-/* Badge BRS */
+/* ══ BADGE BRS ════════════════════════════════════════════════════ */
 .brs-badge {
-    display:none;
-    margin-top:10px;
-    background:#fef2f2;
-    border:1px solid #fecaca;
-    border-left:4px solid #dc2626;
-    border-radius:0 8px 8px 0;
-    padding:10px 14px;
-    font-size:12px;
-    color:#991b1b;
+    display:none;margin-top:10px;
+    background:#fef2f2;border:1px solid #fecaca;
+    border-left:4px solid #dc2626;border-radius:0 8px 8px 0;
+    padding:10px 14px;font-size:12px;color:#991b1b;
 }
-.brs-badge-title { font-weight:700; font-size:12px; margin-bottom:4px; color:#dc2626; }
-.brs-badge-body  { color:#7f1d1d; line-height:1.6; }
-.brs-badge-link  { color:#dc2626; font-weight:600; text-decoration:underline; font-size:11px; }
+.brs-badge-title { font-weight:700;font-size:12px;margin-bottom:4px;color:#dc2626; }
+.brs-badge-body  { color:#7f1d1d;line-height:1.6; }
+.brs-badge-link  { color:#dc2626;font-weight:600;text-decoration:underline;font-size:11px; }
 </style>
 
 <div style="padding:0 0 48px">
@@ -130,10 +167,8 @@
                                 <input type="text" id="contrat-search"
                                        placeholder="Filtrer par locataire, bien ou référence…"
                                        autocomplete="off"
-                                       style="width:100%;padding:8px 12px 8px 30px;border:1px solid #e8e3d8;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#f9f7f2;outline:none"
-                                       oninput="filtrerContrats(this.value)"
-                                       onfocus="this.style.borderColor='#c9a84c';this.style.background='#fff'"
-                                       onblur="this.style.borderColor='#e8e3d8';this.style.background='#f9f7f2'">
+                                       class="search-input"
+                                       oninput="filtrerContrats(this.value)">
                             </div>
                             <select name="contrat_id" id="contrat_id"
                                     class="form-select {{ $errors->has('contrat_id') ? 'error':'' }}"
@@ -180,18 +215,18 @@
 
                         {{-- Infos contrat dynamiques --}}
                         <div id="contrat-details" style="display:none">
-                            <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 14px;font-size:12px">
-                                <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f3f4f6">
-                                    <span style="color:#6b7280">Bien</span>
-                                    <span style="font-weight:500;color:#0d1117" id="info-bien">—</span>
+                            <div class="contrat-info-box">
+                                <div class="ci-row">
+                                    <span class="ci-lbl2">Bien</span>
+                                    <span class="ci-val2" id="info-bien">—</span>
                                 </div>
-                                <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f3f4f6">
-                                    <span style="color:#6b7280">Locataire</span>
-                                    <span style="font-weight:500;color:#0d1117" id="info-locataire">—</span>
+                                <div class="ci-row">
+                                    <span class="ci-lbl2">Locataire</span>
+                                    <span class="ci-val2" id="info-locataire">—</span>
                                 </div>
-                                <div style="display:flex;justify-content:space-between;padding:3px 0">
-                                    <span style="color:#6b7280">Loyer contractuel</span>
-                                    <span style="font-weight:700;color:#c9a84c;font-family:'Syne',sans-serif" id="info-loyer">—</span>
+                                <div class="ci-row">
+                                    <span class="ci-lbl2">Loyer contractuel</span>
+                                    <span class="ci-val2 gold" id="info-loyer">—</span>
                                 </div>
                             </div>
 

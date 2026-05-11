@@ -27,8 +27,7 @@
                 Exporter CSV
             </a>
             <a href="{{ route('admin.paiements.create') }}"
-               style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#c9a84c;color:#0d1117;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;border-radius:8px;text-decoration:none"
-               onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+               class="btn-primary">
                 <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Nouveau paiement
             </a>
@@ -96,7 +95,7 @@
                     @endif
                 </div>
                 <a href="{{ route('admin.paiements.create') }}"
-                   style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#c9a84c;color:#0d1117;font-size:13px;font-weight:600;border-radius:8px;text-decoration:none">
+                   class="btn-primary">
                     + Enregistrer un paiement
                 </a>
             </div>

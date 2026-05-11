@@ -4,16 +4,26 @@
 
 @section('content')
 <style>
-.dash-grid { display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start; }
+/* ══ GRILLE PRINCIPALE ══════════════════════════════════════════ */
+.dash-grid { display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start; }
 
-/* Hero bien */
+@media (max-width:900px) {
+    .dash-grid { grid-template-columns:1fr 240px;gap:16px; }
+}
+@media (max-width:767px) {
+    .dash-grid { grid-template-columns:1fr;gap:0; }
+    .sidebar-sticky { position:static !important;margin-bottom:20px; }
+}
+
+/* ══ HERO LOGEMENT ══════════════════════════════════════════════ */
 .bien-hero { background:#0d1117;border-radius:16px;padding:28px 30px;margin-bottom:20px;position:relative;overflow:hidden; }
-.bien-hero::before { content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(201,168,76,0.08); }
-.bien-hero::after  { content:'';position:absolute;bottom:-30px;left:80px;width:120px;height:120px;border-radius:50%;background:rgba(201,168,76,0.05); }
+.bien-hero::before { content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(201,168,76,.08); }
+.bien-hero::after  { content:'';position:absolute;bottom:-30px;left:80px;width:120px;height:120px;border-radius:50%;background:rgba(201,168,76,.05); }
 .hero-label { font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px;position:relative;z-index:1; }
 .hero-ref   { font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1;position:relative;z-index:1; }
 .hero-type  { font-size:13px;color:rgba(255,255,255,.5);margin-top:6px;position:relative;z-index:1; }
-.hero-addr  { font-size:12px;color:rgba(255,255,255,.4);margin-top:3px;display:flex;align-items:center;gap:5px;position:relative;z-index:1; }
+.hero-addr  { font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;display:flex;align-items:center;gap:5px;position:relative;z-index:1; }
+.hero-addr svg { width:12px;height:12px;flex-shrink:0; }
 .hero-stats { display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);position:relative;z-index:1; }
 .hero-stat  { padding:0 20px;border-right:1px solid rgba(255,255,255,.08); }
 .hero-stat:first-child { padding-left:0; }
@@ -21,45 +31,61 @@
 .hs-lbl { font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:5px; }
 .hs-val { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#fff;line-height:1; }
 .hs-val.green { color:#4ade80; }
-.hs-val.gold  { color:#c9a84c; }
+.hs-val.gold  { color:var(--ac,#c9a84c); }
 
-/* Cards */
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:18px; }
+@media (max-width:767px) {
+    .bien-hero { padding:20px;border-radius:14px; }
+    .hero-ref  { font-size:20px; }
+    .hero-stats { grid-template-columns:1fr 1fr;gap:2px;padding-top:16px;margin-top:16px; }
+    .hero-stat  { padding:10px 12px;border:none;border-radius:9px;background:rgba(255,255,255,.05); }
+    .hero-stat:first-child { padding-left:12px; }
+    .hero-stat:last-child  { border-right:none; }
+    .hs-lbl { font-size:9px; }
+    .hs-val { font-size:14px; }
+}
+
+/* ══ CARDS ══════════════════════════════════════════════════════ */
+.card { background:#fffef9;border:1px solid #e8e3d8;border-radius:14px;overflow:hidden;margin-bottom:18px; }
 .card:last-child { margin-bottom:0; }
-.card-hd { padding:15px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
+.card-hd { padding:15px 20px;border-bottom:1px solid #e8e3d8;display:flex;align-items:center;justify-content:space-between; }
 .card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
 .card-action { font-size:12px;color:#6b7280;text-decoration:none;transition:color .15s; }
-.card-action:hover { color:#0d1117; }
+.card-action:hover { color:var(--ac,#c9a84c); }
 .card-body { padding:18px 20px; }
 
-/* Prochain loyer */
-.next-loyer { background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:18px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between; }
+/* ══ PROCHAIN LOYER ══════════════════════════════════════════════ */
+.next-loyer { background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:18px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px; }
 .nl-label   { font-size:11px;font-weight:600;color:#15803d;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px; }
 .nl-periode { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#15803d; }
 .nl-hint    { font-size:11px;color:#16a34a;margin-top:3px; }
-.nl-amount  { font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#15803d; }
-.nl-unit    { font-size:12px;color:#16a34a; }
+.nl-amount  { font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#15803d;white-space:nowrap;text-align:right; }
+.nl-unit    { font-size:12px;color:#16a34a;text-align:right; }
 
-/* Table */
+/* ══ TABLE ══════════════════════════════════════════════════════ */
 .dt { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb;text-align:left; }
-.dt td { padding:13px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
+.dt th { padding:9px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9f7f2;border-bottom:1px solid #e8e3d8;text-align:left; }
+.dt td { padding:13px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f0ece3;vertical-align:middle; }
 .dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#f9fafb; }
+.dt tbody tr:hover { background:#f9f7f2; }
 .periode-pill { display:inline-block;padding:3px 9px;background:#f5e9c9;color:#8a6e2f;border-radius:6px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif; }
 .amt { font-family:'Syne',sans-serif;font-weight:600;color:#0d1117; }
 
-/* Info grid */
-.info-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+/* ══ INFO GRID BAIL ══════════════════════════════════════════════ */
+.info-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
 .il { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:4px; }
 .iv { font-size:13px;font-weight:500;color:#0d1117; }
 .iv-sub { font-size:11px;color:#6b7280;margin-top:1px; }
 
-/* Sidebar */
+@media (max-width:479px) {
+    .info-grid { grid-template-columns:1fr; }
+}
+
+/* ══ SIDEBAR ════════════════════════════════════════════════════ */
 .sidebar-sticky { position:sticky;top:80px; }
-.kpi-mini { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;margin-bottom:12px;position:relative;overflow:hidden; }
+
+.kpi-mini { background:#fffef9;border:1px solid #e8e3d8;border-radius:12px;padding:16px 18px;margin-bottom:12px;position:relative;overflow:hidden; }
 .kpi-mini::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0; }
-.kpi-mini.gold::before  { background:#c9a84c; }
+.kpi-mini.gold::before  { background:var(--ac,#c9a84c); }
 .kpi-mini.green::before { background:#16a34a; }
 .kpi-mini.blue::before  { background:#1d4ed8; }
 .kpi-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:4px; }
@@ -69,24 +95,61 @@
 .kpi-u  { font-size:11px;font-weight:400;color:#9ca3af;margin-left:2px; }
 .kpi-s  { font-size:11px;color:#9ca3af;margin-top:4px; }
 
-/* Agence */
+@media (max-width:767px) {
+    /* KPI minis → 2 colonnes côte à côte */
+    .kpi-mini-row { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px; }
+    .kpi-mini-row .kpi-mini { margin-bottom:0; }
+    /* Cards agence/proprio → pleine largeur */
+    .sidebar-sticky > .card { margin-bottom:12px; }
+}
+
+/* ══ AGENCE DARK CARD ════════════════════════════════════════════ */
 .agence-card { background:#0d1117;border-radius:12px;padding:16px 18px; }
 .ag-name { font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:12px; }
 .ag-row { display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px; }
 .ag-row:last-child { border-bottom:none;padding-bottom:0; }
 .ag-row svg { width:13px;height:13px;color:rgba(255,255,255,.3);flex-shrink:0; }
 .ag-val { color:rgba(255,255,255,.65); }
-.ag-val a { color:#c9a84c;text-decoration:none; }
+.ag-val a { color:var(--ac,#c9a84c);text-decoration:none; }
 
-/* Vide */
-.empty-hero { text-align:center;padding:48px 20px; }
-.empty-icon { width:56px;height:56px;border-radius:14px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
+/* ══ BOUTON WHATSAPP ══════════════════════════════════════════════ */
+.wa-btn {
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    margin-top:12px;padding:10px 14px;
+    background:#dcfce7;border:1px solid #bbf7d0;
+    color:#15803d;border-radius:9px;
+    font-size:12px;font-weight:600;text-decoration:none;
+    transition:background .15s,border-color .15s;
+}
+.wa-btn:hover { background:#bbf7d0;border-color:#86efac; }
+
+/* ══ BOUTON QUITTANCE ══════════════════════════════════════════════ */
+.btn-quitt {
+    display:inline-flex;align-items:center;justify-content:center;
+    width:28px;height:28px;
+    border:1px solid #e8e3d8;border-radius:7px;
+    background:#fffef9;color:#6b7280;text-decoration:none;
+    transition:all .15s;
+}
+.btn-quitt:hover { border-color:var(--ac,#c9a84c);color:#8a6e2f;background:#f5e9c9; }
+
+/* ══ ACTIONS HEADER MOBILE ════════════════════════════════════════ */
+.page-actions { display:flex;gap:8px;flex-wrap:wrap; }
+@media (max-width:500px) {
+    .page-actions { width:100%; }
+    .page-actions a { flex:1;justify-content:center; }
+}
+
+/* ══ ÉTAT VIDE ════════════════════════════════════════════════════ */
+.empty-hero  { text-align:center;padding:48px 20px; }
+.empty-icon  { width:56px;height:56px;border-radius:14px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
+.empty-icon svg { width:24px;height:24px;color:#8a6e2f; }
 .empty-title { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#0d1117;margin-bottom:6px; }
-.empty-sub { font-size:13px;color:#6b7280; }
+.empty-sub   { font-size:13px;color:#6b7280; }
 
-/* Barre durée */
-.duree-bar  { height:6px;background:#f3f4f6;border-radius:99px;overflow:hidden;margin-top:8px; }
-.duree-fill { height:100%;border-radius:99px;background:linear-gradient(90deg,#c9a84c,#f5e9c9); }
+/* ══ BARRE DURÉE ══════════════════════════════════════════════════ */
+.duree-bar  { height:6px;background:#f0ece3;border-radius:99px;overflow:hidden;margin-top:8px; }
+.duree-fill { height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ac,#c9a84c),#f5e9c9); }
 </style>
 
 @php
@@ -104,7 +167,7 @@
 <div style="padding:0 0 48px">
 
     {{-- GREETING --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
                 Bonjour, {{ explode(' ', auth()->user()->name)[0] }} 👋
@@ -113,16 +176,18 @@
                 {{ now()->translatedFormat('l d F Y') }}
             </p>
         </div>
-        <div style="display:flex;gap:8px">
+        <div class="page-actions">
             @if($contrat)
             <a href="{{ route('locataire.contrat.show', $contrat) }}"
-               style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:#0d1117;color:#c9a84c;border:1px solid rgba(201,168,76,.3);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
+               style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:#0d1117;color:var(--ac,#c9a84c);border:1px solid rgba(201,168,76,.3);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;transition:opacity .15s"
+               onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
                 <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Mon contrat
             </a>
             @endif
             <a href="{{ route('locataire.paiements') }}"
-               style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fff">
+               style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e8e3d8;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fffef9;transition:border-color .15s"
+               onmouseover="this.style.borderColor='#c9a84c'" onmouseout="this.style.borderColor='#e8e3d8'">
                 <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 Mes paiements
             </a>
@@ -389,9 +454,7 @@
                                 </td>
                                 <td style="text-align:center">
                                     <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
-                                       style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid #e5e7eb;border-radius:7px;color:#6b7280;text-decoration:none"
-                                       onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-                                       onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280'"
+                                       class="btn-quitt"
                                        title="Télécharger la quittance">
                                         <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </a>
@@ -409,20 +472,22 @@
         {{-- ═══ COLONNE DROITE ═══ --}}
         <div class="sidebar-sticky">
 
-            <div class="kpi-mini gold">
-                <div class="kpi-lbl">Total payé</div>
-                <div class="kpi-val gold">{{ number_format($stats['total_paye'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
-                <div class="kpi-s">Depuis le début du bail</div>
-            </div>
-
-            <div class="kpi-mini green">
-                <div class="kpi-lbl">Paiements effectués</div>
-                <div class="kpi-val green">{{ $stats['nb_paiements'] }}</div>
-                <div class="kpi-s">Quittances disponibles</div>
+            {{-- KPI minis : 2 colonnes sur mobile ─────────────── --}}
+            <div class="kpi-mini-row">
+                <div class="kpi-mini gold">
+                    <div class="kpi-lbl">Total payé</div>
+                    <div class="kpi-val gold">{{ number_format($stats['total_paye'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
+                    <div class="kpi-s">Depuis le début du bail</div>
+                </div>
+                <div class="kpi-mini green">
+                    <div class="kpi-lbl">Paiements</div>
+                    <div class="kpi-val green">{{ $stats['nb_paiements'] }}</div>
+                    <div class="kpi-s">Quittances dispo</div>
+                </div>
             </div>
 
             @if($fin && $joursRestants !== null && $joursRestants > 0)
-            <div class="kpi-mini blue">
+            <div class="kpi-mini blue" style="margin-bottom:12px">
                 <div class="kpi-lbl">Jours restants</div>
                 <div class="kpi-val" style="color:#1d4ed8">{{ $joursRestants }}</div>
                 <div class="kpi-s">Fin le {{ $fin->format('d/m/Y') }}</div>
@@ -489,9 +554,7 @@
         $msgWa = "Bonjour {$agency->name}, je suis {$locataireName}, locataire du bien {$bien->reference}. Je souhaite vous contacter.";
                     @endphp
                     <a href="https://wa.me/{{ $tel }}?text={{ urlencode($msgWa) }}" target="_blank"
-                       style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:12px;padding:10px;background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none"
-                       onmouseover="this.style.background='#bbf7d0'"
-                       onmouseout="this.style.background='#dcfce7'">
+                       class="wa-btn">
                         <svg style="width:15px;height:15px" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
                             <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.532 5.847L.057 23.492a.5.5 0 00.614.65l5.82-1.527A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.944 9.944 0 01-5.091-1.396l-.361-.216-3.754.984.999-3.648-.237-.374A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>

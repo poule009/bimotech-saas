@@ -38,7 +38,7 @@ $modes = [
 .pag-links { display:flex;gap:4px; }
 .pag-link { display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;color:#374151;text-decoration:none;transition:all .15s; }
 .pag-link:hover { border-color:#c9a84c;color:#8a6e2f; }
-.pag-link.active { background:#c9a84c;border-color:#c9a84c;color:#0d1117;font-weight:700; }
+.pag-link.active { background:var(--ac,#c9a84c);border-color:var(--ac,#c9a84c);color:#0d1117;font-weight:700; }
 .pag-link.disabled { opacity:.4;pointer-events:none; }
 </style>
 
