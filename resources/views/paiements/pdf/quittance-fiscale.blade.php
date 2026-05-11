@@ -223,7 +223,7 @@ $regimeLabel = $regimeLabels[$regime_fiscal] ?? ucwords(str_replace('_', ' ', $r
     @else
         <span class="regime-badge regime-habitation">{{ $regimeLabel }}</span>
     @endif
-    @if($brs_applicable ?? false)
+    @if(config('features.fiscalite') && ($brs_applicable ?? false))
         <span class="regime-badge regime-brs">BRS {{ $taux_brs_applique }}% — Locataire Entreprise</span>
     @endif
 </div>
@@ -334,7 +334,7 @@ $regimeLabel = $regimeLabels[$regime_fiscal] ?? ucwords(str_replace('_', ' ', $r
         $tauxBrsAff = (float) ($taux_brs_applique ?? $paiement->taux_brs_applique ?? 0);
         $netAVerser = (float) ($net_a_verser ?? $paiement->net_a_verser_proprietaire ?? $netProprio);
         $loyerAssuj = ($tva_loyer ?? $paiement->tva_loyer ?? 0) > 0;
-        $brsApplic  = $brsAmt > 0;
+        $brsApplic  = config('features.fiscalite') && $brsAmt > 0;
         $fmt        = fn(float $n) => number_format($n, 0, ',', ' ');
     @endphp
 
