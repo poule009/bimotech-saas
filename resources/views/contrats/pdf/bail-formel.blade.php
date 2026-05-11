@@ -156,13 +156,26 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
     $loyerEnLettres   = \App\Services\NombreEnLettres::convertir((int) round($loyerTotal));
     $cautionEnLettres = \App\Services\NombreEnLettres::convertir((int) round((float) $contrat->caution));
     $ville           = $contrat->bien?->ville ?? 'Dakar';
+
+    // Logo base64 pour DomPDF
+    $logoSrc = null;
+    if (!empty($agency->logo_path)) {
+        $lp = storage_path('app/public/' . $agency->logo_path);
+        if (file_exists($lp)) {
+            $logoSrc = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
+        }
+    }
 @endphp
 
 {{-- ══ EN-TÊTE ══════════════════════════════════════════════════════════ --}}
 <div class="header">
     <div class="header-inner">
         <div class="header-left">
-            <div class="agence-nom">{{ $agency->name ?? 'BimoTech Immo' }}</div>
+            @if($logoSrc)
+                <img src="{{ $logoSrc }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;filter:brightness(0) invert(1);opacity:.9;">
+            @else
+                <div class="agence-nom">{{ $agency->name ?? 'BimoTech Immo' }}</div>
+            @endif
             <div class="agence-sub">Agence Immobilière · Gestion Locative</div>
             <div class="agence-pill">Mandataire du Propriétaire Bailleur</div>
         </div>

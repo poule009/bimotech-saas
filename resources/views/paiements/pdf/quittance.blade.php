@@ -143,13 +143,26 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
         : now()->format('d/m/Y');
 
     $refBail = $paiement->reference_bail ?? ($contrat?->reference_bail ?? 'BAIL-'.$contrat?->id);
+
+    // Logo en base64 (DomPDF ne supporte pas les URL Storage)
+    $logoSrc = null;
+    if (!empty($agence?->logo_path)) {
+        $logoPath = storage_path('app/public/' . $agence->logo_path);
+        if (file_exists($logoPath)) {
+            $logoSrc = 'data:' . mime_content_type($logoPath) . ';base64,' . base64_encode(file_get_contents($logoPath));
+        }
+    }
 @endphp
 
 {{-- ─── EN-TÊTE ─── --}}
 <div class="header">
     <div class="header-inner">
         <div class="header-left">
-            <div class="agency-name">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+            @if($logoSrc)
+                <img src="{{ $logoSrc }}" style="height:44px;max-width:160px;object-fit:contain;display:block;margin-bottom:6px;">
+            @else
+                <div class="agency-name">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+            @endif
             <div class="agency-sub">
                 {{ $agence?->adresse ?? '' }}
                 @if($agence?->telephone) · {{ $agence->telephone }} @endif

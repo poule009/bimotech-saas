@@ -66,10 +66,24 @@ tfoot td.right { text-align:right; color:#c9a84c; font-size:12px; }
     <div class="footer-right">Généré le {{ now()->format('d/m/Y') }} · Document confidentiel</div>
 </div>
 
+@php
+    $logoSrc = null;
+    if (!empty($agency->logo_path)) {
+        $lp = storage_path('app/public/' . $agency->logo_path);
+        if (file_exists($lp)) {
+            $logoSrc = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
+        }
+    }
+@endphp
+
 {{-- En-tête --}}
 <div class="header">
     <div class="header-left">
-        <div class="agency-name">{{ $agency->name ?? 'BimoTech Immo' }}</div>
+        @if($logoSrc)
+            <img src="{{ $logoSrc }}" style="height:44px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;">
+        @else
+            <div class="agency-name">{{ $agency->name ?? 'BimoTech Immo' }}</div>
+        @endif
         <div class="agency-info">
             @if($agency->adresse){{ $agency->adresse }}<br>@endif
             @if($agency->telephone)Tél. {{ $agency->telephone }} · @endif

@@ -173,11 +173,20 @@ body {
 <div class="header">
     <div class="header-inner">
         <div class="header-left">
-            @if(!empty($agence['logo_path']) && file_exists(storage_path('app/public/'.$agence['logo_path'])))
-                <img src="{{ storage_path('app/public/'.$agence['logo_path']) }}"
-                     style="height:32px;width:auto;margin-bottom:5px;display:block">
+            @php
+                $logoSrcFiscal = null;
+                if (!empty($agence['logo_path'])) {
+                    $lp = storage_path('app/public/' . $agence['logo_path']);
+                    if (file_exists($lp)) {
+                        $logoSrcFiscal = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
+                    }
+                }
+            @endphp
+            @if($logoSrcFiscal)
+                <img src="{{ $logoSrcFiscal }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;">
+            @else
+                <div class="agence-nom">{{ $agence['nom'] }}</div>
             @endif
-            <div class="agence-nom">{{ $agence['nom'] }}</div>
             <div class="agence-sub">Agence Immobilière · Gestion Locative</div>
             <div class="agence-pill">Mandataire du Propriétaire Bailleur</div>
         </div>

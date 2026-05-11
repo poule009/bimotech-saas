@@ -147,11 +147,25 @@
     <div class="footer-right">Document confidentiel — Usage exclusif du bailleur</div>
 </div>
 
+@php
+    $logoSrc = null;
+    if (!empty($agency->logo_path)) {
+        $lp = storage_path('app/public/' . $agency->logo_path);
+        if (file_exists($lp)) {
+            $logoSrc = 'data:' . mime_content_type($lp) . ';base64,' . base64_encode(file_get_contents($lp));
+        }
+    }
+@endphp
+
 {{-- En-tête ──────────────────────────────────────────── --}}
 <div class="header">
     <div class="header-table">
         <div class="header-left">
-            <div class="agency-name">{{ $agency->name ?? 'BIMO-tech' }}</div>
+            @if($logoSrc)
+                <img src="{{ $logoSrc }}" style="height:36px;max-width:140px;object-fit:contain;display:block;margin-bottom:6px;filter:brightness(0) invert(1);opacity:.9;">
+            @else
+                <div class="agency-name">{{ $agency->name ?? 'BIMO-tech' }}</div>
+            @endif
             <h1>Rapport de Gestion {{ $mois !== null ? 'Mensuel' : 'Annuel' }}</h1>
             <h2>Document isolé · Données exclusives du bailleur</h2>
         </div>
