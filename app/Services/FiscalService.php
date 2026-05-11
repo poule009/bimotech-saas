@@ -139,7 +139,7 @@ class FiscalService
         // ── 5. BRS — priorité : contrat > locataire > légal 5% ─────────────
         // Art. 201 §2 CGI SN : la retenue est faite par l'agence pour le compte du bailleur
         // personne physique. Elle ne s'applique PAS si le bailleur est une personne morale IS.
-        $brsApplicable = $ctx->brsApplicable;
+        $brsApplicable = config('features.fiscalite') && $ctx->brsApplicable;
         $tauxBrs       = 0.0;
         $brsAmount     = 0.0;
 
