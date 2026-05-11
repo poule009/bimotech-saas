@@ -26,6 +26,13 @@ class ImpayeController extends Controller
         $annee   = max(2000, min(2100, (int) $request->input('annee', now()->year)));
         $periode = Carbon::create($annee, $mois, 1)->startOfMonth();
 
+        // Refuser tout mois strictement futur (pas de données possibles)
+        if ($periode->isAfter(now()->endOfMonth())) {
+            $periode = now()->startOfMonth();
+            $mois    = $periode->month;
+            $annee   = $periode->year;
+        }
+
         /**
          * PERFORMANCE — select() sur les relations eager loadées :
          *

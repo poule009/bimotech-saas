@@ -44,9 +44,24 @@
     </div>
 
     <div style="margin-bottom:20px">
-        <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Créer un contrat de bail</h1>
-        <p style="font-size:13px;color:#6b7280;margin-top:3px">Le loyer contractuel = loyer nu + charges + TOM.</p>
+        <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
+            @if($fromContrat) Renouveler le contrat @else Créer un contrat de bail @endif
+        </h1>
+        <p style="font-size:13px;color:#6b7280;margin-top:3px">
+            @if($fromContrat)
+                Renouvellement de {{ $fromContrat->reference_bail ?? 'BAIL-'.$fromContrat->id }} — les données sont pré-remplies, ajustez la durée.
+            @else
+                Le loyer contractuel = loyer nu + charges + TOM.
+            @endif
+        </p>
     </div>
+
+    @if($fromContrat)
+    <div style="background:#ede9fe;border:1px solid #ddd6fe;border-left:4px solid #7c3aed;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#5b21b6;display:flex;align-items:center;gap:8px">
+        <svg style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Renouvellement — vérifiez les montants et définissez la nouvelle durée. Le locataire et le bien restent inchangés.
+    </div>
+    @endif
 
     @if($errors->any())
     <div style="background:#fef2f2;border:1px solid #fecaca;border-left:3px solid #dc2626;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#dc2626">
@@ -103,11 +118,12 @@
                                     Nouveau locataire
                                 </button>
                             </div>
+                            @php $locPreselId = old('locataire_id', $fromContrat?->locataire_id); @endphp
                             <select name="locataire_id" id="locataire_id"
                                     class="form-select {{ $errors->has('locataire_id') ? 'error':'' }}">
                                 <option value="">— Sélectionner un locataire —</option>
                                 @foreach($locataires as $loc)
-                                    <option value="{{ $loc->id }}" {{ old('locataire_id') == $loc->id ? 'selected':'' }}>
+                                    <option value="{{ $loc->id }}" {{ $locPreselId == $loc->id ? 'selected':'' }}>
                                         {{ $loc->name }} — {{ $loc->email }}
                                     </option>
                                 @endforeach
@@ -129,9 +145,14 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Date de début <span class="req">*</span></label>
+                                @php
+                                    $defaultDebut = $fromContrat?->date_fin
+                                        ? \Carbon\Carbon::parse($fromContrat->date_fin)->addDay()->format('Y-m-d')
+                                        : now()->format('Y-m-d');
+                                @endphp
                                 <input type="date" name="date_debut" id="date_debut"
                                        class="form-input {{ $errors->has('date_debut') ? 'error':'' }}"
-                                       value="{{ old('date_debut', now()->format('Y-m-d')) }}">
+                                       value="{{ old('date_debut', $defaultDebut) }}">
                                 @error('date_debut')<div class="form-error">{{ $message }}</div>@enderror
                             </div>
                             <div class="form-group">
@@ -147,7 +168,7 @@
                                     class="form-select {{ $errors->has('type_bail') ? 'error':'' }}"
                                     onchange="mettreAJourRecap()">
                                 @foreach($typesBail as $val => $label)
-                                    <option value="{{ $val }}" {{ old('type_bail', 'habitation') === $val ? 'selected':'' }}>
+                                    <option value="{{ $val }}" {{ old('type_bail', $fromContrat?->type_bail ?? 'habitation') === $val ? 'selected':'' }}>
                                         {{ $label }}
                                     </option>
                                 @endforeach
@@ -177,7 +198,7 @@
                                 <label class="form-label">Loyer nu (FCFA) <span class="req">*</span></label>
                                 <input type="number" name="loyer_nu" id="loyer_nu"
                                        class="form-input {{ $errors->has('loyer_nu') ? 'error':'' }}"
-                                       value="{{ old('loyer_nu', $bienPreselectionne?->loyer_mensuel) }}"
+                                       value="{{ old('loyer_nu', $fromContrat?->loyer_nu ?? $bienPreselectionne?->loyer_mensuel) }}"
                                        min="0" step="500" oninput="mettreAJourRecap()">
                                 <div class="form-hint">Hors charges et TOM</div>
                                 @error('loyer_nu')<div class="form-error">{{ $message }}</div>@enderror
@@ -365,6 +386,9 @@
 
             {{-- ═══ COLONNE DROITE : RÉCAPITULATIF ═══ --}}
             <div>
+                <div class="recap-mobile-sep" style="display:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;padding:4px 0 10px;border-top:1px solid #e5e7eb;margin-top:4px">
+                    Récapitulatif du contrat
+                </div>
                 <div class="recap-card">
                     <div class="recap-hd"><div class="recap-title">Récapitulatif</div></div>
                     <div class="recap-body">
@@ -644,6 +668,11 @@ async function creerLocataire() {
         return;
     }
 
+    const submitBtn = document.querySelector('#modal-locataire .btn-gold');
+    const originalHtml = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="btn-spin-icon"></span> Création…';
+
     try {
         const response = await fetch('{{ route('admin.contrats.locataire-rapide') }}', {
             method: 'POST',
@@ -659,6 +688,8 @@ async function creerLocataire() {
         if (!response.ok || !data.success) {
             errDiv.style.display = 'block';
             errDiv.textContent = data.message || 'Erreur lors de la création.';
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalHtml;
             return;
         }
 
@@ -673,6 +704,8 @@ async function creerLocataire() {
     } catch(e) {
         errDiv.style.display = 'block';
         errDiv.textContent = 'Erreur réseau. Veuillez réessayer.';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHtml;
     }
 }
 

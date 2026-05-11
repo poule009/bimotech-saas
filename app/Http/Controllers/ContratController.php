@@ -82,7 +82,8 @@ class ContratController extends Controller
 
         $agencyId = Auth::user()->agency_id;
 
-        $biens = Bien::where('statut', 'disponible')
+        $biens = Bien::where('agency_id', $agencyId)
+            ->where('statut', 'disponible')
             ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble'])
             ->with(['proprietaire:id,name'])
             ->orderBy('reference')
@@ -98,12 +99,30 @@ class ContratController extends Controller
             ? Bien::select(['id', 'reference', 'loyer_mensuel', 'taux_commission', 'meuble', 'type'])->find($request->bien_id)
             : null;
 
+        // Renouvellement : pré-charger les données de l'ancien contrat
+        $fromContrat = null;
+        if ($request->filled('from_contrat')) {
+            $fromContrat = Contrat::with(['bien', 'locataire'])
+                ->select(['id', 'bien_id', 'locataire_id', 'type_bail', 'loyer_nu',
+                          'charges_mensuelles', 'tom_amount', 'indexation_annuelle',
+                          'taux_commission_snapshot', 'date_fin'])
+                ->find($request->from_contrat);
+            if ($fromContrat) {
+                $bienPreselectionne = $fromContrat->bien;
+                // Inclure le bien loué dans la liste pour ce renouvellement
+                if ($bienPreselectionne && ! $biens->contains('id', $bienPreselectionne->id)) {
+                    $biens->prepend($bienPreselectionne->load('proprietaire:id,name'));
+                }
+            }
+        }
+
         $typesBail = Contrat::TYPES_BAIL;
 
         return view('admin.contrats.create', compact(
             'biens',
             'locataires',
             'bienPreselectionne',
+            'fromContrat',
             'typesBail'
         ));
     }

@@ -209,6 +209,17 @@ class AgencySettingsController extends Controller
             ->with('success', 'Signature supprimée ✓');
     }
 
+    // ── Masque la checklist d'onboarding ─────────────────────────────────
+
+    public function dismissOnboarding(): RedirectResponse
+    {
+        $agency = Auth::user()->agency;
+        if ($agency) {
+            $agency->update(['onboarding_completed' => true]);
+        }
+        return redirect()->route('admin.dashboard');
+    }
+
     /**
      * Supprime un fichier du disque public s'il existe.
      * Best-effort : n'échoue jamais (un fichier orphelin est tolérable, une

@@ -123,6 +123,109 @@
         </div>
     </div>
 
+    {{-- ══════════════════════════════════════════════════════════════ --}}
+    {{-- CHECKLIST ONBOARDING — visible tant que l'agence n'est pas   --}}
+    {{-- totalement configurée ($onboarding !== null)                  --}}
+    {{-- ══════════════════════════════════════════════════════════════ --}}
+    @if($onboarding !== null)
+    @php
+        $steps = [
+            [
+                'done'  => $onboarding['settings_ok'],
+                'label' => 'Configurer votre agence',
+                'sub'   => 'Téléphone, adresse, logo',
+                'url'   => route('admin.agency.settings'),
+                'cta'   => 'Configurer →',
+                'icon'  => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06-.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>',
+            ],
+            [
+                'done'  => $onboarding['has_biens'],
+                'label' => 'Ajouter votre premier bien',
+                'sub'   => 'Appartement, villa, bureau…',
+                'url'   => route('admin.biens.create'),
+                'cta'   => 'Ajouter un bien →',
+                'icon'  => '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+            ],
+            [
+                'done'  => $onboarding['has_contrats'],
+                'label' => 'Créer un contrat de bail',
+                'sub'   => 'Associer un bien à un locataire',
+                'url'   => route('admin.contrats.create'),
+                'cta'   => 'Créer un contrat →',
+                'icon'  => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+            ],
+            [
+                'done'  => $onboarding['has_paiements'],
+                'label' => 'Enregistrer le premier paiement',
+                'sub'   => 'Valider le premier loyer encaissé',
+                'url'   => route('admin.paiements.create'),
+                'cta'   => 'Saisir un paiement →',
+                'icon'  => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
+            ],
+        ];
+        $done  = collect($steps)->where('done', true)->count();
+        $total = count($steps);
+        $pct   = round(($done / $total) * 100);
+        $allDone = $done === $total;
+    @endphp
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px 28px;margin-bottom:28px;position:relative;overflow:hidden">
+        {{-- Barre de fond décorative --}}
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#c9a84c {{ $pct }}%,#f3f4f6 {{ $pct }}%)"></div>
+
+        {{-- Header --}}
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px">
+            <div>
+                <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:3px">
+                    @if($allDone) Votre agence est prête ! 🎉 @else Bienvenue sur BimoTech — Commencez ici @endif
+                </div>
+                <div style="font-size:12px;color:#6b7280">
+                    @if($allDone)
+                        Toutes les étapes sont complètes. Votre agence est opérationnelle.
+                    @else
+                        {{ $done }}/{{ $total }} étapes complètes · {{ $pct }}% de configuration
+                    @endif
+                </div>
+            </div>
+            <form method="POST" action="{{ route('admin.onboarding.dismiss') }}" style="flex-shrink:0">
+                @csrf
+                <button type="submit"
+                        style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:18px;padding:2px 6px;line-height:1;border-radius:6px;transition:background .15s"
+                        onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'"
+                        title="{{ $allDone ? 'Fermer' : 'Masquer cette checklist' }}">×</button>
+            </form>
+        </div>
+
+        {{-- Étapes --}}
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+            @foreach($steps as $i => $step)
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:12px;border:1px solid {{ $step['done'] ? '#bbf7d0' : '#e5e7eb' }};background:{{ $step['done'] ? '#f0fdf4' : '#fafafa' }};transition:border-color .15s">
+                {{-- Icône état --}}
+                <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:{{ $step['done'] ? '#16a34a' : '#f3f4f6' }}">
+                    @if($step['done'])
+                        <svg style="width:15px;height:15px;color:#fff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    @else
+                        <svg style="width:14px;height:14px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">{!! $step['icon'] !!}</svg>
+                    @endif
+                </div>
+                {{-- Texte --}}
+                <div style="flex:1;min-width:0">
+                    <div style="font-size:13px;font-weight:600;color:{{ $step['done'] ? '#16a34a' : '#0d1117' }};margin-bottom:2px">
+                        {{ $step['label'] }}
+                    </div>
+                    <div style="font-size:11px;color:#9ca3af;margin-bottom:8px">{{ $step['sub'] }}</div>
+                    @if(!$step['done'])
+                        <a href="{{ $step['url'] }}"
+                           style="font-size:11px;font-weight:600;color:#c9a84c;text-decoration:none">
+                            {{ $step['cta'] }}
+                        </a>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- KPI GRID --}}
     <div class="kpi-grid">
         <div class="kpi-card gold">
@@ -197,7 +300,14 @@
                 <span class="badge g"><span class="bdot"></span>Ce mois</span>
             </div>
             <div style="position:relative;height:200px;padding:0 20px 20px">
-                <canvas id="chartLoyers"></canvas>
+                @if($loyersParMois->isEmpty())
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:13px;gap:8px">
+                        <svg style="width:32px;height:32px;opacity:.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        Aucune donnée — enregistrez le premier paiement
+                    </div>
+                @else
+                    <canvas id="chartLoyers"></canvas>
+                @endif
             </div>
         </div>
 
@@ -208,7 +318,14 @@
                 <span style="font-size:11px;color:#9ca3af">{{ $stats['nb_biens'] }} biens au total</span>
             </div>
             <div style="position:relative;height:180px;padding:20px 20px 0;display:flex;align-items:center;justify-content:center">
-                <canvas id="chartTypes"></canvas>
+                @if($repartitionBiens->isEmpty())
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:13px;gap:8px">
+                        <svg style="width:32px;height:32px;opacity:.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Aucun bien enregistré
+                    </div>
+                @else
+                    <canvas id="chartTypes"></canvas>
+                @endif
             </div>
             @php
                 $typeColors = [
@@ -246,12 +363,19 @@
         {{-- Net propriétaires --}}
         <div class="card">
             <div class="card-hd">
-                <div class="card-title">Net reversé par propriétaire</div>
+                <div class="card-title">Loyers reversés par propriétaire</div>
                 <a href="{{ route('admin.rapports.financier') }}" class="card-act">Rapport détaillé →</a>
             </div>
-            <div style="font-size:11px;color:#9ca3af;padding:0 22px 8px">12 derniers mois</div>
+            <div style="font-size:11px;color:#9ca3af;padding:0 22px 8px">Net après commission · 12 derniers mois</div>
             <div style="position:relative;height:220px;padding:0 20px 16px">
-                <canvas id="chartProprio"></canvas>
+                @if(count($netParProprietaire) === 0)
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:13px;gap:8px">
+                        <svg style="width:32px;height:32px;opacity:.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        Aucun paiement enregistré
+                    </div>
+                @else
+                    <canvas id="chartProprio"></canvas>
+                @endif
             </div>
         </div>
 
@@ -259,7 +383,14 @@
         <div class="card">
             <div class="card-hd"><div class="card-title">Statut paiements</div></div>
             <div style="position:relative;height:140px;padding:16px 20px;display:flex;align-items:center;justify-content:center">
-                <canvas id="chartStatuts"></canvas>
+                @if($statsMois['nb_payes'] === 0 && $nb_impayes_mois === 0)
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#9ca3af;font-size:12px;gap:6px;text-align:center">
+                        <svg style="width:28px;height:28px;opacity:.4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                        Aucun contrat actif
+                    </div>
+                @else
+                    <canvas id="chartStatuts"></canvas>
+                @endif
             </div>
             <div style="padding:4px 20px 16px;display:flex;flex-direction:column;gap:8px">
                 <div style="display:flex;justify-content:space-between;align-items:center">
@@ -419,7 +550,9 @@ const tooltipStyle = {
 };
 
 // ── 1. ÉVOLUTION LOYERS (area) ─────────────────────────────────────
-const ctx1 = document.getElementById('chartLoyers').getContext('2d');
+const elLoyers = document.getElementById('chartLoyers');
+if (elLoyers) {
+const ctx1 = elLoyers.getContext('2d');
 const gradGold = ctx1.createLinearGradient(0, 0, 0, 180);
 gradGold.addColorStop(0, 'rgba(201,168,76,0.22)');
 gradGold.addColorStop(1, 'rgba(201,168,76,0.00)');
@@ -479,6 +612,7 @@ new Chart(ctx1, {
         }
     }
 });
+} // end if elLoyers
 
 // ── 2. RÉPARTITION BIENS (donut) ───────────────────────────────────
 @php
@@ -491,6 +625,7 @@ new Chart(ctx1, {
         $typeColorsJs[] = $typeColors[$type] ?? '#9ca3af';
     }
 @endphp
+if (document.getElementById('chartTypes')) {
 new Chart(document.getElementById('chartTypes'), {
     type: 'doughnut',
     data: {
@@ -513,10 +648,12 @@ new Chart(document.getElementById('chartTypes'), {
         }
     }
 });
+}
 
-// ── 3. NET REVERSÉ PAR PROPRIÉTAIRE (horizontal bars) ─────────────
+// ── 3. LOYERS REVERSÉS PAR PROPRIÉTAIRE (horizontal bars) ─────────
 const netProprioLabels = @json(collect($netParProprietaire)->pluck('proprietaire'));
 const netProprioData   = @json(collect($netParProprietaire)->pluck('net_total'));
+if (document.getElementById('chartProprio')) {
 new Chart(document.getElementById('chartProprio'), {
     type: 'bar',
     data: {
@@ -552,14 +689,16 @@ new Chart(document.getElementById('chartProprio'), {
                 ticks: {
                     font: { size: 11 },
                     color: '#374151',
-                    callback: v => netProprioLabels[v]?.split(' ')[0] ?? v
+                    callback: v => netProprioLabels[v]?.split(' ')[0] ?? ''
                 }
             }
         }
     }
 });
+} // end if chartProprio
 
 // ── 4. STATUTS PAIEMENTS (donut mini) ──────────────────────────────
+if (document.getElementById('chartStatuts')) {
 new Chart(document.getElementById('chartStatuts'), {
     type: 'doughnut',
     data: {
@@ -582,6 +721,7 @@ new Chart(document.getElementById('chartStatuts'), {
         }
     }
 });
+} // end if chartStatuts
 
 // Les onglets sont des liens (<a>) avec ?periode=xxx — pas de JS nécessaire.
 </script>

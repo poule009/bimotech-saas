@@ -48,7 +48,14 @@
     </div>
 
     {{-- FILTRES --}}
-    <form method="GET" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap">
+    <form method="GET" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
+        <div style="position:relative;flex:1;min-width:200px;max-width:320px">
+            <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af;pointer-events:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="q" value="{{ request('q') }}"
+                   placeholder="Référence, adresse, ville, propriétaire…"
+                   style="width:100%;padding:8px 12px 8px 32px;border:1px solid #d0d7de;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#1c2128;background:#fff;outline:none;transition:border .15s"
+                   onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='#d0d7de'">
+        </div>
         <select name="statut" onchange="this.form.submit()"
                 style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid #d0d7de;border-radius:8px;padding:8px 12px;background:#fff;color:#1c2128;cursor:pointer">
             <option value="">Tous les statuts</option>
@@ -66,10 +73,13 @@
             <option value="commerce"    @selected(request('type')==='commerce')>Commerce</option>
             <option value="terrain"     @selected(request('type')==='terrain')>Terrain</option>
         </select>
-        @if(request()->hasAny(['statut','type']))
+        <button type="submit"
+                style="padding:8px 16px;border-radius:8px;border:none;background:var(--ac,#c9a84c);color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .15s"
+                onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Rechercher</button>
+        @if(request()->hasAny(['statut','type','q']))
             <a href="{{ route('admin.biens.index') }}"
                style="display:inline-flex;align-items:center;padding:8px 14px;border:1px solid #d0d7de;border-radius:8px;font-size:13px;color:#6b7280;text-decoration:none;background:#fff">
-                Effacer
+                Effacer les filtres
             </a>
         @endif
     </form>

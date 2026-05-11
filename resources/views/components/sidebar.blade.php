@@ -19,6 +19,7 @@
         ['section' => null,           'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
 
         ['section' => 'RELATIONS',    'route' => 'admin.users.locataires',    'label' => 'Locataires'],
+        ['section' => null,           'route' => 'admin.bailleurs.index',     'label' => 'Bailleurs'],
         ['section' => null,           'route' => 'admin.contrats.index',      'label' => 'Contrats'],
 
         ['section' => 'CAISSE',       'route' => 'admin.paiements.index',     'label' => 'Paiements & Quittances'],
@@ -101,9 +102,10 @@
     flex-direction: column;
     position: fixed;
     top: 0; left: 0;
-    z-index: 100;
+    z-index: 110;
     border-right: 1px solid rgba(255,255,255,.05);
     overflow: hidden;
+    transition: transform .25s ease;
 }
 
 /* ── Logo zone ── */
@@ -368,15 +370,17 @@
 
     {{-- Footer profil --}}
     <div class="bm-footer">
-        <div class="bm-profile">
-            <div class="bm-avatar">
-                {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
-            </div>
+        @php
+            $nameParts = explode(' ', trim($user->name ?? 'U'));
+            $initials  = strtoupper(substr($nameParts[0], 0, 1) . (isset($nameParts[1]) ? substr($nameParts[1], 0, 1) : ''));
+        @endphp
+        <a href="{{ route('profile.edit') }}" class="bm-profile" style="text-decoration:none" title="Mon profil">
+            <div class="bm-avatar">{{ $initials }}</div>
             <div class="bm-profile-info">
                 <div class="bm-profile-name">{{ $user->name ?? '' }}</div>
                 <div class="bm-profile-email">{{ $user->email ?? '' }}</div>
             </div>
-        </div>
+        </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="bm-logout">

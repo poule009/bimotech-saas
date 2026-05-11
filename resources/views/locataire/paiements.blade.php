@@ -58,7 +58,21 @@ $modes = [
     <div class="card">
         <div class="card-hd">
             <div class="card-title">Paiements validés</div>
-            <span class="badge-count">{{ $paiements->total() }} au total</span>
+            <div style="display:flex;align-items:center;gap:10px">
+                @if($anneesDisponibles->count() > 1)
+                <form method="GET" action="{{ route('locataire.paiements') }}" style="display:flex;align-items:center;gap:6px">
+                    <label style="font-size:11px;color:#6b7280;white-space:nowrap">Filtrer par année :</label>
+                    <select name="annee" onchange="this.form.submit()"
+                            style="padding:5px 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;color:#374151;background:#fff;cursor:pointer">
+                        <option value="">Toutes</option>
+                        @foreach($anneesDisponibles as $a)
+                            <option value="{{ $a }}" {{ $annee == $a ? 'selected' : '' }}>{{ $a }}</option>
+                        @endforeach
+                    </select>
+                </form>
+                @endif
+                <span class="badge-count">{{ $paiements->total() }} au total</span>
+            </div>
         </div>
 
         @forelse($paiements as $p)

@@ -506,21 +506,36 @@ class PaiementController extends Controller
     // MES PAIEMENTS (LOCATAIRE)
     // ─────────────────────────────────────────────────────────────────────
 
-    public function mesPaiements(): View
+    public function mesPaiements(Request $request): View
     {
         $this->authorize('isLocataire');
 
         $user = Auth::user();
 
-        $paiements = Paiement::whereHas('contrat', fn($q) => $q->where('locataire_id', $user->id))
+        $annee = $request->input('annee') ? (int) $request->input('annee') : null;
+
+        $query = Paiement::whereHas('contrat', fn($q) => $q->where('locataire_id', $user->id))
             ->where('statut', 'valide')
             ->select([
                 'id', 'contrat_id', 'periode', 'date_paiement',
                 'montant_encaisse', 'mode_paiement', 'reference_paiement',
             ])
-            ->orderByDesc('periode')
-            ->paginate(12);
+            ->orderByDesc('periode');
 
-        return view('locataire.paiements', compact('paiements'));
+        if ($annee) {
+            $query->whereYear('periode', $annee);
+        }
+
+        $paiements = $query->paginate(12)->withQueryString();
+
+        // Années disponibles pour le sélecteur (sans filtre d'année)
+        $anneesDisponibles = Paiement::whereHas('contrat', fn($q) => $q->where('locataire_id', $user->id))
+            ->where('statut', 'valide')
+            ->selectRaw('YEAR(periode) AS annee')
+            ->groupBy('annee')
+            ->orderByDesc('annee')
+            ->pluck('annee');
+
+        return view('locataire.paiements', compact('paiements', 'annee', 'anneesDisponibles'));
     }
 }

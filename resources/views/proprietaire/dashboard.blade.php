@@ -126,13 +126,22 @@
                 {{ now()->translatedFormat('l d F Y') }} · Aperçu de votre patrimoine immobilier
             </p>
         </div>
-        <a href="{{ route('admin.biens.index') }}"
-           style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fff;transition:all .15s"
-           onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-           onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
-            <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-            Mes biens
-        </a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a href="{{ route('proprietaire.releve-pdf') }}" target="_blank"
+               style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #c9a84c;border-radius:9px;font-size:12px;font-weight:600;color:#8a6e2f;text-decoration:none;background:#fffbeb;transition:all .15s"
+               onmouseover="this.style.background='#fef9c3'" onmouseout="this.style.background='#fffbeb'"
+               title="Télécharger votre relevé de gestion PDF">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+                Mon relevé PDF
+            </a>
+            <a href="{{ route('admin.biens.index') }}"
+               style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fff;transition:all .15s"
+               onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
+               onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                Mes biens
+            </a>
+        </div>
     </div>
 
     {{-- KPI ROW --}}

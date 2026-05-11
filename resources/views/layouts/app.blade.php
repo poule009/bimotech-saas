@@ -154,7 +154,9 @@
         /* ── Barre de soumission (formulaires) ── */
         .submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e8e3d8;background:#f5f2ea; }
         .btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e8e3d8;background:#fffef9;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
-        .btn-submit { padding:8px 18px;border-radius:8px;border:none;background:#2a4a7f;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px; }
+        /* btn-submit = même couleur que btn-primary (couleur agence) — cohérence entre toutes les pages */
+        .btn-submit { padding:8px 18px;border-radius:8px;border:none;background:var(--ac,#c9a84c);color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s; }
+        .btn-submit:hover { opacity:.85; }
 
         /* ── État vide ── */
         .empty-state { padding:56px 20px;text-align:center; }
@@ -186,6 +188,76 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .btn-spinning { opacity:.7;pointer-events:none; }
         .btn-spin-icon { display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px; }
+
+        /* ── Hamburger (mobile) ── */
+        .bm-hamburger { display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;border:none;background:transparent;cursor:pointer;padding:6px;flex-shrink:0; }
+        .bm-hamburger span { display:block;height:2px;border-radius:2px;background:#1c2128;transition:all .22s; }
+        .bm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;opacity:0;transition:opacity .25s; }
+        .bm-overlay.open { display:block;opacity:1; }
+
+        /* ─────────────── RESPONSIVE ──────────────────────────────── */
+        @media (max-width: 768px) {
+
+            /* Sidebar masquée par défaut, slide-in depuis la gauche */
+            .bm-sidebar-wrap {
+                transform: translateX(-100%);
+                transition: transform .25s ease;
+                z-index: 110;
+            }
+            .bm-sidebar-wrap.open { transform: translateX(0); }
+
+            /* Contenu principal : plus de marge gauche */
+            .main-wrapper { margin-left: 0; }
+
+            /* Topbar : hamburger visible */
+            .bm-hamburger { display:flex; }
+
+            /* Moins de padding sur les pages */
+            .page-content { padding: 1rem; }
+
+            /* ── Grilles formulaires → colonne unique ── */
+            .form-row,
+            .form-row-3      { grid-template-columns: 1fr !important; }
+
+            /* Formulaires avec récap (contrats, paiements, biens) */
+            .form-grid       { grid-template-columns: 1fr !important; }
+
+            /* Récap sticky → non-sticky sur mobile (suit le formulaire) */
+            .recap-card      { position:static !important; }
+
+            /* Sidebar de création (users/create) */
+            .create-page     { grid-template-columns: 1fr !important; }
+            .create-sidebar  { position:static !important; height:auto !important; flex-direction:row !important; flex-wrap:wrap; gap:6px; padding:16px; }
+            .nav-section     { display:none; }
+
+            /* ── Grilles KPI → 2 colonnes ── */
+            .kpi-row,
+            .kpi-grid        { grid-template-columns: 1fr 1fr !important; }
+
+            /* ── Grilles dashboard → colonne unique ── */
+            .g2, .g3, .g4   { grid-template-columns: 1fr !important; }
+
+            /* ── Submit bar → sticky en bas sur mobile ── */
+            .submit-bar {
+                position: sticky;
+                bottom: 0;
+                z-index: 50;
+                flex-direction: row;
+                box-shadow: 0 -2px 12px rgba(0,0,0,.08);
+            }
+            .btn-submit,
+            .btn-cancel      { flex: 1; justify-content:center; padding:11px 16px; }
+
+            /* ── Tables : scroll horizontal ── */
+            .table-card,
+            .dt-wrap         { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+            /* ── Topbar breadcrumb tronqué ── */
+            .topbar-breadcrumb { max-width: calc(100vw - 120px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+            /* ── Séparateur recap visible sur mobile ── */
+            .recap-mobile-sep { display:block !important; }
+        }
     </style>
 
     {{ $styles ?? '' }}
@@ -211,18 +283,46 @@
 </head>
 <body>
 
+    {{-- Overlay mobile sidebar ── --}}
+    <div class="bm-overlay" id="bm-overlay"></div>
+
     <x-sidebar :agency="auth()->user()?->agency" />
 
     <div class="main-wrapper">
 
         <header class="topbar">
-            <div class="topbar-breadcrumb">
-                <a href="{{ route('dashboard') }}" style="color:inherit;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='inherit'">{{ auth()->user()?->agency?->name ?? 'BimoTech' }}</a>
-                <span style="color:#d0d7de">›</span>
-                <strong>{{ $header ?? 'Dashboard' }}</strong>
+            <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                <button class="bm-hamburger" id="bm-hamburger-btn" aria-label="Ouvrir le menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="topbar-breadcrumb">
+                    <a href="{{ route('dashboard') }}" style="color:inherit;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='inherit'">{{ auth()->user()?->agency?->name ?? 'BimoTech' }}</a>
+                    <span style="color:#d0d7de">›</span>
+                    <strong>{{ $header ?? 'Tableau de bord' }}</strong>
+                </div>
             </div>
             <div style="display:flex;align-items:center;gap:12px">
                 {{ $topbarActions ?? '' }}
+
+                @auth
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
+                {{-- ── Recherche globale ── --}}
+                <div style="position:relative" id="global-search-wrap">
+                    <div style="position:relative">
+                        <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#9ca3af;pointer-events:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="global-search-input"
+                               placeholder="Rechercher…"
+                               autocomplete="off"
+                               style="width:200px;padding:7px 12px 7px 28px;border:1px solid #e8e3d8;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#1c2128;background:#f9f7f2;outline:none;transition:all .2s"
+                               onfocus="this.style.width='280px';this.style.borderColor='#c9a84c';this.style.background='#fff'"
+                               onblur="if(!document.getElementById('global-search-results').matches(':hover')){this.style.width='200px';this.style.borderColor='#e8e3d8';this.style.background='#f9f7f2';setTimeout(()=>document.getElementById('global-search-results').style.display='none',150)}">
+                    </div>
+                    <div id="global-search-results"
+                         style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:340px;background:#fff;border:1px solid #e8e3d8;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;z-index:500">
+                    </div>
+                </div>
+                @endif
+                @endauth
             </div>
         </header>
 
@@ -237,8 +337,16 @@
             @if(session('error'))
                 <div class="flash-error"><span>{{ session('error') }}</span><button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button></div>
             @endif
-            @if($errors->any() && !$errors->hasBag('default') === false)
-                {{-- Les erreurs de formulaire sont gérées dans chaque vue --}}
+            @if($errors->any())
+                <div class="flash-error">
+                    <span>
+                        <strong>Veuillez corriger les erreurs suivantes :</strong>
+                        @foreach($errors->all() as $e)
+                            <br>{{ $e }}
+                        @endforeach
+                    </span>
+                    <button class="flash-close" onclick="this.closest('.flash-error').remove()">×</button>
+                </div>
             @endif
 
             {{-- SLOT PRINCIPAL — contenu de la vue --}}
@@ -340,14 +448,122 @@
             btn.insertAdjacentHTML('afterbegin', '<span class="btn-spin-icon"></span>');
         });
 
-        // ── Flash messages auto-dismiss (5 s) ──────────────────────────────────
-        document.querySelectorAll('.flash-success,.flash-warning,.flash-error').forEach(function (el) {
+        // ── Flash messages auto-dismiss ─────────────────────────────────────────
+        // Succès/avertissement : 5 s — Erreurs : 12 s (plus de temps pour lire)
+        document.querySelectorAll('.flash-success,.flash-warning').forEach(function (el) {
             setTimeout(function () {
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(-6px)';
                 setTimeout(function () { el.remove(); }, 420);
             }, 5000);
         });
+        document.querySelectorAll('.flash-error').forEach(function (el) {
+            setTimeout(function () {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-6px)';
+                setTimeout(function () { el.remove(); }, 420);
+            }, 12000);
+        });
+
+        // ── Recherche globale ────────────────────────────────────────────────────
+        (function () {
+            var input   = document.getElementById('global-search-input');
+            var results = document.getElementById('global-search-results');
+            if (!input || !results) return;
+
+            var icons = {
+                home: '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',
+                file: '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+                user: '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+            };
+            var badgeColors = {
+                actif: '#dcfce7;color:#16a34a',
+                loue:  '#dcfce7;color:#16a34a',
+                disponible: '#dbeafe;color:#1d4ed8',
+                résilié: '#fee2e2;color:#dc2626',
+                expiré: '#f3f4f6;color:#6b7280',
+            };
+
+            var timer = null;
+            input.addEventListener('input', function () {
+                clearTimeout(timer);
+                var q = input.value.trim();
+                if (q.length < 2) { results.style.display = 'none'; return; }
+                timer = setTimeout(function () { doSearch(q); }, 250);
+            });
+
+            function doSearch(q) {
+                fetch('{{ route('admin.search') }}?q=' + encodeURIComponent(q), {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (data) { renderResults(data.results); })
+                .catch(function () {});
+            }
+
+            function renderResults(items) {
+                if (!items.length) {
+                    results.innerHTML = '<div style="padding:20px;text-align:center;font-size:13px;color:#9ca3af">Aucun résultat</div>';
+                    results.style.display = 'block';
+                    return;
+                }
+                var html = '';
+                var lastType = null;
+                items.forEach(function (item) {
+                    if (item.type !== lastType) {
+                        html += '<div style="padding:6px 14px 2px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb">' + item.type + '</div>';
+                        lastType = item.type;
+                    }
+                    var bc = badgeColors[item.badge] || null;
+                    var badgeHtml = bc ? '<span style="display:inline-block;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:600;background:' + bc + ';margin-left:6px">' + item.badge + '</span>' : '';
+                    html += '<a href="' + item.url + '" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;border-bottom:1px solid #f3f4f6;transition:background .1s" onmouseover="this.style.background=\'#f9fafb\'" onmouseout="this.style.background=\'\'">'+
+                        '<div style="width:28px;height:28px;border-radius:7px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+                            '<svg style="width:13px;height:13px;color:#6b7280" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + (icons[item.icon] || '') + '</svg>'+
+                        '</div>'+
+                        '<div style="flex:1;min-width:0">'+
+                            '<div style="font-size:13px;font-weight:500;color:#0d1117;display:flex;align-items:center;gap:4px">' + item.label + badgeHtml + '</div>'+
+                            '<div style="font-size:11px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + item.sub + '</div>'+
+                        '</div>'+
+                    '</a>';
+                });
+                results.innerHTML = html;
+                results.style.display = 'block';
+            }
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') { results.style.display = 'none'; input.blur(); }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); input.focus(); }
+            });
+        })();
+
+        // ── Sidebar mobile toggle ────────────────────────────────────────────────
+        (function () {
+            var sidebar  = document.querySelector('.bm-sidebar-wrap');
+            var overlay  = document.getElementById('bm-overlay');
+            var hamburger = document.getElementById('bm-hamburger-btn');
+            if (!sidebar || !hamburger) return;
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+                hamburger.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+                hamburger.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            hamburger.addEventListener('click', function () {
+                sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+            });
+            overlay.addEventListener('click', closeSidebar);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeSidebar();
+            });
+        })();
 
         // ── PWA ─────────────────────────────────────────────────────────────────
         if ('serviceWorker' in navigator) {

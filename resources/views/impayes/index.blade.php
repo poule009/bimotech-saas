@@ -203,11 +203,13 @@
                         </td>
                         <td>
                             <div style="display:flex;align-items:center;justify-content:center;gap:4px">
-                                {{-- Enregistrer paiement --}}
-                                <a href="{{ route('admin.paiements.create', ['contrat_id' => $item['contrat']->id]) }}"
-                                   class="act-btn green" title="Enregistrer le paiement">
+                                {{-- Paiement rapide --}}
+                                <button type="button"
+                                        class="act-btn green"
+                                        title="Saisir le paiement rapidement"
+                                        onclick="ouvrirPaiementRapide({{ $item['contrat']->id }}, '{{ addslashes($item['contrat']->locataire?->name ?? '—') }}', '{{ addslashes($item['contrat']->bien?->reference ?? '—') }}', {{ $item['montant_du'] }}, '{{ $mois }}/{{ $annee }}')">
                                     <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                </a>
+                                </button>
                                 {{-- Voir contrat --}}
                                 <a href="{{ route('admin.contrats.show', $item['contrat']) }}"
                                    class="act-btn" title="Voir le contrat">
@@ -215,12 +217,16 @@
                                 </a>
                                 {{-- Relance --}}
                                 <form method="POST"
-                                      action="{{ route('admin.impayes.relance', $item['contrat']) }}">
+                                      action="{{ route('admin.impayes.relance', $item['contrat']) }}"
+                                      data-confirm="Un email de relance sera envoyé à {{ $item['contrat']->locataire?->name ?? 'ce locataire' }}."
+                                      data-confirm-title="Envoyer une relance ?"
+                                      data-confirm-ok="Envoyer"
+                                      data-confirm-color="#d97706"
+                                      data-confirm-icon-bg="#fef9c3">
                                     @csrf
                                     <input type="hidden" name="mois" value="{{ $mois }}">
                                     <input type="hidden" name="annee" value="{{ $annee }}">
-                                    <button type="submit" class="btn-relance" title="Envoyer relance email"
-                                            onclick="return confirm('Envoyer une relance email à ce locataire ?')">
+                                    <button type="submit" class="btn-relance" title="Envoyer relance email">
                                         <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                                         Relancer
                                     </button>
@@ -315,4 +321,106 @@
     @endif
 
 </div>
+{{-- ══ MODALE PAIEMENT RAPIDE ══════════════════════════════════════════ --}}
+<div id="modal-paiement-rapide"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:14px;padding:24px;width:440px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:confirmIn .18s ease">
+        {{-- Header --}}
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+            <div>
+                <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117" id="pr-title">Enregistrer un paiement</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:2px" id="pr-sub"></div>
+            </div>
+            <button onclick="fermerPaiementRapide()"
+                    style="background:none;border:none;cursor:pointer;color:#9ca3af;font-size:20px;line-height:1;padding:0">×</button>
+        </div>
+
+        <form method="POST" action="{{ route('admin.paiements.store') }}" id="form-paiement-rapide">
+            @csrf
+            <input type="hidden" name="contrat_id" id="pr-contrat-id">
+            <input type="hidden" name="statut" value="valide">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                <div>
+                    <label class="form-label">Période <span class="req">*</span></label>
+                    <input type="month" name="periode" id="pr-periode" class="form-input"
+                           value="{{ now()->format('Y-m') }}" required>
+                </div>
+                <div>
+                    <label class="form-label">Date de paiement <span class="req">*</span></label>
+                    <input type="date" name="date_paiement" id="pr-date" class="form-input"
+                           value="{{ now()->format('Y-m-d') }}" required>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                <div>
+                    <label class="form-label">Montant encaissé (FCFA) <span class="req">*</span></label>
+                    <input type="number" name="montant_encaisse" id="pr-montant" class="form-input"
+                           min="0" step="500" required>
+                    <div style="font-size:11px;color:#9ca3af;margin-top:3px" id="pr-montant-hint"></div>
+                </div>
+                <div>
+                    <label class="form-label">Mode de paiement <span class="req">*</span></label>
+                    <select name="mode_paiement" class="form-select" required>
+                        <option value="especes">Espèces</option>
+                        <option value="wave">Wave</option>
+                        <option value="orange_money">Orange Money</option>
+                        <option value="virement">Virement</option>
+                        <option value="cheque">Chèque</option>
+                        <option value="free_money">Free Money</option>
+                        <option value="e_money">E-Money</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <label class="form-label">Notes <span class="opt">(optionnel)</span></label>
+                <textarea name="notes" class="form-textarea" rows="2" placeholder="Observations…"></textarea>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;gap:8px">
+                <button type="button" onclick="fermerPaiementRapide()" class="btn-cancel">Annuler</button>
+                <button type="submit" class="btn-submit" id="pr-submit-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+                    Valider le paiement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function ouvrirPaiementRapide(contratId, locataire, bien, montant, periode) {
+    document.getElementById('pr-contrat-id').value = contratId;
+    document.getElementById('pr-title').textContent  = 'Paiement — ' + bien;
+    document.getElementById('pr-sub').textContent    = locataire + ' · ' + periode;
+    document.getElementById('pr-montant').value      = montant;
+    document.getElementById('pr-montant-hint').textContent = 'Loyer attendu : ' + Number(montant).toLocaleString('fr-FR') + ' F';
+
+    // Convertir la période "MM/YYYY" en "YYYY-MM" pour l'input month
+    var parts = periode.split('/');
+    if (parts.length === 2) {
+        document.getElementById('pr-periode').value = parts[1] + '-' + parts[0].padStart(2, '0');
+    }
+
+    var modal = document.getElementById('modal-paiement-rapide');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('pr-montant').focus();
+}
+
+function fermerPaiementRapide() {
+    document.getElementById('modal-paiement-rapide').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+document.getElementById('modal-paiement-rapide').addEventListener('click', function(e) {
+    if (e.target === this) fermerPaiementRapide();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') fermerPaiementRapide();
+});
+</script>
+
 @endsection

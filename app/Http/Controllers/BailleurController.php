@@ -136,10 +136,18 @@ class BailleurController extends Controller
 
     public function relevePdf(int $userId): \Illuminate\Http\Response
     {
-        $this->authorize('isStaff');
+        $currentUser = Auth::user();
 
-        $agencyId = Auth::user()->agency_id;
-        $agency   = Auth::user()->agency;
+        // Un admin peut voir le relevé de n'importe quel propriétaire de son agence.
+        // Un propriétaire peut télécharger uniquement son propre relevé.
+        if ($currentUser->role === 'proprietaire') {
+            abort_unless($currentUser->id === $userId, 403);
+        } else {
+            $this->authorize('isStaff');
+        }
+
+        $agencyId = $currentUser->agency_id;
+        $agency   = $currentUser->agency;
 
         $user = User::where('id', $userId)
             ->where('agency_id', $agencyId)

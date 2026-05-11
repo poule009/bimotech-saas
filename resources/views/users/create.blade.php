@@ -151,13 +151,7 @@
     display:flex; align-items:center; gap:12px; justify-content:flex-end;
     margin:0 -40px -60px;
 }
-.btn-submit {
-    display:inline-flex; align-items:center; gap:8px;
-    padding:12px 28px; background:var(--dark); color:#fff;
-    border:none; border-radius:11px; font-size:14px; font-weight:600;
-    font-family:'DM Sans',sans-serif; cursor:pointer; transition:all .15s;
-}
-.btn-submit:hover { background:#1a2332; }
+/* btn-submit hérite du layout global (couleur agence) */
 .btn-submit svg { width:15px; height:15px; }
 .btn-cancel {
     padding:12px 22px; background:#fff; color:#6b7280;
@@ -191,33 +185,33 @@
 
         <div class="nav-section">Sections</div>
 
-        <button class="nav-item active" onclick="scrollTo('sec-identite')">
+        <button class="nav-item active" onclick="scrollToSection('sec-identite')">
             <div class="nav-item-dot"></div>
             Identité
         </button>
-        <button class="nav-item" onclick="scrollTo('sec-acces')">
+        <button class="nav-item" onclick="scrollToSection('sec-acces')">
             <div class="nav-item-dot"></div>
             Accès & Mot de passe
         </button>
         @if($role === 'proprietaire')
-        <button class="nav-item" onclick="scrollTo('sec-paiement')">
+        <button class="nav-item" onclick="scrollToSection('sec-paiement')">
             <div class="nav-item-dot"></div>
             Mode de paiement
         </button>
-        <button class="nav-item" onclick="scrollTo('sec-fiscal')">
+        <button class="nav-item" onclick="scrollToSection('sec-fiscal')">
             <div class="nav-item-dot"></div>
             Fiscal
         </button>
         @else
-        <button class="nav-item" onclick="scrollTo('sec-type')">
+        <button class="nav-item" onclick="scrollToSection('sec-type')">
             <div class="nav-item-dot"></div>
             Type & Statut fiscal
         </button>
-        <button class="nav-item" onclick="scrollTo('sec-pro')">
+        <button class="nav-item" onclick="scrollToSection('sec-pro')">
             <div class="nav-item-dot"></div>
             Situation professionnelle
         </button>
-        <button class="nav-item" onclick="scrollTo('sec-urgence')">
+        <button class="nav-item" onclick="scrollToSection('sec-urgence')">
             <div class="nav-item-dot"></div>
             Contact d'urgence
         </button>
@@ -610,9 +604,8 @@
 
 <script>
 // ── Scroll navigation sidebar ──────────────────────────────────────────────
-function scrollTo(id) {
+function scrollToSection(id) {
     document.getElementById(id)?.scrollIntoView({ behavior:'smooth', block:'start' });
-    // Mettre à jour l'état actif de la nav
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     event.currentTarget.classList.add('active');
 }

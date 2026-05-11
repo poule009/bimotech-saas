@@ -145,6 +145,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function () {
 
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
+        Route::post('onboarding/dismiss', [AgencySettingsController::class, 'dismissOnboarding'])->name('onboarding.dismiss');
+        Route::get('search', \App\Http\Controllers\SearchController::class)->name('search');
 
         // Paramètres agence
         Route::get('agency/settings',   [AgencySettingsController::class, 'edit'])->name('agency.settings');
@@ -276,6 +278,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('isProprietaire')->prefix('proprietaire')->name('proprietaire.')->group(function () {
         Route::get('dashboard',                    ProprietaireDashboardController::class)->name('dashboard');
         Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
+        Route::get('releve-pdf', function () {
+            return app(\App\Http\Controllers\BailleurController::class)->relevePdf(auth()->id());
+        })->name('releve-pdf');
     });
 
     // ── Locataire ──────────────────────────────────────────────────────────

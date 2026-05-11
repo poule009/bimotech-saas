@@ -24,6 +24,15 @@ class BienController extends Controller
             'contratActif.locataire:id,name,telephone',
         ]);
 
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($sub) use ($q) {
+                $sub->where('reference', 'like', "%{$q}%")
+                    ->orWhere('adresse',   'like', "%{$q}%")
+                    ->orWhere('ville',     'like', "%{$q}%")
+                    ->orWhereHas('proprietaire', fn ($p) => $p->where('name', 'like', "%{$q}%"));
+            });
+        }
         if ($request->filled('statut')) {
             $query->where('statut', $request->statut);
         }

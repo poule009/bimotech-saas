@@ -102,6 +102,14 @@
             Modifier
         </a>
         @endif
+        @if(in_array($contrat->statut, ['actif', 'expiré']))
+        <a href="{{ route('admin.contrats.create', ['from_contrat' => $contrat->id]) }}"
+           class="btn-act"
+           style="background:#ede9fe;color:#7c3aed;border:1px solid #ddd6fe">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Renouveler
+        </a>
+        @endif
         <a href="{{ route('admin.biens.show', $contrat->bien) }}" class="btn-act btn-outline">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
             Voir le bien
