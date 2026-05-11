@@ -157,7 +157,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Paiements — écriture
         Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])->name('paiements.dernier-periode');
-        Route::get('paiements/fiscal-preview/{contrat}',  [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview');
+        if (config('features.fiscalite')) {
+            Route::get('paiements/fiscal-preview/{contrat}', [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview');
+        }
         Route::get('paiements/create',               [PaiementController::class, 'create'])->name('paiements.create');
         Route::post('paiements',                     [PaiementController::class, 'store'])->name('paiements.store');
         Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
@@ -196,35 +198,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('template/biens',            [ImportController::class, 'templateBiens'])->name('template.biens');
         });
 
-        // Bilans fiscaux
-        Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->group(function () {
-            Route::get('/',                         [BilanFiscalController::class, 'index'])->name('index');
-            Route::post('{proprietaire}/calculate', [BilanFiscalController::class, 'calculate'])->name('calculate');
-            Route::get('{proprietaire}',            [BilanFiscalController::class, 'show'])->name('show');
-            Route::get('{proprietaire}/pdf',        [BilanFiscalController::class, 'exportPdf'])->name('pdf');
-        });
+        // Module fiscal (désactivé via FEATURE_FISCALITE=false dans .env)
+        if (config('features.fiscalite')) {
+            Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->group(function () {
+                Route::get('/',                         [BilanFiscalController::class, 'index'])->name('index');
+                Route::post('{proprietaire}/calculate', [BilanFiscalController::class, 'calculate'])->name('calculate');
+                Route::get('{proprietaire}',            [BilanFiscalController::class, 'show'])->name('show');
+                Route::get('{proprietaire}/pdf',        [BilanFiscalController::class, 'exportPdf'])->name('pdf');
+            });
 
-        // États trimestriels BRS — Art. 200 §5 CGI Sénégal
-        Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->group(function () {
-            Route::get('/',                                [EtatTrimestrielController::class, 'index'])->name('index');
-            Route::get('{annee}/{trimestre}',              [EtatTrimestrielController::class, 'show'])->name('show');
-            Route::get('{annee}/{trimestre}/pdf',          [EtatTrimestrielController::class, 'exportPdf'])->name('pdf');
-            Route::get('{annee}/{trimestre}/csv',          [EtatTrimestrielController::class, 'exportCsv'])->name('csv');
-        });
+            Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->group(function () {
+                Route::get('/',                                [EtatTrimestrielController::class, 'index'])->name('index');
+                Route::get('{annee}/{trimestre}',              [EtatTrimestrielController::class, 'show'])->name('show');
+                Route::get('{annee}/{trimestre}/pdf',          [EtatTrimestrielController::class, 'exportPdf'])->name('pdf');
+                Route::get('{annee}/{trimestre}/csv',          [EtatTrimestrielController::class, 'exportCsv'])->name('csv');
+            });
 
-        // Déclarations TVA mensuelle agence — Art. 369-370 CGI Sénégal
-        Route::prefix('tva-agence')->name('tva-agence.')->group(function () {
-            Route::get('/',                              [TvaAgenceController::class, 'index'])->name('index');
-            Route::get('{annee}/{mois}',                 [TvaAgenceController::class, 'show'])->name('show');
-            Route::put('{annee}/{mois}',                 [TvaAgenceController::class, 'update'])->name('update');
-            Route::post('{annee}/{mois}/valider',        [TvaAgenceController::class, 'valider'])->name('valider');
-            Route::post('{annee}/{mois}/deposee',        [TvaAgenceController::class, 'marquerDeposee'])->name('deposee');
-            Route::get('{annee}/{mois}/pdf',             [TvaAgenceController::class, 'exportPdf'])->name('pdf');
-            Route::post('{annee}/{mois}/recalculer',     [TvaAgenceController::class, 'recalculer'])->name('recalculer');
-        });
+            Route::prefix('tva-agence')->name('tva-agence.')->group(function () {
+                Route::get('/',                              [TvaAgenceController::class, 'index'])->name('index');
+                Route::get('{annee}/{mois}',                 [TvaAgenceController::class, 'show'])->name('show');
+                Route::put('{annee}/{mois}',                 [TvaAgenceController::class, 'update'])->name('update');
+                Route::post('{annee}/{mois}/valider',        [TvaAgenceController::class, 'valider'])->name('valider');
+                Route::post('{annee}/{mois}/deposee',        [TvaAgenceController::class, 'marquerDeposee'])->name('deposee');
+                Route::get('{annee}/{mois}/pdf',             [TvaAgenceController::class, 'exportPdf'])->name('pdf');
+                Route::post('{annee}/{mois}/recalculer',     [TvaAgenceController::class, 'recalculer'])->name('recalculer');
+            });
 
-        // Échéances fiscales agence (CEL, IS, calendrier annuel)
-        Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index');
+            Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index');
+        }
 
         // Rapports
         Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier');

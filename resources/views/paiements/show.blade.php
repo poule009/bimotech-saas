@@ -156,6 +156,7 @@
                 </div>
             </div>
 
+            @if(config('features.fiscalite'))
             {{-- DÉCOMPTE FISCAL COMPLET --}}
             <div class="card">
                 <div class="card-hd">
@@ -168,6 +169,7 @@
                     <x-fiscal.decompte-paiement :paiement="$paiement" />
                 </div>
             </div>
+            @endif
 
             {{-- NOTES --}}
             @if($paiement->notes)

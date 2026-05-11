@@ -267,6 +267,7 @@
                     </div>
                 </div>
 
+                @if(config('features.fiscalite'))
                 {{-- PARAMÈTRES FISCAUX --}}
                 <div class="card">
                     <div class="card-hd">
@@ -279,6 +280,7 @@
                         @include('admin.contrats._section-fiscal', ['contrat' => null])
                     </div>
                 </div>
+                @endif
 
                 {{-- GARANT --}}
                 <div class="card">
