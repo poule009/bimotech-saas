@@ -236,7 +236,7 @@
                         <span class="fp-val gold" style="font-size:14px">{{ number_format($paiement->total_encaissement_initial, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
-                    @if(($paiement->brs_amount ?? 0) > 0)
+                    @if(config('features.fiscalite') && ($paiement->brs_amount ?? 0) > 0)
                     <div class="fp-row">
                         <span class="fp-lbl" style="color:rgba(248,113,113,.7)">BRS retenu</span>
                         <span class="fp-val" style="color:#f87171">- {{ number_format($paiement->brs_amount, 0, ',', ' ') }} F</span>

@@ -367,7 +367,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
                 <td colspan="2">Commission TTC</td>
                 <td class="right" style="font-weight:700;color:#c9a84c">{{ number_format($commTtc, 0, ',', ' ') }} FCFA</td>
             </tr>
-            @if($brs > 0)
+            @if(config('features.fiscalite') && $brs > 0)
             <tr style="background:#fff1f2">
                 <td colspan="2" style="color:#9f1239">BRS — Retenue à la source ({{ $tauxBrs }}% × (loyer TTC + TOM) — Art. 201 CGI SN)</td>
                 <td class="right" style="color:#dc2626;font-weight:700">- {{ number_format($brs, 0, ',', ' ') }} FCFA</td>
@@ -403,9 +403,9 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     <div style="background:#0d1117;border-radius:6px;padding:12px 16px;margin-bottom:12px;display:table;width:100%">
         <div style="display:table-cell;vertical-align:middle">
             <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(201,168,76,.6);margin-bottom:3px">
-                NET À PAYER PAR LE LOCATAIRE{{ $brs > 0 ? ' (après retenue BRS)' : '' }}
+                NET À PAYER PAR LE LOCATAIRE{{ (config('features.fiscalite') && $brs > 0) ? ' (après retenue BRS)' : '' }}
             </div>
-            @if($brs > 0)
+            @if(config('features.fiscalite') && $brs > 0)
             <div style="font-size:8px;color:rgba(255,255,255,.4)">
                 Le locataire retient {{ number_format($brs, 0, ',', ' ') }} FCFA de BRS et le verse directement à la DGI (Art. 201 CGI SN)
             </div>
@@ -422,7 +422,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px 16px;margin-bottom:12px;display:table;width:100%">
         <div style="display:table-cell;vertical-align:middle">
             <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#15803d;margin-bottom:3px">
-                NET À VOUS REVERSER (après commission agence{{ $brs > 0 ? ' et BRS' : '' }})
+                NET À VOUS REVERSER (après commission agence{{ (config('features.fiscalite') && $brs > 0) ? ' et BRS' : '' }})
             </div>
         </div>
         <div style="display:table-cell;vertical-align:middle;text-align:right">
