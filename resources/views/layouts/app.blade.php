@@ -465,6 +465,67 @@
             }, 12000);
         });
 
+        // ── Tri de colonnes ──────────────────────────────────────────────────────
+        // Usage : <th data-sort="0"> sur les colonnes concernées, data-sort-type="num|date|str"
+        (function () {
+            var state = {}; // { tableId: { col, asc } }
+
+            function parseVal(cell, type) {
+                var t = cell ? cell.innerText.trim() : '';
+                if (type === 'num') {
+                    return parseFloat(t.replace(/\s/g, '').replace(',', '.').replace(/[^0-9.-]/g, '')) || 0;
+                }
+                if (type === 'date') {
+                    var m = t.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+                    return m ? m[3] + m[2] + m[1] : t;
+                }
+                return t.toLowerCase();
+            }
+
+            document.addEventListener('click', function (e) {
+                var th = e.target.closest('th[data-sort]');
+                if (!th) return;
+                var table = th.closest('table');
+                if (!table) return;
+                var tid   = table.dataset.sortId || (table.dataset.sortId = 'tbl' + Math.random().toString(36).slice(2));
+                var col   = parseInt(th.dataset.sort, 10);
+                var type  = th.dataset.sortType || 'str';
+                var asc   = state[tid] && state[tid].col === col ? !state[tid].asc : true;
+                state[tid] = { col, asc };
+
+                // Reset indicators
+                table.querySelectorAll('th[data-sort]').forEach(function (h) {
+                    h.querySelector('.sort-arrow')?.remove();
+                    h.style.color = '';
+                });
+                var arrow = document.createElement('span');
+                arrow.className = 'sort-arrow';
+                arrow.textContent = asc ? ' ↑' : ' ↓';
+                arrow.style.cssText = 'font-size:10px;opacity:.6';
+                th.appendChild(arrow);
+                th.style.color = '#c9a84c';
+
+                var tbody = table.querySelector('tbody');
+                var rows  = Array.from(tbody.querySelectorAll('tr'));
+                rows.sort(function (a, b) {
+                    var va = parseVal(a.cells[col], type);
+                    var vb = parseVal(b.cells[col], type);
+                    if (va < vb) return asc ? -1 : 1;
+                    if (va > vb) return asc ? 1 : -1;
+                    return 0;
+                });
+                rows.forEach(function (r) { tbody.appendChild(r); });
+            });
+
+            // Style curseur sur les th triables
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('th[data-sort]').forEach(function (th) {
+                    th.style.cursor = 'pointer';
+                    th.title = 'Cliquer pour trier';
+                });
+            });
+        })();
+
         // ── Recherche globale ────────────────────────────────────────────────────
         (function () {
             var input   = document.getElementById('global-search-input');

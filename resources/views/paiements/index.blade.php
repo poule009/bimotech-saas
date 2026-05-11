@@ -106,12 +106,12 @@
                 <thead>
                     <tr>
                         <th>Référence</th>
-                        <th>Bien / Locataire</th>
-                        <th>Période</th>
-                        <th>Date paiement</th>
-                        <th style="text-align:right">Montant</th>
-                        <th style="text-align:right">Commission</th>
-                        <th style="text-align:right">Net proprio</th>
+                        <th data-sort="1">Bien / Locataire</th>
+                        <th data-sort="2" data-sort-type="date">Période</th>
+                        <th data-sort="3" data-sort-type="date">Date paiement</th>
+                        <th data-sort="4" data-sort-type="num" style="text-align:right">Montant</th>
+                        <th data-sort="5" data-sort-type="num" style="text-align:right">Commission</th>
+                        <th data-sort="6" data-sort-type="num" style="text-align:right">Net proprio</th>
                         <th>Mode</th>
                         <th style="text-align:center">Statut</th>
                         <th style="text-align:center">Actions</th>

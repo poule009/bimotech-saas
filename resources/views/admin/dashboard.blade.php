@@ -124,6 +124,55 @@
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════ --}}
+    {{-- ACTIONS RAPIDES                                               --}}
+    {{-- ══════════════════════════════════════════════════════════════ --}}
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+
+        {{-- Impayés --}}
+        <a href="{{ route('admin.impayes.index') }}"
+           style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;transition:all .15s;{{ $nb_impayes_mois > 0 ? 'border-color:#fecaca;background:#fef9f9' : '' }}"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px -4px rgba(0,0,0,.08)'"
+           onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:40px;height:40px;border-radius:10px;background:{{ $nb_impayes_mois > 0 ? '#fee2e2' : '#f3f4f6' }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg style="width:18px;height:18px;color:{{ $nb_impayes_mois > 0 ? '#dc2626' : '#9ca3af' }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+                <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:{{ $nb_impayes_mois > 0 ? '#dc2626' : '#0d1117' }};line-height:1">{{ $nb_impayes_mois }}</div>
+                <div style="font-size:12px;color:#6b7280;margin-top:2px">Impayé{{ $nb_impayes_mois > 1 ? 's' : '' }} ce mois</div>
+            </div>
+        </a>
+
+        {{-- Enregistrer un paiement --}}
+        <a href="{{ route('admin.paiements.create') }}"
+           style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;transition:all .15s"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px -4px rgba(0,0,0,.08)'"
+           onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:40px;height:40px;border-radius:10px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg style="width:18px;height:18px;color:#16a34a" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <div>
+                <div style="font-size:13px;font-weight:600;color:#0d1117">Enregistrer un paiement</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:2px">Saisir le loyer d'un locataire</div>
+            </div>
+        </a>
+
+        {{-- Nouveau contrat --}}
+        <a href="{{ route('admin.contrats.create') }}"
+           style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;transition:all .15s"
+           onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px -4px rgba(0,0,0,.08)'"
+           onmouseout="this.style.transform='';this.style.boxShadow=''">
+            <div style="width:40px;height:40px;border-radius:10px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg style="width:18px;height:18px;color:#8a6e2f" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <div>
+                <div style="font-size:13px;font-weight:600;color:#0d1117">Nouveau contrat</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:2px">Créer un bail locatif</div>
+            </div>
+        </a>
+
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════════ --}}
     {{-- CHECKLIST ONBOARDING — visible tant que l'agence n'est pas   --}}
     {{-- totalement configurée ($onboarding !== null)                  --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}

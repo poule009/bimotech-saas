@@ -4,6 +4,28 @@
     $user = auth()->user();
     $role = $user->role ?? 'admin';
 
+    // Badge impayés — compte les contrats actifs sans paiement ce mois (cache 2 min)
+    $nbImpayes = 0;
+    if ($role === 'admin' && $user->agency_id) {
+        $aid = $user->agency_id;
+        $nbImpayes = \Illuminate\Support\Facades\Cache::remember(
+            "sidebar_impayes_{$aid}_" . now()->format('Y-m'),
+            120,
+            function () use ($aid) {
+                $contratIds = \App\Models\Contrat::where('agency_id', $aid)
+                    ->where('statut', 'actif')->pluck('id');
+                if ($contratIds->isEmpty()) return 0;
+                $payes = \App\Models\Paiement::where('agency_id', $aid)
+                    ->where('statut', 'valide')
+                    ->whereYear('periode', now()->year)
+                    ->whereMonth('periode', now()->month)
+                    ->whereIn('contrat_id', $contratIds)
+                    ->distinct('contrat_id')->count('contrat_id');
+                return max(0, $contratIds->count() - $payes);
+            }
+        );
+    }
+
     $navSuperAdmin = [
         ['section' => null,              'route' => 'superadmin.dashboard',          'label' => 'Tableau de bord'],
         ['section' => 'PLATEFORME',      'route' => 'superadmin.agencies.create',    'label' => 'Nouvelle agence'],
@@ -339,6 +361,9 @@
                     <a href="{{ $url }}" class="bm-nav-item {{ $isActive ? 'active' : '' }}">
                         <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
                         <span class="bm-nav-label">{{ $item['label'] }}</span>
+                        @if($item['route'] === 'admin.impayes.index' && $nbImpayes > 0)
+                            <span style="background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;line-height:1.6;flex-shrink:0">{{ $nbImpayes > 99 ? '99+' : $nbImpayes }}</span>
+                        @endif
                     </a>
                 @endforeach
             @else
@@ -360,6 +385,9 @@
                             <a href="{{ $url }}" class="bm-nav-item {{ $isActive ? 'active' : '' }}">
                                 <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
                                 <span class="bm-nav-label">{{ $item['label'] }}</span>
+                                @if($item['route'] === 'admin.impayes.index' && $nbImpayes > 0)
+                                    <span style="background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;line-height:1.6;flex-shrink:0">{{ $nbImpayes > 99 ? '99+' : $nbImpayes }}</span>
+                                @endif
                             </a>
                         @endforeach
                     </div>

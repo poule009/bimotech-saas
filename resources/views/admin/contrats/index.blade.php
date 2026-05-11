@@ -105,13 +105,13 @@
             <table class="dt">
                 <thead>
                     <tr>
-                        <th>Référence</th>
-                        <th>Bien</th>
-                        <th>Locataire</th>
+                        <th data-sort="0">Référence</th>
+                        <th data-sort="1">Bien</th>
+                        <th data-sort="2">Locataire</th>
                         <th>Type bail</th>
-                        <th>Début</th>
-                        <th>Fin</th>
-                        <th style="text-align:right">Loyer</th>
+                        <th data-sort="4" data-sort-type="date">Début</th>
+                        <th data-sort="5" data-sort-type="date">Fin</th>
+                        <th data-sort="6" data-sort-type="num" style="text-align:right">Loyer</th>
                         <th style="text-align:center">Statut</th>
                         <th style="text-align:center">Actions</th>
                     </tr>
