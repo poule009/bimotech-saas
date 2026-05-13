@@ -36,9 +36,9 @@
     $navAdmin = [
         ['section' => null,           'route' => 'admin.dashboard',          'label' => 'Tableau de bord'],
 
-        ['section' => 'PATRIMOINE',   'route' => 'admin.biens.index',         'label' => 'Biens'],
+        ['section' => 'PATRIMOINE',   'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
+        ['section' => null,           'route' => 'admin.biens.index',         'label' => 'Biens'],
         ['section' => null,           'route' => 'admin.immeubles.index',     'label' => 'Immeubles'],
-        ['section' => null,           'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
 
         ['section' => 'RELATIONS',    'route' => 'admin.users.locataires',    'label' => 'Locataires'],
         ['section' => null,           'route' => 'admin.bailleurs.index',     'label' => 'Bailleurs'],

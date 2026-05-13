@@ -271,19 +271,11 @@
                     @error('name')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
 
-                {{-- Email + Tél --}}
-                <div class="field-grid-2">
-                    <div>
-                        <label class="field-label">Email <span class="field-req">*</span></label>
-                        <input type="email" name="email" class="field-input {{ $errors->has('email') ? 'error':'' }}"
-                               value="{{ old('email') }}" placeholder="email@exemple.com">
-                        @error('email')<div class="field-error">{{ $message }}</div>@enderror
-                    </div>
-                    <div>
-                        <label class="field-label">Téléphone</label>
-                        <input type="text" name="telephone" class="field-input"
-                               value="{{ old('telephone') }}" placeholder="+221 77 000 00 00">
-                    </div>
+                {{-- Tél --}}
+                <div class="field-group">
+                    <label class="field-label">Téléphone</label>
+                    <input type="text" name="telephone" class="field-input"
+                           value="{{ old('telephone') }}" placeholder="+221 77 000 00 00">
                 </div>
 
                 {{-- Adresse --}}
@@ -347,6 +339,14 @@
                         <div class="section-title">Accès à l'espace personnel</div>
                         <div class="section-desc">Identifiants de connexion au portail {{ $role }}</div>
                     </div>
+                </div>
+
+                {{-- Email --}}
+                <div class="field-group">
+                    <label class="field-label">Email <span class="field-req">*</span></label>
+                    <input type="email" name="email" class="field-input {{ $errors->has('email') ? 'error':'' }}"
+                           value="{{ old('email') }}" placeholder="email@exemple.com">
+                    @error('email')<div class="field-error">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="field-grid-2">

@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Bien;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -52,44 +53,58 @@ class BiensImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            // Liaison propriétaire via email (optionnel)
-            $proprietaireId = null;
-            $emailProp = trim(strtolower($row['proprietaire_email'] ?? ''));
-            if ($emailProp !== '') {
-                $prop = User::where('email', $emailProp)
-                    ->where('role', 'proprietaire')
-                    ->where('agency_id', $this->agencyId)
-                    ->first();
-
-                if (! $prop) {
-                    $this->errors[] = "Ligne {$line} : propriétaire « {$emailProp} » introuvable — bien ignoré.";
-                    $this->skipped++;
-                    continue;
-                }
-                $proprietaireId = $prop->id;
+            $adresse = $this->val($row, 'adresse');
+            if (! $adresse) {
+                $this->errors[] = "Ligne {$line} : l'adresse est obligatoire.";
+                $this->skipped++;
+                continue;
             }
 
-            $statut = $this->inList($row, 'statut', array_keys(Bien::STATUTS)) ?? 'disponible';
+            // Liaison propriétaire via email (obligatoire — proprietaire_id NOT NULL en base)
+            $emailProp = trim(strtolower($row['proprietaire_email'] ?? ''));
+            if ($emailProp === '') {
+                $this->errors[] = "Ligne {$line} : proprietaire_email est obligatoire.";
+                $this->skipped++;
+                continue;
+            }
+
+            $prop = User::where('email', $emailProp)
+                ->where('role', 'proprietaire')
+                ->where('agency_id', $this->agencyId)
+                ->first();
+
+            if (! $prop) {
+                $this->errors[] = "Ligne {$line} : propriétaire « {$emailProp} » introuvable — bien ignoré.";
+                $this->skipped++;
+                continue;
+            }
+
+            $proprietaireId = $prop->id;
+
+            // Limité aux valeurs acceptées par l'enum DB (archive n'existe pas en base)
+            $statut = $this->inList($row, 'statut', ['disponible', 'loue', 'en_travaux']) ?? 'disponible';
 
             try {
-                Bien::create([
-                    'agency_id'       => $this->agencyId,
-                    'proprietaire_id' => $proprietaireId,
-                    'reference'       => Bien::generateReference($this->agencyId),
-                    'titre'           => $titre,
-                    'type'            => $type,
-                    'adresse'         => $this->val($row, 'adresse'),
-                    'ville'           => $this->val($row, 'ville') ?? 'Dakar',
-                    'quartier'        => $this->val($row, 'quartier'),
-                    'commune'         => $this->val($row, 'commune'),
-                    'surface_m2'      => $this->numeric($row, 'surface_m2'),
-                    'nombre_pieces'   => $this->integer($row, 'nombre_pieces'),
-                    'meuble'          => $this->boolean($row, 'meuble'),
-                    'loyer_mensuel'   => (float) $loyer,
-                    'taux_commission' => $this->numeric($row, 'taux_commission'),
-                    'statut'          => $statut,
-                    'description'     => $this->val($row, 'description'),
-                ]);
+                DB::transaction(function () use ($row, $titre, $type, $loyer, $statut, $proprietaireId, $adresse) {
+                    Bien::create([
+                        'agency_id'       => $this->agencyId,
+                        'proprietaire_id' => $proprietaireId,
+                        'reference'       => Bien::generateReference($this->agencyId),
+                        'titre'           => $titre,
+                        'type'            => $type,
+                        'adresse'         => $adresse,
+                        'ville'           => $this->val($row, 'ville') ?? 'Dakar',
+                        'quartier'        => $this->val($row, 'quartier'),
+                        'commune'         => $this->val($row, 'commune'),
+                        'surface_m2'      => $this->numeric($row, 'surface_m2'),
+                        'nombre_pieces'   => $this->integer($row, 'nombre_pieces'),
+                        'meuble'          => $this->boolean($row, 'meuble'),
+                        'loyer_mensuel'   => (float) $loyer,
+                        'taux_commission' => $this->numeric($row, 'taux_commission'),
+                        'statut'          => $statut,
+                        'description'     => $this->val($row, 'description'),
+                    ]);
+                });
 
                 $this->created++;
             } catch (\Throwable $e) {
