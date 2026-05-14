@@ -167,7 +167,7 @@ class BailleurController extends Controller
             ->whereIn('contrat_id', $contratIds)
             ->where('statut', 'valide')
             ->whereYear('periode', $annee)
-            ->with(['contrat:id,bien_id,reference_bail', 'contrat.bien:id,reference,adresse,ville'])
+            ->with(['depenses', 'contrat:id,bien_id,reference_bail', 'contrat.bien:id,reference,adresse,ville'])
             ->orderBy('periode');
 
         if ($mois !== null) $query->whereMonth('periode', $mois);

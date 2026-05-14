@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BailleurController;
 use App\Http\Controllers\BienController;
+use App\Http\Controllers\DepenseGestionController;
 use App\Http\Controllers\BienPhotoController;
 use App\Http\Controllers\ImmeubleController;
 use App\Http\Controllers\ContratController;
@@ -239,6 +240,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('bailleurs/{userId}',                 [BailleurController::class, 'show'])->name('bailleurs.show');
         Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf');
         Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf');
+
+        // Dépenses de gestion (rattachées à un paiement)
+        Route::post('paiements/{paiement}/depenses',                   [DepenseGestionController::class, 'store'])->name('paiements.depenses.store');
+        Route::delete('paiements/{paiement}/depenses/{depense}',       [DepenseGestionController::class, 'destroy'])->name('paiements.depenses.destroy');
 
         // Export CSV paiements
         Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv');

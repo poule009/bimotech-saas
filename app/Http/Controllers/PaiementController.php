@@ -245,6 +245,7 @@ class PaiementController extends Controller
         $paiement->load([
             'contrat.bien.proprietaire:id,name,email,telephone',
             'contrat.locataire:id,name,email,telephone',
+            'depenses',
         ]);
 
         return view('paiements.show', compact('paiement'));

@@ -46,6 +46,12 @@
 
 /* Hero */
 .hero { background:linear-gradient(135deg,#0d1117,#1c2333);border-radius:14px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px; }
+
+/* Responsive dépenses */
+@media(max-width:640px){
+    .page-grid { grid-template-columns:1fr; }
+    .dep-form-grid { grid-template-columns:1fr !important; }
+}
 </style>
 
 <div style="padding:0 0 48px">
@@ -186,6 +192,229 @@
             </div>
             @endif
 
+            {{-- ── DÉPENSES DE GESTION ─────────────────────────────────── --}}
+            @php
+                $depenses      = $paiement->depenses ?? collect();
+                $totalDep      = (float) $depenses->sum('montant');
+                $netBailleur   = (float) ($paiement->montant_net_bailleur ?? $paiement->net_a_verser_proprietaire ?? 0);
+                $netFinalAff   = round($netBailleur - $totalDep, 2);
+                $canEditDep    = auth()->user()?->role === 'admin' || auth()->user()?->role === 'superadmin';
+            @endphp
+            <div class="card" id="card-depenses">
+                <div class="card-hd" style="justify-content:space-between">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div class="card-icon" style="background:#fef2f2;color:#dc2626">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
+                        </div>
+                        <div class="card-title">Dépenses pour le bailleur</div>
+                        @if($totalDep > 0)
+                        <span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:99px;font-size:11px;font-weight:700;padding:2px 9px">
+                            − {{ number_format($totalDep, 0, ',', ' ') }} F
+                        </span>
+                        @endif
+                    </div>
+                    @if($canEditDep)
+                    <button onclick="toggleDepForm()" id="btn-dep-toggle"
+                        style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;font-weight:500;cursor:pointer">
+                        <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Ajouter
+                    </button>
+                    @endif
+                </div>
+
+                {{-- Liste des dépenses existantes --}}
+                <div class="card-body" style="padding-top:12px">
+
+                    @if($depenses->isEmpty())
+                    <div id="dep-empty" style="text-align:center;padding:20px 0;color:#9ca3af;font-size:13px">
+                        <svg style="width:28px;height:28px;margin:0 auto 8px;display:block;color:#d1d5db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
+                        Aucune dépense enregistrée pour ce mois
+                    </div>
+                    @else
+                    <div id="dep-empty" style="display:none"></div>
+                    @endif
+
+                    <div id="dep-list">
+                    @foreach($depenses as $dep)
+                    <div class="dep-row" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6" id="dep-{{ $dep->id }}">
+                        {{-- Icône catégorie --}}
+                        <div style="width:32px;height:32px;border-radius:8px;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <svg style="width:14px;height:14px;color:#dc2626" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
+                        </div>
+                        {{-- Infos --}}
+                        <div style="flex:1;min-width:0">
+                            <div style="font-size:13px;font-weight:600;color:#0d1117">{{ $dep->libelle }}</div>
+                            <div style="font-size:11px;color:#9ca3af;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">
+                                <span>{{ $dep->categorie_libelle }}</span>
+                                <span>·</span>
+                                <span>{{ \Carbon\Carbon::parse($dep->date_depense)->format('d/m/Y') }}</span>
+                                @if($dep->prestataire)
+                                <span>· {{ $dep->prestataire }}</span>
+                                @endif
+                            </div>
+                            @if($dep->notes)
+                            <div style="font-size:11px;color:#6b7280;margin-top:3px;font-style:italic">{{ $dep->notes }}</div>
+                            @endif
+                        </div>
+                        {{-- Montant + supprimer --}}
+                        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#dc2626">
+                                {{ number_format($dep->montant, 0, ',', ' ') }} F
+                            </div>
+                            @if($canEditDep)
+                            <form method="POST"
+                                  action="{{ route('admin.paiements.depenses.destroy', [$paiement, $dep]) }}"
+                                  data-confirm="Supprimer « {{ $dep->libelle }} » ({{ number_format($dep->montant, 0, ',', ' ') }} F) ?"
+                                  data-confirm-title="Supprimer cette dépense ?"
+                                  data-confirm-ok="Oui, supprimer"
+                                  data-confirm-color="#dc2626"
+                                  data-confirm-icon-bg="#fef2f2">
+                                @csrf @method('DELETE')
+                                <button type="submit" title="Supprimer"
+                                    style="border:none;background:none;cursor:pointer;color:#9ca3af;padding:4px;border-radius:6px;display:flex;align-items:center"
+                                    onmouseover="this.style.color='#dc2626';this.style.background='#fef2f2'"
+                                    onmouseout="this.style.color='#9ca3af';this.style.background='none'">
+                                    <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                    </div>
+
+                    {{-- Total si plusieurs dépenses --}}
+                    @if($depenses->count() > 1)
+                    <div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-size:12px;color:#6b7280">
+                        <span>Total dépenses ({{ $depenses->count() }})</span>
+                        <span style="font-weight:700;color:#dc2626">{{ number_format($totalDep, 0, ',', ' ') }} F</span>
+                    </div>
+                    @endif
+
+                    {{-- Net final bailleur mis à jour --}}
+                    @if($totalDep > 0)
+                    <div style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#16a34a;margin-bottom:2px">Net à reverser au bailleur</div>
+                            <div style="font-size:10px;color:#6b7280">Après déduction des dépenses</div>
+                        </div>
+                        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#16a34a">
+                            {{ number_format($netFinalAff, 0, ',', ' ') }} F
+                        </div>
+                    </div>
+                    @endif
+
+                    {{-- Formulaire ajout (masqué par défaut) --}}
+                    @if($canEditDep)
+                    <div id="dep-form-wrap" style="display:none;margin-top:16px;padding:16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px">
+                        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:12px;text-transform:uppercase;letter-spacing:.6px">Nouvelle dépense</div>
+
+                        @if($errors->any() && old('_dep_form_open'))
+                        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#dc2626">
+                            <ul style="margin:0;padding-left:14px">
+                                @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+                            </ul>
+                        </div>
+                        @endif
+
+                        <form method="POST" action="{{ route('admin.paiements.depenses.store', $paiement) }}" id="dep-form">
+                            @csrf
+                            <input type="hidden" name="_dep_form_open" value="1">
+
+                            {{-- Libellé --}}
+                            <div style="margin-bottom:12px">
+                                <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
+                                    Libellé <span style="color:#dc2626">*</span>
+                                </label>
+                                <input type="text" name="libelle" value="{{ old('libelle') }}" required
+                                    placeholder="Ex : Facture plombier Moussa"
+                                    style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
+                                    onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
+                                    onblur="this.style.borderColor='#e5e7eb'">
+                            </div>
+
+                            {{-- Montant + Catégorie --}}
+                            <div class="dep-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                                <div>
+                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
+                                        Montant (FCFA) <span style="color:#dc2626">*</span>
+                                    </label>
+                                    <input type="number" name="montant" value="{{ old('montant') }}" required min="1" step="1"
+                                        placeholder="25 000"
+                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
+                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
+                                        onblur="this.style.borderColor='#e5e7eb'">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
+                                        Catégorie <span style="color:#dc2626">*</span>
+                                    </label>
+                                    <select name="categorie" required
+                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box;appearance:none"
+                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
+                                        onblur="this.style.borderColor='#e5e7eb'">
+                                        <option value="">Choisir…</option>
+                                        @foreach(\App\Models\DepenseGestion::CATEGORIES as $key => $label)
+                                        <option value="{{ $key }}" {{ old('categorie') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Date + Prestataire --}}
+                            <div class="dep-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                                <div>
+                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
+                                        Date de la dépense <span style="color:#dc2626">*</span>
+                                    </label>
+                                    <input type="date" name="date_depense" value="{{ old('date_depense', now()->format('Y-m-d')) }}" required
+                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
+                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
+                                        onblur="this.style.borderColor='#e5e7eb'">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
+                                        Prestataire
+                                    </label>
+                                    <input type="text" name="prestataire" value="{{ old('prestataire') }}"
+                                        placeholder="Ex : Moussa Diallo"
+                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
+                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
+                                        onblur="this.style.borderColor='#e5e7eb'">
+                                </div>
+                            </div>
+
+                            {{-- Notes --}}
+                            <div style="margin-bottom:14px">
+                                <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
+                                    Notes (optionnel)
+                                </label>
+                                <textarea name="notes" rows="2" placeholder="Détails supplémentaires…"
+                                    style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box;resize:vertical"
+                                    onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
+                                    onblur="this.style.borderColor='#e5e7eb'">{{ old('notes') }}</textarea>
+                            </div>
+
+                            {{-- Boutons --}}
+                            <div style="display:flex;gap:8px;justify-content:flex-end">
+                                <button type="button" onclick="toggleDepForm()"
+                                    style="padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:12px;font-weight:500;cursor:pointer">
+                                    Annuler
+                                </button>
+                                <button type="submit"
+                                    style="padding:8px 18px;border-radius:8px;border:none;background:var(--ac,#c9a84c);color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+                                    <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Enregistrer la dépense
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    @endif
+
+                </div>
+            </div>
+            {{-- ── FIN DÉPENSES ────────────────────────────────────────── --}}
+
         </div>
 
         {{-- COLONNE DROITE --}}
@@ -251,11 +480,25 @@
                         </div>
                     </div>
                     {{-- NET BAILLEUR --}}
-                    <div class="fp-total">
-                        <div class="fp-total-lbl">Montant à reverser — Bailleur</div>
-                        <div class="fp-total-val">
-                            {{ number_format($paiement->montant_net_bailleur ?? ($paiement->net_a_verser_proprietaire ?? 0), 0, ',', ' ') }} F
+                    @php $netBrut = (float)($paiement->montant_net_bailleur ?? $paiement->net_a_verser_proprietaire ?? 0); @endphp
+                    @if($totalDep > 0)
+                    <div style="margin-bottom:6px;padding:8px 10px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:7px;display:flex;justify-content:space-between;align-items:center">
+                        <span style="font-size:10px;color:rgba(220,38,38,.7)">Dépenses déduites</span>
+                        <span style="font-size:12px;font-weight:700;color:#dc2626">− {{ number_format($totalDep, 0, ',', ' ') }} F</span>
+                    </div>
+                    @endif
+                    <div class="fp-total" style="{{ $totalDep > 0 ? 'border-color:rgba(22,163,74,.4);background:rgba(22,163,74,.08)' : '' }}">
+                        <div class="fp-total-lbl" style="{{ $totalDep > 0 ? 'color:rgba(22,163,74,.7)' : '' }}">
+                            Net à reverser — Bailleur{{ $totalDep > 0 ? ' (après dépenses)' : '' }}
                         </div>
+                        <div class="fp-total-val" style="{{ $totalDep > 0 ? 'color:#16a34a' : '' }}">
+                            {{ number_format($totalDep > 0 ? $netFinalAff : $netBrut, 0, ',', ' ') }} F
+                        </div>
+                        @if($totalDep > 0)
+                        <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:3px">
+                            Brut : {{ number_format($netBrut, 0, ',', ' ') }} F
+                        </div>
+                        @endif
                     </div>
                     @if($paiement->caution_percue > 0)
                     <div style="margin-top:10px;padding:8px 10px;background:rgba(29,78,216,.1);border:1px solid rgba(29,78,216,.2);border-radius:7px">
@@ -278,4 +521,37 @@
 
     </div>
 </div>
+
+@push('scripts')
+<script>
+function toggleDepForm() {
+    var wrap = document.getElementById('dep-form-wrap');
+    var btn  = document.getElementById('btn-dep-toggle');
+    if (!wrap) return;
+    var open = wrap.style.display === 'none' || wrap.style.display === '';
+    wrap.style.display = open ? 'block' : 'none';
+    if (btn) btn.innerHTML = open
+        ? '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg> Fermer'
+        : '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter';
+    if (open) {
+        setTimeout(function() {
+            wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 60);
+    }
+}
+
+// Rouvrir le formulaire automatiquement après une erreur de validation
+@if($errors->any())
+document.addEventListener('DOMContentLoaded', function() {
+    var wrap = document.getElementById('dep-form-wrap');
+    var btn  = document.getElementById('btn-dep-toggle');
+    if (wrap) {
+        wrap.style.display = 'block';
+        if (btn) btn.innerHTML = '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg> Fermer';
+        wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+});
+@endif
+</script>
+@endpush
 @endsection

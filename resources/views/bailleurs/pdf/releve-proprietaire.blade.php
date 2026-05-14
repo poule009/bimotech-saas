@@ -176,13 +176,27 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
         </thead>
         <tbody>
             @foreach($paiements as $p)
+            @php
+                $depLigne = (float) $p->depenses->sum('montant');
+                $netLigne = round((float)($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0) - $depLigne, 2);
+            @endphp
             <tr>
                 <td>{{ $p->contrat?->bien?->reference ?? '—' }}</td>
                 <td>{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</td>
                 <td class="right">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
                 <td class="right" style="color:#1d4ed8">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</td>
-                <td class="right" style="color:#16a34a">{{ number_format(($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0), 0, ',', ' ') }} F</td>
+                <td class="right" style="color:#16a34a;font-weight:700">{{ number_format($netLigne, 0, ',', ' ') }} F</td>
             </tr>
+            @foreach($p->depenses as $dep)
+            <tr style="background:#fef2f2">
+                <td colspan="3" style="padding-left:18px;color:#b91c1c;font-size:8.5px">
+                    ↳ {{ $dep->libelle }}@if($dep->prestataire) · {{ $dep->prestataire }}@endif
+                    <span style="color:#9ca3af;font-size:8px"> ({{ \Carbon\Carbon::parse($dep->date_depense)->format('d/m/Y') }})</span>
+                </td>
+                <td class="right" style="color:#9ca3af;font-size:8.5px">Dépense déduite</td>
+                <td class="right" style="color:#dc2626;font-size:9px;font-weight:700">− {{ number_format($dep->montant, 0, ',', ' ') }} F</td>
+            </tr>
+            @endforeach
             @endforeach
         </tbody>
         <tfoot>
