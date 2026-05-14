@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ImpayesExport;
 use App\Models\Contrat;
 use App\Notifications\RelanceImpayeNotification;
 use Carbon\Carbon;
@@ -9,6 +10,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ImpayeController extends Controller
 {
@@ -103,6 +105,77 @@ class ImpayeController extends Controller
             'impayes', 'payes', 'stats',
             'mois', 'annee', 'periode'
         ));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // EXPORT EXCEL
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function export(Request $request)
+    {
+        $this->authorize('isStaff');
+
+        $mois    = max(1, min(12,   (int) $request->input('mois',  now()->month)));
+        $annee   = max(2000, min(2100, (int) $request->input('annee', now()->year)));
+        $periode = Carbon::create($annee, $mois, 1)->startOfMonth();
+
+        if ($periode->isAfter(now()->endOfMonth())) {
+            $periode = now()->startOfMonth();
+            $mois    = $periode->month;
+            $annee   = $periode->year;
+        }
+
+        $contrats = Contrat::where('statut', 'actif')
+            ->select(['id', 'agency_id', 'bien_id', 'locataire_id', 'statut', 'loyer_contractuel', 'date_debut'])
+            ->with([
+                'bien:id,agency_id,reference,adresse,ville,statut',
+                'bien.proprietaire:id,name,telephone',
+                'locataire:id,name,email,telephone',
+                'paiements' => fn($q) => $q
+                    ->select(['id', 'contrat_id', 'agency_id', 'periode', 'statut', 'montant_encaisse', 'mode_paiement', 'date_paiement'])
+                    ->whereYear('periode', $annee)
+                    ->whereMonth('periode', $mois)
+                    ->where('statut', '!=', 'annule'),
+            ])
+            ->get();
+
+        $impayes = collect();
+        $payes   = collect();
+
+        foreach ($contrats as $contrat) {
+            $paiementMois = $contrat->paiements->first();
+            if ($paiementMois) {
+                $payes->push(['contrat' => $contrat, 'paiement' => $paiementMois]);
+            } else {
+                $joursRetard = $periode->copy()->addDays(5)->diffInDays(now(), false);
+                $impayes->push([
+                    'contrat'      => $contrat,
+                    'paiement'     => null,
+                    'jours_retard' => max(0, (int) $joursRetard),
+                    'montant_du'   => $contrat->loyer_contractuel,
+                ]);
+            }
+        }
+
+        $impayes = $impayes->sortByDesc('jours_retard');
+
+        $stats = [
+            'nb_impayes'        => $impayes->count(),
+            'nb_payes'          => $payes->count(),
+            'montant_du'        => $impayes->sum('montant_du'),
+            'taux_recouvrement' => $contrats->count() > 0
+                ? round(($payes->count() / $contrats->count()) * 100, 1)
+                : 0,
+        ];
+
+        $agencyName = auth()->user()->agency?->name ?? config('app.name', 'BimoTech');
+        $filename   = 'impayes_' . $periode->format('Y-m') . '_' . now()->format('Ymd') . '.xlsx';
+
+        return Excel::download(
+            new ImpayesExport($impayes, $payes, $stats, $periode, $agencyName),
+            $filename,
+            \Maatwebsite\Excel\Excel::XLSX
+        );
     }
 
     // ─────────────────────────────────────────────────────────────────────

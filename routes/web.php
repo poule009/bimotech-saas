@@ -176,8 +176,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('contrats/{contrat}',         [ContratController::class, 'update'])->name('contrats.update');
         Route::delete('contrats/{contrat}',      [ContratController::class, 'destroy'])->name('contrats.destroy');
 
-        // Impayés — écriture (relance)
+        // Impayés — écriture (relance + export)
         Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance');
+        Route::get('impayes/export',             [ImpayeController::class, 'export'])->name('impayes.export');
 
         // Utilisateurs
         Route::prefix('users')->name('users.')->group(function () {

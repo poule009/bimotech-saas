@@ -48,6 +48,20 @@
 .act-btn.green:hover { border-color:#bbf7d0;color:#16a34a;background:#f0fdf4; }
 .btn-relance { display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:#fef9c3;color:#a16207;border:1px solid #fde68a;border-radius:7px;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s; }
 .btn-relance:hover { background:#fde68a; }
+
+/* Bouton export Excel */
+.btn-excel { display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:600;color:#16a34a;text-decoration:none;font-family:'DM Sans',sans-serif;transition:all .2s;cursor:pointer;white-space:nowrap; }
+.btn-excel:hover { border-color:#16a34a;background:#f0fdf4;color:#15803d; }
+.btn-excel:active { transform:scale(.97); }
+.btn-excel svg { flex-shrink:0;transition:transform .2s; }
+.btn-excel:hover svg { transform:translateY(1px); }
+/* État chargement */
+.btn-excel.loading { pointer-events:none;opacity:.75; }
+.btn-excel.loading .excel-icon { display:none; }
+.btn-excel.loading .excel-label { display:none; }
+.btn-excel.loading::after { content:'Génération…';font-size:12px; }
+.btn-excel.loading::before { content:'';display:inline-block;width:14px;height:14px;border:2px solid #16a34a;border-top-color:transparent;border-radius:50%;animation:xlspin .65s linear infinite;margin-right:6px; }
+@keyframes xlspin { to { transform:rotate(360deg); } }
 </style>
 
 <div style="padding:0 0 48px">
@@ -63,6 +77,24 @@
                 · {{ $stats['nb_impayes'] }} impayé(s) sur {{ $stats['nb_impayes'] + $stats['nb_payes'] }} contrats actifs
             </p>
         </div>
+
+        {{-- Actions header : export + navigation mois --}}
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+
+        {{-- Bouton export Excel --}}
+        <a href="{{ route('admin.impayes.export', ['mois' => $mois, 'annee' => $annee]) }}"
+           id="btn-export-excel"
+           class="btn-excel"
+           title="Télécharger le rapport Excel de {{ $periode->translatedFormat('F Y') }}"
+           onclick="lancerExport(this)">
+            <svg class="excel-icon" style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="12" y1="18" x2="12" y2="12"/>
+                <polyline points="9 15 12 18 15 15"/>
+            </svg>
+            <span class="excel-label">Exporter Excel</span>
+        </a>
 
         {{-- Navigation mois --}}
         <div class="month-nav">
@@ -86,6 +118,8 @@
             </span>
             @endif
         </div>
+
+        </div>{{-- /actions header --}}
     </div>
 
     {{-- KPIs --}}
@@ -417,6 +451,16 @@
 </div>
 
 <script>
+// ── Export Excel ──────────────────────────────────────────────────────────────
+function lancerExport(btn) {
+    btn.classList.add('loading');
+    // Remettre l'état normal après 8s (le download aura commencé)
+    setTimeout(function() {
+        btn.classList.remove('loading');
+    }, 8000);
+}
+
+// ── Paiement rapide ───────────────────────────────────────────────────────────
 function ouvrirPaiementRapide(contratId, locataire, bien, montant, periode) {
     document.getElementById('pr-contrat-id').value = contratId;
     document.getElementById('pr-title').textContent  = 'Paiement — ' + bien;
