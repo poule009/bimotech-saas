@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\DemoRequestMail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class DemoController extends Controller
@@ -20,8 +21,15 @@ class DemoController extends Controller
             'ville'     => 'nullable|string',
         ]);
 
-        Mail::to('contact@bimotech.sn')->send(new DemoRequestMail($validated));
+        try {
+            Mail::to('contact@bimotech.sn')->send(new DemoRequestMail($validated));
+        } catch (\Throwable $e) {
+            Log::error('DemoRequestMail failed', [
+                'email'   => $validated['email'],
+                'message' => $e->getMessage(),
+            ]);
+        }
 
-        return back()->with('success', 'Demande reçue !');
+        return redirect()->route('demo')->with('success', 'Demande reçue !');
     }
 }

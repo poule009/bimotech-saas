@@ -10,7 +10,7 @@ Schedule::command('subscriptions:reminders')
     ->runInBackground();
 
 // Génération des loyers mensuels (impayés) chaque 1er du mois à 01:00
-Schedule::command('app:generate-monthly-rent')
+Schedule::command('rent:generate')
     ->monthlyOn(1, '01:00')
     ->timezone('Africa/Dakar')
     ->withoutOverlapping()

@@ -203,7 +203,22 @@
         </div>
     </div>
     @endif
-    @if(session('import_skipped') > 0)
+    @if(session('import_rolled_back'))
+    <div class="result-box result-err">
+        <div class="result-title">Import annulé — aucune donnée enregistrée</div>
+        <p style="font-size:12px;margin:6px 0 8px;opacity:.75">
+            Des erreurs ont été détectées : toutes les lignes ont été annulées pour éviter des données incomplètes.
+            Corrigez le fichier et réimportez-le.
+        </p>
+        @if(session('import_errors'))
+        <ul class="result-list">
+            @foreach(session('import_errors') as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+        @endif
+    </div>
+    @elseif(session('import_skipped') > 0)
     <div class="result-box result-warn">
         <div class="result-title">{{ session('import_skipped') }} ligne(s) ignorée(s)</div>
         @if(session('import_errors'))
@@ -215,7 +230,7 @@
         @endif
     </div>
     @endif
-    @if(session('import_created') == 0 && session('import_skipped') == 0)
+    @if(session('import_created') == 0 && ! session('import_rolled_back') && session('import_skipped') == 0)
     <div class="result-box result-warn">
         <div class="result-title">Aucune donnée importée — le fichier est peut-être vide ou mal formaté.</div>
     </div>

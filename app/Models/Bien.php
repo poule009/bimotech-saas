@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\BienStatut;
 use App\Models\Concerns\HasAgencyScope;
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bien extends Model
 {
-    use HasFactory, HasAgencyScope, SoftDeletes;
+    use HasFactory, HasAgencyScope, LogsActivity, SoftDeletes;
 
     public const TYPES = [
         'appartement' => 'Appartement',

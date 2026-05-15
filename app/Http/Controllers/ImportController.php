@@ -8,6 +8,7 @@ use App\Imports\ProprietairesImport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -62,22 +63,41 @@ class ImportController extends Controller
     {
         $this->authorize('isAdmin');
 
+        // IMP2-004/005/006 — CORRECTION :
+        // Le validateur mimes:csv n'accepte que text/csv, application/csv, etc.
+        // Or PHP (finfo) détecte les fichiers CSV comme text/plain → tous les CSV sont rejetés.
+        // On valide par extension de fichier (fiable) et on délègue la validation du contenu
+        // à maatwebsite/excel (qui lèvera une exception si le format est invalide).
         $request->validate([
-            'fichier' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
+            'fichier' => [
+                'required', 'file', 'max:5120',
+                function ($attribute, $value, $fail) {
+                    $ext = strtolower($value->getClientOriginalExtension());
+                    if (! in_array($ext, ['xlsx', 'xls', 'csv'])) {
+                        $fail('Format accepté : xlsx, xls ou csv.');
+                    }
+                },
+            ],
         ], [
             'fichier.required' => 'Veuillez sélectionner un fichier.',
             'fichier.file'     => 'Le fichier transmis est invalide.',
-            'fichier.mimes'    => 'Format accepté : xlsx, xls ou csv.',
             'fichier.max'      => 'Le fichier ne doit pas dépasser 5 Mo.',
         ]);
 
         $config   = self::IMPORTS[$type];
         $importer = new ($config['class'])(Auth::user()->agency_id);
 
+        // IMP2-007 — Transaction globale (all-or-nothing) :
+        // Si une seule ligne échoue, toutes les insertions sont annulées.
+        // Les DB::transaction() internes (par ligne) fonctionnent comme des SAVEPOINTs
+        // à l'intérieur de cette transaction externe, ce qui préserve l'atomicité par ligne.
+        DB::beginTransaction();
+
         try {
             Excel::import($importer, $request->file('fichier'));
         } catch (Throwable $e) {
-            // Log technique pour l'admin, message générique pour l'utilisateur final.
+            DB::rollBack();
+
             Log::error('Import Excel échoué', [
                 'type'      => $type,
                 'agency_id' => Auth::user()->agency_id,
@@ -90,10 +110,24 @@ class ImportController extends Controller
                 ->with('import_error', "Le fichier n'a pas pu être lu. Vérifiez qu'il respecte le modèle fourni puis réessayez.");
         }
 
+        // Si des erreurs de ligne → rollback complet (aucune donnée partielle en base)
+        if (! empty($importer->errors)) {
+            DB::rollBack();
+
+            return back()
+                ->with('import_created',     0)
+                ->with('import_skipped',     $importer->skipped)
+                ->with('import_errors',      $importer->errors)
+                ->with('import_type',        $type)
+                ->with('import_rolled_back', true);
+        }
+
+        DB::commit();
+
         return back()
             ->with('import_created', $importer->created)
-            ->with('import_skipped', $importer->skipped)
-            ->with('import_errors',  $importer->errors)
+            ->with('import_skipped', 0)
+            ->with('import_errors',  [])
             ->with('import_type',    $type);
     }
 

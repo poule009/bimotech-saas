@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 class Proprietaire extends Model
 {
+    use LogsActivity, SoftDeletes;
     protected static function booted(): void
     {
         static::addGlobalScope('agency', function ($builder) {
@@ -38,6 +41,7 @@ class Proprietaire extends Model
         'date_naissance'          => 'date',
         'assujetti_tva'           => 'boolean',
         'est_personne_morale_is'  => 'boolean',
+        'deleted_at'              => 'datetime',
     ];
 
     // ── Relations ────────────────────────────────────────────────────────────

@@ -220,9 +220,9 @@ class ImmeubleController extends Controller
         $this->authorize('isStaff');
 
         if ($immeuble->biens()->whereHas('contratActif')->exists()) {
-            return back()->withErrors([
-                'general' => 'Impossible de supprimer un immeuble avec des unités sous contrat actif.',
-            ]);
+            return redirect()
+                ->route('admin.immeubles.show', $immeuble)
+                ->with('error', 'Impossible de supprimer cet immeuble : des unités ont un contrat actif.');
         }
 
         DB::transaction(function () use ($immeuble) {

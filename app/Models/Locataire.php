@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 class Locataire extends Model
 {
+    use LogsActivity, SoftDeletes;
     protected static function booted(): void
     {
         static::addGlobalScope('agency', function ($builder) {
@@ -46,6 +49,7 @@ class Locataire extends Model
         // Fiscal
         'est_entreprise'         => 'boolean',
         'taux_brs_override'      => 'decimal:2',
+        'deleted_at'             => 'datetime',
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────────

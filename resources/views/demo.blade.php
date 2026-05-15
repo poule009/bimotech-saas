@@ -177,6 +177,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
             </div>
         @endif
 
+        @if(!session('success'))
         <form method="POST" action="{{ route('demo.send') }}">
             @csrf
 
@@ -237,6 +238,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
 
             <button type="submit" class="btn-submit">Réserver ma démo gratuite →</button>
         </form>
+        @endif
 
         <div class="or-divider"><span>ou directement sur</span></div>
 

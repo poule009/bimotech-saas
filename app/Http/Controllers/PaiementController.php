@@ -260,15 +260,31 @@ class PaiementController extends Controller
         $this->authorize('update', $paiement);
 
         if ($paiement->statut !== 'valide') {
-            return back()->withErrors(['general' => 'Seul un paiement valide peut être annulé.']);
+            return redirect()
+                ->route('admin.paiements.show', $paiement)
+                ->with('error', 'Seul un paiement valide peut être annulé.');
         }
 
-        $paiement->update(['statut' => 'annule']);
+        // Charger le contrat avant l'update pour éviter un accès null sur locataire_id
+        $paiement->loadMissing('contrat');
 
-        // Invalider le cache locataire — il verrait encore le paiement comme "validé"
+        $paiement->update([
+            'statut'     => 'annule',
+            'annule_le'  => now(),
+            'annule_par' => Auth::id(),
+        ]);
+
+        // Supprimer la quittance liée : elle référence un paiement annulé.
+        // La suppression permet de régénérer une quittance propre si le paiement
+        // est recréé pour la même période (QuittanceService::generer vérifie l'unicité).
+        $paiement->quittance?->delete();
+
+        // Invalider le cache locataire
         Cache::forget("locataire_dashboard_{$paiement->contrat->locataire_id}");
 
-        return back()->with('success', 'Paiement annulé ✓');
+        return redirect()
+            ->route('admin.paiements.show', $paiement)
+            ->with('success', 'Paiement annulé. La quittance associée a été invalidée.');
     }
 
     // ─────────────────────────────────────────────────────────────────────

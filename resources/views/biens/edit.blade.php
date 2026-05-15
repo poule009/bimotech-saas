@@ -123,10 +123,12 @@
                                 <label class="form-label">Statut <span class="req">*</span></label>
                                 <select name="statut" class="form-select">
                                     @foreach(\App\Models\Bien::STATUTS as $val => $label)
+                                        @if($val !== 'archive')
                                         <option value="{{ $val }}"
                                             {{ old('statut', $bien->statut) === $val ? 'selected':'' }}>
                                             {{ $label }}
                                         </option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>

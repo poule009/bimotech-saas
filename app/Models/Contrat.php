@@ -7,11 +7,12 @@ use App\Models\Scopes\AgencyScope;
 use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 
 class Contrat extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     // ── Constantes ────────────────────────────────────────────────────────────
 
@@ -103,6 +104,7 @@ class Contrat extends Model
         'taux_enregistrement_dgid'     => 'decimal:2',
         'montant_droit_de_bail'        => 'decimal:2',
         // Note : pas de cast Enum — $contrat->statut reste une string en Blade.
+        'deleted_at'                   => 'datetime',
     ];
 
     // ── Global Scope + hooks ───────────────────────────────────────────────────

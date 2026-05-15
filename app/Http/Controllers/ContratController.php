@@ -400,16 +400,27 @@ class ContratController extends Controller
             'observations'          => $validated['observations'] ?? null,
             'clauses_particulieres' => $validated['clauses_particulieres'] ?? null,
             // ── Fiscal
-            'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
-            'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
-            'brs_applicable'           => $request->boolean('brs_applicable'),
-            'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
-            'charges_assujetties_tva'  => $request->boolean('charges_assujetties_tva'),
+            // $request->has() vérifie la présence du champ dans la requête.
+            // Quand features.fiscalite=false, les champs fiscaux sont absents du formulaire ;
+            // on conserve alors la valeur existante plutôt que d'écraser avec false.
+            'loyer_assujetti_tva'      => $request->has('loyer_assujetti_tva')
+                ? $request->boolean('loyer_assujetti_tva')
+                : $contrat->loyer_assujetti_tva,
+            'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? $contrat->taux_tva_loyer ?? 0,
+            'brs_applicable'           => $request->has('brs_applicable')
+                ? $request->boolean('brs_applicable')
+                : $contrat->brs_applicable,
+            'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? $contrat->taux_brs_manuel,
+            'charges_assujetties_tva'  => $request->has('charges_assujetties_tva')
+                ? $request->boolean('charges_assujetties_tva')
+                : $contrat->charges_assujetties_tva,
             // ── DGID
-            'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
-            'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,
-            'montant_droit_de_bail'    => $validated['montant_droit_de_bail'] ?? null,
-            'enregistrement_exonere'   => $request->boolean('enregistrement_exonere'),
+            'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? $contrat->date_enregistrement_dgid,
+            'numero_quittance_dgid'    => $validated['numero_quittance_dgid']    ?? $contrat->numero_quittance_dgid,
+            'montant_droit_de_bail'    => $validated['montant_droit_de_bail']    ?? $contrat->montant_droit_de_bail,
+            'enregistrement_exonere'   => $request->has('enregistrement_exonere')
+                ? $request->boolean('enregistrement_exonere')
+                : $contrat->enregistrement_exonere,
         ];
 
         if (! empty($validated['locataire_id'])) {

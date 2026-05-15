@@ -110,8 +110,6 @@ class AgencySettingsController extends Controller
         }
 
         // ── Écriture DB sous transaction ──────────────────────────────────
-        // strip_tags sur modele_contrat : on empêche tout HTML d'arriver dans
-        // le rendu PDF (où Blade pourrait être contourné par {!! !!}).
 
         try {
             DB::transaction(function () use ($agency, $validated, $logoPath, $logoDarkPath, $signaturePath) {
@@ -126,8 +124,13 @@ class AgencySettingsController extends Controller
                     'logo_path'        => $logoPath,
                     'logo_dark_path'   => $logoDarkPath,
                     'signature_path'   => $signaturePath,
-                    'modele_contrat'   => isset($validated['modele_contrat'])
-                        ? strip_tags($validated['modele_contrat'])
+                    // array_key_exists (pas isset) car le champ peut valoir null (textarea vide
+                    // converti par ConvertEmptyStringsToNull). isset(null) retournerait false
+                    // et la valeur ne serait jamais mise à jour.
+                    // strip_tags() retiré : le champ est rendu avec {{ }} (htmlspecialchars),
+                    // donc aucun risque XSS. strip_tags() corrompait le contenu contenant < ou >.
+                    'modele_contrat'   => array_key_exists('modele_contrat', $validated)
+                        ? $validated['modele_contrat']
                         : $agency->modele_contrat,
                 ]);
             });

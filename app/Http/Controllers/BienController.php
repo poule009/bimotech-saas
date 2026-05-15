@@ -19,10 +19,19 @@ class BienController extends Controller
     {
         $this->authorize('isStaff');
 
-        $query = Bien::with([
-            'proprietaire:id,name,email',
-            'contratActif.locataire:id,name,telephone',
-        ]);
+        // Les biens archivés sont soft-deleted — on utilise onlyTrashed() pour les afficher.
+        // Pour tous les autres statuts, le scope SoftDeletes exclut automatiquement les archivés.
+        $isArchive = $request->statut === 'archive';
+
+        $query = $isArchive
+            ? Bien::onlyTrashed()->with([
+                'proprietaire:id,name,email',
+                'contratActif.locataire:id,name,telephone',
+            ])
+            : Bien::with([
+                'proprietaire:id,name,email',
+                'contratActif.locataire:id,name,telephone',
+            ]);
 
         if ($request->filled('q')) {
             $q = $request->q;
@@ -33,7 +42,7 @@ class BienController extends Controller
                     ->orWhereHas('proprietaire', fn ($p) => $p->where('name', 'like', "%{$q}%"));
             });
         }
-        if ($request->filled('statut')) {
+        if ($request->filled('statut') && ! $isArchive) {
             $query->where('statut', $request->statut);
         }
         if ($request->filled('type')) {
@@ -187,7 +196,7 @@ class BienController extends Controller
             'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
             'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'meuble'          => ['nullable', 'boolean'],
-            'statut'          => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::STATUTS))],
+            'statut'          => ['required', \Illuminate\Validation\Rule::in(['disponible', 'loue', 'en_travaux'])],
             'description'     => ['nullable', 'string'],
         ], [
             'type.required'          => 'Le type de bien est obligatoire.',
@@ -209,6 +218,15 @@ class BienController extends Controller
                 ->withInput();
         }
 
+        // Bloquer le changement de statut si un contrat actif est en cours.
+        // Le bien ne peut retrouver 'disponible' ou 'en_travaux' qu'après résiliation du contrat.
+        $bien->loadMissing('contratActif');
+        if ($bien->contratActif && $validated['statut'] !== 'loue') {
+            return back()
+                ->withErrors(['statut' => 'Ce bien est loué (contrat actif). Résiliez d\'abord le contrat avant de changer le statut.'])
+                ->withInput();
+        }
+
         $validated['meuble'] = $request->boolean('meuble');
         $bien->update($validated);
 
@@ -222,9 +240,9 @@ class BienController extends Controller
         $this->authorize('isStaff');
 
         if ($bien->contratActif) {
-            return back()->withErrors([
-                'general' => 'Impossible de supprimer un bien avec un contrat actif.',
-            ]);
+            return redirect()
+                ->route('admin.biens.show', $bien)
+                ->with('error', 'Impossible de supprimer ce bien : un contrat actif est en cours.');
         }
 
         $bien->statut = 'archive';
