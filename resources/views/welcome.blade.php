@@ -36,8 +36,8 @@
 :root{
     --red:#e8001d;
     --red-dark:#c0001a;
-    --gold:#e8001d; /* alias pour compatibilité */
-    --gold-light:#e8001d;
+    --gold:#e8001d;
+    
     --bg:#f9fafb;
     --bg2:#f3f4f6;
     --bg3:#eef0f2;
@@ -174,13 +174,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .browser-bar{
     background:#2a2a2a;padding:12px 16px;
     display:flex;align-items:center;gap:10px;
-    border-bottom:1px solid var(--border);
+    border-bottom:1px solid rgba(255,255,255,.08);
 }
 .b-dots{display:flex;gap:6px}
 .b-dot{width:11px;height:11px;border-radius:50%}
 .url-bar{
     flex:1;margin:0 12px;
-    background:rgba(0,0,0,.3);border:1px solid var(--border);
+    background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);
     border-radius:6px;padding:5px 12px;
     font-size:11px;color:var(--muted2);font-family:monospace;
     display:flex;align-items:center;gap:6px;
@@ -192,7 +192,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 /* Sidebar */
 .b-sidebar{
     background:#1a1a1a;
-    border-right:1px solid var(--border);
+    border-right:1px solid rgba(255,255,255,.08);
     padding:16px 12px;
     display:flex;flex-direction:column;gap:2px;
 }
@@ -216,18 +216,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .b-page-sub{font-size:11px;color:var(--muted)}
 .b-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .b-kpi{
-    background:#222222;border:1px solid var(--border);
+    background:#222222;border:1px solid rgba(255,255,255,.08);
     border-radius:10px;padding:12px;
     border-top:2px solid;
 }
 .b-kpi-label{font-size:9.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
 .b-kpi-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;line-height:1}
 .b-kpi-sub{font-size:9px;color:var(--muted2);margin-top:4px}
-.b-table{background:#222222;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.b-table{background:#222222;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
 .b-table-head{
     display:grid;grid-template-columns:1.2fr 1.4fr .8fr .7fr 80px;
     padding:8px 14px;background:rgba(255,255,255,.02);
-    border-bottom:1px solid var(--border);
+    border-bottom:1px solid rgba(255,255,255,.06);
     font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;
 }
 .b-table-row{
