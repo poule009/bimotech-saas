@@ -191,7 +191,7 @@
 
         /* ── Hamburger (mobile) ── */
         .bm-hamburger { display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;border:none;background:transparent;cursor:pointer;padding:6px;flex-shrink:0; }
-        .bm-hamburger span { display:block;height:2px;border-radius:2px;background:#1c2128;transition:all .22s; }
+        .bm-hamburger span { display:block;width:20px;height:2px;border-radius:2px;background:#374151;transition:all .22s; }
         .bm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;opacity:0;transition:opacity .25s; }
         .bm-overlay.open { display:block;opacity:1; }
 
