@@ -10,44 +10,44 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#0d1117;min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
-.left{background:#161b22;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:space-between;padding:3rem;position:relative;overflow:hidden}
-.left::before{content:'';position:absolute;top:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+body{font-family:'DM Sans',sans-serif;background:#ffffff;min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.left{background:#111111;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:space-between;padding:3rem;position:relative;overflow:hidden}
+.left::before{content:'';position:absolute;top:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(232,0,29,.08) 0%,transparent 70%);pointer-events:none}
 .grid-deco{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.left-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#c9a84c;text-decoration:none;letter-spacing:-.5px}
-.left-logo span{color:#e6edf3}
-.left-title{font-family:'Syne',sans-serif;font-size:clamp(26px,3vw,36px);font-weight:800;color:#e6edf3;line-height:1.15;letter-spacing:-1px;margin-bottom:1.25rem}
-.left-title em{font-style:normal;color:#c9a84c}
-.left-sub{font-size:14px;color:#8b949e;line-height:1.7;max-width:340px;font-weight:300}
+.left-logo{display:block;text-decoration:none}
+.left-logo img{height:38px;width:auto}
+.left-title{font-family:'Syne',sans-serif;font-size:clamp(26px,3vw,36px);font-weight:800;color:#ffffff;line-height:1.15;letter-spacing:-1px;margin-bottom:1.25rem}
+.left-title em{font-style:normal;color:#e8001d}
+.left-sub{font-size:14px;color:#9ca3af;line-height:1.7;max-width:340px;font-weight:300}
 .left-stats{display:flex;gap:2rem;position:relative;z-index:1}
-.left-stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#c9a84c}
-.left-stat-label{font-size:12px;color:#484f58;margin-top:2px}
+.left-stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#e8001d}
+.left-stat-label{font-size:12px;color:#6b7280;margin-top:2px}
 
-.right{display:flex;align-items:center;justify-content:center;padding:3rem 2rem;overflow-y:auto}
+.right{display:flex;align-items:center;justify-content:center;padding:3rem 2rem;overflow-y:auto;background:#ffffff}
 .form-box{width:100%;max-width:380px}
-.form-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#e6edf3;letter-spacing:-.5px;margin-bottom:6px}
-.form-subtitle{font-size:13.5px;color:#8b949e;margin-bottom:2.5rem;line-height:1.6}
+.form-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#111111;letter-spacing:-.5px;margin-bottom:6px}
+.form-subtitle{font-size:13.5px;color:#6b7280;margin-bottom:2.5rem;line-height:1.6}
 
 .field{margin-bottom:1.15rem}
-label{display:block;font-size:12.5px;font-weight:500;color:#8b949e;margin-bottom:5px;letter-spacing:.3px}
+label{display:block;font-size:12.5px;font-weight:500;color:#374151;margin-bottom:5px;letter-spacing:.3px}
 .input-wrap{position:relative}
 input[type=email],input[type=password],input[type=text]{
-    width:100%;background:#161b22;border:1px solid rgba(255,255,255,.1);border-radius:10px;
-    padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#e6edf3;
+    width:100%;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:10px;
+    padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#111111;
     outline:none;transition:border-color .2s,background .2s,box-shadow .2s;-webkit-appearance:none;
 }
-input:focus{border-color:#c9a84c;background:#1c2128;box-shadow:0 0 0 3px rgba(201,168,76,.08)}
-input::placeholder{color:#484f58}
+input:focus{border-color:#e8001d;background:#fff8f8;box-shadow:0 0 0 3px rgba(232,0,29,.08)}
+input::placeholder{color:#94a3b8}
 input.is-error{border-color:rgba(226,75,74,.5)!important}
 input.is-error:focus{box-shadow:0 0 0 3px rgba(226,75,74,.08)!important}
 input.has-toggle{padding-right:44px}
 
-.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#484f58;transition:color .2s;border-radius:4px;display:flex;align-items:center;line-height:1}
-.toggle-pw:hover{color:#8b949e}
-.toggle-pw:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;color:#8b949e}
+.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#9ca3af;transition:color .2s;border-radius:4px;display:flex;align-items:center;line-height:1}
+.toggle-pw:hover{color:#6b7280}
+.toggle-pw:focus-visible{outline:2px solid #e8001d;outline-offset:2px;color:#6b7280}
 
 .btn-submit{
-    width:100%;background:#c9a84c;color:#0d1117;
+    width:100%;background:#e8001d;color:#ffffff;
     font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
     padding:13px;border-radius:10px;border:none;cursor:pointer;
     transition:opacity .2s,transform .1s;letter-spacing:.2px;
@@ -57,22 +57,22 @@ input.has-toggle{padding-right:44px}
 .btn-submit:hover:not(:disabled){opacity:.9}
 .btn-submit:active:not(:disabled){transform:scale(.99)}
 .btn-submit:disabled{opacity:.6;cursor:not-allowed}
-.btn-submit:focus-visible{outline:2px solid #c9a84c;outline-offset:3px}
-.spinner{width:16px;height:16px;border:2px solid rgba(13,17,23,.25);border-top-color:#0d1117;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
+.btn-submit:focus-visible{outline:2px solid #e8001d;outline-offset:3px}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#ffffff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-submit.loading .spinner{display:block}
 .btn-submit.loading .btn-text{opacity:.7}
 
 .error-bag{background:rgba(226,75,74,.08);border:1px solid rgba(226,75,74,.2);border-left:3px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:1.25rem;animation:slideIn .25s ease}
-.error-bag p{font-size:12.5px;color:#f0a0a0;line-height:1.6}
-.input-error{font-size:12px;color:#f0a0a0;margin-top:4px}
+.error-bag p{font-size:12.5px;color:#dc2626;line-height:1.6}
+.input-error{font-size:12px;color:#dc2626;margin-top:4px}
 @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-.strength-bar{height:3px;border-radius:2px;margin-top:6px;background:rgba(255,255,255,.06);overflow:hidden}
+.strength-bar{height:3px;border-radius:2px;margin-top:6px;background:#e2e8f0;overflow:hidden}
 .strength-fill{height:100%;width:0;border-radius:2px;transition:width .3s,background .3s}
-.strength-label{font-size:11.5px;color:#484f58;margin-top:4px;min-height:16px;transition:color .3s}
+.strength-label{font-size:11.5px;color:#9ca3af;margin-top:4px;min-height:16px;transition:color .3s}
 
-a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
+a:focus-visible{outline:2px solid #e8001d;outline-offset:2px;border-radius:4px}
 
 @media(max-width:768px){body{grid-template-columns:1fr}.left{display:none}}
 </style>
@@ -81,7 +81,9 @@ a:focus-visible{outline:2px solid #c9a84c;outline-offset:2px;border-radius:4px}
 
 <div class="left" role="complementary" aria-label="BimoTech Immo">
     <div class="grid-deco" aria-hidden="true"></div>
-    <a href="{{ url('/') }}" class="left-logo" aria-label="Retour à l'accueil BimoTech">Bimo<span>Tech</span></a>
+    <a href="{{ url('/') }}" class="left-logo" aria-label="Retour à l'accueil BiMO-tech">
+        <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
+    </a>
     <div style="position:relative;z-index:1">
         <h2 class="left-title">Gérez votre agence<br><em>comme un pro</em></h2>
         <p class="left-sub">Biens, contrats, paiements, quittances — tout centralisé. Conforme TVA 18%, NINEA et loi 81-18.</p>
