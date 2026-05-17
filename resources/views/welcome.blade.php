@@ -38,9 +38,9 @@
     --red-dark:#c0001a;
     --gold:#e8001d; /* alias pour compatibilité */
     --gold-light:#e8001d;
-    --bg:#ffffff;
-    --bg2:#f9fafb;
-    --bg3:#f3f4f6;
+    --bg:#f9fafb;
+    --bg2:#f3f4f6;
+    --bg3:#eef0f2;
     --surface:#ffffff;
     --text:#111111;
     --text2:#374151;
@@ -77,6 +77,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
     text-align:center;
     padding:100px 5% 80px;
     position:relative;overflow:hidden;
+    background:#ffffff;
 }
 .hero::after{display:none}
 .hero-inner{position:relative;z-index:1;max-width:820px;width:100%}
