@@ -211,7 +211,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .b-nav-item.active svg{opacity:1}
 /* Main content */
 .b-main{padding:20px;display:flex;flex-direction:column;gap:14px;background:#1a1a1a}
-.b-page-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.b-page-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#e5e7eb;margin-bottom:2px}
 .b-page-sub{font-size:11px;color:var(--muted)}
 .b-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .b-kpi{
@@ -392,20 +392,6 @@ h2 em{
     position:relative;overflow:hidden;margin-top:3rem;
     box-shadow:var(--card-shadow);
 }
-.compliance-card::before{
-    content:'';position:absolute;
-    top:-80px;right:-80px;
-    width:350px;height:350px;
-    background:none;
-    pointer-events:none;
-}
-.compliance-card::after{
-    content:'';position:absolute;
-    bottom:-60px;left:-60px;
-    width:250px;height:250px;
-    background:none;
-    pointer-events:none;
-}
 .comp-grid{
     display:grid;grid-template-columns:1fr 1fr;
     gap:1.75rem;position:relative;z-index:1;
@@ -585,27 +571,20 @@ h2 em{
     border-top:1px solid var(--border);
     position:relative;overflow:hidden;
 }
-.cta-section::before{
-    content:'';position:absolute;top:50%;left:50%;
-    transform:translate(-50%,-50%);
-    width:800px;height:400px;
-    background:none;
-    pointer-events:none;
-}
 .cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
-.cta-inner h2{letter-spacing:-2px}
+.cta-inner h2{letter-spacing:-2px;color:#ffffff}
 .cta-sub{
-    font-size:16px;color:var(--muted);
+    font-size:16px;color:#9ca3af;
     max-width:460px;margin:.75rem auto 2.5rem;
     line-height:1.75;font-weight:300;
 }
 .cta-meta{
     margin-top:1.5rem;
     display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;
-    font-size:12.5px;color:var(--muted2);
+    font-size:12.5px;color:#6b7280;
 }
 .cta-meta span{display:flex;align-items:center;gap:5px}
-.cta-meta .dot{width:4px;height:4px;background:var(--gold);border-radius:50%;opacity:.5}
+.cta-meta .dot{width:4px;height:4px;background:#e8001d;border-radius:50%}
 
 /* ─── FOOTER ────────────────────────────────────────────── */
 footer{
@@ -622,39 +601,35 @@ footer{
     border-bottom:1px solid var(--border);
 }
 .footer-brand{}
-.footer-logo{
-    font-family:'Syne',sans-serif;font-size:20px;font-weight:800;
-    color:var(--gold);letter-spacing:-.5px;margin-bottom:.75rem;
-    display:inline-block;
-}
-.footer-logo span{color:var(--text)}
-.footer-tagline{font-size:13px;color:var(--muted);line-height:1.6;max-width:220px;margin-bottom:1.5rem}
+.footer-logo{display:block;margin-bottom:.75rem}
+.footer-logo img{height:36px;width:auto}
+.footer-tagline{font-size:13px;color:#9ca3af;line-height:1.6;max-width:220px;margin-bottom:1.5rem}
 .footer-badge{
     display:inline-flex;align-items:center;gap:6px;
-    background:#f9fafb;border:1px solid var(--border);
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
     border-radius:6px;padding:5px 10px;
-    font-size:11px;color:var(--muted);
+    font-size:11px;color:#9ca3af;
 }
 .footer-col-title{
     font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
-    color:var(--text2);text-transform:uppercase;letter-spacing:1px;
+    color:#e5e7eb;text-transform:uppercase;letter-spacing:1px;
     margin-bottom:1rem;
 }
 .footer-col a{
-    display:block;font-size:13px;color:var(--muted);
+    display:block;font-size:13px;color:#9ca3af;
     text-decoration:none;margin-bottom:.6rem;
     transition:color .15s;
 }
-.footer-col a:hover{color:var(--text)}
+.footer-col a:hover{color:#ffffff}
 .footer-bottom{
     max-width:1040px;margin:2rem auto 0;
     display:flex;justify-content:space-between;align-items:center;
     flex-wrap:wrap;gap:1rem;
 }
-.footer-copy{font-size:12px;color:var(--muted2)}
+.footer-copy{font-size:12px;color:#6b7280}
 .footer-legal{display:flex;gap:1.5rem}
-.footer-legal a{font-size:12px;color:var(--muted2);text-decoration:none;transition:color .15s}
-.footer-legal a:hover{color:var(--muted)}
+.footer-legal a{font-size:12px;color:#6b7280;text-decoration:none;transition:color .15s}
+.footer-legal a:hover{color:#9ca3af}
 
 /* ─── ANIMATIONS ─────────────────────────────────────────── */
 @keyframes fadeUp{
@@ -1269,7 +1244,7 @@ footer{
 <footer>
     <div class="footer-top">
         <div class="footer-brand">
-            <div class="footer-logo">Bimo<span>Tech</span> Immo</div>
+            <a href="{{ url('/') }}" class="footer-logo"><img src="/images/logo.jpeg" alt="BiMO-tech Immo"></a>
             <p class="footer-tagline">La plateforme de gestion immobilière professionnelle pour les agences sénégalaises.</p>
             <div class="footer-badge">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
