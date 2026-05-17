@@ -198,7 +198,7 @@ function checkStrength(val) {
     const levels = [
         {w:'25%', bg:'#E24B4A', txt:'Trop court'},
         {w:'50%', bg:'#e07b39', txt:'Faible'},
-        {w:'75%', bg:'#c9a84c', txt:'Moyen'},
+        {w:'75%', bg:'#f59e0b', txt:'Moyen'},
         {w:'100%',bg:'#3B6D11', txt:'Fort'},
     ];
     const lvl = levels[Math.max(0, score - 1)];
