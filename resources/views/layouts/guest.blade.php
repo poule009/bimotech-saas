@@ -32,21 +32,16 @@
             margin-bottom: 28px;
         }
         .auth-brand-logo {
-            width: 48px;
-            height: 48px;
-            background: #1a3c5e;
-            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 12px;
-            box-shadow: 0 4px 14px rgba(26,60,94,.25);
         }
-        .auth-brand-logo svg { width: 24px; height: 24px; color: white; }
+        .auth-brand-logo img { height: 52px; width: auto; }
         .auth-brand-name {
             font-size: 22px;
             font-weight: 800;
-            color: #0f172a;
+            color: #111111;
             letter-spacing: -.5px;
         }
         .auth-brand-sub {
@@ -98,8 +93,8 @@
             font-family: inherit;
         }
         .form-input:focus {
-            border-color: #1a3c5e;
-            box-shadow: 0 0 0 3px rgba(26,60,94,.12);
+            border-color: #e8001d;
+            box-shadow: 0 0 0 3px rgba(232,0,29,.1);
         }
         .form-input::placeholder { color: #94a3b8; }
         .form-error {
@@ -134,7 +129,7 @@
             height: 16px;
             border: 1.5px solid #e2e8f0;
             border-radius: 4px;
-            accent-color: #1a3c5e;
+            accent-color: #e8001d;
             cursor: pointer;
         }
         .form-check label {
@@ -147,7 +142,7 @@
         .btn-auth {
             width: 100%;
             padding: 11px 20px;
-            background: #1a3c5e;
+            background: #e8001d;
             color: white;
             border: none;
             border-radius: 10px;
@@ -167,7 +162,7 @@
         /* Lien secondaire */
         .auth-link {
             font-size: 13px;
-            color: #1a3c5e;
+            color: #e8001d;
             font-weight: 500;
             transition: opacity .15s;
         }
@@ -181,7 +176,7 @@
             color: #94a3b8;
         }
         .auth-footer a { color: #64748b; font-weight: 500; }
-        .auth-footer a:hover { color: #1a3c5e; }
+        .auth-footer a:hover { color: #e8001d; }
 
         /* Divider */
         .auth-divider {
@@ -207,11 +202,9 @@
         {{-- Brand --}}
         <div class="auth-brand">
             <div class="auth-brand-logo">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 00-1-1h-2a1 1 0 00-1 1v5m4 0H9"/>
-                </svg>
+                <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
             </div>
-            <div class="auth-brand-name">Bimotech</div>
+            <div class="auth-brand-name">BiMO-tech Immo</div>
             <div class="auth-brand-sub">Gestion immobilière professionnelle</div>
         </div>
 
