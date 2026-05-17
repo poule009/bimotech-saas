@@ -85,22 +85,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
     padding:100px 5% 80px;
     position:relative;overflow:hidden;
 }
-/* Dot grid sur fond clair */
-.hero::before{
-    content:'';position:absolute;inset:0;
-    
-    background-size:32px 32px;
-    pointer-events:none;
-    
-    -webkit-
-}
-/* Halo doré subtil */
-.hero::after{
-    content:'';position:absolute;top:-10%;left:50%;transform:translateX(-50%);
-    width:900px;height:600px;
-    background:none;
-    pointer-events:none;
-}
+.hero::after{display:none}
 .hero-inner{position:relative;z-index:1;max-width:820px;width:100%}
 
 .hero-badge{
@@ -135,10 +120,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 }
 .hero h1 em{
     font-style:normal;
-    background:#e8001d;
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-    background-clip:text;
+    color:#e8001d;
 }
 .hero-sub{
     font-size:clamp(15px,2vw,18px);
@@ -290,8 +272,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .trust-stat{text-align:center}
 .trust-num{
     font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
-    background:#e8001d;
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    color:#e8001d;
     line-height:1;
 }
 .trust-desc{font-size:11px;color:var(--muted);margin-top:4px}
@@ -314,8 +295,7 @@ h2{
 }
 h2 em{
     font-style:normal;
-    background:#e8001d;
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    color:#e8001d;
 }
 .section-sub{
     font-size:15px;color:var(--muted);
