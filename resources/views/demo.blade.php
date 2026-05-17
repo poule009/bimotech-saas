@@ -33,14 +33,14 @@ h1 em{font-style:normal;color:var(--gold)}
 /* Promesses */
 .promises{display:flex;flex-direction:column;gap:1rem}
 .promise{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;gap:14px}
-.promise-icon{width:42px;height:42px;background:rgba(232,0,29,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.promise-icon{width:42px;height:42px;background:#e8001d;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .promise-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
 .promise-desc{font-size:13px;color:var(--muted);line-height:1.6}
 
 .separator{border:none;border-top:1px solid var(--border);margin:1rem 0}
 
 /* Témoignage */
-.testimonial{background:var(--dark2);border:1px solid rgba(232,0,29,.15);border-radius:14px;padding:1.5rem}
+.testimonial{background:var(--dark2);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1.5rem}
 .testimonial-text{font-size:14px;color:var(--muted);line-height:1.8;font-style:italic;margin-bottom:1rem}
 .testimonial-author{display:flex;align-items:center;gap:10px}
 .author-avatar{width:36px;height:36px;background:rgba(232,0,29,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--gold)}

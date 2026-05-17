@@ -36,8 +36,8 @@ h1 em{font-style:normal;color:var(--gold)}
 
 /* Accordion */
 .faq-item{border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
-.faq-item:hover{border-color:rgba(232,0,29,.2)}
-.faq-item.open{border-color:rgba(232,0,29,.3)}
+.faq-item:hover{border-color:rgba(255,255,255,.15)}
+.faq-item.open{border-color:rgba(255,255,255,.15)}
 
 .faq-q{
     width:100%;background:transparent;border:none;padding:1.1rem 1.25rem;
@@ -48,7 +48,7 @@ h1 em{font-style:normal;color:var(--gold)}
 }
 .faq-q:hover{background:rgba(255,255,255,.02)}
 .faq-icon{
-    width:22px;height:22px;background:rgba(232,0,29,.1);border-radius:6px;
+    width:22px;height:22px;background:#e8001d;border-radius:6px;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
     transition:transform .25s,background .2s;
 }

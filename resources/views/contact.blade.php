@@ -34,8 +34,8 @@ h1 em{font-style:normal;color:var(--gold)}
 /* Infos contact */
 .contact-info{display:flex;flex-direction:column;gap:1.25rem}
 .info-card{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;gap:14px;align-items:flex-start;transition:border-color .2s}
-.info-card:hover{border-color:rgba(232,0,29,.25)}
-.info-icon{width:40px;height:40px;background:rgba(232,0,29,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.info-card:hover{border-color:rgba(255,255,255,.15)}
+.info-icon{width:40px;height:40px;background:#e8001d;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .info-label{font-size:11.5px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
 .info-value{font-size:14px;color:var(--text);font-weight:500}
 .info-value a{color:var(--text);text-decoration:none}
