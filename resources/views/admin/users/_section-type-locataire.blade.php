@@ -1,3 +1,12 @@
+<style>
+#type-locataire-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.bloc-entreprise-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){
+    #type-locataire-grid{grid-template-columns:repeat(3,1fr)}
+    .bloc-entreprise-fields{grid-template-columns:1fr}
+}
+@media(max-width:380px){#type-locataire-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
 {{--
     ════════════════════════════════════════════════════════════════════
     PARTIEL — Section "Type de locataire" pour users/create.blade.php
@@ -26,7 +35,7 @@
         Type de locataire <span style="color:#dc2626">*</span>
     </label>
 
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px" id="type-locataire-grid">
+    <div id="type-locataire-grid">
         @foreach([
             'particulier' => ['label' => 'Particulier',  'icon' => '👤', 'brs' => false],
             'entreprise'  => ['label' => 'Entreprise',   'icon' => '🏢', 'brs' => true],
@@ -65,7 +74,7 @@
             Informations de la personne morale
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="bloc-entreprise-fields">
             <div style="grid-column:span 2">
                 <label style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px">
                     Raison sociale (nom officiel de l'entreprise)

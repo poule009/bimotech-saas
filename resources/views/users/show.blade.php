@@ -63,6 +63,13 @@
 .side-lbl { color:rgba(255,255,255,.4); }
 .side-val { color:#e6edf3;font-weight:500; }
 .side-val.gold { color:#c9a84c; }
+@media(max-width:1024px){.page-grid{grid-template-columns:1fr}}
+@media(max-width:640px){
+    .info-grid{grid-template-columns:1fr}
+    .info-grid-3{grid-template-columns:1fr 1fr}
+    .kpi-row{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:400px){.info-grid-3{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">
