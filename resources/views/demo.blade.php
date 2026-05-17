@@ -92,6 +92,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
     .form-card{position:static}
     .row-2{grid-template-columns:1fr}
     footer{flex-direction:column;text-align:center}
+    .footer-links{flex-direction:column;gap:.4rem;align-items:center}
 }
 </style>
 </head>

@@ -95,6 +95,22 @@
 .donut-legend { display:flex;flex-wrap:wrap;gap:10px 18px;padding:10px 22px 18px; }
 .donut-leg { display:flex;align-items:center;gap:6px;font-size:12px;color:#6b7280; }
 .donut-dot { width:10px;height:10px;border-radius:3px;flex-shrink:0; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+    .kpi-grid{grid-template-columns:repeat(2,1fr)}
+    .bilan{grid-template-columns:1fr;gap:0}
+    .bilan-col{border-right:none;border-bottom:1px solid rgba(255,255,255,.07);padding:14px 0}
+    .bilan-col:first-child{padding-top:0}
+    .bilan-col:last-child{border-bottom:none;padding-bottom:0}
+    .g2,.g3,.g4{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+    .kpi-grid{grid-template-columns:1fr 1fr}
+    .kpi-value{font-size:20px}
+    .bilan-val{font-size:22px}
+    .tabs{flex-wrap:wrap}
+}
 </style>
 
 <div style="padding:24px 32px 48px">

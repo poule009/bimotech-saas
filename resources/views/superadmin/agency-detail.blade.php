@@ -9,6 +9,8 @@
 .info-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;min-width:90px;margin-top:2px; }
 .detail-grid { display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:20px; }
 .stats-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+@media(max-width:900px){.detail-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">

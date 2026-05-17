@@ -17,6 +17,7 @@
 .rp-row:last-child { border-bottom:none; }
 .rp-lbl { font-size:12px;color:rgba(255,255,255,.45); }
 .rp-val { font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#fff; }
+@media(max-width:900px){.form-grid{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">

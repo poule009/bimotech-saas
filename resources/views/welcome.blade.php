@@ -670,6 +670,26 @@ footer{
     .billing-toggle{width:100%}
     .billing-btn{flex:1;justify-content:center;font-size:12px;padding:7px 10px}
 }
+@media(max-width:480px){
+    .hero{padding:90px 4% 60px}
+    .hero-btns{flex-direction:column;align-items:center}
+    .btn-gold,.btn-outline{width:100%;justify-content:center}
+    .section{padding:4rem 4%}
+    .testimonials-section{padding:4rem 4%}
+    .pricing-section{padding:4rem 4%}
+    .cta-section{padding:4.5rem 4%}
+    .trust-bar{padding:2rem 4%}
+    .trust-inner{flex-direction:column;gap:1rem}
+    .trust-divider{display:none}
+    .trust-stats{gap:1rem}
+    .mockup-wrap{margin-top:2rem}
+    .b-main{padding:10px;gap:8px}
+    .b-kpis{grid-template-columns:1fr 1fr}
+    .b-table{display:none}
+    .footer-legal{flex-direction:column;gap:.5rem;align-items:center}
+    .compliance-card{padding:1.75rem}
+    .plan{padding:1.5rem}
+}
 </style>
 </head>
 <body>

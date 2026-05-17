@@ -62,6 +62,8 @@
 .btn-excel.loading::after { content:'Génération…';font-size:12px; }
 .btn-excel.loading::before { content:'';display:inline-block;width:14px;height:14px;border:2px solid #16a34a;border-top-color:transparent;border-radius:50%;animation:xlspin .65s linear infinite;margin-right:6px; }
 @keyframes xlspin { to { transform:rotate(360deg); } }
+.form-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px; }
+@media(max-width:640px){.form-grid-2{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">
@@ -400,7 +402,7 @@
             <input type="hidden" name="contrat_id" id="pr-contrat-id">
             <input type="hidden" name="statut" value="valide">
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div class="form-grid-2">
                 <div>
                     <label class="form-label">Période <span class="req">*</span></label>
                     <input type="month" name="periode" id="pr-periode" class="form-input"
@@ -413,7 +415,7 @@
                 </div>
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div class="form-grid-2">
                 <div>
                     <label class="form-label">Montant encaissé (FCFA) <span class="req">*</span></label>
                     <input type="number" name="montant_encaisse" id="pr-montant" class="form-input"

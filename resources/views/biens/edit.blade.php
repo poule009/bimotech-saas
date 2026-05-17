@@ -33,6 +33,7 @@
 .info-row:last-child { border-bottom:none; }
 .info-lbl { color:rgba(255,255,255,.4); }
 .info-val { color:#e6edf3;font-weight:500; }
+@media(max-width:900px){.form-grid{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">

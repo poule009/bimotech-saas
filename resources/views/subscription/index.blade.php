@@ -197,6 +197,15 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 
 @media(max-width:860px){ .plans-row{ grid-template-columns:repeat(2,1fr); } }
 @media(max-width:540px){ .plans-row{ grid-template-columns:1fr; } }
+@media(max-width:768px){
+    .compare-table { overflow-x:auto; }
+    .compare-table table { min-width:480px; }
+    .hist-card { overflow-x:auto; }
+    .hist-table { min-width:480px; }
+    .sub-banner { flex-direction:column; align-items:flex-start; }
+    .support-card { flex-direction:column; align-items:flex-start; }
+    .support-contacts { flex-direction:column; gap:8px; }
+}
 </style>
 
 <div class="sub-page">

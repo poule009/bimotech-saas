@@ -50,6 +50,7 @@
 
 .alerte-due    { background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 18px;color:#9a3412;font-size:13px;line-height:1.6; }
 .alerte-credit { background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 18px;color:#1e40af;font-size:13px;line-height:1.6; }
+@media(max-width:768px){.form-row{grid-template-columns:1fr}}
 </style>
 
 <div class="page-wrap">

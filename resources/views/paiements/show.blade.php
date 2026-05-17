@@ -51,7 +51,10 @@
 @media(max-width:640px){
     .page-grid { grid-template-columns:1fr; }
     .dep-form-grid { grid-template-columns:1fr !important; }
+    .info-grid { grid-template-columns:1fr; }
+    .info-grid-3 { grid-template-columns:1fr 1fr; }
 }
+@media(max-width:400px){.info-grid-3{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">

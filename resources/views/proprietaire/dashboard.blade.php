@@ -112,6 +112,13 @@
 .page-btn { display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s; }
 .page-btn.active { background:#0d1117;color:#fff;border-color:#0d1117; }
 .page-btn.disabled { opacity:.4;pointer-events:none; }
+@media(max-width:1024px){
+    .dash-grid{grid-template-columns:1fr}
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .bilan{grid-template-columns:1fr;gap:0}
+    .biens-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){.kpi-row{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:24px 32px 48px">

@@ -83,6 +83,11 @@
 .calc-row.warning { background:#fff1f2; border-radius:8px; padding:10px 12px; margin:6px -12px; border-bottom:none; }
 .calc-row.warning .calc-lbl { color:#dc2626; font-weight:600; }
 .calc-row.warning .calc-val { color:#dc2626; font-size:15px; }
+.grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+.grid-3 { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+@media(max-width:1024px){.page-grid{grid-template-columns:1fr}}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr 1fr}}
+@media(max-width:400px){.grid-3{grid-template-columns:1fr}}
 </style>
 
 <div class="page">
@@ -295,7 +300,7 @@
                     @else
 
                         {{-- Deux cartes côte à côte --}}
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+                        <div class="grid-2" style="margin-bottom:16px">
 
                             {{-- CARTE CGF --}}
                             @php $cgfRecommande = $regimes['regime_recommande'] === 'cgf'; @endphp
@@ -368,7 +373,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                    <div class="grid-2">
                         @if($bilan->tva_loyer_collectee > 0)
                         <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px">
                             <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#d97706;margin-bottom:8px">TVA loyer collectée</div>
@@ -419,7 +424,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                    <div class="grid-3">
                         <div style="text-align:center;padding:14px;background:#fdf8ef;border-radius:10px;border:1px solid #f5e9c9">
                             <div style="font-size:10px;color:#8a6e2f;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Commission HT</div>
                             <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#8a6e2f">{{ number_format($bilan->commissions_agence_ht, 0, ',', ' ') }} F</div>

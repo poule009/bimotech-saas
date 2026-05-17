@@ -28,6 +28,7 @@
 .amt { font-family:'Syne',sans-serif;font-weight:600;color:#0d1117; }
 .amt-green { font-family:'Syne',sans-serif;font-weight:600;color:#16a34a; }
 .amt-red   { font-family:'Syne',sans-serif;font-weight:600;color:#dc2626; }
+@media(max-width:480px){.kpi-row{grid-template-columns:1fr!important}}
 </style>
 
 <div style="padding:24px 32px 48px">

@@ -21,6 +21,11 @@
 .dt th { padding:9px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
 .dt td { padding:11px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
 .dt tbody tr:last-child td { border-bottom:none; }
+@media(max-width:640px){
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .info-grid{grid-template-columns:1fr}
+}
+@media(max-width:400px){.kpi-row{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">

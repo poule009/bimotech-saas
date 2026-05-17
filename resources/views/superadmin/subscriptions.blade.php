@@ -14,6 +14,9 @@
 .dropdown-item { display:block;width:100%;padding:9px 14px;font-size:12px;color:#374151;background:none;border:none;text-align:left;cursor:pointer;border-bottom:1px solid #f3f4f6; }
 .dropdown-item:last-child { border-bottom:none; }
 .dropdown-item:hover { background:#f9fafb; }
+@media(max-width:768px){.sub-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:540px){.sub-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:380px){.sub-grid{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">

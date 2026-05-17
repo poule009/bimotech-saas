@@ -336,6 +336,7 @@
 .fiscal-val { font-family: 'Syne', sans-serif; font-weight: 700; color: #0d1117; }
 .fiscal-val.purple { color: #7c3aed; }
 .fiscal-val.red { color: #dc2626; }
+@media(max-width:1024px){.synth-grid{grid-template-columns:1fr}}
 </style>
 
 @php

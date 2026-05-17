@@ -66,6 +66,18 @@
 .pg-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
 .pg-btn.active { background:#0d1117;color:#fff;border-color:#0d1117; }
 .pg-btn.disabled { opacity:.35;pointer-events:none; }
+@media(max-width:1024px){
+    .kpi-row5{grid-template-columns:repeat(3,1fr)}
+    .stats-generales-grid{grid-template-columns:repeat(3,1fr)!important}
+}
+@media(max-width:640px){
+    .kpi-row5{grid-template-columns:repeat(2,1fr)}
+    .stats-generales-grid{grid-template-columns:repeat(2,1fr)!important}
+}
+@media(max-width:420px){
+    .kpi-row5{grid-template-columns:1fr}
+    .stats-generales-grid{grid-template-columns:1fr!important}
+}
 </style>
 
 @php
@@ -208,7 +220,7 @@
 </div>
 
 {{-- ── STATS GÉNÉRALES ──────────────────────────────────────────────────── --}}
-<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px">
+<div class="stats-generales-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px">
     @foreach([
         ['label' => 'Biens total',        'val' => $statsGenerales['nb_biens']],
         ['label' => 'Biens loués',         'val' => $statsGenerales['nb_biens_loues']],

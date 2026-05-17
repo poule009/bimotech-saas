@@ -38,6 +38,10 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
 .footer-links{display:flex;gap:1.5rem}
 .footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
 .footer-copy{font-size:12px;color:#484f58}
+@media(max-width:640px){
+    footer{flex-direction:column;text-align:center}
+    .footer-links{flex-direction:column;gap:.4rem;align-items:center}
+}
 </style>
 </head>
 <body>

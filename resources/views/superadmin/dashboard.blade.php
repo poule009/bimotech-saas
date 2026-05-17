@@ -34,6 +34,8 @@
 
 .alert-warn { background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#92400e;display:flex;align-items:center;gap:10px; }
 .alert-success { background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#166534; }
+@media(max-width:768px){.sa-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.sa-grid{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">

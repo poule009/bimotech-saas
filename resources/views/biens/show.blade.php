@@ -78,6 +78,8 @@
 .badge-loue       { background:#dbeafe;color:#1d4ed8; }
 .badge-en_travaux { background:#fef9c3;color:#a16207; }
 .badge-archive    { background:#f3f4f6;color:#6b7280; }
+@media(max-width:1024px){.page-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpi-row{grid-template-columns:1fr}}
 </style>
 
 <div style="padding:0 0 48px">
