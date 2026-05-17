@@ -432,8 +432,8 @@ h2 em{
     margin:0 auto 1.25rem;
     box-shadow:0 8px 24px rgba(0,0,0,.15);
 }
-.step-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:.5rem;color:var(--text)}
-.step-desc{font-size:13px;color:var(--muted);line-height:1.65}
+.step-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:.5rem;color:#ffffff}
+.step-desc{font-size:13px;color:#9ca3af;line-height:1.65}
 
 /* ─── PRICING ────────────────────────────────────────────── */
 .pricing-section{
@@ -631,6 +631,12 @@ footer{
 .footer-legal{display:flex;gap:1.5rem}
 .footer-legal a{font-size:12px;color:#6b7280;text-decoration:none;transition:color .15s}
 .footer-legal a:hover{color:#9ca3af}
+
+/* ─── SECTIONS SOMBRES ──────────────────────────────────── */
+.section-dark h2{color:#ffffff}
+.section-dark .section-sub{color:#9ca3af}
+.section-dark .section-tag{color:#e8001d}
+.section-dark .section-tag::before{background:#e8001d}
 
 /* ─── ANIMATIONS ─────────────────────────────────────────── */
 @keyframes fadeUp{
@@ -1059,7 +1065,7 @@ footer{
 </section>
 
 <!-- ─── COMMENT ÇA MARCHE ─────────────────────────────── -->
-<section class="section" style="background:#1a1a1a;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+<section class="section section-dark" style="background:#1a1a1a;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)">
     <div class="section-inner">
         <div class="section-header">
             <div class="section-tag">Démarrage rapide</div>
