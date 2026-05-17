@@ -35,7 +35,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
     --gold:#e8001d;
-    --gold-light:#ff4444;
+    --gold-light:#e8001d;
     --gold-dim:rgba(232,0,29,.12);
     --dark:#080c12;
     --dark2:#0d1117;
@@ -88,17 +88,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 /* Dot grid sur fond clair */
 .hero::before{
     content:'';position:absolute;inset:0;
-    background-image:radial-gradient(rgba(0,0,0,.06) 1px, transparent 1px);
+    
     background-size:32px 32px;
     pointer-events:none;
-    mask-image:radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
-    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+    
+    -webkit-
 }
 /* Halo doré subtil */
 .hero::after{
     content:'';position:absolute;top:-10%;left:50%;transform:translateX(-50%);
     width:900px;height:600px;
-    background:radial-gradient(ellipse, rgba(232,0,29,.08) 0%, transparent 65%);
+    background:none;
     pointer-events:none;
 }
 .hero-inner{position:relative;z-index:1;max-width:820px;width:100%}
@@ -135,7 +135,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 }
 .hero h1 em{
     font-style:normal;
-    background:linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 60%, #f0d87a 100%);
+    background:#e8001d;
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
     background-clip:text;
@@ -160,7 +160,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 
 /* CTA Buttons */
 .btn-gold{
-    background:linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    background:#e8001d;
     color:#080c12;
     font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;
     padding:13px 28px;border-radius:var(--radius-sm);
@@ -187,7 +187,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .mockup-halo{
     position:absolute;top:-60px;left:50%;transform:translateX(-50%);
     width:700px;height:280px;
-    background:radial-gradient(ellipse, rgba(232,0,29,.1) 0%, transparent 70%);
+    background:none;
     pointer-events:none;
 }
 .mockup-browser{
@@ -290,7 +290,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .trust-stat{text-align:center}
 .trust-num{
     font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
-    background:linear-gradient(135deg, var(--gold), var(--gold-light));
+    background:#e8001d;
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
     line-height:1;
 }
@@ -314,7 +314,7 @@ h2{
 }
 h2 em{
     font-style:normal;
-    background:linear-gradient(135deg, var(--gold), var(--gold-light));
+    background:#e8001d;
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
 .section-sub{
@@ -343,7 +343,7 @@ h2 em{
 .feat::after{
     content:'';
     position:absolute;inset:0;
-    background:linear-gradient(135deg, rgba(232,0,29,.05) 0%, transparent 55%);
+    background:transparent;
     opacity:0;transition:opacity .3s;pointer-events:none;
 }
 .feat:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-hover);border-color:rgba(232,0,29,.3)}
@@ -400,7 +400,7 @@ h2 em{
 .testi-author{display:flex;align-items:center;gap:10px}
 .testi-avatar{
     width:38px;height:38px;border-radius:50%;
-    background:linear-gradient(135deg, var(--gold), #8a6e2f);
+    background:#e8001d;
     display:flex;align-items:center;justify-content:center;
     font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#080c12;
     flex-shrink:0;
@@ -424,14 +424,14 @@ h2 em{
     content:'';position:absolute;
     top:-80px;right:-80px;
     width:350px;height:350px;
-    background:radial-gradient(circle, rgba(232,0,29,.06) 0%, transparent 70%);
+    background:none;
     pointer-events:none;
 }
 .compliance-card::after{
     content:'';position:absolute;
     bottom:-60px;left:-60px;
     width:250px;height:250px;
-    background:radial-gradient(circle, rgba(232,0,29,.04) 0%, transparent 70%);
+    background:none;
     pointer-events:none;
 }
 .comp-grid{
@@ -459,13 +459,13 @@ h2 em{
     position:absolute;top:27px;
     left:calc(16.7% + 12px);right:calc(16.7% + 12px);
     height:1px;
-    background:linear-gradient(90deg, var(--gold) 0%, rgba(232,0,29,.15) 100%);
+    background:#e8001d;
     z-index:0;
 }
 .step{text-align:center;position:relative;z-index:1}
 .step-num{
     width:54px;height:54px;
-    background:linear-gradient(135deg, var(--gold), var(--gold-light));
+    background:#e8001d;
     color:#080c12;
     border-radius:50%;
     display:flex;align-items:center;justify-content:center;
@@ -534,12 +534,12 @@ h2 em{
 .plan:hover{border-color:rgba(232,0,29,.32);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
 .plan.featured{
     border-color:var(--gold);
-    background:linear-gradient(160deg, #fffae8 0%, #fffef5 40%, #ffffff 100%);
+    background:#ffffff;
     box-shadow:0 0 0 1px rgba(232,0,29,.2), 0 16px 48px rgba(232,0,29,.16);
 }
 .plan-badge-top{
     position:absolute;top:-13px;left:50%;transform:translateX(-50%);
-    background:linear-gradient(135deg, var(--gold), var(--gold-light));
+    background:#e8001d;
     color:#080c12;
     font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
     padding:4px 16px;border-radius:99px;white-space:nowrap;
@@ -600,7 +600,7 @@ h2 em{
 }
 .plan-btn-ghost:hover{border-color:var(--gold);color:var(--gold);background:rgba(232,0,29,.04)}
 .plan-btn-gold{
-    background:linear-gradient(135deg, var(--gold), var(--gold-light));
+    background:#e8001d;
     color:#080c12;font-weight:700;
     box-shadow:0 4px 16px rgba(232,0,29,.25);
 }
@@ -617,7 +617,7 @@ h2 em{
     content:'';position:absolute;top:50%;left:50%;
     transform:translate(-50%,-50%);
     width:800px;height:400px;
-    background:radial-gradient(ellipse, rgba(232,0,29,.06) 0%, transparent 70%);
+    background:none;
     pointer-events:none;
 }
 .cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}

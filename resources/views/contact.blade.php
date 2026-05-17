@@ -23,7 +23,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;dis
 .nav-back:hover{color:var(--text)}
 
 .hero{padding:120px 5% 5rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(232,0,29,.06) 0%,transparent 70%);pointer-events:none}
+.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:none;pointer-events:none}
 .section-tag{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
 h1{font-family:'Syne',sans-serif;font-size:clamp(30px,5vw,52px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1rem}
 h1 em{font-style:normal;color:var(--gold)}
