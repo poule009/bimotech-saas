@@ -54,7 +54,7 @@
 .card-body { padding:18px 20px; }
 
 /* ══ PROCHAIN LOYER ══════════════════════════════════════════════ */
-.next-loyer { background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:18px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px; }
+.next-loyer { background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:18px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap; }
 .nl-label   { font-size:11px;font-weight:600;color:#15803d;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px; }
 .nl-periode { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#15803d; }
 .nl-hint    { font-size:11px;color:#16a34a;margin-top:3px; }

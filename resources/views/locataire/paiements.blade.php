@@ -34,7 +34,7 @@ $modes = [
 .empty-icon { width:48px;height:48px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
 .empty-title { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:6px; }
 .empty-sub { font-size:13px;color:#9ca3af; }
-.pagination { display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280; }
+.pagination { display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;flex-wrap:wrap;gap:8px; }
 .pag-links { display:flex;gap:4px; }
 .pag-link { display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;color:#374151;text-decoration:none;transition:all .15s; }
 .pag-link:hover { border-color:#c9a84c;color:#8a6e2f; }
