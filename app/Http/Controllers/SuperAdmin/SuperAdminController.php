@@ -97,7 +97,33 @@ class SuperAdminController extends Controller
                 return $agency;
             });
 
-        return view('superadmin.dashboard', compact('stats', 'agences'));
+        // ── Données graphique 12 derniers mois ───────────────────────────
+        $moisFr       = ['01'=>'Jan','02'=>'Fév','03'=>'Mar','04'=>'Avr','05'=>'Mai','06'=>'Jun',
+                         '07'=>'Jul','08'=>'Aoû','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Déc'];
+        $derniers12   = collect(range(11, 0))->map(fn($i) => now()->subMonths($i)->format('Y-m'));
+
+        $rawRevenus = DB::select("
+            SELECT DATE_FORMAT(date_debut_abonnement, '%Y-%m') AS mois,
+                   COALESCE(SUM(montant_paye), 0) AS revenus
+            FROM subscriptions
+            WHERE date_debut_abonnement >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            GROUP BY mois ORDER BY mois
+        ");
+        $revenusMap = collect($rawRevenus)->pluck('revenus', 'mois');
+
+        $rawAgences = DB::select("
+            SELECT DATE_FORMAT(created_at, '%Y-%m') AS mois, COUNT(*) AS nb
+            FROM agencies
+            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            GROUP BY mois ORDER BY mois
+        ");
+        $agencesMap = collect($rawAgences)->pluck('nb', 'mois');
+
+        $chartLabels  = $derniers12->map(fn($m) => $moisFr[substr($m,5,2)].' '.substr($m,0,4))->values();
+        $chartRevenus = $derniers12->map(fn($m) => (float)($revenusMap[$m] ?? 0))->values();
+        $chartAgences = $derniers12->map(fn($m) => (int)($agencesMap[$m] ?? 0))->values();
+
+        return view('superadmin.dashboard', compact('stats', 'agences', 'chartLabels', 'chartRevenus', 'chartAgences'));
     }
 
     public function toggleActif(Agency $agency): RedirectResponse
@@ -274,6 +300,7 @@ class SuperAdminController extends Controller
 
     public function resetUserPassword(Agency $agency, int $userId): RedirectResponse
     {
+        /** @var User $user */
         $user = User::withoutGlobalScopes()->withTrashed()->findOrFail($userId);
         abort_unless($user->agency_id === $agency->id, 403);
 
@@ -288,6 +315,7 @@ class SuperAdminController extends Controller
 
     public function toggleUser(Agency $agency, int $userId): RedirectResponse
     {
+        /** @var User $user */
         $user = User::withoutGlobalScopes()->withTrashed()->findOrFail($userId);
         abort_unless($user->agency_id === $agency->id, 403);
         abort_if($user->isSuperAdmin(), 403);
@@ -309,7 +337,7 @@ class SuperAdminController extends Controller
     {
         abort_if($user->isSuperAdmin(), 403, "Impossible d'impersonner un super-admin.");
 
-        session(['impersonating_id' => auth()->id()]);
+        session(['impersonating_id' => Auth::id()]);
         Auth::login($user);
 
         $redirect = match($user->role) {

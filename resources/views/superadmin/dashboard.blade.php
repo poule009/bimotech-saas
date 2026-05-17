@@ -34,6 +34,13 @@
 
 .alert-warn { background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#92400e;display:flex;align-items:center;gap:10px; }
 .alert-success { background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#166534; }
+.chart-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin-bottom:20px; }
+.filter-bar { display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid #e5e7eb; }
+.filter-btn { padding:5px 14px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid #e5e7eb;background:#f9fafb;color:#6b7280;cursor:pointer;transition:all .15s; }
+.filter-btn.active,.filter-btn:hover { background:#6366f1;color:#fff;border-color:#6366f1; }
+.search-input { flex:1;min-width:180px;max-width:280px;padding:6px 12px 6px 30px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#f9fafb;outline:none; }
+.search-wrap { position:relative;display:flex;align-items:center; }
+.search-wrap svg { position:absolute;left:9px;pointer-events:none;color:#9ca3af; }
 @media(max-width:768px){.sa-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.sa-grid{grid-template-columns:1fr}}
 </style>
@@ -106,12 +113,29 @@
         </div>
     </div>
 
+    {{-- Graphique revenus + nouvelles agences (12 mois) --}}
+    <div class="chart-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+            <div>
+                <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117">Évolution sur 12 mois</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:2px">Revenus abonnements &amp; nouvelles agences</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;font-size:11px;color:#6b7280">
+                <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:3px;background:#6366f1;border-radius:2px;display:inline-block"></span>Revenus (F)</span>
+                <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;background:#e0e7ff;border-radius:2px;display:inline-block"></span>Nouvelles agences</span>
+            </div>
+        </div>
+        <div style="position:relative;height:220px">
+            <canvas id="sa-chart"></canvas>
+        </div>
+    </div>
+
     {{-- Table agences --}}
     <div class="card">
         <div class="card-hd">
             <div>
                 <div class="card-title">Toutes les agences</div>
-                <div style="font-size:11px;color:#9ca3af;margin-top:2px">{{ $agences->count() }} agence(s)</div>
+                <div style="font-size:11px;color:#9ca3af;margin-top:2px"><span id="sa-count">{{ $agences->count() }}</span> agence(s)</div>
             </div>
             <a href="{{ route('superadmin.agencies.create') }}"
                style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#6366f1;color:#fff;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none">
@@ -119,8 +143,22 @@
                 Nouvelle agence
             </a>
         </div>
+
+        {{-- Barre de filtre --}}
+        <div class="filter-bar">
+            <div class="search-wrap">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="sa-search" class="search-input" placeholder="Rechercher une agence…" oninput="saFilter()">
+            </div>
+            <button class="filter-btn active" data-filter="tous"     onclick="saSetFilter(this,'tous')">Tous</button>
+            <button class="filter-btn"         data-filter="essai"   onclick="saSetFilter(this,'essai')">Essai</button>
+            <button class="filter-btn"         data-filter="actif"   onclick="saSetFilter(this,'actif')">Actifs</button>
+            <button class="filter-btn"         data-filter="expiré"  onclick="saSetFilter(this,'expire')">Expirés</button>
+            <button class="filter-btn"         data-filter="suspendu" onclick="saSetFilter(this,'suspendu')">Suspendus</button>
+        </div>
+
         <div style="overflow-x:auto">
-        <table class="dt">
+        <table class="dt" id="sa-table">
             <thead>
                 <tr>
                     <th>Agence</th>
@@ -137,13 +175,16 @@
             <tbody>
                 @forelse($agences as $agence)
                 @php
-                    $sub  = $agence->subscription;
-                    $date = $sub ? ($sub->statut === 'essai' ? $sub->essai_fin : $sub->abonnement_fin) : null;
+                    $sub   = $agence->subscription;
+                    $date  = $sub ? ($sub->statut === 'essai' ? $sub->essai_fin : $sub->abonnement_fin) : null;
                     $jours = $date ? (int)\Carbon\Carbon::parse($date)->diffInDays(now(), false) * -1 : null;
+                    $filterStatut = ! $agence->actif ? 'suspendu' : ($sub ? $sub->statut : 'aucun');
                 @endphp
-                <tr style="{{ !$agence->actif ? 'opacity:.5' : '' }}">
+                <tr data-name="{{ strtolower($agence->name) }} {{ strtolower($agence->email) }}"
+                    data-statut="{{ $filterStatut }}"
+                    style="{{ !$agence->actif ? 'opacity:.5' : '' }}">
                     <td>
-                        <div style="font-weight:700">{{ $agence->name }}</div>
+                        <a href="{{ route('superadmin.agencies.show', $agence) }}" style="font-weight:700;color:#0d1117;text-decoration:none">{{ $agence->name }}</a>
                         <div style="font-size:11px;color:#9ca3af;margin-top:1px">{{ $agence->email }}</div>
                     </td>
                     <td>
@@ -185,7 +226,7 @@
                                 Détail
                             </a>
                             <form method="POST" action="{{ route('superadmin.agencies.toggle', $agence) }}"
-                                  onsubmit="return confirm('{{ $agence->actif ? 'Suspendre ?' : 'Activer ?' }}')">
+                                  data-confirm="{{ $agence->actif ? 'Suspendre '.$agence->name.' ?' : 'Activer '.$agence->name.' ?' }}">
                                 @csrf @method('PATCH')
                                 <button type="submit"
                                     style="padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid {{ $agence->actif ? '#fecaca' : '#bbf7d0' }};background:{{ $agence->actif ? '#fee2e2' : '#dcfce7' }};color:{{ $agence->actif ? '#dc2626' : '#16a34a' }}">
@@ -196,7 +237,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr>
+                <tr id="sa-empty-db">
                     <td colspan="9" style="text-align:center;padding:48px;color:#9ca3af">
                         Aucune agence.
                         <a href="{{ route('superadmin.agencies.create') }}" style="color:#6366f1;margin-left:6px">Créer la première →</a>
@@ -206,7 +247,113 @@
             </tbody>
         </table>
         </div>
+        <div id="sa-empty-filter" style="display:none;text-align:center;padding:48px;color:#9ca3af;font-size:13px">
+            Aucune agence ne correspond à la recherche.
+        </div>
     </div>
 
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── Graphique 12 mois ──────────────────────────────────────────────────────
+(function () {
+    const labels   = @json($chartLabels);
+    const revenus  = @json($chartRevenus);
+    const agences  = @json($chartAgences);
+
+    new Chart(document.getElementById('sa-chart'), {
+        data: {
+            labels,
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Revenus (F)',
+                    data: revenus,
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99,102,241,.08)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    fill: true,
+                    tension: .35,
+                    yAxisID: 'yRev',
+                },
+                {
+                    type: 'bar',
+                    label: 'Nouvelles agences',
+                    data: agences,
+                    backgroundColor: 'rgba(99,102,241,.15)',
+                    borderColor: 'rgba(99,102,241,.4)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    yAxisID: 'yAgc',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.dataset.yAxisID === 'yRev'
+                            ? ' ' + ctx.parsed.y.toLocaleString('fr-FR') + ' F'
+                            : ' ' + ctx.parsed.y + ' agence(s)'
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9ca3af' } },
+                yRev: {
+                    position: 'left',
+                    grid: { color: '#f3f4f6' },
+                    ticks: { font: { size: 10 }, color: '#9ca3af',
+                        callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v }
+                },
+                yAgc: {
+                    position: 'right',
+                    grid: { display: false },
+                    ticks: { font: { size: 10 }, color: '#9ca3af', stepSize: 1 },
+                    min: 0,
+                }
+            }
+        }
+    });
+})();
+
+// ── Filtre / recherche table agences ──────────────────────────────────────
+var saCurrentFilter = 'tous';
+
+function saSetFilter(btn, filter) {
+    saCurrentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    saFilter();
+}
+
+function saFilter() {
+    var q      = document.getElementById('sa-search').value.toLowerCase().trim();
+    var rows   = document.querySelectorAll('#sa-table tbody tr[data-name]');
+    var visible = 0;
+
+    rows.forEach(function (row) {
+        var nameMatch   = !q || row.dataset.name.includes(q);
+        var statut      = row.dataset.statut;
+        var filterMatch = saCurrentFilter === 'tous'
+            || (saCurrentFilter === 'expire'   && statut === 'expiré')
+            || (saCurrentFilter === 'suspendu' && statut === 'suspendu')
+            || statut === saCurrentFilter;
+
+        var show = nameMatch && filterMatch;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+
+    document.getElementById('sa-count').textContent = visible;
+    document.getElementById('sa-empty-filter').style.display = (visible === 0 && rows.length > 0) ? 'block' : 'none';
+}
+</script>
 @endsection
