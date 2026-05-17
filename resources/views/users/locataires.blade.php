@@ -71,12 +71,20 @@
 
 /* Vide */
 .empty { padding:64px; text-align:center; }
+
+.page-hd { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap; }
+@media(max-width:768px){
+    .page{padding:16px 16px 48px}
+    .card-hd{flex-wrap:wrap;gap:8px}
+    .filter-tabs{order:2;width:100%}
+    .search-input{width:100%!important}
+}
 </style>
 
 <div class="page">
 
     {{-- HEADER --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+    <div class="page-hd">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#0d1117;letter-spacing:-.4px">Locataires</h1>
             <p style="font-size:13px;color:#6b7280;margin-top:3px">{{ $stats['total'] }} locataire(s) enregistré(s)</p>
@@ -158,7 +166,7 @@
                         $estEntreprise = (bool) ($profil?->est_entreprise ?? false);
                     @endphp
                     <tr data-status="{{ $aContrat ? 'actif' : 'sans' }}">
-                        <td>
+                        <td data-label="Locataire">
                             <div style="display:flex;align-items:center;gap:12px">
                                 <div class="av {{ $avClass }}">{{ strtoupper(substr($user->name,0,2)) }}</div>
                                 <div>
@@ -172,13 +180,13 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Contact">
                             <div style="font-size:12px;color:#374151">{{ $user->email }}</div>
                             @if($user->telephone)
                             <div style="font-size:11px;color:#6b7280;margin-top:2px">{{ $user->telephone }}</div>
                             @endif
                         </td>
-                        <td>
+                        <td data-label="Situation">
                             @if($profil?->profession)
                                 <div style="font-size:12px;font-weight:500;color:#374151">{{ $profil->profession }}</div>
                             @endif
@@ -189,7 +197,7 @@
                                 <span style="font-size:12px;color:#9ca3af">—</span>
                             @endif
                         </td>
-                        <td>
+                        <td data-label="Contrat actif">
                             @if($contratActif)
                             <div class="contrat-mini">
                                 <div class="contrat-mini-ref">{{ $contratActif->bien->reference ?? '—' }}</div>
@@ -200,14 +208,14 @@
                                 <span style="font-size:12px;color:#9ca3af">Pas de contrat actif</span>
                             @endif
                         </td>
-                        <td style="text-align:center">
+                        <td data-label="Statut" style="text-align:center">
                             @if($aContrat)
                                 <span class="badge badge-green">● Actif</span>
                             @else
                                 <span class="badge badge-gray">Sans contrat</span>
                             @endif
                         </td>
-                        <td>
+                        <td data-label="">
                             <div style="display:flex;align-items:center;justify-content:center;gap:5px">
                                 <a href="{{ route('admin.users.show', $user) }}" class="act" title="Voir la fiche">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>

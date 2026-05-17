@@ -60,12 +60,20 @@
 .empty-icon { font-size:48px; margin-bottom:12px; }
 .empty-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:#0d1117; margin-bottom:6px; }
 .empty-sub { font-size:13px; color:#6b7280; margin-bottom:20px; }
+
+.page-hd { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap; }
+@media(max-width:768px){
+    .page{padding:16px 16px 48px}
+    .card-hd{flex-wrap:wrap;gap:8px}
+    .search-wrap{width:100%}
+    .search-input{width:100%!important}
+}
 </style>
 
 <div class="page">
 
     {{-- HEADER --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+    <div class="page-hd">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#0d1117;letter-spacing:-.4px">Propriétaires</h1>
             <p style="font-size:13px;color:#6b7280;margin-top:3px">{{ $stats['total'] }} propriétaire(s) enregistré(s)</p>
@@ -143,7 +151,7 @@
                         $mode = $profil?->mode_paiement_prefere ?? 'virement';
                     @endphp
                     <tr>
-                        <td>
+                        <td data-label="Propriétaire">
                             <div style="display:flex;align-items:center;gap:12px">
                                 <div class="av">{{ strtoupper(substr($user->name,0,2)) }}</div>
                                 <div>
@@ -154,21 +162,21 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Contact">
                             <div style="font-size:13px;color:#374151">{{ $user->email }}</div>
                             @if($user->telephone)
                             <div style="font-size:11px;color:#6b7280;margin-top:2px">{{ $user->telephone }}</div>
                             @endif
                         </td>
-                        <td style="font-size:13px;color:#374151">{{ $profil?->ville ?? '—' }}</td>
-                        <td style="text-align:center">
+                        <td data-label="Ville" style="font-size:13px;color:#374151">{{ $profil?->ville ?? '—' }}</td>
+                        <td data-label="Biens" style="text-align:center">
                             @if($user->biens_count > 0)
                                 <span class="badge badge-gold">{{ $user->biens_count }} bien(s)</span>
                             @else
                                 <span class="badge badge-gray">Aucun</span>
                             @endif
                         </td>
-                        <td>
+                        <td data-label="Paiement">
                             @if($mode)
                             <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#374151">
                                 <span>{{ $modeIcons[$mode] ?? '💳' }}</span>
@@ -178,14 +186,14 @@
                             <span style="color:#9ca3af;font-size:12px">—</span>
                             @endif
                         </td>
-                        <td>
+                        <td data-label="NINEA">
                             @if($profil?->ninea)
                                 <span style="font-family:monospace;font-size:11px;background:#f3f4f6;padding:3px 7px;border-radius:5px;color:#374151">{{ $profil->ninea }}</span>
                             @else
                                 <span style="color:#9ca3af;font-size:12px">—</span>
                             @endif
                         </td>
-                        <td>
+                        <td data-label="">
                             <div style="display:flex;align-items:center;justify-content:center;gap:5px">
                                 <a href="{{ route('admin.users.show', $user) }}" class="act" title="Voir la fiche">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>

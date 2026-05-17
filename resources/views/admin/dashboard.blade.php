@@ -111,19 +111,30 @@
     .bilan-val{font-size:22px}
     .tabs{flex-wrap:wrap}
 }
+.dash-wrapper { padding:24px 32px 48px; }
+.dash-header  { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap; }
+.dash-header-right { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
+.quick-actions { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px; }
+@media(max-width:768px){
+    .dash-wrapper{padding:16px 16px 48px}
+    .quick-actions{grid-template-columns:1fr}
+    .dash-header-right{width:100%}
+    .btn-outline{width:100%;justify-content:center}
+}
+@media(max-width:480px){.quick-actions{grid-template-columns:1fr}}
 </style>
 
-<div style="padding:24px 32px 48px">
+<div class="dash-wrapper">
 
     {{-- PAGE HEADER --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px">
+    <div class="dash-header">
         <div>
             <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Tableau de bord</h1>
             <p style="font-size:13px;color:#6b7280;margin-top:3px">
                 Bilan de {{ now()->translatedFormat('F Y') }} · {{ $currentAgency->name ?? 'Votre agence' }}
             </p>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div class="dash-header-right">
             <div class="tabs">
                 <a href="{{ route('admin.dashboard', ['periode' => 'mois']) }}"
                    class="tab {{ $periode === 'mois' ? 'active' : '' }}" style="text-decoration:none">Ce mois</a>
@@ -142,7 +153,7 @@
     {{-- ══════════════════════════════════════════════════════════════ --}}
     {{-- ACTIONS RAPIDES                                               --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px">
+    <div class="quick-actions">
 
         {{-- Impayés --}}
         <a href="{{ route('admin.impayes.index') }}"
