@@ -22,14 +22,19 @@
             <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             <span style="color:#0d1117;font-weight:600">{{ $agency->name }}</span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             @if($agency->actif)
                 <span class="badge" style="background:#dcfce7;color:#16a34a"><span class="bdot"></span>Active</span>
             @else
                 <span class="badge" style="background:#fee2e2;color:#dc2626"><span class="bdot"></span>Suspendue</span>
             @endif
+            <a href="{{ route('superadmin.agencies.edit', $agency) }}"
+               style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid #e5e7eb;background:#fff;color:#374151;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Modifier
+            </a>
             <form method="POST" action="{{ route('superadmin.agencies.toggle', $agency) }}"
-                  onsubmit="return confirm('{{ $agency->actif ? 'Suspendre ?' : 'Activer ?' }}')">
+                  data-confirm="{{ $agency->actif ? 'Suspendre cette agence ?' : 'Activer cette agence ?' }}">
                 @csrf @method('PATCH')
                 <button type="submit"
                     style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;
@@ -125,9 +130,9 @@
                     <th>Nom</th>
                     <th>Email</th>
                     <th style="text-align:center">Rôle</th>
-                    <th style="text-align:center">Téléphone</th>
                     <th style="text-align:center">Inscrit le</th>
                     <th style="text-align:center">Statut</th>
+                    <th style="text-align:center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -142,21 +147,60 @@
                     $roleLabel = match($user->role) {
                         'admin' => 'Admin', 'proprietaire' => 'Propriétaire', 'locataire' => 'Locataire', default => $user->role,
                     };
+                    $isDisabled = (bool) $user->deleted_at;
                 @endphp
-                <tr>
+                <tr style="{{ $isDisabled ? 'opacity:.55' : '' }}">
                     <td style="font-weight:600">{{ $user->name }}</td>
-                    <td style="color:#6b7280">{{ $user->email }}</td>
+                    <td style="color:#6b7280;font-size:12px">{{ $user->email }}</td>
                     <td style="text-align:center">
                         <span class="badge" style="{{ $roleStyle }}">{{ $roleLabel }}</span>
                     </td>
-                    <td style="text-align:center;color:#6b7280">{{ $user->telephone ?? '—' }}</td>
                     <td style="text-align:center;font-size:12px;color:#9ca3af">{{ $user->created_at->format('d/m/Y') }}</td>
                     <td style="text-align:center">
-                        @if($user->deleted_at)
-                            <span class="badge" style="background:#fee2e2;color:#dc2626"><span class="bdot"></span>Supprimé</span>
+                        @if($isDisabled)
+                            <span class="badge" style="background:#fee2e2;color:#dc2626"><span class="bdot"></span>Désactivé</span>
                         @else
                             <span class="badge" style="background:#dcfce7;color:#16a34a"><span class="bdot"></span>Actif</span>
                         @endif
+                    </td>
+                    <td style="text-align:center">
+                        <div style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap">
+
+                            {{-- Impersonation (admins actifs uniquement) --}}
+                            @if($user->role === 'admin' && ! $isDisabled)
+                            <form method="POST" action="{{ route('superadmin.impersonate', $user) }}"
+                                  data-confirm="Se connecter en tant que {{ $user->name }} ({{ $agency->name }}) ?">
+                                @csrf
+                                <button type="submit"
+                                    style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #6366f1;background:#ede9fe;color:#6366f1;white-space:nowrap">
+                                    Accès
+                                </button>
+                            </form>
+                            @endif
+
+                            {{-- Reset mot de passe --}}
+                            <form method="POST"
+                                  action="{{ route('superadmin.agencies.users.reset-password', [$agency, $user->id]) }}"
+                                  data-confirm="Réinitialiser le mot de passe de {{ $user->name }} ? Le nouveau mot de passe temporaire s'affichera ici.">
+                                @csrf
+                                <button type="submit"
+                                    style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#f9fafb;color:#374151;white-space:nowrap">
+                                    Réinit. mdp
+                                </button>
+                            </form>
+
+                            {{-- Activer / Désactiver --}}
+                            <form method="POST"
+                                  action="{{ route('superadmin.agencies.users.toggle', [$agency, $user->id]) }}"
+                                  data-confirm="{{ $isDisabled ? 'Réactiver '.$user->name.' ?' : 'Désactiver '.$user->name.' ?' }}">
+                                @csrf @method('PATCH')
+                                <button type="submit"
+                                    style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid {{ $isDisabled ? '#bbf7d0' : '#fecaca' }};background:{{ $isDisabled ? '#dcfce7' : '#fee2e2' }};color:{{ $isDisabled ? '#16a34a' : '#dc2626' }};white-space:nowrap">
+                                    {{ $isDisabled ? 'Réactiver' : 'Désactiver' }}
+                                </button>
+                            </form>
+
+                        </div>
                     </td>
                 </tr>
                 @empty

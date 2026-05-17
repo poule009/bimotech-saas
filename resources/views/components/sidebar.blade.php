@@ -27,10 +27,10 @@
     }
 
     $navSuperAdmin = [
-        ['section' => null,              'route' => 'superadmin.dashboard',          'label' => 'Tableau de bord'],
-        ['section' => 'PLATEFORME',      'route' => 'superadmin.agencies.create',    'label' => 'Nouvelle agence'],
-        ['section' => null,              'route' => 'superadmin.subscriptions',      'label' => 'Abonnements'],
-        ['section' => null,              'route' => 'superadmin.activity-logs.index','label' => 'Journal activité'],
+        ['section' => null, 'route' => 'superadmin.dashboard',           'label' => 'Tableau de bord'],
+        ['section' => null, 'route' => 'superadmin.agencies.create',     'label' => 'Nouvelle agence'],
+        ['section' => null, 'route' => 'superadmin.subscriptions',       'label' => 'Abonnements'],
+        ['section' => null, 'route' => 'superadmin.activity-logs.index', 'label' => 'Journal activité'],
     ];
 
     $navAdmin = [
@@ -97,8 +97,8 @@
         'admin.import.index'        => '<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
         'locataire.paiements'       => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
         'locataire.mon-contrat'         => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
-        'superadmin.dashboard'          => '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
-        'superadmin.agencies.create'    => '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="12" y1="22" x2="12" y2="12"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><line x1="7" y1="9" x2="17" y2="9"/>',
+        'superadmin.dashboard'           => '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><line x1="9" y1="22" x2="9" y2="12"/><line x1="15" y1="22" x2="15" y2="12"/><line x1="3" y1="9" x2="21" y2="9"/>',
+        'superadmin.agencies.create'    => '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
         'superadmin.subscriptions'      => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
         'superadmin.activity-logs.index'=> '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
     ];

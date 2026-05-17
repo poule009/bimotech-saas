@@ -3,6 +3,12 @@
 @section('breadcrumb', 'Nouvelle agence')
 
 @section('content')
+<style>
+.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
+.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px; }
+.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
+.card-body { padding:18px 20px; }
+</style>
 <div style="padding:0 0 48px;max-width:720px">
 
     {{-- Breadcrumb --}}

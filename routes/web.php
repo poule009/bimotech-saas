@@ -125,6 +125,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('echec',  [SubscriptionController::class, 'echec'])->name('echec');
     });
 
+    // Stop impersonation — hors isSuperAdmin (l'user courant est alors admin/locataire/proprio)
+    Route::get('superadmin/impersonate/stop', [SuperAdminController::class, 'stopImpersonation'])
+        ->name('superadmin.impersonate.stop');
+
     // ── SuperAdmin ─────────────────────────────────────────────────────────
     Route::middleware('isSuperAdmin')->prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('dashboard',                     [SuperAdminController::class, 'dashboard'])->name('dashboard');
@@ -133,8 +137,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
         Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
         Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
+        Route::get('agencies/{agency}/edit',        [SuperAdminController::class, 'editAgency'])->name('agencies.edit');
+        Route::patch('agencies/{agency}',           [SuperAdminController::class, 'updateAgency'])->name('agencies.update');
         Route::post('agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
         Route::post('agencies/{agency}/essai',      [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
+        Route::post('agencies/{agency}/users/{userId}/reset-password', [SuperAdminController::class, 'resetUserPassword'])->name('agencies.users.reset-password');
+        Route::patch('agencies/{agency}/users/{userId}/toggle',        [SuperAdminController::class, 'toggleUser'])->name('agencies.users.toggle');
+        Route::post('impersonate/{user}',           [SuperAdminController::class, 'impersonate'])->name('impersonate');
         Route::get('agencies/{agency}',             [SuperAdminController::class, 'showAgency'])->name('agencies.show');
     });
 

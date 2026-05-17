@@ -13,9 +13,12 @@ use App\Notifications\AgencyWelcomeNotification;
 use App\Support\PasswordPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SuperAdminController extends Controller
@@ -245,6 +248,100 @@ class SuperAdminController extends Controller
         return redirect()
             ->route('superadmin.subscriptions')
             ->with('success', "Essai de 30 jours réinitialisé pour {$agency->name}.");
+    }
+
+    public function editAgency(Agency $agency): View
+    {
+        return view('superadmin.edit-agency', compact('agency'));
+    }
+
+    public function updateAgency(Request $request, Agency $agency): RedirectResponse
+    {
+        $request->validate([
+            'name'      => ['required', 'string', 'min:2', 'max:100'],
+            'email'     => ['required', 'email', 'max:255', Rule::unique('agencies', 'email')->ignore($agency->id)],
+            'telephone' => ['nullable', 'string', 'max:20'],
+            'adresse'   => ['nullable', 'string', 'max:255'],
+            'taux_tva'  => ['nullable', 'numeric', 'min:0', 'max:100'],
+        ]);
+
+        $agency->update($request->only('name', 'email', 'telephone', 'adresse', 'taux_tva'));
+
+        return redirect()
+            ->route('superadmin.agencies.show', $agency)
+            ->with('success', "Agence {$agency->name} mise à jour avec succès.");
+    }
+
+    public function resetUserPassword(Agency $agency, int $userId): RedirectResponse
+    {
+        $user = User::withoutGlobalScopes()->withTrashed()->findOrFail($userId);
+        abort_unless($user->agency_id === $agency->id, 403);
+
+        $tempPassword = Str::random(10);
+        $user->password = Hash::make($tempPassword);
+        $user->save();
+
+        return redirect()
+            ->route('superadmin.agencies.show', $agency)
+            ->with('success', "Mot de passe réinitialisé pour {$user->name}. Mot de passe temporaire : {$tempPassword}");
+    }
+
+    public function toggleUser(Agency $agency, int $userId): RedirectResponse
+    {
+        $user = User::withoutGlobalScopes()->withTrashed()->findOrFail($userId);
+        abort_unless($user->agency_id === $agency->id, 403);
+        abort_if($user->isSuperAdmin(), 403);
+
+        if ($user->trashed()) {
+            $user->restore();
+            $statut = 'réactivé';
+        } else {
+            $user->delete();
+            $statut = 'désactivé';
+        }
+
+        return redirect()
+            ->route('superadmin.agencies.show', $agency)
+            ->with('success', "Utilisateur {$user->name} {$statut}.");
+    }
+
+    public function impersonate(User $user): RedirectResponse
+    {
+        abort_if($user->isSuperAdmin(), 403, "Impossible d'impersonner un super-admin.");
+
+        session(['impersonating_id' => auth()->id()]);
+        Auth::login($user);
+
+        $redirect = match($user->role) {
+            'admin'        => route('admin.dashboard'),
+            'proprietaire' => route('proprietaire.dashboard'),
+            'locataire'    => route('locataire.dashboard'),
+            default        => route('dashboard'),
+        };
+
+        return redirect($redirect);
+    }
+
+    public function stopImpersonation(): RedirectResponse
+    {
+        $superAdminId = session()->pull('impersonating_id');
+
+        if (! $superAdminId) {
+            return redirect()->route('superadmin.dashboard');
+        }
+
+        $superAdmin = User::withoutGlobalScopes()->find($superAdminId);
+
+        if (! $superAdmin || ! $superAdmin->isSuperAdmin()) {
+            Auth::logout();
+            return redirect()->route('login');
+        }
+
+        Auth::login($superAdmin);
+
+        return redirect()
+            ->route('superadmin.dashboard')
+            ->with('success', 'Impersonation terminée. Vous êtes de retour en tant que Super Admin.');
     }
 
     public function createAgency(): View

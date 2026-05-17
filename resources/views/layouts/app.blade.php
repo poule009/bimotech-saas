@@ -389,6 +389,20 @@
             </div>
         </header>
 
+        {{-- Bannière impersonation --}}
+        @if(session('impersonating_id'))
+        <div style="background:#dc2626;color:#fff;padding:9px 20px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:7px">
+                <svg style="width:14px;height:14px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Impersonation active — connecté en tant que <strong style="margin:0 3px">{{ auth()->user()->name }}</strong> ({{ auth()->user()->role }})
+            </span>
+            <a href="{{ route('superadmin.impersonate.stop') }}"
+               style="padding:5px 14px;border-radius:7px;background:rgba(255,255,255,.2);color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid rgba(255,255,255,.3)">
+                ← Quitter l'impersonation
+            </a>
+        </div>
+        @endif
+
         <main class="page-content">
 
             @if(session('success'))
