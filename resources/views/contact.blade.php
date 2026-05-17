@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -12,7 +12,7 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--dark:#0d1117;--dark2:#161b22;--dark3:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
+:root{--gold:#e8001d;--dark:#0d1117;--dark2:#161b22;--dark3:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text)}
 
@@ -23,7 +23,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;dis
 .nav-back:hover{color:var(--text)}
 
 .hero{padding:120px 5% 5rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(232,0,29,.06) 0%,transparent 70%);pointer-events:none}
 .section-tag{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
 h1{font-family:'Syne',sans-serif;font-size:clamp(30px,5vw,52px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1rem}
 h1 em{font-style:normal;color:var(--gold)}
@@ -34,8 +34,8 @@ h1 em{font-style:normal;color:var(--gold)}
 /* Infos contact */
 .contact-info{display:flex;flex-direction:column;gap:1.25rem}
 .info-card{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;gap:14px;align-items:flex-start;transition:border-color .2s}
-.info-card:hover{border-color:rgba(201,168,76,.25)}
-.info-icon{width:40px;height:40px;background:rgba(201,168,76,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.info-card:hover{border-color:rgba(232,0,29,.25)}
+.info-icon{width:40px;height:40px;background:rgba(232,0,29,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .info-label{font-size:11.5px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
 .info-value{font-size:14px;color:var(--text);font-weight:500}
 .info-value a{color:var(--text);text-decoration:none}
@@ -122,7 +122,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
 
         <div class="info-card">
             <div class="info-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </div>
             <div>
                 <div class="info-label">Email</div>
@@ -133,7 +133,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
 
         <div class="info-card">
             <div class="info-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             </div>
             <div>
                 <div class="info-label">Adresse</div>
@@ -144,7 +144,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
 
         <div class="info-card">
             <div class="info-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
             </div>
             <div>
                 <div class="info-label">Horaires</div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -12,7 +12,7 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--dark:#0d1117;--dark2:#161b22;--dark3:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
+:root{--gold:#e8001d;--dark:#0d1117;--dark2:#161b22;--dark3:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text)}
 
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,17,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
@@ -22,7 +22,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;dis
 .nav-back:hover{color:var(--text)}
 
 .hero{padding:120px 5% 4rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(232,0,29,.06) 0%,transparent 70%);pointer-events:none}
 .section-tag{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
 h1{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,50px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1rem}
 h1 em{font-style:normal;color:var(--gold)}
@@ -33,17 +33,17 @@ h1 em{font-style:normal;color:var(--gold)}
 /* Promesses */
 .promises{display:flex;flex-direction:column;gap:1rem}
 .promise{background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;display:flex;gap:14px}
-.promise-icon{width:42px;height:42px;background:rgba(201,168,76,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.promise-icon{width:42px;height:42px;background:rgba(232,0,29,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .promise-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
 .promise-desc{font-size:13px;color:var(--muted);line-height:1.6}
 
 .separator{border:none;border-top:1px solid var(--border);margin:1rem 0}
 
 /* Témoignage */
-.testimonial{background:var(--dark2);border:1px solid rgba(201,168,76,.15);border-radius:14px;padding:1.5rem}
+.testimonial{background:var(--dark2);border:1px solid rgba(232,0,29,.15);border-radius:14px;padding:1.5rem}
 .testimonial-text{font-size:14px;color:var(--muted);line-height:1.8;font-style:italic;margin-bottom:1rem}
 .testimonial-author{display:flex;align-items:center;gap:10px}
-.author-avatar{width:36px;height:36px;background:rgba(201,168,76,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--gold)}
+.author-avatar{width:36px;height:36px;background:rgba(232,0,29,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--gold)}
 .author-name{font-size:13px;font-weight:500;color:var(--text)}
 .author-role{font-size:12px;color:#484f58}
 
@@ -112,7 +112,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
         <div class="promises">
             <div class="promise">
                 <div class="promise-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
                 </div>
                 <div>
                     <div class="promise-title">30 minutes chrono</div>
@@ -121,7 +121,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
             </div>
             <div class="promise">
                 <div class="promise-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
                 <div>
                     <div class="promise-title">Démo sur votre vrai contexte</div>
@@ -130,7 +130,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
             </div>
             <div class="promise">
                 <div class="promise-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.17 3.44 2 2 0 0 1 3.15 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.17 3.44 2 2 0 0 1 3.15 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16z"/></svg>
                 </div>
                 <div>
                     <div class="promise-title">Par WhatsApp ou sur place</div>
@@ -139,7 +139,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
             </div>
             <div class="promise">
                 <div class="promise-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>
                 </div>
                 <div>
                     <div class="promise-title">Zéro engagement</div>

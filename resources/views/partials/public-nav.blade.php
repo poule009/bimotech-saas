@@ -1,4 +1,4 @@
-{{--
+﻿{{--
     Partial : @include('partials.public-nav', ['active' => 'contact'])
     $active : '', 'fonctionnalites', 'conformite', 'tarifs', 'faq', 'contact'
 --}}
@@ -10,26 +10,26 @@
     position:fixed;top:0;left:0;right:0;z-index:200;
     padding:0 5%;height:64px;
     display:flex;align-items:center;justify-content:space-between;
-    background:rgba(250,249,246,.97);
+    background:rgba(255,255,255,.97);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
     border-bottom:1px solid rgba(0,0,0,.07);
     transition:background .3s;
     box-shadow:0 1px 8px rgba(0,0,0,.06);
 }
-.pub-nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#c9a84c;text-decoration:none;letter-spacing:-.5px;flex-shrink:0}
-.pub-nav-logo span{color:#0d1117}
+.pub-nav-logo{text-decoration:none;flex-shrink:0;display:flex;align-items:center}
+.pub-nav-logo img{height:36px;width:auto}
 
 .pub-nav-links{display:flex;align-items:center;gap:1.75rem}
 .pub-nav-links a{color:#6b7280;text-decoration:none;font-size:13.5px;transition:color .2s;white-space:nowrap}
 .pub-nav-links a:hover,.pub-nav-links a.active-link{color:#0d1117}
-.pub-nav-links a.active-link{color:#c9a84c}
+.pub-nav-links a.active-link{color:#e8001d}
 
 .pub-nav-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .pub-nav-login{color:#374151;text-decoration:none;font-size:13.5px;padding:8px 14px;border-radius:8px;transition:color .2s;white-space:nowrap}
 .pub-nav-login:hover{color:#0d1117}
-.pub-nav-cta{background:#0d1117;color:#c9a84c;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;text-decoration:none;transition:all .2s;white-space:nowrap;border:1px solid rgba(201,168,76,.2)}
-.pub-nav-cta:hover{background:#c9a84c;color:#0d1117;border-color:#c9a84c}
+.pub-nav-cta{background:#e8001d;color:#ffffff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;text-decoration:none;transition:all .2s;white-space:nowrap;border:1px solid #e8001d}
+.pub-nav-cta:hover{background:#c0001a;border-color:#c0001a}
 
 /* Hamburger */
 .hamburger{
@@ -63,9 +63,9 @@
     border-bottom:1px solid rgba(0,0,0,.06);
     transition:color .2s;
 }
-.mobile-drawer a:hover,.mobile-drawer a.active-link{color:#c9a84c}
+.mobile-drawer a:hover,.mobile-drawer a.active-link{color:#e8001d}
 .mobile-drawer-actions{margin-top:1.5rem;display:flex;flex-direction:column;gap:10px}
-.mobile-drawer .mob-cta{background:#c9a84c;color:#0d1117;font-weight:700;font-size:15px;padding:14px;border-radius:10px;text-align:center;text-decoration:none;transition:opacity .2s}
+.mobile-drawer .mob-cta{background:#e8001d;color:#ffffff;font-weight:700;font-size:15px;padding:14px;border-radius:10px;text-align:center;text-decoration:none;transition:opacity .2s}
 .mobile-drawer .mob-cta:hover{opacity:.9}
 .mobile-drawer .mob-login{border:1px solid rgba(0,0,0,.1);color:#374151;font-size:15px;padding:14px;border-radius:10px;text-align:center;text-decoration:none;transition:all .2s}
 .mobile-drawer .mob-login:hover{color:#0d1117;border-color:rgba(0,0,0,.2)}
@@ -81,7 +81,9 @@
 </style>
 
 <nav class="pub-nav" role="navigation" aria-label="Navigation principale">
-    <a href="{{ url('/') }}" class="pub-nav-logo" aria-label="BimoTech Immo — Accueil">Bimo<span>Tech</span></a>
+    <a href="{{ url('/') }}" class="pub-nav-logo" aria-label="BiMO-tech Immo — Accueil">
+        <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
+    </a>
 
     <div class="pub-nav-links" role="menubar">
         <a href="{{ url('/') }}#fonctionnalites" role="menuitem" @if($active==='fonctionnalites') class="active-link" aria-current="page" @endif>Fonctionnalités</a>

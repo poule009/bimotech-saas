@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -12,7 +12,7 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--dark:#0d1117;--dark2:#161b22;--dark3:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
+:root{--gold:#e8001d;--dark:#0d1117;--dark2:#161b22;--dark3:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text)}
 
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,17,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
@@ -22,7 +22,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;dis
 .nav-back:hover{color:var(--text)}
 
 .hero{padding:120px 5% 4rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(232,0,29,.06) 0%,transparent 70%);pointer-events:none}
 .section-tag{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
 h1{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,50px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1rem}
 h1 em{font-style:normal;color:var(--gold)}
@@ -36,8 +36,8 @@ h1 em{font-style:normal;color:var(--gold)}
 
 /* Accordion */
 .faq-item{border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
-.faq-item:hover{border-color:rgba(201,168,76,.2)}
-.faq-item.open{border-color:rgba(201,168,76,.3)}
+.faq-item:hover{border-color:rgba(232,0,29,.2)}
+.faq-item.open{border-color:rgba(232,0,29,.3)}
 
 .faq-q{
     width:100%;background:transparent;border:none;padding:1.1rem 1.25rem;
@@ -48,11 +48,11 @@ h1 em{font-style:normal;color:var(--gold)}
 }
 .faq-q:hover{background:rgba(255,255,255,.02)}
 .faq-icon{
-    width:22px;height:22px;background:rgba(201,168,76,.1);border-radius:6px;
+    width:22px;height:22px;background:rgba(232,0,29,.1);border-radius:6px;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
     transition:transform .25s,background .2s;
 }
-.faq-item.open .faq-icon{transform:rotate(45deg);background:rgba(201,168,76,.2)}
+.faq-item.open .faq-icon{transform:rotate(45deg);background:rgba(232,0,29,.2)}
 
 .faq-a{
     max-height:0;overflow:hidden;
@@ -155,7 +155,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
                 <button class="faq-q" onclick="toggleFaq(this)">
                     {{ $faq['q'] }}
                     <div class="faq-icon">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#c9a84c" stroke-width="2"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg>
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#e8001d" stroke-width="2"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg>
                     </div>
                 </button>
                 <div class="faq-a"><p>{{ $faq['a'] }}</p></div>

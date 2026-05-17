@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -10,11 +10,11 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#c9a84c;--dark:#0d1117;--dark2:#161b22;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
+:root{--gold:#e8001d;--dark:#0d1117;--dark2:#161b22;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
 body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text)}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,17,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--gold);text-decoration:none}
-.nav-logo span{color:var(--text)}
+.nav-logo{text-decoration:none;display:flex;align-items:center}
+.nav-logo img{height:34px;width:auto}
 .nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
 .nav-back:hover{color:var(--text)}
 
@@ -43,7 +43,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
 <body>
 
 <nav>
-    <a href="{{ url('/') }}" class="nav-logo">Bimo<span>Tech</span></a>
+    <a href="{{ url('/') }}" class="nav-logo" aria-label="BiMO-tech Immo — Accueil"><img src="/images/logo.jpeg" alt="BiMO-tech Immo"></a>
     <a href="{{ url('/') }}" class="nav-back">← Retour à l'accueil</a>
 </nav>
 

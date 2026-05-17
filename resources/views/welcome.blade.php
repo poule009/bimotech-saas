@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -34,29 +34,29 @@
 /* ─── RESET & VARIABLES ─────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-    --gold:#c9a84c;
-    --gold-light:#e8c96a;
-    --gold-dim:rgba(201,168,76,.12);
+    --gold:#e8001d;
+    --gold-light:#ff4444;
+    --gold-dim:rgba(232,0,29,.12);
     --dark:#080c12;
     --dark2:#0d1117;
     --dark3:#161b22;
     --dark4:#21262d;
     /* Thème doré glacé */
-    --bg:#faf9f6;           /* fond page : blanc chaud imperceptible */
-    --bg2:#f5f3ee;          /* sections alternées */
-    --bg3:#f0ede6;          /* sections encore plus chaudes */
-    --bg-warm:#fffdf7;
+    --bg:#ffffff;           /* fond page : blanc chaud imperceptible */
+    --bg2:#f8fafc;          /* sections alternées */
+    --bg3:#f1f5f9;          /* sections encore plus chaudes */
+    --bg-warm:#ffffff;
     /* Card glacée dorée */
-    --card-bg:linear-gradient(145deg,#fffef5 0%,#ffffff 55%,#fffef8 100%);
-    --card-border:rgba(201,168,76,.16);
-    --card-shadow:0 2px 16px rgba(201,168,76,.07),0 1px 3px rgba(0,0,0,.05);
-    --card-shadow-hover:0 10px 32px rgba(201,168,76,.14),0 3px 8px rgba(0,0,0,.07);
+    --card-bg:#ffffff;
+    --card-border:rgba(232,0,29,.16);
+    --card-shadow:0 2px 16px rgba(232,0,29,.07),0 1px 3px rgba(0,0,0,.05);
+    --card-shadow-hover:0 10px 32px rgba(232,0,29,.14),0 3px 8px rgba(0,0,0,.07);
     --text:#0d1117;
     --text2:#374151;
     --muted:#6b7280;
     --muted2:#9ca3af;
-    --border:rgba(201,168,76,.1);
-    --border2:rgba(201,168,76,.2);
+    --border:rgba(232,0,29,.1);
+    --border2:rgba(232,0,29,.2);
     --radius:14px;
     --radius-sm:10px;
 }
@@ -73,7 +73,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 }
 .gold-card:hover{
     box-shadow:var(--card-shadow-hover);
-    border-color:rgba(201,168,76,.3);
+    border-color:rgba(232,0,29,.3);
     transform:translateY(-3px);
 }
 
@@ -98,15 +98,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .hero::after{
     content:'';position:absolute;top:-10%;left:50%;transform:translateX(-50%);
     width:900px;height:600px;
-    background:radial-gradient(ellipse, rgba(201,168,76,.08) 0%, transparent 65%);
+    background:radial-gradient(ellipse, rgba(232,0,29,.08) 0%, transparent 65%);
     pointer-events:none;
 }
 .hero-inner{position:relative;z-index:1;max-width:820px;width:100%}
 
 .hero-badge{
     display:inline-flex;align-items:center;gap:8px;
-    background:rgba(201,168,76,.08);
-    border:1px solid rgba(201,168,76,.2);
+    background:rgba(232,0,29,.08);
+    border:1px solid rgba(232,0,29,.2);
     border-radius:99px;padding:6px 18px;
     font-size:12px;color:var(--gold);font-weight:500;letter-spacing:.3px;
     margin-bottom:2rem;
@@ -115,13 +115,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .pulse-dot{
     width:7px;height:7px;background:var(--gold);
     border-radius:50%;flex-shrink:0;
-    box-shadow:0 0 0 0 rgba(201,168,76,.5);
+    box-shadow:0 0 0 0 rgba(232,0,29,.5);
     animation:pulse-ring 2s infinite;
 }
 @keyframes pulse-ring{
-    0%{box-shadow:0 0 0 0 rgba(201,168,76,.5)}
-    70%{box-shadow:0 0 0 8px rgba(201,168,76,0)}
-    100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}
+    0%{box-shadow:0 0 0 0 rgba(232,0,29,.5)}
+    70%{box-shadow:0 0 0 8px rgba(232,0,29,0)}
+    100%{box-shadow:0 0 0 0 rgba(232,0,29,0)}
 }
 
 .hero h1{
@@ -165,9 +165,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
     font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;
     padding:13px 28px;border-radius:var(--radius-sm);
     text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;
-    box-shadow:0 4px 24px rgba(201,168,76,.25);
+    box-shadow:0 4px 24px rgba(232,0,29,.25);
 }
-.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,168,76,.35);opacity:.95}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,0,29,.35);opacity:.95}
 .btn-outline{
     background:#fff;color:var(--text);
     font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;
@@ -176,7 +176,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
     transition:all .2s;display:inline-flex;align-items:center;gap:6px;
     box-shadow:0 1px 4px rgba(0,0,0,.06);
 }
-.btn-outline:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.15)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px);box-shadow:0 4px 16px rgba(232,0,29,.15)}
 
 /* Mockup browser */
 .mockup-wrap{
@@ -187,7 +187,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
 .mockup-halo{
     position:absolute;top:-60px;left:50%;transform:translateX(-50%);
     width:700px;height:280px;
-    background:radial-gradient(ellipse, rgba(201,168,76,.1) 0%, transparent 70%);
+    background:radial-gradient(ellipse, rgba(232,0,29,.1) 0%, transparent 70%);
     pointer-events:none;
 }
 .mockup-browser{
@@ -232,7 +232,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);ove
     font-size:11.5px;display:flex;align-items:center;gap:8px;
     color:var(--muted);cursor:default;transition:all .15s;
 }
-.b-nav-item.active{background:rgba(201,168,76,.1);color:var(--gold);font-weight:600}
+.b-nav-item.active{background:rgba(232,0,29,.1);color:var(--gold);font-weight:600}
 .b-nav-item svg{flex-shrink:0;opacity:.7}
 .b-nav-item.active svg{opacity:1}
 /* Main content */
@@ -343,15 +343,15 @@ h2 em{
 .feat::after{
     content:'';
     position:absolute;inset:0;
-    background:linear-gradient(135deg, rgba(201,168,76,.05) 0%, transparent 55%);
+    background:linear-gradient(135deg, rgba(232,0,29,.05) 0%, transparent 55%);
     opacity:0;transition:opacity .3s;pointer-events:none;
 }
-.feat:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-hover);border-color:rgba(201,168,76,.3)}
+.feat:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-hover);border-color:rgba(232,0,29,.3)}
 .feat:hover::after{opacity:1}
 .feat-icon{
     width:44px;height:44px;
-    background:rgba(201,168,76,.1);
-    border:1px solid rgba(201,168,76,.18);
+    background:rgba(232,0,29,.1);
+    border:1px solid rgba(232,0,29,.18);
     border-radius:12px;
     display:flex;align-items:center;justify-content:center;
     margin-bottom:1.25rem;
@@ -385,7 +385,7 @@ h2 em{
     transition:all .22s cubic-bezier(.4,0,.2,1);
     box-shadow:var(--card-shadow);
 }
-.testi-card:hover{border-color:rgba(201,168,76,.3);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
+.testi-card:hover{border-color:rgba(232,0,29,.3);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
 .testi-quote{
     font-size:32px;color:var(--gold);
     opacity:.4;line-height:1;
@@ -424,14 +424,14 @@ h2 em{
     content:'';position:absolute;
     top:-80px;right:-80px;
     width:350px;height:350px;
-    background:radial-gradient(circle, rgba(201,168,76,.06) 0%, transparent 70%);
+    background:radial-gradient(circle, rgba(232,0,29,.06) 0%, transparent 70%);
     pointer-events:none;
 }
 .compliance-card::after{
     content:'';position:absolute;
     bottom:-60px;left:-60px;
     width:250px;height:250px;
-    background:radial-gradient(circle, rgba(201,168,76,.04) 0%, transparent 70%);
+    background:radial-gradient(circle, rgba(232,0,29,.04) 0%, transparent 70%);
     pointer-events:none;
 }
 .comp-grid{
@@ -441,8 +441,8 @@ h2 em{
 .comp-item{display:flex;gap:14px;align-items:flex-start}
 .comp-check{
     width:24px;height:24px;
-    background:rgba(201,168,76,.12);
-    border:1px solid rgba(201,168,76,.2);
+    background:rgba(232,0,29,.12);
+    border:1px solid rgba(232,0,29,.2);
     border-radius:7px;
     display:flex;align-items:center;justify-content:center;
     flex-shrink:0;margin-top:1px;
@@ -459,7 +459,7 @@ h2 em{
     position:absolute;top:27px;
     left:calc(16.7% + 12px);right:calc(16.7% + 12px);
     height:1px;
-    background:linear-gradient(90deg, var(--gold) 0%, rgba(201,168,76,.15) 100%);
+    background:linear-gradient(90deg, var(--gold) 0%, rgba(232,0,29,.15) 100%);
     z-index:0;
 }
 .step{text-align:center;position:relative;z-index:1}
@@ -471,7 +471,7 @@ h2 em{
     display:flex;align-items:center;justify-content:center;
     font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
     margin:0 auto 1.25rem;
-    box-shadow:0 8px 24px rgba(201,168,76,.3);
+    box-shadow:0 8px 24px rgba(232,0,29,.3);
 }
 .step-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:.5rem;color:var(--text)}
 .step-desc{font-size:13px;color:var(--muted);line-height:1.65}
@@ -531,11 +531,11 @@ h2 em{
     display:flex;flex-direction:column;
     box-shadow:var(--card-shadow);
 }
-.plan:hover{border-color:rgba(201,168,76,.32);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
+.plan:hover{border-color:rgba(232,0,29,.32);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
 .plan.featured{
     border-color:var(--gold);
     background:linear-gradient(160deg, #fffae8 0%, #fffef5 40%, #ffffff 100%);
-    box-shadow:0 0 0 1px rgba(201,168,76,.2), 0 16px 48px rgba(201,168,76,.16);
+    box-shadow:0 0 0 1px rgba(232,0,29,.2), 0 16px 48px rgba(232,0,29,.16);
 }
 .plan-badge-top{
     position:absolute;top:-13px;left:50%;transform:translateX(-50%);
@@ -543,7 +543,7 @@ h2 em{
     color:#080c12;
     font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
     padding:4px 16px;border-radius:99px;white-space:nowrap;
-    box-shadow:0 4px 12px rgba(201,168,76,.3);
+    box-shadow:0 4px 12px rgba(232,0,29,.3);
 }
 .plan-name{
     font-family:'Syne',sans-serif;
@@ -582,7 +582,7 @@ h2 em{
 }
 .plan-features li .check{
     width:16px;height:16px;
-    background:rgba(201,168,76,.12);
+    background:rgba(232,0,29,.12);
     border-radius:4px;
     display:flex;align-items:center;justify-content:center;
     flex-shrink:0;margin-top:1px;
@@ -598,13 +598,13 @@ h2 em{
 .plan-btn-ghost{
     border:1px solid var(--border2);color:var(--text);
 }
-.plan-btn-ghost:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.04)}
+.plan-btn-ghost:hover{border-color:var(--gold);color:var(--gold);background:rgba(232,0,29,.04)}
 .plan-btn-gold{
     background:linear-gradient(135deg, var(--gold), var(--gold-light));
     color:#080c12;font-weight:700;
-    box-shadow:0 4px 16px rgba(201,168,76,.25);
+    box-shadow:0 4px 16px rgba(232,0,29,.25);
 }
-.plan-btn-gold:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 24px rgba(201,168,76,.35)}
+.plan-btn-gold:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 24px rgba(232,0,29,.35)}
 
 /* ─── CTA FINAL ─────────────────────────────────────────── */
 .cta-section{
@@ -617,7 +617,7 @@ h2 em{
     content:'';position:absolute;top:50%;left:50%;
     transform:translate(-50%,-50%);
     width:800px;height:400px;
-    background:radial-gradient(ellipse, rgba(201,168,76,.06) 0%, transparent 70%);
+    background:radial-gradient(ellipse, rgba(232,0,29,.06) 0%, transparent 70%);
     pointer-events:none;
 }
 .cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
@@ -659,7 +659,7 @@ footer{
 .footer-tagline{font-size:13px;color:var(--muted);line-height:1.6;max-width:220px;margin-bottom:1.5rem}
 .footer-badge{
     display:inline-flex;align-items:center;gap:6px;
-    background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.15);
+    background:rgba(232,0,29,.07);border:1px solid rgba(232,0,29,.15);
     border-radius:6px;padding:5px 10px;
     font-size:11px;color:var(--muted);
 }
@@ -901,7 +901,7 @@ footer{
         </div>
 
         {{-- Conteneur vidéo avec fallback --}}
-        <div style="position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(201,168,76,.2);box-shadow:0 0 60px rgba(201,168,76,.07);background:#0d1117;margin-top:2.5rem">
+        <div style="position:relative;border-radius:18px;overflow:hidden;border:1px solid rgba(232,0,29,.2);box-shadow:0 0 60px rgba(232,0,29,.07);background:#0d1117;margin-top:2.5rem">
 
             {{-- 🔧 REMPLACEZ l'URL ci-dessous par votre lien YouTube ou vidéo MP4 --}}
             @php $videoUrl = 'https://www.youtube.com/embed/WyBF6L5veeE'; /* Remplacer par la vraie démo BimoTech */ @endphp
@@ -916,18 +916,18 @@ footer{
             @else
             {{-- Placeholder affiché tant qu'aucune vidéo n'est configurée --}}
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:1.5rem">
-                <div style="width:72px;height:72px;border-radius:50%;background:rgba(201,168,76,.12);border:1.5px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;cursor:pointer"
+                <div style="width:72px;height:72px;border-radius:50%;background:rgba(232,0,29,.12);border:1.5px solid rgba(232,0,29,.3);display:flex;align-items:center;justify-content:center;cursor:pointer"
                      onclick="this.closest('section').querySelector('a').click()">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#c9a84c" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#e8001d" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 </div>
                 <div style="text-align:center">
                     <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#e6edf3;margin-bottom:6px">Démo disponible sur demande</div>
                     <div style="font-size:13px;color:#6e7681">Obtenez une démonstration personnalisée avec un expert BimoTech</div>
                 </div>
                 <a href="{{ route('demo') }}"
-                   style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:10px;color:#c9a84c;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s"
-                   onmouseover="this.style.background='rgba(201,168,76,.18)'"
-                   onmouseout="this.style.background='rgba(201,168,76,.1)'">
+                   style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:rgba(232,0,29,.1);border:1px solid rgba(232,0,29,.3);border-radius:10px;color:#e8001d;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s"
+                   onmouseover="this.style.background='rgba(232,0,29,.18)'"
+                   onmouseout="this.style.background='rgba(232,0,29,.1)'">
                     Demander une démo gratuite →
                 </a>
             </div>
@@ -948,42 +948,42 @@ footer{
         <div class="features-grid">
             <div class="feat">
                 <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
                 </div>
                 <h3 class="feat-title" style="font-size:15px">Gestion des biens</h3>
                 <div class="feat-desc">Ajoutez vos biens avec photos, surface, type et loyer. Suivez l'occupation en temps réel avec des statuts clairs.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
                 </div>
                 <h3 class="feat-title" style="font-size:15px">Contrats de bail</h3>
                 <div class="feat-desc">Créez vos contrats de bail vide ou meublé. Durée, dépôt de garantie, clauses — tout est archivé et accessible.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
                 <h3 class="feat-title" style="font-size:15px">Encaissement des loyers</h3>
                 <div class="feat-desc">Espèces, virement, Wave, Orange Money, Free Money. Chaque paiement enregistré génère automatiquement une quittance légale.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
                 <h3 class="feat-title" style="font-size:15px">Espace propriétaire</h3>
                 <div class="feat-desc">Chaque propriétaire accède à ses biens, ses revenus nets et l'historique de ses paiements. En temps réel, sans appel.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </div>
                 <h3 class="feat-title" style="font-size:15px">Espace locataire</h3>
                 <div class="feat-desc">Vos locataires accèdent à leurs quittances, suivent leur bail et contactent l'agence via WhatsApp en un clic.</div>
             </div>
             <div class="feat">
                 <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </div>
                 <h3 class="feat-title" style="font-size:15px">Rapports financiers</h3>
                 <div class="feat-desc">Commission HT/TTC, TVA, TOM, BRS, net propriétaire. Bilans mensuels et annuels exportables avec taux d'occupation.</div>
@@ -1053,7 +1053,7 @@ footer{
             <div class="comp-grid">
                 <div class="comp-item">
                     <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
                         <div class="comp-title">TVA 18% — CGI article 357</div>
@@ -1062,7 +1062,7 @@ footer{
                 </div>
                 <div class="comp-item">
                     <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
                         <div class="comp-title">Loi 81-18 — Encadrement des loyers</div>
@@ -1071,7 +1071,7 @@ footer{
                 </div>
                 <div class="comp-item">
                     <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
                         <div class="comp-title">TOM — Taxe sur Ordures Ménagères</div>
@@ -1080,7 +1080,7 @@ footer{
                 </div>
                 <div class="comp-item">
                     <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
                         <div class="comp-title">BRS — Contribution Foncière des Propriétés Bâties</div>
@@ -1089,7 +1089,7 @@ footer{
                 </div>
                 <div class="comp-item">
                     <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
                         <div class="comp-title">NINEA — Identification fiscale de l'agence</div>
@@ -1098,7 +1098,7 @@ footer{
                 </div>
                 <div class="comp-item">
                     <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
                         <div class="comp-title">Dépôt de garantie — 2 mois max</div>
@@ -1173,10 +1173,10 @@ footer{
                 </div>
                 <p class="plan-desc">Pour découvrir BimoTech et gérer vos premiers biens sans engagement ni limite de durée.</p>
                 <ul class="plan-features">
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Jusqu'à 5 biens</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>2 utilisateurs</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Quittances PDF</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Conformité fiscale SN</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Jusqu'à 5 biens</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>2 utilisateurs</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Quittances PDF</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Conformité fiscale SN</li>
                     <li class="muted-feat"><span class="check" style="background:rgba(255,255,255,.04);"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#6e7681" stroke-width="2"><line x1="3" y1="6" x2="9" y2="6"/></svg></span>Rapports avancés</li>
                     <li class="muted-feat"><span class="check" style="background:rgba(255,255,255,.04);"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#6e7681" stroke-width="2"><line x1="3" y1="6" x2="9" y2="6"/></svg></span>Espaces propriétaire & locataire</li>
                 </ul>
@@ -1198,12 +1198,12 @@ footer{
                 </div>
                 <p class="plan-desc">Pour les agences qui veulent gérer leur activité sans limite, sans friction et en toute conformité.</p>
                 <ul class="plan-features">
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Biens illimités</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Utilisateurs illimités</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Rapports financiers avancés</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Espace propriétaire & locataire</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Logs d'activité complets</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Support prioritaire WhatsApp</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Biens illimités</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Utilisateurs illimités</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Rapports financiers avancés</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Espace propriétaire & locataire</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Logs d'activité complets</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Support prioritaire WhatsApp</li>
                 </ul>
                 <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-gold">
                     Démarrer — 30 jours gratuits
@@ -1219,12 +1219,12 @@ footer{
                 </div>
                 <p class="plan-desc">Pour les groupes immobiliers avec plusieurs agences à gérer depuis un seul tableau de bord.</p>
                 <ul class="plan-features">
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Multi-agences</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Tableau de bord groupe</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>API & intégrations</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Formation sur site à Dakar</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>SLA garanti</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#c9a84c" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Account manager dédié</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Multi-agences</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Tableau de bord groupe</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>API & intégrations</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Formation sur site à Dakar</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>SLA garanti</li>
+                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Account manager dédié</li>
                 </ul>
                 <a href="{{ route('contact') }}" class="plan-btn plan-btn-ghost">Nous contacter</a>
             </div>
@@ -1300,7 +1300,7 @@ footer{
             <div class="footer-logo">Bimo<span>Tech</span> Immo</div>
             <p class="footer-tagline">La plateforme de gestion immobilière professionnelle pour les agences sénégalaises.</p>
             <div class="footer-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 Conforme CGI · Loi 81-18 · NINEA
             </div>
             {{-- Réseaux sociaux — remplacez # par vos vrais liens --}}
