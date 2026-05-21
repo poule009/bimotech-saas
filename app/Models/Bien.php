@@ -144,6 +144,7 @@ class Bien extends Model
             ->where('titre', '!=', '')
             ->whereNotNull('quartier')
             ->where('quartier', '!=', '')
+            ->whereNotNull('slug')
             ->whereHas('photos')
             ->with([
                 'photos'   => fn($q) => $q->where('est_principale', true),
