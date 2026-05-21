@@ -64,18 +64,6 @@ Route::get('/health', function () {
     ], $status);
 })->name('health');
 
-Route::get('/sitemap.xml', function () {
-    $urls = [
-        ['loc' => url('/'),                 'priority' => '1.0',  'changefreq' => 'weekly'],
-        ['loc' => url('/contact'),          'priority' => '0.7',  'changefreq' => 'monthly'],
-        ['loc' => url('/demo'),             'priority' => '0.8',  'changefreq' => 'monthly'],
-        ['loc' => url('/faq'),              'priority' => '0.7',  'changefreq' => 'monthly'],
-        ['loc' => url('/mentions-legales'), 'priority' => '0.3',  'changefreq' => 'yearly'],
-        ['loc' => url('/confidentialite'),  'priority' => '0.3',  'changefreq' => 'yearly'],
-    ];
-    $content = view('sitemap', compact('urls'))->render();
-    return response($content, 200)->header('Content-Type', 'application/xml');
-})->name('sitemap');
 
 }); // fin groupe withoutMiddleware(StartSession)
 
@@ -86,6 +74,10 @@ Route::get('/demo',             fn() => view('demo'))->name('demo');
 Route::get('/faq',              fn() => view('faq'))->name('faq');
 Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mentions-legales');
 Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
+Route::get('/pricing',    [\App\Http\Controllers\PricingController::class,  'index'])->name('pricing');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class,  'index'])->name('sitemap');
+Route::get('/biens',        [\App\Http\Controllers\PortailController::class, 'index'])->name('portail.index');
+Route::get('/biens/{slug}', [\App\Http\Controllers\PortailController::class, 'show'])->name('portail.show');
 Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,60')->name('contact.send');
 Route::post('/demo',    [DemoController::class,    'send'])->middleware('throttle:5,60')->name('demo.send');
 
@@ -156,7 +148,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
         Route::post('onboarding/dismiss', [AgencySettingsController::class, 'dismissOnboarding'])->name('onboarding.dismiss');
-        Route::get('search', \App\Http\Controllers\SearchController::class)->name('search');
+        Route::get('search', \App\Http\Controllers\SearchController::class)->name('search')->middleware('check.feature:recherche_globale');
 
         // Paramètres agence
         Route::get('agency/settings',   [AgencySettingsController::class, 'edit'])->name('agency.settings');
@@ -166,12 +158,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('agency/signature', [AgencySettingsController::class, 'deleteSignature'])->name('agency.signature.delete');
 
         // Logs
-        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index')->middleware('check.feature:logs_activite');
 
         // Paiements — écriture
         Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])->name('paiements.dernier-periode');
         if (config('features.fiscalite')) {
-            Route::get('paiements/fiscal-preview/{contrat}', [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview');
+            Route::get('paiements/fiscal-preview/{contrat}', [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview')->middleware('check.feature:fiscalite');
         }
         Route::get('paiements/create',               [PaiementController::class, 'create'])->name('paiements.create');
         Route::post('paiements',                     [PaiementController::class, 'store'])->name('paiements.store');
@@ -202,7 +194,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // Import Excel
-        Route::prefix('import')->name('import.')->group(function () {
+        Route::prefix('import')->name('import.')->middleware('check.feature:import_excel')->group(function () {
             Route::get('/',                         [ImportController::class, 'index'])->name('index');
             Route::post('proprietaires',            [ImportController::class, 'proprietaires'])->name('proprietaires');
             Route::post('locataires',               [ImportController::class, 'locataires'])->name('locataires');
@@ -214,21 +206,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Module fiscal (désactivé via FEATURE_FISCALITE=false dans .env)
         if (config('features.fiscalite')) {
-            Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->group(function () {
+            Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->middleware('check.feature:bilans_fiscaux')->group(function () {
                 Route::get('/',                         [BilanFiscalController::class, 'index'])->name('index');
                 Route::post('{proprietaire}/calculate', [BilanFiscalController::class, 'calculate'])->name('calculate');
                 Route::get('{proprietaire}',            [BilanFiscalController::class, 'show'])->name('show');
                 Route::get('{proprietaire}/pdf',        [BilanFiscalController::class, 'exportPdf'])->name('pdf');
             });
 
-            Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->group(function () {
+            Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->middleware('check.feature:fiscalite')->group(function () {
                 Route::get('/',                                [EtatTrimestrielController::class, 'index'])->name('index');
                 Route::get('{annee}/{trimestre}',              [EtatTrimestrielController::class, 'show'])->name('show');
                 Route::get('{annee}/{trimestre}/pdf',          [EtatTrimestrielController::class, 'exportPdf'])->name('pdf');
                 Route::get('{annee}/{trimestre}/csv',          [EtatTrimestrielController::class, 'exportCsv'])->name('csv');
             });
 
-            Route::prefix('tva-agence')->name('tva-agence.')->group(function () {
+            Route::prefix('tva-agence')->name('tva-agence.')->middleware('check.feature:fiscalite')->group(function () {
                 Route::get('/',                              [TvaAgenceController::class, 'index'])->name('index');
                 Route::get('{annee}/{mois}',                 [TvaAgenceController::class, 'show'])->name('show');
                 Route::put('{annee}/{mois}',                 [TvaAgenceController::class, 'update'])->name('update');
@@ -238,29 +230,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('{annee}/{mois}/recalculer',     [TvaAgenceController::class, 'recalculer'])->name('recalculer');
             });
 
-            Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index');
+            Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index')->middleware('check.feature:fiscalite');
         }
 
         // Rapports
-        Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier');
-        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf');
+        Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier')->middleware('check.feature:rapports_pdf');
+        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf')->middleware('check.feature:rapports_pdf');
 
         // Portefeuille Bailleurs (Niveau 5)
         Route::get('bailleurs',                          [BailleurController::class, 'index'])->name('bailleurs.index');
         Route::get('bailleurs/{userId}',                 [BailleurController::class, 'show'])->name('bailleurs.show');
-        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf');
-        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf');
+        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf')->middleware('check.feature:releve_bailleur_pdf');
+        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf')->middleware('check.feature:releve_bailleur_pdf');
 
         // Dépenses de gestion (rattachées à un paiement)
         Route::post('paiements/{paiement}/depenses',                   [DepenseGestionController::class, 'store'])->name('paiements.depenses.store');
         Route::delete('paiements/{paiement}/depenses/{depense}',       [DepenseGestionController::class, 'destroy'])->name('paiements.depenses.destroy');
 
         // Export CSV paiements
-        Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv');
+        Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv')->middleware('check.feature:export_csv');
 
         // Contrat de bail PDF
-        Route::get('contrats/{contrat}/bail-pdf', [ContratController::class, 'bailPdf'])->name('contrats.bail-pdf');
-        Route::get('contrats/{contrat}/bail-formel-pdf', [ContratController::class, 'bailFormelPdf'])->name('contrats.bail-formel-pdf');
+        Route::get('contrats/{contrat}/bail-pdf', [ContratController::class, 'bailPdf'])->name('contrats.bail-pdf')->middleware('check.feature:contrat_formel_pdf');
+        Route::get('contrats/{contrat}/bail-formel-pdf', [ContratController::class, 'bailFormelPdf'])->name('contrats.bail-formel-pdf')->middleware('check.feature:contrat_formel_pdf');
     });
 
     // ── Staff agence — lecture (admin + superadmin) ───────────────────────
@@ -275,7 +267,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
 
         // Immeubles
-        Route::resource('immeubles', ImmeubleController::class);
+        Route::resource('immeubles', ImmeubleController::class)->middleware('check.feature:immeubles');
 
         // Contrats — lecture
         Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index');

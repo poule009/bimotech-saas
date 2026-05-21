@@ -135,6 +135,22 @@
         @endif
     </div>
 
+    {{-- Bandeau portail incomplet --}}
+    @if(!empty($raisonsAbsence))
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #d97706;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px">
+        <svg style="width:16px;height:16px;color:#d97706;flex-shrink:0;margin-top:1px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div>
+            <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:3px">Ce bien n'est pas affiché sur le portail public</div>
+            <div style="font-size:12px;color:#78350f">
+                Il manque : <strong>{{ implode(', ', $raisonsAbsence) }}</strong>.
+                <a href="{{ route('admin.biens.edit', $bien) }}" style="color:#d97706;font-weight:600;text-decoration:none;margin-left:4px">Compléter la fiche →</a>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Hero --}}
     <div class="hero">
         <div>

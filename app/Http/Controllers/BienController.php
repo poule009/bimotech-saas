@@ -78,7 +78,17 @@ class BienController extends Controller
                 ->get()
             : collect();
 
-        return view('biens.show', compact('bien', 'paiements'));
+        $raisonsAbsence = [];
+        if ($bien->statut === 'disponible' && ! $bien->contratActif) {
+            if (empty($bien->titre))    $raisonsAbsence[] = 'un titre';
+            if (empty($bien->quartier)) $raisonsAbsence[] = 'un quartier';
+            if (! $bien->photos->where('est_principale', true)->count())
+                $raisonsAbsence[] = 'une photo principale';
+            if (! ($bien->visible_portail ?? true))
+                $raisonsAbsence[] = 'l\'activation portail (actuellement masqué manuellement)';
+        }
+
+        return view('biens.show', compact('bien', 'paiements', 'raisonsAbsence'));
     }
 
     public function create(Request $request): View
@@ -129,6 +139,39 @@ class BienController extends Controller
         ]);
 
         $agencyId = Auth::user()->agency_id;
+
+        // ── Vérification limite d'unités selon plan_niveau ─────────────────
+        $agency     = Auth::user()->agency;
+        $planNiveau = $agency?->subscription?->plan_niveau ?? 'legacy';
+
+        $limiteUnites = match ($planNiveau) {
+            'starter'       => 15,
+            'pro', 'legacy' => 50,
+            'agence'        => null,
+            default         => 50,
+        };
+
+        if ($agency && $limiteUnites !== null) {
+            $nbUnites = $agency->nbUnitesActives();
+
+            if ($nbUnites >= $limiteUnites) {
+                [$planSuivant, $limiteSuivante] = match ($planNiveau) {
+                    'starter' => ['Pro', '50 unités'],
+                    default   => ['Agence', 'illimité'],
+                };
+
+                return redirect()
+                    ->route('admin.biens.create')
+                    ->with('upgrade_required', [
+                        'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
+                        'nb_unites'       => $nbUnites,
+                        'limite'          => $limiteUnites,
+                        'plan_suivant'    => $planSuivant,
+                        'limite_suivante' => $limiteSuivante,
+                    ])
+                    ->withInput();
+            }
+        }
 
         // Vérifier que le propriétaire appartient à l'agence courante
         $proprioValide = \App\Models\User::where('id', $validated['proprietaire_id'])
@@ -198,6 +241,7 @@ class BienController extends Controller
             'meuble'          => ['nullable', 'boolean'],
             'statut'          => ['required', \Illuminate\Validation\Rule::in(['disponible', 'loue', 'en_travaux'])],
             'description'     => ['nullable', 'string'],
+            'visible_portail' => ['nullable', 'boolean'],
         ], [
             'type.required'          => 'Le type de bien est obligatoire.',
             'type.in'                => 'Le type sélectionné est invalide.',
@@ -227,7 +271,8 @@ class BienController extends Controller
                 ->withInput();
         }
 
-        $validated['meuble'] = $request->boolean('meuble');
+        $validated['meuble']          = $request->boolean('meuble');
+        $validated['visible_portail'] = $request->boolean('visible_portail');
         $bien->update($validated);
 
         return redirect()

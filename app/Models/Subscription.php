@@ -16,6 +16,7 @@ class Subscription extends Model
         // (SuperAdmin, IPN PayTech vérifié HMAC, inscription) — jamais par form utilisateur
         'agency_id',
         'statut',
+        'plan_niveau',
         'date_debut_essai',
         'date_fin_essai',
         'plan',
@@ -42,6 +43,13 @@ class Subscription extends Model
         'onboarding_j25_envoye'  => 'boolean',
         'montant_paye'           => 'decimal:2',
     ];
+
+    // ── Niveaux de plan ───────────────────────────────────────────────────
+
+    public const PLAN_STARTER = 'starter';
+    public const PLAN_PRO     = 'pro';
+    public const PLAN_AGENCE  = 'agence';
+    public const PLAN_LEGACY  = 'legacy';
 
     // ── Tarifs en FCFA ────────────────────────────────────────────────────
 

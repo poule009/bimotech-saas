@@ -428,6 +428,18 @@
                             </div>
                         </div>
 
+                        <div class="form-row" style="margin-top:4px">
+                            <div class="form-group">
+                                <label class="form-label" for="whatsapp">WhatsApp portail <span class="opt">optionnel</span></label>
+                                <input type="text" name="whatsapp" id="whatsapp"
+                                    class="form-input {{ $errors->has('whatsapp') ? 'error':'' }}"
+                                    value="{{ old('whatsapp', $agency->whatsapp) }}"
+                                    placeholder="+221771234567">
+                                @error('whatsapp')<div class="form-error">{{ $message }}</div>@enderror
+                                <div class="form-hint">Numéro utilisé pour le bouton WhatsApp sur le portail public. Format : +221771234567 sans espaces.</div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="form-label" for="adresse">Adresse <span class="opt">optionnel</span></label>
                             <input type="text" name="adresse" id="adresse"

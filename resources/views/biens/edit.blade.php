@@ -160,6 +160,15 @@
                                 Bien meublé
                             </label>
                         </div>
+                        <div class="form-group" style="margin-top:8px">
+                            <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                                <input type="checkbox" name="visible_portail" value="1"
+                                       {{ old('visible_portail', $bien->visible_portail ?? true) ? 'checked':'' }}
+                                       style="width:16px;height:16px;accent-color:#c9a84c">
+                                Visible sur le portail public
+                                <span class="opt">— décocher pour masquer ce bien du portail</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 

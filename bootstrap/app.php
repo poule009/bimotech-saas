@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'isLocataire'         => \App\Http\Middleware\IsLocataire::class,
             'checkSubscription'   => \App\Http\Middleware\CheckSubscription::class,
             'ensureAgencyIsActive'=> \App\Http\Middleware\EnsureAgencyIsActive::class,
+            'check.feature'       => \App\Http\Middleware\CheckPlanFeature::class,
         ]);
 
         // ── Middlewares appliqués globalement sur le groupe web ──────────

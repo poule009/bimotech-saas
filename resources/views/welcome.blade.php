@@ -1117,131 +1117,45 @@ footer{
     <div class="section-inner">
         <div class="section-header" style="text-align:center">
             <div class="section-tag" style="justify-content:center">Tarifs</div>
-            <h2>Simple, transparent,<br><em>sans surprise</em></h2>
-            <p class="section-sub" style="margin:0 auto">Tous les plans incluent la conformité fiscale complète.<br>Aucune carte bancaire requise pour démarrer.</p>
-
-            {{-- Billing toggle --}}
-            <div style="display:flex;justify-content:center">
-                <div class="billing-toggle" id="billing-toggle">
-                    <button class="billing-btn active" data-plan="mensuel" onclick="setBilling('mensuel', this)">Mensuel</button>
-                    <button class="billing-btn" data-plan="trimestriel" onclick="setBilling('trimestriel', this)">
-                        Trimestriel <span class="billing-badge">−10%</span>
-                    </button>
-                    <button class="billing-btn" data-plan="semestriel" onclick="setBilling('semestriel', this)">
-                        Semestriel <span class="billing-badge">−15%</span>
-                    </button>
-                    <button class="billing-btn" data-plan="annuel" onclick="setBilling('annuel', this)">
-                        Annuel <span class="billing-badge">−20%</span>
-                    </button>
-                </div>
-            </div>
+            <h2>Starter, Pro ou Agence —<br><em>30 jours d'essai gratuit</em></h2>
+            <p class="section-sub" style="margin:0 auto">Aucune carte bancaire. Choisissez votre plan après l'essai.</p>
         </div>
 
-        <div class="plans-grid">
-            {{-- Plan Démarrage --}}
+        <div class="plans-grid" style="max-width:840px;margin:0 auto 2.5rem">
             <div class="plan">
-                <div class="plan-name">Démarrage</div>
+                <div class="plan-name">Starter</div>
                 <div class="plan-price-wrap">
-                    <div class="plan-price">Gratuit <span class="period">/ toujours</span></div>
-                    <div class="plan-price-alt">&nbsp;</div>
+                    <div class="plan-price">19 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
                 </div>
-                <p class="plan-desc">Pour découvrir BimoTech et gérer vos premiers biens sans engagement ni limite de durée.</p>
-                <ul class="plan-features">
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Jusqu'à 5 biens</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>2 utilisateurs</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Quittances PDF</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Conformité fiscale SN</li>
-                    <li class="muted-feat"><span class="check" style="background:rgba(255,255,255,.04);"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#6e7681" stroke-width="2"><line x1="3" y1="6" x2="9" y2="6"/></svg></span>Rapports avancés</li>
-                    <li class="muted-feat"><span class="check" style="background:rgba(255,255,255,.04);"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#6e7681" stroke-width="2"><line x1="3" y1="6" x2="9" y2="6"/></svg></span>Espaces propriétaire & locataire</li>
-                </ul>
-                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-ghost">Commencer gratuitement</a>
+                <p class="plan-desc">Jusqu'à 15 unités — Dashboard, biens, contrats, paiements, impayés, quittances PDF.</p>
+                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-ghost">Démarrer gratuitement</a>
             </div>
-
-            {{-- Plan Agence (featured) --}}
             <div class="plan featured">
-                <div class="plan-badge-top">⭐ Le plus populaire</div>
+                <div class="plan-badge-top">⭐ Recommandé</div>
+                <div class="plan-name">Pro</div>
+                <div class="plan-price-wrap">
+                    <div class="plan-price">39 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
+                </div>
+                <p class="plan-desc">Jusqu'à 50 unités — Tout Starter + immeubles, rapports PDF, import Excel, relevés propriétaires.</p>
+                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-gold">Démarrer — 30 jours gratuits</a>
+            </div>
+            <div class="plan">
                 <div class="plan-name">Agence</div>
                 <div class="plan-price-wrap">
-                    <div class="plan-price" id="agence-price">
-                        <span id="price-amount">25 000</span>
-                        <span class="currency">FCFA</span>
-                        <span class="period" id="price-period">/ mois</span>
-                    </div>
-                    <div class="plan-price-alt" id="price-alt">&nbsp;</div>
-                    <div id="price-economy" style="display:none" class="plan-economy"></div>
+                    <div class="plan-price">69 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
                 </div>
-                <p class="plan-desc">Pour les agences qui veulent gérer leur activité sans limite, sans friction et en toute conformité.</p>
-                <ul class="plan-features">
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Biens illimités</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Utilisateurs illimités</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Rapports financiers avancés</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Espace propriétaire & locataire</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Logs d'activité complets</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Support prioritaire WhatsApp</li>
-                </ul>
-                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-gold">
-                    Démarrer — 30 jours gratuits
-                </a>
-            </div>
-
-            {{-- Plan Réseau --}}
-            <div class="plan">
-                <div class="plan-name">Réseau</div>
-                <div class="plan-price-wrap">
-                    <div class="plan-price">Sur devis</div>
-                    <div class="plan-price-alt">&nbsp;</div>
-                </div>
-                <p class="plan-desc">Pour les groupes immobiliers avec plusieurs agences à gérer depuis un seul tableau de bord.</p>
-                <ul class="plan-features">
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Multi-agences</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Tableau de bord groupe</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>API & intégrations</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Formation sur site à Dakar</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>SLA garanti</li>
-                    <li><span class="check"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></span>Account manager dédié</li>
-                </ul>
-                <a href="{{ route('contact') }}" class="plan-btn plan-btn-ghost">Nous contacter</a>
+                <p class="plan-desc">Unités illimitées — Tout Pro + déclarations DGID, bilans fiscaux, logs d'activité, support prioritaire.</p>
+                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-ghost">Démarrer gratuitement</a>
             </div>
         </div>
 
-        {{-- Comparaison durées --}}
-        <div style="margin-top:2rem;background:#222222;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
-            <table style="width:100%;border-collapse:collapse;font-size:13px">
-                <thead>
-                    <tr style="background:rgba(255,255,255,.02);border-bottom:1px solid var(--border)">
-                        <th style="padding:12px 20px;text-align:left;font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Durée</th>
-                        <th style="padding:12px 20px;text-align:right;font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Total</th>
-                        <th style="padding:12px 20px;text-align:right;font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Équivalent / mois</th>
-                        <th style="padding:12px 20px;text-align:center;font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;font-weight:600">Économie</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
-                        <td style="padding:13px 20px;color:var(--text2);font-weight:500">Mensuel</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--muted);font-family:'Syne',sans-serif">25 000 FCFA</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--muted);font-family:'Syne',sans-serif">25 000 FCFA</td>
-                        <td style="padding:13px 20px;text-align:center"><span style="color:var(--muted2);font-size:12px">—</span></td>
-                    </tr>
-                    <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
-                        <td style="padding:13px 20px;color:var(--text2);font-weight:500">Trimestriel</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--muted);font-family:'Syne',sans-serif">67 500 FCFA</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--gold);font-family:'Syne',sans-serif;font-weight:700">22 500 FCFA</td>
-                        <td style="padding:13px 20px;text-align:center"><span style="background:rgba(34,197,94,.1);color:#4ade80;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px">−10%</span></td>
-                    </tr>
-                    <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
-                        <td style="padding:13px 20px;color:var(--text2);font-weight:500">Semestriel</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--muted);font-family:'Syne',sans-serif">127 500 FCFA</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--gold);font-family:'Syne',sans-serif;font-weight:700">21 250 FCFA</td>
-                        <td style="padding:13px 20px;text-align:center"><span style="background:rgba(34,197,94,.1);color:#4ade80;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px">−15%</span></td>
-                    </tr>
-                    <tr>
-                        <td style="padding:13px 20px;color:var(--text2);font-weight:500">Annuel</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--muted);font-family:'Syne',sans-serif">240 000 FCFA</td>
-                        <td style="padding:13px 20px;text-align:right;color:var(--gold);font-family:'Syne',sans-serif;font-weight:700">20 000 FCFA</td>
-                        <td style="padding:13px 20px;text-align:center"><span style="background:rgba(34,197,94,.1);color:#4ade80;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px">−20%</span></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div style="text-align:center">
+            <a href="{{ route('pricing') }}"
+               style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:2px;transition:color .15s"
+               onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">
+                Comparer tous les plans en détail
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
         </div>
     </div>
 </section>
@@ -1344,39 +1258,6 @@ footer{
     </div>
 </footer>
 
-<script>
-// Pricing toggle
-const tarifs = {
-    mensuel:     { total:'25 000',   mensuel:'25 000',  period:'/ mois',   alt:'',                          economy:null },
-    trimestriel: { total:'67 500',   mensuel:'22 500',  period:'/ 3 mois', alt:'soit 22 500 FCFA / mois',   economy:'Économie : 7 500 FCFA / an' },
-    semestriel:  { total:'127 500',  mensuel:'21 250',  period:'/ 6 mois', alt:'soit 21 250 FCFA / mois',   economy:'Économie : 22 500 FCFA / an' },
-    annuel:      { total:'240 000',  mensuel:'20 000',  period:'/ an',     alt:'soit 20 000 FCFA / mois',   economy:'Économie : 60 000 FCFA vs mensuel' },
-};
-
-function setBilling(plan, btn) {
-    // Update buttons
-    document.querySelectorAll('.billing-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    const t = tarifs[plan];
-
-    // Update price display
-    document.getElementById('price-amount').textContent = t.total;
-    document.getElementById('price-period').textContent = t.period;
-
-    const altEl = document.getElementById('price-alt');
-    altEl.textContent = t.alt || '\u00a0';
-
-    const econEl = document.getElementById('price-economy');
-    if (t.economy) {
-        econEl.textContent = t.economy;
-        econEl.style.display = 'inline-block';
-    } else {
-        econEl.style.display = 'none';
-    }
-}
-</script>
-
 <!-- ─── SCHEMA.ORG JSON-LD ──────────────────────────────── -->
 {{-- Les @ dans le JSON-LD (@type, @context, @graph) doivent être
      passés via PHP pour éviter que Blade les interprète comme directives --}}
@@ -1436,7 +1317,7 @@ $schemaOrg = json_encode([
                     'name'  => 'Combien coûte BimoTech Immo ?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text'  => 'BimoTech propose un essai gratuit 30 jours sans carte bancaire. Le plan Agence commence à 25 000 FCFA/mois avec des réductions jusqu\'à -20% en annuel.',
+                        'text'  => 'BimoTech propose un essai gratuit 30 jours sans carte bancaire. Starter à 19 900 FCFA/mois (15 unités), Pro à 39 900 FCFA/mois (50 unités), Agence à 69 900 FCFA/mois (illimité). Formule annuelle : 2 mois offerts.',
                     ],
                 ],
                 [

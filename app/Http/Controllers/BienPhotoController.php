@@ -37,6 +37,7 @@ class BienPhotoController extends Controller
 
         foreach ($request->file('photos') as $index => $fichier) {
             $chemin = $fichier->store('biens/' . $bien->id, 'public');
+            $this->comprimer($chemin);
 
             BienPhoto::create([
                 'bien_id'        => $bien->id,
@@ -81,6 +82,61 @@ class BienPhotoController extends Controller
         }
 
         return back()->with('success', 'Photo supprimée ✓');
+    }
+
+    // ── Compression GD native ────────────────────────────────────────────
+
+    private function comprimer(string $chemin): void
+    {
+        if (! extension_loaded('gd')) {
+            return;
+        }
+
+        $cheminAbsolu = Storage::disk('public')->path($chemin);
+        $info = @getimagesize($cheminAbsolu);
+
+        if (! $info) {
+            return;
+        }
+
+        [$largeurOriginale, $hauteurOriginale, $typeImage] = $info;
+
+        if ($largeurOriginale <= 1200) {
+            $largeur = $largeurOriginale;
+            $hauteur = $hauteurOriginale;
+        } else {
+            $largeur = 1200;
+            $hauteur = (int) round($hauteurOriginale * 1200 / $largeurOriginale);
+        }
+
+        $source = match ($typeImage) {
+            IMAGETYPE_JPEG => imagecreatefromjpeg($cheminAbsolu),
+            IMAGETYPE_PNG  => imagecreatefrompng($cheminAbsolu),
+            IMAGETYPE_WEBP => imagecreatefromwebp($cheminAbsolu),
+            default        => null,
+        };
+
+        if (! $source) {
+            return;
+        }
+
+        $destination = imagecreatetruecolor($largeur, $hauteur);
+
+        // PNG/WEBP peuvent être transparents → fond blanc avant conversion JPEG
+        $blanc = imagecolorallocate($destination, 255, 255, 255);
+        imagefill($destination, 0, 0, $blanc);
+
+        imagecopyresampled(
+            $destination, $source,
+            0, 0, 0, 0,
+            $largeur, $hauteur,
+            $largeurOriginale, $hauteurOriginale
+        );
+
+        imagejpeg($destination, $cheminAbsolu, 82);
+
+        imagedestroy($source);
+        imagedestroy($destination);
     }
 
     // ── Définir comme photo principale ───────────────────────────────────

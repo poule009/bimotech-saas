@@ -135,6 +135,16 @@
             </p>
         </div>
         <div class="dash-header-right">
+            <button onclick="copierLienPortail()" id="btn-portail"
+                    style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:#fff;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s"
+                    onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
+                    onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
+                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                </svg>
+                Mon portail
+            </button>
             <div class="tabs">
                 <a href="{{ route('admin.dashboard', ['periode' => 'mois']) }}"
                    class="tab {{ $periode === 'mois' ? 'active' : '' }}" style="text-decoration:none">Ce mois</a>
@@ -149,6 +159,45 @@
             </a>
         </div>
     </div>
+
+    {{-- BANDEAU BIENS INVISIBLES SUR LE PORTAIL --}}
+    @if(($nbBiensInvisibles ?? 0) > 0)
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:10px">
+            <svg style="width:16px;height:16px;color:#ea580c;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span style="font-size:13px;color:#7c2d12">
+                <strong>{{ $nbBiensInvisibles }} bien{{ $nbBiensInvisibles > 1 ? 's' : '' }}</strong>
+                disponible{{ $nbBiensInvisibles > 1 ? 's' : '' }}
+                invisible{{ $nbBiensInvisibles > 1 ? 's' : '' }} sur le portail — informations incomplètes.
+            </span>
+        </div>
+        <a href="{{ route('admin.biens.index', ['statut' => 'disponible']) }}"
+           style="font-size:12px;font-weight:600;color:#ea580c;text-decoration:none;white-space:nowrap">
+            Voir les biens →
+        </a>
+    </div>
+    @endif
+
+    {{-- BANDEAU LIMITE UNITÉS ─── visible uniquement si >= 80% de la limite --}}
+    @if($pourcentageUnites !== null && $pourcentageUnites >= 80)
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:10px">
+            <svg style="width:16px;height:16px;color:#d97706;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span style="font-size:13px;color:#92400e">
+                Vous avez <strong>{{ $nbUnites }} unités sur {{ $limiteUnites }}</strong> — vous approchez de votre limite {{ $planLabel }}.
+            </span>
+        </div>
+        <a href="{{ route('subscription.index') }}"
+           style="font-size:12px;font-weight:600;color:#d97706;text-decoration:none;white-space:nowrap">
+            Voir les plans →
+        </a>
+    </div>
+    @endif
 
     {{-- ══════════════════════════════════════════════════════════════ --}}
     {{-- ACTIONS RAPIDES                                               --}}
@@ -800,6 +849,22 @@ new Chart(document.getElementById('chartStatuts'), {
 } // end if chartStatuts
 
 // Les onglets sont des liens (<a>) avec ?periode=xxx — pas de JS nécessaire.
+
+function copierLienPortail() {
+    const url = '{{ route('portail.index') }}?agence={{ $currentAgency?->slug ?? '' }}';
+    const btn = document.getElementById('btn-portail');
+    const orig = btn.innerHTML;
+    navigator.clipboard.writeText(url).then(() => {
+        btn.innerHTML = '<svg style="width:13px;height:13px;color:#16a34a" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copié !';
+        btn.style.borderColor = '#bbf7d0';
+        btn.style.color = '#16a34a';
+        setTimeout(() => {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '#e5e7eb';
+            btn.style.color = '#374151';
+        }, 2000);
+    });
+}
 </script>
 
 {{-- ══ BOUTON FLOTTANT WHATSAPP ══════════════════════════════════════════ --}}

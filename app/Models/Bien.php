@@ -4,10 +4,12 @@ namespace App\Models;
 
 use App\Enums\BienStatut;
 use App\Models\Concerns\HasAgencyScope;
+use App\Models\Scopes\AgencyScope;
 use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Bien extends Model
 {
@@ -60,6 +62,23 @@ class Bien extends Model
         // Utiliser BienStatut::from($bien->statut) dans le code PHP si l'enum est nécessaire.
     ];
 
+    // ── Hooks ─────────────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::created(function (Bien $bien) {
+            $base = implode('-', array_filter([
+                $bien->type,
+                $bien->quartier,
+                $bien->ville,
+            ]));
+            // slug absent de $fillable → assignation directe.
+            // saveQuietly() évite de redéclencher l'event created.
+            $bien->slug = Str::slug($base) . '-' . $bien->id;
+            $bien->saveQuietly();
+        });
+    }
+
     // ── Relations ─────────────────────────────────────────────────────────
 
     public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -109,6 +128,28 @@ class Bien extends Model
         return $query->whereNotNull('immeuble_id');
     }
 
+    public function scopePortail(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        // Dans un scope, on ne peut pas retourner un nouveau builder.
+        // withoutGlobalScope() sur $query est ce que withoutAgencyScope() fait sous le capot.
+        return $query
+            ->withoutGlobalScope(AgencyScope::class)
+            ->where('statut', 'disponible')
+            ->where('visible_portail', true)
+            ->whereDoesntHave('contratActif')
+            ->whereHas('agency', fn($q) => $q->where('actif', true))
+            ->whereNotNull('titre')
+            ->where('titre', '!=', '')
+            ->whereNotNull('quartier')
+            ->where('quartier', '!=', '')
+            ->whereHas('photos')
+            ->with([
+                'photos'   => fn($q) => $q->where('est_principale', true),
+                'agency',
+                'immeuble:id,nom',
+            ]);
+    }
+
     // ── Accesseurs ────────────────────────────────────────────────────────
 
     // Alias loyer_hors_charges → loyer_mensuel pour compatibilité
@@ -139,6 +180,20 @@ class Bien extends Model
         // Sinon fallback sur le tableau STATUTS ou ucfirst.
         $enum = BienStatut::tryFrom($this->statut ?? '');
         return $enum ? $enum->label() : (self::STATUTS[$this->statut] ?? ucfirst($this->statut ?? ''));
+    }
+
+    public function getTitreFallbackAttribute(): string
+    {
+        if (! empty($this->titre)) {
+            return $this->titre;
+        }
+
+        // relationLoaded() évite un lazy load accidentel hors contexte portail.
+        if ($this->immeuble_id && $this->relationLoaded('immeuble') && $this->immeuble) {
+            return $this->immeuble->nom . ' — ' . $this->type_label;
+        }
+
+        return $this->type_label . (! empty($this->quartier) ? ' — ' . $this->quartier : '');
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────

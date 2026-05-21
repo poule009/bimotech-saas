@@ -216,6 +216,20 @@ class AdminDashboardController extends Controller
             ->groupBy('type')
             ->pluck('total', 'type');
 
+        // ── Biens disponibles invisibles sur le portail ───────────────────
+        $nbBiensInvisibles = Bien::where('agency_id', $agencyId)
+            ->where('statut', 'disponible')
+            ->whereDoesntHave('contratActif')
+            ->where(function ($q) {
+                $q->where('visible_portail', false)
+                  ->orWhereNull('titre')
+                  ->orWhere('titre', '')
+                  ->orWhereNull('quartier')
+                  ->orWhere('quartier', '')
+                  ->orWhereDoesntHave('photos');
+            })
+            ->count();
+
         // ── Net reversé par propriétaire (12 mois) ────────────────────────
         $netParProprietaire = DB::select("
             SELECT u.name AS proprietaire,
@@ -244,8 +258,9 @@ class AdminDashboardController extends Controller
         ];
 
         // ── Onboarding ────────────────────────────────────────────────────
-        $onboarding = null;
-        $agency     = $user->agency;
+        $onboarding     = null;
+        $agency         = $user->agency;
+        $currentAgency  = $agency;
         if ($agency && ! $agency->onboarding_completed) {
             $onboarding = [
                 'has_biens'     => Bien::where('agency_id', $agencyId)->exists(),
@@ -254,6 +269,27 @@ class AdminDashboardController extends Controller
                 'settings_ok'   => ! empty($agency->telephone) && ! empty($agency->adresse),
             ];
         }
+
+        // ── Utilisation des unités (bandeau amber à 80%) ──────────────────
+        $planNiveau = $agency?->subscription?->plan_niveau ?? 'legacy';
+
+        $limiteUnites = match ($planNiveau) {
+            'starter'       => 15,
+            'pro', 'legacy' => 50,
+            'agence'        => null,
+            default         => 50,
+        };
+
+        $nbUnites          = $agency ? $agency->nbUnitesActives() : 0;
+        $pourcentageUnites = $limiteUnites !== null
+            ? round(($nbUnites / max(1, $limiteUnites)) * 100)
+            : null;
+
+        $planLabel = match ($planNiveau) {
+            'starter' => 'Starter',
+            'agence'  => 'Agence',
+            default   => 'Pro',
+        };
 
         return view('admin.dashboard', compact(
             'stats',
@@ -270,7 +306,13 @@ class AdminDashboardController extends Controller
             'periode',
             'periodeLabel',
             'repartitionBiens',
-            'netParProprietaire'
+            'netParProprietaire',
+            'limiteUnites',
+            'nbUnites',
+            'pourcentageUnites',
+            'planLabel',
+            'nbBiensInvisibles',
+            'currentAgency'
         ));
     }
 }

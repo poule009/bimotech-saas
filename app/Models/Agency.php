@@ -85,6 +85,16 @@ class Agency extends Model
         return $this->subscription && $this->subscription->aAcces();
     }
 
+    public function nbUnitesActives(): int
+    {
+        return $this->biens()->where('statut', '!=', 'archive')->count();
+    }
+
+    public function getNbUnitesActivesAttribute(): int
+    {
+        return $this->nbUnitesActives();
+    }
+
     public function couleurEstSombre(): bool
     {
         $hex = ltrim($this->couleur_primaire ?? '#1a3c5e', '#');

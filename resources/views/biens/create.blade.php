@@ -556,4 +556,36 @@ function handleDrop(e) {
 
 calcRecap();
 </script>
+
+{{-- MODAL LIMITE ATTEINTE --}}
+@if(session('upgrade_required'))
+@php $up = session('upgrade_required'); @endphp
+<div id="modal-limite" style="position:fixed;inset:0;background:rgba(13,17,23,.65);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#fff;border-radius:16px;padding:32px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+        <div style="width:48px;height:48px;border-radius:12px;background:#fef3c7;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+            <svg style="width:24px;height:24px;color:#d97706" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h2 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#0d1117;margin-bottom:10px">Limite atteinte</h2>
+        <p style="font-size:14px;color:#374151;line-height:1.6;margin-bottom:24px">
+            Vous gérez déjà <strong>{{ $up['nb_unites'] }} unités sur {{ $up['limite'] }}</strong>
+            autorisées en plan <strong>{{ $up['plan_actuel'] }}</strong>.<br><br>
+            Le plan <strong>{{ $up['plan_suivant'] }}</strong> vous permet d'en gérer
+            jusqu'à <strong>{{ $up['limite_suivante'] }}</strong>.
+        </p>
+        <div style="display:flex;gap:10px">
+            <a href="{{ route('subscription.index') }}"
+               style="flex:1;text-align:center;padding:11px 16px;background:#0d1117;color:#fff;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none"
+               onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                Voir le plan {{ $up['plan_suivant'] }}
+            </a>
+            <button onclick="document.getElementById('modal-limite').style.display='none'"
+                    style="flex:1;padding:11px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer">
+                Pas maintenant
+            </button>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

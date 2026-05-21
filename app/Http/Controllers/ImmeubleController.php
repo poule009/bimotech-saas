@@ -105,6 +105,52 @@ class ImmeubleController extends Controller
                 ->withInput();
         }
 
+        // ── Nombre d'unités demandées selon le mode de numérotation ────────
+        $nombreDemandeUnites = 0;
+        if ($hasUnites) {
+            if ($request->input('mode_numerotation') === 'etage') {
+                $nombreDemandeUnites = (int) ($validated['nombre_niveaux']    ?? 1)
+                                     * (int) ($validated['unites_par_niveau'] ?? 1);
+            } else {
+                $nombreDemandeUnites = (int) ($validated['nombre_unites'] ?? 0);
+            }
+        }
+
+        // ── Vérification limite d'unités selon plan_niveau ─────────────────
+        if ($nombreDemandeUnites > 0) {
+            $agency     = Auth::user()->agency;
+            $planNiveau = $agency?->subscription?->plan_niveau ?? 'legacy';
+
+            $limiteUnites = match ($planNiveau) {
+                'starter'       => 15,
+                'pro', 'legacy' => 50,
+                'agence'        => null,
+                default         => 50,
+            };
+
+            if ($agency && $limiteUnites !== null) {
+                $nbActuelles = $agency->nbUnitesActives();
+
+                if ($nbActuelles + $nombreDemandeUnites > $limiteUnites) {
+                    [$planSuivant, $limiteSuivante] = match ($planNiveau) {
+                        'starter' => ['Pro', '50 unités'],
+                        default   => ['Agence', 'illimité'],
+                    };
+
+                    return redirect()
+                        ->back()
+                        ->with('upgrade_required', [
+                            'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
+                            'nb_unites'       => $nbActuelles,
+                            'limite'          => $limiteUnites,
+                            'plan_suivant'    => $planSuivant,
+                            'limite_suivante' => $limiteSuivante,
+                        ])
+                        ->withInput();
+                }
+            }
+        }
+
         [$immeuble, $nbCreees] = DB::transaction(function () use ($validated, $agencyId, $hasUnites, $request) {
             $immeuble = Immeuble::create([
                 'agency_id'       => $agencyId,

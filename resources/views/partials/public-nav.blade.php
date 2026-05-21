@@ -88,7 +88,7 @@
     <div class="pub-nav-links" role="menubar">
         <a href="{{ url('/') }}#fonctionnalites" role="menuitem" @if($active==='fonctionnalites') class="active-link" aria-current="page" @endif>Fonctionnalités</a>
         <a href="{{ url('/') }}#conformite"      role="menuitem" @if($active==='conformite')      class="active-link" aria-current="page" @endif>Conformité</a>
-        <a href="{{ url('/') }}#tarifs"          role="menuitem" @if($active==='tarifs')          class="active-link" aria-current="page" @endif>Tarifs</a>
+        <a href="{{ route('pricing') }}"           role="menuitem" @if($active==='pricing')         class="active-link" aria-current="page" @endif>Tarifs</a>
         <a href="{{ route('faq') }}"     role="menuitem" @if($active==='faq')     class="active-link" aria-current="page" @endif>FAQ</a>
         <a href="{{ route('contact') }}" role="menuitem" @if($active==='contact') class="active-link" aria-current="page" @endif>Contact</a>
     </div>
@@ -105,7 +105,7 @@
 <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true" role="dialog" aria-label="Menu mobile">
     <a href="{{ url('/') }}#fonctionnalites" onclick="closeDrawer()" @if($active==='fonctionnalites') class="active-link" @endif>Fonctionnalités</a>
     <a href="{{ url('/') }}#conformite"      onclick="closeDrawer()" @if($active==='conformite')      class="active-link" @endif>Conformité</a>
-    <a href="{{ url('/') }}#tarifs"          onclick="closeDrawer()" @if($active==='tarifs')          class="active-link" @endif>Tarifs</a>
+    <a href="{{ route('pricing') }}"           onclick="closeDrawer()" @if($active==='pricing')         class="active-link" @endif>Tarifs</a>
     <a href="{{ route('faq') }}"     @if($active==='faq')     class="active-link" @endif>FAQ</a>
     <a href="{{ route('contact') }}" @if($active==='contact') class="active-link" @endif>Contact</a>
     <div class="mobile-drawer-actions">
