@@ -14,7 +14,7 @@
 :root{--bg:#f9f7f2;--surface:#fff;--text:#0d1117;--text2:#374151;--muted:#6b7280;--muted2:#9ca3af;--border:#e5e7eb;--gold:#c9a84c;--radius:14px;--radius-sm:10px}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
 
-.portail-hero{background:var(--text);color:#fff;padding:48px 5% 0}
+.portail-hero{background:var(--text);color:#fff;padding:112px 5% 0}
 .hero-inner{max-width:1100px;margin:0 auto}
 .hero-title{font-family:'Syne',sans-serif;font-size:clamp(24px,4vw,38px);font-weight:800;letter-spacing:-.6px;margin-bottom:6px}
 .hero-sub{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:20px}

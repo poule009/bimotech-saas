@@ -38,6 +38,7 @@ class Agency extends Model
         'rccm',
         'onboarding_completed',
         'taux_tva',
+        'whatsapp',
     ];
 
     protected $casts = [

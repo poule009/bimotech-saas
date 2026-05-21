@@ -877,8 +877,7 @@ footer{
         {{-- Conteneur vidéo avec fallback --}}
         <div style="position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border);box-shadow:0 0 40px rgba(0,0,0,.15);background:#0d1117;margin-top:2.5rem">
 
-            {{-- 🔧 REMPLACEZ l'URL ci-dessous par votre lien YouTube ou vidéo MP4 --}}
-            @php $videoUrl = 'https://www.youtube.com/embed/WyBF6L5veeE'; /* Remplacer par la vraie démo BimoTech */ @endphp
+            @php $videoUrl = 'https://www.youtube.com/embed/1CqDVBCsT78'; @endphp
 
             @if($videoUrl)
             <div style="position:relative;padding-bottom:56.25%;height:0">

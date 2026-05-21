@@ -50,6 +50,7 @@ class Bien extends Model
         'taux_commission',
         'statut',
         'description',
+        'visible_portail',
     ];
 
     protected $casts = [
@@ -57,6 +58,7 @@ class Bien extends Model
         'surface_m2'      => 'decimal:2',
         'taux_commission' => 'decimal:2',
         'meuble'          => 'boolean',
+        'visible_portail' => 'boolean',
         'deleted_at'      => 'datetime',
         // Note : pas de cast Enum — $bien->statut reste une string en Blade.
         // Utiliser BienStatut::from($bien->statut) dans le code PHP si l'enum est nécessaire.
