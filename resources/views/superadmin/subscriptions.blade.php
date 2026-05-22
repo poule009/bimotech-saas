@@ -190,7 +190,7 @@ $niveauLabels = config('plans.labels', ['starter'=>'Starter','pro'=>'Pro','agenc
                                         <div class="dp-label">Durée</div>
                                         <select name="plan" class="dp-select">
                                             @foreach(\App\Models\Subscription::LABELS as $plan => $label)
-                                            <option value="{{ $plan }}">{{ $label }} — {{ number_format(\App\Models\Subscription::TARIFS[$plan], 0, ',', ' ') }} F</option>
+                                            <option value="{{ $plan }}">{{ $label }}</option>
                                             @endforeach
                                         </select>
                                         <button type="submit" class="dp-submit">Activer l'abonnement</button>

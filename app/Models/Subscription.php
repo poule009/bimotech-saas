@@ -50,27 +50,22 @@ class Subscription extends Model
     public const PLAN_AGENCE  = 'agence';
     public const PLAN_LEGACY  = 'legacy';
 
-    // ── Tarifs en FCFA ────────────────────────────────────────────────────
+    // ── Tarifs en FCFA — [niveau][cycle] ─────────────────────────────────
 
     public const TARIFS = [
-        'mensuel'      => 25000,
-        'trimestriel'  => 67500,
-        'semestriel'   => 127500,
-        'annuel'       => 240000,
+        'starter' => ['mensuel' => 19900, 'annuel' => 199000],
+        'pro'     => ['mensuel' => 39900, 'annuel' => 399000],
+        'agence'  => ['mensuel' => 69900, 'annuel' => 699000],
     ];
 
     public const LABELS = [
-        'mensuel'      => 'Mensuel',
-        'trimestriel'  => 'Trimestriel',
-        'semestriel'   => 'Semestriel',
-        'annuel'       => 'Annuel',
+        'mensuel' => 'Mensuel',
+        'annuel'  => 'Annuel',
     ];
 
     public const DUREES_MOIS = [
-        'mensuel'      => 1,
-        'trimestriel'  => 3,
-        'semestriel'   => 6,
-        'annuel'       => 12,
+        'mensuel' => 1,
+        'annuel'  => 12,
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────
@@ -142,10 +137,12 @@ class Subscription extends Model
         string $methode = 'manuel',
         string $planNiveau = 'pro'
     ): void {
-        $dureeMois = self::DUREES_MOIS[$plan];
-        $montant   = self::TARIFS[$plan];
-        $debut     = now();
-        $fin       = now()->addMonths($dureeMois);
+        $dureeMois  = self::DUREES_MOIS[$plan];
+        // legacy et tout niveau inconnu → pro pour la tarification
+        $niveauPrix = array_key_exists($planNiveau, self::TARIFS) ? $planNiveau : 'pro';
+        $montant    = self::TARIFS[$niveauPrix][$plan];
+        $debut = now();
+        $fin   = $debut->copy()->addMonths($dureeMois);
 
         $this->update([
             'statut'                => 'actif',

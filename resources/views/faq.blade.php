@@ -104,8 +104,8 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
                 'a' => 'Oui. Le plan Démarrage est gratuit pour toujours, jusqu\'à 5 biens. Aucune carte bancaire requise. Vous passez au plan Agence uniquement si vous en avez besoin.'
             ],
             [
-                'q' => 'Comment fonctionne l\'abonnement à 25 000 FCFA / mois ?',
-                'a' => 'Le plan Agence est facturé mensuellement. Vous pouvez résilier à tout moment sans frais. Aucun engagement annuel obligatoire. Le paiement se fait par virement ou Mobile Money (Wave, Orange Money).'
+                'q' => 'Quels sont les tarifs après l\'essai gratuit ?',
+                'a' => 'Trois plans : Starter à 19 900 FCFA/mois (jusqu\'à 15 unités), Pro à 39 900 FCFA/mois (jusqu\'à 50 unités), Agence à 69 900 FCFA/mois (illimité). Formule annuelle disponible avec 2 mois offerts. Résiliation à tout moment, sans frais. Paiement par virement ou Mobile Money (Wave, Orange Money).'
             ],
             [
                 'q' => 'Combien de temps prend la mise en place ?',

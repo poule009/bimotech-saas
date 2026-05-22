@@ -24,14 +24,16 @@ class SubscriptionFactory extends Factory
         ];
     }
 
-    public function actif(string $plan = 'mensuel'): static
+    public function actif(string $plan = 'mensuel', string $planNiveau = 'pro'): static
     {
+        $durees = \App\Models\Subscription::DUREES_MOIS;
         return $this->state(fn () => [
             'statut'                => 'actif',
             'plan'                  => $plan,
-            'montant_paye'          => \App\Models\Subscription::TARIFS[$plan],
+            'plan_niveau'           => $planNiveau,
+            'montant_paye'          => \App\Models\Subscription::TARIFS[$planNiveau][$plan],
             'date_debut_abonnement' => now(),
-            'date_fin_abonnement'   => now()->addMonth(),
+            'date_fin_abonnement'   => now()->addMonths($durees[$plan]),
         ]);
     }
 }

@@ -8,6 +8,7 @@ use App\Models\SubscriptionPayment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
 
 /**
  * PaymentService — Gestion des paiements d'abonnement via PayTech.
@@ -29,9 +30,9 @@ class PaymentService
 
     public function __construct()
     {
-        $this->mode      = config('services.paytech.mode', 'simulation');
-        $this->apiKey    = config('services.paytech.api_key', '');
-        $this->apiSecret = config('services.paytech.api_secret', '');
+        $this->mode      = (string) config('services.paytech.mode', 'simulation');
+        $this->apiKey    = (string) config('services.paytech.api_key', '');
+        $this->apiSecret = (string) config('services.paytech.api_secret', '');
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -43,17 +44,20 @@ class PaymentService
      *
      * @return array{success: bool, mode: string, message: string, redirect_url: ?string}
      */
-    public function initierPaiement(Agency $agency, string $plan): array
+    public function initierPaiement(Agency $agency, string $plan, string $planNiveau = 'pro'): array
     {
-        if (! array_key_exists($plan, Subscription::TARIFS)) {
+        if (! array_key_exists($plan, Subscription::LABELS)) {
             return ['success' => false, 'mode' => $this->mode, 'message' => 'Plan invalide', 'redirect_url' => null];
+        }
+        if (! array_key_exists($planNiveau, Subscription::TARIFS)) {
+            return ['success' => false, 'mode' => $this->mode, 'message' => 'Niveau de plan invalide', 'redirect_url' => null];
         }
 
         if ($this->mode === 'simulation') {
-            return $this->simulerPaiement($agency, $plan);
+            return $this->simulerPaiement($agency, $plan, $planNiveau);
         }
 
-        return $this->creerFacturePaytech($agency, $plan);
+        return $this->creerFacturePaytech($agency, $plan, $planNiveau);
     }
 
     /**
@@ -96,20 +100,21 @@ class PaymentService
                 }
             }
 
-            $agencyId = $customData['agency_id'] ?? null;
-            $plan     = $customData['plan']      ?? null;
+            $agencyId   = $customData['agency_id']   ?? null;
+            $plan       = $customData['plan']        ?? null;
+            $planNiveau = $customData['plan_niveau'] ?? 'pro';
 
             if (! $agencyId || ! $plan) {
                 Log::error('IPN PayTech — custom_data manquantes', ['payload' => $payload]);
                 return ['success' => false, 'message' => 'Données custom_data manquantes'];
             }
 
-            if (! array_key_exists($plan, Subscription::TARIFS)) {
+            if (! array_key_exists($plan, Subscription::LABELS)) {
                 Log::error('IPN PayTech — plan invalide', ['plan' => $plan, 'ref' => $refCommand]);
                 return ['success' => false, 'message' => 'Plan invalide'];
             }
 
-            DB::transaction(function () use ($agencyId, $plan, $refCommand) {
+            DB::transaction(function () use ($agencyId, $plan, $planNiveau, $refCommand) {
                 // Idempotence — on ne traite pas deux fois la même commande
                 if (SubscriptionPayment::where('reference', $refCommand)->exists()) {
                     return;
@@ -119,7 +124,7 @@ class PaymentService
                     ->lockForUpdate()
                     ->firstOrFail();
 
-                $subscription->activer($plan, $refCommand, 'paytech');
+                $subscription->activer($plan, $refCommand, 'paytech', $planNiveau);
             });
 
             return ['success' => true, 'message' => 'Abonnement activé'];
@@ -194,21 +199,21 @@ class PaymentService
             $message    = "{$amount}|{$refCommand}|{$this->apiKey}";
             $expected   = hash_hmac('sha256', $message, $this->apiSecret);
 
-            return hash_equals($expected, $payload['hmac_compute']);
+            return hash_equals($expected, (string) ($payload['hmac_compute'] ?? ''));
         }
 
         // Méthode 2 — SHA256 (fallback, refusé en production)
         if (! empty($payload['api_key_sha256']) && ! empty($payload['api_secret_sha256'])) {
             if ($this->mode === 'prod') {
                 Log::warning('IPN PayTech — fallback SHA256 rejeté en production (HMAC requis)', [
-                    'ip'          => request()->ip(),
+                    'ip'          => Request::ip(),
                     'ref_command' => $payload['ref_command'] ?? null,
                 ]);
                 return false;
             }
 
-            $keyValid    = hash_equals(hash('sha256', $this->apiKey),    $payload['api_key_sha256']);
-            $secretValid = hash_equals(hash('sha256', $this->apiSecret), $payload['api_secret_sha256']);
+            $keyValid    = hash_equals(hash('sha256', $this->apiKey),    (string) ($payload['api_key_sha256']    ?? ''));
+            $secretValid = hash_equals(hash('sha256', $this->apiSecret), (string) ($payload['api_secret_sha256'] ?? ''));
 
             return $keyValid && $secretValid;
         }
@@ -220,9 +225,9 @@ class PaymentService
     // PRIVÉ
     // ═══════════════════════════════════════════════════════════════════════
 
-    private function simulerPaiement(Agency $agency, string $plan): array
+    private function simulerPaiement(Agency $agency, string $plan, string $planNiveau = 'pro'): array
     {
-        DB::transaction(function () use ($agency, $plan) {
+        DB::transaction(function () use ($agency, $plan, $planNiveau) {
             $subscription = $agency->subscription;
 
             if (! $subscription) {
@@ -235,7 +240,7 @@ class PaymentService
             }
 
             $ref = 'SIM-' . strtoupper(substr(md5(uniqid()), 0, 12));
-            $subscription->activer($plan, $ref, 'manuel');
+            $subscription->activer($plan, $ref, 'simulation', $planNiveau);
         });
 
         return [
@@ -246,17 +251,18 @@ class PaymentService
         ];
     }
 
-    private function creerFacturePaytech(Agency $agency, string $plan): array
+    private function creerFacturePaytech(Agency $agency, string $plan, string $planNiveau = 'pro'): array
     {
         try {
-            $montant    = Subscription::TARIFS[$plan];
+            $montant    = Subscription::TARIFS[$planNiveau][$plan];
             $labels     = Subscription::LABELS;
             $refCommand = 'BIMO-' . $agency->id . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
 
             // Les données custom sont encodées en base64 (JSON) pour PayTech
             $customField = base64_encode(json_encode([
-                'agency_id' => $agency->id,
-                'plan'      => $plan,
+                'agency_id'  => $agency->id,
+                'plan'       => $plan,
+                'plan_niveau' => $planNiveau,
             ]));
 
             $response = Http::withHeaders($this->headers())

@@ -48,15 +48,25 @@ class SubscriptionController extends Controller
         $this->authorize('isAdmin');
 
         $request->validate([
-            'plan' => ['required', 'in:mensuel,trimestriel,semestriel,annuel'],
+            'plan'        => ['required', 'in:mensuel,annuel'],
+            'plan_niveau' => ['required', 'in:starter,pro,agence'],
         ], [
-            'plan.required' => 'Veuillez choisir un plan.',
-            'plan.in'       => 'Plan invalide.',
+            'plan.required'        => 'Veuillez choisir un cycle de facturation.',
+            'plan.in'              => 'Cycle de facturation invalide.',
+            'plan_niveau.required' => 'Veuillez choisir un niveau de plan.',
+            'plan_niveau.in'       => 'Niveau de plan invalide.',
         ]);
 
-        $agency   = Auth::user()->agency;
-        $plan     = $request->plan;
-        $resultat = $this->paymentService->initierPaiement($agency, $plan);
+        $agency     = Auth::user()->agency;
+        $plan       = $request->plan;
+        $planNiveau = $request->plan_niveau;
+
+        session([
+            'subscription_plan_pending'        => $plan,
+            'subscription_plan_niveau_pending' => $planNiveau,
+        ]);
+
+        $resultat = $this->paymentService->initierPaiement($agency, $plan, $planNiveau);
 
         if (! $resultat['success']) {
             return back()->withErrors(['general' => $resultat['message']]);
@@ -139,12 +149,13 @@ class SubscriptionController extends Controller
         }
 
         try {
-            $planSession = session('subscription_plan_pending');
+            $planSession       = session('subscription_plan_pending');
+            $planNiveauSession = session('subscription_plan_niveau_pending', 'pro');
 
-            if (! $planSession || ! array_key_exists($planSession, Subscription::TARIFS)) {
+            if (! $planSession || ! array_key_exists($planSession, Subscription::LABELS)) {
                 // Si la session a expiré, on vérifie via l'IPN déjà traité
                 if (SubscriptionPayment::where('reference', $ref)->where('statut', 'payé')->exists()) {
-                    session()->forget(['subscription_plan_pending', 'subscription_agency_id']);
+                    session()->forget(['subscription_plan_pending', 'subscription_plan_niveau_pending', 'subscription_agency_id']);
                     return view('subscription.succes', compact('agency'));
                 }
 
@@ -153,7 +164,7 @@ class SubscriptionController extends Controller
             }
 
             // Activation avec verrou — impossible de l'activer deux fois en même temps
-            DB::transaction(function () use ($agency, $planSession, $ref) {
+            DB::transaction(function () use ($agency, $planSession, $planNiveauSession, $ref) {
                 $subscription = Subscription::where('agency_id', $agency->id)
                     ->lockForUpdate()
                     ->first();
@@ -168,11 +179,11 @@ class SubscriptionController extends Controller
                 }
 
                 if (! SubscriptionPayment::where('reference', $ref)->exists()) {
-                    $subscription->activer($planSession, $ref, 'paytech');
+                    $subscription->activer($planSession, $ref, 'paytech', $planNiveauSession);
                 }
             });
 
-            session()->forget(['subscription_plan_pending', 'subscription_agency_id']);
+            session()->forget(['subscription_plan_pending', 'subscription_plan_niveau_pending', 'subscription_agency_id']);
 
             return view('subscription.succes', compact('agency'));
 
@@ -189,7 +200,7 @@ class SubscriptionController extends Controller
 
     public function echec(): View
     {
-        session()->forget(['subscription_plan_pending', 'subscription_agency_id']);
+        session()->forget(['subscription_plan_pending', 'subscription_plan_niveau_pending', 'subscription_agency_id']);
         return view('subscription.echec');
     }
 }

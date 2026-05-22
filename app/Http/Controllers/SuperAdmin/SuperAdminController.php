@@ -191,10 +191,18 @@ class SuperAdminController extends Controller
             COALESCE(SUM(CASE WHEN statut = "actif" THEN montant_paye ELSE 0 END), 0) AS revenus_total,
             COALESCE(SUM(CASE WHEN statut = "actif" THEN
                 CASE plan
-                    WHEN "mensuel"     THEN 25000
-                    WHEN "trimestriel" THEN 25000
-                    WHEN "semestriel"  THEN 25000
-                    WHEN "annuel"      THEN 20000
+                    WHEN "mensuel" THEN
+                        CASE plan_niveau
+                            WHEN "starter" THEN 19900
+                            WHEN "agence"  THEN 69900
+                            ELSE 39900
+                        END
+                    WHEN "annuel" THEN
+                        CASE plan_niveau
+                            WHEN "starter" THEN FLOOR(199000/12)
+                            WHEN "agence"  THEN FLOOR(699000/12)
+                            ELSE FLOOR(399000/12)
+                        END
                     ELSE 0
                 END
             ELSE 0 END), 0) AS revenus_mensuel_equiv
@@ -227,7 +235,7 @@ class SuperAdminController extends Controller
     public function activerAbonnement(Request $request, Agency $agency): RedirectResponse
     {
         $request->validate([
-            'plan'        => ['required', 'in:mensuel,trimestriel,semestriel,annuel'],
+            'plan'        => ['required', 'in:mensuel,annuel'],
             'plan_niveau' => ['nullable', 'in:starter,pro,agence'],
         ]);
 

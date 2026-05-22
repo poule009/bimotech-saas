@@ -4,12 +4,27 @@
 
 @section('content')
 @php
-$plans = [
-    'mensuel'     => ['label'=>'Mensuel',     'total'=>'25 000',  'mensuel'=>'25 000',  'period'=>'/ mois',    'eco'=>null,   'saving'=>null],
-    'trimestriel' => ['label'=>'Trimestriel', 'total'=>'67 500',  'mensuel'=>'22 500',  'period'=>'/ 3 mois',  'eco'=>'−10%', 'saving'=>'Économie 7 500 FCFA/an'],
-    'semestriel'  => ['label'=>'Semestriel',  'total'=>'127 500', 'mensuel'=>'21 250',  'period'=>'/ 6 mois',  'eco'=>'−15%', 'saving'=>'Économie 22 500 FCFA/an'],
-    'annuel'      => ['label'=>'Annuel',       'total'=>'240 000', 'mensuel'=>'20 000',  'period'=>'/ an',      'eco'=>'−20%', 'saving'=>'Économie 60 000 FCFA/an'],
+$niveaux = [
+    'starter' => [
+        'label'    => 'Starter',
+        'desc'     => "Jusqu'à 15 unités",
+        'popular'  => false,
+        'features' => ["Biens, contrats & locataires", "Dashboard & paiements", "Quittances PDF", "Impayés & relances"],
+    ],
+    'pro' => [
+        'label'    => 'Pro',
+        'desc'     => "Jusqu'à 50 unités",
+        'popular'  => true,
+        'features' => ["Tout Starter +", "Immeubles", "Rapports & relevés PDF", "Export CSV & Import Excel", "Recherche globale"],
+    ],
+    'agence' => [
+        'label'    => 'Agence',
+        'desc'     => "Unités illimitées",
+        'popular'  => false,
+        'features' => ["Tout Pro +", "Fiscalité BRS / TVA", "Bilans fiscaux DGID", "Logs d'activité", "Support prioritaire"],
+    ],
 ];
+$tarifsNiveau = \App\Models\Subscription::TARIFS;
 $estActif  = $subscription?->estActif();
 $estEssai  = $subscription?->estEnEssai();
 $estExpire = $subscription && !$estActif && !$estEssai;
@@ -87,9 +102,28 @@ $featuresList = [
 }
 .sub-section-sub { font-size:13px; color:#8b949e; margin-bottom:24px; }
 
+/* ── Billing toggle ── */
+.billing-toggle {
+    display:inline-flex; background:#21262d;
+    border:1px solid rgba(255,255,255,.07); border-radius:10px;
+    padding:4px; gap:4px; margin-bottom:20px;
+}
+.billing-btn {
+    padding:7px 18px; border-radius:7px; border:none;
+    font-family:'Syne',sans-serif; font-size:12px; font-weight:700;
+    cursor:pointer; transition:all .15s; color:#8b949e; background:transparent;
+    display:flex; align-items:center; gap:8px;
+}
+.billing-btn.active { background:#161b22; color:#e6edf3; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+.billing-btn .eco-tag {
+    background:rgba(34,197,94,.15); color:#4ade80;
+    font-size:9px; font-weight:800; padding:2px 7px;
+    border-radius:99px; letter-spacing:.3px;
+}
+
 /* ── Plan cards ── */
 .plans-row {
-    display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
+    display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
     margin-bottom:28px;
 }
 .plan-card {
@@ -257,8 +291,8 @@ $featuresList = [
 .support-contacts { display:flex; gap:20px; flex-wrap:wrap; }
 .support-contact   { font-size:12.5px; color:#8b949e; display:flex; align-items:center; gap:6px; }
 
-@media(max-width:860px){ .plans-row{ grid-template-columns:repeat(2,1fr); } }
-@media(max-width:540px){ .plans-row{ grid-template-columns:1fr; } .features-grid{ grid-template-columns:1fr; } .feature-item:nth-child(odd){ border-right:none; } }
+@media(max-width:660px){ .plans-row{ grid-template-columns:1fr; } }
+@media(max-width:540px){ .features-grid{ grid-template-columns:1fr; } .feature-item:nth-child(odd){ border-right:none; } }
 @media(max-width:768px){
     .compare-table { overflow-x:auto; }
     .compare-table table { min-width:480px; }
@@ -348,65 +382,88 @@ $featuresList = [
 
     {{-- Titre section --}}
     <div class="sub-section-title">Choisissez votre abonnement</div>
-    <div class="sub-section-sub">Accès complet aux fonctionnalités Pro incluses. Aucun frais caché.</div>
+    <div class="sub-section-sub">Aucune carte bancaire. Essai gratuit 30 jours inclus.</div>
 
-    {{-- Plans --}}
+    {{-- Toggle Mensuel / Annuel --}}
+    <div class="billing-toggle">
+        <button class="billing-btn active" id="btn-mensuel" onclick="setBilling('mensuel')">Mensuel</button>
+        <button class="billing-btn" id="btn-annuel" onclick="setBilling('annuel')">
+            Annuel <span class="eco-tag">2 mois offerts</span>
+        </button>
+    </div>
+
+    {{-- 3 cartes Starter / Pro / Agence --}}
     <div class="plans-row">
-        @foreach($plans as $key => $p)
-        <div class="plan-card {{ $key === 'semestriel' ? 'popular' : '' }}">
-            @if($key === 'semestriel')
+        @foreach($niveaux as $niveauKey => $n)
+        @php
+            $pMensuel = $tarifsNiveau[$niveauKey]['mensuel'];
+            $pAnnuel  = $tarifsNiveau[$niveauKey]['annuel'];
+        @endphp
+        <div class="plan-card {{ $n['popular'] ? 'popular' : '' }}">
+            @if($n['popular'])
             <div class="plan-card-badge">Le plus populaire</div>
             @endif
-            @if($p['eco'])
-            <div><span class="plan-card-eco">{{ $p['eco'] }}</span></div>
-            @endif
-            <div class="plan-card-name">{{ $p['label'] }}</div>
-            <div class="plan-card-price">{{ $p['total'] }} <span>FCFA {{ $p['period'] }}</span></div>
-            @if($p['mensuel'] !== $p['total'])
-            <div class="plan-card-mensuel">soit {{ $p['mensuel'] }} FCFA / mois</div>
-            @else
-            <div class="plan-card-mensuel">&nbsp;</div>
-            @endif
-            @if($p['saving'])
-            <div class="plan-card-saving">{{ $p['saving'] }}</div>
-            @else
-            <div style="margin-bottom:16px">&nbsp;</div>
-            @endif
+
+            <div class="plan-card-name">{{ $n['label'] }}</div>
+
+            <div class="plan-card-price" id="price-{{ $niveauKey }}">
+                {{ number_format($pMensuel, 0, ',', ' ') }}
+                <span>FCFA / mois</span>
+            </div>
+            <div class="plan-card-mensuel" id="annual-detail-{{ $niveauKey }}" style="display:none">
+                facturé {{ number_format($pAnnuel, 0, ',', ' ') }} FCFA / an
+            </div>
+            <div class="plan-card-mensuel" id="monthly-ph-{{ $niveauKey }}">&nbsp;</div>
+
+            <div style="font-size:12px;color:#6e7681;margin-bottom:14px">{{ $n['desc'] }}</div>
+
+            <ul style="list-style:none;padding:0;margin:0 0 18px;flex:1">
+                @foreach($n['features'] as $feat)
+                <li style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;color:#8b949e">
+                    <svg style="width:13px;height:13px;color:#4ade80;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    {{ $feat }}
+                </li>
+                @endforeach
+            </ul>
+
             <form method="POST" action="{{ route('subscription.initier') }}"
-                  onsubmit="return confirm('Confirmer l\'abonnement {{ $p['label'] }} à {{ $p['total'] }} FCFA ?')">
+                  data-confirm="Activer le plan {{ $n['label'] }} ?"
+                  onsubmit="return confirm(this.dataset.confirm)">
                 @csrf
-                <input type="hidden" name="plan" value="{{ $key }}">
-                <button type="submit" class="plan-card-btn {{ $key === 'semestriel' ? 'plan-card-btn-gold' : 'plan-card-btn-outline' }}">
-                    Choisir
+                <input type="hidden" name="plan_niveau" value="{{ $niveauKey }}">
+                <input type="hidden" name="plan" class="plan-billing-input" value="mensuel">
+                <button type="submit" class="plan-card-btn {{ $n['popular'] ? 'plan-card-btn-gold' : 'plan-card-btn-outline' }}">
+                    Choisir {{ $n['label'] }}
                 </button>
             </form>
         </div>
         @endforeach
     </div>
 
-    {{-- Comparatif durées --}}
+    {{-- Comparatif plans --}}
     <div class="compare-table">
         <table>
             <thead>
                 <tr>
-                    <th>Durée</th>
-                    <th>Total à payer</th>
-                    <th>Équivalent / mois</th>
-                    <th style="text-align:center">Économie</th>
+                    <th>Plan</th>
+                    <th>Mensuel</th>
+                    <th>Annuel</th>
+                    <th style="text-align:center">Économie / an</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($plans as $key => $p)
+                @foreach($niveaux as $niveauKey => $n)
+                @php
+                    $pM     = $tarifsNiveau[$niveauKey]['mensuel'];
+                    $pA     = $tarifsNiveau[$niveauKey]['annuel'];
+                    $saving = ($pM * 12) - $pA;
+                @endphp
                 <tr>
-                    <td>{{ $p['label'] }}</td>
-                    <td class="{{ $p['eco'] ? 'gold' : '' }}">{{ $p['total'] }} FCFA</td>
-                    <td class="{{ $p['eco'] ? 'gold' : '' }}">{{ $p['mensuel'] }} FCFA / mois</td>
+                    <td>{{ $n['label'] }}</td>
+                    <td class="{{ $n['popular'] ? 'gold' : '' }}">{{ number_format($pM, 0, ',', ' ') }} FCFA</td>
+                    <td class="{{ $n['popular'] ? 'gold' : '' }}">{{ number_format($pA, 0, ',', ' ') }} FCFA</td>
                     <td style="text-align:center">
-                        @if($p['eco'])
-                        <span class="eco-pill">{{ $p['eco'] }}</span>
-                        @else
-                        <span style="color:#484f58;font-size:12px">—</span>
-                        @endif
+                        <span class="eco-pill">{{ number_format($saving, 0, ',', ' ') }} FCFA</span>
                     </td>
                 </tr>
                 @endforeach
@@ -521,4 +578,28 @@ $featuresList = [
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+const tarifsNiveau = @json($tarifsNiveau);
+
+function setBilling(mode) {
+    const isMensuel = (mode === 'mensuel');
+    document.getElementById('btn-mensuel').classList.toggle('active', isMensuel);
+    document.getElementById('btn-annuel').classList.toggle('active', !isMensuel);
+
+    ['starter', 'pro', 'agence'].forEach(n => {
+        const price  = isMensuel ? tarifsNiveau[n].mensuel : tarifsNiveau[n].annuel;
+        const period = isMensuel ? '/ mois' : '/ an';
+        document.getElementById('price-' + n).innerHTML =
+            new Intl.NumberFormat('fr-FR').format(price) + ' <span>FCFA ' + period + '</span>';
+
+        document.getElementById('annual-detail-' + n).style.display = isMensuel ? 'none' : 'block';
+        document.getElementById('monthly-ph-' + n).style.display    = isMensuel ? 'block' : 'none';
+    });
+
+    document.querySelectorAll('.plan-billing-input').forEach(el => { el.value = mode; });
+}
+</script>
+@endpush
 @endsection
