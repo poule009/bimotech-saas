@@ -199,7 +199,7 @@ footer{background:#0d1117;border-top:1px solid #1f2937;padding:2rem 5%}
 
 <footer>
     <div class="footer-inner">
-        <span class="footer-copy">© {{ date('Y') }} Bimothèque Immo. Tous droits réservés.</span>
+        <span class="footer-copy">© {{ date('Y') }} BIMO-tech. Tous droits réservés.</span>
         <div class="footer-links">
             <a href="{{ route('home') }}">Accueil</a>
             <a href="{{ route('pricing') }}">Tarifs</a>

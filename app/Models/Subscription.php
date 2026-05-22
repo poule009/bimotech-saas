@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasAgencyScope;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -140,7 +139,8 @@ class Subscription extends Model
     public function activer(
         string $plan,
         ?string $referencePaydunya = null,
-        string $methode = 'manuel'
+        string $methode = 'manuel',
+        string $planNiveau = 'pro'
     ): void {
         $dureeMois = self::DUREES_MOIS[$plan];
         $montant   = self::TARIFS[$plan];
@@ -150,6 +150,7 @@ class Subscription extends Model
         $this->update([
             'statut'                => 'actif',
             'plan'                  => $plan,
+            'plan_niveau'           => $planNiveau,
             'montant_paye'          => $montant,
             'date_debut_abonnement' => $debut,
             'date_fin_abonnement'   => $fin,

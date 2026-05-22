@@ -55,7 +55,7 @@ footer{background:#0d1117;border-top:1px solid #1f2937;padding:1.5rem 5%}
 
 <footer>
     <div class="footer-inner">
-        <span class="footer-copy">© {{ date('Y') }} Bimothèque Immo. Tous droits réservés.</span>
+        <span class="footer-copy">© {{ date('Y') }} BIMO-tech. Tous droits réservés.</span>
     </div>
 </footer>
 </body>

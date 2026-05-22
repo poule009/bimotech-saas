@@ -10,9 +10,30 @@ $plans = [
     'semestriel'  => ['label'=>'Semestriel',  'total'=>'127 500', 'mensuel'=>'21 250',  'period'=>'/ 6 mois',  'eco'=>'−15%', 'saving'=>'Économie 22 500 FCFA/an'],
     'annuel'      => ['label'=>'Annuel',       'total'=>'240 000', 'mensuel'=>'20 000',  'period'=>'/ an',      'eco'=>'−20%', 'saving'=>'Économie 60 000 FCFA/an'],
 ];
-$estActif = $subscription?->estActif();
-$estEssai = $subscription?->estEnEssai();
+$estActif  = $subscription?->estActif();
+$estEssai  = $subscription?->estEnEssai();
 $estExpire = $subscription && !$estActif && !$estEssai;
+
+$plansCfg        = config('plans');
+$niveauBrut      = $subscription?->plan_niveau ?? 'legacy';
+$niveauEffectif  = $plansCfg['niveau_effectif'][$niveauBrut] ?? 'pro';
+$niveauLabel     = $plansCfg['labels'][$niveauBrut] ?? 'Pro';
+$hierarchy       = $plansCfg['hierarchy'];        // ['starter','pro','agence']
+$posEffective    = array_search($niveauEffectif, $hierarchy);
+
+// Fonctionnalités à afficher (libellé → niveau minimum requis)
+$featuresList = [
+    'Gestion biens, contrats & locataires' => 'starter',
+    'Gestion d\'immeubles'                 => 'pro',
+    'Relevés propriétaires PDF'            => 'pro',
+    'Export CSV'                           => 'pro',
+    'Recherche globale'                    => 'pro',
+    'Contrats formels PDF'                 => 'pro',
+    'Import Excel'                         => 'pro',
+    'Fiscalité BRS / TVA'                  => 'agence',
+    'Bilans fiscaux'                       => 'agence',
+    'Logs d\'activité'                     => 'agence',
+];
 @endphp
 
 <style>
@@ -35,7 +56,7 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 .sub-banner.essai  .sub-banner-icon { background:rgba(201,168,76,.15); }
 .sub-banner.actif  .sub-banner-icon { background:rgba(34,197,94,.15); }
 .sub-banner.expire .sub-banner-icon { background:rgba(239,68,68,.15); }
-.sub-banner-title  { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#e6edf3; }
+.sub-banner-title  { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#e6edf3; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .sub-banner-sub    { font-size:12.5px; color:#8b949e; margin-top:2px; }
 .sub-banner-badge  {
     display:inline-flex; align-items:center; gap:6px;
@@ -46,6 +67,18 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 .sub-banner.essai  .sub-banner-badge { background:rgba(201,168,76,.15); color:#c9a84c; }
 .sub-banner.actif  .sub-banner-badge { background:rgba(34,197,94,.12);  color:#4ade80; }
 .sub-banner.expire .sub-banner-badge { background:rgba(239,68,68,.12);  color:#f87171; }
+
+/* ── Badge niveau ── */
+.niveau-badge {
+    display:inline-flex; align-items:center;
+    padding:2px 10px; border-radius:99px;
+    font-size:11px; font-weight:700; font-family:'Syne',sans-serif;
+    white-space:nowrap;
+}
+.niveau-badge.starter { background:rgba(107,114,128,.15); color:#9ca3af; }
+.niveau-badge.pro     { background:rgba(99,102,241,.15);  color:#818cf8; }
+.niveau-badge.agence  { background:rgba(201,168,76,.15);  color:#c9a84c; }
+.niveau-badge.legacy  { background:rgba(99,102,241,.15);  color:#818cf8; }
 
 /* ── Section titre ── */
 .sub-section-title {
@@ -118,7 +151,7 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 /* ── Tableau comparatif ── */
 .compare-table {
     background:#161b22; border:1px solid rgba(255,255,255,.07);
-    border-radius:14px; overflow:hidden; margin-bottom:32px;
+    border-radius:14px; overflow:hidden; margin-bottom:24px;
 }
 .compare-table table { width:100%; border-collapse:collapse; font-size:13px; }
 .compare-table th {
@@ -139,6 +172,35 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 .eco-pill {
     display:inline-block; background:rgba(34,197,94,.1); color:#4ade80;
     font-size:10px; font-weight:700; padding:2px 9px; border-radius:99px;
+}
+
+/* ── Features card ── */
+.features-card {
+    background:#161b22; border:1px solid rgba(255,255,255,.07);
+    border-radius:14px; overflow:hidden; margin-bottom:24px;
+}
+.features-head {
+    padding:14px 20px; border-bottom:1px solid rgba(255,255,255,.06);
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+}
+.features-head-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#e6edf3; }
+.features-grid {
+    display:grid; grid-template-columns:repeat(2,1fr); gap:0;
+}
+.feature-item {
+    display:flex; align-items:center; gap:10px;
+    padding:11px 20px; border-bottom:1px solid rgba(255,255,255,.04);
+    font-size:12.5px;
+}
+.feature-item:nth-child(odd)  { border-right:1px solid rgba(255,255,255,.04); }
+.feature-item.unlocked { color:#c9d1d9; }
+.feature-item.locked   { color:#484f58; }
+.feature-icon-ok   { color:#4ade80; flex-shrink:0; }
+.feature-icon-lock { color:#484f58; flex-shrink:0; }
+.feature-lock-pill {
+    margin-left:auto; font-size:10px; font-weight:700;
+    padding:2px 8px; border-radius:99px;
+    background:rgba(201,168,76,.1); color:#c9a84c; white-space:nowrap;
 }
 
 /* ── Historique ── */
@@ -196,7 +258,7 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 .support-contact   { font-size:12.5px; color:#8b949e; display:flex; align-items:center; gap:6px; }
 
 @media(max-width:860px){ .plans-row{ grid-template-columns:repeat(2,1fr); } }
-@media(max-width:540px){ .plans-row{ grid-template-columns:1fr; } }
+@media(max-width:540px){ .plans-row{ grid-template-columns:1fr; } .features-grid{ grid-template-columns:1fr; } .feature-item:nth-child(odd){ border-right:none; } }
 @media(max-width:768px){
     .compare-table { overflow-x:auto; }
     .compare-table table { min-width:480px; }
@@ -230,10 +292,14 @@ $estExpire = $subscription && !$estActif && !$estEssai;
                 <svg style="width:20px;height:20px;color:#c9a84c" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
             <div>
-                <div class="sub-banner-title">Période d'essai en cours</div>
+                <div class="sub-banner-title">
+                    Période d'essai en cours
+                    <span class="niveau-badge pro">Pro</span>
+                </div>
                 <div class="sub-banner-sub">
                     Expire le {{ $subscription->date_fin_essai->format('d/m/Y') }} —
                     <strong style="color:#c9a84c">{{ $subscription->joursRestantsEssai() }} jours restants</strong>
+                    · Accès Pro complet inclus
                 </div>
             </div>
         </div>
@@ -249,7 +315,10 @@ $estExpire = $subscription && !$estActif && !$estEssai;
                 <svg style="width:20px;height:20px;color:#4ade80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div>
-                <div class="sub-banner-title">Abonnement actif — {{ \App\Models\Subscription::LABELS[$subscription->plan] ?? '' }}</div>
+                <div class="sub-banner-title">
+                    Abonnement actif — {{ \App\Models\Subscription::LABELS[$subscription->plan] ?? '' }}
+                    <span class="niveau-badge {{ $niveauBrut }}">{{ $niveauLabel }}</span>
+                </div>
                 <div class="sub-banner-sub">
                     Expire le {{ $subscription->date_fin_abonnement->format('d/m/Y') }} —
                     <strong style="color:#4ade80">{{ $subscription->joursRestantsAbonnement() }} jours restants</strong>
@@ -279,7 +348,7 @@ $estExpire = $subscription && !$estActif && !$estEssai;
 
     {{-- Titre section --}}
     <div class="sub-section-title">Choisissez votre abonnement</div>
-    <div class="sub-section-sub">Toutes les fonctionnalités incluses. Aucun frais caché. Conformité fiscale SN intégrée.</div>
+    <div class="sub-section-sub">Accès complet aux fonctionnalités Pro incluses. Aucun frais caché.</div>
 
     {{-- Plans --}}
     <div class="plans-row">
@@ -343,6 +412,40 @@ $estExpire = $subscription && !$estActif && !$estEssai;
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    {{-- Fonctionnalités incluses --}}
+    <div class="features-card">
+        <div class="features-head">
+            <div class="features-head-title">Fonctionnalités incluses dans votre abonnement</div>
+            @if($estActif || $estEssai)
+                <span class="niveau-badge {{ $niveauBrut }}">{{ $niveauLabel }}</span>
+            @else
+                <span class="niveau-badge pro">Plan Pro</span>
+            @endif
+        </div>
+        <div class="features-grid">
+            @foreach($featuresList as $label => $niveauReqis)
+            @php
+                $posRequise  = array_search($niveauReqis, $hierarchy);
+                // En essai : accès Pro complet (posEffective basé sur 'pro' = index 1)
+                $posCheck    = ($estEssai) ? 1 : $posEffective;
+                $accessible  = $posCheck >= $posRequise;
+                $reqLabel    = $plansCfg['labels'][$niveauReqis] ?? ucfirst($niveauReqis);
+            @endphp
+            <div class="feature-item {{ $accessible ? 'unlocked' : 'locked' }}">
+                @if($accessible)
+                    <svg class="feature-icon-ok" style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                @else
+                    <svg class="feature-icon-lock" style="width:15px;height:15px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                @endif
+                {{ $label }}
+                @if(!$accessible)
+                    <span class="feature-lock-pill">Plan {{ $reqLabel }}</span>
+                @endif
+            </div>
+            @endforeach
+        </div>
     </div>
 
     {{-- Historique --}}

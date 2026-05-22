@@ -227,7 +227,8 @@ class SuperAdminController extends Controller
     public function activerAbonnement(Request $request, Agency $agency): RedirectResponse
     {
         $request->validate([
-            'plan' => ['required', 'in:mensuel,trimestriel,semestriel,annuel'],
+            'plan'        => ['required', 'in:mensuel,trimestriel,semestriel,annuel'],
+            'plan_niveau' => ['nullable', 'in:starter,pro,agence'],
         ]);
 
         $subscription = $agency->subscription;
@@ -241,11 +242,14 @@ class SuperAdminController extends Controller
             ]);
         }
 
-        $subscription->activer($request->plan, 'MANUEL-SUPERADMIN-' . now()->format('YmdHis'));
+        $planNiveau = $request->input('plan_niveau', 'pro');
+        $subscription->activer($request->plan, 'MANUEL-SUPERADMIN-' . now()->format('YmdHis'), 'manuel', $planNiveau);
+
+        $niveauLabel = config("plans.labels.{$planNiveau}", ucfirst($planNiveau));
 
         return redirect()
             ->route('superadmin.subscriptions')
-            ->with('success', "Abonnement {$request->plan} activé pour {$agency->name}.");
+            ->with('success', "Abonnement {$request->plan} ({$niveauLabel}) activé pour {$agency->name}.");
     }
 
     public function reinitialiserEssai(Agency $agency): RedirectResponse
