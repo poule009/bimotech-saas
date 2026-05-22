@@ -42,9 +42,15 @@ class CheckPlanFeature
             return $next($request);
         }
 
-        $label = $plans['labels'][$niveauRequis] ?? ucfirst($niveauRequis);
+        // Requête AJAX → réponse JSON sans redirection
+        if ($request->expectsJson()) {
+            $label = $plans['labels'][$niveauRequis] ?? ucfirst($niveauRequis);
+            return response()->json([
+                'message' => "Fonctionnalité disponible à partir du plan {$label}.",
+            ], 403);
+        }
 
-        return redirect()->back()
-            ->with('warning', "Cette fonctionnalité est disponible à partir du plan {$label}.");
+        return redirect()->route('subscription.upgrade-required')
+            ->with('required_plan', $niveauRequis);
     }
 }

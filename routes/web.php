@@ -113,8 +113,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('callback')
             ->withoutMiddleware(['auth', 'verified'])
             ->middleware('throttle:10,1'); // 10 req/min — PayTech légitime n'en envoie pas plus
-        Route::get('succes', [SubscriptionController::class, 'succes'])->name('succes');
-        Route::get('echec',  [SubscriptionController::class, 'echec'])->name('echec');
+        Route::get('succes',            [SubscriptionController::class, 'succes'])->name('succes');
+        Route::get('echec',             [SubscriptionController::class, 'echec'])->name('echec');
+        Route::get('upgrade-required',  function () {
+            $requiredPlan = session('required_plan');
+            return view('subscription.upgrade-required', compact('requiredPlan'));
+        })->name('upgrade-required');
     });
 
     // Stop impersonation — hors isSuperAdmin (l'user courant est alors admin/locataire/proprio)

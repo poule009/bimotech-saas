@@ -4,6 +4,9 @@
     $user = auth()->user();
     $role = $user->role ?? 'admin';
 
+    /** @var \App\Services\PlanFeatureService $planFeatureSvc */
+    $planFeatureSvc = app(\App\Services\PlanFeatureService::class);
+
     // Badge impayés — compte les contrats actifs sans paiement ce mois (cache 2 min)
     $nbImpayes = 0;
     if ($role === 'admin' && $user->agency_id) {
@@ -38,7 +41,7 @@
 
         ['section' => 'PATRIMOINE',   'route' => 'admin.users.proprietaires', 'label' => 'Propriétaires'],
         ['section' => null,           'route' => 'admin.biens.index',         'label' => 'Biens'],
-        ['section' => null,           'route' => 'admin.immeubles.index',     'label' => 'Immeubles'],
+        ['section' => null,           'route' => 'admin.immeubles.index',     'label' => 'Immeubles',              'feature' => 'immeubles'],
 
         ['section' => 'RELATIONS',    'route' => 'admin.users.locataires',    'label' => 'Locataires'],
         ['section' => null,           'route' => 'admin.bailleurs.index',     'label' => 'Bailleurs'],
@@ -47,18 +50,18 @@
         ['section' => 'CAISSE',       'route' => 'admin.paiements.index',     'label' => 'Paiements & Quittances'],
         ['section' => null,           'route' => 'admin.impayes.index',       'label' => 'Impayés'],
 
-        ['section' => 'ANALYTIQUE',   'route' => 'admin.rapports.financier',       'label' => 'Rapports'],
+        ['section' => 'ANALYTIQUE',   'route' => 'admin.rapports.financier',       'label' => 'Rapports',               'feature' => 'rapports_pdf'],
         ...config('features.fiscalite') ? [
-            ['section' => null,       'route' => 'admin.bilans-fiscaux.index',     'label' => 'Bilans Fiscaux'],
-            ['section' => 'FISCAL',   'route' => 'admin.tva-agence.index',         'label' => 'TVA mensuelle'],
-            ['section' => null,       'route' => 'admin.etats-trimestriels.index', 'label' => 'États BRS trimestriels'],
-            ['section' => null,       'route' => 'admin.echeances-fiscales.index', 'label' => 'Échéances fiscales'],
+            ['section' => null,       'route' => 'admin.bilans-fiscaux.index',     'label' => 'Bilans Fiscaux',         'feature' => 'bilans_fiscaux'],
+            ['section' => 'FISCAL',   'route' => 'admin.tva-agence.index',         'label' => 'TVA mensuelle',          'feature' => 'fiscalite'],
+            ['section' => null,       'route' => 'admin.etats-trimestriels.index', 'label' => 'États BRS trimestriels', 'feature' => 'fiscalite'],
+            ['section' => null,       'route' => 'admin.echeances-fiscales.index', 'label' => 'Échéances fiscales',     'feature' => 'fiscalite'],
         ] : [],
-        ['section' => 'JOURNAL',      'route' => 'admin.activity-logs.index',      'label' => 'Activité'],
+        ['section' => 'JOURNAL',      'route' => 'admin.activity-logs.index',      'label' => 'Activité',               'feature' => 'logs_activite'],
 
         ['section' => 'AGENCE',       'route' => 'admin.agency.settings',     'label' => 'Paramètres'],
         ['section' => null,           'route' => 'subscription.index',        'label' => 'Abonnement'],
-        ['section' => null,           'route' => 'admin.import.index',        'label' => 'Import Excel'],
+        ['section' => null,           'route' => 'admin.import.index',        'label' => 'Import Excel',           'feature' => 'import_excel'],
     ];
 
     $navProprietaire = [
@@ -249,6 +252,30 @@
 }
 .bm-nav-label { flex: 1; }
 
+/* ── Item verrouillé (feature hors plan) ── */
+.bm-nav-item.locked {
+    opacity: .4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.bm-nav-item.locked .bm-lock-icon {
+    width: 13px; height: 13px;
+    flex-shrink: 0;
+    color: #C9A96E;
+}
+.bm-nav-badge-plan {
+    font-size: 9px;
+    font-weight: 700;
+    color: #C9A96E;
+    background: rgba(201,169,110,.12);
+    border: 1px solid rgba(201,169,110,.25);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: .3px;
+}
+
 /* ── Profil footer ── */
 .bm-footer {
     padding: 12px 10px;
@@ -354,17 +381,32 @@
             @if($sectionKey === '__root__')
                 @foreach($group['items'] as $item)
                     @php
-                        $isActive = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*');
+                        $isActive  = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*');
+                        $feature   = $item['feature'] ?? null;
+                        $hasAccess = $feature ? $planFeatureSvc->canAccess($feature) : true;
                         try { $url = route($item['route']); } catch(\Exception $e) { $url = '#'; }
                         $svg = $svgs[$item['route']] ?? '<circle cx="12" cy="12" r="3"/>';
                     @endphp
-                    <a href="{{ $url }}" class="bm-nav-item {{ $isActive ? 'active' : '' }}">
-                        <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
-                        <span class="bm-nav-label">{{ $item['label'] }}</span>
-                        @if($item['route'] === 'admin.impayes.index' && $nbImpayes > 0)
-                            <span style="background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;line-height:1.6;flex-shrink:0">{{ $nbImpayes > 99 ? '99+' : $nbImpayes }}</span>
-                        @endif
-                    </a>
+                    @if($hasAccess)
+                        <a href="{{ $url }}" class="bm-nav-item {{ $isActive ? 'active' : '' }}">
+                            <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
+                            <span class="bm-nav-label">{{ $item['label'] }}</span>
+                            @if($item['route'] === 'admin.impayes.index' && $nbImpayes > 0)
+                                <span style="background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;line-height:1.6;flex-shrink:0">{{ $nbImpayes > 99 ? '99+' : $nbImpayes }}</span>
+                            @endif
+                        </a>
+                    @else
+                        @php $reqLabel = $planFeatureSvc->requiredPlanLabel($feature); @endphp
+                        <div class="bm-nav-item locked" title="Disponible en Plan {{ $reqLabel }}">
+                            <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
+                            <span class="bm-nav-label">{{ $item['label'] }}</span>
+                            <svg class="bm-lock-icon" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0110 0v4"/>
+                            </svg>
+                            <span class="bm-nav-badge-plan">{{ $reqLabel }}</span>
+                        </div>
+                    @endif
                 @endforeach
             @else
                 @php $isSectionActive = isset($activeSections[$sectionKey]); @endphp
@@ -378,17 +420,32 @@
                     <div class="bm-section-body">
                         @foreach($group['items'] as $item)
                             @php
-                                $isActive = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*');
+                                $isActive  = request()->routeIs($item['route']) || request()->routeIs($item['route'].'.*');
+                                $feature   = $item['feature'] ?? null;
+                                $hasAccess = $feature ? $planFeatureSvc->canAccess($feature) : true;
                                 try { $url = route($item['route']); } catch(\Exception $e) { $url = '#'; }
                                 $svg = $svgs[$item['route']] ?? '<circle cx="12" cy="12" r="3"/>';
                             @endphp
-                            <a href="{{ $url }}" class="bm-nav-item {{ $isActive ? 'active' : '' }}">
-                                <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
-                                <span class="bm-nav-label">{{ $item['label'] }}</span>
-                                @if($item['route'] === 'admin.impayes.index' && $nbImpayes > 0)
-                                    <span style="background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;line-height:1.6;flex-shrink:0">{{ $nbImpayes > 99 ? '99+' : $nbImpayes }}</span>
-                                @endif
-                            </a>
+                            @if($hasAccess)
+                                <a href="{{ $url }}" class="bm-nav-item {{ $isActive ? 'active' : '' }}">
+                                    <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
+                                    <span class="bm-nav-label">{{ $item['label'] }}</span>
+                                    @if($item['route'] === 'admin.impayes.index' && $nbImpayes > 0)
+                                        <span style="background:#dc2626;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;line-height:1.6;flex-shrink:0">{{ $nbImpayes > 99 ? '99+' : $nbImpayes }}</span>
+                                    @endif
+                                </a>
+                            @else
+                                @php $reqLabel = $planFeatureSvc->requiredPlanLabel($feature); @endphp
+                                <div class="bm-nav-item locked" title="Disponible en Plan {{ $reqLabel }}">
+                                    <svg class="bm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $svg !!}</svg>
+                                    <span class="bm-nav-label">{{ $item['label'] }}</span>
+                                    <svg class="bm-lock-icon" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                        <path d="M7 11V7a5 5 0 0110 0v4"/>
+                                    </svg>
+                                    <span class="bm-nav-badge-plan">{{ $reqLabel }}</span>
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                 </div>
