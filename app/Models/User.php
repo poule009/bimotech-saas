@@ -42,11 +42,16 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
+        'email_verified_at'        => 'datetime',
+        'two_factor_confirmed_at'  => 'datetime',
+        'password'                 => 'hashed',
+        'two_factor_secret'        => 'encrypted',
+        'two_factor_recovery_codes'=> 'encrypted',
         // Note : pas de cast Enum ici — $user->role reste une string en Blade.
         // Utiliser UserRole::from($user->role) dans le code PHP si l'enum est nécessaire.
     ];
@@ -102,6 +107,42 @@ class User extends Authenticatable
     public function isAdmin(): bool        { return $this->role === UserRole::Admin->value; }
     public function isProprietaire(): bool { return $this->role === UserRole::Proprietaire->value; }
     public function isLocataire(): bool    { return $this->role === UserRole::Locataire->value; }
+
+    // ── 2FA helpers ───────────────────────────────────────────────────────
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return $this->two_factor_confirmed_at !== null;
+    }
+
+    public function generateRecoveryCodes(): array
+    {
+        $plain = [];
+        for ($i = 0; $i < 8; $i++) {
+            $plain[] = strtoupper(substr(bin2hex(random_bytes(5)), 0, 5) . '-' . substr(bin2hex(random_bytes(5)), 0, 5));
+        }
+
+        $this->two_factor_recovery_codes = json_encode(array_map('bcrypt', $plain));
+        $this->save();
+
+        return $plain;
+    }
+
+    public function useRecoveryCode(string $code): bool
+    {
+        $hashes = json_decode($this->two_factor_recovery_codes ?? '[]', true);
+
+        foreach ($hashes as $index => $hash) {
+            if (password_verify($code, $hash)) {
+                array_splice($hashes, $index, 1);
+                $this->two_factor_recovery_codes = json_encode(array_values($hashes));
+                $this->save();
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // ── Profil selon le rôle ──────────────────────────────────────────────
 

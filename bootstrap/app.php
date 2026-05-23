@@ -21,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkSubscription'   => \App\Http\Middleware\CheckSubscription::class,
             'ensureAgencyIsActive'=> \App\Http\Middleware\EnsureAgencyIsActive::class,
             'check.feature'       => \App\Http\Middleware\CheckPlanFeature::class,
+            'require2fa'          => \App\Http\Middleware\Require2FA::class,
         ]);
 
         // ── Middlewares appliqués globalement sur le groupe web ──────────

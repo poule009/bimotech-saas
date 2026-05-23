@@ -390,6 +390,22 @@
             </div>
         </header>
 
+        {{-- Bandeau invitation 2FA superadmin --}}
+        @auth
+        @if(auth()->user()->isSuperAdmin() && !auth()->user()->hasTwoFactorEnabled())
+        <div style="background:#fffbeb;border-bottom:1px solid #fcd34d;padding:9px 20px;font-size:12px;font-weight:600;color:#92400e;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:7px">
+                <svg style="width:14px;height:14px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Sécurisez votre compte superadmin en activant l'authentification à deux facteurs.
+            </span>
+            <a href="{{ route('superadmin.2fa.setup') }}"
+               style="padding:5px 14px;border-radius:7px;background:#d97706;color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap">
+                Activer le 2FA →
+            </a>
+        </div>
+        @endif
+        @endauth
+
         {{-- Bannière impersonation --}}
         @if(session('impersonating_id'))
         <div style="background:#dc2626;color:#fff;padding:9px 20px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
