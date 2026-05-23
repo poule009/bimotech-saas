@@ -322,4 +322,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
+// ── Réception des rapports CSP (Report-Only) ──────────────────────────────
+// Exempté du CSRF car le navigateur envoie du JSON brut sans token.
+Route::post('/csp-report', [\App\Http\Controllers\CspReportController::class, 'store'])
+    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
+    ->middleware('throttle:60,1');
+
 require __DIR__ . '/auth.php';

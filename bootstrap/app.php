@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // PayTech envoie des POST sans token CSRF → 419 si non exempté
         $middleware->validateCsrfTokens(except: [
             'subscription/callback',
+            'csp-report',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

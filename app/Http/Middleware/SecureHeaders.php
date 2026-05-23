@@ -16,6 +16,9 @@ class SecureHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
+        $nonce = base64_encode(random_bytes(16));
+        app()->instance('csp-nonce', $nonce);
+
         $response = $next($request);
 
         // Empêche l'intégration de la page dans un <iframe> (anti-clickjacking)
@@ -59,6 +62,26 @@ class SecureHeaders
                 "object-src 'none'",
                 "base-uri 'self'",
                 "form-action 'self' https://paytech.sn",
+            ])
+        );
+
+        // Report-Only : mesure les violations sans rien bloquer.
+        // Le navigateur signale tout ce qui serait bloqué en mode strict (nonce requis).
+        // Les rapports arrivent sur /csp-report → storage/logs/csp-violations.log.
+        $response->headers->set(
+            'Content-Security-Policy-Report-Only',
+            implode('; ', [
+                "default-src 'self'",
+                "script-src 'self' 'nonce-{$nonce}'",
+                "style-src 'self' 'nonce-{$nonce}'",
+                "img-src 'self' data: blob: https:",
+                "font-src 'self' data:",
+                "connect-src 'self'",
+                "frame-src 'none'",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "form-action 'self' https://paytech.sn",
+                "report-uri /csp-report",
             ])
         );
 

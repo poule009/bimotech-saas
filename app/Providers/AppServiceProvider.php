@@ -23,5 +23,10 @@ class AppServiceProvider extends ServiceProvider
         Blade::if('canAccessFeature', function (string $feature): bool {
             return app(PlanFeatureService::class)->canAccess($feature);
         });
+
+        // @cspNonce → insère le nonce CSP de la requête courante (Phase 2)
+        Blade::directive('cspNonce', function (): string {
+            return "<?php echo app('csp-nonce'); ?>";
+        });
     }
 }
