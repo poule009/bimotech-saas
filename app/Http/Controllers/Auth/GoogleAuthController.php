@@ -46,6 +46,7 @@ class GoogleAuthController extends Controller
 
         if ($user) {
             Auth::login($user, true);
+            request()->session()->regenerate();
             return redirect()->route('redirect.home');
         }
 
@@ -127,6 +128,7 @@ class GoogleAuthController extends Controller
 
             session()->forget('google_registration');
             Auth::login($admin, true);
+            request()->session()->regenerate();
 
             return redirect()->route('redirect.home');
 

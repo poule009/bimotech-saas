@@ -57,9 +57,16 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewTelescope', function (User $user) {
-            return in_array($user->email, [
-                //
-            ]);
+            // Telescope n'est accessible qu'aux superadmins explicitement listés.
+            // En production, TELESCOPE_ENABLED=false dans .env suffit à désactiver
+            // complètement le package — ce gate est la sécurité de secours.
+            if (! app()->isProduction()) {
+                return $user->role === 'superadmin';
+            }
+
+            return in_array($user->email, array_filter(
+                explode(',', env('TELESCOPE_ALLOWED_EMAILS', ''))
+            ));
         });
     }
 }

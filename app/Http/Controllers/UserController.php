@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Support\PasswordPolicy;
 use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
@@ -161,7 +162,7 @@ class UserController extends Controller
             'email'     => ['required', 'email', 'unique:users,email'],
             'telephone' => ['nullable', 'string', 'max:20'],
             'adresse'   => ['nullable', 'string', 'max:255'],
-            'password'  => ['required', 'confirmed', Password::min(8)],
+            'password'  => ['required', 'confirmed', PasswordPolicy::rules()],
             // ── Identité commune ──────────────────────────────────────────
             'cni'            => ['nullable', 'string', 'max:20'],
             'date_naissance' => ['nullable', 'date'],

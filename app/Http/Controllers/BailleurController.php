@@ -125,9 +125,9 @@ class BailleurController extends Controller
         ))->setPaper('a4', 'portrait');
 
         $suffix   = $mois !== null ? $periode->format('Y-m') : $annee;
-        $filename = 'rapport-gestion-' . $user->name . '-' . $suffix . '.pdf';
+        $filename = 'rapport-gestion-' . \Illuminate\Support\Str::slug($user->name) . '-' . $suffix . '.pdf';
 
-        return $pdf->download(str_replace(' ', '-', $filename));
+        return $pdf->download($filename);
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -187,8 +187,8 @@ class BailleurController extends Controller
         ))->setPaper('a4', 'portrait');
 
         $suffix   = $mois !== null ? $periode->format('Y-m') : $annee;
-        $filename = 'releve-' . $user->name . '-' . $suffix . '.pdf';
+        $filename = 'releve-' . \Illuminate\Support\Str::slug($user->name) . '-' . $suffix . '.pdf';
 
-        return $pdf->download(str_replace(' ', '-', $filename));
+        return $pdf->download($filename);
     }
 }

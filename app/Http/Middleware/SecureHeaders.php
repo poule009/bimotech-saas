@@ -35,12 +35,32 @@ class SecureHeaders
 
         // HSTS : force HTTPS pendant 1 an — actif uniquement en production pour éviter
         // de bloquer le développement local en HTTP.
+        // preload : soumettre le domaine sur https://hstspreload.org pour protection dès la 1re visite.
         if (app()->isProduction()) {
             $response->headers->set(
                 'Strict-Transport-Security',
-                'max-age=31536000; includeSubDomains'
+                'max-age=31536000; includeSubDomains; preload'
             );
         }
+
+        // Content-Security-Policy — limite les sources de scripts, styles et médias.
+        // 'unsafe-inline' conservé pour les styles Blade inline et Chart.js.
+        // Affiner progressivement en remplaçant 'unsafe-inline' par des nonces si besoin.
+        $response->headers->set(
+            'Content-Security-Policy',
+            implode('; ', [
+                "default-src 'self'",
+                "script-src 'self' 'unsafe-inline'",
+                "style-src 'self' 'unsafe-inline'",
+                "img-src 'self' data: blob: https:",
+                "font-src 'self' data:",
+                "connect-src 'self'",
+                "frame-src 'none'",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "form-action 'self' https://paytech.sn",
+            ])
+        );
 
         return $response;
     }

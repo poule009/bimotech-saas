@@ -108,6 +108,18 @@ class SubscriptionController extends Controller
         $mode = config('services.paytech.mode', 'simulation');
 
         if ($mode !== 'simulation') {
+            // Défense en profondeur : vérification IP avant la signature.
+            // Configurer PAYTECH_IPS dans .env avec la liste séparée par virgules fournie par PayTech.
+            // Si la variable est absente, la vérification est ignorée (rétrocompat).
+            $allowedIps = array_filter(explode(',', env('PAYTECH_IPS', '')));
+            if (! empty($allowedIps) && ! in_array($request->ip(), $allowedIps)) {
+                Log::warning('Webhook PayTech — IP source non autorisée (rejetée avant vérification signature)', [
+                    'ip'   => $request->ip(),
+                    'mode' => $mode,
+                ]);
+                return response()->json(['success' => false, 'message' => 'IP non autorisée'], 403);
+            }
+
             if (! $this->paymentService->verifierSignatureIPN($request->all())) {
                 Log::warning('Webhook PayTech IPN — signature invalide', [
                     'ip'          => $request->ip(),
@@ -142,6 +154,12 @@ class SubscriptionController extends Controller
     {
         $ref    = $request->query('ref');
         $agency = Auth::user()->agency;
+
+        // Un utilisateur sans agence ne devrait jamais atteindre cette page,
+        // mais on guard explicitement pour satisfaire l'analyse statique.
+        if (! $agency) {
+            return redirect()->route('subscription.index');
+        }
 
         if (! $ref) {
             return redirect()->route('subscription.index')

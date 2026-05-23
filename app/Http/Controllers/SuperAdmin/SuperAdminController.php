@@ -10,6 +10,7 @@ use App\Models\Paiement;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Notifications\AgencyWelcomeNotification;
+use App\Notifications\PasswordResetByAdminNotification;
 use App\Support\PasswordPolicy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -316,13 +318,30 @@ class SuperAdminController extends Controller
         $user = User::withoutGlobalScopes()->withTrashed()->findOrFail($userId);
         abort_unless($user->agency_id === $agency->id, 403);
 
-        $tempPassword = Str::random(10);
-        $user->password = Hash::make($tempPassword);
+        // Invalide l'ancien mot de passe sans en générer un en clair.
+        // Un lien de réinitialisation est envoyé par email — le MDP temporaire
+        // ne transite jamais dans le HTML, les logs ou les outils de monitoring.
+        $user->password = Hash::make(Str::random(32));
         $user->save();
+
+        $emailEnvoye = false;
+        try {
+            $user->notify(new PasswordResetByAdminNotification());
+            $emailEnvoye = true;
+        } catch (\Throwable $e) {
+            Log::warning('Email réinitialisation MDP non envoyé', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+        }
+
+        $message = $emailEnvoye
+            ? "Mot de passe réinitialisé pour {$user->name}. Un lien de définition de mot de passe a été envoyé par email."
+            : "Mot de passe réinitialisé pour {$user->name}. L'email n'a pas pu être envoyé — demandez à l'utilisateur de cliquer sur \"Mot de passe oublié\" sur la page de connexion.";
 
         return redirect()
             ->route('superadmin.agencies.show', $agency)
-            ->with('success', "Mot de passe réinitialisé pour {$user->name}. Mot de passe temporaire : {$tempPassword}");
+            ->with('success', $message);
     }
 
     public function toggleUser(Agency $agency, int $userId): RedirectResponse
@@ -364,7 +383,13 @@ class SuperAdminController extends Controller
 
     public function stopImpersonation(): RedirectResponse
     {
-        $superAdminId = session()->pull('impersonating_id');
+        // Sécurité : cette route ne doit être active que pendant une impersonation réelle.
+        // Sans ce garde, n'importe quel utilisateur authentifié peut appeler la route.
+        if (! Session::has('impersonating_id')) {
+            abort(403, 'Aucune impersonation active.');
+        }
+
+        $superAdminId = Session::pull('impersonating_id');
 
         if (! $superAdminId) {
             return redirect()->route('superadmin.dashboard');

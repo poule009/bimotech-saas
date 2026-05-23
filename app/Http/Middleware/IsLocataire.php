@@ -26,6 +26,10 @@ class IsLocataire
             abort(403, 'Accès réservé aux locataires.');
         }
 
+        if ($user->agency && ! $user->agency->isActif()) {
+            abort(403, 'L\'agence associée à votre compte est suspendue. Contactez votre agence.');
+        }
+
         return $next($request);
     }
 }

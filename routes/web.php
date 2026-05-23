@@ -26,6 +26,7 @@ use App\Http\Controllers\RapportController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
+use App\Http\Controllers\SuperAdmin\TwoFactorController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -84,7 +85,7 @@ Route::post('/demo',    [DemoController::class,    'send'])->middleware('throttl
 // ── Inscription agence (invités) ───────────────────────────────────────────
 Route::middleware('guest')->group(function () {
     Route::get('/register/agency',  [AgencyRegistrationController::class, 'create'])->name('agency.register');
-    Route::post('/register/agency', [AgencyRegistrationController::class, 'store'])->name('agency.register.store');
+    Route::post('/register/agency', [AgencyRegistrationController::class, 'store'])->middleware('throttle:5,60')->name('agency.register.store');
 
     // Étape finale inscription Google (nom d'agence)
     Route::get('/register/google/complete',  [GoogleAuthController::class, 'showComplete'])->name('agency.register.google.complete');
@@ -127,20 +128,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ── SuperAdmin ─────────────────────────────────────────────────────────
     Route::middleware('isSuperAdmin')->prefix('superadmin')->name('superadmin.')->group(function () {
-        Route::get('dashboard',                     [SuperAdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('subscriptions',                 [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
-        Route::get('activity-logs',                 [ActivityLogController::class, 'index'])->name('activity-logs.index');
-        Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
-        Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
-        Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
-        Route::get('agencies/{agency}/edit',        [SuperAdminController::class, 'editAgency'])->name('agencies.edit');
-        Route::patch('agencies/{agency}',           [SuperAdminController::class, 'updateAgency'])->name('agencies.update');
-        Route::post('agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
-        Route::post('agencies/{agency}/essai',      [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
-        Route::post('agencies/{agency}/users/{userId}/reset-password', [SuperAdminController::class, 'resetUserPassword'])->name('agencies.users.reset-password');
-        Route::patch('agencies/{agency}/users/{userId}/toggle',        [SuperAdminController::class, 'toggleUser'])->name('agencies.users.toggle');
-        Route::post('impersonate/{user}',           [SuperAdminController::class, 'impersonate'])->name('impersonate');
-        Route::get('agencies/{agency}',             [SuperAdminController::class, 'showAgency'])->name('agencies.show');
+
+        // ── Routes 2FA challenge — sans require2fa (évite la boucle infinie) ──
+        Route::get('2fa/challenge',  [TwoFactorController::class, 'showChallenge'])->name('2fa.challenge');
+        Route::post('2fa/challenge', [TwoFactorController::class, 'verifyChallenge'])->name('2fa.verify')->middleware('throttle:5,10');
+
+        // ── Routes protégées par require2fa ────────────────────────────────
+        Route::middleware('require2fa')->group(function () {
+            Route::get('dashboard',                     [SuperAdminController::class, 'dashboard'])->name('dashboard');
+            Route::get('subscriptions',                 [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
+            Route::get('activity-logs',                 [ActivityLogController::class, 'index'])->name('activity-logs.index');
+            Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
+            Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
+            Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
+            Route::get('agencies/{agency}/edit',        [SuperAdminController::class, 'editAgency'])->name('agencies.edit');
+            Route::patch('agencies/{agency}',           [SuperAdminController::class, 'updateAgency'])->name('agencies.update');
+            Route::post('agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
+            Route::post('agencies/{agency}/essai',      [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
+            Route::post('agencies/{agency}/users/{userId}/reset-password', [SuperAdminController::class, 'resetUserPassword'])->name('agencies.users.reset-password');
+            Route::patch('agencies/{agency}/users/{userId}/toggle',        [SuperAdminController::class, 'toggleUser'])->name('agencies.users.toggle');
+            Route::post('impersonate/{user}',           [SuperAdminController::class, 'impersonate'])->name('impersonate');
+            Route::get('agencies/{agency}',             [SuperAdminController::class, 'showAgency'])->name('agencies.show');
+
+            // ── Gestion 2FA (setup, disable, régénération) ─────────────────
+            Route::get('2fa/setup',                             [TwoFactorController::class, 'showSetup'])->name('2fa.setup');
+            Route::post('2fa/setup',                            [TwoFactorController::class, 'confirmSetup'])->name('2fa.confirm');
+            Route::post('2fa/disable',                          [TwoFactorController::class, 'disable'])->name('2fa.disable');
+            Route::post('2fa/recovery-codes/regenerate',        [TwoFactorController::class, 'regenerateCodes'])->name('2fa.recovery-codes.regenerate');
+        });
     });
 
     // ── Routes accessibles admin ET propriétaires (isStaff) ───────────────
@@ -239,20 +254,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Rapports
         Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier')->middleware('check.feature:rapports_pdf');
-        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf')->middleware('check.feature:rapports_pdf');
+        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf')->middleware(['check.feature:rapports_pdf', 'throttle:10,1']);
 
         // Portefeuille Bailleurs (Niveau 5)
         Route::get('bailleurs',                          [BailleurController::class, 'index'])->name('bailleurs.index');
         Route::get('bailleurs/{userId}',                 [BailleurController::class, 'show'])->name('bailleurs.show');
-        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf')->middleware('check.feature:releve_bailleur_pdf');
-        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf')->middleware('check.feature:releve_bailleur_pdf');
+        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'throttle:10,1']);
+        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'throttle:10,1']);
 
         // Dépenses de gestion (rattachées à un paiement)
         Route::post('paiements/{paiement}/depenses',                   [DepenseGestionController::class, 'store'])->name('paiements.depenses.store');
         Route::delete('paiements/{paiement}/depenses/{depense}',       [DepenseGestionController::class, 'destroy'])->name('paiements.depenses.destroy');
 
         // Export CSV paiements
-        Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv')->middleware('check.feature:export_csv');
+        Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv')->middleware(['check.feature:export_csv', 'throttle:10,1']);
 
         // Contrat de bail PDF
         Route::get('contrats/{contrat}/bail-pdf', [ContratController::class, 'bailPdf'])->name('contrats.bail-pdf')->middleware('check.feature:contrat_formel_pdf');
