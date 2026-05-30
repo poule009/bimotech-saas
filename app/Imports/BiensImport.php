@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Agency;
 use App\Models\Bien;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -24,6 +25,16 @@ class BiensImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows): void
     {
+        $agency       = Agency::with('subscription')->find($this->agencyId);
+        $planNiveau   = $agency?->subscription?->plan_niveau ?? 'legacy';
+        $limiteUnites = match ($planNiveau) {
+            'starter'       => 15,
+            'pro', 'legacy' => 50,
+            'agence'        => null,
+            default         => 50,
+        };
+        $nbActuelles = $agency ? $agency->nbUnitesActives() : 0;
+
         foreach ($rows as $index => $row) {
             $line = $index + 2;
 
@@ -84,6 +95,12 @@ class BiensImport implements ToCollection, WithHeadingRow
             // Limité aux valeurs acceptées par l'enum DB (archive n'existe pas en base)
             $statut = $this->inList($row, 'statut', ['disponible', 'loue', 'en_travaux']) ?? 'disponible';
 
+            if ($limiteUnites !== null && $nbActuelles >= $limiteUnites) {
+                $this->errors[] = "Ligne {$line} : limite du plan atteinte ({$nbActuelles}/{$limiteUnites} unités) — bien ignoré.";
+                $this->skipped++;
+                continue;
+            }
+
             try {
                 DB::transaction(function () use ($row, $titre, $type, $loyer, $statut, $proprietaireId, $adresse) {
                     Bien::create([
@@ -107,6 +124,7 @@ class BiensImport implements ToCollection, WithHeadingRow
                 });
 
                 $this->created++;
+                $nbActuelles++;
             } catch (\Throwable $e) {
                 $this->errors[] = "Ligne {$line} : erreur — {$e->getMessage()}";
                 $this->skipped++;

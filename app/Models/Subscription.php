@@ -54,8 +54,8 @@ class Subscription extends Model
 
     public const TARIFS = [
         'starter' => ['mensuel' => 19900, 'annuel' => 199000],
-        'pro'     => ['mensuel' => 39900, 'annuel' => 399000],
-        'agence'  => ['mensuel' => 69900, 'annuel' => 699000],
+        'pro'     => ['mensuel' => 49900, 'annuel' => 499000],
+        'agence'  => ['mensuel' => 89900, 'annuel' => 899000],
     ];
 
     public const LABELS = [

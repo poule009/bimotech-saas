@@ -1133,7 +1133,7 @@ footer{
                 <div class="plan-badge-top">⭐ Recommandé</div>
                 <div class="plan-name">Pro</div>
                 <div class="plan-price-wrap">
-                    <div class="plan-price">39 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
+                    <div class="plan-price">49 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
                 </div>
                 <p class="plan-desc">Jusqu'à 50 unités — Tout Starter + immeubles, rapports PDF, import Excel, relevés propriétaires.</p>
                 <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-gold">Démarrer — 30 jours gratuits</a>
@@ -1141,7 +1141,7 @@ footer{
             <div class="plan">
                 <div class="plan-name">Agence</div>
                 <div class="plan-price-wrap">
-                    <div class="plan-price">69 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
+                    <div class="plan-price">89 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
                 </div>
                 <p class="plan-desc">Unités illimitées — Tout Pro + déclarations DGID, bilans fiscaux, logs d'activité, support prioritaire.</p>
                 <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-ghost">Démarrer gratuitement</a>
@@ -1316,7 +1316,7 @@ $schemaOrg = json_encode([
                     'name'  => 'Combien coûte BimoTech Immo ?',
                     'acceptedAnswer' => [
                         '@type' => 'Answer',
-                        'text'  => 'BimoTech propose un essai gratuit 30 jours sans carte bancaire. Starter à 19 900 FCFA/mois (15 unités), Pro à 39 900 FCFA/mois (50 unités), Agence à 69 900 FCFA/mois (illimité). Formule annuelle : 2 mois offerts.',
+                        'text'  => 'BimoTech propose un essai gratuit 30 jours sans carte bancaire. Starter à 19 900 FCFA/mois (15 unités), Pro à 49 900 FCFA/mois (50 unités), Agence à 89 900 FCFA/mois (illimité). Formule annuelle : 2 mois offerts.',
                     ],
                 ],
                 [

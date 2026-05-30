@@ -124,6 +124,26 @@ class PaymentService
                     ->lockForUpdate()
                     ->firstOrFail();
 
+                // Avertissement si le nouveau plan est inférieur au nombre de biens actifs
+                $limiteNouveau = match ($planNiveau) {
+                    'starter' => 15,
+                    'pro'     => 50,
+                    'agence'  => null,
+                    default   => 50,
+                };
+                if ($limiteNouveau !== null) {
+                    $nbActuels = $subscription->agency->nbUnitesActives();
+                    if ($nbActuels > $limiteNouveau) {
+                        Log::warning('IPN PayTech — dépassement quota après changement de plan', [
+                            'agency_id'   => $agencyId,
+                            'plan_niveau' => $planNiveau,
+                            'nb_biens'    => $nbActuels,
+                            'limite'      => $limiteNouveau,
+                            'ref'         => $refCommand,
+                        ]);
+                    }
+                }
+
                 $subscription->activer($plan, $refCommand, 'paytech', $planNiveau);
             });
 

@@ -182,7 +182,7 @@ footer{background:#1a1a1a;border-top:1px solid var(--border);padding:3rem 5% 2re
             <div class="plan-name">Agence</div>
             <div class="plan-limit">Unités illimitées</div>
             <div class="plan-price-wrap">
-                <span class="plan-price" id="price-agence">69 900</span><span class="plan-price-unit">FCFA / mois</span>
+                <span class="plan-price" id="price-agence">89 900</span><span class="plan-price-unit">FCFA / mois</span>
             </div>
             <div class="plan-annual-detail" id="annual-agence">&nbsp;</div>
             <a href="{{ route('agency.register') }}" class="plan-cta dark">Essai gratuit 30 jours</a>
@@ -219,7 +219,7 @@ footer{background:#1a1a1a;border-top:1px solid var(--border);padding:3rem 5% 2re
             <div class="plan-name">Pro</div>
             <div class="plan-limit">Jusqu'à 50 unités</div>
             <div class="plan-price-wrap">
-                <span class="plan-price" id="price-pro">39 900</span><span class="plan-price-unit">FCFA / mois</span>
+                <span class="plan-price" id="price-pro">49 900</span><span class="plan-price-unit">FCFA / mois</span>
             </div>
             <div class="plan-annual-detail" id="annual-pro">&nbsp;</div>
             <a href="{{ route('agency.register') }}" class="plan-cta red">Essai gratuit 30 jours</a>
@@ -381,8 +381,8 @@ footer{background:#1a1a1a;border-top:1px solid var(--border);padding:3rem 5% 2re
 
 <script>
 const prices = {
-    mensuel: { agence: '69 900', pro: '39 900', starter: '19 900' },
-    annuel:  { agence: '699 000', pro: '399 000', starter: '199 000' },
+    mensuel: { agence: '89 900', pro: '49 900', starter: '19 900' },
+    annuel:  { agence: '899 000', pro: '499 000', starter: '199 000' },
 };
 const savings = { agence: '139 800', pro: '79 800', starter: '39 800' };
 

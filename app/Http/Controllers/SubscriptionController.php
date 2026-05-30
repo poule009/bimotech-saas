@@ -61,6 +61,31 @@ class SubscriptionController extends Controller
         $plan       = $request->plan;
         $planNiveau = $request->plan_niveau;
 
+        // ── Vérification quota avant tout paiement ────────────────────────
+        $limiteNouveau = match ($planNiveau) {
+            'starter' => 15,
+            'pro'     => 50,
+            'agence'  => null,
+            default   => 50,
+        };
+
+        if ($limiteNouveau !== null) {
+            $nbUnites = $agency->nbUnitesActives();
+
+            if ($nbUnites > $limiteNouveau) {
+                [$planSuggere, $limiteSuggere] = match ($planNiveau) {
+                    'starter' => ['Pro', '50 unités'],
+                    default   => ['Agence', 'illimité'],
+                };
+
+                return back()->withErrors([
+                    'general' => "Impossible de souscrire au plan " . ucfirst($planNiveau) . " : "
+                        . "vous gérez {$nbUnites} biens alors que ce plan n'en autorise que {$limiteNouveau}. "
+                        . "Archivez les biens excédentaires ou choisissez le plan {$planSuggere} ({$limiteSuggere}).",
+                ]);
+            }
+        }
+
         session([
             'subscription_plan_pending'        => $plan,
             'subscription_plan_niveau_pending' => $planNiveau,

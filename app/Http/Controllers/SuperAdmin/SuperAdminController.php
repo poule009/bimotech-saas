@@ -252,7 +252,23 @@ class SuperAdminController extends Controller
             ]);
         }
 
-        $planNiveau = $request->input('plan_niveau', 'pro');
+        $planNiveau   = $request->input('plan_niveau', 'pro');
+        $limiteNouveau = match ($planNiveau) {
+            'starter' => 15,
+            'pro'     => 50,
+            'agence'  => null,
+            default   => 50,
+        };
+
+        $nbUnites = $agency->nbUnitesActives();
+        if ($limiteNouveau !== null && $nbUnites > $limiteNouveau) {
+            return redirect()
+                ->back()
+                ->with('error', "Impossible : {$agency->name} gère {$nbUnites} biens, "
+                    . "mais le plan {$planNiveau} n'en autorise que {$limiteNouveau}. "
+                    . "Archivez les biens excédentaires d'abord.");
+        }
+
         $subscription->activer($request->plan, 'MANUEL-SUPERADMIN-' . now()->format('YmdHis'), 'manuel', $planNiveau);
 
         $niveauLabel = config("plans.labels.{$planNiveau}", ucfirst($planNiveau));

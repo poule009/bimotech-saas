@@ -105,7 +105,7 @@ footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-c
             ],
             [
                 'q' => 'Quels sont les tarifs après l\'essai gratuit ?',
-                'a' => 'Trois plans : Starter à 19 900 FCFA/mois (jusqu\'à 15 unités), Pro à 39 900 FCFA/mois (jusqu\'à 50 unités), Agence à 69 900 FCFA/mois (illimité). Formule annuelle disponible avec 2 mois offerts. Résiliation à tout moment, sans frais. Paiement par virement ou Mobile Money (Wave, Orange Money).'
+                'a' => 'Trois plans : Starter à 19 900 FCFA/mois (jusqu\'à 15 unités), Pro à 49 900 FCFA/mois (jusqu\'à 50 unités), Agence à 89 900 FCFA/mois (illimité). Formule annuelle disponible avec 2 mois offerts. Résiliation à tout moment, sans frais. Paiement par virement ou Mobile Money (Wave, Orange Money).'
             ],
             [
                 'q' => 'Combien de temps prend la mise en place ?',
