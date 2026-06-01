@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Support\PasswordPolicy;
-use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -156,13 +155,19 @@ class UserController extends Controller
     {
         $this->authorize('isAdmin');
 
+        $role = $request->input('role');
+
         $validated = $request->validate([
             'role'      => ['required', 'in:proprietaire,locataire'],
             'name'      => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'email', 'unique:users,email'],
+            'email'     => $role === 'proprietaire'
+                ? ['nullable', 'email', 'unique:users,email', 'max:255']
+                : ['required', 'email', 'unique:users,email', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:20'],
             'adresse'   => ['nullable', 'string', 'max:255'],
-            'password'  => ['required', 'confirmed', PasswordPolicy::rules()],
+            'password'  => $role === 'proprietaire'
+                ? ['nullable', 'required_with:email', 'confirmed', 'min:8']
+                : ['required', 'confirmed', PasswordPolicy::rules()],
             // ── Identité commune ──────────────────────────────────────────
             'cni'            => ['nullable', 'string', 'max:20'],
             'date_naissance' => ['nullable', 'date'],
@@ -202,13 +207,15 @@ class UserController extends Controller
         $user = DB::transaction(function () use ($validated, $request) {
             $user                    = new User();
             $user->name              = $validated['name'];
-            $user->email             = $validated['email'];
+            $user->email             = $validated['email'] ?? null;
             $user->telephone         = $validated['telephone'] ?? null;
             $user->adresse           = $validated['adresse'] ?? null;
-            $user->password          = Hash::make($validated['password']);
+            $user->password          = ! empty($validated['password'])
+                ? Hash::make($validated['password'])
+                : Hash::make(\Illuminate\Support\Str::random(32));
             $user->role              = $validated['role'];
             $user->agency_id         = Auth::user()->agency_id;
-            $user->email_verified_at = now();
+            $user->email_verified_at = ! empty($validated['email']) ? now() : null;
             $user->save();
 
             if ($validated['role'] === 'proprietaire') {

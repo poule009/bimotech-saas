@@ -26,7 +26,6 @@
   --radius:14px;
   --radius-sm:10px;
   --topbar-h:52px;
-  --bottom-nav-h:64px;
 }
 html,body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--blanc);color:var(--bleu);-webkit-font-smoothing:antialiased}
 
@@ -242,29 +241,6 @@ html,body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--blanc);col
 }
 .qc-count{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px}
 
-/* ── BOTTOM NAV ── */
-.bottom-nav{
-  position:fixed;bottom:0;left:0;right:0;z-index:300;
-  height:var(--bottom-nav-h);
-  padding-bottom:max(0px,env(safe-area-inset-bottom));
-  background:rgba(242,237,230,.97);
-  backdrop-filter:blur(10px);
-  border-top:1px solid var(--gris-bord);
-  display:flex;align-items:stretch;
-}
-.nav-item{
-  flex:1;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:3px;text-decoration:none;color:var(--gris);
-  font-size:10px;font-weight:600;
-  transition:color .15s;padding:8px 0;
-}
-.nav-item.active{color:var(--bleu)}
-.nav-item svg{width:20px;height:20px}
-.nav-item-stub{flex:1}
-
-/* espacement bas de page */
-.page-bottom{height:calc(var(--bottom-nav-h) + 20px)}
 
 /* ── FOOTER ── */
 footer{background:var(--bleu);padding:24px 20px;margin-top:32px}
@@ -408,7 +384,7 @@ footer{background:var(--bleu);padding:24px 20px;margin-top:32px}
 </section>
 @endif
 
-<div class="page-bottom"></div>
+<div style="height:80px"></div>
 
 <footer>
   <div class="footer-inner">
@@ -422,24 +398,7 @@ footer{background:var(--bleu);padding:24px 20px;margin-top:32px}
   </div>
 </footer>
 
-{{-- BOTTOM NAV --}}
-<nav class="bottom-nav" aria-label="Navigation principale">
-  <a href="{{ route('portail.home') }}" class="nav-item active" aria-current="page">
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-    </svg>
-    Accueil
-  </a>
-  <a href="{{ route('portail.index') }}" class="nav-item" aria-label="Recherche">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    Recherche
-  </a>
-  <div class="nav-item-stub"></div>
-  <div class="nav-item-stub"></div>
-</nav>
+@include('portail._bottomnav')
 
 <script>
 // Vide l'input quartier avant submit si aucune valeur (évite ?quartier= vide dans l'URL)

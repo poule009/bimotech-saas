@@ -337,13 +337,26 @@
                     <div class="section-num">2</div>
                     <div>
                         <div class="section-title">Accès à l'espace personnel</div>
-                        <div class="section-desc">Identifiants de connexion au portail {{ $role }}</div>
+                        <div class="section-desc">
+                            @if($role === 'proprietaire')
+                                Optionnel — si renseigné, le propriétaire pourra se connecter à son espace
+                            @else
+                                Identifiants de connexion au portail locataire
+                            @endif
+                        </div>
                     </div>
                 </div>
 
                 {{-- Email --}}
                 <div class="field-group">
-                    <label class="field-label">Email <span class="field-req">*</span></label>
+                    <label class="field-label">
+                        Email
+                        @if($role === 'proprietaire')
+                            <span class="field-opt">(optionnel)</span>
+                        @else
+                            <span class="field-req">*</span>
+                        @endif
+                    </label>
                     <input type="email" name="email" class="field-input {{ $errors->has('email') ? 'error':'' }}"
                            value="{{ old('email') }}" placeholder="email@exemple.com">
                     @error('email')<div class="field-error">{{ $message }}</div>@enderror
@@ -351,7 +364,14 @@
 
                 <div class="field-grid-2">
                     <div>
-                        <label class="field-label">Mot de passe <span class="field-req">*</span></label>
+                        <label class="field-label">
+                            Mot de passe
+                            @if($role === 'proprietaire')
+                                <span class="field-opt">(requis si email renseigné)</span>
+                            @else
+                                <span class="field-req">*</span>
+                            @endif
+                        </label>
                         <input type="password" name="password" id="pwd"
                                class="field-input {{ $errors->has('password') ? 'error':'' }}"
                                placeholder="Min. 8 caractères" oninput="checkPwd(this.value)">
@@ -360,7 +380,14 @@
                         @error('password')<div class="field-error">{{ $message }}</div>@enderror
                     </div>
                     <div>
-                        <label class="field-label">Confirmer le mot de passe <span class="field-req">*</span></label>
+                        <label class="field-label">
+                            Confirmer le mot de passe
+                            @if($role === 'proprietaire')
+                                <span class="field-opt">(requis si email renseigné)</span>
+                            @else
+                                <span class="field-req">*</span>
+                            @endif
+                        </label>
                         <input type="password" name="password_confirmation" id="pwd2"
                                class="field-input" placeholder="Répétez le mot de passe"
                                oninput="checkConfirm()">
@@ -368,10 +395,16 @@
                     </div>
                 </div>
 
+                @if($role === 'proprietaire')
+                <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:12px;color:#92400e">
+                    💡 Sans email, le propriétaire n'aura pas accès à son espace en ligne. Vous pourrez l'activer plus tard depuis sa fiche.
+                </div>
+                @else
                 <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;font-size:12px;color:#166534">
-                    ✉️ Le {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }} pourra se connecter avec son email et ce mot de passe sur
+                    ✉️ Le locataire pourra se connecter avec son email et ce mot de passe sur
                     <strong>{{ config('app.url') }}</strong>
                 </div>
+                @endif
             </div>
 
             {{-- ══ SECTIONS PROPRIÉTAIRE ════════════════════════════════════ --}}

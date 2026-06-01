@@ -57,7 +57,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .tab-btn.active{color:var(--bleu);border-bottom-color:var(--bleu);font-weight:600}
 
 /* ── BIENS ── */
-.bstack{display:flex;flex-direction:column;gap:16px;padding:16px 16px 24px;max-width:700px;margin:0 auto}
+.bstack{display:flex;flex-direction:column;gap:16px;padding:16px 16px 150px;max-width:700px;margin:0 auto}
 
 /* card .bc */
 .bc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:box-shadow .2s}
@@ -89,7 +89,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .pagination-wrap{padding:8px 16px 56px;display:flex;justify-content:center;max-width:700px;margin:0 auto}
 
 /* ── À PROPOS ── */
-.apropos-wrap{padding:20px 16px 100px;max-width:700px;margin:0 auto}
+.apropos-wrap{padding:20px 16px 150px;max-width:700px;margin:0 auto}
 .apropos-card{background:#fff;border:1px solid var(--gris-bord);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:0}
 .apropos-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--gris-bord)}
 .apropos-row:first-child{padding-top:0}
@@ -100,7 +100,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .apropos-value{font-size:14px;color:var(--bleu);font-weight:500;word-break:break-word}
 
 /* ── CTA BAR ── */
-.cta-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;gap:10px;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(242,237,230,.96);backdrop-filter:blur(8px);border-top:1px solid var(--gris-bord)}
+.cta-bar{position:fixed;bottom:64px;left:0;right:0;z-index:200;display:flex;gap:10px;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(242,237,230,.96);backdrop-filter:blur(8px);border-top:1px solid var(--gris-bord)}
 .cta-wa,.cta-call{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0;border-radius:12px;font-size:14px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;flex:1;transition:opacity .15s}
 .cta-wa{background:var(--vert-wa);color:#fff}
 .cta-call{background:var(--bleu);color:#fff}
@@ -397,5 +397,6 @@ function setTab(t) {
   document.getElementById('tab-btn-apropos').classList.toggle('active', t === 'apropos');
 }
 </script>
+@include('portail._bottomnav')
 </body>
 </html>

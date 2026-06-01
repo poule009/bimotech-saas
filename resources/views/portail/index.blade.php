@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"></noscript>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -236,34 +235,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 /* pagination */
 .pagination-wrap{padding:8px 20px 48px;display:flex;justify-content:center;max-width:700px;margin:0 auto}
 
-/* ── VUE CARTE ── */
-#vue-carte{display:none}
-.map-wrap{padding:14px 20px 0}
-.map-box{
-  border-radius:var(--radius);overflow:hidden;
-  border:1px solid var(--border);height:430px;
-}
-#map{width:100%;height:100%}
-.hscroll{
-  display:flex;gap:12px;overflow-x:auto;
-  padding:14px 20px 20px;
-  scrollbar-width:none;-webkit-overflow-scrolling:touch;
-}
-.hscroll::-webkit-scrollbar{display:none}
-/* mini-card carte */
-.mc{
-  flex-shrink:0;width:200px;
-  background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);
-  overflow:hidden;text-decoration:none;color:inherit;
-  transition:box-shadow .2s;
-}
-.mc:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
-.mc-photo{height:100px;background:#f3f4f6;overflow:hidden}
-.mc-photo img{width:100%;height:100%;object-fit:cover}
-.mc-body{padding:8px 10px}
-.mc-prix{font-family:'Fraunces',serif;font-size:14px;font-weight:700}
-.mc-titre{font-size:11px;color:var(--muted);margin-top:2px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* ── FOOTER ── */
 footer{background:var(--noir);border-top:1px solid #1f2937;padding:2rem 20px}
@@ -280,9 +251,7 @@ footer{background:var(--noir);border-top:1px solid #1f2937;padding:2rem 20px}
 /* ── RESPONSIVE ── */
 @media(min-width:600px){
   .bstack{padding:20px 5% 32px}
-  .map-wrap{padding:20px 5% 0}
-  .hscroll{padding:14px 5% 24px}
-  .filter-sticky{padding:10px 5% 0}
+.filter-sticky{padding:10px 5% 0}
   .topbar{padding:0 5%}
   .agence-bandeau{padding:10px 5%}
   .pagination-wrap{padding:8px 5% 60px}
@@ -365,20 +334,8 @@ footer{background:var(--noir);border-top:1px solid #1f2937;padding:2rem 20px}
     </div>
   </div>
 
-  {{-- Ligne 2 : toggle vue + compteur --}}
+  {{-- Résultat --}}
   <div class="view-row">
-    <button class="view-btn active" id="btn-liste" type="button" onclick="setVue('liste')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-      Liste
-    </button>
-    <button class="view-btn" id="btn-carte" type="button" onclick="setVue('carte')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-      </svg>
-      Carte
-    </button>
     <span class="view-count">{{ $biens->total() }} bien{{ $biens->total() > 1 ? 's' : '' }}</span>
   </div>
 </div>
@@ -506,32 +463,6 @@ footer{background:var(--noir);border-top:1px solid #1f2937;padding:2rem 20px}
   @endif
 </div>
 
-{{-- VUE CARTE --}}
-<div id="vue-carte">
-  <div class="map-wrap">
-    <div class="map-box"><div id="map"></div></div>
-  </div>
-
-  {{-- Carousel mini-cards --}}
-  <div class="hscroll" id="map-scroll">
-    @foreach($biens as $bien)
-    @php $photo = $bien->photos->first(); @endphp
-    <a href="{{ route('portail.show', $bien->slug) }}" class="mc" data-id="{{ $bien->id }}">
-      <div class="mc-photo">
-        @if($photo)
-          <img src="{{ $photo->url }}" alt="{{ $bien->titre_fallback }}" loading="lazy">
-        @else
-          <div style="width:100%;height:100%;background:#f3f4f6"></div>
-        @endif
-      </div>
-      <div class="mc-body">
-        <div class="mc-prix">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} <small style="font-size:10px;font-weight:400;color:#9ca3af">F</small></div>
-        <div class="mc-titre">{{ $bien->titre_fallback }} — {{ $bien->quartier }}</div>
-      </div>
-    </a>
-    @endforeach
-  </div>
-</div>
 
 <footer>
   <div class="footer-inner">
@@ -544,24 +475,6 @@ footer{background:var(--noir);border-top:1px solid #1f2937;padding:2rem 20px}
     </div>
   </div>
 </footer>
-
-{{-- Données carte pour Leaflet --}}
-<script>
-var BIENS_GEO = [
-@foreach($biens as $bien)
-@if($bien->latitude && $bien->longitude)
-  {
-    id: {{ $bien->id }},
-    lat: {{ $bien->latitude }},
-    lng: {{ $bien->longitude }},
-    prix: "{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F",
-    titre: "{{ addslashes($bien->titre_fallback) }}",
-    url: "{{ route('portail.show', $bien->slug) }}"
-  },
-@endif
-@endforeach
-];
-</script>
 
 <script>
 // ── DROPDOWN PILLS ──
@@ -577,15 +490,6 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// ── VUE TOGGLE ──
-var mapInit = false;
-function setVue(v) {
-  document.getElementById('vue-liste').style.display = v === 'liste' ? 'block' : 'none';
-  document.getElementById('vue-carte').style.display = v === 'carte' ? 'block' : 'none';
-  document.getElementById('btn-liste').classList.toggle('active', v === 'liste');
-  document.getElementById('btn-carte').classList.toggle('active', v === 'carte');
-  if (v === 'carte' && !mapInit) initMap();
-}
 
 // ── FAVORIS ──
 function toggleFav(id, btn) {
@@ -611,31 +515,8 @@ function shareWA(titre, quartier) {
   window.open('https://wa.me/?text=' + msg, '_blank');
 }
 
-// ── LEAFLET ──
-function initMap() {
-  if (typeof L === 'undefined') {
-    var s = document.createElement('script');
-    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    s.onload = function() { mapInit = true; buildMap(); };
-    document.head.appendChild(s);
-  } else { mapInit = true; buildMap(); }
-}
-function buildMap() {
-  var map = L.map('map').setView([14.69, -17.44], 12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
-  BIENS_GEO.forEach(function(b) {
-    var m = L.marker([b.lat, b.lng]);
-    m.bindPopup('<strong>' + b.prix + '</strong><br>' + b.titre +
-      '<br><a href="' + b.url + '">Voir le bien →</a>');
-    m.addTo(map);
-    m.on('click', function() {
-      var card = document.querySelector('#map-scroll .mc[data-id="' + b.id + '"]');
-      if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    });
-  });
-}
 </script>
+<div style="height:80px"></div>
+@include('portail._bottomnav')
 </body>
 </html>

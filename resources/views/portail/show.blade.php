@@ -17,8 +17,7 @@
         : asset('images/portail-og-default.jpg');
     $photos    = $bien->photos;
     $nbPhotos  = $photos->count();
-    $hasMap    = ! empty($bien->latitude) && ! empty($bien->longitude);
-    $amenites  = is_array($bien->amenites) ? array_filter($bien->amenites) : [];
+$amenites  = is_array($bien->amenites) ? array_filter($bien->amenites) : [];
     $telBrut   = $bien->agency->whatsapp ?? $bien->agency->telephone ?? null;
     $telClean  = $telBrut ? preg_replace('/[^0-9+]/', '', $telBrut) : null;
 @endphp
@@ -37,9 +36,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@300;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"></noscript>
-@if($hasMap)
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-@endif
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -100,9 +96,6 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
 .amenity{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1px solid var(--gris-bord);background:#fff;font-size:12px;font-weight:500;color:var(--bleu)}
 .amenity-icon{font-size:14px}
 
-/* ── Mini map ── */
-.det-map-mini{height:160px;border-radius:12px;overflow:hidden;border:1px solid var(--gris-bord)}
-
 /* ── Agency strip ── */
 .ag-strip{display:flex;align-items:center;gap:12px;padding:14px;background:#fff;border:1px solid var(--gris-bord);border-radius:12px;text-decoration:none}
 .ag-logo{width:44px;height:44px;border-radius:10px;border:1px solid var(--gris-bord);object-fit:contain;flex-shrink:0;background:var(--gris-clair)}
@@ -131,7 +124,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
 .mc-loc{font-size:10px;color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ── Fixed CTA bar ── */
-.cta-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;display:flex;gap:10px;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(242,237,230,.96);backdrop-filter:blur(8px);border-top:1px solid var(--gris-bord)}
+.cta-bar{position:fixed;bottom:64px;left:0;right:0;z-index:200;display:flex;gap:10px;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom));background:rgba(242,237,230,.96);backdrop-filter:blur(8px);border-top:1px solid var(--gris-bord)}
 .cta-wa,.cta-call{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 0;border-radius:12px;font-size:14px;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;flex:1;transition:opacity .15s}
 .cta-wa{background:var(--vert-wa);color:#fff}
 .cta-call{background:var(--bleu);color:#fff}
@@ -268,13 +261,7 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
     </div>
     @endif
 
-    @if($hasMap)
-    <div class="divider"></div>
-    <p class="sub-title">Localisation</p>
-    <div class="det-map-mini" id="det-map"></div>
-    @endif
-
-    <div class="divider"></div>
+<div class="divider"></div>
 
     {{-- Agence --}}
     <p class="sub-title">Agence</p>
@@ -361,10 +348,6 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(
     @endif
 </div>
 
-@if($hasMap)
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN2GqUc=" crossorigin="" defer></script>
-@endif
-
 <script>
 // ── Gallery swipe ──────────────────────────────────────────────────────────
 (function(){
@@ -423,26 +406,7 @@ window.partager = function(){
     else { navigator.clipboard && navigator.clipboard.writeText(data.url); }
 };
 
-// ── Leaflet map ────────────────────────────────────────────────────────────
-@if($hasMap)
-document.addEventListener('DOMContentLoaded', function(){
-    function initMap(){
-        var lat = {{ (float) $bien->latitude }};
-        var lng = {{ (float) $bien->longitude }};
-        var map = L.map('det-map', { zoomControl: false, dragging: false, scrollWheelZoom: false }).setView([lat, lng], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-            maxZoom: 19
-        }).addTo(map);
-        L.circleMarker([lat, lng], { radius: 8, color: '#0D1B26', fillColor: '#C4965A', fillOpacity: 1, weight: 2 }).addTo(map);
-    }
-    if (typeof L !== 'undefined') { initMap(); }
-    else {
-        var s = document.querySelector('script[src*="leaflet"]');
-        if (s) s.addEventListener('load', initMap);
-    }
-});
-@endif
 </script>
+@include('portail._bottomnav')
 </body>
 </html>

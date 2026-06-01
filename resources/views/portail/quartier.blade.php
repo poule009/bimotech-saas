@@ -378,5 +378,7 @@ document.addEventListener('click', function(e) {
   }
 });
 </script>
+<div style="height:80px"></div>
+@include('portail._bottomnav')
 </body>
 </html>
