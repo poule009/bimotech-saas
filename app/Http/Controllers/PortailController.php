@@ -9,6 +9,32 @@ use Illuminate\View\View;
 
 class PortailController extends Controller
 {
+    public function home(): View
+    {
+        $nouveaux = Bien::portail()
+            ->orderByDesc('created_at')
+            ->limit(6)
+            ->get();
+
+        $quartiers = Bien::withoutGlobalScope(\App\Models\Scopes\AgencyScope::class)
+            ->selectRaw('quartier, COUNT(*) as nb_biens')
+            ->where('statut', 'disponible')
+            ->where('visible_portail', true)
+            ->whereHas('agency', fn($q) => $q->where('actif', true))
+            ->whereNotNull('quartier')
+            ->where('quartier', '!=', '')
+            ->groupBy('quartier')
+            ->orderByDesc('nb_biens')
+            ->limit(8)
+            ->get();
+
+        $nbBiens   = Bien::portail()->count();
+        $nbAgences = \App\Models\Agency::where('actif', true)->count();
+        $nbVilles  = Bien::portail()->distinct('ville')->count('ville');
+
+        return view('portail.home', compact('nouveaux', 'quartiers', 'nbBiens', 'nbAgences', 'nbVilles'));
+    }
+
     public function index(Request $request): View
     {
         $query = Bien::portail();
@@ -25,6 +51,9 @@ class PortailController extends Controller
         if ($request->boolean('meuble')) {
             $query->where('meuble', true);
         }
+        if ($request->filled('chambres')) {
+            $query->where('nombre_chambres', '>=', (int) $request->chambres);
+        }
         if ($request->filled('agence')) {
             $query->whereHas('agency', fn($q) => $q->where('slug', $request->agence));
         }
@@ -36,6 +65,54 @@ class PortailController extends Controller
             : null;
 
         return view('portail.index', compact('biens', 'agenceFiltree'));
+    }
+
+    public function agence(string $slug): View
+    {
+        $agence = Agency::where('actif', true)
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        $biens = Bien::portail()
+            ->where('agency_id', $agence->id)
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        $nbBiens = $biens->total();
+
+        return view('portail.agence', compact('agence', 'biens', 'nbBiens'));
+    }
+
+    public function quartier(string $quartier): View
+    {
+        if (!Bien::portail()->where('quartier', $quartier)->exists()) {
+            abort(404);
+        }
+
+        $biens = Bien::portail()
+            ->where('quartier', $quartier)
+            ->when(request()->filled('type'),     fn($q) => $q->where('type', request('type')))
+            ->when(request()->filled('chambres'), fn($q) => $q->where('nombre_chambres', '>=', (int) request('chambres')))
+            ->when(request()->filled('prix_max'), fn($q) => $q->where('loyer_mensuel', '<=', (int) request('prix_max')))
+            ->orderByDesc('created_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        $similaires = Bien::withoutGlobalScope(\App\Models\Scopes\AgencyScope::class)
+            ->selectRaw('quartier, COUNT(*) as nb_biens')
+            ->where('statut', 'disponible')
+            ->where('visible_portail', true)
+            ->whereHas('agency', fn($q) => $q->where('actif', true))
+            ->whereNotNull('quartier')
+            ->where('quartier', '!=', '')
+            ->where('quartier', '!=', $quartier)
+            ->groupBy('quartier')
+            ->orderByDesc('nb_biens')
+            ->limit(4)
+            ->get();
+
+        return view('portail.quartier', compact('biens', 'quartier', 'similaires'));
     }
 
     public function show(string $slug): View

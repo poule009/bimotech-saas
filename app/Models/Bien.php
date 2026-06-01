@@ -50,6 +50,14 @@ class Bien extends Model
         'taux_commission',
         'statut',
         'description',
+        'nombre_chambres',
+        'nombre_sdb',
+        'parking',
+        'climatise',
+        'etage',
+        'latitude',
+        'longitude',
+        'amenites',
         'visible_portail',
     ];
 
@@ -58,6 +66,11 @@ class Bien extends Model
         'surface_m2'      => 'decimal:2',
         'taux_commission' => 'decimal:2',
         'meuble'          => 'boolean',
+        'parking'         => 'boolean',
+        'climatise'       => 'boolean',
+        'amenites'        => 'array',
+        'latitude'        => 'decimal:7',
+        'longitude'       => 'decimal:7',
         'visible_portail' => 'boolean',
         'deleted_at'      => 'datetime',
         // Note : pas de cast Enum — $bien->statut reste une string en Blade.

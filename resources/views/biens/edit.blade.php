@@ -160,6 +160,47 @@
                                 Bien meublé
                             </label>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Chambres <span class="opt">(optionnel)</span></label>
+                                <input type="number" name="nombre_chambres" class="form-input"
+                                       value="{{ old('nombre_chambres', $bien->nombre_chambres) }}" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Salle(s) de bain <span class="opt">(optionnel)</span></label>
+                                <input type="number" name="nombre_sdb" class="form-input"
+                                       value="{{ old('nombre_sdb', $bien->nombre_sdb) }}" min="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" style="display:flex;align-items:center;padding-top:22px">
+                                <label class="form-label" style="margin-bottom:0;display:flex;align-items:center;gap:8px;cursor:pointer">
+                                    <input type="checkbox" name="parking" value="1"
+                                           {{ old('parking', $bien->parking) ? 'checked':'' }}
+                                           style="width:16px;height:16px;accent-color:#c9a84c">
+                                    Parking
+                                </label>
+                            </div>
+                            <div class="form-group" style="display:flex;align-items:center;padding-top:22px">
+                                <label class="form-label" style="margin-bottom:0;display:flex;align-items:center;gap:8px;cursor:pointer">
+                                    <input type="checkbox" name="climatise" value="1"
+                                           {{ old('climatise', $bien->climatise) ? 'checked':'' }}
+                                           style="width:16px;height:16px;accent-color:#c9a84c">
+                                    Climatisé
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Étage <span class="opt">(optionnel)</span></label>
+                                <input type="number" name="etage" class="form-input"
+                                       value="{{ old('etage', $bien->etage) }}" min="-1" max="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Aménités <span class="opt">(optionnel)</span></label>
+                            <textarea name="amenites" class="form-textarea"
+                                placeholder="Vue mer, Gardiennage, Fibre optique…">{{ old('amenites', is_array($bien->amenites) ? implode(', ', $bien->amenites) : $bien->amenites) }}</textarea>
+                            <div style="font-size:11px;color:#9ca3af;margin-top:4px">Séparés par des virgules</div>
+                        </div>
                         <div class="form-group" style="margin-top:8px">
                             <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
                                 <input type="checkbox" name="visible_portail" value="1"

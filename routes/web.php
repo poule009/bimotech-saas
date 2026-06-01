@@ -77,8 +77,13 @@ Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mention
 Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
 Route::get('/pricing',    [\App\Http\Controllers\PricingController::class,  'index'])->name('pricing');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class,  'index'])->name('sitemap');
+Route::get('/portail',      [\App\Http\Controllers\PortailController::class, 'home'])->name('portail.home');
 Route::get('/biens',        [\App\Http\Controllers\PortailController::class, 'index'])->name('portail.index');
-Route::get('/biens/{slug}', [\App\Http\Controllers\PortailController::class, 'show'])->name('portail.show');
+Route::get('/biens/quartier/{quartier}', [\App\Http\Controllers\PortailController::class, 'quartier'])
+     ->name('portail.quartier')
+     ->where('quartier', '[^/]+');
+Route::get('/biens/{slug}',   [\App\Http\Controllers\PortailController::class, 'show'])->name('portail.show');
+Route::get('/agences/{slug}', [\App\Http\Controllers\PortailController::class, 'agence'])->name('portail.agence');
 Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,60')->name('contact.send');
 Route::post('/demo',    [DemoController::class,    'send'])->middleware('throttle:5,60')->name('demo.send');
 

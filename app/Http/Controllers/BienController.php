@@ -124,6 +124,12 @@ class BienController extends Controller
             'ville'           => ['required', 'string', 'max:100'],
             'surface_m2'      => ['nullable', 'numeric', 'min:1'],
             'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
+            'nombre_chambres' => ['nullable', 'integer', 'min:0', 'max:99'],
+            'nombre_sdb'      => ['nullable', 'integer', 'min:0', 'max:99'],
+            'parking'         => ['nullable', 'boolean'],
+            'climatise'       => ['nullable', 'boolean'],
+            'etage'           => ['nullable', 'integer', 'min:-1', 'max:50'],
+            'amenites'        => ['nullable', 'string', 'max:500'],
             'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
             'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'meuble'          => ['nullable', 'boolean'],
@@ -185,11 +191,16 @@ class BienController extends Controller
                 ->withInput();
         }
 
-        $validated['agency_id']      = $agencyId;
-        $validated['statut']         = 'disponible';
-        $validated['reference']      = $this->genererReference();
-        $validated['meuble']         = $request->boolean('meuble');
+        $validated['agency_id']       = $agencyId;
+        $validated['statut']          = 'disponible';
+        $validated['reference']       = $this->genererReference();
+        $validated['meuble']          = $request->boolean('meuble');
+        $validated['parking']         = $request->boolean('parking');
+        $validated['climatise']       = $request->boolean('climatise');
         $validated['taux_commission'] = $validated['taux_commission'] ?? 10;
+        $validated['amenites']        = $request->filled('amenites')
+            ? array_values(array_filter(array_map('trim', explode(',', $request->amenites))))
+            : null;
 
         $bien = Bien::create($validated);
 
@@ -236,6 +247,12 @@ class BienController extends Controller
             'ville'           => ['required', 'string', 'max:100'],
             'surface_m2'      => ['nullable', 'numeric', 'min:1'],
             'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
+            'nombre_chambres' => ['nullable', 'integer', 'min:0', 'max:99'],
+            'nombre_sdb'      => ['nullable', 'integer', 'min:0', 'max:99'],
+            'parking'         => ['nullable', 'boolean'],
+            'climatise'       => ['nullable', 'boolean'],
+            'etage'           => ['nullable', 'integer', 'min:-1', 'max:50'],
+            'amenites'        => ['nullable', 'string', 'max:500'],
             'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
             'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'meuble'          => ['nullable', 'boolean'],
@@ -272,7 +289,12 @@ class BienController extends Controller
         }
 
         $validated['meuble']          = $request->boolean('meuble');
+        $validated['parking']         = $request->boolean('parking');
+        $validated['climatise']       = $request->boolean('climatise');
         $validated['visible_portail'] = $request->boolean('visible_portail');
+        $validated['amenites']        = $request->filled('amenites')
+            ? array_values(array_filter(array_map('trim', explode(',', $request->amenites))))
+            : null;
         $bien->update($validated);
 
         return redirect()
