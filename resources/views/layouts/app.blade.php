@@ -74,18 +74,26 @@
               transition-transform duration-250 ease-out
               lg:translate-x-0">
 
-    {{-- Logo --}}
+    {{-- Logo + bouton fermer mobile --}}
     <div class="flex items-center gap-3 h-16 px-5 border-b border-white/10 flex-shrink-0">
         <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
              style="background: var(--ac)">
             <span class="font-display font-extrabold text-bimo-navy text-sm">B</span>
         </div>
-        <div class="min-w-0">
+        <div class="min-w-0 flex-1">
             <div class="font-display font-bold text-white text-sm leading-tight truncate">
                 {{ auth()->user()?->agency?->name ?? 'Bimothèque' }}
             </div>
             <div class="font-body text-[10px] text-white/40 uppercase tracking-widest">Immo</div>
         </div>
+        {{-- Bouton fermer — visible uniquement sur mobile --}}
+        <button @click="sidebarOpen = false"
+                class="lg:hidden w-8 h-8 flex items-center justify-center rounded-[8px]
+                       text-white/40 hover:text-white hover:bg-white/10 transition-all duration-150 flex-shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
     </div>
 
     {{-- Navigation --}}
@@ -94,7 +102,7 @@
         @php $route = request()->route()?->getName() ?? ''; @endphp
 
         {{-- Dashboard --}}
-        <a href="{{ route('admin.dashboard') }}"
+        <a href="{{ route('admin.dashboard') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150 group
                   {{ str_starts_with($route, 'admin.dashboard') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -105,7 +113,7 @@
         </a>
 
         {{-- Biens --}}
-        <a href="{{ route('admin.biens.index') }}"
+        <a href="{{ route('admin.biens.index') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.biens') || str_starts_with($route, 'admin.immeubles') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -116,7 +124,7 @@
         </a>
 
         {{-- Contrats --}}
-        <a href="{{ route('admin.contrats.index') }}"
+        <a href="{{ route('admin.contrats.index') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.contrats') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -128,7 +136,7 @@
         </a>
 
         {{-- Paiements --}}
-        <a href="{{ route('admin.paiements.index') }}"
+        <a href="{{ route('admin.paiements.index') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.paiements') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -139,7 +147,7 @@
         </a>
 
         {{-- Impayés --}}
-        <a href="{{ route('admin.impayes.index') }}"
+        <a href="{{ route('admin.impayes.index') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.impayes') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -150,7 +158,7 @@
         </a>
 
         {{-- Bailleurs --}}
-        <a href="{{ route('admin.bailleurs.index') }}"
+        <a href="{{ route('admin.bailleurs.index') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.bailleurs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -161,7 +169,7 @@
         </a>
 
         {{-- Locataires --}}
-        <a href="{{ route('admin.users.locataires') }}"
+        <a href="{{ route('admin.users.locataires') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.users.locataires') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -176,7 +184,7 @@
         <div class="my-2 border-t border-white/10"></div>
 
         {{-- Rapports --}}
-        <a href="{{ route('admin.rapports.financier') }}"
+        <a href="{{ route('admin.rapports.financier') }}" @click="sidebarOpen = false"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.rapports') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
