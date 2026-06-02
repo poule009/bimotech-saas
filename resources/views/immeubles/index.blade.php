@@ -1,121 +1,125 @@
 @extends('layouts.app')
-
-@section('title', 'Immeubles')
-@section('breadcrumb', 'Immeubles')
+@section('header', 'Immeubles')
 
 @section('content')
+<div class="space-y-4 md:space-y-6">
 
-<div style="padding:0 0 48px">
-
-    {{-- HEADER --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+    {{-- En-tête --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
-                Immeubles
-            </h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                {{ $immeubles->total() }} immeuble(s) enregistré(s)
-            </p>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight leading-tight">Immeubles</h1>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">{{ $immeubles->total() }} immeuble(s) enregistré(s)</p>
         </div>
         @can('isStaff')
-            <a href="{{ route('admin.immeubles.create') }}"
-               class="btn-primary">
-                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Nouvel immeuble
-            </a>
+        <a href="{{ route('admin.immeubles.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--ac)] text-white
+                  font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150 self-start">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nouvel immeuble
+        </a>
         @endcan
     </div>
 
-    {{-- GRILLE --}}
+    {{-- Contenu --}}
     @if($immeubles->isEmpty())
-        <x-empty-state
-            title="Aucun immeuble enregistré"
-            description="Commencez par ajouter votre premier immeuble."
-            action-label="Ajouter un immeuble"
-            :action-url="route('admin.immeubles.create')"
-        />
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
+        <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="2" y="3" width="20" height="18" rx="2"/>
+                <line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="12" y2="21"/>
+            </svg>
+        </div>
+        <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun immeuble enregistré</div>
+        <p class="font-body text-sm text-bimo-navy/50 mb-5">Commencez par ajouter votre premier immeuble.</p>
+        <a href="{{ route('admin.immeubles.create') }}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
+                  font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
+            + Ajouter un immeuble
+        </a>
+    </div>
+
     @else
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
-            @foreach($immeubles as $immeuble)
-            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;transition:box-shadow .2s"
-                 onmouseover="this.style.boxShadow='0 4px 20px -4px rgba(0,0,0,.1)'"
-                 onmouseout="this.style.boxShadow='none'">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        @foreach($immeubles as $immeuble)
+        <div class="flex flex-col bg-white rounded-[14px] border border-bimo-navy/10
+                    hover:border-bimo-gold/40 hover:shadow-gold-sm hover:-translate-y-0.5
+                    transition-all duration-150 overflow-hidden group">
 
-                {{-- En-tête colorée --}}
-                <div style="height:6px;background:linear-gradient(90deg,#0d1117,#1c2333)"></div>
+            {{-- Barre accent --}}
+            <div class="h-1.5 bg-bimo-navy"></div>
 
-                <div style="padding:16px">
-                    {{-- Nom + icône --}}
-                    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px">
-                        <div style="width:38px;height:38px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                            <svg style="width:18px;height:18px;color:#6b7280" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="2" y="3" width="20" height="18" rx="2"/>
-                                <line x1="2" y1="9" x2="22" y2="9"/>
-                                <line x1="12" y1="3" x2="12" y2="21"/>
-                            </svg>
-                        </div>
-                        <div style="min-width:0">
-                            <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0d1117;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                                {{ $immeuble->nom }}
-                            </h3>
-                            <p style="font-size:12px;color:#6b7280">
-                                {{ $immeuble->adresse }}, {{ $immeuble->ville }}
-                            </p>
-                        </div>
+            <div class="p-5 flex flex-col flex-1">
+                {{-- Nom + icône --}}
+                <div class="flex items-start gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="2" y="3" width="20" height="18" rx="2"/>
+                            <line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="12" y2="21"/>
+                        </svg>
                     </div>
-
-                    {{-- Méta --}}
-                    <div style="display:flex;gap:10px;margin-bottom:14px">
-                        <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:#f3f4f6;color:#374151">
-                            <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-                            {{ $immeuble->biens_count }} unité(s)
-                        </span>
-                        @if($immeuble->nombre_niveaux)
-                        <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;background:#dbeafe;color:#1d4ed8">
-                            {{ $immeuble->nombre_niveaux }} niveau(x)
-                        </span>
-                        @endif
-                    </div>
-
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid #f3f4f6">
-                        <div style="font-size:12px;color:#6b7280">
-                            {{ $immeuble->proprietaire?->name ?? '—' }}
-                        </div>
-                        <a href="{{ route('admin.immeubles.show', $immeuble) }}"
-                           style="display:inline-flex;align-items:center;gap:4px;padding:7px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;transition:all .15s"
-                           onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-                           onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
-                            Voir
-                            <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                        </a>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="font-display font-bold text-sm text-bimo-navy truncate leading-tight">{{ $immeuble->nom }}</h3>
+                        <p class="font-body text-xs text-bimo-navy/50 mt-0.5">{{ $immeuble->adresse }}, {{ $immeuble->ville }}</p>
                     </div>
                 </div>
-            </div>
-            @endforeach
-        </div>
 
-        {{-- PAGINATION --}}
-        @if($immeubles->hasPages())
-        <div style="display:flex;justify-content:center;gap:6px;margin-top:24px">
-            @if(!$immeubles->onFirstPage())
-                <a href="{{ $immeubles->previousPageUrl() }}" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid #e5e7eb;border-radius:8px;color:#6b7280;text-decoration:none">
-                    <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                </a>
-            @endif
-            @foreach($immeubles->getUrlRange(max(1,$immeubles->currentPage()-2), min($immeubles->lastPage(),$immeubles->currentPage()+2)) as $page => $url)
-                <a href="{{ $url }}" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid {{ $page===$immeubles->currentPage() ? '#0d1117' : '#e5e7eb' }};border-radius:8px;font-size:13px;font-weight:500;color:{{ $page===$immeubles->currentPage() ? '#fff' : '#374151' }};background:{{ $page===$immeubles->currentPage() ? '#0d1117' : '#fff' }};text-decoration:none">
-                    {{ $page }}
-                </a>
-            @endforeach
-            @if($immeubles->hasMorePages())
-                <a href="{{ $immeubles->nextPageUrl() }}" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid #e5e7eb;border-radius:8px;color:#6b7280;text-decoration:none">
-                    <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-            @endif
+                {{-- Badges --}}
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-bimo-navy/15 bg-bimo-navy/5 text-[11px] font-body font-medium text-bimo-navy/70">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                        {{ $immeuble->biens_count }} unité(s)
+                    </span>
+                    @if($immeuble->nombre_niveaux)
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border border-bimo-navy/10 bg-bimo-navy/[4%] text-[11px] font-body font-medium text-bimo-navy/60">
+                        {{ $immeuble->nombre_niveaux }} niveau(x)
+                    </span>
+                    @endif
+                </div>
+
+                {{-- Pied --}}
+                <div class="flex items-center justify-between pt-3 border-t border-bimo-navy/[5%] mt-auto">
+                    <span class="font-body text-xs text-bimo-navy/50">{{ $immeuble->proprietaire?->name ?? '—' }}</span>
+                    <a href="{{ route('admin.immeubles.show', $immeuble) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/10 rounded-[8px]
+                              font-body font-medium text-xs text-bimo-navy/60
+                              hover:text-bimo-navy hover:border-bimo-gold hover:text-bimo-gold
+                              transition-all duration-150">
+                        Voir
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </a>
+                </div>
+            </div>
         </div>
+        @endforeach
+    </div>
+
+    {{-- Pagination --}}
+    @if($immeubles->hasPages())
+    <div class="flex items-center justify-center gap-1.5">
+        @if(!$immeubles->onFirstPage())
+        <a href="{{ $immeubles->previousPageUrl() }}"
+           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
         @endif
+        @foreach($immeubles->getUrlRange(max(1,$immeubles->currentPage()-2), min($immeubles->lastPage(),$immeubles->currentPage()+2)) as $page => $url)
+        <a href="{{ $url }}"
+           class="w-8 h-8 flex items-center justify-center rounded-[7px] font-body text-sm transition-all duration-150
+                  {{ $page === $immeubles->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30' }}">
+            {{ $page }}
+        </a>
+        @endforeach
+        @if($immeubles->hasMorePages())
+        <a href="{{ $immeubles->nextPageUrl() }}"
+           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        @endif
+    </div>
+    @endif
     @endif
 
 </div>
-
 @endsection
