@@ -189,62 +189,50 @@
 
     </nav>
 
-    {{-- Footer sidebar — profil + actions directes --}}
-    <div class="flex-shrink-0 border-t border-white/10">
+    {{-- Footer sidebar — profil avec dropdown --}}
+    <div class="flex-shrink-0 p-3 border-t border-white/10">
+        <div class="relative">
 
-        {{-- Profil --}}
-        <div class="flex items-center gap-3 px-4 py-3 border-b border-white/[5%]">
-            <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 font-display font-bold text-xs"
-                 style="background: var(--ac); color: #1B4F6B">
-                {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
+            {{-- Bouton profil --}}
+            <button onclick="toggleProfileDrop()"
+                    class="flex items-center gap-3 w-full px-3 py-2.5 rounded-[10px] hover:bg-white/5 transition-colors duration-150">
+                <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 font-display font-bold text-sm"
+                     style="background: var(--ac); color: #1B4F6B">
+                    {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
+                </div>
+                <div class="flex-1 text-left min-w-0">
+                    <div class="font-display font-semibold text-white text-sm truncate">{{ auth()->user()->name }}</div>
+                    <div class="font-body text-[10px] text-white/40 capitalize">{{ auth()->user()->role }}</div>
+                </div>
+                <svg id="profile-chevron" class="w-4 h-4 text-white/30 flex-shrink-0 transition-transform duration-150"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </button>
+
+            {{-- Dropdown (s'ouvre vers le haut) --}}
+            <div id="profile-drop"
+                 class="absolute bottom-full left-0 right-0 mb-2 bg-bimo-navy-dk border border-white/10 rounded-[12px] overflow-hidden shadow-xl z-50"
+                 style="display:none">
+                <a href="{{ route('profile.edit') }}" onclick="closeSidebar()"
+                   class="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors duration-150 font-body text-sm">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Mon profil
+                </a>
+                <a href="{{ route('admin.agency.settings') }}" onclick="closeSidebar()"
+                   class="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors duration-150 font-body text-sm border-t border-white/10">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    Paramètres agence
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="border-t border-white/10">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center gap-3 w-full px-4 py-3 text-bimo-red/80 hover:text-bimo-red hover:bg-white/5 transition-colors duration-150 font-body text-sm">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Déconnexion
+                    </button>
+                </form>
             </div>
-            <div class="min-w-0 flex-1">
-                <div class="font-display font-semibold text-white text-xs truncate">{{ auth()->user()->name }}</div>
-                <div class="font-body text-[10px] text-white/40 capitalize">{{ auth()->user()->role }}</div>
-            </div>
-        </div>
-
-        {{-- Actions directes --}}
-        <div class="px-3 py-2 space-y-0.5">
-
-            <a href="{{ route('profile.edit') }}" onclick="closeSidebar()"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-white/60 hover:text-white hover:bg-white/5 transition-all duration-150">
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                </svg>
-                <span class="font-display font-semibold text-sm">Mon profil</span>
-            </a>
-
-            <a href="{{ route('admin.agency.settings') }}" onclick="closeSidebar()"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-white/60 hover:text-white hover:bg-white/5 transition-all duration-150">
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
-                </svg>
-                <span class="font-display font-semibold text-sm">Paramètres agence</span>
-            </a>
-
-            <a href="{{ route('admin.import.index') }}" onclick="closeSidebar()"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-white/60 hover:text-white hover:bg-white/5 transition-all duration-150">
-                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                <span class="font-display font-semibold text-sm">Import Excel</span>
-            </a>
-
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit"
-                        class="flex items-center gap-3 w-full px-3 py-2.5 rounded-[10px]
-                               text-bimo-red/70 hover:text-bimo-red hover:bg-bimo-red/5
-                               transition-all duration-150">
-                    <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    <span class="font-display font-semibold text-sm">Déconnexion</span>
-                </button>
-            </form>
         </div>
     </div>
 </aside>
