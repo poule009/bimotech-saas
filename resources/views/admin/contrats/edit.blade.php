@@ -1,417 +1,402 @@
 @extends('layouts.app')
-@section('title', 'Modifier contrat — ' . ($contrat->reference_bail ?? '#'.$contrat->id))
-@section('breadcrumb', 'Contrats › Modifier')
+@section('header', 'Contrats › Modifier')
 
 @section('content')
-<style>
-.form-grid { display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start; }
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
-.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px; }
-.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
-.card-body { padding:18px 20px; }
-.form-row-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
-.form-hint { font-size:11px;color:#9ca3af;margin-top:3px; }
-.form-input[readonly] { background:#f9fafb;color:#6b7280;cursor:not-allowed; }
-.ref-badge { display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:#f5e9c9;border:1px solid #e9d5a0;border-radius:7px;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:#8a6e2f; }
-.info-banner { background:#fefce8;border:1px solid #fde68a;border-left:3px solid #f59e0b;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:16px;display:flex;align-items:center;gap:8px; }
-.side-card { background:#0d1117;border-radius:14px;overflow:hidden;margin-bottom:14px;position:sticky;top:24px; }
-.side-hd { padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.07); }
-.side-title { font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#fff; }
-.side-body { padding:14px 16px; }
-.side-row { display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px; }
-.side-row:last-child { border-bottom:none; }
-.side-lbl { color:rgba(255,255,255,.4); }
-.side-val { color:#e6edf3;font-weight:500; }
-.side-val.gold { color:#c9a84c; }
-.rp-row { display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06); }
-.rp-row:last-child { border-bottom:none; }
-.rp-lbl { font-size:12px;color:rgba(255,255,255,.4); }
-.rp-val { font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#fff; }
-.rp-val.gold { color:#c9a84c; }
-.rp-total { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:12px 14px;margin-top:12px; }
-.rp-total-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
-.rp-total-val { font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#c9a84c; }
-@media(max-width:900px){.form-grid{grid-template-columns:1fr}.form-row-3{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.form-row-3{grid-template-columns:1fr}}
-</style>
 
-<div style="padding:0 0 48px">
-
-    {{-- Breadcrumb --}}
-    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:16px">
-        <a href="{{ route('admin.contrats.index') }}" style="color:#6b7280;text-decoration:none">Contrats</a>
-        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <a href="{{ route('admin.contrats.show', $contrat) }}" style="color:#6b7280;text-decoration:none">
-            {{ $contrat->reference_bail ?? 'Contrat #'.$contrat->id }}
-        </a>
-        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span style="color:#0d1117;font-weight:500">Modifier</span>
-    </div>
-
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-        <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
-                Modifier le contrat
-            </h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                Le bien et le locataire ne peuvent pas être changés.
-            </p>
-        </div>
-        <div class="ref-badge">
-            {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}
-        </div>
-    </div>
-
-    @if($errors->any())
-    <div style="background:#fef2f2;border:1px solid #fecaca;border-left:3px solid #dc2626;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#dc2626">
-        <strong>Veuillez corriger les erreurs :</strong>
-        <ul style="margin-top:4px;padding-left:16px">
-            @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
-        </ul>
-    </div>
-    @endif
-
-    {{-- Info bannière --}}
-    <div class="info-banner">
-        <svg style="width:14px;height:14px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Toute modification du loyer prendra effet sur les prochains paiements. Les paiements déjà validés ne seront pas recalculés.
-    </div>
-
-    <form method="POST" action="{{ route('admin.contrats.update', $contrat) }}">
-        @csrf @method('PUT')
-        <div class="form-grid">
-
-            {{-- ═══ COLONNE GAUCHE ═══ --}}
-            <div>
-
-                {{-- BIEN & LOCATAIRE (lecture seule) --}}
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon gold">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        </div>
-                        <div class="card-title">Bien & Locataire</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Bien (non modifiable)</label>
-                                <input type="text" class="form-input" readonly
-                                       value="{{ $contrat->bien?->reference }} — {{ $contrat->bien?->adresse }}, {{ $contrat->bien?->ville }}">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Locataire (non modifiable)</label>
-                                <input type="text" class="form-input" readonly
-                                       value="{{ $contrat->locataire?->name }}">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- DURÉE ET TYPE --}}
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        </div>
-                        <div class="card-title">Durée & Type de bail</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Date de début <span class="req">*</span></label>
-                                <input type="date" name="date_debut"
-                                       class="form-input {{ $errors->has('date_debut') ? 'error':'' }}"
-                                       value="{{ old('date_debut', $contrat->date_debut?->format('Y-m-d')) }}">
-                                @error('date_debut')<div class="form-error">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Date de fin <span class="opt">(optionnel)</span></label>
-                                <input type="date" name="date_fin" class="form-input"
-                                       value="{{ old('date_fin', $contrat->date_fin?->format('Y-m-d')) }}">
-                                <div class="form-hint">Laisser vide = contrat ouvert</div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Type de bail <span class="req">*</span></label>
-                                <select name="type_bail" class="form-select {{ $errors->has('type_bail') ? 'error':'' }}">
-                                    @foreach($typesBail as $val => $label)
-                                        <option value="{{ $val }}"
-                                            {{ old('type_bail', $contrat->type_bail) === $val ? 'selected':'' }}>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('type_bail')<div class="form-error">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Référence bail</label>
-                                <input type="text" name="reference_bail" class="form-input"
-                                       value="{{ old('reference_bail', $contrat->reference_bail) }}"
-                                       placeholder="Ex: BAIL-2024-001">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- LOYER --}}
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon gold">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                        </div>
-                        <div class="card-title">Ventilation du loyer</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Loyer nu (FCFA) <span class="req">*</span></label>
-                                <input type="number" name="loyer_nu" id="loyer_nu"
-                                       class="form-input {{ $errors->has('loyer_nu') ? 'error':'' }}"
-                                       value="{{ old('loyer_nu', $contrat->loyer_nu) }}"
-                                       min="0" step="500" oninput="mettreAJourRecap()">
-                                <div class="form-hint">Hors charges et TOM</div>
-                                @error('loyer_nu')<div class="form-error">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Charges mensuelles</label>
-                                <input type="number" name="charges_mensuelles" id="charges_mensuelles"
-                                       class="form-input"
-                                       value="{{ old('charges_mensuelles', $contrat->charges_mensuelles ?? 0) }}"
-                                       min="0" step="500" oninput="mettreAJourRecap()">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">TOM (Taxe ordures ménagères)</label>
-                                <input type="number" name="tom_amount" id="tom_amount"
-                                       class="form-input"
-                                       value="{{ old('tom_amount', $contrat->tom_amount ?? 0) }}"
-                                       min="0" step="100" oninput="mettreAJourRecap()">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Indexation annuelle (%)</label>
-                                <input type="number" name="indexation_annuelle" class="form-input"
-                                       value="{{ old('indexation_annuelle', $contrat->indexation_annuelle ?? 0) }}"
-                                       min="0" max="20" step="0.5">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- CAUTION & FRAIS --}}
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                        <div class="card-title">Caution & Frais</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Caution (FCFA) <span class="req">*</span></label>
-                                <input type="number" name="caution"
-                                       class="form-input {{ $errors->has('caution') ? 'error':'' }}"
-                                       value="{{ old('caution', $contrat->caution) }}" min="0" step="500">
-                                @error('caution')<div class="form-error">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Nombre de mois de caution</label>
-                                <select name="nombre_mois_caution" class="form-select">
-                                    @foreach([1,2,3,6] as $n)
-                                        <option value="{{ $n }}"
-                                            {{ old('nombre_mois_caution', $contrat->nombre_mois_caution ?? 1) == $n ? 'selected':'' }}>
-                                            {{ $n }} mois
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Frais d'agence HT (FCFA)</label>
-                            <input type="number" name="frais_agence" class="form-input"
-                                   value="{{ old('frais_agence', $contrat->frais_agence ?? 0) }}" min="0" step="500">
-                            <div class="form-hint">Honoraires HT · TVA 18% ajoutée auto au premier paiement</div>
-                        </div>
-                    </div>
-                </div>
-
-                @if(config('features.fiscalite'))
-                {{-- PARAMÈTRES FISCAUX --}}
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon" style="background:#fef3c7;color:#d97706">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                        <div class="card-title">Paramètres fiscaux</div>
-                    </div>
-                    <div class="card-body">
-                        @include('admin.contrats._section-fiscal', ['contrat' => $contrat])
-                    </div>
-                </div>
-                @endif
-
-                {{-- GARANT --}}
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                        </div>
-                        <div class="card-title">Garant <span class="opt">(optionnel)</span></div>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Nom du garant</label>
-                                <input type="text" name="garant_nom" class="form-input"
-                                       value="{{ old('garant_nom', $contrat->garant_nom) }}">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Téléphone</label>
-                                <input type="text" name="garant_telephone" class="form-input"
-                                       value="{{ old('garant_telephone', $contrat->garant_telephone) }}">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Adresse</label>
-                                <input type="text" name="garant_adresse" class="form-input"
-                                       value="{{ old('garant_adresse', $contrat->garant_adresse) }}">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">CNI / Pièce d'identité</label>
-                                <input type="text" name="garant_cni" class="form-input"
-                                       value="{{ old('garant_cni', $contrat->garant_cni) }}" placeholder="N° CNI ou passeport">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- OBSERVATIONS --}}
-                <div class="card">
-                    <div class="card-hd">
-                        <div class="card-icon purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        </div>
-                        <div class="card-title">Observations</div>
-                    </div>
-                    <div class="card-body">
-                        <textarea name="observations" class="form-textarea">{{ old('observations', $contrat->observations) }}</textarea>
-
-                        <div style="margin-top:16px">
-                            <label class="form-label" style="margin-bottom:6px;display:block">
-                                Clauses particulières
-                                <span style="font-weight:400;color:#9ca3af;font-size:11px">Conditions spécifiques à ce bail uniquement</span>
-                            </label>
-                            <textarea name="clauses_particulieres" class="form-textarea" rows="5"
-                                placeholder="Ex : Le locataire bénéficie d'une place de parking désignée n°3…&#10;Autorisation de sous-louer la chambre B uniquement avec accord écrit…"
-                            >{{ old('clauses_particulieres', $contrat->clauses_particulieres) }}</textarea>
-                            <div class="form-hint" style="margin-top:4px">Ces clauses s'ajouteront aux clauses générales de l'agence dans le bail PDF.</div>
-                        </div>
-                    </div>
-                    <div class="submit-bar">
-                        <a href="{{ route('admin.contrats.show', $contrat) }}" class="btn-cancel">Annuler</a>
-                        <button type="submit" class="btn-submit">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
-                            Enregistrer les modifications
-                        </button>
-                    </div>
-                </div>
-
-            </div>{{-- fin colonne gauche --}}
-
-            {{-- ═══ COLONNE DROITE ═══ --}}
-            <div>
-
-                {{-- Infos actuelles --}}
-                <div class="side-card">
-                    <div class="side-hd"><div class="side-title">Contrat actuel</div></div>
-                    <div class="side-body">
-                        <div class="side-row">
-                            <span class="side-lbl">Statut</span>
-                            <span class="side-val">{{ \App\Models\Contrat::STATUTS[$contrat->statut] ?? $contrat->statut }}</span>
-                        </div>
-                        <div class="side-row">
-                            <span class="side-lbl">Loyer contractuel</span>
-                            <span class="side-val gold">{{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} F</span>
-                        </div>
-                        <div class="side-row">
-                            <span class="side-lbl">Loyer nu</span>
-                            <span class="side-val">{{ number_format($contrat->loyer_nu, 0, ',', ' ') }} F</span>
-                        </div>
-                        <div class="side-row">
-                            <span class="side-lbl">Charges</span>
-                            <span class="side-val">{{ number_format($contrat->charges_mensuelles ?? 0, 0, ',', ' ') }} F</span>
-                        </div>
-                        <div class="side-row">
-                            <span class="side-lbl">TOM</span>
-                            <span class="side-val">{{ number_format($contrat->tom_amount ?? 0, 0, ',', ' ') }} F</span>
-                        </div>
-                        <div class="side-row">
-                            <span class="side-lbl">Caution</span>
-                            <span class="side-val">{{ number_format($contrat->caution, 0, ',', ' ') }} F</span>
-                        </div>
-                        <div class="side-row">
-                            <span class="side-lbl">Créé le</span>
-                            <span class="side-val">{{ $contrat->created_at?->format('d/m/Y') }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Récap live --}}
-                <div class="side-card">
-                    <div class="side-hd"><div class="side-title">Nouveau récapitulatif</div></div>
-                    <div class="side-body">
-                        <div class="rp-row">
-                            <div class="rp-lbl">Loyer nu</div>
-                            <div class="rp-val" id="rp-loyer-nu">— F</div>
-                        </div>
-                        <div class="rp-row">
-                            <div class="rp-lbl">+ Charges</div>
-                            <div class="rp-val" id="rp-charges">— F</div>
-                        </div>
-                        <div class="rp-row">
-                            <div class="rp-lbl">+ TOM</div>
-                            <div class="rp-val" id="rp-tom">— F</div>
-                        </div>
-                        <div class="rp-row">
-                            <div class="rp-lbl" style="color:rgba(255,255,255,.7);font-weight:600">= Loyer total</div>
-                            <div class="rp-val gold" id="rp-total">— F</div>
-                        </div>
-                        <div class="rp-total">
-                            <div class="rp-total-lbl">Commission HT</div>
-                            <div class="rp-total-val" id="rp-comm">— F</div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </form>
+{{-- Breadcrumb --}}
+<div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40 mb-5">
+    <a href="{{ route('admin.contrats.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Contrats</a>
+    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    <a href="{{ route('admin.contrats.show', $contrat) }}" class="hover:text-bimo-navy transition-colors duration-150">
+        {{ $contrat->reference_bail ?? 'Contrat #'.$contrat->id }}
+    </a>
+    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    <span class="text-bimo-navy font-medium">Modifier</span>
 </div>
 
+<div class="flex items-center justify-between gap-3 flex-wrap mb-5">
+    <div>
+        <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Modifier le contrat</h1>
+        <p class="font-body text-sm text-bimo-navy/50 mt-1">Le bien et le locataire ne peuvent pas être changés.</p>
+    </div>
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/25 rounded-[7px]
+                font-display font-semibold text-sm text-bimo-gold">
+        {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}
+    </div>
+</div>
+
+{{-- Bannière info --}}
+<div class="flex items-center gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[12px] px-4 py-3 mb-5">
+    <svg class="w-4 h-4 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <p class="font-body text-sm text-bimo-gold">
+        Toute modification du loyer prendra effet sur les prochains paiements. Les paiements déjà validés ne seront pas recalculés.
+    </p>
+</div>
+
+<form method="POST" action="{{ route('admin.contrats.update', $contrat) }}">
+@csrf @method('PUT')
+
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
+
+    {{-- COLONNE GAUCHE --}}
+    <div class="space-y-4">
+
+        {{-- Bien & Locataire (lecture seule) --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">Bien & Locataire</span>
+            </div>
+            <div class="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy/50">Bien (non modifiable)</label>
+                    <input type="text" readonly
+                           value="{{ $contrat->bien?->reference }} — {{ $contrat->bien?->adresse }}, {{ $contrat->bien?->ville }}"
+                           class="w-full px-4 py-3 rounded-[10px] bg-bimo-bg border border-bimo-navy/10 font-body text-sm text-bimo-navy/50 cursor-not-allowed">
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy/50">Locataire (non modifiable)</label>
+                    <input type="text" readonly value="{{ $contrat->locataire?->name }}"
+                           class="w-full px-4 py-3 rounded-[10px] bg-bimo-bg border border-bimo-navy/10 font-body text-sm text-bimo-navy/50 cursor-not-allowed">
+                </div>
+            </div>
+        </div>
+
+        {{-- Durée & Type --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-bimo-navy/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">Durée & Type de bail</span>
+            </div>
+            <div class="px-5 py-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Date de début <span class="text-bimo-red">*</span></label>
+                        <input type="date" name="date_debut"
+                               value="{{ old('date_debut', $contrat->date_debut?->format('Y-m-d')) }}"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('date_debut') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        @error('date_debut')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                            Date de fin <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        </label>
+                        <input type="date" name="date_fin"
+                               value="{{ old('date_fin', $contrat->date_fin?->format('Y-m-d')) }}"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        <p class="font-body text-[11px] text-bimo-navy/30">Laisser vide = contrat ouvert</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Type de bail <span class="text-bimo-red">*</span></label>
+                        <select name="type_bail"
+                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy cursor-pointer
+                                       focus:outline-none focus:ring-2 transition-all duration-150
+                                       @error('type_bail') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                            @foreach($typesBail as $val => $label)
+                            <option value="{{ $val }}" {{ old('type_bail', $contrat->type_bail) === $val ? 'selected':'' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('type_bail')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Référence bail</label>
+                        <input type="text" name="reference_bail"
+                               value="{{ old('reference_bail', $contrat->reference_bail) }}"
+                               placeholder="Ex: BAIL-2024-001"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Loyer --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">Ventilation du loyer</span>
+            </div>
+            <div class="px-5 py-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Loyer nu (FCFA) <span class="text-bimo-red">*</span></label>
+                        <input type="number" name="loyer_nu" id="loyer_nu"
+                               value="{{ old('loyer_nu', $contrat->loyer_nu) }}" min="0" step="500" oninput="mettreAJourRecap()"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('loyer_nu') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        <p class="font-body text-[11px] text-bimo-navy/30">Hors charges et TOM</p>
+                        @error('loyer_nu')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Charges mensuelles</label>
+                        <input type="number" name="charges_mensuelles" id="charges_mensuelles"
+                               value="{{ old('charges_mensuelles', $contrat->charges_mensuelles ?? 0) }}" min="0" step="500" oninput="mettreAJourRecap()"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">TOM <span class="font-normal text-bimo-navy/40 text-xs">(Taxe ordures)</span></label>
+                        <input type="number" name="tom_amount" id="tom_amount"
+                               value="{{ old('tom_amount', $contrat->tom_amount ?? 0) }}" min="0" step="100" oninput="mettreAJourRecap()"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Indexation annuelle (%)</label>
+                        <input type="number" name="indexation_annuelle"
+                               value="{{ old('indexation_annuelle', $contrat->indexation_annuelle ?? 0) }}" min="0" max="20" step="0.5"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Caution & Frais --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">Caution & Frais</span>
+            </div>
+            <div class="px-5 py-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Caution (FCFA) <span class="text-bimo-red">*</span></label>
+                        <input type="number" name="caution"
+                               value="{{ old('caution', $contrat->caution) }}" min="0" step="500"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('caution') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        @error('caution')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Nombre de mois</label>
+                        <select name="nombre_mois_caution"
+                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy cursor-pointer
+                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                            @foreach([1,2,3,6] as $n)
+                            <option value="{{ $n }}" {{ old('nombre_mois_caution', $contrat->nombre_mois_caution ?? 1) == $n ? 'selected':'' }}>{{ $n }} mois</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy">Frais d'agence HT (FCFA)</label>
+                    <input type="number" name="frais_agence"
+                           value="{{ old('frais_agence', $contrat->frais_agence ?? 0) }}" min="0" step="500"
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                  focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    <p class="font-body text-[11px] text-bimo-navy/30">Honoraires HT · TVA 18% ajoutée auto au premier paiement</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Fiscal --}}
+        @if(config('features.fiscalite'))
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-amber-50 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">Paramètres fiscaux</span>
+            </div>
+            <div class="px-5 py-5">
+                @include('admin.contrats._section-fiscal', ['contrat' => $contrat])
+            </div>
+        </div>
+        @endif
+
+        {{-- Garant --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">
+                    Garant <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                </span>
+            </div>
+            <div class="px-5 py-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Nom du garant</label>
+                        <input type="text" name="garant_nom" value="{{ old('garant_nom', $contrat->garant_nom) }}"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Téléphone</label>
+                        <input type="text" name="garant_telephone" value="{{ old('garant_telephone', $contrat->garant_telephone) }}"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Adresse</label>
+                        <input type="text" name="garant_adresse" value="{{ old('garant_adresse', $contrat->garant_adresse) }}"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">CNI / Pièce d'identité</label>
+                        <input type="text" name="garant_cni" value="{{ old('garant_cni', $contrat->garant_cni) }}"
+                               placeholder="N° CNI ou passeport"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Observations --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">Observations</span>
+            </div>
+            <div class="px-5 py-5 space-y-4">
+                <textarea name="observations" rows="3"
+                          class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                                 transition-all duration-150 resize-y">{{ old('observations', $contrat->observations) }}</textarea>
+
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy">
+                        Clauses particulières
+                        <span class="font-normal text-bimo-navy/40 text-xs ml-1">Conditions spécifiques à ce bail uniquement</span>
+                    </label>
+                    <textarea name="clauses_particulieres" rows="5"
+                              placeholder="Ex : Le locataire bénéficie d'une place de parking désignée n°3…"
+                              class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                     placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                                     transition-all duration-150 resize-y">{{ old('clauses_particulieres', $contrat->clauses_particulieres) }}</textarea>
+                    <p class="font-body text-[11px] text-bimo-navy/30">Ces clauses s'ajouteront aux clauses générales de l'agence dans le bail PDF.</p>
+                </div>
+            </div>
+
+            {{-- Submit --}}
+            <div class="sticky bottom-0 flex items-center justify-end gap-3 px-5 py-4
+                        bg-white/95 backdrop-blur-sm border-t border-bimo-navy/[5%]">
+                <a href="{{ route('admin.contrats.show', $contrat) }}"
+                   class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
+                          font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                    Annuler
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
+                               font-display font-bold text-sm rounded-[10px]
+                               hover:opacity-90 transition-opacity duration-150">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Enregistrer les modifications
+                </button>
+            </div>
+        </div>
+
+    </div>{{-- fin colonne gauche --}}
+
+    {{-- COLONNE DROITE --}}
+    <div class="lg:sticky lg:top-6 space-y-4">
+
+        {{-- Contrat actuel --}}
+        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+            <div class="px-5 py-4 border-b border-white/[7%]">
+                <div class="font-display font-bold text-sm text-white">Contrat actuel</div>
+            </div>
+            <div class="px-5 py-2 divide-y divide-white/[6%]">
+                @php
+                    $currentRows = [
+                        ['Statut',         \App\Models\Contrat::STATUTS[$contrat->statut] ?? $contrat->statut, ''],
+                        ['Loyer contractuel', number_format($contrat->loyer_contractuel, 0, ',', ' ') . ' F', 'text-bimo-gold font-semibold'],
+                        ['Loyer nu',       number_format($contrat->loyer_nu, 0, ',', ' ') . ' F', ''],
+                        ['Charges',        number_format($contrat->charges_mensuelles ?? 0, 0, ',', ' ') . ' F', ''],
+                        ['TOM',            number_format($contrat->tom_amount ?? 0, 0, ',', ' ') . ' F', ''],
+                        ['Caution',        number_format($contrat->caution, 0, ',', ' ') . ' F', ''],
+                        ['Créé le',        $contrat->created_at?->format('d/m/Y') ?? '—', ''],
+                    ];
+                @endphp
+                @foreach($currentRows as [$lbl, $val, $cls])
+                <div class="flex items-center justify-between py-2.5">
+                    <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
+                    <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Nouveau récap live --}}
+        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+            <div class="px-5 py-4 border-b border-white/[7%]">
+                <div class="font-display font-bold text-sm text-white">Nouveau récapitulatif</div>
+            </div>
+            <div class="px-5 py-2 divide-y divide-white/[6%]">
+                @foreach([
+                    ['rp-loyer-nu', 'Loyer nu',     'text-white'],
+                    ['rp-charges',  '+ Charges',    'text-white'],
+                    ['rp-tom',      '+ TOM',        'text-white'],
+                    ['rp-total',    '= Total',      'text-bimo-gold font-semibold'],
+                ] as [$id, $lbl, $cls])
+                <div class="flex items-center justify-between py-2.5">
+                    <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
+                    <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— F</span>
+                </div>
+                @endforeach
+            </div>
+            <div class="px-5 pb-4">
+                <div class="mt-2 p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
+                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Commission HT</div>
+                    <div class="font-display font-extrabold text-lg text-bimo-gold" id="rp-comm">— F</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</form>
+
+@push('scripts')
 <script>
 const tauxComm = {{ $contrat->bien?->taux_commission ?? 10 }};
-
 function fmt(n) { return Math.round(n).toLocaleString('fr-FR') + ' F'; }
-
 function mettreAJourRecap() {
-    const loyerNu = parseFloat(document.getElementById('loyer_nu').value)           || 0;
+    const loyerNu = parseFloat(document.getElementById('loyer_nu').value) || 0;
     const charges = parseFloat(document.getElementById('charges_mensuelles').value) || 0;
-    const tom     = parseFloat(document.getElementById('tom_amount').value)          || 0;
+    const tom     = parseFloat(document.getElementById('tom_amount').value) || 0;
     const total   = loyerNu + charges + tom;
     const commHt  = Math.round(loyerNu * tauxComm / 100);
-
     document.getElementById('rp-loyer-nu').textContent = fmt(loyerNu);
     document.getElementById('rp-charges').textContent  = fmt(charges);
     document.getElementById('rp-tom').textContent      = fmt(tom);
     document.getElementById('rp-total').textContent    = fmt(total);
     document.getElementById('rp-comm').textContent     = fmt(commHt);
 }
-
 mettreAJourRecap();
 </script>
+@endpush
+
 @endsection

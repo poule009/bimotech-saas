@@ -1,185 +1,308 @@
 @extends('layouts.app')
-@section('title', 'Contrats')
-@section('breadcrumb', 'Contrats')
+@section('header', 'Contrats')
 
 @section('content')
-<style>
-.kpi-val { font-size:26px; }
-.badge-actif    { background:#dcfce7;color:#16a34a; }
-.badge-resilié  { background:#fee2e2;color:#dc2626; }
-.badge-expiré   { background:#f3f4f6;color:#6b7280; }
-.badge-bail     { background:#f5e9c9;color:#8a6e2f; }
-.empty-icon { width:52px;height:52px;border-radius:14px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
-</style>
+<div class="space-y-4 md:space-y-6">
 
-<div style="padding:0 0 48px">
-
-    {{-- Header --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+    {{-- ═══ EN-TÊTE ═══ --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Contrats de bail</h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">{{ $stats['total'] }} contrat(s) au total</p>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight leading-tight">
+                Contrats de bail
+            </h1>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">
+                {{ $stats['total'] }} contrat(s) au total
+            </p>
         </div>
         <a href="{{ route('admin.contrats.create') }}"
-           class="btn-primary">
-            <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--ac)] text-white
+                  font-display font-bold text-sm rounded-[10px]
+                  hover:opacity-90 transition-opacity duration-150 self-start">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
             Nouveau contrat
         </a>
     </div>
 
-    {{-- KPIs --}}
-    <div class="kpi-row">
-        <div class="kpi gold">
-            <div class="kpi-lbl">Total</div>
-            <div class="kpi-val">{{ $stats['total'] }}</div>
+    {{-- ═══ KPIs ═══ --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-navy">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Total</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">{{ $stats['total'] }}</div>
         </div>
-        <div class="kpi green">
-            <div class="kpi-lbl">Actifs</div>
-            <div class="kpi-val" style="color:#16a34a">{{ $stats['actifs'] }}</div>
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Actifs</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-gold leading-none">{{ $stats['actifs'] }}</div>
         </div>
-        <div class="kpi amber">
-            <div class="kpi-lbl">Résiliés</div>
-            <div class="kpi-val" style="color:#d97706">{{ $stats['resilies'] }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Résiliés</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-navy/50 leading-none">{{ $stats['resilies'] }}</div>
         </div>
-        <div class="kpi red">
-            <div class="kpi-lbl">Expirés</div>
-            <div class="kpi-val" style="color:#dc2626">{{ $stats['expires'] }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-red/20 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Expirés</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-red leading-none">{{ $stats['expires'] }}</div>
         </div>
     </div>
 
-    {{-- Filtres --}}
-    <form method="GET" style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    {{-- ═══ FILTRES ═══ --}}
+    <form method="GET" class="flex flex-wrap gap-2 items-center">
         <input type="text" name="q" value="{{ request('q') }}"
                placeholder="Référence, locataire, bien…"
-               style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;width:220px;outline:none"
-               onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='#e5e7eb'">
+               class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                      font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30
+                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                      transition-all duration-150 w-52">
+
         <select name="statut" onchange="this.form.submit()"
-                style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer">
+                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                       font-body text-sm text-bimo-navy cursor-pointer
+                       focus:outline-none focus:border-bimo-gold transition-all duration-150">
             <option value="">Tous les statuts</option>
             @foreach(\App\Models\Contrat::STATUTS as $val => $label)
                 <option value="{{ $val }}" @selected(request('statut') === $val)>{{ $label }}</option>
             @endforeach
         </select>
+
         <select name="type_bail" onchange="this.form.submit()"
-                style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer">
+                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                       font-body text-sm text-bimo-navy cursor-pointer
+                       focus:outline-none focus:border-bimo-gold transition-all duration-150">
             <option value="">Tous les types</option>
             @foreach(\App\Models\Contrat::TYPES_BAIL as $val => $label)
                 <option value="{{ $val }}" @selected(request('type_bail') === $val)>{{ $label }}</option>
             @endforeach
         </select>
+
         <button type="submit"
-                style="padding:8px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif">
+                class="px-4 py-2 bg-[var(--ac)] text-white font-display font-bold text-sm
+                       rounded-[9px] hover:opacity-90 transition-opacity duration-150">
             Rechercher
         </button>
+
         @if(request()->hasAny(['q','statut','type_bail']))
-            <a href="{{ route('admin.contrats.index') }}"
-               style="padding:8px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#6b7280;text-decoration:none;background:#fff">
-                Effacer
-            </a>
+        <a href="{{ route('admin.contrats.index') }}"
+           class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                  font-body text-sm text-bimo-navy/50 hover:text-bimo-navy hover:border-bimo-navy/30
+                  transition-all duration-150">
+            Effacer
+        </a>
         @endif
     </form>
 
-    {{-- Table --}}
-    <div class="table-card">
-        @if($contrats->isEmpty())
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <svg style="width:22px;height:22px;color:#8a6e2f" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    {{-- ═══ CONTENU ═══ --}}
+    @if($contrats->isEmpty())
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
+        <div class="w-12 h-12 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[12px] flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+        </div>
+        <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun contrat trouvé</div>
+        <p class="font-body text-sm text-bimo-navy/50 mb-5">
+            @if(request()->hasAny(['q','statut','type_bail']))
+                Aucun résultat pour ces filtres.
+            @else
+                Créez votre premier contrat de bail.
+            @endif
+        </p>
+        <a href="{{ route('admin.contrats.create') }}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
+                  font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
+            + Nouveau contrat
+        </a>
+    </div>
+
+    @else
+
+    {{-- Mobile : cards --}}
+    <div class="md:hidden space-y-3">
+        @foreach($contrats as $contrat)
+        @php
+            $badgeClass = match($contrat->statut) {
+                'actif'   => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
+                'resilié' => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
+                default   => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/60',
+            };
+        @endphp
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-3 bg-bimo-bg2 border-b border-bimo-navy/[5%]">
+                <div class="flex items-center gap-2">
+                    <span class="font-body text-[10px] text-bimo-navy/40 uppercase tracking-widest">{{ $contrat->reference_bail_affichee }}</span>
+                    <button onclick="copyRef('{{ $contrat->reference_bail_affichee }}', this)"
+                            class="w-5 h-5 flex items-center justify-center border border-bimo-navy/15 rounded-[4px] text-bimo-navy/30 hover:text-bimo-navy transition-all duration-150">
+                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    </button>
                 </div>
-                <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:6px">Aucun contrat trouvé</div>
-                <div style="font-size:13px;color:#6b7280;margin-bottom:16px">
-                    @if(request()->hasAny(['q','statut','type_bail']))
-                        Aucun résultat pour ces filtres.
-                    @else
-                        Créez votre premier contrat de bail.
-                    @endif
-                </div>
-                <a href="{{ route('admin.contrats.create') }}"
-                   class="btn-primary">
-                    + Nouveau contrat
-                </a>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-body font-medium {{ $badgeClass }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    {{ \App\Models\Contrat::STATUTS[$contrat->statut] ?? $contrat->statut }}
+                </span>
             </div>
-        @else
-        <div style="overflow-x:auto">
-            <table class="dt">
+            <div class="px-4 py-3.5 space-y-2.5">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <div class="font-body font-semibold text-sm text-bimo-navy">{{ $contrat->locataire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->bien?->reference ?? '—' }} · {{ $contrat->bien?->ville }}</div>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <div class="font-display font-bold text-base text-bimo-gold">{{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} F</div>
+                        <div class="font-body text-[10px] text-bimo-navy/40 mt-0.5">
+                            {{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2 border-t border-bimo-navy/[5%]">
+                    <div class="font-body text-xs text-bimo-navy/50">
+                        {{ $contrat->date_debut?->format('d/m/Y') }} →
+                        {{ $contrat->date_fin?->format('d/m/Y') ?? 'Ouvert' }}
+                        @if($contrat->date_fin && $contrat->statut === 'actif')
+                            @php $jr = now()->diffInDays($contrat->date_fin, false); @endphp
+                            @if($jr <= 30 && $jr >= 0)
+                                <span class="text-bimo-gold font-semibold ml-1">⚠ {{ $jr }}j</span>
+                            @endif
+                        @endif
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <a href="{{ route('admin.contrats.show', $contrat) }}"
+                           class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-bimo-bg border border-bimo-navy/10 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:text-bimo-navy transition-all duration-150">
+                            Voir
+                        </a>
+                        @if($contrat->statut === 'actif')
+                        <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}"
+                           class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px] font-body text-xs text-bimo-gold hover:bg-bimo-gold/20 transition-all duration-150">
+                            + Paiement
+                        </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    {{-- Desktop : table --}}
+    <div class="hidden md:block bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm" data-sort-id="contrats-table">
                 <thead>
-                    <tr>
-                        <th data-sort="0">Référence</th>
-                        <th data-sort="1">Bien</th>
-                        <th data-sort="2">Locataire</th>
-                        <th>Type bail</th>
-                        <th data-sort="4" data-sort-type="date">Début</th>
-                        <th data-sort="5" data-sort-type="date">Fin</th>
-                        <th data-sort="6" data-sort-type="num" style="text-align:right">Loyer</th>
-                        <th style="text-align:center">Statut</th>
-                        <th style="text-align:center">Actions</th>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 cursor-pointer" data-sort="0">Référence</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 cursor-pointer" data-sort="1">Bien</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 cursor-pointer" data-sort="2">Locataire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Type bail</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 cursor-pointer" data-sort="4" data-sort-type="date">Début</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 cursor-pointer" data-sort="5" data-sort-type="date">Fin</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 cursor-pointer" data-sort="6" data-sort-type="num">Loyer</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Statut</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
                     @foreach($contrats as $contrat)
-                    <tr>
-                        <td style="white-space:nowrap">
-                            <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:#9ca3af">{{ $contrat->reference_bail_affichee }}</span>
-                            <button onclick="copyRef('{{ $contrat->reference_bail_affichee }}', this)"
-                                    style="margin-left:4px;background:none;border:1px solid #e8e3d8;border-radius:5px;cursor:pointer;padding:2px 5px;vertical-align:middle;display:inline-flex;align-items:center"
-                                    title="Copier la référence">
-                                <svg style="width:11px;height:11px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                            </button>
+                    @php
+                        $badgeClass = match($contrat->statut) {
+                            'actif'   => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
+                            'resilié' => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
+                            default   => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/60',
+                        };
+                    @endphp
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+
+                        {{-- Référence --}}
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-body text-[11px] text-bimo-navy/40 uppercase tracking-widest">{{ $contrat->reference_bail_affichee }}</span>
+                                <button onclick="copyRef('{{ $contrat->reference_bail_affichee }}', this)"
+                                        class="w-5 h-5 flex items-center justify-center border border-bimo-navy/10 rounded-[4px] text-bimo-navy/30 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                                    <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                                </button>
+                            </div>
                         </td>
-                        <td>
-                            <div style="font-weight:500;font-size:13px;color:#0d1117">{{ $contrat->bien?->reference ?? '—' }}</div>
-                            <div style="font-size:11px;color:#6b7280">{{ $contrat->bien?->ville }}</div>
+
+                        {{-- Bien --}}
+                        <td class="px-5 py-3.5">
+                            <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->bien?->reference ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->bien?->ville }}</div>
                         </td>
-                        <td>
-                            <div style="font-size:13px;color:#0d1117">{{ $contrat->locataire?->name ?? '—' }}</div>
-                            <div style="font-size:11px;color:#6b7280">{{ $contrat->locataire?->email }}</div>
+
+                        {{-- Locataire --}}
+                        <td class="px-5 py-3.5">
+                            <div class="font-body text-sm text-bimo-navy">{{ $contrat->locataire?->name ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->locataire?->email }}</div>
                         </td>
-                        <td>
-                            <span class="badge badge-bail">
+
+                        {{-- Type bail --}}
+                        <td class="px-5 py-3.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/60">
                                 {{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}
                             </span>
                         </td>
-                        <td style="font-size:12px">{{ $contrat->date_debut?->format('d/m/Y') }}</td>
-                        <td style="font-size:12px">
+
+                        {{-- Début --}}
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">
+                            {{ $contrat->date_debut?->format('d/m/Y') }}
+                        </td>
+
+                        {{-- Fin --}}
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">
                             {{ $contrat->date_fin?->format('d/m/Y') ?? 'Ouvert' }}
                             @if($contrat->date_fin && $contrat->statut === 'actif')
                                 @php $jr = now()->diffInDays($contrat->date_fin, false); @endphp
                                 @if($jr <= 30 && $jr >= 0)
-                                    <div style="font-size:10px;color:#d97706;font-weight:600">⚠ {{ $jr }}j restants</div>
+                                    <div class="font-body text-[10px] text-bimo-gold font-semibold mt-0.5">⚠ {{ $jr }}j restants</div>
                                 @endif
                             @endif
                         </td>
-                        <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:600;color:#0d1117">
+
+                        {{-- Loyer --}}
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">
                             {{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} F
                         </td>
-                        <td style="text-align:center">
-                            <span class="badge badge-{{ $contrat->statut }}">
-                                <span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>
+
+                        {{-- Statut --}}
+                        <td class="px-5 py-3.5 text-center">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-body font-medium {{ $badgeClass }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                                 {{ \App\Models\Contrat::STATUTS[$contrat->statut] ?? $contrat->statut }}
                             </span>
                         </td>
-                        <td>
-                            <div style="display:flex;align-items:center;justify-content:center;gap:4px">
-                                <a href="{{ route('admin.contrats.show', $contrat) }}" class="act-btn" title="Voir">
-                                    <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+
+                        {{-- Actions --}}
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <a href="{{ route('admin.contrats.show', $contrat) }}"
+                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"
+                                   title="Voir">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                <a href="{{ route('admin.contrats.bail-pdf', $contrat) }}" target="_blank" class="act-btn" title="Télécharger le bail PDF" style="color:#1d4ed8;border-color:#bfdbfe;background:#dbeafe">
-                                    <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                <a href="{{ route('admin.contrats.bail-pdf', $contrat) }}" target="_blank"
+                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150"
+                                   title="Bail PDF">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                                 </a>
                                 @if($contrat->statut === 'actif')
-                                <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}" class="act-btn primary" title="Enregistrer un paiement">
-                                    <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}"
+                                   class="w-7 h-7 flex items-center justify-center bg-bimo-navy border border-bimo-navy rounded-[6px] text-white hover:bg-bimo-navy-dk transition-all duration-150"
+                                   title="Enregistrer un paiement">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 </a>
-                                <a href="{{ route('admin.contrats.edit', $contrat) }}" class="act-btn" title="Modifier">
-                                    <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <a href="{{ route('admin.contrats.edit', $contrat) }}"
+                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"
+                                   title="Modifier">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </a>
                                 <form method="POST" action="{{ route('admin.contrats.destroy', $contrat) }}"
                                       data-confirm="Le contrat {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }} sera résilié et le bien repassera en Disponible."
                                       data-confirm-title="Résilier ce contrat ?"
                                       data-confirm-ok="Oui, résilier">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="act-btn danger" title="Résilier">
-                                        <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                                    <button type="submit"
+                                            class="w-7 h-7 flex items-center justify-center border border-bimo-red/20 rounded-[6px] text-bimo-red/60 hover:text-bimo-red hover:border-bimo-red/40 hover:bg-bimo-red/5 transition-all duration-150"
+                                            title="Résilier">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                                     </button>
                                 </form>
                                 @endif
@@ -193,31 +316,35 @@
 
         {{-- Pagination --}}
         @if($contrats->hasPages())
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid #f3f4f6">
-            <div style="font-size:12px;color:#6b7280">
+        <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%] bg-bimo-bg">
+            <span class="font-body text-xs text-bimo-navy/40">
                 {{ $contrats->firstItem() }}–{{ $contrats->lastItem() }} sur {{ $contrats->total() }}
-            </div>
-            <div style="display:flex;gap:4px">
+            </span>
+            <div class="flex items-center gap-1">
                 @if(!$contrats->onFirstPage())
-                    <a href="{{ $contrats->previousPageUrl() }}" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid #e5e7eb;border-radius:7px;color:#6b7280;text-decoration:none">
-                        <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                    </a>
+                <a href="{{ $contrats->previousPageUrl() }}"
+                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </a>
                 @endif
                 @foreach($contrats->getUrlRange(max(1,$contrats->currentPage()-2), min($contrats->lastPage(),$contrats->currentPage()+2)) as $page => $url)
-                    <a href="{{ $url }}" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid {{ $page===$contrats->currentPage() ? '#0d1117':'#e5e7eb' }};border-radius:7px;font-size:12px;color:{{ $page===$contrats->currentPage() ? '#fff':'#374151' }};background:{{ $page===$contrats->currentPage() ? '#0d1117':'#fff' }};text-decoration:none">
-                        {{ $page }}
-                    </a>
+                <a href="{{ $url }}"
+                   class="w-7 h-7 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150
+                          {{ $page === $contrats->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30' }}">
+                    {{ $page }}
+                </a>
                 @endforeach
                 @if($contrats->hasMorePages())
-                    <a href="{{ $contrats->nextPageUrl() }}" style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid #e5e7eb;border-radius:7px;color:#6b7280;text-decoration:none">
-                        <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                    </a>
+                <a href="{{ $contrats->nextPageUrl() }}"
+                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
                 @endif
             </div>
         </div>
         @endif
-        @endif
     </div>
+    @endif
 
 </div>
 @endsection

@@ -1,132 +1,62 @@
 @extends('layouts.app')
-@section('title', 'Contrat — ' . ($contrat->reference_bail ?? 'Détail'))
-@section('breadcrumb', 'Contrats › Détail')
+@section('header', 'Contrats › ' . ($contrat->reference_bail ?? 'Détail'))
 
 @section('content')
-<style>
-.page-grid { display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start; }
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
-.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.card-hd-left { display:flex;align-items:center;gap:10px; }
-.card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.card-icon svg { width:15px;height:15px; }
-.card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
-.card-icon.blue   { background:#dbeafe;color:#1d4ed8; }
-.card-icon.green  { background:#dcfce7;color:#16a34a; }
-.card-icon.purple { background:#ede9fe;color:#7c3aed; }
-.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
-.card-body { padding:18px 20px; }
-.il { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:4px; }
-.iv { font-size:13px;font-weight:500;color:#0d1117; }
-.iv-sub { font-size:11px;color:#6b7280;margin-top:2px; }
-.info-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
-.info-grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
-
-/* Actions */
-.actions-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
-.btn-act { display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s;border:none; }
-.btn-dark    { background:#0d1117;color:#fff; }
-.btn-dark:hover { opacity:.85; }
-.btn-green   { background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0; }
-.btn-green:hover { background:#bbf7d0; }
-.btn-outline { background:#fff;color:#374151;border:1px solid #e5e7eb; }
-.btn-outline:hover { border-color:#c9a84c;color:#8a6e2f; }
-.btn-red     { background:#fee2e2;color:#dc2626;border:1px solid #fecaca; }
-.btn-red:hover { background:#fecaca; }
-.btn-act svg { width:14px;height:14px; }
-
-/* Badges */
-.badge { display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600; }
-.badge-actif   { background:#dcfce7;color:#16a34a; }
-.badge-resilié { background:#fee2e2;color:#dc2626; }
-.badge-expiré  { background:#f3f4f6;color:#6b7280; }
-.bdot { width:5px;height:5px;border-radius:50%;background:currentColor; }
-
-/* Hero */
-.hero { background:linear-gradient(135deg,#0d1117 0%,#1c2333 100%);border-radius:14px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px; }
-.hero-ref { font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,.4);margin-bottom:6px; }
-.hero-bien { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-.3px;margin-bottom:4px; }
-.hero-sub { font-size:13px;color:rgba(255,255,255,.5); }
-.hero-loyer { text-align:right; }
-.hero-loyer-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
-.hero-loyer-val { font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#c9a84c; }
-.hero-loyer-sub { font-size:11px;color:rgba(255,255,255,.35);margin-top:3px; }
-
-/* KPIs */
-.kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px; }
-.kpi-mini { background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px; }
-.kpi-mini-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:5px; }
-.kpi-mini-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117; }
-
-/* Table paiements */
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-.dt td { padding:11px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#fafafa; }
-
-/* Sidebar sticky */
-.sidebar-sticky { position:sticky;top:24px; }
-.side-card { background:#0d1117;border-radius:14px;overflow:hidden;margin-bottom:14px; }
-.side-hd { padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.07); }
-.side-title { font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#fff; }
-.side-body { padding:14px 16px; }
-.side-row { display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px; }
-.side-row:last-child { border-bottom:none; }
-.side-lbl { color:rgba(255,255,255,.4); }
-.side-val { color:#e6edf3;font-weight:500; }
-.side-val.gold { color:#c9a84c; }
-.next-period { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:9px;padding:12px 14px;margin-top:12px; }
-.next-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px; }
-.next-val { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#c9a84c; }
-@media(max-width:1024px){.page-grid{grid-template-columns:1fr}}
-</style>
-
-<div style="padding:0 0 48px">
+<div class="space-y-4 md:space-y-5">
 
     {{-- Breadcrumb --}}
-    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:16px">
-        <a href="{{ route('admin.contrats.index') }}" style="color:#6b7280;text-decoration:none">Contrats</a>
-        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span style="color:#0d1117;font-weight:500">{{ $contrat->reference_bail ?? 'Contrat #'.$contrat->id }}</span>
+    <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
+        <a href="{{ route('admin.contrats.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Contrats</a>
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="text-bimo-navy font-medium">{{ $contrat->reference_bail ?? 'Contrat #'.$contrat->id }}</span>
     </div>
 
     {{-- Actions --}}
-    <div class="actions-bar">
+    <div class="flex flex-wrap gap-2">
         @if($contrat->statut === 'actif')
-        <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}" class="btn-act btn-green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/25 text-bimo-gold
+                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Enregistrer un paiement
         </a>
-        <a href="{{ route('admin.contrats.edit', $contrat) }}" class="btn-act btn-dark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <a href="{{ route('admin.contrats.edit', $contrat) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white
+                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Modifier
         </a>
         @endif
         @if(in_array($contrat->statut, ['actif', 'expiré']))
         <a href="{{ route('admin.contrats.create', ['from_contrat' => $contrat->id]) }}"
-           class="btn-act"
-           style="background:#ede9fe;color:#7c3aed;border:1px solid #ddd6fe">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy/5 border border-bimo-navy/15 text-bimo-navy/70
+                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
             Renouveler
         </a>
         @endif
-        <a href="{{ route('admin.biens.show', $contrat->bien) }}" class="btn-act btn-outline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        <a href="{{ route('admin.biens.show', $contrat->bien) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
             Voir le bien
         </a>
         <a href="{{ route('admin.contrats.bail-pdf', $contrat) }}" target="_blank"
-           class="btn-act" style="background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Bail PDF
         </a>
         <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" target="_blank"
-           class="btn-act" style="background:#f5e9c9;color:#8a6e2f;border:1px solid rgba(201,168,76,.4)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold
+                  font-body text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             Bail formel PDF
         </a>
-        <a href="{{ route('admin.contrats.index') }}" class="btn-act btn-outline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        <a href="{{ route('admin.contrats.index') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Retour
         </a>
         @if($contrat->statut === 'actif')
@@ -135,8 +65,10 @@
               data-confirm-title="Résilier ce contrat ?"
               data-confirm-ok="Oui, résilier">
             @csrf @method('DELETE')
-            <button type="submit" class="btn-act btn-red">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-red/10 border border-bimo-red/20 text-bimo-red
+                           font-body text-sm rounded-[10px] hover:bg-bimo-red/20 transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                 Résilier
             </button>
         </form>
@@ -144,32 +76,47 @@
     </div>
 
     {{-- Hero --}}
-    <div class="hero">
-        <div>
-            <div class="hero-ref">{{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}</div>
-            <div class="hero-bien">
+    @php
+        $badgeClass = match($contrat->statut) {
+            'actif'   => 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold',
+            'resilié' => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
+            default   => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/60',
+        };
+    @endphp
+    <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
+             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)">
+        </div>
+        <div class="relative z-10">
+            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/30 mb-2">
+                {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}
+            </div>
+            <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
                 {{ \App\Models\Bien::TYPES[$contrat->bien?->type] ?? '' }}
                 — {{ $contrat->bien?->adresse }}
             </div>
-            <div class="hero-sub">
+            <div class="font-body text-sm text-white/50 mb-3">
                 {{ $contrat->bien?->quartier ? $contrat->bien->quartier.', ' : '' }}
                 {{ $contrat->bien?->ville }}
                 · Réf. {{ $contrat->bien?->reference }}
             </div>
-            <div style="margin-top:10px">
-                <span class="badge badge-{{ $contrat->statut }}">
-                    <span class="bdot"></span>
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-body font-medium {{ $badgeClass }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                     {{ \App\Models\Contrat::STATUTS[$contrat->statut] ?? $contrat->statut }}
                 </span>
-                <span class="badge" style="background:rgba(201,168,76,.15);color:#c9a84c;margin-left:6px">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full border border-bimo-gold/25 bg-bimo-gold/10 text-xs font-body font-medium text-bimo-gold">
                     {{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}
                 </span>
             </div>
         </div>
-        <div class="hero-loyer">
-            <div class="hero-loyer-lbl">Loyer contractuel</div>
-            <div class="hero-loyer-val">{{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} F</div>
-            <div class="hero-loyer-sub">
+        <div class="relative z-10 text-right flex-shrink-0">
+            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-1">Loyer contractuel</div>
+            <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
+                {{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }}
+                <span class="font-body font-normal text-base text-bimo-gold/40">F</span>
+            </div>
+            <div class="font-body text-xs text-white/30 mt-1">
                 {{ $contrat->date_debut?->format('d/m/Y') }}
                 → {{ $contrat->date_fin?->format('d/m/Y') ?? 'Contrat ouvert' }}
             </div>
@@ -177,210 +124,211 @@
     </div>
 
     {{-- KPIs --}}
-    <div class="kpi-row">
-        <div class="kpi-mini">
-            <div class="kpi-mini-lbl">Total encaissé</div>
-            <div class="kpi-mini-val" style="color:#c9a84c">
-                {{ number_format($totalPaye, 0, ',', ' ') }}<span style="font-size:12px;color:#9ca3af"> F</span>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Total encaissé</div>
+            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
+                {{ number_format($totalPaye, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-gold/50"> F</span>
             </div>
         </div>
-        <div class="kpi-mini">
-            <div class="kpi-mini-lbl">Net propriétaire</div>
-            <div class="kpi-mini-val" style="color:#16a34a">
-                {{ number_format($totalNet, 0, ',', ' ') }}<span style="font-size:12px;color:#9ca3af"> F</span>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Net propriétaire</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">
+                {{ number_format($totalNet, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-navy/40"> F</span>
             </div>
         </div>
-        <div class="kpi-mini">
-            <div class="kpi-mini-lbl">Paiements</div>
-            <div class="kpi-mini-val">{{ $nbPaiements }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Paiements</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ $nbPaiements }}</div>
         </div>
-        <div class="kpi-mini">
-            <div class="kpi-mini-lbl">Caution versée</div>
-            <div class="kpi-mini-val">
-                {{ number_format($contrat->caution, 0, ',', ' ') }}<span style="font-size:12px;color:#9ca3af"> F</span>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Caution versée</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">
+                {{ number_format($contrat->caution, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-navy/40"> F</span>
             </div>
         </div>
     </div>
 
-    <div class="page-grid">
+    {{-- Grid principale --}}
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
 
-        {{-- ═══ COLONNE GAUCHE ═══ --}}
-        <div>
+        {{-- COLONNE GAUCHE --}}
+        <div class="space-y-4">
 
-            {{-- PARTIES --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon gold">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                        </div>
-                        <div class="card-title">Parties au contrat</div>
+            {{-- Parties --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                     </div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Parties au contrat</span>
                 </div>
-                <div class="card-body">
-                    <div class="info-grid">
-                        <div>
-                            <div class="il">Locataire</div>
-                            <div class="iv">{{ $contrat->locataire?->name ?? '—' }}</div>
-                            <div class="iv-sub">{{ $contrat->locataire?->email }}</div>
-                            <div class="iv-sub">{{ $contrat->locataire?->telephone ?? '' }}</div>
-                        </div>
-                        <div>
-                            <div class="il">Propriétaire</div>
-                            <div class="iv">{{ $contrat->bien?->proprietaire?->name ?? '—' }}</div>
-                            <div class="iv-sub">{{ $contrat->bien?->proprietaire?->email }}</div>
-                            <div class="iv-sub">{{ $contrat->bien?->proprietaire?->telephone ?? '' }}</div>
-                        </div>
+                <div class="px-5 py-5 grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Locataire</div>
+                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->locataire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->locataire?->email }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->locataire?->telephone ?? '' }}</div>
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Propriétaire</div>
+                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->bien?->proprietaire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->bien?->proprietaire?->email }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->bien?->proprietaire?->telephone ?? '' }}</div>
                     </div>
                 </div>
             </div>
 
-            {{-- LOYER --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon gold">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                        </div>
-                        <div class="card-title">Ventilation du loyer</div>
+            {{-- Loyer --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     </div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Ventilation du loyer</span>
                 </div>
-                <div class="card-body">
-                    <div class="info-grid-3">
-                        <div>
-                            <div class="il">Loyer nu</div>
-                            <div class="iv">{{ number_format($contrat->loyer_nu, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Charges</div>
-                            <div class="iv">{{ number_format($contrat->charges_mensuelles ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">TOM</div>
-                            <div class="iv">{{ number_format($contrat->tom_amount ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Loyer contractuel</div>
-                            <div class="iv" style="color:#c9a84c;font-weight:700">{{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Caution</div>
-                            <div class="iv">{{ number_format($contrat->caution, 0, ',', ' ') }} F</div>
-                        </div>
-                        <div>
-                            <div class="il">Frais agence</div>
-                            <div class="iv">{{ number_format($contrat->frais_agence ?? 0, 0, ',', ' ') }} F</div>
-                        </div>
+                <div class="px-5 py-5 grid grid-cols-2 md:grid-cols-3 gap-4">
+                    @php
+                        $loyerRows = [
+                            ['Loyer nu',           number_format($contrat->loyer_nu, 0, ',', ' ') . ' F', ''],
+                            ['Charges',            number_format($contrat->charges_mensuelles ?? 0, 0, ',', ' ') . ' F', ''],
+                            ['TOM',                number_format($contrat->tom_amount ?? 0, 0, ',', ' ') . ' F', ''],
+                            ['Loyer contractuel',  number_format($contrat->loyer_contractuel, 0, ',', ' ') . ' F', 'text-bimo-gold font-bold'],
+                            ['Caution',            number_format($contrat->caution, 0, ',', ' ') . ' F', ''],
+                            ['Frais agence',       number_format($contrat->frais_agence ?? 0, 0, ',', ' ') . ' F', ''],
+                        ];
+                    @endphp
+                    @foreach($loyerRows as [$lbl, $val, $cls])
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">{{ $lbl }}</div>
+                        <div class="font-body font-medium text-sm text-bimo-navy {{ $cls }}">{{ $val }}</div>
                     </div>
+                    @endforeach
                 </div>
             </div>
 
-            {{-- GARANT --}}
+            {{-- Garant --}}
             @if($contrat->garant_nom)
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                        <div class="card-title">Garant</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Garant</span>
                 </div>
-                <div class="card-body">
-                    <div class="info-grid">
-                        <div>
-                            <div class="il">Nom</div>
-                            <div class="iv">{{ $contrat->garant_nom }}</div>
-                            <div class="iv-sub">{{ $contrat->garant_telephone ?? '' }}</div>
-                            @if($contrat->garant_cni)
-                            <div class="iv-sub" style="margin-top:4px">CNI : {{ $contrat->garant_cni }}</div>
-                            @endif
-                        </div>
-                        <div>
-                            <div class="il">Adresse</div>
-                            <div class="iv">{{ $contrat->garant_adresse ?? '—' }}</div>
-                        </div>
+                <div class="px-5 py-5 grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Nom</div>
+                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->garant_nom }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $contrat->garant_telephone ?? '' }}</div>
+                        @if($contrat->garant_cni)
+                        <div class="font-body text-xs text-bimo-navy/50 mt-1">CNI : {{ $contrat->garant_cni }}</div>
+                        @endif
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Adresse</div>
+                        <div class="font-body text-sm text-bimo-navy">{{ $contrat->garant_adresse ?? '—' }}</div>
                     </div>
                 </div>
             </div>
             @endif
 
-            {{-- PAIEMENTS --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            {{-- Paiements --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                         </div>
-                        <div class="card-title">Historique des paiements</div>
+                        <span class="font-display font-bold text-sm text-bimo-navy">Historique des paiements</span>
                     </div>
                     @if($contrat->statut === 'actif')
                     <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}"
-                       style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none">
-                        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Ajouter
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px]
+                              font-body font-medium text-xs text-bimo-gold hover:bg-bimo-gold/20 transition-all duration-150">
+                        + Ajouter
                     </a>
                     @endif
                 </div>
 
                 @if($paiements->isEmpty())
-                <div style="padding:32px;text-align:center;color:#9ca3af;font-size:13px">
+                <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">
                     Aucun paiement enregistré pour ce contrat.
                 </div>
                 @else
-                <div style="overflow-x:auto">
-                    <table class="dt">
+
+                {{-- Mobile --}}
+                <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+                    @foreach($paiements as $p)
+                    <div class="px-5 py-3.5 flex items-center justify-between gap-3">
+                        <div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
+                                {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
+                            </span>
+                            <div class="font-body text-xs text-bimo-navy/40 mt-1">
+                                {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</div>
+                            <div class="font-body text-xs text-bimo-navy/40">Net: {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F</div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                {{-- Desktop --}}
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-sm">
                         <thead>
-                            <tr>
-                                <th>Période</th>
-                                <th>Date paiement</th>
-                                <th style="text-align:right">Montant</th>
-                                <th style="text-align:right">Net proprio</th>
-                                <th style="text-align:right">Commission</th>
-                                <th>Mode</th>
-                                <th style="text-align:center">Statut</th>
-                                <th style="text-align:center">PDF</th>
+                            <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Période</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Date</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Montant</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net proprio</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Commission</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Mode</th>
+                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Statut</th>
+                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">PDF</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-bimo-navy/[5%]">
                             @foreach($paiements as $p)
-                            <tr>
-                                <td style="font-family:'Syne',sans-serif;font-size:12px;font-weight:600">
-                                    {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
+                            @php
+                                $pBadge = match($p->statut) {
+                                    'valide'  => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
+                                    'annulé'  => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
+                                    default   => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/60',
+                                };
+                            @endphp
+                            <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                                <td class="px-5 py-3.5">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
+                                        {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
+                                    </span>
                                 </td>
-                                <td style="font-size:12px;color:#6b7280">
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/50">
                                     {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
                                 </td>
-                                <td style="text-align:right;font-weight:600;color:#0d1117">
+                                <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">
                                     {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
                                 </td>
-                                <td style="text-align:right;color:#16a34a;font-weight:600">
+                                <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy">
                                     {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
                                 </td>
-                                <td style="text-align:right;color:#8a6e2f">
+                                <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-navy/50">
                                     {{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F
                                 </td>
-                                <td style="font-size:12px;color:#6b7280">
-                                    {{ $p->mode_paiement ?? '—' }}
-                                </td>
-                                <td style="text-align:center">
-                                    @php
-                                        $bs = match($p->statut) {
-                                            'valide'  => 'background:#dcfce7;color:#16a34a',
-                                            'annulé'  => 'background:#fee2e2;color:#dc2626',
-                                            default   => 'background:#f3f4f6;color:#6b7280',
-                                        };
-                                    @endphp
-                                    <span style="display:inline-flex;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;{{ $bs }}">
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/50">{{ $p->mode_paiement ?? '—' }}</td>
+                                <td class="px-5 py-3.5 text-center">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-[11px] font-body font-medium {{ $pBadge }}">
                                         {{ ucfirst($p->statut) }}
                                     </span>
                                 </td>
-                                <td style="text-align:center">
+                                <td class="px-5 py-3.5 text-center">
                                     <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                                       style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:1px solid #e5e7eb;border-radius:6px;color:#6b7280;text-decoration:none"
-                                       onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-                                       onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280'">
-                                        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                       class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </a>
                                 </td>
                             </tr>
@@ -391,121 +339,108 @@
                 @endif
             </div>
 
-            {{-- OBSERVATIONS --}}
+            {{-- Observations --}}
             @if($contrat->observations)
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        </div>
-                        <div class="card-title">Observations</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     </div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Observations</span>
                 </div>
-                <div class="card-body">
-                    <p style="font-size:13px;color:#374151;line-height:1.6">{{ $contrat->observations }}</p>
+                <div class="px-5 py-5">
+                    <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">{{ $contrat->observations }}</p>
                 </div>
             </div>
             @endif
 
-            {{-- CLAUSES PARTICULIÈRES --}}
+            {{-- Clauses particulières --}}
             @if($contrat->clauses_particulieres)
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-                        </div>
-                        <div class="card-title">Clauses particulières</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
                     </div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Clauses particulières</span>
                 </div>
-                <div class="card-body">
-                    <p style="font-size:13px;color:#374151;line-height:1.6;white-space:pre-wrap">{{ $contrat->clauses_particulieres }}</p>
+                <div class="px-5 py-5">
+                    <p class="font-body text-sm text-bimo-navy/70 leading-relaxed whitespace-pre-wrap">{{ $contrat->clauses_particulieres }}</p>
                 </div>
             </div>
             @endif
 
         </div>{{-- fin col gauche --}}
 
-        {{-- ═══ COLONNE DROITE ═══ --}}
-        <div class="sidebar-sticky">
+        {{-- COLONNE DROITE --}}
+        <div class="lg:sticky lg:top-6 space-y-4">
 
             {{-- Infos contrat --}}
-            <div class="side-card">
-                <div class="side-hd"><div class="side-title">Informations</div></div>
-                <div class="side-body">
-                    <div class="side-row">
-                        <span class="side-lbl">Référence</span>
-                        <span class="side-val" style="font-family:'Syne',sans-serif;font-size:11px">
-                            {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}
-                        </span>
+            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/[7%]">
+                    <div class="font-display font-bold text-sm text-white">Informations</div>
+                </div>
+                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                    @php
+                        $sideRows = [
+                            ['Référence',      $contrat->reference_bail ?? 'BAIL-'.$contrat->id, 'font-display text-xs'],
+                            ['Type bail',      \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail, ''],
+                            ['Début',          $contrat->date_debut?->format('d/m/Y') ?? '—', ''],
+                            ['Fin',            $contrat->date_fin?->format('d/m/Y') ?? 'Ouvert', ''],
+                            ['Caution',        ($contrat->nombre_mois_caution ?? 1) . ' mois', ''],
+                            ['Indexation',     ($contrat->indexation_annuelle ?? 0) . ' %/an', ''],
+                            ['Créé le',        $contrat->created_at?->format('d/m/Y') ?? '—', ''],
+                        ];
+                    @endphp
+                    @foreach($sideRows as [$lbl, $val, $cls])
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
                     </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Type bail</span>
-                        <span class="side-val">{{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Début</span>
-                        <span class="side-val">{{ $contrat->date_debut?->format('d/m/Y') }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Fin</span>
-                        <span class="side-val">{{ $contrat->date_fin?->format('d/m/Y') ?? 'Ouvert' }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Nb mois caution</span>
-                        <span class="side-val">{{ $contrat->nombre_mois_caution ?? 1 }} mois</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Indexation</span>
-                        <span class="side-val">{{ $contrat->indexation_annuelle ?? 0 }} %/an</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Créé le</span>
-                        <span class="side-val">{{ $contrat->created_at?->format('d/m/Y') }}</span>
-                    </div>
+                    @endforeach
 
                     @if($contrat->statut === 'actif')
-                    <div class="next-period">
-                        <div class="next-lbl">Prochaine période</div>
-                        <div class="next-val">
-                            {{ $prochainePeriode?->translatedFormat('F Y') ?? '—' }}
+                    <div class="py-3">
+                        <div class="p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
+                            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Prochaine période</div>
+                            <div class="font-display font-bold text-base text-bimo-gold">
+                                {{ $prochainePeriode?->translatedFormat('F Y') ?? '—' }}
+                            </div>
                         </div>
                     </div>
                     @endif
                 </div>
             </div>
 
-            {{-- Bien --}}
-            <div class="side-card">
-                <div class="side-hd"><div class="side-title">Le bien</div></div>
-                <div class="side-body">
-                    <div class="side-row">
-                        <span class="side-lbl">Référence</span>
-                        <span class="side-val">{{ $contrat->bien?->reference }}</span>
+            {{-- Le bien --}}
+            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/[7%]">
+                    <div class="font-display font-bold text-sm text-white">Le bien</div>
+                </div>
+                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                    @foreach([
+                        ['Référence', $contrat->bien?->reference ?? '—'],
+                        ['Type',      \App\Models\Bien::TYPES[$contrat->bien?->type] ?? '—'],
+                        ['Adresse',   $contrat->bien?->adresse ?? '—'],
+                        ['Ville',     $contrat->bien?->ville ?? '—'],
+                    ] as [$lbl, $val])
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs text-white/70">{{ $val }}</span>
                     </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Type</span>
-                        <span class="side-val">{{ \App\Models\Bien::TYPES[$contrat->bien?->type] ?? '—' }}</span>
+                    @endforeach
+                    <div class="py-3">
+                        <a href="{{ route('admin.biens.show', $contrat->bien) }}"
+                           class="flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 rounded-[9px]
+                                  font-body text-xs text-bimo-gold hover:text-white hover:border-white/20 transition-all duration-150">
+                            Voir le bien →
+                        </a>
                     </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Adresse</span>
-                        <span class="side-val" style="font-size:11px">{{ $contrat->bien?->adresse }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Ville</span>
-                        <span class="side-val">{{ $contrat->bien?->ville }}</span>
-                    </div>
-                    <a href="{{ route('admin.biens.show', $contrat->bien) }}"
-                       style="display:flex;align-items:center;justify-content:center;gap:5px;margin-top:10px;padding:7px;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#c9a84c;font-size:12px;text-decoration:none">
-                        Voir le bien →
-                    </a>
                 </div>
             </div>
 
         </div>
 
-    </div>{{-- /page-grid --}}
+    </div>
 
 </div>
 @endsection
