@@ -1,147 +1,124 @@
-<x-app-layout>
-    <x-slot name="header">État trimestriel BRS — T{{ $trimestre }} {{ $annee }}</x-slot>
+@extends('layouts.app')
+@section('header', 'État trimestriel BRS — T'.$trimestre.' '.$annee)
 
-<style>
-.page-wrap { padding:24px 32px 48px; }
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden; }
-.dt  { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb;text-align:left; }
-.dt th.r { text-align:right; }
-.dt td { padding:11px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:top; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#fafafa; }
-.dt tfoot td { background:#f5e9c9;font-weight:700;padding:11px 16px;border-top:2px solid #c9a84c; }
-.dt tfoot td.r { text-align:right; }
-.dt td.r { text-align:right; font-family:'Syne',sans-serif;font-weight:600; }
-.warn-ninea { display:inline-flex;align-items:center;gap:4px;background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:2px 7px;font-size:10px;color:#c2410c;font-weight:600;margin-top:3px; }
-.brs-amt { font-family:'Syne',sans-serif;font-weight:600;color:#dc2626; }
-.net-amt { font-family:'Syne',sans-serif;font-weight:600;color:#374151; }
-.btn-pdf { display:inline-flex;align-items:center;gap:5px;padding:8px 16px;background:#0d1117;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;text-decoration:none; }
-.btn-csv { display:inline-flex;align-items:center;gap:5px;padding:8px 16px;background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;text-decoration:none; }
-.btn-back { display:inline-flex;align-items:center;gap:5px;padding:8px 16px;background:#f9fafb;color:#374151;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;text-decoration:none; }
-</style>
+@section('content')
 
-<div class="page-wrap">
+<div class="space-y-4">
 
-    {{-- En-tête + actions --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px">
+    {{-- Header --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <a href="{{ route('admin.etats-trimestriels.index') }}" class="btn-back" style="margin-bottom:10px;display:inline-flex">
-                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            <a href="{{ route('admin.etats-trimestriels.index') }}"
+               class="inline-flex items-center gap-1.5 font-body text-sm text-bimo-navy/40 hover:text-bimo-navy transition-colors duration-150 mb-2">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                 Retour
             </a>
-            <h1 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;letter-spacing:-.3px">
-                État trimestriel BRS — T{{ $trimestre }} {{ $annee }}
-            </h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                Art. 200 §5 CGI Sénégal · {{ $lignes->count() }} bailleur(s) concerné(s) ·
-                Date limite : <strong>{{ $dateLimite->translatedFormat('d F Y') }}</strong>
+            <h1 class="font-display font-extrabold text-xl text-bimo-navy tracking-tight">État trimestriel BRS — T{{ $trimestre }} {{ $annee }}</h1>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">
+                Art. 200 §5 CGI Sénégal · {{ $lignes->count() }} bailleur(s) concerné(s) · Date limite : <strong>{{ $dateLimite->translatedFormat('d F Y') }}</strong>
             </p>
         </div>
-        <div style="display:flex;gap:8px;flex-shrink:0">
-            <a href="{{ route('admin.etats-trimestriels.pdf', [$annee, $trimestre]) }}"
-               target="_blank" class="btn-pdf">
-                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <a href="{{ route('admin.etats-trimestriels.pdf', [$annee, $trimestre]) }}" target="_blank"
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Télécharger PDF
             </a>
             <a href="{{ route('admin.etats-trimestriels.csv', [$annee, $trimestre]) }}"
-               class="btn-csv">
-                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60 font-body text-sm rounded-[10px] hover:border-bimo-navy/30 hover:text-bimo-navy transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Télécharger CSV
             </a>
         </div>
     </div>
 
-    {{-- Avertissement global si NINEA manquants --}}
+    {{-- Alerte NINEA --}}
     @if($lignes->where('has_warning_ninea', true)->count() > 0)
-    <div style="background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f97316;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#92400e;line-height:1.7">
-        <strong>⚠ {{ $lignes->where('has_warning_ninea', true)->count() }} bailleur(s) sans NINEA</strong> —
-        Pour ces bailleurs, le CGI (Art. 200 §5) impose d'indiquer à la place : date et lieu de naissance + numéro de pièce d'identité.
-        Mettez à jour leur fiche avant le dépôt à la DGID.
+    <div class="flex items-start gap-2 bg-bimo-gold/[6%] border-l-4 border-bimo-gold border border-bimo-gold/20 rounded-r-[8px] px-4 py-3">
+        <svg class="w-4 h-4 text-bimo-gold flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p class="font-body text-sm text-bimo-gold/80">
+            <strong>⚠ {{ $lignes->where('has_warning_ninea', true)->count() }} bailleur(s) sans NINEA</strong> — Pour ces bailleurs, le CGI (Art. 200 §5) impose d'indiquer : date et lieu de naissance + numéro de pièce d'identité. Mettez à jour leur fiche avant le dépôt à la DGID.
+        </p>
     </div>
     @endif
 
-    {{-- Tableau principal --}}
-    <div class="card">
-        <div style="padding:14px 18px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0d1117">
-                Détail par bailleur — T{{ $trimestre }} {{ $annee }}
-            </div>
-            <div style="font-size:12px;color:#6b7280">{{ $lignes->count() }} bailleur(s)</div>
+    {{-- Table --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Détail par bailleur — T{{ $trimestre }} {{ $annee }}</span>
+            <span class="font-body text-xs text-bimo-navy/40">{{ $lignes->count() }} bailleur(s)</span>
         </div>
 
         @if($lignes->isEmpty())
-        <div style="padding:40px;text-align:center;color:#9ca3af;font-size:13px">
-            Aucun paiement avec BRS retenu sur ce trimestre.
-        </div>
+        <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucun paiement avec BRS retenu sur ce trimestre.</div>
         @else
-        <div style="overflow-x:auto">
-            <table class="dt">
+
+        {{-- Mobile --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+            @foreach($lignes as $ligne)
+            <div class="px-4 py-3.5">
+                <div class="flex items-start justify-between gap-2 mb-1.5">
+                    <div>
+                        <div class="font-body font-semibold text-sm text-bimo-navy">{{ $ligne['nom_complet'] }}</div>
+                        @if($ligne['ninea'])<div class="font-body text-xs text-bimo-navy/40" style="font-family:monospace">{{ $ligne['ninea'] }}</div>
+                        @else<span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded text-[10px] font-body font-semibold text-bimo-gold">⚠ NINEA manquant</span>@endif
+                    </div>
+                    <span class="font-display font-bold text-sm text-bimo-red flex-shrink-0">{{ number_format($ligne['brs_retenu'],0,',','') }} F</span>
+                </div>
+                <div class="font-body text-xs text-bimo-navy/40">{{ $ligne['periode_label'] }} · {{ $ligne['nb_paiements'] }} paiement(s)</div>
+            </div>
+            @endforeach
+        </div>
+
+        {{-- Desktop --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
                 <thead>
-                    <tr>
-                        <th>Bailleur</th>
-                        <th>NINEA / Pièce d'identité</th>
-                        <th>Adresse</th>
-                        <th>Période</th>
-                        <th class="r">Loyers nets versés</th>
-                        <th class="r">BRS retenu</th>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Bailleur</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">NINEA / Pièce d'identité</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Adresse</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Période</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyers nets versés</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">BRS retenu</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
                     @foreach($lignes as $ligne)
-                    <tr>
-                        <td>
-                            <div style="font-size:13px;font-weight:600;color:#0d1117">{{ $ligne['nom_complet'] }}</div>
-                            @if($ligne['email'])
-                            <div style="font-size:11px;color:#6b7280">{{ $ligne['email'] }}</div>
-                            @endif
-                            @if($ligne['telephone'])
-                            <div style="font-size:11px;color:#9ca3af">{{ $ligne['telephone'] }}</div>
-                            @endif
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5">
+                            <div class="font-body font-semibold text-sm text-bimo-navy">{{ $ligne['nom_complet'] }}</div>
+                            @if($ligne['email'])<div class="font-body text-xs text-bimo-navy/50">{{ $ligne['email'] }}</div>@endif
+                            @if($ligne['telephone'])<div class="font-body text-xs text-bimo-navy/30">{{ $ligne['telephone'] }}</div>@endif
                         </td>
-                        <td>
+                        <td class="px-5 py-3.5">
                             @if($ligne['ninea'])
-                                <div style="font-size:12px;font-weight:600;color:#0d1117;font-family:monospace">{{ $ligne['ninea'] }}</div>
+                            <div class="font-body font-semibold text-sm text-bimo-navy" style="font-family:monospace">{{ $ligne['ninea'] }}</div>
                             @else
-                                <div class="warn-ninea">
-                                    <svg style="width:9px;height:9px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-                                    NINEA manquant
-                                </div>
-                                @if($ligne['cni'])
-                                <div style="font-size:10px;color:#6b7280;margin-top:2px">CNI : {{ $ligne['cni'] }}</div>
-                                @endif
-                                @if($ligne['date_naissance'])
-                                <div style="font-size:10px;color:#6b7280">
-                                    Né(e) le : {{ \Carbon\Carbon::parse($ligne['date_naissance'])->format('d/m/Y') }}
-                                </div>
-                                @endif
-                                <div style="font-size:10px;color:#c2410c;font-style:italic;margin-top:2px">
-                                    ⚠ NINEA manquant — ce bailleur doit fournir son NINEA avant dépôt à la DGID.
-                                    Sans NINEA, indiquer date/lieu naissance + pièce d'identité.
-                                </div>
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[5px] text-[10px] font-body font-semibold text-bimo-gold">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                                NINEA manquant
+                            </span>
+                            @if($ligne['cni'])<div class="font-body text-xs text-bimo-navy/50 mt-1">CNI : {{ $ligne['cni'] }}</div>@endif
+                            @if($ligne['date_naissance'])<div class="font-body text-xs text-bimo-navy/50">Né(e) le : {{ \Carbon\Carbon::parse($ligne['date_naissance'])->format('d/m/Y') }}</div>@endif
+                            <div class="font-body text-[10px] text-bimo-gold/70 italic mt-0.5">⚠ Mettre à jour avant dépôt DGID</div>
                             @endif
                         </td>
-                        <td>
-                            <div style="font-size:12px;color:#374151">{{ $ligne['adresse'] ?: '—' }}</div>
+                        <td class="px-5 py-3.5 font-body text-sm text-bimo-navy/60">{{ $ligne['adresse'] ?: '—' }}</td>
+                        <td class="px-5 py-3.5">
+                            <div class="font-body text-sm text-bimo-navy/70">{{ $ligne['periode_label'] }}</div>
+                            <div class="font-body text-xs text-bimo-navy/30">{{ $ligne['nb_paiements'] }} paiement(s)</div>
                         </td>
-                        <td>
-                            <div style="font-size:12px;color:#374151">{{ $ligne['periode_label'] }}</div>
-                            <div style="font-size:10px;color:#9ca3af">{{ $ligne['nb_paiements'] }} paiement(s)</div>
-                        </td>
-                        <td class="r">
-                            <span class="net-amt">{{ number_format($ligne['loyers_verses'], 0, ',', ' ') }} F</span>
-                        </td>
-                        <td class="r">
-                            <span class="brs-amt">{{ number_format($ligne['brs_retenu'], 0, ',', ' ') }} F</span>
-                        </td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ number_format($ligne['loyers_verses'],0,',','') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-red">{{ number_format($ligne['brs_retenu'],0,',','') }} F</td>
                     </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
-                    <tr>
-                        <td colspan="4">TOTAL T{{ $trimestre }} {{ $annee }} — {{ $lignes->count() }} bailleur(s)</td>
-                        <td class="r">{{ number_format($totalNet, 0, ',', ' ') }} F</td>
-                        <td class="r" style="color:#dc2626">{{ number_format($totalBrs, 0, ',', ' ') }} F</td>
+                    <tr class="bg-bimo-gold/[8%] border-t-2 border-bimo-gold/30">
+                        <td colspan="4" class="px-5 py-3 font-display font-bold text-sm text-bimo-navy/70">TOTAL T{{ $trimestre }} {{ $annee }} — {{ $lignes->count() }} bailleur(s)</td>
+                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-navy/70">{{ number_format($totalNet,0,',','') }} F</td>
+                        <td class="px-5 py-3 text-right font-display font-extrabold text-sm text-bimo-red">{{ number_format($totalBrs,0,',','') }} F</td>
                     </tr>
                 </tfoot>
             </table>
@@ -149,13 +126,13 @@
         @endif
     </div>
 
-    {{-- Note légale --}}
-    <div style="margin-top:14px;padding:12px 16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;font-size:12px;color:#1e40af;line-height:1.6">
-        <strong>Art. 200 §5 CGI Sénégal :</strong>
-        Cet état doit être remis au Centre des Services Fiscaux avant le <strong>{{ $dateLimite->translatedFormat('d F Y') }}</strong>.
-        Il doit comporter pour chaque bailleur : prénom, nom, emploi, adresse, NINEA (ou date/lieu naissance + pièce d'identité),
-        montant des loyers nets reversés, et montant du BRS retenu.
+    <div class="flex items-start gap-2 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[10px] px-4 py-3">
+        <svg class="w-4 h-4 text-bimo-navy/40 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p class="font-body text-xs text-bimo-navy/50 leading-relaxed">
+            <strong>Art. 200 §5 CGI Sénégal :</strong> Cet état doit être remis au Centre des Services Fiscaux avant le <strong>{{ $dateLimite->translatedFormat('d F Y') }}</strong>.
+            Il doit comporter pour chaque bailleur : prénom, nom, emploi, adresse, NINEA (ou date/lieu naissance + pièce d'identité), montant des loyers nets reversés, et montant du BRS retenu.
+        </p>
     </div>
 
 </div>
-</x-app-layout>
+@endsection

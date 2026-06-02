@@ -1,45 +1,33 @@
 @extends('layouts.app')
-@section('title', $agency->name)
-@section('breadcrumb', 'Agence — '.$agency->name)
+@section('header', $agency->name)
 
 @section('content')
-<style>
-.info-row { display:flex;gap:6px;align-items:flex-start;font-size:13px;color:#374151;padding:6px 0;border-bottom:1px solid #f3f4f6; }
-.info-row:last-child { border-bottom:none; }
-.info-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;min-width:90px;margin-top:2px; }
-.detail-grid { display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:20px; }
-.stats-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
-@media(max-width:900px){.detail-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.stats-grid{grid-template-columns:1fr}}
-</style>
 
-<div style="padding:0 0 48px">
+<div class="space-y-4">
 
-    {{-- Breadcrumb + actions --}}
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280">
-            <a href="{{ route('superadmin.dashboard') }}" style="color:#6b7280;text-decoration:none">Agences</a>
-            <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            <span style="color:#0d1117;font-weight:600">{{ $agency->name }}</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    {{-- Header --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <nav class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
+            <a href="{{ route('superadmin.dashboard') }}" class="hover:text-bimo-navy transition-colors duration-150">Agences</a>
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="text-bimo-navy font-semibold">{{ $agency->name }}</span>
+        </nav>
+        <div class="flex items-center gap-2 flex-wrap">
             @if($agency->actif)
-                <span class="badge" style="background:#dcfce7;color:#16a34a"><span class="bdot"></span>Active</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70"><span class="w-1.5 h-1.5 rounded-full bg-bimo-navy/50 mr-1.5"></span>Active</span>
             @else
-                <span class="badge" style="background:#fee2e2;color:#dc2626"><span class="bdot"></span>Suspendue</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red"><span class="w-1.5 h-1.5 rounded-full bg-bimo-red mr-1.5"></span>Suspendue</span>
             @endif
             <a href="{{ route('superadmin.agencies.edit', $agency) }}"
-               style="padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid #e5e7eb;background:#fff;color:#374151;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
-                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+               class="inline-flex items-center gap-2 px-4 py-2 border border-bimo-navy/15 rounded-[9px] font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Modifier
             </a>
             <form method="POST" action="{{ route('superadmin.agencies.toggle', $agency) }}"
                   data-confirm="{{ $agency->actif ? 'Suspendre cette agence ?' : 'Activer cette agence ?' }}">
                 @csrf @method('PATCH')
                 <button type="submit"
-                    style="padding:7px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;
-                           background:{{ $agency->actif ? '#fee2e2' : '#dcfce7' }};
-                           color:{{ $agency->actif ? '#dc2626' : '#16a34a' }}">
+                        class="inline-flex items-center px-4 py-2 rounded-[9px] font-body text-sm border cursor-pointer transition-all duration-150 {{ $agency->actif ? 'border-bimo-red/20 bg-bimo-red/[5%] text-bimo-red hover:bg-bimo-red/10' : 'border-bimo-navy/15 text-bimo-navy/60 hover:border-bimo-navy/30 hover:text-bimo-navy' }}">
                     {{ $agency->actif ? 'Suspendre' : 'Activer' }}
                 </button>
             </form>
@@ -47,212 +35,195 @@
     </div>
 
     {{-- Identité + Stats --}}
-    <div class="detail-grid">
+    <div class="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-4">
 
         {{-- Carte identité --}}
-        <div class="card">
-            <div class="card-hd"><div class="card-title">Identité</div></div>
-            <div class="card-body">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <span class="font-display font-bold text-sm text-bimo-navy">Identité</span>
+            </div>
+            <div class="px-5 py-5">
+                <div class="flex items-center gap-3 mb-5">
                     @if($agency->logo_path)
-                        <img src="{{ Storage::url($agency->logo_path) }}" alt="{{ $agency->name }}"
-                             style="height:48px;width:48px;object-fit:contain;border-radius:10px;border:1px solid #e5e7eb">
+                    <img src="{{ Storage::url($agency->logo_path) }}" alt="{{ $agency->name }}"
+                         class="w-12 h-12 object-contain rounded-[10px] border border-bimo-navy/10">
                     @else
-                        <div style="height:48px;width:48px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px dashed #d1d5db">
-                            {{ strtoupper(substr($agency->name, 0, 1)) }}
-                        </div>
+                    <div class="w-12 h-12 rounded-[10px] bg-bimo-bg2 border border-dashed border-bimo-navy/20 flex items-center justify-center font-display font-bold text-xl text-bimo-navy/40">
+                        {{ strtoupper(substr($agency->name,0,1)) }}
+                    </div>
                     @endif
                     <div>
-                        <div style="font-weight:700;color:#0d1117">{{ $agency->name }}</div>
-                        <div style="font-size:11px;color:#9ca3af">{{ $agency->slug }}</div>
+                        <div class="font-body font-semibold text-sm text-bimo-navy">{{ $agency->name }}</div>
+                        <div class="font-body text-xs text-bimo-navy/40 mt-0.5">{{ $agency->slug }}</div>
                     </div>
                 </div>
-                <div class="info-row"><span class="info-lbl">Email</span><span>{{ $agency->email }}</span></div>
-                @if($agency->telephone)
-                <div class="info-row"><span class="info-lbl">Téléphone</span><span>{{ $agency->telephone }}</span></div>
-                @endif
-                @if($agency->adresse)
-                <div class="info-row"><span class="info-lbl">Adresse</span><span>{{ $agency->adresse }}</span></div>
-                @endif
-                <div class="info-row"><span class="info-lbl">TVA</span><span>{{ $agency->taux_tva }}%</span></div>
-                @if($agency->couleur_primaire)
-                <div class="info-row">
-                    <span class="info-lbl">Couleur</span>
-                    <span style="display:flex;align-items:center;gap:6px">
-                        <span style="width:16px;height:16px;border-radius:50%;background:{{ $agency->couleur_primaire }};border:1px solid #e5e7eb;display:inline-block"></span>
-                        {{ $agency->couleur_primaire }}
-                    </span>
+                <div class="space-y-0 divide-y divide-bimo-navy/[5%]">
+                    @foreach(array_filter([
+                        ['Email', $agency->email],
+                        ['Téléphone', $agency->telephone],
+                        ['Adresse', $agency->adresse],
+                        ['TVA', $agency->taux_tva.'%'],
+                        ['Inscrite le', $agency->created_at->format('d/m/Y')],
+                    ], fn($r) => !empty($r[1])) as [$lbl,$val])
+                    <div class="flex items-start gap-3 py-2.5">
+                        <span class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/30 min-w-[80px] mt-0.5">{{ $lbl }}</span>
+                        <span class="font-body text-sm text-bimo-navy/70">{{ $val }}</span>
+                    </div>
+                    @endforeach
+                    @if($agency->couleur_primaire)
+                    <div class="flex items-center gap-3 py-2.5">
+                        <span class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/30 min-w-[80px]">Couleur</span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-4 h-4 rounded-full border border-bimo-navy/10 inline-block flex-shrink-0" style="background:{{ $agency->couleur_primaire }}"></span>
+                            <span class="font-body text-sm text-bimo-navy/70">{{ $agency->couleur_primaire }}</span>
+                        </div>
+                    </div>
+                    @endif
                 </div>
-                @endif
-                <div class="info-row"><span class="info-lbl">Inscrite le</span><span style="font-size:11px">{{ $agency->created_at->format('d/m/Y à H:i') }}</span></div>
             </div>
         </div>
 
         {{-- Stats --}}
-        <div class="stats-grid">
-            <div class="kpi">
-                <div class="kpi-lbl">Utilisateurs</div>
-                <div class="kpi-val">{{ $stats['nb_users'] }}</div>
-                <div class="kpi-sub">{{ $stats['nb_proprietaires'] }} proprio · {{ $stats['nb_locataires'] }} locataires</div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 content-start">
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Utilisateurs</div>
+                <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">{{ $stats['nb_users'] }}</div>
+                <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">{{ $stats['nb_proprietaires'] }} proprio · {{ $stats['nb_locataires'] }} locataires</div>
             </div>
-            <div class="kpi">
-                <div class="kpi-lbl">Biens</div>
-                <div class="kpi-val">{{ $stats['nb_biens'] }}</div>
-                <div class="kpi-sub" style="color:#16a34a">{{ $stats['nb_biens_loues'] }} loués</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Biens</div>
+                <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">{{ $stats['nb_biens'] }}</div>
+                <div class="font-body text-[10.5px] text-bimo-gold mt-1.5">{{ $stats['nb_biens_loues'] }} loués</div>
             </div>
-            <div class="kpi">
-                <div class="kpi-lbl">Contrats actifs</div>
-                <div class="kpi-val">{{ $stats['nb_contrats'] }}</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Contrats actifs</div>
+                <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">{{ $stats['nb_contrats'] }}</div>
             </div>
-            <div class="kpi gold">
-                <div class="kpi-lbl">Loyers encaissés</div>
-                <div class="kpi-val" style="font-size:16px">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}</div>
-                <div class="kpi-sub">FCFA</div>
+            <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1.5">Loyers encaissés</div>
+                <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">{{ number_format($stats['total_loyers'],0,',','') }}</div>
+                <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">FCFA</div>
             </div>
-            <div class="kpi blue" style="grid-column:span 2">
-                <div class="kpi-lbl">Commissions générées</div>
-                <div class="kpi-val" style="font-size:16px;color:#6366f1">{{ number_format($stats['total_commissions'], 0, ',', ' ') }}</div>
-                <div class="kpi-sub">FCFA TTC</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 col-span-2 md:col-span-1">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Commissions générées</div>
+                <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ number_format($stats['total_commissions'],0,',','') }}</div>
+                <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">FCFA TTC</div>
             </div>
         </div>
     </div>
 
     {{-- Utilisateurs --}}
-    <div class="table-card" style="margin-bottom:16px">
-        <div style="padding:14px 20px;border-bottom:1px solid #e5e7eb">
-            <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117">
-                Utilisateurs ({{ $users->count() }})
-            </div>
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Utilisateurs ({{ $users->count() }})</span>
         </div>
-        <table class="dt">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th style="text-align:center">Rôle</th>
-                    <th style="text-align:center">Inscrit le</th>
-                    <th style="text-align:center">Statut</th>
-                    <th style="text-align:center">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($users as $user)
-                @php
-                    $roleStyle = match($user->role) {
-                        'admin'        => 'background:#ede9fe;color:#7c3aed',
-                        'proprietaire' => 'background:#dbeafe;color:#1d4ed8',
-                        'locataire'    => 'background:#dcfce7;color:#16a34a',
-                        default        => 'background:#f3f4f6;color:#6b7280',
-                    };
-                    $roleLabel = match($user->role) {
-                        'admin' => 'Admin', 'proprietaire' => 'Propriétaire', 'locataire' => 'Locataire', default => $user->role,
-                    };
-                    $isDisabled = (bool) $user->deleted_at;
-                @endphp
-                <tr style="{{ $isDisabled ? 'opacity:.55' : '' }}">
-                    <td style="font-weight:600">{{ $user->name }}</td>
-                    <td style="color:#6b7280;font-size:12px">{{ $user->email }}</td>
-                    <td style="text-align:center">
-                        <span class="badge" style="{{ $roleStyle }}">{{ $roleLabel }}</span>
-                    </td>
-                    <td style="text-align:center;font-size:12px;color:#9ca3af">{{ $user->created_at->format('d/m/Y') }}</td>
-                    <td style="text-align:center">
-                        @if($isDisabled)
-                            <span class="badge" style="background:#fee2e2;color:#dc2626"><span class="bdot"></span>Désactivé</span>
-                        @else
-                            <span class="badge" style="background:#dcfce7;color:#16a34a"><span class="bdot"></span>Actif</span>
-                        @endif
-                    </td>
-                    <td style="text-align:center">
-                        <div style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap">
-
-                            {{-- Impersonation (admins actifs uniquement) --}}
-                            @if($user->role === 'admin' && ! $isDisabled)
-                            <form method="POST" action="{{ route('superadmin.impersonate', $user) }}"
-                                  data-confirm="Se connecter en tant que {{ $user->name }} ({{ $agency->name }}) ?">
-                                @csrf
-                                <button type="submit"
-                                    style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #6366f1;background:#ede9fe;color:#6366f1;white-space:nowrap">
-                                    Accès
-                                </button>
-                            </form>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Nom</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Email</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Rôle</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Inscrit le</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Statut</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @forelse($users as $user)
+                    @php
+                        $roleBadge = match($user->role) { 'admin'=>'bg-bimo-navy/15 border-bimo-navy/20 text-bimo-navy/80', 'proprietaire'=>'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold', 'locataire'=>'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/60', default=>'bg-bimo-navy/[5%] text-bimo-navy/40' };
+                        $roleLabel = match($user->role) { 'admin'=>'Admin', 'proprietaire'=>'Propriétaire', 'locataire'=>'Locataire', default=>$user->role };
+                        $isDisabled = (bool)$user->deleted_at;
+                    @endphp
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100 {{ $isDisabled ? 'opacity-50' : '' }}">
+                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-navy">{{ $user->name }}</td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $user->email }}</td>
+                        <td class="px-5 py-3.5 text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium border {{ $roleBadge }}">{{ $roleLabel }}</span>
+                        </td>
+                        <td class="px-5 py-3.5 text-center font-body text-xs text-bimo-navy/40">{{ $user->created_at->format('d/m/Y') }}</td>
+                        <td class="px-5 py-3.5 text-center">
+                            @if($isDisabled)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red"><span class="w-1.5 h-1.5 rounded-full bg-bimo-red mr-1"></span>Désactivé</span>
+                            @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70"><span class="w-1.5 h-1.5 rounded-full bg-bimo-navy/50 mr-1"></span>Actif</span>
                             @endif
-
-                            {{-- Reset mot de passe --}}
-                            <form method="POST"
-                                  action="{{ route('superadmin.agencies.users.reset-password', [$agency, $user->id]) }}"
-                                  data-confirm="Réinitialiser le mot de passe de {{ $user->name }} ? Le nouveau mot de passe temporaire s'affichera ici.">
-                                @csrf
-                                <button type="submit"
-                                    style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#f9fafb;color:#374151;white-space:nowrap">
-                                    Réinit. mdp
-                                </button>
-                            </form>
-
-                            {{-- Activer / Désactiver --}}
-                            <form method="POST"
-                                  action="{{ route('superadmin.agencies.users.toggle', [$agency, $user->id]) }}"
-                                  data-confirm="{{ $isDisabled ? 'Réactiver '.$user->name.' ?' : 'Désactiver '.$user->name.' ?' }}">
-                                @csrf @method('PATCH')
-                                <button type="submit"
-                                    style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid {{ $isDisabled ? '#bbf7d0' : '#fecaca' }};background:{{ $isDisabled ? '#dcfce7' : '#fee2e2' }};color:{{ $isDisabled ? '#16a34a' : '#dc2626' }};white-space:nowrap">
-                                    {{ $isDisabled ? 'Réactiver' : 'Désactiver' }}
-                                </button>
-                            </form>
-
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="6" style="text-align:center;padding:40px;color:#9ca3af">Aucun utilisateur.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </td>
+                        <td class="px-5 py-3.5 text-center">
+                            <div class="flex items-center justify-center gap-2 flex-wrap">
+                                @if($user->role === 'admin' && !$isDisabled)
+                                <form method="POST" action="{{ route('superadmin.impersonate', $user) }}"
+                                      data-confirm="Se connecter en tant que {{ $user->name }} ({{ $agency->name }}) ?">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-navy/30 hover:text-bimo-navy transition-all duration-150 whitespace-nowrap cursor-pointer">
+                                        Accès
+                                    </button>
+                                </form>
+                                @endif
+                                <form method="POST" action="{{ route('superadmin.agencies.users.reset-password', [$agency, $user->id]) }}"
+                                      data-confirm="Réinitialiser le mot de passe de {{ $user->name }} ?">
+                                    @csrf
+                                    <button type="submit" class="inline-flex items-center px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-navy/30 hover:text-bimo-navy transition-all duration-150 whitespace-nowrap cursor-pointer">
+                                        Réinit. mdp
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('superadmin.agencies.users.toggle', [$agency, $user->id]) }}"
+                                      data-confirm="{{ $isDisabled ? 'Réactiver '.$user->name.' ?' : 'Désactiver '.$user->name.' ?' }}">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="inline-flex items-center px-3 py-1 rounded-[7px] font-body text-xs border transition-all duration-150 whitespace-nowrap cursor-pointer {{ $isDisabled ? 'border-bimo-navy/15 text-bimo-navy/60 hover:border-bimo-navy/30 hover:text-bimo-navy' : 'border-bimo-red/20 bg-bimo-red/[5%] text-bimo-red hover:bg-bimo-red/10' }}">
+                                        {{ $isDisabled ? 'Réactiver' : 'Désactiver' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="6" class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucun utilisateur.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     {{-- Biens --}}
-    <div class="table-card">
-        <div style="padding:14px 20px;border-bottom:1px solid #e5e7eb">
-            <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117">
-                Biens ({{ $biens->count() }})
-            </div>
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Biens ({{ $biens->count() }})</span>
         </div>
-        <table class="dt">
-            <thead>
-                <tr>
-                    <th>Référence</th>
-                    <th>Type</th>
-                    <th>Adresse</th>
-                    <th style="text-align:center">Propriétaire</th>
-                    <th style="text-align:right">Loyer</th>
-                    <th style="text-align:center">Statut</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($biens as $bien)
-                @php
-                    $bstatut = match($bien->statut) {
-                        'loue'       => ['Loué',      'background:#dcfce7;color:#16a34a'],
-                        'disponible' => ['Disponible','background:#dbeafe;color:#1d4ed8'],
-                        'en_travaux' => ['Travaux',   'background:#fef3c7;color:#d97706'],
-                        default      => [ucfirst($bien->statut), 'background:#f3f4f6;color:#6b7280'],
-                    };
-                @endphp
-                <tr>
-                    <td style="font-family:monospace;font-size:11px;color:#9ca3af">{{ $bien->reference }}</td>
-                    <td>{{ $bien->type }}</td>
-                    <td style="color:#6b7280">{{ $bien->adresse }}, {{ $bien->ville }}</td>
-                    <td style="text-align:center;color:#374151">{{ $bien->proprietaire?->name ?? '—' }}</td>
-                    <td style="text-align:right;font-weight:600">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</td>
-                    <td style="text-align:center">
-                        <span class="badge" style="{{ $bstatut[1] }}">{{ $bstatut[0] }}</span>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="6" style="text-align:center;padding:40px;color:#9ca3af">Aucun bien.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Référence</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Type</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Adresse</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Statut</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @forelse($biens as $bien)
+                    @php
+                        $bstatut = match($bien->statut) { 'loue'=>['Loué','bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold'], 'disponible'=>['Disponible','bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70'], default=>[ucfirst($bien->statut),'bg-bimo-navy/[5%] text-bimo-navy/40'] };
+                    @endphp
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5 font-body text-[11px] text-bimo-navy/40 uppercase tracking-widest" style="font-family:monospace">{{ $bien->reference }}</td>
+                        <td class="px-5 py-3.5 font-body text-sm text-bimo-navy/70">{{ $bien->type }}</td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $bien->adresse }}, {{ $bien->ville }}</td>
+                        <td class="px-5 py-3.5 text-center font-body text-sm text-bimo-navy/60">{{ $bien->proprietaire?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ number_format($bien->loyer_mensuel,0,',','') }} F</td>
+                        <td class="px-5 py-3.5 text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium border {{ $bstatut[1] }}">{{ $bstatut[0] }}</span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="6" class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucun bien.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>

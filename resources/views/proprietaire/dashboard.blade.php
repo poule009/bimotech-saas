@@ -1,381 +1,253 @@
-<x-app-layout>
-    <x-slot name="header">Mon espace propriétaire</x-slot>
+@extends('layouts.app')
+@section('header', 'Mon espace propriétaire')
 
-<style>
-/* ── LAYOUT ── */
-.dash-grid { display:grid; grid-template-columns:1fr 300px; gap:20px; align-items:start; }
+@section('content')
 
-/* ── KPI GRID ── */
-.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
-.kpi-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:18px 20px; position:relative; overflow:hidden; transition:transform .2s,box-shadow .2s; }
-.kpi-card:hover { transform:translateY(-2px); box-shadow:0 8px 24px -6px rgba(0,0,0,0.08); }
-.kpi-card::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; border-radius:12px 12px 0 0; }
-.kpi-card.gold::before   { background:#c9a84c; }
-.kpi-card.green::before  { background:#16a34a; }
-.kpi-card.blue::before   { background:#1d4ed8; }
-.kpi-card.purple::before { background:#7c3aed; }
-.kpi-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:5px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;letter-spacing:-.3px;line-height:1; }
-.kpi-val.green { color:#16a34a; }
-.kpi-val.gold  { color:#8a6e2f; }
-.kpi-u  { font-size:11px;font-weight:400;color:#9ca3af;margin-left:2px; }
-.kpi-s  { font-size:11px;color:#9ca3af;margin-top:5px; }
+@php
+$tauxOccupation = $stats['nb_biens'] > 0
+    ? round(($stats['nb_biens_loues'] / $stats['nb_biens']) * 100)
+    : 0;
+@endphp
 
-/* ── BILAN DARK ── */
-.bilan { background:#0d1117;border-radius:16px;padding:26px 30px;margin-bottom:22px;display:grid;grid-template-columns:1fr 1fr 1fr;position:relative;overflow:hidden; }
-.bilan::before { content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(201,168,76,0.07); }
-.bilan-col { padding:0 26px;border-right:1px solid rgba(255,255,255,.07);position:relative;z-index:1; }
-.bilan-col:first-child { padding-left:0; }
-.bilan-col:last-child  { padding-right:0;border-right:none; }
-.bilan-lbl { font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px; }
-.bilan-val { font-family:'Syne',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1;color:white; }
-.bilan-val.green { color:#4ade80; }
-.bilan-val.gold  { color:#c9a84c; }
-.bilan-u { font-size:12px;color:rgba(255,255,255,.3);margin-left:3px; }
-.bilan-s { font-size:11px;color:rgba(255,255,255,.3);margin-top:6px; }
+<div class="space-y-4 md:space-y-5">
 
-/* ── CARDS ── */
-.card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; margin-bottom:18px; }
-.card:last-child { margin-bottom:0; }
-.card-hd { padding:15px 20px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-between; }
-.card-title { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; color:#0d1117; }
-.card-action { font-size:12px;color:#6b7280;text-decoration:none;transition:color .15s;display:flex;align-items:center;gap:4px; }
-.card-action:hover { color:#0d1117; }
-
-/* ── BIENS GRID ── */
-.biens-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px; }
-.bien-card { border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;transition:transform .15s,box-shadow .15s; }
-.bien-card:hover { transform:translateY(-2px);box-shadow:0 6px 20px -4px rgba(0,0,0,0.08); }
-.bien-photo { height:100px;background:#f9fafb;position:relative;overflow:hidden; }
-.bien-photo img { width:100%;height:100%;object-fit:cover; }
-.bien-photo-ph { width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f5e9c9 0%,#f9fafb 100%); }
-.bien-photo-ph svg { width:28px;height:28px;color:#c9a84c;opacity:.5; }
-.statut-pill { position:absolute;top:8px;left:8px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:600; }
-.statut-pill.loue  { background:rgba(22,163,74,.15);color:#16a34a;border:1px solid rgba(22,163,74,.2); }
-.statut-pill.dispo { background:rgba(29,78,216,.15);color:#1d4ed8;border:1px solid rgba(29,78,216,.2); }
-.statut-pill.trav  { background:rgba(201,168,76,.15);color:#8a6e2f;border:1px solid rgba(201,168,76,.2); }
-.bien-body { padding:12px 14px; }
-.bien-ref  { font-family:'Syne',sans-serif;font-size:12px;font-weight:600;color:#0d1117; }
-.bien-addr { font-size:11px;color:#6b7280;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-.bien-loyer { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#8a6e2f;margin-top:8px; }
-
-/* ── TABLE ── */
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-.dt td { padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#f9fafb; }
-.periode-pill { display:inline-block;padding:3px 9px;background:#f5e9c9;color:#8a6e2f;border-radius:6px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif; }
-.amt-green { font-family:'Syne',sans-serif;font-weight:600;color:#16a34a; }
-.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600; }
-.badge.g { background:#dcfce7;color:#16a34a; }
-.bdot { width:5px;height:5px;border-radius:50%;background:currentColor; }
-
-/* ── SIDEBAR ── */
-.sidebar-sticky { position:sticky;top:80px; }
-.kpi-mini { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:15px 17px;margin-bottom:12px;position:relative;overflow:hidden; }
-.kpi-mini::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0; }
-.kpi-mini.gold::before  { background:#c9a84c; }
-.kpi-mini.green::before { background:#16a34a; }
-.kpi-mini.blue::before  { background:#1d4ed8; }
-.km-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:4px; }
-.km-val { font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#0d1117; }
-.km-val.green { color:#16a34a; }
-.km-val.gold  { color:#8a6e2f; }
-.km-u   { font-size:11px;font-weight:400;color:#9ca3af;margin-left:2px; }
-.km-s   { font-size:11px;color:#9ca3af;margin-top:4px; }
-
-/* occupation ring */
-.occ-ring-wrap { display:flex;flex-direction:column;align-items:center;padding:16px;gap:8px; }
-.occ-ring { width:80px;height:80px;position:relative; }
-.occ-ring svg { width:80px;height:80px;transform:rotate(-90deg); }
-.occ-ring-bg  { fill:none;stroke:#f3f4f6;stroke-width:8; }
-.occ-ring-fill { fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dasharray .8s ease; }
-.occ-ring-text { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center; }
-.occ-ring-pct { font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#0d1117;line-height:1; }
-.occ-ring-sub { font-size:9px;color:#6b7280;margin-top:2px; }
-.occ-label { font-size:12px;font-weight:500;color:#374151;text-align:center; }
-.occ-sub { font-size:11px;color:#6b7280; }
-
-/* agence contact */
-.agence-card { background:#0d1117;border-radius:12px;padding:14px 16px; }
-.ag-name { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:10px; }
-.ag-row { display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:11px;color:rgba(255,255,255,.6); }
-.ag-row:last-child { border-bottom:none; }
-.ag-row svg { width:12px;height:12px;color:rgba(255,255,255,.3);flex-shrink:0; }
-.ag-row a { color:#c9a84c;text-decoration:none; }
-
-/* pagination custom */
-.pagination-wrap { padding:12px 16px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.pagination-info { font-size:12px;color:#6b7280; }
-.pagination-links { display:flex;gap:4px; }
-.page-btn { display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s; }
-.page-btn.active { background:#0d1117;color:#fff;border-color:#0d1117; }
-.page-btn.disabled { opacity:.4;pointer-events:none; }
-@media(max-width:1024px){
-    .dash-grid{grid-template-columns:1fr}
-    .kpi-row{grid-template-columns:repeat(2,1fr)}
-    .bilan{grid-template-columns:1fr;gap:0}
-    .biens-grid{grid-template-columns:1fr}
-}
-@media(max-width:480px){.kpi-row{grid-template-columns:1fr}}
-</style>
-
-<div style="padding:24px 32px 48px">
-
-    {{-- GREETING --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+    {{-- Greeting --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">
                 Bonjour, {{ explode(' ', auth()->user()->name)[0] }} 👋
             </h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                {{ now()->translatedFormat('l d F Y') }} · Aperçu de votre patrimoine immobilier
-            </p>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">{{ now()->translatedFormat('l d F Y') }} · Aperçu de votre patrimoine</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div class="flex flex-wrap gap-2">
             <a href="{{ route('proprietaire.releve-pdf') }}" target="_blank"
-               style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #c9a84c;border-radius:9px;font-size:12px;font-weight:600;color:#8a6e2f;text-decoration:none;background:#fffbeb;transition:all .15s"
-               onmouseover="this.style.background='#fef9c3'" onmouseout="this.style.background='#fffbeb'"
-               title="Télécharger votre relevé de gestion PDF">
-                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/[8%] border border-bimo-gold/25 text-bimo-gold font-display font-bold text-sm rounded-[10px] hover:bg-bimo-gold/15 transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
                 Mon relevé PDF
             </a>
             <a href="{{ route('admin.biens.index') }}"
-               style="display:flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12px;font-weight:500;color:#374151;text-decoration:none;background:#fff;transition:all .15s"
-               onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-               onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
-                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60 font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
                 Mes biens
             </a>
         </div>
     </div>
 
-    {{-- KPI ROW --}}
-    @php
-        $tauxOccupation = $stats['nb_biens'] > 0
-            ? round(($stats['nb_biens_loues'] / $stats['nb_biens']) * 100)
-            : 0;
-    @endphp
-    <div class="kpi-row">
-        <div class="kpi-card gold">
-            <div class="kpi-lbl">Total loyers encaissés</div>
-            <div class="kpi-val gold">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
-            <div class="kpi-s">{{ $stats['nb_paiements'] }} paiements validés</div>
+    {{-- KPIs --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1.5">Total loyers encaissés</div>
+            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">{{ number_format($stats['total_loyers'],0,',','') }}<span class="font-body text-xs text-bimo-gold/60 ml-1">F</span></div>
+            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">{{ $stats['nb_paiements'] }} paiements validés</div>
         </div>
-        <div class="kpi-card green">
-            <div class="kpi-val green" style="font-size:26px;margin-bottom:5px">{{ number_format($stats['total_net'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
-            <div class="kpi-lbl">Net reversé (après commission)</div>
-            <div class="kpi-s">Votre revenu net total</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Net reversé</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ number_format($stats['total_net'],0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">Votre revenu net total</div>
         </div>
-        <div class="kpi-card blue">
-            <div class="kpi-lbl">Biens loués</div>
-            <div class="kpi-val" style="color:#1d4ed8">{{ $stats['nb_biens_loues'] }}<span class="kpi-u">/ {{ $stats['nb_biens'] }}</span></div>
-            <div class="kpi-s">{{ $tauxOccupation }}% d'occupation</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Biens loués</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ $stats['nb_biens_loues'] }}<span class="font-body text-sm text-bimo-navy/30 ml-1">/ {{ $stats['nb_biens'] }}</span></div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">{{ $tauxOccupation }}% d'occupation</div>
         </div>
-        <div class="kpi-card purple">
-            <div class="kpi-lbl">Caution totale détenue</div>
-            <div class="kpi-val" style="color:#7c3aed">{{ number_format($stats['caution'], 0, ',', ' ') }}<span class="kpi-u">F</span></div>
-            <div class="kpi-s">Dépôts de garantie</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Caution totale</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ number_format($stats['caution'],0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">Dépôts de garantie</div>
         </div>
     </div>
 
-    {{-- BILAN ALL-TIME --}}
-    <div class="bilan">
-        <div class="bilan-col">
-            <div class="bilan-lbl">Total encaissé brut</div>
-            <div class="bilan-val gold">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
-            <div class="bilan-s">Depuis le début</div>
+    {{-- Bilan dark --}}
+    <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 grid grid-cols-1 md:grid-cols-3 gap-5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
+             style="background:radial-gradient(circle,#C9A84C 0%,transparent 70%);transform:translate(30%,-30%)"></div>
+        @foreach([
+            ['Total encaissé brut', number_format($stats['total_loyers'],0,',',''), 'Depuis le début', 'text-bimo-gold'],
+            ['Commission agence (TTC)', number_format($stats['total_commission'],0,',',''), 'Déduites automatiquement', 'text-white'],
+            ['Net reversé propriétaire', number_format($stats['total_net'],0,',',''), 'Votre revenu net cumulé', 'text-white'],
+        ] as $i => [$lbl, $val, $sub, $cls])
+        <div class="relative z-10 {{ $i > 0 ? 'md:pl-7 md:border-l md:border-white/[7%]' : '' }}">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/40 mb-2">{{ $lbl }}</div>
+            <div class="font-display font-extrabold text-2xl {{ $cls }} leading-none">{{ $val }}<span class="font-body text-sm text-white/30 ml-1">F</span></div>
+            <div class="font-body text-xs text-white/30 mt-1.5">{{ $sub }}</div>
         </div>
-        <div class="bilan-col">
-            <div class="bilan-lbl">Commission agence (TTC)</div>
-            <div class="bilan-val">{{ number_format($stats['total_commission'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
-            <div class="bilan-s">Déduites automatiquement</div>
-        </div>
-        <div class="bilan-col">
-            <div class="bilan-lbl">Net reversé propriétaire</div>
-            <div class="bilan-val green">{{ number_format($stats['total_net'], 0, ',', ' ') }}<span class="bilan-u">F</span></div>
-            <div class="bilan-s">Votre revenu net cumulé</div>
-        </div>
+        @endforeach
     </div>
 
-    <div class="dash-grid">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 items-start">
 
-        {{-- ═══ COLONNE GAUCHE ═══ --}}
-        <div>
+        {{-- Colonne gauche --}}
+        <div class="space-y-4">
 
-            {{-- MES BIENS --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-title">Mes biens ({{ $biens->total() }})</div>
-                    <a href="{{ route('admin.biens.index') }}" class="card-action">
-                        Voir tout
-                        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            {{-- Mes biens --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <span class="font-display font-bold text-sm text-bimo-navy">Mes biens ({{ $biens->total() }})</span>
+                    <a href="{{ route('admin.biens.index') }}" class="flex items-center gap-1 font-body text-xs text-bimo-navy/40 hover:text-bimo-gold transition-colors duration-150">
+                        Voir tout <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </a>
                 </div>
 
                 @if($biens->isEmpty())
-                <div style="padding:32px;text-align:center;color:#9ca3af;font-size:13px">
-                    Aucun bien associé à votre compte.
-                </div>
+                <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucun bien associé à votre compte.</div>
                 @else
-                <div class="biens-grid">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
                     @foreach($biens as $bien)
                     @php
-                        $sp = match($bien->statut) { 'loue'=>'loue', 'disponible'=>'dispo', default=>'trav' };
-                        $sl = match($bien->statut) { 'loue'=>'Loué', 'disponible'=>'Disponible', default=>'En travaux' };
+                        $sp = match($bien->statut) { 'loue'=>['bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold','Loué'], 'disponible'=>['bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70','Disponible'], default=>['bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/50','En travaux'] };
+                        $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first();
                     @endphp
-                    <a href="{{ route('admin.biens.show', $bien) }}" style="text-decoration:none" class="bien-card">
-                        <div class="bien-photo">
-                            @php $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first(); @endphp
+                    <a href="{{ route('admin.biens.show', $bien) }}" class="block border border-bimo-navy/10 rounded-[10px] overflow-hidden hover:shadow-md transition-shadow duration-150">
+                        <div class="h-24 bg-bimo-bg2 relative overflow-hidden">
                             @if($photo)
-                                <img src="{{ Storage::url($photo->chemin) }}" alt="{{ $bien->reference }}" loading="lazy">
+                            <img src="{{ Storage::url($photo->chemin) }}" alt="{{ $bien->reference }}" class="w-full h-full object-cover" loading="lazy">
                             @else
-                                <div class="bien-photo-ph">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-                                </div>
+                            <div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-8 h-8 text-bimo-gold/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                            </div>
                             @endif
-                            <span class="statut-pill {{ $sp }}">{{ $sl }}</span>
+                            <span class="absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold border {{ $sp[0] }}">{{ $sp[1] }}</span>
                         </div>
-                        <div class="bien-body">
-                            <div class="bien-ref">{{ $bien->reference }}</div>
-                            <div class="bien-addr">{{ $bien->adresse }}, {{ $bien->ville }}</div>
-                            <div class="bien-loyer">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F/mois</div>
+                        <div class="px-3 py-2.5">
+                            <div class="font-display font-bold text-xs text-bimo-navy">{{ $bien->reference }}</div>
+                            <div class="font-body text-[11px] text-bimo-navy/50 truncate mt-0.5">{{ $bien->adresse }}, {{ $bien->ville }}</div>
+                            <div class="font-display font-bold text-sm text-bimo-gold mt-1.5">{{ number_format($bien->loyer_mensuel,0,',','') }} F/mois</div>
                         </div>
                     </a>
                     @endforeach
                 </div>
 
-                {{-- Pagination biens --}}
                 @if($biens->hasPages())
-                <div class="pagination-wrap">
-                    <div class="pagination-info">{{ $biens->firstItem() }} – {{ $biens->lastItem() }} sur {{ $biens->total() }}</div>
-                    <div class="pagination-links">
-                        @if($biens->onFirstPage())
-                            <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-                        @else
-                            <a href="{{ $biens->previousPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-                        @endif
-                        @if($biens->hasMorePages())
-                            <a href="{{ $biens->nextPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-                        @else
-                            <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        @endif
+                <div class="flex items-center justify-between px-5 py-3 border-t border-bimo-navy/[5%]">
+                    <span class="font-body text-xs text-bimo-navy/40">{{ $biens->firstItem() }}–{{ $biens->lastItem() }} sur {{ $biens->total() }}</span>
+                    <div class="flex items-center gap-1">
+                        <a href="{{ $biens->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $biens->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        </a>
+                        <a href="{{ $biens->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$biens->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
                     </div>
                 </div>
                 @endif
                 @endif
             </div>
 
-            {{-- GRAPHIQUE NET MENSUEL --}}
+            {{-- Graphique net mensuel --}}
             @if($loyersParMois->isNotEmpty())
-            <div class="card" style="margin-bottom:18px">
-                <div class="card-hd">
-                    <div class="card-title">Net reversé par mois</div>
-                    <span style="font-size:11px;color:#9ca3af">12 derniers mois · après commission</span>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <span class="font-display font-bold text-sm text-bimo-navy">Net reversé par mois</span>
+                    <span class="font-body text-xs text-bimo-navy/40">12 derniers mois · après commission</span>
                 </div>
-                <div style="padding:16px 20px 20px;position:relative;height:180px">
+                <div class="px-5 py-5" style="height:200px;position:relative">
                     <canvas id="chartNetMensuel"></canvas>
                 </div>
             </div>
+            @push('scripts')
             <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
             <script>
-            (function () {
-                var labels = @json($loyersParMois->pluck('mois'));
-                var data   = @json($loyersParMois->pluck('net'));
-                var ctx    = document.getElementById('chartNetMensuel').getContext('2d');
-                var grad   = ctx.createLinearGradient(0, 0, 0, 160);
-                grad.addColorStop(0, 'rgba(22,163,74,.18)');
-                grad.addColorStop(1, 'rgba(22,163,74,.00)');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Net reversé',
-                            data: data,
-                            borderColor: '#16a34a',
-                            backgroundColor: grad,
-                            borderWidth: 2.5,
-                            pointBackgroundColor: '#16a34a',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            fill: true,
-                            tension: 0.4,
+            (function(){
+                var ctx = document.getElementById('chartNetMensuel').getContext('2d');
+                var grad = ctx.createLinearGradient(0,0,0,160);
+                grad.addColorStop(0,'rgba(201,168,76,.15)');
+                grad.addColorStop(1,'rgba(201,168,76,.00)');
+                new Chart(ctx,{
+                    type:'line',
+                    data:{
+                        labels:@json($loyersParMois->pluck('mois')),
+                        datasets:[{
+                            label:'Net reversé',
+                            data:@json($loyersParMois->pluck('net')),
+                            borderColor:'#C9A84C',
+                            backgroundColor:grad,
+                            borderWidth:2.5,
+                            pointBackgroundColor:'#C9A84C',
+                            pointBorderColor:'#fff',
+                            pointBorderWidth:2,
+                            pointRadius:4,
+                            fill:true,
+                            tension:0.4
                         }]
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                backgroundColor: '#0d1117',
-                                titleColor: '#fff',
-                                bodyColor: '#9ca3af',
-                                padding: 10,
-                                cornerRadius: 8,
-                                callbacks: { label: function(c) { return ' ' + Number(c.parsed.y).toLocaleString('fr-FR') + ' FCFA'; } }
+                    options:{
+                        responsive:true,
+                        maintainAspectRatio:false,
+                        plugins:{
+                            legend:{display:false},
+                            tooltip:{
+                                backgroundColor:'#1B4F6B',
+                                titleColor:'#fff',
+                                bodyColor:'rgba(255,255,255,.6)',
+                                padding:10,
+                                cornerRadius:8,
+                                callbacks:{label:function(c){return ' '+Number(c.parsed.y).toLocaleString('fr-FR')+' FCFA';}}
                             }
                         },
-                        scales: {
-                            x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
-                            y: {
-                                grid: { color: '#f3f4f6', drawTicks: false },
-                                border: { display: false },
-                                ticks: { font: { size: 10 }, callback: function(v) { return v >= 1000000 ? (v/1000000).toFixed(1)+'M' : (v/1000)+'k'; } }
-                            }
+                        scales:{
+                            x:{grid:{display:false},border:{display:false},ticks:{font:{size:11},color:'rgba(27,79,107,.4)'}},
+                            y:{grid:{color:'rgba(27,79,107,.05)'},border:{display:false},ticks:{font:{size:10},color:'rgba(27,79,107,.4)',callback:function(v){return v>=1000000?(v/1000000).toFixed(1)+'M':(v/1000)+'k';}}}
                         }
                     }
                 });
             })();
             </script>
+            @endpush
             @endif
 
-            {{-- DERNIERS PAIEMENTS --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-title">Derniers versements</div>
-                    <span style="font-size:11px;color:#9ca3af">Net reversé après commission</span>
+            {{-- Derniers versements --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <span class="font-display font-bold text-sm text-bimo-navy">Derniers versements</span>
+                    <span class="font-body text-xs text-bimo-navy/40">Net reversé après commission</span>
                 </div>
-
                 @if($paiements->isEmpty())
-                <div style="padding:28px;text-align:center;color:#9ca3af;font-size:13px">
-                    Aucun paiement enregistré pour l'instant.
-                </div>
+                <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucun paiement enregistré pour l'instant.</div>
                 @else
-                <div style="overflow-x:auto">
-                    <table class="dt">
+                {{-- Mobile --}}
+                <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+                    @foreach($paiements as $p)
+                    <div class="px-4 py-3.5">
+                        <div class="flex items-center justify-between gap-3 mb-1">
+                            <span class="font-display font-bold text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</span>
+                            <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} F</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
+                            <span class="font-body text-[11px] text-bimo-navy/40">{{ $p->contrat?->locataire?->name }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                {{-- Desktop --}}
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-sm">
                         <thead>
-                            <tr>
-                                <th>Bien</th>
-                                <th>Locataire</th>
-                                <th>Période</th>
-                                <th>Date</th>
-                                <th style="text-align:right">Loyer brut</th>
-                                <th style="text-align:right">Net reversé</th>
-                                <th style="text-align:center">Quittance</th>
+                            <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Bien</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Locataire</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Période</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Date</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer brut</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net reversé</th>
+                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Doc</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-bimo-navy/[5%]">
                             @foreach($paiements as $p)
-                            <tr>
-                                <td>
-                                    <div style="font-size:13px;font-weight:500;color:#0d1117">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                            <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                                <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</td>
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
+                                <td class="px-5 py-3.5">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
                                 </td>
-                                <td style="font-size:12px;color:#6b7280">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
-                                <td><span class="periode-pill">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span></td>
-                                <td style="font-size:12px;color:#6b7280">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</td>
-                                <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:600;color:#374151">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
-                                <td style="text-align:right"><span class="amt-green">{{ number_format($p->net_proprietaire, 0, ',', ' ') }} F</span></td>
-                                <td style="text-align:center">
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</td>
+                                <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ number_format($p->montant_encaisse,0,',','') }} F</td>
+                                <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} F</td>
+                                <td class="px-5 py-3.5 text-center">
                                     <a href="{{ route('proprietaire.paiements.pdf', $p) }}" target="_blank"
-                                       style="display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;border:1px solid #e5e7eb;border-radius:6px;color:#6b7280;text-decoration:none;transition:all .15s"
-                                       onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f';this.style.background='#f5e9c9'"
-                                       onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280';this.style.background='transparent'"
-                                       title="Télécharger la quittance">
-                                        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                       class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </a>
                                 </td>
                             </tr>
@@ -383,60 +255,55 @@
                         </tbody>
                     </table>
                 </div>
-
-                {{-- Pagination paiements --}}
                 @if($paiements->hasPages())
-                <div class="pagination-wrap">
-                    <div class="pagination-info">Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</div>
-                    <div class="pagination-links">
-                        @if($paiements->onFirstPage())
-                            <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-                        @else
-                            <a href="{{ $paiements->previousPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-                        @endif
-                        @foreach($paiements->getUrlRange(max(1,$paiements->currentPage()-1), min($paiements->lastPage(),$paiements->currentPage()+1)) as $pg => $url)
-                            <a href="{{ $url }}" class="page-btn {{ $pg === $paiements->currentPage() ? 'active':'' }}">{{ $pg }}</a>
+                <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%]">
+                    <span class="font-body text-xs text-bimo-navy/40">Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</span>
+                    <div class="flex items-center gap-1">
+                        <a href="{{ $paiements->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $paiements->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        </a>
+                        @foreach($paiements->getUrlRange(max(1,$paiements->currentPage()-1),min($paiements->lastPage(),$paiements->currentPage()+1)) as $pg => $url)
+                        <a href="{{ $url }}" class="w-7 h-7 inline-flex items-center justify-center border rounded-[6px] font-body text-xs transition-all duration-150 {{ $pg === $paiements->currentPage() ? 'bg-[var(--ac)] border-[var(--ac)] text-white font-bold' : 'border-bimo-navy/15 text-bimo-navy/50 hover:border-bimo-gold hover:text-bimo-gold' }}">{{ $pg }}</a>
                         @endforeach
-                        @if($paiements->hasMorePages())
-                            <a href="{{ $paiements->nextPageUrl() }}" class="page-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-                        @else
-                            <span class="page-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        @endif
+                        <a href="{{ $paiements->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$paiements->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
                     </div>
                 </div>
                 @endif
                 @endif
             </div>
 
-        </div>{{-- fin colonne gauche --}}
+        </div>
 
-        {{-- ═══ COLONNE DROITE ═══ --}}
-        <div class="sidebar-sticky">
+        {{-- Colonne droite --}}
+        <div class="lg:sticky lg:top-6 space-y-3">
 
-            {{-- ANNEAU OCCUPATION --}}
-            <div class="card" style="margin-bottom:12px">
-                <div class="card-hd"><div class="card-title">Taux d'occupation</div></div>
-                <div class="occ-ring-wrap">
-                    @php
-                        $circumference = 2 * M_PI * 32; // r=32
-                        $dash = ($tauxOccupation / 100) * $circumference;
-                        $ringColor = $tauxOccupation >= 80 ? '#16a34a' : ($tauxOccupation >= 50 ? '#d97706' : '#dc2626');
-                    @endphp
-                    <div class="occ-ring">
-                        <svg viewBox="0 0 80 80">
-                            <circle class="occ-ring-bg" cx="40" cy="40" r="32"/>
-                            <circle class="occ-ring-fill" cx="40" cy="40" r="32"
-                                stroke="{{ $ringColor }}"
-                                stroke-dasharray="{{ $dash }} {{ $circumference }}"
-                                stroke-dashoffset="0"/>
+            {{-- Occupation ring --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <span class="font-display font-bold text-sm text-bimo-navy">Taux d'occupation</span>
+                </div>
+                @php
+                    $circumference = 2 * M_PI * 32;
+                    $dash = ($tauxOccupation / 100) * $circumference;
+                    $ringColor = $tauxOccupation >= 80 ? '#C9A84C' : ($tauxOccupation >= 50 ? '#C9A84C' : '#EF4444');
+                @endphp
+                <div class="flex flex-col items-center py-5 gap-2">
+                    <div class="relative" style="width:80px;height:80px">
+                        <svg width="80" height="80" style="transform:rotate(-90deg)">
+                            <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(27,79,107,.08)" stroke-width="8"/>
+                            <circle cx="40" cy="40" r="32" fill="none" stroke="{{ $ringColor }}"
+                                    stroke-width="8" stroke-linecap="round"
+                                    stroke-dasharray="{{ $dash }} {{ $circumference }}" stroke-dashoffset="0"/>
                         </svg>
-                        <div class="occ-ring-text">
-                            <div class="occ-ring-pct" style="color:{{ $ringColor }}">{{ $tauxOccupation }}%</div>
-                            <div class="occ-ring-sub">occupé</div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="font-display font-extrabold text-base leading-none" style="color:{{ $ringColor }}">{{ $tauxOccupation }}%</span>
+                            <span class="font-body text-[9px] text-bimo-navy/40 mt-0.5">occupé</span>
                         </div>
                     </div>
-                    <div class="occ-label">{{ $stats['nb_biens_loues'] }} loué(s) sur {{ $stats['nb_biens'] }} bien(s)</div>
-                    <div class="occ-sub">
+                    <div class="font-body font-medium text-sm text-bimo-navy text-center">{{ $stats['nb_biens_loues'] }} loué(s) sur {{ $stats['nb_biens'] }} bien(s)</div>
+                    <div class="font-body text-xs text-bimo-navy/40 text-center">
                         @if($stats['nb_biens'] - $stats['nb_biens_loues'] > 0)
                             {{ $stats['nb_biens'] - $stats['nb_biens_loues'] }} bien(s) disponible(s)
                         @else
@@ -446,72 +313,62 @@
                 </div>
             </div>
 
-            {{-- KPIs sidebar --}}
-            <div class="kpi-mini green">
-                <div class="km-lbl">Net reversé (all time)</div>
-                <div class="km-val green">{{ number_format($stats['total_net'], 0, ',', ' ') }}<span class="km-u">F</span></div>
-                <div class="km-s">Votre revenu net cumulé</div>
+            {{-- KPI minis --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Net reversé (all time)</div>
+                <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ number_format($stats['total_net'],0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
             </div>
 
-            <div class="kpi-mini gold">
-                <div class="km-lbl">Caution totale</div>
-                <div class="km-val gold">{{ number_format($stats['caution'], 0, ',', ' ') }}<span class="km-u">F</span></div>
-                <div class="km-s">Dépôts de garantie détenus</div>
+            <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Caution totale</div>
+                <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">{{ number_format($stats['caution'],0,',','') }}<span class="font-body text-xs text-bimo-gold/60 ml-1">F</span></div>
+                <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1">Dépôts de garantie détenus</div>
             </div>
 
             @if($stats['dernier_paiement'])
-            <div class="kpi-mini blue">
-                <div class="km-lbl">Dernier versement</div>
-                <div class="km-val" style="color:#1d4ed8;font-size:15px">
-                    {{ number_format($stats['dernier_paiement']->net_proprietaire, 0, ',', ' ') }}<span class="km-u">F</span>
-                </div>
-                <div class="km-s">{{ \Carbon\Carbon::parse($stats['dernier_paiement']->date_paiement)->format('d/m/Y') }}</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Dernier versement</div>
+                <div class="font-display font-extrabold text-lg text-bimo-navy leading-none">{{ number_format($stats['dernier_paiement']->net_proprietaire,0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
+                <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1">{{ \Carbon\Carbon::parse($stats['dernier_paiement']->date_paiement)->format('d/m/Y') }}</div>
             </div>
             @endif
 
-            {{-- CONTACT AGENCE --}}
+            {{-- Agence --}}
             @if($currentAgency)
-            <div class="card">
-                <div class="card-hd"><div class="card-title">Votre agence</div></div>
-                <div class="card-body" style="padding:14px 18px">
-                    <div class="agence-card">
-                        <div class="ag-name">{{ $currentAgency->name }}</div>
-                        @if($currentAgency->telephone)
-                        <div class="ag-row">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07"/></svg>
-                            <a href="tel:{{ $currentAgency->telephone }}">{{ $currentAgency->telephone }}</a>
-                        </div>
-                        @endif
-                        @if($currentAgency->email)
-                        <div class="ag-row">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                            <a href="mailto:{{ $currentAgency->email }}">{{ $currentAgency->email }}</a>
-                        </div>
-                        @endif
-                        @if($currentAgency->adresse)
-                        <div class="ag-row">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/></svg>
-                            {{ $currentAgency->adresse }}
-                        </div>
-                        @endif
+            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+                <div class="px-4 py-3.5 border-b border-white/[7%]">
+                    <span class="font-display font-bold text-sm text-white">Votre agence</span>
+                </div>
+                <div class="px-4 py-4 space-y-2.5">
+                    <div class="font-display font-bold text-sm text-white mb-2">{{ $currentAgency->name }}</div>
+                    @if($currentAgency->telephone)
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-3.5 h-3.5 text-white/30 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07"/></svg>
+                        <a href="tel:{{ $currentAgency->telephone }}" class="font-body text-xs text-white/60 hover:text-white transition-colors duration-150">{{ $currentAgency->telephone }}</a>
                     </div>
-
-                    {{-- WhatsApp agence --}}
+                    @endif
+                    @if($currentAgency->email)
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-3.5 h-3.5 text-white/30 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <a href="mailto:{{ $currentAgency->email }}" class="font-body text-xs text-bimo-gold hover:text-white transition-colors duration-150">{{ $currentAgency->email }}</a>
+                    </div>
+                    @endif
+                    @if($currentAgency->adresse)
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-3.5 h-3.5 text-white/30 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span class="font-body text-xs text-white/50">{{ $currentAgency->adresse }}</span>
+                    </div>
+                    @endif
                     @if($currentAgency->telephone)
                     @php
                         $tel = preg_replace('/\s+|-/', '', $currentAgency->telephone);
-                        if (!str_starts_with($tel, '+') && !str_starts_with($tel, '221')) $tel = '221' . ltrim($tel, '0');
-                        $tel = ltrim($tel, '+');
+                        if (!str_starts_with($tel,'+') && !str_starts_with($tel,'221')) $tel = '221'.ltrim($tel,'0');
+                        $tel = ltrim($tel,'+');
                         $msgWa = "Bonjour {$currentAgency->name}, je suis ".auth()->user()->name.", propriétaire géré par votre agence. Je souhaite vous contacter.";
                     @endphp
                     <a href="https://wa.me/{{ $tel }}?text={{ urlencode($msgWa) }}" target="_blank"
-                       style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding:9px;background:#dcfce7;border:1px solid #bbf7d0;color:#15803d;border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;transition:background .15s"
-                       onmouseover="this.style.background='#bbf7d0'"
-                       onmouseout="this.style.background='#dcfce7'">
-                        <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.532 5.847L.057 23.492a.5.5 0 00.614.65l5.82-1.527A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.944 9.944 0 01-5.091-1.396l-.361-.216-3.754.984.999-3.648-.237-.374A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-                        </svg>
+                       class="flex items-center justify-center gap-2 mt-2 px-4 py-2.5 bg-[#25D366] text-white rounded-[9px] font-body font-semibold text-sm hover:opacity-90 transition-opacity duration-150">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.532 5.847L.057 23.492a.5.5 0 00.614.65l5.82-1.527A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.944 9.944 0 01-5.091-1.396l-.361-.216-3.754.984.999-3.648-.237-.374A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
                         Contacter par WhatsApp
                     </a>
                     @endif
@@ -519,10 +376,8 @@
             </div>
             @endif
 
-        </div>{{-- fin sidebar --}}
-
-    </div>{{-- /dash-grid --}}
+        </div>
+    </div>
 
 </div>
-
-</x-app-layout>
+@endsection

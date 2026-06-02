@@ -1,252 +1,198 @@
-<x-app-layout>
-    <x-slot name="header">Déclarations TVA mensuelles</x-slot>
+@extends('layouts.app')
+@section('header', 'Déclarations TVA')
 
-<style>
-.page-wrap  { padding:24px 32px 48px; }
-.filter-bar { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 18px;margin-bottom:22px;display:flex;align-items:center;gap:10px; }
-.filter-sel { padding:8px 13px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#f9fafb;outline:none; }
-.filter-btn { padding:8px 18px;background:#0d1117;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer; }
+@section('content')
 
-.tva-table { width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden; }
-.tva-table thead th { background:#0d1117;color:#fff;padding:11px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap; }
-.tva-table thead th.r { text-align:right; }
-.tva-table tbody td { padding:10px 14px;border-bottom:1px solid #f3f4f6;font-size:12.5px;color:#374151;vertical-align:middle; }
-.tva-table tbody td.r { text-align:right;font-weight:600;font-variant-numeric:tabular-nums; }
-.tva-table tbody tr:last-child td { border-bottom:none; }
-.tva-table tbody tr:hover td { background:#fafafa; }
-.tva-table tfoot td { background:#f5e9c9;padding:10px 14px;font-weight:700;font-size:12.5px;border-top:2px solid #c9a84c; }
-.tva-table tfoot td.r { text-align:right;font-variant-numeric:tabular-nums; }
-
-.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:10.5px;font-weight:600;white-space:nowrap; }
-.badge-futur    { background:#f3f4f6;color:#9ca3af; }
-.badge-nc       { background:#f3f4f6;color:#6b7280; }
-.badge-brouil   { background:#dbeafe;color:#1d4ed8; }
-.badge-validee  { background:#fef9c3;color:#854d0e; }
-.badge-deposee  { background:#dcfce7;color:#16a34a; }
-.badge-retard   { background:#fee2e2;color:#dc2626;border:1px solid #fecaca; }
-
-.btn-sm { display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:500;font-family:'DM Sans',sans-serif;text-decoration:none;cursor:pointer;border:none; }
-.btn-dark  { background:#0d1117;color:#fff; }
-.btn-light { background:#f9fafb;color:#374151;border:1px solid #e5e7eb; }
-.btn-gold  { background:#f5e9c9;color:#8a6e2f;border:1px solid #c9a84c; }
-
-.credit-badge { display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;font-size:12px;font-weight:600;color:#c2410c; }
-
-.row-futur td { color:#d1d5db; }
-.row-retard td { background:#fff5f5; }
-</style>
-
-<div class="page-wrap">
+<div class="space-y-4 md:space-y-5">
 
     {{-- En-tête --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
-                Déclarations TVA mensuelles
-            </h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                TVA agence — Art. 369-370 CGI Sénégal — Année {{ $annee }}
-            </p>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Déclarations TVA mensuelles</h1>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">TVA agence — Art. 369-370 CGI Sénégal — Année {{ $annee }}</p>
         </div>
-        <div style="text-align:right;font-size:12px;color:#9ca3af;background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:10px 14px;line-height:1.7">
-            📋 Déclaration mensuelle obligatoire<br>
-            <span style="color:#6b7280">À déposer avant le <strong>15 du mois M+1</strong></span>
+        <div class="flex-shrink-0 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[10px] px-4 py-3 text-right">
+            <div class="font-body font-medium text-xs text-bimo-navy/50">📋 Déclaration mensuelle obligatoire</div>
+            <div class="font-body text-xs text-bimo-navy/40 mt-0.5">À déposer avant le <strong>15 du mois M+1</strong></div>
         </div>
     </div>
-
-    @if(session('success'))
-    <div style="margin-bottom:16px;padding:11px 16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;font-size:13px;color:#16a34a;font-weight:500">
-        ✓ {{ session('success') }}
-    </div>
-    @endif
 
     {{-- Crédit TVA reporté --}}
     @if($creditCumule > 0)
-    <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px">
-        <span class="credit-badge">
-            <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Crédit TVA reporté : {{ number_format($creditCumule, 0, ',', ' ') }} FCFA — Imputable sur prochaine déclaration
-        </span>
+    <div class="flex items-center gap-2 bg-bimo-gold/[6%] border border-bimo-gold/20 rounded-[10px] px-4 py-3">
+        <svg class="w-4 h-4 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="font-body font-semibold text-sm text-bimo-gold">Crédit TVA reporté : {{ number_format($creditCumule,0,',','') }} FCFA — Imputable sur prochaine déclaration</span>
     </div>
     @endif
 
     {{-- Filtre année --}}
-    <form method="GET">
-        <div class="filter-bar">
-            <span style="font-size:12px;color:#6b7280;font-weight:500">Année fiscale :</span>
-            <select name="annee" class="filter-sel">
-                @foreach($anneesDisponibles as $a)
-                    <option value="{{ $a }}" {{ $annee == $a ? 'selected' : '' }}>{{ $a }}</option>
-                @endforeach
-            </select>
-            <button type="submit" class="filter-btn">Afficher</button>
-        </div>
+    <form method="GET" class="flex items-center gap-3 bg-white rounded-[12px] border border-bimo-navy/10 px-5 py-3.5">
+        <span class="font-body font-medium text-xs text-bimo-navy/50 whitespace-nowrap">Année fiscale :</span>
+        <select name="annee"
+                class="px-3 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy bg-bimo-bg focus:outline-none focus:border-bimo-gold cursor-pointer transition-all duration-150">
+            @foreach($anneesDisponibles as $a)
+            <option value="{{ $a }}" {{ $annee == $a ? 'selected' : '' }}>{{ $a }}</option>
+            @endforeach
+        </select>
+        <button type="submit"
+                class="inline-flex items-center px-4 py-2 bg-bimo-navy text-white font-display font-bold text-sm rounded-[9px] hover:bg-bimo-navy-dk transition-colors duration-150">
+            Afficher
+        </button>
     </form>
 
-    {{-- Tableau 12 mois --}}
-    <div style="border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-    <table class="tva-table">
-        <thead>
-            <tr>
-                <th style="width:130px">Mois</th>
-                <th class="r">TVA collectée</th>
-                <th class="r">TVA déductible</th>
-                <th class="r">Crédit entrant</th>
-                <th class="r">TVA nette due</th>
-                <th style="width:120px;text-align:center">Statut</th>
-                <th style="width:180px;text-align:center">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php
-                $totalCollectee  = 0;
-                $totalDeductible = 0;
-                $totalNette      = 0;
-            @endphp
+    {{-- Table 12 mois --}}
+    @php $totalCollectee = 0; $totalDeductible = 0; $totalNette = 0; @endphp
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        {{-- Mobile --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
             @foreach($mois as $m)
             @php
                 $d = $m['declaration'];
-                if ($d) {
-                    $totalCollectee  += (float) $d->total_tva_collectee;
-                    $totalDeductible += (float) $d->total_tva_deductible;
-                    $totalNette      += (float) $d->tva_nette_due;
-                }
+                if($d) { $totalCollectee += (float)$d->total_tva_collectee; $totalDeductible += (float)$d->total_tva_deductible; $totalNette += (float)$d->tva_nette_due; }
+                $rowOp = $m['statut'] === 'futur' ? 'opacity-40' : ($m['statut'] === 'en_retard' ? 'bg-bimo-red/[3%]' : '');
             @endphp
-            <tr class="{{ $m['statut'] === 'futur' ? 'row-futur' : ($m['statut'] === 'en_retard' ? 'row-retard' : '') }}">
-
-                <td style="font-weight:600;color:#0d1117">{{ $m['label'] }}</td>
-
-                <td class="r">
-                    @if($d && $d->total_tva_collectee > 0)
-                        {{ number_format($d->total_tva_collectee, 0, ',', ' ') }} F
-                    @elseif($m['statut'] !== 'futur')
-                        <span style="color:#9ca3af">—</span>
-                    @else
-                        <span style="color:#e5e7eb">—</span>
+            <div class="px-4 py-3.5 {{ $rowOp }}">
+                <div class="flex items-center justify-between gap-2 mb-1.5">
+                    <span class="font-body font-semibold text-sm text-bimo-navy">{{ $m['label'] }}</span>
+                    @if($m['statut'] === 'futur') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/30">À venir</span>
+                    @elseif($m['statut'] === 'non_calcule') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/40">Non calculé</span>
+                    @elseif($m['statut'] === 'brouillon') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">Brouillon</span>
+                    @elseif($m['statut'] === 'validee') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validée</span>
+                    @elseif($m['statut'] === 'deposee') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">✓ Déposée</span>
+                    @elseif($m['statut'] === 'en_retard') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">⚠ En retard</span>
                     @endif
-                </td>
-
-                <td class="r">
-                    @if($d && $d->total_tva_deductible > 0)
-                        <span style="color:#16a34a">{{ number_format($d->total_tva_deductible, 0, ',', ' ') }} F</span>
-                    @elseif($m['statut'] !== 'futur')
-                        <span style="color:#9ca3af">—</span>
-                    @else
-                        <span style="color:#e5e7eb">—</span>
-                    @endif
-                </td>
-
-                <td class="r">
-                    @if($d && $d->credit_reporte_entrant > 0)
-                        <span style="color:#f97316">{{ number_format($d->credit_reporte_entrant, 0, ',', ' ') }} F</span>
-                    @else
-                        <span style="color:#e5e7eb">—</span>
-                    @endif
-                </td>
-
-                <td class="r">
-                    @if($d)
-                        @if($d->tva_nette_due > 0)
-                            <span style="color:#dc2626;font-weight:700">{{ number_format($d->tva_nette_due, 0, ',', ' ') }} F</span>
-                        @elseif($d->credit_reporte_sortant > 0)
-                            <span style="color:#16a34a;font-size:11px">Crédit {{ number_format($d->credit_reporte_sortant, 0, ',', ' ') }} F</span>
-                        @else
-                            <span style="color:#16a34a">0 F</span>
-                        @endif
-                    @else
-                        <span style="color:#e5e7eb">—</span>
-                    @endif
-                </td>
-
-                <td style="text-align:center">
-                    @if($m['statut'] === 'futur')
-                        <span class="badge badge-futur">À venir</span>
-                    @elseif($m['statut'] === 'non_calcule')
-                        <span class="badge badge-nc">Non calculé</span>
-                    @elseif($m['statut'] === 'brouillon')
-                        <span class="badge badge-brouil">Brouillon</span>
-                    @elseif($m['statut'] === 'validee')
-                        <span class="badge badge-validee">Validée</span>
-                    @elseif($m['statut'] === 'deposee')
-                        <span class="badge badge-deposee">✓ Déposée</span>
-                    @elseif($m['statut'] === 'en_retard')
-                        <span class="badge badge-retard">⚠ En retard</span>
-                    @endif
-                </td>
-
-                <td style="text-align:center">
-                    @if($m['statut'] !== 'futur')
-                    <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap">
-                        <a href="{{ route('admin.tva-agence.show', [$annee, $m['numero']]) }}" class="btn-sm btn-dark">
-                            <svg style="width:10px;height:10px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                            Voir
-                        </a>
-                        @if($m['statut'] !== 'futur')
-                        <button type="button" class="btn-sm btn-light"
-                            data-annee="{{ $annee }}" data-mois="{{ $m['numero'] }}"
-                            onclick="recalculer(this)">
-                            <svg style="width:10px;height:10px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                            Recalculer
-                        </button>
-                        @endif
-                    </div>
-                    @endif
-                </td>
-            </tr>
+                </div>
+                @if($d)
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="font-body text-bimo-navy/50">Col. : <strong>{{ number_format($d->total_tva_collectee,0,',','') }} F</strong></span>
+                    @if($d->tva_nette_due > 0)<span class="font-body text-bimo-red">Due : {{ number_format($d->tva_nette_due,0,',','') }} F</span>@endif
+                </div>
+                @endif
+                @if($m['statut'] !== 'futur')
+                <div class="flex items-center gap-2 mt-2">
+                    <a href="{{ route('admin.tva-agence.show', [$annee, $m['numero']]) }}"
+                       class="inline-flex items-center gap-1 px-3 py-1 bg-bimo-navy text-white rounded-[7px] font-body text-xs">Voir</a>
+                    <button type="button" class="inline-flex items-center gap-1 px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer"
+                            data-annee="{{ $annee }}" data-mois="{{ $m['numero'] }}" onclick="recalculer(this)">Recalculer</button>
+                </div>
+                @endif
+            </div>
             @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>Total {{ $annee }}</td>
-                <td class="r">{{ number_format($totalCollectee, 0, ',', ' ') }} F</td>
-                <td class="r">{{ number_format($totalDeductible, 0, ',', ' ') }} F</td>
-                <td class="r">—</td>
-                <td class="r" style="color:#dc2626">{{ number_format($totalNette, 0, ',', ' ') }} F</td>
-                <td colspan="2"></td>
-            </tr>
-        </tfoot>
-    </table>
+        </div>
+
+        {{-- Desktop --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-bimo-navy">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/50 w-32">Mois</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-white/50">TVA collectée</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-white/50">TVA déductible</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-white/50">Crédit entrant</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-white/50">TVA nette due</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-white/50 w-28">Statut</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-white/50 w-44">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @foreach($mois as $m)
+                    @php
+                        $d = $m['declaration'];
+                        if($d) { $totalCollectee += (float)$d->total_tva_collectee; $totalDeductible += (float)$d->total_tva_deductible; $totalNette += (float)$d->tva_nette_due; }
+                        $rowCls = $m['statut'] === 'futur' ? 'opacity-40' : ($m['statut'] === 'en_retard' ? 'bg-bimo-red/[3%]' : 'hover:bg-bimo-bg');
+                    @endphp
+                    <tr class="{{ $rowCls }} transition-colors duration-100">
+                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-navy">{{ $m['label'] }}</td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-navy/70">
+                            @if($d && $d->total_tva_collectee > 0) {{ number_format($d->total_tva_collectee,0,',','') }} F
+                            @elseif($m['statut'] !== 'futur') <span class="text-bimo-navy/20">—</span>
+                            @else <span class="text-bimo-navy/10">—</span> @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-gold">
+                            @if($d && $d->total_tva_deductible > 0) {{ number_format($d->total_tva_deductible,0,',','') }} F
+                            @elseif($m['statut'] !== 'futur') <span class="text-bimo-navy/20">—</span>
+                            @else <span class="text-bimo-navy/10">—</span> @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-gold">
+                            @if($d && $d->credit_reporte_entrant > 0) {{ number_format($d->credit_reporte_entrant,0,',','') }} F
+                            @else <span class="text-bimo-navy/10">—</span> @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-right">
+                            @if($d)
+                                @if($d->tva_nette_due > 0) <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($d->tva_nette_due,0,',','') }} F</span>
+                                @elseif($d->credit_reporte_sortant > 0) <span class="font-body text-xs text-bimo-gold">Crédit {{ number_format($d->credit_reporte_sortant,0,',','') }} F</span>
+                                @else <span class="font-display font-semibold text-sm text-bimo-navy/40">0 F</span>
+                                @endif
+                            @else <span class="text-bimo-navy/10">—</span> @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-center">
+                            @if($m['statut'] === 'futur') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/30">À venir</span>
+                            @elseif($m['statut'] === 'non_calcule') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/40">Non calculé</span>
+                            @elseif($m['statut'] === 'brouillon') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">Brouillon</span>
+                            @elseif($m['statut'] === 'validee') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validée</span>
+                            @elseif($m['statut'] === 'deposee') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">✓ Déposée</span>
+                            @elseif($m['statut'] === 'en_retard') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">⚠ En retard</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-center">
+                            @if($m['statut'] !== 'futur')
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{{ route('admin.tva-agence.show', [$annee, $m['numero']]) }}"
+                                   class="inline-flex items-center gap-1 px-3 py-1.5 bg-bimo-navy text-white rounded-[7px] font-body text-xs hover:bg-bimo-navy-dk transition-colors duration-150">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Voir
+                                </a>
+                                <button type="button"
+                                        class="inline-flex items-center gap-1 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer"
+                                        data-annee="{{ $annee }}" data-mois="{{ $m['numero'] }}" onclick="recalculer(this)">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                                    Recalculer
+                                </button>
+                            </div>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr class="bg-bimo-gold/[8%] border-t-2 border-bimo-gold/30">
+                        <td class="px-5 py-3 font-display font-bold text-sm text-bimo-navy/70">Total {{ $annee }}</td>
+                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-navy/70">{{ number_format($totalCollectee,0,',','') }} F</td>
+                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($totalDeductible,0,',','') }} F</td>
+                        <td class="px-5 py-3 text-right font-body text-sm text-bimo-navy/30">—</td>
+                        <td class="px-5 py-3 text-right font-display font-extrabold text-sm text-bimo-red">{{ number_format($totalNette,0,',','') }} F</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
 
-    {{-- Note légale --}}
-    <div style="margin-top:20px;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:12px;color:#92400e;line-height:1.6">
-        <strong>Art. 370 CGI Sénégal :</strong> La TVA nette due (collectée − déductible) doit être reversée à la DGI
-        avant le <strong>15 de chaque mois M+1</strong>. Un crédit de TVA (déductible &gt; collectée) est reportable
-        sur les mois suivants. Les montants TVA collectée sont automatiquement agrégés depuis les paiements enregistrés.
-        <strong>Consultez votre Centre des Services Fiscaux (CSF) pour le dépôt officiel.</strong>
+    <div class="flex items-start gap-2 bg-bimo-gold/[6%] border border-bimo-gold/20 rounded-[10px] px-4 py-3">
+        <svg class="w-4 h-4 text-bimo-gold flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <p class="font-body text-xs text-bimo-gold/80 leading-relaxed">
+            <strong>Art. 370 CGI Sénégal :</strong> La TVA nette due (collectée − déductible) doit être reversée à la DGI avant le <strong>15 de chaque mois M+1</strong>.
+            Un crédit de TVA (déductible &gt; collectée) est reportable sur les mois suivants.
+            <strong>Consultez votre Centre des Services Fiscaux (CSF) pour le dépôt officiel.</strong>
+        </p>
     </div>
+
 </div>
 
+@push('scripts')
 <script>
 function recalculer(btn) {
-    const annee = btn.dataset.annee;
-    const mois  = btn.dataset.mois;
-    btn.disabled = true;
-    btn.textContent = '…';
-
-    fetch(`/admin/tva-agence/${annee}/${mois}/recalculer`, {
+    var annee = btn.dataset.annee, mois = btn.dataset.mois;
+    btn.disabled = true; btn.textContent = '…';
+    fetch('/admin/tva-agence/' + annee + '/' + mois + '/recalculer', {
         method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
-            'Accept': 'application/json',
-        },
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '', 'Accept': 'application/json' }
     })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.message);
-            btn.disabled = false;
-            btn.textContent = 'Recalculer';
-        }
-    })
-    .catch(() => {
-        alert('Erreur réseau');
-        btn.disabled = false;
-        btn.textContent = 'Recalculer';
-    });
+    .then(function(r){ return r.json(); })
+    .then(function(data){ if(data.success){ location.reload(); } else { alert(data.message); btn.disabled = false; btn.textContent = 'Recalculer'; } })
+    .catch(function(){ alert('Erreur réseau'); btn.disabled = false; btn.textContent = 'Recalculer'; });
 }
 </script>
+@endpush
 
-</x-app-layout>
+@endsection

@@ -1,168 +1,148 @@
 @extends('layouts.app')
-@section('title', 'Mes paiements')
-@section('breadcrumb', 'Mes paiements')
+@section('header', 'Mes paiements')
 
 @section('content')
+
 @php
-$modes = [
-    'especes'      => 'Espèces',
-    'virement'     => 'Virement',
-    'cheque'       => 'Chèque',
-    'wave'         => 'Wave',
-    'orange_money' => 'Orange Money',
-    'free_money'   => 'Free Money',
-    'e_money'      => 'E-Money',
-];
+$modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave'=>'Wave','orange_money'=>'Orange Money','free_money'=>'Free Money','e_money'=>'E-Money'];
 @endphp
 
-<style>
-.page-title { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px; }
-.page-sub   { font-size:13px;color:#6b7280;margin-top:3px; }
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden; }
-.card-hd { padding:15px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
-.badge-count { background:#f3f4f6;color:#374151;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px; }
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb;text-align:left; }
-.dt td { padding:13px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#f9fafb; }
-.periode-pill { display:inline-block;padding:3px 9px;background:#f5e9c9;color:#8a6e2f;border-radius:6px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif; }
-.amt { font-family:'Syne',sans-serif;font-weight:700;color:#0d1117; }
-.mode-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:11px;color:#374151; }
-.empty-state { padding:60px 20px;text-align:center; }
-.empty-icon { width:48px;height:48px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
-.empty-title { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:6px; }
-.empty-sub { font-size:13px;color:#9ca3af; }
-.pagination { display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;flex-wrap:wrap;gap:8px; }
-.pag-links { display:flex;gap:4px; }
-.pag-link { display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #e5e7eb;font-size:12px;color:#374151;text-decoration:none;transition:all .15s; }
-.pag-link:hover { border-color:#c9a84c;color:#8a6e2f; }
-.pag-link.active { background:var(--ac,#c9a84c);border-color:var(--ac,#c9a84c);color:#0d1117;font-weight:700; }
-.pag-link.disabled { opacity:.4;pointer-events:none; }
-</style>
-
-<div style="padding:0 0 48px">
+<div class="space-y-4">
 
     {{-- En-tête --}}
-    <div style="margin-bottom:24px">
-        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:12px">
-            <a href="{{ route('locataire.dashboard') }}" style="color:#6b7280;text-decoration:none">Mon espace</a>
-            <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            <span style="color:#0d1117;font-weight:500">Mes paiements</span>
-        </div>
-        <h1 class="page-title">Historique des paiements</h1>
-        <p class="page-sub">Tous vos loyers validés, avec téléchargement de quittance.</p>
+    <div class="flex flex-col gap-1">
+        <nav class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
+            <a href="{{ route('locataire.dashboard') }}" class="hover:text-bimo-navy transition-colors duration-150">Mon espace</a>
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="text-bimo-navy font-medium">Mes paiements</span>
+        </nav>
+        <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Historique des paiements</h1>
+        <p class="font-body text-sm text-bimo-navy/50">Tous vos loyers validés, avec téléchargement de quittance.</p>
     </div>
 
-    <div class="card">
-        <div class="card-hd">
-            <div class="card-title">Paiements validés</div>
-            <div style="display:flex;align-items:center;gap:10px">
+    {{-- Card liste --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2 gap-3 flex-wrap">
+            <span class="font-display font-bold text-sm text-bimo-navy">Paiements validés</span>
+            <div class="flex items-center gap-3">
                 @if($anneesDisponibles->count() > 1)
-                <form method="GET" action="{{ route('locataire.paiements') }}" style="display:flex;align-items:center;gap:6px">
-                    <label style="font-size:11px;color:#6b7280;white-space:nowrap">Filtrer par année :</label>
+                <form method="GET" action="{{ route('locataire.paiements') }}" class="flex items-center gap-2">
+                    <label class="font-body text-xs text-bimo-navy/40 whitespace-nowrap">Année :</label>
                     <select name="annee" onchange="this.form.submit()"
-                            style="padding:5px 10px;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;color:#374151;background:#fff;cursor:pointer">
+                            class="px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy bg-white focus:outline-none focus:border-bimo-gold cursor-pointer">
                         <option value="">Toutes</option>
                         @foreach($anneesDisponibles as $a)
-                            <option value="{{ $a }}" {{ $annee == $a ? 'selected' : '' }}>{{ $a }}</option>
+                        <option value="{{ $a }}" {{ $annee == $a ? 'selected' : '' }}>{{ $a }}</option>
                         @endforeach
                     </select>
                 </form>
                 @endif
-                <span class="badge-count">{{ $paiements->total() }} au total</span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">
+                    {{ $paiements->total() }} au total
+                </span>
             </div>
         </div>
 
-        @forelse($paiements as $p)
-        @if($loop->first)
-        <div style="overflow-x:auto">
-            <table class="dt">
+        @if($paiements->isEmpty())
+        <div class="px-5 py-16 text-center">
+            <div class="w-12 h-12 bg-bimo-navy/[5%] rounded-[12px] flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div class="font-display font-bold text-sm text-bimo-navy mb-2">Aucun paiement enregistré</div>
+            <p class="font-body text-sm text-bimo-navy/40">Vos loyers validés apparaîtront ici avec les quittances téléchargeables.</p>
+        </div>
+        @else
+
+        {{-- Mobile cards --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+            @foreach($paiements as $p)
+            <div class="px-4 py-3.5 flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
+                        {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
+                    </span>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="font-body text-xs text-bimo-navy/40">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</span>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/50">{{ $modes[$p->mode_paiement] ?? $p->mode_paiement }}</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse,0,',','') }}&nbsp;F</span>
+                    <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
+                       class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150"
+                       title="Télécharger la quittance PDF">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
                 <thead>
-                    <tr>
-                        <th>Référence</th>
-                        <th>Période</th>
-                        <th>Date de paiement</th>
-                        <th>Mode</th>
-                        <th style="text-align:right">Montant encaissé</th>
-                        <th style="text-align:center">Quittance</th>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Référence</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Période</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Date de paiement</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Mode</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Montant encaissé</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Quittance</th>
                     </tr>
                 </thead>
-                <tbody>
-        @endif
-                    <tr>
-                        <td style="font-family:'Syne',sans-serif;font-size:11px;color:#9ca3af">
-                            {{ $p->reference_paiement ?? '—' }}
-                        </td>
-                        <td>
-                            <span class="periode-pill">
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @foreach($paiements as $p)
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5 font-body text-[11px] text-bimo-navy/40 uppercase tracking-widest">{{ $p->reference_paiement ?? '—' }}</td>
+                        <td class="px-5 py-3.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
                                 {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
                             </span>
                         </td>
-                        <td style="color:#6b7280;font-size:12px">
-                            {{ \Carbon\Carbon::parse($p->date_paiement)->isoFormat('D MMM YYYY') }}
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ \Carbon\Carbon::parse($p->date_paiement)->isoFormat('D MMM YYYY') }}</td>
+                        <td class="px-5 py-3.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">{{ $modes[$p->mode_paiement] ?? $p->mode_paiement }}</span>
                         </td>
-                        <td>
-                            <span class="mode-badge">{{ $modes[$p->mode_paiement] ?? $p->mode_paiement }}</span>
-                        </td>
-                        <td style="text-align:right">
-                            <span class="amt">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</span>
-                        </td>
-                        <td style="text-align:center">
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-center">
                             <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
-                               style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid #e5e7eb;border-radius:7px;color:#6b7280;text-decoration:none;transition:all .15s"
-                               onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f';this.style.background='#fffbeb'"
-                               onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280';this.style.background='transparent'"
+                               class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150"
                                title="Télécharger la quittance PDF">
-                                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                    <line x1="12" y1="18" x2="12" y2="12"/>
-                                    <polyline points="9 15 12 18 15 15"/>
-                                </svg>
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
                             </a>
                         </td>
                     </tr>
-        @if($loop->last)
+                    @endforeach
                 </tbody>
             </table>
         </div>
-        @endif
-    @empty
-        <div class="empty-state">
-            <div class="empty-icon">
-                <svg style="width:22px;height:22px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="2" y="5" width="20" height="14" rx="2"/>
-                    <line x1="2" y1="10" x2="22" y2="10"/>
-                </svg>
+
+        {{-- Pagination --}}
+        @if($paiements->hasPages())
+        <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%] flex-wrap gap-3">
+            <span class="font-body text-xs text-bimo-navy/40">Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</span>
+            <div class="flex items-center gap-1">
+                <a href="{{ $paiements->previousPageUrl() ?? '#' }}"
+                   class="w-8 h-8 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/50 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $paiements->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                </a>
+                @foreach($paiements->getUrlRange(max(1,$paiements->currentPage()-2), min($paiements->lastPage(),$paiements->currentPage()+2)) as $page => $url)
+                <a href="{{ $url }}"
+                   class="w-8 h-8 inline-flex items-center justify-center border rounded-[7px] font-body text-xs transition-all duration-150 {{ $page == $paiements->currentPage() ? 'bg-[var(--ac)] border-[var(--ac)] text-white font-bold' : 'border-bimo-navy/15 text-bimo-navy/50 hover:border-bimo-gold hover:text-bimo-gold' }}">
+                    {{ $page }}
+                </a>
+                @endforeach
+                <a href="{{ $paiements->nextPageUrl() ?? '#' }}"
+                   class="w-8 h-8 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/50 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$paiements->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
             </div>
-            <div class="empty-title">Aucun paiement enregistré</div>
-            <p class="empty-sub">Vos loyers validés apparaîtront ici avec les quittances téléchargeables.</p>
         </div>
-    @endforelse
+        @endif
 
-    {{-- Pagination --}}
-    @if($paiements->hasPages())
-    <div class="pagination">
-        <span>Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</span>
-        <div class="pag-links">
-            <a href="{{ $paiements->previousPageUrl() ?? '#' }}"
-               class="pag-link {{ $paiements->onFirstPage() ? 'disabled' : '' }}">
-                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-            </a>
-            @foreach($paiements->getUrlRange(max(1, $paiements->currentPage()-2), min($paiements->lastPage(), $paiements->currentPage()+2)) as $page => $url)
-            <a href="{{ $url }}" class="pag-link {{ $page == $paiements->currentPage() ? 'active' : '' }}">{{ $page }}</a>
-            @endforeach
-            <a href="{{ $paiements->nextPageUrl() ?? '#' }}"
-               class="pag-link {{ !$paiements->hasMorePages() ? 'disabled' : '' }}">
-                <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-            </a>
-        </div>
+        @endif
     </div>
-    @endif
-
-    </div>{{-- .card --}}
 
 </div>
 @endsection

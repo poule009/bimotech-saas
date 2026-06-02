@@ -1,176 +1,219 @@
 @extends('layouts.app')
-@section('title', 'Mon contrat — ' . ($contrat->reference_bail ?? 'Bail'))
-@section('breadcrumb', 'Mon contrat')
+@section('header', 'Mon contrat')
 
 @section('content')
-<style>
-.card  { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
-.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
-.card-body { padding:18px 20px; }
-.il { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:4px; }
-.iv { font-size:13px;font-weight:500;color:#0d1117; }
-.iv-sub { font-size:11px;color:#6b7280;margin-top:2px; }
-.info-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
-.kpi-row { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px; }
-.kpi { background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px; }
-.kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:5px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117; }
-.hero { background:linear-gradient(135deg,#0d1117 0%,#1c2333 100%);border-radius:14px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px; }
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-.dt td { padding:11px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-@media(max-width:640px){
-    .kpi-row{grid-template-columns:repeat(2,1fr)}
-    .info-grid{grid-template-columns:1fr}
-}
-@media(max-width:400px){.kpi-row{grid-template-columns:1fr}}
-</style>
 
-<div style="padding:0 0 48px">
+@php
+$modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave'=>'Wave','orange_money'=>'Orange Money','free_money'=>'Free Money'];
+@endphp
+
+<div class="space-y-4">
 
     {{-- Breadcrumb --}}
-    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:16px">
-        <a href="{{ route('locataire.dashboard') }}" style="color:#6b7280;text-decoration:none">Mon espace</a>
-        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span style="color:#0d1117;font-weight:500">Mon contrat</span>
-    </div>
+    <nav class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
+        <a href="{{ route('locataire.dashboard') }}" class="hover:text-bimo-navy transition-colors duration-150">Mon espace</a>
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="text-bimo-navy font-medium">Mon contrat</span>
+    </nav>
 
     {{-- Hero --}}
-    <div class="hero">
-        <div>
-            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:6px">
+    <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.05]"
+             style="background:radial-gradient(circle,#C9A84C 0%,transparent 70%);transform:translate(30%,-30%)"></div>
+        <div class="relative z-10">
+            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-gold/60 mb-2">
                 {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}
             </div>
-            <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px">
+            <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
                 {{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}
                 — {{ $contrat->bien?->adresse }}
             </div>
-            <div style="font-size:13px;color:rgba(255,255,255,.5)">
+            <div class="font-body text-sm text-white/50 mb-3">
                 {{ $contrat->bien?->ville }}
                 · Réf. bien : {{ $contrat->bien?->reference }}
             </div>
-            <div style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:rgba(22,163,74,.15);border:1px solid rgba(22,163,74,.3);border-radius:99px;padding:4px 12px">
-                <div style="width:7px;height:7px;border-radius:50%;background:#16a34a"></div>
-                <span style="font-size:11px;font-weight:600;color:#4ade80">Contrat actif</span>
-            </div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-bimo-gold/15 border border-bimo-gold/30 rounded-full font-body font-semibold text-xs text-bimo-gold">
+                <span class="w-1.5 h-1.5 rounded-full bg-bimo-gold"></span>
+                Contrat actif
+            </span>
         </div>
-        <div style="text-align:right">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px">Loyer mensuel</div>
-            <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#c9a84c">
-                {{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }}<span style="font-size:14px;color:rgba(255,255,255,.3);margin-left:4px">F</span>
+        <div class="relative z-10 md:text-right flex-shrink-0">
+            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-gold/60 mb-1">Loyer mensuel</div>
+            <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
+                {{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }}<span class="text-sm text-white/30 ml-1">F</span>
             </div>
-            <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:3px">
+            <div class="font-body text-xs text-white/30 mt-1">
                 {{ $contrat->date_debut?->format('d/m/Y') }} → {{ $contrat->date_fin?->format('d/m/Y') ?? 'Durée indéterminée' }}
             </div>
         </div>
     </div>
 
     {{-- KPIs --}}
-    <div class="kpi-row">
-        <div class="kpi">
-            <div class="kpi-lbl">Total versé</div>
-            <div class="kpi-val" style="color:#c9a84c">{{ number_format($totalPaye, 0, ',', ' ') }}<span style="font-size:12px;color:#9ca3af"> F</span></div>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Total versé</div>
+            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">{{ number_format($totalPaye, 0, ',', ' ') }}<span class="text-xs text-bimo-gold/60 ml-1">F</span></div>
         </div>
-        <div class="kpi">
-            <div class="kpi-lbl">Paiements</div>
-            <div class="kpi-val">{{ $nbPaiements }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Paiements</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ $nbPaiements }}</div>
         </div>
-        <div class="kpi">
-            <div class="kpi-lbl">Prochain loyer</div>
-            <div class="kpi-val" style="font-size:15px">{{ $prochainePeriode->translatedFormat('F Y') }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 col-span-2 md:col-span-1">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Prochain loyer</div>
+            <div class="font-display font-extrabold text-lg text-bimo-navy leading-tight">{{ $prochainePeriode->translatedFormat('F Y') }}</div>
         </div>
     </div>
 
     {{-- Détails du bail --}}
-    <div class="card">
-        <div class="card-hd"><div class="card-title">Détails du bail</div></div>
-        <div class="card-body">
-            <div class="info-grid">
-                <div><div class="il">Type de bail</div><div class="iv">{{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}</div></div>
-                <div><div class="il">Référence bail</div><div class="iv" style="font-family:monospace;font-size:12px">{{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}</div></div>
-                <div><div class="il">Date de début</div><div class="iv">{{ $contrat->date_debut?->format('d/m/Y') }}</div></div>
-                <div>
-                    <div class="il">Date de fin</div>
-                    <div class="iv">{{ $contrat->date_fin?->format('d/m/Y') ?? 'Durée indéterminée' }}</div>
-                </div>
-                <div><div class="il">Loyer nu</div><div class="iv">{{ number_format($contrat->loyer_nu, 0, ',', ' ') }} F</div></div>
-                @if($contrat->charges_mensuelles)
-                <div><div class="il">Charges mensuelles</div><div class="iv">{{ number_format($contrat->charges_mensuelles, 0, ',', ' ') }} F</div></div>
-                @endif
-                @if($contrat->tom_amount)
-                <div><div class="il">TOM</div><div class="iv">{{ number_format($contrat->tom_amount, 0, ',', ' ') }} F</div></div>
-                @endif
-                <div><div class="il">Caution versée</div><div class="iv">{{ number_format($contrat->caution, 0, ',', ' ') }} F</div></div>
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Détails du bail</span>
+        </div>
+        <div class="px-5 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Type de bail</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}</div>
+            </div>
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Référence bail</div>
+                <div class="font-body text-sm text-bimo-navy/70" style="font-family:monospace">{{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}</div>
+            </div>
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Date de début</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->date_debut?->format('d/m/Y') }}</div>
+            </div>
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Date de fin</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->date_fin?->format('d/m/Y') ?? 'Durée indéterminée' }}</div>
+            </div>
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Loyer nu</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ number_format($contrat->loyer_nu, 0, ',', ' ') }} F</div>
+            </div>
+            @if($contrat->charges_mensuelles)
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widests text-bimo-navy/40 mb-1">Charges mensuelles</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ number_format($contrat->charges_mensuelles, 0, ',', ' ') }} F</div>
+            </div>
+            @endif
+            @if($contrat->tom_amount)
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">TOM</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ number_format($contrat->tom_amount, 0, ',', ' ') }} F</div>
+            </div>
+            @endif
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Caution versée</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ number_format($contrat->caution, 0, ',', ' ') }} F</div>
             </div>
         </div>
     </div>
 
     {{-- Bien loué --}}
-    <div class="card">
-        <div class="card-hd"><div class="card-title">Bien loué</div></div>
-        <div class="card-body">
-            <div class="info-grid">
-                <div><div class="il">Référence</div><div class="iv">{{ $contrat->bien?->reference }}</div></div>
-                <div><div class="il">Type</div><div class="iv">{{ \App\Models\Bien::TYPES[$contrat->bien?->type] ?? $contrat->bien?->type }}</div></div>
-                <div style="grid-column:1/-1"><div class="il">Adresse</div><div class="iv">{{ $contrat->bien?->adresse }}, {{ $contrat->bien?->ville }}</div></div>
-                @if($contrat->bien?->surface_m2)
-                <div><div class="il">Surface</div><div class="iv">{{ $contrat->bien?->surface_m2 }} m²</div></div>
-                @endif
-                @if($contrat->bien?->nombre_pieces)
-                <div><div class="il">Pièces</div><div class="iv">{{ $contrat->bien?->nombre_pieces }}</div></div>
-                @endif
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Bien loué</span>
+        </div>
+        <div class="px-5 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Référence</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->bien?->reference }}</div>
             </div>
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Type</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ \App\Models\Bien::TYPES[$contrat->bien?->type] ?? $contrat->bien?->type }}</div>
+            </div>
+            <div class="sm:col-span-2">
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Adresse</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->bien?->adresse }}, {{ $contrat->bien?->ville }}</div>
+            </div>
+            @if($contrat->bien?->surface_m2)
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Surface</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->bien?->surface_m2 }} m²</div>
+            </div>
+            @endif
+            @if($contrat->bien?->nombre_pieces)
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Pièces</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->bien?->nombre_pieces }}</div>
+            </div>
+            @endif
         </div>
     </div>
 
-    {{-- Bailleur / Agence --}}
-    <div class="card">
-        <div class="card-hd"><div class="card-title">Votre gestionnaire</div></div>
-        <div class="card-body">
-            <div class="info-grid">
-                <div>
-                    <div class="il">Propriétaire</div>
-                    <div class="iv">{{ $contrat->bien?->proprietaire?->name }}</div>
-                    @if($contrat->bien?->proprietaire?->telephone)
-                    <div class="iv-sub">{{ $contrat->bien->proprietaire->telephone }}</div>
-                    @endif
-                </div>
+    {{-- Propriétaire --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Votre gestionnaire</span>
+        </div>
+        <div class="px-5 py-5">
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Propriétaire</div>
+                <div class="font-body font-medium text-sm text-bimo-navy">{{ $contrat->bien?->proprietaire?->name }}</div>
+                @if($contrat->bien?->proprietaire?->telephone)
+                <div class="font-body text-xs text-bimo-navy/50 mt-0.5">{{ $contrat->bien->proprietaire->telephone }}</div>
+                @endif
             </div>
         </div>
     </div>
 
     {{-- Historique paiements --}}
     @if($paiements->count() > 0)
-    <div class="card">
-        <div class="card-hd">
-            <div class="card-title">Historique des paiements</div>
-            <a href="{{ route('locataire.paiements') }}" style="font-size:12px;color:#c9a84c;text-decoration:none;font-weight:600">Voir tout →</a>
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Historique des paiements</span>
+            <a href="{{ route('locataire.paiements') }}" class="font-body font-semibold text-xs text-bimo-gold hover:text-bimo-navy transition-colors duration-150">Voir tout →</a>
         </div>
-        <div class="card-body" style="padding:0">
-            <table class="dt">
+        {{-- Mobile --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+            @foreach($paiements->take(6) as $p)
+            <div class="px-5 py-3.5 flex items-center justify-between gap-3">
+                <div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
+                        {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
+                    </span>
+                    <div class="font-body text-xs text-bimo-navy/40 mt-1">{{ $p->date_paiement?->format('d/m/Y') ?? '—' }}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse,0,',','') }} F</span>
+                    <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
+                       class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        {{-- Desktop --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
                 <thead>
-                    <tr>
-                        <th>Période</th>
-                        <th>Date</th>
-                        <th>Mode</th>
-                        <th style="text-align:right">Montant</th>
-                        <th style="text-align:center">Quittance</th>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Période</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Date</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Mode</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Montant</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Quittance</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
                     @foreach($paiements->take(6) as $p)
-                    @php $modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave'=>'Wave','orange_money'=>'Orange Money','free_money'=>'Free Money']; @endphp
-                    <tr>
-                        <td style="font-weight:600">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}</td>
-                        <td style="color:#6b7280">{{ $p->date_paiement?->format('d/m/Y') ?? '—' }}</td>
-                        <td>{{ $modes[$p->mode_paiement] ?? $p->mode_paiement }}</td>
-                        <td style="text-align:right;font-weight:700;color:#c9a84c">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
-                        <td style="text-align:center">
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
+                                {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('F Y') }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $p->date_paiement?->format('d/m/Y') ?? '—' }}</td>
+                        <td class="px-5 py-3.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">{{ $modes[$p->mode_paiement] ?? $p->mode_paiement }}</span>
+                        </td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-center">
                             <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
-                               style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f5e9c9;color:#8a6e2f;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">
-                                PDF
+                               class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             </a>
                         </td>
                     </tr>

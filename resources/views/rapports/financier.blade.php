@@ -1,84 +1,7 @@
 @extends('layouts.app')
-@section('title', 'Rapport financier')
-@section('breadcrumb', 'Rapports › Financier')
+@section('header', 'Rapports › Financier')
 
 @section('content')
-<style>
-/* ── KPIs ── */
-.kpi-row5 { display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px; }
-.kpi5 { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;position:relative;overflow:hidden; }
-.kpi5::before { content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0; }
-.kpi5.gold::before   { background:#c9a84c; }
-.kpi5.green::before  { background:#16a34a; }
-.kpi5.blue::before   { background:#1d4ed8; }
-.kpi5.purple::before { background:#7c3aed; }
-.kpi5.dark::before   { background:#0d1117; }
-.kpi5-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
-.kpi5-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;line-height:1.1; }
-.kpi5-sub { font-size:11px;color:#9ca3af;margin-top:4px; }
-
-/* ── Tables ── */
-.table-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:20px; }
-.table-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px; }
-.table-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-.dt td { padding:11px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#fafafa; }
-
-/* ── Navigation mois ── */
-.nav-btn { display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;text-decoration:none;transition:all .15s; }
-.nav-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
-.nav-current { font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:#0d1117;min-width:140px;text-align:center; }
-
-/* ── Badges mode paiement ── */
-.mode-badge { display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700; }
-.mode-especes      { background:#f3f4f6;color:#374151; }
-.mode-virement     { background:#dbeafe;color:#1d4ed8; }
-.mode-cheque       { background:#ede9fe;color:#7c3aed; }
-.mode-wave         { background:#fef3c7;color:#d97706; }
-.mode-orange_money { background:#ffedd5;color:#ea580c; }
-.mode-free_money   { background:#fce7f3;color:#db2777; }
-.mode-e_money      { background:#d1fae5;color:#059669; }
-
-/* ── Avatar initiales ── */
-.ava { width:28px;height:28px;border-radius:8px;background:#f5e9c9;color:#8a6e2f;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0; }
-
-/* ── Chart barres ── */
-.chart-wrap { background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px 24px;margin-bottom:22px; }
-.chart-bars { display:flex;align-items:flex-end;gap:8px;height:110px;margin:16px 0 8px; }
-.chart-col  { flex:1;display:flex;flex-direction:column;align-items:center;gap:2px; }
-.chart-bars-inner { width:100%;display:flex;align-items:flex-end;gap:2px; }
-.bar-loyer  { flex:1;background:#c9a84c;border-radius:4px 4px 0 0;min-height:2px;transition:opacity .15s; }
-.bar-loyer:hover { opacity:.8; }
-.bar-comm   { flex:1;background:#e5e7eb;border-radius:4px 4px 0 0;min-height:2px;transition:opacity .15s; }
-.bar-comm:hover { opacity:.8; }
-.chart-lbl  { font-size:9px;color:#9ca3af;text-align:center;white-space:nowrap; }
-.chart-lbl.active { color:#0d1117;font-weight:700; }
-
-/* ── Barre occupation ── */
-.occ-bar-bg { height:6px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:6px; }
-.occ-bar-fill { height:100%;background:#16a34a;border-radius:99px;transition:width .4s; }
-
-/* ── Pagination ── */
-.pg-btn { display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 8px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;text-decoration:none;transition:all .15s; }
-.pg-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
-.pg-btn.active { background:#0d1117;color:#fff;border-color:#0d1117; }
-.pg-btn.disabled { opacity:.35;pointer-events:none; }
-@media(max-width:1024px){
-    .kpi-row5{grid-template-columns:repeat(3,1fr)}
-    .stats-generales-grid{grid-template-columns:repeat(3,1fr)!important}
-}
-@media(max-width:640px){
-    .kpi-row5{grid-template-columns:repeat(2,1fr)}
-    .stats-generales-grid{grid-template-columns:repeat(2,1fr)!important}
-}
-@media(max-width:420px){
-    .kpi-row5{grid-template-columns:1fr}
-    .stats-generales-grid{grid-template-columns:1fr!important}
-}
-</style>
 
 @php
     $prevMois  = $mois == 1  ? 12 : $mois - 1;
@@ -86,417 +9,381 @@
     $nextMois  = $mois == 12 ? 1  : $mois + 1;
     $nextAnnee = $mois == 12 ? $annee + 1 : $annee;
     $isFutur   = $nextAnnee > now()->year || ($nextAnnee == now()->year && $nextMois > now()->month);
-
-    // Chart : max pour normaliser les barres
-    $maxLoyer = $evolution->max('total_loyers') ?: 1;
+    $maxLoyer  = $evolution->max('total_loyers') ?: 1;
+    $modeLabels = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave'=>'Wave','orange_money'=>'Orange Money','free_money'=>'Free Money','e_money'=>'E-Money'];
 @endphp
 
-<div style="padding:0 0 48px">
+<div class="space-y-4 md:space-y-5">
 
-{{-- ── HEADER ──────────────────────────────────────────────────────────── --}}
-<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
-    <div>
-        <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Rapport financier</h1>
-        <p style="font-size:13px;color:#6b7280;margin-top:3px">
-            {{ $debutMois->translatedFormat('F Y') }}
-            · {{ $kpiMois['nb_paiements'] }} paiement(s) validé(s)
-            @if($biensImpayes->count() > 0)
-                · <span style="color:#dc2626;font-weight:600">{{ $biensImpayes->count() }} impayé(s)</span>
-            @endif
-        </p>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        {{-- Navigation période --}}
-        <div style="display:flex;align-items:center;gap:6px">
-            <a href="{{ route('admin.rapports.financier', ['mois' => $prevMois, 'annee' => $prevAnnee]) }}" class="nav-btn">
-                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            </a>
-            <div class="nav-current">{{ $debutMois->translatedFormat('F Y') }}</div>
-            @if(!$isFutur)
-            <a href="{{ route('admin.rapports.financier', ['mois' => $nextMois, 'annee' => $nextAnnee]) }}" class="nav-btn">
-                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            </a>
-            @else
-            <span class="nav-btn" style="opacity:.3;cursor:not-allowed">
-                <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            </span>
-            @endif
-        </div>
-
-        {{-- Sélecteur année --}}
-        @if($anneesDisponibles->count() > 1)
-        <form method="GET" style="display:flex;align-items:center;gap:6px">
-            <input type="hidden" name="mois" value="{{ $mois }}">
-            <select name="annee" onchange="this.form.submit()"
-                    style="padding:7px 10px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fff;cursor:pointer">
-                @foreach($anneesDisponibles as $a)
-                <option value="{{ $a }}" {{ $a == $annee ? 'selected' : '' }}>{{ $a }}</option>
-                @endforeach
-            </select>
-        </form>
-        @endif
-
-        {{-- Export PDF --}}
-        <a href="{{ route('admin.rapports.financier.export-pdf', ['mois' => $mois, 'annee' => $annee]) }}"
-           style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:#0d1117;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;border-radius:8px;text-decoration:none;transition:opacity .15s"
-           onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-            <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Exporter PDF
-        </a>
-    </div>
-</div>
-
-{{-- ── GRAPHIQUE 6 MOIS ─────────────────────────────────────────────────── --}}
-@if($evolution->count() > 0)
-<div class="chart-wrap">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    {{-- En-tête --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117">Évolution sur 6 mois</div>
-            <div style="font-size:11px;color:#9ca3af;margin-top:2px">Loyers encaissés et commissions</div>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight leading-tight">Rapport financier</h1>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">
+                {{ $debutMois->translatedFormat('F Y') }}
+                · {{ $kpiMois['nb_paiements'] }} paiement(s) validé(s)
+                @if($biensImpayes->count() > 0)
+                · <span class="text-bimo-red font-semibold">{{ $biensImpayes->count() }} impayé(s)</span>
+                @endif
+            </p>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;font-size:11px;color:#6b7280">
-            <span style="display:flex;align-items:center;gap:5px">
-                <span style="width:10px;height:10px;border-radius:3px;background:#c9a84c;display:inline-block"></span> Loyers
-            </span>
-            <span style="display:flex;align-items:center;gap:5px">
-                <span style="width:10px;height:10px;border-radius:3px;background:#e5e7eb;display:inline-block"></span> Commission
-            </span>
+        <div class="flex flex-wrap items-center gap-2">
+            {{-- Navigation mois --}}
+            <div class="flex items-center gap-1">
+                <a href="{{ route('admin.rapports.financier', ['mois' => $prevMois, 'annee' => $prevAnnee]) }}"
+                   class="w-8 h-8 flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-navy/50 hover:text-bimo-navy hover:border-bimo-gold transition-all duration-150">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </a>
+                <div class="font-display font-semibold text-sm text-bimo-navy min-w-[140px] text-center px-2">{{ $debutMois->translatedFormat('F Y') }}</div>
+                @if(!$isFutur)
+                <a href="{{ route('admin.rapports.financier', ['mois' => $nextMois, 'annee' => $nextAnnee]) }}"
+                   class="w-8 h-8 flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-navy/50 hover:text-bimo-navy hover:border-bimo-gold transition-all duration-150">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                @else
+                <span class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-navy/20 cursor-not-allowed">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+                @endif
+            </div>
+
+            {{-- Sélecteur année --}}
+            @if($anneesDisponibles->count() > 1)
+            <form method="GET" class="flex items-center">
+                <input type="hidden" name="mois" value="{{ $mois }}">
+                <select name="annee" onchange="this.form.submit()"
+                        class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px] font-body text-sm text-bimo-navy cursor-pointer
+                               focus:outline-none focus:border-bimo-gold transition-all duration-150">
+                    @foreach($anneesDisponibles as $a)
+                    <option value="{{ $a }}" {{ $a == $annee ? 'selected' : '' }}>{{ $a }}</option>
+                    @endforeach
+                </select>
+            </form>
+            @endif
+
+            {{-- Export PDF --}}
+            <a href="{{ route('admin.rapports.financier.export-pdf', ['mois' => $mois, 'annee' => $annee]) }}"
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Exporter PDF
+            </a>
         </div>
     </div>
 
-    <div class="chart-bars">
-        @foreach($evolution as $e)
-        @php
-            $hLoyer = max(4, round(($e->total_loyers / $maxLoyer) * 110));
-            $hComm  = max(2, round(($e->total_commission / $maxLoyer) * 110));
-            $label  = \Carbon\Carbon::createFromFormat('Y-m', $e->mois_label)->translatedFormat('M');
-            $isCurrent = $e->mois_label === $debutMois->format('Y-m');
-        @endphp
-        <div class="chart-col" style="position:relative" title="{{ number_format($e->total_loyers, 0, ',', ' ') }} F">
-            <div class="chart-bars-inner" style="height:110px">
-                <div class="bar-loyer" style="height:{{ $hLoyer }}px;{{ $isCurrent ? 'background:#0d1117' : '' }}"></div>
-                <div class="bar-comm"  style="height:{{ $hComm }}px;{{ $isCurrent ? 'background:#c9a84c' : '' }}"></div>
+    {{-- Graphique 6 mois --}}
+    @if($evolution->count() > 0)
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5">
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <div>
+                <div class="font-display font-bold text-sm text-bimo-navy">Évolution sur 6 mois</div>
+                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Loyers encaissés et commissions</div>
             </div>
-            <div class="chart-lbl {{ $isCurrent ? 'active' : '' }}">{{ $label }}</div>
+            <div class="flex items-center gap-4 font-body text-xs text-bimo-navy/50">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-[3px] bg-bimo-gold inline-block"></span>Loyers</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-[3px] bg-bimo-navy/15 inline-block"></span>Commission</span>
+            </div>
+        </div>
+        <div class="flex items-end gap-2 h-28">
+            @foreach($evolution as $e)
+            @php
+                $hLoyer = max(4, round(($e->total_loyers / $maxLoyer) * 112));
+                $hComm  = max(2, round(($e->total_commission / $maxLoyer) * 112));
+                $label  = \Carbon\Carbon::createFromFormat('Y-m', $e->mois_label)->translatedFormat('M');
+                $isCur  = $e->mois_label === $debutMois->format('Y-m');
+            @endphp
+            <div class="flex-1 flex flex-col items-center gap-1" title="{{ number_format($e->total_loyers, 0, ',', ' ') }} F">
+                <div class="w-full flex items-end gap-0.5" style="height:112px">
+                    <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80"
+                         style="height:{{ $hLoyer }}px; background: {{ $isCur ? '#1B4F6B' : '#C9A84C' }}"></div>
+                    <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80"
+                         style="height:{{ $hComm }}px; background: {{ $isCur ? '#C9A84C' : 'rgba(27,79,107,0.15)' }}"></div>
+                </div>
+                <div class="font-body text-[9px] text-center {{ $isCur ? 'text-bimo-navy font-bold' : 'text-bimo-navy/40' }}">{{ $label }}</div>
+            </div>
+            @endforeach
+        </div>
+        <div class="font-body text-[10px] text-bimo-navy/30 text-right mt-1">Max : {{ number_format($maxLoyer, 0, ',', ' ') }} F</div>
+    </div>
+    @endif
+
+    {{-- KPIs --}}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        @php
+            $kpis = [
+                ['Loyers encaissés',  number_format($kpiMois['total_loyers'], 0, ',', ' '), 'FCFA · '.$kpiMois['nb_paiements'].' paiements', 'border-t-bimo-gold', 'text-bimo-gold'],
+                ['Net propriétaires', number_format($kpiMois['total_net_proprio'], 0, ',', ' '), 'FCFA à reverser', 'border-t-bimo-navy', 'text-bimo-navy'],
+                ['Commission HT',     number_format($kpiMois['total_commission'], 0, ',', ' '), 'FCFA agence', 'border-t-bimo-navy', 'text-bimo-navy'],
+                ['TVA commission',    number_format($kpiMois['total_tva'], 0, ',', ' '), 'FCFA (18%)', 'border-t-bimo-navy', 'text-bimo-navy'],
+                ['Commission TTC',    number_format($kpiMois['total_ttc'], 0, ',', ' '), 'FCFA total agence', 'border-t-bimo-navy-dk', 'text-bimo-navy'],
+            ];
+        @endphp
+        @foreach($kpis as [$lbl, $val, $sub, $topClass, $valClass])
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 {{ $topClass }}">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">{{ $lbl }}</div>
+            <div class="font-display font-extrabold text-xl {{ $valClass }} leading-none">{{ $val }}</div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">{{ $sub }}</div>
         </div>
         @endforeach
     </div>
 
-    {{-- Valeur max en référence --}}
-    <div style="font-size:10px;color:#9ca3af;text-align:right;margin-top:2px">
-        Max : {{ number_format($maxLoyer, 0, ',', ' ') }} F
-    </div>
-</div>
-@endif
-
-{{-- ── KPIs ─────────────────────────────────────────────────────────────── --}}
-<div class="kpi-row5">
-    <div class="kpi5 gold">
-        <div class="kpi5-lbl">Loyers encaissés</div>
-        <div class="kpi5-val">{{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }}</div>
-        <div class="kpi5-sub">FCFA · {{ $kpiMois['nb_paiements'] }} paiements</div>
-    </div>
-    <div class="kpi5 green">
-        <div class="kpi5-lbl">Net propriétaires</div>
-        <div class="kpi5-val" style="color:#16a34a">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }}</div>
-        <div class="kpi5-sub">FCFA à reverser</div>
-    </div>
-    <div class="kpi5 blue">
-        <div class="kpi5-lbl">Commission HT</div>
-        <div class="kpi5-val" style="color:#1d4ed8">{{ number_format($kpiMois['total_commission'], 0, ',', ' ') }}</div>
-        <div class="kpi5-sub">FCFA agence</div>
-    </div>
-    <div class="kpi5 purple">
-        <div class="kpi5-lbl">TVA commission</div>
-        <div class="kpi5-val" style="color:#7c3aed">{{ number_format($kpiMois['total_tva'], 0, ',', ' ') }}</div>
-        <div class="kpi5-sub">FCFA (18%)</div>
-    </div>
-    <div class="kpi5 dark">
-        <div class="kpi5-lbl">Commission TTC</div>
-        <div class="kpi5-val">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }}</div>
-        <div class="kpi5-sub">FCFA total agence</div>
-    </div>
-</div>
-
-{{-- ── STATS GÉNÉRALES ──────────────────────────────────────────────────── --}}
-<div class="stats-generales-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px">
-    @foreach([
-        ['label' => 'Biens total',        'val' => $statsGenerales['nb_biens']],
-        ['label' => 'Biens loués',         'val' => $statsGenerales['nb_biens_loues']],
-        ['label' => 'Contrats actifs',     'val' => $statsGenerales['nb_contrats']],
-        ['label' => 'Propriétaires',       'val' => $statsGenerales['nb_proprietaires']],
-        ['label' => 'Locataires',          'val' => $statsGenerales['nb_locataires']],
-    ] as $s)
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;text-align:center">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:4px">{{ $s['label'] }}</div>
-        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#0d1117">{{ $s['val'] }}</div>
-    </div>
-    @endforeach
-
-    {{-- Taux occupation avec barre --}}
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:4px">Taux d'occupation</div>
-        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:{{ $statsGenerales['taux_occupation'] >= 80 ? '#16a34a' : ($statsGenerales['taux_occupation'] >= 50 ? '#d97706' : '#dc2626') }}">
-            {{ $statsGenerales['taux_occupation'] }}%
+    {{-- Stats générales --}}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        @foreach([
+            ['Biens total',    $statsGenerales['nb_biens']],
+            ['Biens loués',    $statsGenerales['nb_biens_loues']],
+            ['Contrats actifs',$statsGenerales['nb_contrats']],
+            ['Propriétaires',  $statsGenerales['nb_proprietaires']],
+            ['Locataires',     $statsGenerales['nb_locataires']],
+        ] as [$lbl, $val])
+        <div class="bg-bimo-bg rounded-[10px] border border-bimo-navy/10 p-3 text-center">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/40 mb-1">{{ $lbl }}</div>
+            <div class="font-display font-bold text-lg text-bimo-navy leading-none">{{ $val }}</div>
         </div>
-        <div class="occ-bar-bg" style="margin-top:8px">
-            <div class="occ-bar-fill" style="width:{{ $statsGenerales['taux_occupation'] }}%;background:{{ $statsGenerales['taux_occupation'] >= 80 ? '#16a34a' : ($statsGenerales['taux_occupation'] >= 50 ? '#d97706' : '#dc2626') }}"></div>
+        @endforeach
+        {{-- Taux d'occupation --}}
+        @php $taux = $statsGenerales['taux_occupation']; @endphp
+        <div class="bg-bimo-bg rounded-[10px] border border-bimo-navy/10 p-3">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/40 mb-1">Taux d'occupation</div>
+            <div class="font-display font-bold text-lg leading-none {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-amber-500' : 'text-bimo-red') }}">{{ $taux }}%</div>
+            <div class="h-1.5 bg-bimo-navy/10 rounded-full overflow-hidden mt-2">
+                <div class="h-full rounded-full" style="width:{{ $taux }}%; background: {{ $taux >= 80 ? '#C9A84C' : ($taux >= 50 ? '#f59e0b' : '#EF4444') }}"></div>
+            </div>
         </div>
     </div>
-</div>
 
-{{-- ── PAR PROPRIÉTAIRE ─────────────────────────────────────────────────── --}}
-@if($parProprietaire->count() > 0)
-<div class="table-card">
-    <div class="table-hd">
-        <div class="table-title">Récapitulatif par propriétaire</div>
-        <div style="font-size:12px;color:#6b7280">{{ $parProprietaire->count() }} propriétaire(s)</div>
-    </div>
-    <div style="overflow-x:auto">
-        <table class="dt">
-            <thead>
-                <tr>
-                    <th>Propriétaire</th>
-                    <th style="text-align:center">Paiements</th>
-                    <th style="text-align:right">Total encaissé</th>
-                    <th style="text-align:right">Commission TTC</th>
-                    <th style="text-align:right">Net reversé</th>
-                    <th style="text-align:right">Part (%)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($parProprietaire as $nom => $data)
-                @php $part = $kpiMois['total_loyers'] > 0 ? round(($data['total_encaisse'] / $kpiMois['total_loyers']) * 100, 1) : 0; @endphp
-                <tr>
-                    <td>
-                        <div style="display:flex;align-items:center;gap:9px">
-                            <div class="ava">{{ strtoupper(substr($nom, 0, 2)) }}</div>
-                            <span style="font-weight:500">{{ $nom }}</span>
-                        </div>
-                    </td>
-                    <td style="text-align:center">
-                        <span style="background:#f3f4f6;color:#374151;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600">{{ $data['nb_paiements'] }}</span>
-                    </td>
-                    <td style="text-align:right;font-weight:700;color:#c9a84c;font-family:'Syne',sans-serif">
-                        {{ number_format($data['total_encaisse'], 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:right;color:#8a6e2f">
-                        {{ number_format($data['total_commission'], 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:right;color:#16a34a;font-weight:600">
-                        {{ number_format($data['total_net'], 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:right">
-                        <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
-                            <span style="font-size:11px;color:#9ca3af">{{ $part }}%</span>
-                            <div style="width:40px;height:4px;background:#e5e7eb;border-radius:99px;overflow:hidden">
-                                <div style="height:100%;width:{{ $part }}%;background:#c9a84c;border-radius:99px"></div>
+    {{-- Par propriétaire --}}
+    @if($parProprietaire->count() > 0)
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Récapitulatif par propriétaire</span>
+            <span class="font-body text-xs text-bimo-navy/40">{{ $parProprietaire->count() }} propriétaire(s)</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Paiements</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Total encaissé</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Commission TTC</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net reversé</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Part</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @foreach($parProprietaire as $nom => $data)
+                    @php $part = $kpiMois['total_loyers'] > 0 ? round(($data['total_encaisse'] / $kpiMois['total_loyers']) * 100, 1) : 0; @endphp
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-[7px] bg-bimo-gold/15 flex items-center justify-center font-display font-bold text-[10px] text-bimo-gold flex-shrink-0">
+                                    {{ mb_strtoupper(mb_substr($nom, 0, 2)) }}
+                                </div>
+                                <span class="font-body font-medium text-sm text-bimo-navy">{{ $nom }}</span>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr style="background:#f9fafb;font-weight:700">
-                    <td>Total</td>
-                    <td style="text-align:center">{{ $kpiMois['nb_paiements'] }}</td>
-                    <td style="text-align:right;font-family:'Syne',sans-serif;color:#c9a84c">
-                        {{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:right;color:#8a6e2f">
-                        {{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:right;color:#16a34a">
-                        {{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }} F
-                    </td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-</div>
-@endif
-
-{{-- ── DÉTAIL PAIEMENTS ─────────────────────────────────────────────────── --}}
-<div class="table-card">
-    <div class="table-hd">
-        <div class="table-title">Détail des paiements</div>
-        <div style="font-size:12px;color:#6b7280">{{ $paiementsMois->total() }} paiement(s)</div>
-    </div>
-
-    @if($paiementsMois->isEmpty())
-    <div style="padding:48px 20px;text-align:center">
-        <div style="width:48px;height:48px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg style="width:20px;height:20px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        </td>
+                        <td class="px-5 py-3.5 text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-bimo-navy/10 border border-bimo-navy/15 font-body text-[11px] text-bimo-navy/60">{{ $data['nb_paiements'] }}</span>
+                        </td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($data['total_encaisse'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-navy/60">{{ number_format($data['total_commission'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy">{{ number_format($data['total_net'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="font-body text-[11px] text-bimo-navy/40">{{ $part }}%</span>
+                                <div class="w-10 h-1 bg-bimo-navy/10 rounded-full overflow-hidden">
+                                    <div class="h-full bg-bimo-gold rounded-full" style="width:{{ $part }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr class="bg-bimo-bg2 font-semibold border-t border-bimo-navy/10">
+                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-navy">Total</td>
+                        <td class="px-5 py-3.5 text-center font-body text-sm text-bimo-navy">{{ $kpiMois['nb_paiements'] }}</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-navy/60">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }} F</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
-        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0d1117;margin-bottom:6px">Aucun paiement ce mois</div>
-        <div style="font-size:13px;color:#6b7280;margin-bottom:16px">Aucun paiement validé pour {{ $debutMois->translatedFormat('F Y') }}.</div>
-        <a href="{{ route('admin.paiements.create') }}" class="btn-primary" style="display:inline-flex">
-            <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Enregistrer un paiement
-        </a>
+    </div>
+    @endif
+
+    {{-- Détail paiements --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Détail des paiements</span>
+            <span class="font-body text-xs text-bimo-navy/40">{{ $paiementsMois->total() }} paiement(s)</span>
+        </div>
+
+        @if($paiementsMois->isEmpty())
+        <div class="px-5 py-16 text-center">
+            <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            </div>
+            <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun paiement ce mois</div>
+            <p class="font-body text-sm text-bimo-navy/50 mb-5">Aucun paiement validé pour {{ $debutMois->translatedFormat('F Y') }}.</p>
+            <a href="{{ route('admin.paiements.create') }}"
+               class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
+                + Enregistrer un paiement
+            </a>
+        </div>
+        @else
+
+        {{-- Mobile --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+            @foreach($paiementsMois as $p)
+            <div class="px-5 py-3.5 flex items-center justify-between gap-3">
+                <div>
+                    <div class="font-body font-medium text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                    <div class="font-body text-xs text-bimo-navy/50">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
+                </div>
+                <div class="text-right">
+                    <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse ?? 0, 0, ',', ' ') }} F</div>
+                    <div class="font-body text-xs text-bimo-navy/40">{{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}</div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        {{-- Desktop --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Référence</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Bien</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Locataire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Mode</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer nu</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Comm. TTC</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net proprio</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">PDF</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @foreach($paiementsMois as $p)
+                    @php $proprio = $p->contrat?->bien?->proprietaire; @endphp
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5 font-body text-[11px] text-bimo-navy/40 uppercase tracking-widest whitespace-nowrap">{{ $p->reference_paiement }}</td>
+                        <td class="px-5 py-3.5">
+                            <div class="font-body font-medium text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-navy/40">{{ $p->contrat?->bien?->ville }}</div>
+                        </td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/70">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5">
+                            @if($proprio)
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-[5px] bg-bimo-gold/15 flex items-center justify-center font-body font-bold text-[9px] text-bimo-gold flex-shrink-0">{{ mb_strtoupper(mb_substr($proprio->name,0,2)) }}</div>
+                                <span class="font-body text-xs text-bimo-navy/60">{{ $proprio->name }}</span>
+                            </div>
+                            @else
+                            <span class="font-body text-xs text-bimo-navy/30">—</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3.5">
+                            @php
+                                $modeClasses = ['especes'=>'bg-bimo-navy/10 text-bimo-navy/60','virement'=>'bg-bimo-navy/10 text-bimo-navy/60','cheque'=>'bg-bimo-navy/10 text-bimo-navy/60','wave'=>'bg-amber-50 text-amber-700','orange_money'=>'bg-orange-50 text-orange-700','free_money'=>'bg-pink-50 text-pink-700','e_money'=>'bg-bimo-gold/10 text-bimo-gold'];
+                            @endphp
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-bold {{ $modeClasses[$p->mode_paiement] ?? 'bg-bimo-navy/10 text-bimo-navy/60' }}">
+                                {{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy whitespace-nowrap">{{ number_format($p->loyer_nu ?? 0, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-navy/50 whitespace-nowrap">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy whitespace-nowrap">{{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-center">
+                            <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
+                               class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Pagination --}}
+        @if($paiementsMois->hasPages())
+        <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%] bg-bimo-bg">
+            <span class="font-body text-xs text-bimo-navy/40">{{ $paiementsMois->firstItem() }}–{{ $paiementsMois->lastItem() }} sur {{ $paiementsMois->total() }}</span>
+            <div class="flex items-center gap-1">
+                @if($paiementsMois->onFirstPage())
+                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
+                @else
+                <a href="{{ $paiementsMois->previousPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+                @endif
+                @foreach($paiementsMois->getUrlRange(max(1,$paiementsMois->currentPage()-2), min($paiementsMois->lastPage(),$paiementsMois->currentPage()+2)) as $page => $url)
+                <a href="{{ $url }}" class="w-7 h-7 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150 {{ $page == $paiementsMois->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30' }}">{{ $page }}</a>
+                @endforeach
+                @if($paiementsMois->hasMorePages())
+                <a href="{{ $paiementsMois->nextPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+                @else
+                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+                @endif
+            </div>
+        </div>
+        @endif
+        @endif
+    </div>
+
+    {{-- Impayés --}}
+    @if(isset($biensImpayes) && $biensImpayes->count() > 0)
+    <div class="bg-white rounded-[14px] border border-bimo-red/20 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-red/10 bg-bimo-red/[3%]">
+            <div class="flex items-center gap-2 font-display font-bold text-sm text-bimo-red">
+                <span class="w-2 h-2 rounded-full bg-bimo-red"></span>
+                Impayés — {{ $biensImpayes->count() }} contrat(s)
+            </div>
+            <span class="font-body font-medium text-xs text-bimo-red">{{ number_format($biensImpayes->sum('loyer_contractuel'), 0, ',', ' ') }} F non encaissés</span>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Bien</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Locataire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer dû</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @foreach($biensImpayes as $c)
+                    <tr class="hover:bg-bimo-red/[2%] transition-colors duration-100">
+                        <td class="px-5 py-3.5">
+                            <div class="font-body font-medium text-sm text-bimo-navy">{{ $c->bien?->reference ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-navy/40">{{ $c->bien?->ville }}</div>
+                        </td>
+                        <td class="px-5 py-3.5 font-body text-sm text-bimo-navy/70">{{ $c->locataire?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $c->bien?->proprietaire?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-red whitespace-nowrap">{{ number_format($c->loyer_contractuel, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-center">
+                            <a href="{{ route('admin.paiements.create', ['contrat_id' => $c->id]) }}"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px] font-body font-semibold text-xs text-bimo-gold hover:bg-bimo-gold/20 transition-all duration-150">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                Paiement
+                            </a>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
     @else
-    <div style="overflow-x:auto">
-        <table class="dt">
-            <thead>
-                <tr>
-                    <th>Référence</th>
-                    <th>Bien</th>
-                    <th>Locataire</th>
-                    <th>Propriétaire</th>
-                    <th>Mode</th>
-                    <th style="text-align:right">Loyer nu</th>
-                    <th style="text-align:right">Comm. TTC</th>
-                    <th style="text-align:right">Net proprio</th>
-                    <th style="text-align:center">PDF</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($paiementsMois as $p)
-                @php
-                    $modeLabels = [
-                        'especes'      => 'Espèces',
-                        'virement'     => 'Virement',
-                        'cheque'       => 'Chèque',
-                        'wave'         => 'Wave',
-                        'orange_money' => 'Orange Money',
-                        'free_money'   => 'Free Money',
-                        'e_money'      => 'E-Money',
-                    ];
-                    $proprio = $p->contrat?->bien?->proprietaire;
-                @endphp
-                <tr>
-                    <td style="font-family:'Syne',sans-serif;font-size:11px;color:#9ca3af;white-space:nowrap">
-                        {{ $p->reference_paiement }}
-                    </td>
-                    <td>
-                        <div style="font-weight:500;color:#0d1117;font-size:12px">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                        <div style="font-size:11px;color:#9ca3af">{{ $p->contrat?->bien?->ville }}</div>
-                    </td>
-                    <td style="font-size:12px">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
-                    <td>
-                        @if($proprio)
-                        <div style="display:flex;align-items:center;gap:7px">
-                            <div class="ava" style="width:22px;height:22px;font-size:8px;border-radius:6px">{{ strtoupper(substr($proprio->name, 0, 2)) }}</div>
-                            <span style="font-size:12px;color:#6b7280">{{ $proprio->name }}</span>
-                        </div>
-                        @else
-                        <span style="color:#9ca3af;font-size:12px">—</span>
-                        @endif
-                    </td>
-                    <td>
-                        <span class="mode-badge mode-{{ $p->mode_paiement }}">
-                            {{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}
-                        </span>
-                    </td>
-                    <td style="text-align:right;font-weight:600;color:#0d1117;white-space:nowrap">
-                        {{ number_format($p->loyer_nu ?? 0, 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:right;color:#8a6e2f;white-space:nowrap">
-                        {{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:right;color:#16a34a;font-weight:600;white-space:nowrap">
-                        {{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:center">
-                        <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank" class="act-btn" title="Quittance PDF">
-                            <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        </a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    {{-- Pagination --}}
-    @if($paiementsMois->hasPages())
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid #f3f4f6">
-        <div style="font-size:12px;color:#6b7280">
-            {{ $paiementsMois->firstItem() }}–{{ $paiementsMois->lastItem() }} sur {{ $paiementsMois->total() }}
-        </div>
-        <div style="display:flex;gap:4px">
-            @if($paiementsMois->onFirstPage())
-                <span class="pg-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-            @else
-                <a href="{{ $paiementsMois->previousPageUrl() }}" class="pg-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-            @endif
-
-            @foreach($paiementsMois->getUrlRange(max(1,$paiementsMois->currentPage()-2), min($paiementsMois->lastPage(),$paiementsMois->currentPage()+2)) as $page => $url)
-                <a href="{{ $url }}" class="pg-btn {{ $page == $paiementsMois->currentPage() ? 'active' : '' }}">{{ $page }}</a>
-            @endforeach
-
-            @if($paiementsMois->hasMorePages())
-                <a href="{{ $paiementsMois->nextPageUrl() }}" class="pg-btn"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-            @else
-                <span class="pg-btn disabled"><svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-            @endif
-        </div>
+    <div class="flex items-center gap-3 bg-bimo-gold/[5%] border border-bimo-gold/20 rounded-[12px] px-4 py-3.5">
+        <svg class="w-5 h-5 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="font-body font-medium text-sm text-bimo-gold">Aucun impayé ce mois — Taux de recouvrement 100 %</span>
     </div>
     @endif
-    @endif
-</div>
-
-{{-- ── IMPAYÉS ───────────────────────────────────────────────────────────── --}}
-@if(isset($biensImpayes) && $biensImpayes->count() > 0)
-<div class="table-card">
-    <div class="table-hd">
-        <div style="display:flex;align-items:center;gap:8px">
-            <div style="width:8px;height:8px;border-radius:50%;background:#dc2626"></div>
-            <div class="table-title" style="color:#dc2626">Impayés — {{ $biensImpayes->count() }} contrat(s)</div>
-        </div>
-        <div style="font-size:12px;color:#dc2626;font-weight:500">
-            {{ number_format($biensImpayes->sum('loyer_contractuel'), 0, ',', ' ') }} F non encaissés
-        </div>
-    </div>
-    <div style="overflow-x:auto">
-        <table class="dt">
-            <thead>
-                <tr>
-                    <th>Bien</th>
-                    <th>Locataire</th>
-                    <th>Propriétaire</th>
-                    <th style="text-align:right">Loyer dû</th>
-                    <th style="text-align:center">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($biensImpayes as $c)
-                <tr>
-                    <td>
-                        <div style="font-weight:500;color:#0d1117">{{ $c->bien?->reference ?? '—' }}</div>
-                        <div style="font-size:11px;color:#9ca3af">{{ $c->bien?->ville }}</div>
-                    </td>
-                    <td>{{ $c->locataire?->name ?? '—' }}</td>
-                    <td style="color:#6b7280">{{ $c->bien?->proprietaire?->name ?? '—' }}</td>
-                    <td style="text-align:right;color:#dc2626;font-weight:700;font-family:'Syne',sans-serif;white-space:nowrap">
-                        {{ number_format($c->loyer_contractuel, 0, ',', ' ') }} F
-                    </td>
-                    <td style="text-align:center">
-                        <a href="{{ route('admin.paiements.create', ['contrat_id' => $c->id]) }}"
-                           style="display:inline-flex;align-items:center;gap:4px;padding:5px 10px;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none;transition:opacity .15s"
-                           onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
-                            <svg style="width:11px;height:11px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            Paiement
-                        </a>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
-@else
-<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:10px">
-    <svg style="width:18px;height:18px;color:#16a34a;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-    <span style="font-size:13px;color:#16a34a;font-weight:500">
-        Aucun impayé ce mois — Taux de recouvrement 100 %
-    </span>
-</div>
-@endif
 
 </div>
 @endsection

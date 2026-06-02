@@ -1,333 +1,219 @@
-<x-app-layout>
-    <x-slot name="header">Journal d'activité</x-slot>
+@extends('layouts.app')
+@section('header', 'Journal d\'activité')
 
-<style>
-/* ── KPI ── */
-.kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px; }
-.kpi-mini { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px 20px; position:relative; overflow:hidden; }
-.kpi-mini::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; border-radius:12px 12px 0 0; }
-.kpi-mini.green::before  { background:#16a34a; }
-.kpi-mini.orange::before { background:#d97706; }
-.kpi-mini.red::before    { background:#dc2626; }
-.kpi-lbl { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:4px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.3px;line-height:1; }
-.kpi-val.green  { color:#16a34a; }
-.kpi-val.orange { color:#d97706; }
-.kpi-val.red    { color:#dc2626; }
-.kpi-s { font-size:11px;color:#9ca3af;margin-top:4px; }
+@section('content')
 
-/* ── FILTRE ── */
-.filter-bar { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
-.filter-select { padding:8px 13px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;background:#f9fafb;outline:none;cursor:pointer;transition:border-color .15s; }
-.filter-select:focus { border-color:#c9a84c; }
-.filter-input  { padding:8px 13px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#0d1117;font-family:'DM Sans',sans-serif;background:#f9fafb;outline:none;transition:border-color .15s;min-width:0; }
-.filter-input:focus { border-color:#c9a84c;background:#fff; }
-.filter-btn   { padding:8px 16px;background:#0d1117;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer; }
-.filter-reset { padding:8px 14px;background:none;color:#6b7280;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px; }
+@php
+$logsRoute = auth()->user()->isSuperAdmin()
+    ? route('superadmin.activity-logs.index')
+    : route('admin.activity-logs.index');
+@endphp
 
-/* ── TABLE CARD ── */
-.table-header { padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.table-title { font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0d1117; }
-.table-count { font-size:12px;color:#6b7280;margin-top:2px; }
-.dt th { white-space:nowrap; }
-.dt tbody tr { transition:background .1s; }
+<div class="space-y-4 md:space-y-5">
 
-/* ── ACTION BADGE ── */
-.action-badge { display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700; }
-.action-badge.created { background:#dcfce7;color:#16a34a; }
-.action-badge.updated { background:#fef3c7;color:#d97706; }
-.action-badge.deleted { background:#fee2e2;color:#dc2626; }
-.action-badge.other   { background:#f3f4f6;color:#6b7280; }
-.action-dot { width:5px;height:5px;border-radius:50%;background:currentColor; }
-
-/* ── MODEL TAG ── */
-.model-tag { display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:#f3f4f6;border-radius:6px;font-size:11px;font-weight:600;color:#374151; }
-.model-tag .model-id { color:#9ca3af;font-weight:400;margin-left:2px; }
-
-/* ── USER CELL ── */
-.user-cell { display:flex;align-items:center;gap:8px; }
-.user-av { width:26px;height:26px;border-radius:7px;background:#f5e9c9;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:#8a6e2f;flex-shrink:0; }
-.user-av.sys { background:#f3f4f6;color:#6b7280; }
-.user-name { font-size:13px;font-weight:500;color:#0d1117; }
-
-/* ── DESC ── */
-.desc-text { font-size:12px;color:#374151;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-
-/* ── IP ── */
-.ip-tag { font-size:11px;font-family:monospace;color:#9ca3af; }
-
-/* ── DATE ── */
-.date-main { font-size:12px;color:#374151;white-space:nowrap; }
-.date-rel  { font-size:11px;color:#9ca3af;margin-top:1px; }
-
-/* ── ÉTAT VIDE ── */
-.empty-state { padding:56px 20px;text-align:center; }
-.empty-icon  { width:52px;height:52px;border-radius:14px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
-.empty-icon svg { width:22px;height:22px;color:#9ca3af; }
-.empty-title { font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:6px; }
-.empty-sub   { font-size:13px;color:#6b7280; }
-
-/* ── PAGINATION ── */
-.pagination-wrap { padding:14px 18px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.pagination-info { font-size:12px;color:#6b7280; }
-.pagination-links { display:flex;gap:4px; }
-.page-btn { display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 10px;border-radius:7px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;font-weight:500;text-decoration:none;transition:all .15s; }
-.page-btn:hover { background:#f9fafb; }
-.page-btn.active { background:#0d1117;color:#fff;border-color:#0d1117; }
-.page-btn.disabled { opacity:.4;pointer-events:none; }
-
-/* ── EXPORT ── */
-.btn-export { display:flex;align-items:center;gap:6px;padding:9px 16px;background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s; }
-.btn-export:hover { border-color:#c9a84c;color:#8a6e2f; }
-.btn-export svg { width:13px;height:13px; }
-</style>
-
-<div style="padding:24px 32px 48px">
-
-    {{-- PAGE HEADER --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px">
+    {{-- En-tête --}}
+    <div class="flex items-start justify-between gap-4">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">Journal d'activité</h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                Toutes les actions effectuées sur la plateforme · {{ $logs->total() }} entrée(s)
-            </p>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Journal d'activité</h1>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">Toutes les actions effectuées sur la plateforme · {{ $logs->total() }} entrée(s)</p>
         </div>
     </div>
 
-    {{-- KPI ROW --}}
-    <div class="kpi-row">
-        <div class="kpi-mini green">
-            <div class="kpi-lbl">Créations</div>
-            <div class="kpi-val green">{{ $actionStats['created'] ?? 0 }}</div>
-            <div class="kpi-s">Nouveaux enregistrements</div>
+    {{-- KPIs --}}
+    <div class="grid grid-cols-3 gap-3">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Créations</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">{{ $actionStats['created'] ?? 0 }}</div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">Nouveaux enregistrements</div>
         </div>
-        <div class="kpi-mini orange">
-            <div class="kpi-lbl">Modifications</div>
-            <div class="kpi-val orange">{{ $actionStats['updated'] ?? 0 }}</div>
-            <div class="kpi-s">Données mises à jour</div>
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1.5">Modifications</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-gold leading-none">{{ $actionStats['updated'] ?? 0 }}</div>
+            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">Données mises à jour</div>
         </div>
-        <div class="kpi-mini red">
-            <div class="kpi-lbl">Suppressions</div>
-            <div class="kpi-val red">{{ $actionStats['deleted'] ?? 0 }}</div>
-            <div class="kpi-s">Enregistrements supprimés</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest {{ ($actionStats['deleted'] ?? 0) > 0 ? 'text-bimo-red/70' : 'text-bimo-navy/50' }} mb-1.5">Suppressions</div>
+            <div class="font-display font-extrabold text-2xl {{ ($actionStats['deleted'] ?? 0) > 0 ? 'text-bimo-red' : 'text-bimo-navy' }} leading-none">{{ $actionStats['deleted'] ?? 0 }}</div>
+            <div class="font-body text-[10.5px] {{ ($actionStats['deleted'] ?? 0) > 0 ? 'text-bimo-red/60' : 'text-bimo-navy/40' }} mt-1.5">Enregistrements supprimés</div>
         </div>
     </div>
 
-    {{-- FILTRES --}}
-    @php
-        $logsRoute = auth()->user()->isSuperAdmin()
-            ? route('superadmin.activity-logs.index')
-            : route('admin.activity-logs.index');
-    @endphp
-    <form method="GET" action="{{ $logsRoute }}">
-        <div class="filter-bar">
-            {{-- Recherche --}}
-            <div style="position:relative;flex:1;min-width:180px">
-                <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" name="q" value="{{ request('q') }}"
-                    placeholder="Description, utilisateur, modèle…"
-                    class="filter-input" style="padding-left:34px;width:100%">
-            </div>
-
-            {{-- Action --}}
-            <select name="action" class="filter-select">
-                <option value="">Toutes les actions</option>
-                <option value="created" {{ request('action')==='created' ? 'selected':'' }}>Créations</option>
-                <option value="updated" {{ request('action')==='updated' ? 'selected':'' }}>Modifications</option>
-                <option value="deleted" {{ request('action')==='deleted' ? 'selected':'' }}>Suppressions</option>
-            </select>
-
-            {{-- Modèle --}}
-            <select name="model" class="filter-select">
-                <option value="">Tous les modèles</option>
-                @foreach(['Paiement','Contrat','Bien','User','Agency'] as $m)
-                    <option value="{{ $m }}" {{ request('model')===$m ? 'selected':'' }}>{{ $m }}</option>
-                @endforeach
-            </select>
-
-            {{-- Date --}}
-            <input type="date" name="date" value="{{ request('date') }}" class="filter-input" style="width:145px">
-
-            <button type="submit" class="filter-btn">Filtrer</button>
-
-            @if(request()->hasAny(['q','action','model','date']))
-                <a href="{{ $logsRoute }}" class="filter-reset">
-                    <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    Effacer
-                </a>
-            @endif
+    {{-- Filtres --}}
+    <form method="GET" action="{{ $logsRoute }}"
+          class="bg-white rounded-[14px] border border-bimo-navy/10 px-5 py-4 flex flex-wrap gap-3 items-end">
+        <div class="relative flex-1 min-w-[160px]">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Description, utilisateur, modèle…"
+                   class="w-full pl-9 pr-3 py-2.5 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy bg-bimo-bg focus:outline-none focus:border-bimo-gold focus:bg-white transition-all duration-150">
         </div>
+        <select name="action"
+                class="px-3 py-2.5 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy bg-bimo-bg focus:outline-none focus:border-bimo-gold cursor-pointer transition-all duration-150">
+            <option value="">Toutes les actions</option>
+            <option value="created" {{ request('action')==='created' ? 'selected':'' }}>Créations</option>
+            <option value="updated" {{ request('action')==='updated' ? 'selected':'' }}>Modifications</option>
+            <option value="deleted" {{ request('action')==='deleted' ? 'selected':'' }}>Suppressions</option>
+        </select>
+        <select name="model"
+                class="px-3 py-2.5 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy bg-bimo-bg focus:outline-none focus:border-bimo-gold cursor-pointer transition-all duration-150">
+            <option value="">Tous les modèles</option>
+            @foreach(['Paiement','Contrat','Bien','User','Agency'] as $m)
+            <option value="{{ $m }}" {{ request('model')===$m ? 'selected':'' }}>{{ $m }}</option>
+            @endforeach
+        </select>
+        <input type="date" name="date" value="{{ request('date') }}"
+               class="px-3 py-2.5 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy bg-bimo-bg focus:outline-none focus:border-bimo-gold transition-all duration-150">
+        <button type="submit"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-bimo-navy text-white font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
+            Filtrer
+        </button>
+        @if(request()->hasAny(['q','action','model','date']))
+        <a href="{{ $logsRoute }}"
+           class="inline-flex items-center gap-1.5 px-4 py-2.5 border border-bimo-navy/15 rounded-[10px] font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Effacer
+        </a>
+        @endif
     </form>
 
-    {{-- TABLE --}}
-    <div class="table-card">
-        <div class="table-header">
+    {{-- Table --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
             <div>
-                <div class="table-title">Historique des actions</div>
-                <div class="table-count">
-                    {{ $logs->total() }} entrée(s) · Page {{ $logs->currentPage() }} / {{ $logs->lastPage() }}
-                </div>
+                <span class="font-display font-bold text-sm text-bimo-navy">Historique des actions</span>
+                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">{{ $logs->total() }} entrée(s) · Page {{ $logs->currentPage() }} / {{ $logs->lastPage() }}</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px">
-                <div style="display:flex;align-items:center;gap:12px;font-size:11px;color:#9ca3af">
-                    <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block"></span>Créé</span>
-                    <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#d97706;display:inline-block"></span>Modifié</span>
-                    <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#dc2626;display:inline-block"></span>Supprimé</span>
-                </div>
+            <div class="hidden md:flex items-center gap-3 font-body text-xs text-bimo-navy/40">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-bimo-navy/50 inline-block"></span>Créé</span>
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-bimo-gold inline-block"></span>Modifié</span>
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-bimo-red inline-block"></span>Supprimé</span>
             </div>
         </div>
 
         @if($logs->isEmpty())
-        <div class="empty-state">
-            <div class="empty-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <div class="px-5 py-14 text-center">
+            <div class="w-13 h-13 bg-bimo-navy/[5%] rounded-[14px] flex items-center justify-center mx-auto mb-4" style="width:52px;height:52px">
+                <svg class="w-6 h-6 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <div class="empty-title">Aucune activité enregistrée</div>
-            <div class="empty-sub">
+            <div class="font-display font-bold text-sm text-bimo-navy mb-2">Aucune activité enregistrée</div>
+            <div class="font-body text-sm text-bimo-navy/40">
                 @if(request()->hasAny(['q','action','model','date']))
                     Aucun résultat pour ces filtres.
-                    <a href="{{ $logsRoute }}" style="color:#c9a84c;font-weight:500">Effacer les filtres</a>
+                    <a href="{{ $logsRoute }}" class="text-bimo-gold hover:text-bimo-navy ml-1 transition-colors duration-150">Effacer les filtres</a>
                 @else
                     Les actions sur la plateforme apparaîtront ici.
                 @endif
             </div>
         </div>
-
         @else
-        <div style="overflow-x:auto">
-            <table class="dt">
+
+        {{-- Mobile --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+            @foreach($logs as $log)
+            @php
+                $actionClass = match($log->action) { 'created'=>['bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70','Créé'], 'updated'=>['bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold','Modifié'], 'deleted'=>['bg-bimo-red/10 border-bimo-red/20 text-bimo-red','Supprimé'], default=>['bg-bimo-navy/[5%] text-bimo-navy/50',''.ucfirst($log->action)] };
+                $modelName = $log->model_type ? class_basename($log->model_type) : '—';
+            @endphp
+            <div class="px-4 py-3.5">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold border {{ $actionClass[0] }}">{{ $actionClass[1] }}</span>
+                    <span class="font-body text-xs text-bimo-navy/40">{{ $log->created_at?->format('d/m/Y H:i') }}</span>
+                </div>
+                <div class="font-body text-sm text-bimo-navy truncate">{{ $log->description ?? '—' }}</div>
+                @if($log->user)<div class="font-body text-xs text-bimo-navy/40 mt-0.5">{{ $log->user->name }}</div>@endif
+            </div>
+            @endforeach
+        </div>
+
+        {{-- Desktop --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
                 <thead>
-                    <tr>
-                        <th>Date & heure</th>
-                        <th>Action</th>
-                        <th>Description</th>
-                        <th>Modèle</th>
-                        <th>Utilisateur</th>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 whitespace-nowrap">Date & heure</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Action</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Description</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Modèle</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Utilisateur</th>
                         @if(auth()->user()->isSuperAdmin())
-                        <th>Agence</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Agence</th>
                         @endif
-                        <th>IP</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">IP</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
                     @foreach($logs as $log)
                     @php
-                        $actionClass = match($log->action) {
-                            'created' => 'created',
-                            'updated' => 'updated',
-                            'deleted' => 'deleted',
-                            default   => 'other',
-                        };
-                        $actionLabel = match($log->action) {
-                            'created' => 'Créé',
-                            'updated' => 'Modifié',
-                            'deleted' => 'Supprimé',
-                            default   => ucfirst($log->action),
-                        };
+                        $actionBadge = match($log->action) { 'created'=>'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70', 'updated'=>'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold', 'deleted'=>'bg-bimo-red/10 border-bimo-red/20 text-bimo-red', default=>'bg-bimo-navy/[5%] text-bimo-navy/50' };
+                        $actionLabel = match($log->action) { 'created'=>'Créé', 'updated'=>'Modifié', 'deleted'=>'Supprimé', default=>ucfirst($log->action) };
                         $modelName = $log->model_type ? class_basename($log->model_type) : '—';
-                        $modelColor = match($modelName) {
-                            'Paiement' => '#16a34a',
-                            'Contrat'  => '#1d4ed8',
-                            'Bien'     => '#c9a84c',
-                            'User'     => '#7c3aed',
-                            default    => '#6b7280',
-                        };
                     @endphp
-                    <tr>
-                        {{-- Date --}}
-                        <td>
-                            <div class="date-main">{{ $log->created_at?->format('d/m/Y H:i') }}</div>
-                            <div class="date-rel">{{ $log->created_at?->diffForHumans() }}</div>
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <div class="font-body text-xs text-bimo-navy/70">{{ $log->created_at?->format('d/m/Y H:i') }}</div>
+                            <div class="font-body text-[11px] text-bimo-navy/30 mt-0.5">{{ $log->created_at?->diffForHumans() }}</div>
                         </td>
-
-                        {{-- Action --}}
-                        <td>
-                            <span class="action-badge {{ $actionClass }}">
-                                <span class="action-dot"></span>
-                                {{ $actionLabel }}
+                        <td class="px-5 py-3.5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold border {{ $actionBadge }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current mr-1.5"></span>{{ $actionLabel }}
                             </span>
                         </td>
-
-                        {{-- Description --}}
-                        <td>
-                            <div class="desc-text" title="{{ $log->description }}">
-                                {{ $log->description ?? '—' }}
-                            </div>
+                        <td class="px-5 py-3.5 max-w-[280px]">
+                            <div class="font-body text-xs text-bimo-navy/70 truncate" title="{{ $log->description }}">{{ $log->description ?? '—' }}</div>
                         </td>
-
-                        {{-- Modèle --}}
-                        <td>
+                        <td class="px-5 py-3.5">
                             @if($log->model_type)
-                            <span class="model-tag">
-                                <span style="width:6px;height:6px;border-radius:50%;background:{{ $modelColor }};flex-shrink:0;display:inline-block"></span>
-                                {{ $modelName }}<span class="model-id">#{{ $log->model_id }}</span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-bimo-navy/[5%] rounded-[6px] font-body text-[11px] font-medium text-bimo-navy/70">
+                                {{ $modelName }}<span class="text-bimo-navy/30">#{{ $log->model_id }}</span>
                             </span>
                             @else
-                            <span style="color:#9ca3af;font-size:12px">—</span>
+                            <span class="font-body text-xs text-bimo-navy/30">—</span>
                             @endif
                         </td>
-
-                        {{-- Utilisateur --}}
-                        <td>
-                            <div class="user-cell">
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center gap-2">
                                 @if($log->user)
-                                    <div class="user-av">{{ strtoupper(substr($log->user->name, 0, 2)) }}</div>
-                                    <div class="user-name">{{ $log->user->name }}</div>
+                                <div class="w-7 h-7 rounded-[7px] bg-bimo-gold/15 flex items-center justify-center font-display font-bold text-[10px] text-bimo-gold flex-shrink-0">{{ mb_strtoupper(mb_substr($log->user->name,0,2)) }}</div>
+                                <span class="font-body font-medium text-sm text-bimo-navy">{{ $log->user->name }}</span>
                                 @else
-                                    <div class="user-av sys">
-                                        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
-                                    </div>
-                                    <div style="font-size:12px;color:#9ca3af;font-style:italic">Système</div>
+                                <div class="w-7 h-7 rounded-[7px] bg-bimo-navy/[5%] flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-3 h-3 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+                                </div>
+                                <span class="font-body text-xs text-bimo-navy/40 italic">Système</span>
                                 @endif
                             </div>
                         </td>
-
-                        {{-- Agence (superadmin seulement) --}}
                         @if(auth()->user()->isSuperAdmin())
-                        <td style="font-size:12px;color:#6b7280">
-                            {{ $log->agency->name ?? '—' }}
-                        </td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $log->agency->name ?? '—' }}</td>
                         @endif
-
-                        {{-- IP --}}
-                        <td>
-                            <span class="ip-tag">{{ $log->ip_address ?? '—' }}</span>
+                        <td class="px-5 py-3.5" style="font-family:monospace">
+                            <span class="font-body text-xs text-bimo-navy/40">{{ $log->ip_address ?? '—' }}</span>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-        @endif
 
-        {{-- PAGINATION --}}
+        {{-- Pagination --}}
         @if($logs->hasPages())
-        <div class="pagination-wrap">
-            <div class="pagination-info">
-                Affichage de {{ $logs->firstItem() }} à {{ $logs->lastItem() }} sur {{ $logs->total() }} entrées
-            </div>
-            <div class="pagination-links">
-                @if($logs->onFirstPage())
-                    <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
-                @else
-                    <a href="{{ $logs->previousPageUrl() }}" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
-                @endif
-
-                @foreach($logs->getUrlRange(max(1,$logs->currentPage()-2), min($logs->lastPage(),$logs->currentPage()+2)) as $page => $url)
-                    <a href="{{ $url }}" class="page-btn {{ $page === $logs->currentPage() ? 'active':'' }}">{{ $page }}</a>
+        <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%]">
+            <span class="font-body text-xs text-bimo-navy/40">{{ $logs->firstItem() }}–{{ $logs->lastItem() }} sur {{ $logs->total() }}</span>
+            <div class="flex items-center gap-1">
+                <a href="{{ $logs->previousPageUrl() ?? '#' }}" class="w-8 h-8 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $logs->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </a>
+                @foreach($logs->getUrlRange(max(1,$logs->currentPage()-2),min($logs->lastPage(),$logs->currentPage()+2)) as $page => $url)
+                <a href="{{ $url }}" class="w-8 h-8 inline-flex items-center justify-center border rounded-[7px] font-body text-xs transition-all duration-150 {{ $page === $logs->currentPage() ? 'bg-[var(--ac)] border-[var(--ac)] text-white font-bold' : 'border-bimo-navy/15 text-bimo-navy/50 hover:border-bimo-gold hover:text-bimo-gold' }}">{{ $page }}</a>
                 @endforeach
-
-                @if($logs->hasMorePages())
-                    <a href="{{ $logs->nextPageUrl() }}" class="page-btn"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-                @else
-                    <span class="page-btn disabled"><svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                @endif
+                <a href="{{ $logs->nextPageUrl() ?? '#' }}" class="w-8 h-8 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$logs->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
             </div>
         </div>
         @endif
 
-    </div>{{-- /table-card --}}
+        @endif
+    </div>
 
 </div>
-
-</x-app-layout>
+@endsection
