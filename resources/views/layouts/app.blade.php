@@ -136,12 +136,6 @@
                 <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
             </svg>
             <span class="font-display font-semibold text-sm">Paiements</span>
-            @php $nbImpayes = cache()->remember('impayes_count_' . auth()->id(), 60, fn() => \App\Models\Contrat::where('agency_id', auth()->user()->agency_id)->where('statut', 'actif')->whereHas('impayesActifs')->count()); @endphp
-            @if($nbImpayes > 0)
-            <span class="ml-auto bg-bimo-red text-white font-body font-medium text-[10px] px-2 py-0.5 rounded-full">
-                {{ $nbImpayes }}
-            </span>
-            @endif
         </a>
 
         {{-- Impayés --}}
