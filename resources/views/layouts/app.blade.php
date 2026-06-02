@@ -48,30 +48,23 @@
     @stack('styles')
 </head>
 
-<body class="h-full bg-bimo-bg font-body antialiased"
-      x-data="{ sidebarOpen: false }">
+<body class="h-full bg-bimo-bg font-body antialiased">
 
 {{-- ═══════════════════════════════════════════════
      SIDEBAR
 ═══════════════════════════════════════════════ --}}
 
 {{-- Overlay mobile --}}
-<div x-show="sidebarOpen"
-     x-transition:enter="transition-opacity duration-250"
-     x-transition:enter-start="opacity-0"
-     x-transition:enter-end="opacity-100"
-     x-transition:leave="transition-opacity duration-250"
-     x-transition:leave-start="opacity-100"
-     x-transition:leave-end="opacity-0"
-     @click="sidebarOpen = false"
-     class="fixed inset-0 bg-bimo-navy/40 backdrop-blur-sm z-30 lg:hidden"
+<div id="sidebar-overlay"
+     onclick="closeSidebar()"
+     class="fixed inset-0 bg-bimo-navy/50 z-30 lg:hidden"
      style="display:none">
 </div>
 
 {{-- Sidebar panel --}}
-<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+<aside id="sidebar"
        class="fixed left-0 top-0 h-full w-64 bg-bimo-navy flex flex-col z-40
-              transition-transform duration-250 ease-out
+              -translate-x-full transition-transform duration-[250ms] ease-out
               lg:translate-x-0">
 
     {{-- Logo + bouton fermer mobile --}}
@@ -87,7 +80,7 @@
             <div class="font-body text-[10px] text-white/40 uppercase tracking-widest">Immo</div>
         </div>
         {{-- Bouton fermer — visible uniquement sur mobile --}}
-        <button @click="sidebarOpen = false"
+        <button onclick="closeSidebar()"
                 class="lg:hidden w-8 h-8 flex items-center justify-center rounded-[8px]
                        text-white/40 hover:text-white hover:bg-white/10 transition-all duration-150 flex-shrink-0">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -102,7 +95,7 @@
         @php $route = request()->route()?->getName() ?? ''; @endphp
 
         {{-- Dashboard --}}
-        <a href="{{ route('admin.dashboard') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.dashboard') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150 group
                   {{ str_starts_with($route, 'admin.dashboard') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -113,7 +106,7 @@
         </a>
 
         {{-- Biens --}}
-        <a href="{{ route('admin.biens.index') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.biens.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.biens') || str_starts_with($route, 'admin.immeubles') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -124,7 +117,7 @@
         </a>
 
         {{-- Contrats --}}
-        <a href="{{ route('admin.contrats.index') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.contrats.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.contrats') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -136,7 +129,7 @@
         </a>
 
         {{-- Paiements --}}
-        <a href="{{ route('admin.paiements.index') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.paiements.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.paiements') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -147,7 +140,7 @@
         </a>
 
         {{-- Impayés --}}
-        <a href="{{ route('admin.impayes.index') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.impayes.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.impayes') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -158,7 +151,7 @@
         </a>
 
         {{-- Bailleurs --}}
-        <a href="{{ route('admin.bailleurs.index') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.bailleurs.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.bailleurs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -169,7 +162,7 @@
         </a>
 
         {{-- Locataires --}}
-        <a href="{{ route('admin.users.locataires') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.users.locataires') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.users.locataires') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -184,7 +177,7 @@
         <div class="my-2 border-t border-white/10"></div>
 
         {{-- Rapports --}}
-        <a href="{{ route('admin.rapports.financier') }}" @click="sidebarOpen = false"
+        <a href="{{ route('admin.rapports.financier') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.rapports') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -197,10 +190,9 @@
     </nav>
 
     {{-- Footer sidebar — profil --}}
-    <div class="flex-shrink-0 p-3 border-t border-white/10"
-         x-data="{ dropOpen: false }">
+    <div class="flex-shrink-0 p-3 border-t border-white/10">
         <div class="relative">
-            <button @click="dropOpen = !dropOpen" @click.outside="dropOpen = false"
+            <button onclick="toggleProfileDrop()"
                     class="flex items-center gap-3 w-full px-3 py-2.5 rounded-[10px] hover:bg-white/5 transition-colors duration-150">
                 <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 font-display font-bold text-sm"
                      style="background: var(--ac); color: #1B4F6B">
@@ -210,18 +202,14 @@
                     <div class="font-display font-semibold text-white text-sm truncate">{{ auth()->user()->name }}</div>
                     <div class="font-body text-[10px] text-white/40 capitalize">{{ auth()->user()->role }}</div>
                 </div>
-                <svg class="w-4 h-4 text-white/30 flex-shrink-0 transition-transform duration-150"
-                     :class="dropOpen ? 'rotate-180' : ''"
+                <svg id="profile-chevron" class="w-4 h-4 text-white/30 flex-shrink-0 transition-transform duration-150"
                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="6 9 12 15 18 9"/>
                 </svg>
             </button>
 
             {{-- Dropdown --}}
-            <div x-show="dropOpen"
-                 x-transition:enter="transition duration-150"
-                 x-transition:enter-start="opacity-0 translate-y-1"
-                 x-transition:enter-end="opacity-100 translate-y-0"
+            <div id="profile-drop"
                  class="absolute bottom-full left-0 right-0 mb-1 bg-bimo-navy-dk border border-white/10 rounded-[12px] overflow-hidden shadow-xl z-50"
                  style="display:none">
                 <a href="{{ route('profile.edit') }}"
@@ -255,7 +243,7 @@
     {{-- TOPBAR MOBILE --}}
     <header class="sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-bimo-navy lg:hidden">
         {{-- Hamburger --}}
-        <button @click="sidebarOpen = true"
+        <button onclick="openSidebar()"
                 class="w-9 h-9 flex items-center justify-center rounded-[8px] text-white/70 hover:text-white hover:bg-white/10 transition-colors duration-150">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                 <line x1="3" y1="6" x2="21" y2="6"/>
@@ -637,6 +625,38 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(function(){});
     });
 }
+
+// ── Sidebar mobile (vanilla JS — sans Alpine) ────────────────────────────────
+function openSidebar() {
+    document.getElementById('sidebar').classList.remove('-translate-x-full');
+    document.getElementById('sidebar').classList.add('translate-x-0');
+    document.getElementById('sidebar-overlay').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.add('-translate-x-full');
+    document.getElementById('sidebar').classList.remove('translate-x-0');
+    document.getElementById('sidebar-overlay').style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// ── Dropdown profil sidebar ──────────────────────────────────────────────────
+function toggleProfileDrop() {
+    var drop = document.getElementById('profile-drop');
+    var chevron = document.getElementById('profile-chevron');
+    var isOpen = drop.style.display !== 'none';
+    drop.style.display = isOpen ? 'none' : 'block';
+    chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+document.addEventListener('click', function(e) {
+    var drop = document.getElementById('profile-drop');
+    if (!drop) return;
+    if (!e.target.closest('[onclick="toggleProfileDrop()"]') && drop.style.display !== 'none') {
+        drop.style.display = 'none';
+        var chevron = document.getElementById('profile-chevron');
+        if (chevron) chevron.style.transform = '';
+    }
+});
 
 </script>
 <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
