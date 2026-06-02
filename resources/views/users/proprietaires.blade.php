@@ -1,211 +1,192 @@
-<x-app-layout>
-    <x-slot name="header">Propriétaires</x-slot>
+@extends('layouts.app')
+@section('header', 'Propriétaires')
 
-<style>
-:root { --gold:#c9a84c; --gold-light:#f5e9c9; --gold-dark:#8a6e2f; --dark:#0d1117; --green:#16a34a; }
+@section('content')
+<div class="space-y-4 md:space-y-6">
 
-.page { padding:24px 32px 48px; }
-
-/* KPI */
-.kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px; }
-.kpi { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:18px 20px; position:relative; overflow:hidden; }
-.kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
-.kpi.gold::before { background:var(--gold); }
-.kpi.green::before { background:var(--green); }
-.kpi.dark::before { background:var(--dark); }
-.kpi-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#6b7280; margin-bottom:6px; }
-.kpi-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; color:#0d1117; }
-.kpi-sub { font-size:11px; color:#9ca3af; margin-top:4px; }
-
-/* Table */
-.card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; overflow:hidden; }
-.card-hd { padding:16px 22px; border-bottom:1px solid #e5e7eb; display:flex; align-items:center; justify-content:space-between; }
-.card-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#0d1117; }
-.dt { width:100%; border-collapse:collapse; }
-.dt th { padding:10px 18px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; background:#f9fafb; border-bottom:1px solid #e5e7eb; text-align:left; white-space:nowrap; }
-.dt td { padding:14px 18px; border-bottom:1px solid #f3f4f6; vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr { transition:background .1s; }
-.dt tbody tr:hover { background:#fafafa; }
-
-/* Avatar */
-.av { width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--gold),#a07830); display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:14px; font-weight:800; color:#fff; flex-shrink:0; }
-
-/* Badges */
-.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:10px; font-weight:700; }
-.badge-green { background:#dcfce7; color:var(--green); }
-.badge-gray  { background:#f3f4f6; color:#6b7280; }
-.badge-gold  { background:var(--gold-light); color:var(--gold-dark); }
-
-/* Bouton add */
-.btn-add { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; background:var(--dark); color:#fff; border:none; border-radius:10px; font-size:13px; font-weight:600; font-family:'DM Sans',sans-serif; text-decoration:none; cursor:pointer; transition:opacity .15s; }
-.btn-add:hover { opacity:.88; }
-.btn-add svg { width:14px; height:14px; }
-
-/* Action buttons */
-.act { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:1px solid #e5e7eb; border-radius:8px; text-decoration:none; color:#6b7280; transition:all .15s; }
-.act:hover { border-color:var(--gold); color:var(--gold-dark); background:var(--gold-light); }
-.act svg { width:13px; height:13px; }
-
-/* Search */
-.search-wrap { display:flex; align-items:center; gap:10px; }
-.search-input { padding:8px 12px 8px 36px; border:1px solid #e5e7eb; border-radius:9px; font-size:13px; font-family:'DM Sans',sans-serif; color:#0d1117; outline:none; transition:border-color .15s; background:#f9fafb url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center / 15px; }
-.search-input:focus { border-color:var(--gold); background-color:#fff; }
-
-/* Mode paiement icône */
-.mode-icon { font-size:16px; }
-
-/* Vide */
-.empty { padding:64px; text-align:center; }
-.empty-icon { font-size:48px; margin-bottom:12px; }
-.empty-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:#0d1117; margin-bottom:6px; }
-.empty-sub { font-size:13px; color:#6b7280; margin-bottom:20px; }
-
-.page-hd { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap; }
-@media(max-width:768px){
-    .page{padding:16px 16px 48px}
-    .card-hd{flex-wrap:wrap;gap:8px}
-    .search-wrap{width:100%}
-    .search-input{width:100%!important}
-}
-</style>
-
-<div class="page">
-
-    {{-- HEADER --}}
-    <div class="page-hd">
+    {{-- En-tête --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#0d1117;letter-spacing:-.4px">Propriétaires</h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">{{ $stats['total'] }} propriétaire(s) enregistré(s)</p>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight leading-tight">Propriétaires</h1>
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">{{ $stats['total'] }} propriétaire(s) enregistré(s)</p>
         </div>
-        <a href="{{ route('admin.users.create', 'proprietaire') }}" class="btn-add">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <a href="{{ route('admin.users.create', 'proprietaire') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--ac)] text-white
+                  font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150 self-start">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
             Nouveau propriétaire
         </a>
     </div>
 
-    {{-- KPI --}}
-    <div class="kpi-row">
-        <div class="kpi gold">
-            <div class="kpi-lbl">Total propriétaires</div>
-            <div class="kpi-val">{{ $stats['total'] }}</div>
-            <div class="kpi-sub">Enregistrés dans l'agence</div>
+    {{-- KPIs --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Total propriétaires</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-gold leading-none">{{ $stats['total'] }}</div>
+            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">Enregistrés dans l'agence</div>
         </div>
-        <div class="kpi green">
-            <div class="kpi-lbl">Biens gérés</div>
-            <div class="kpi-val">{{ $stats['total_biens'] }}</div>
-            <div class="kpi-sub">{{ $stats['biens_loues'] }} loué(s) · {{ $stats['total_biens'] - $stats['biens_loues'] }} disponible(s)</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Biens gérés</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">{{ $stats['total_biens'] }}</div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">{{ $stats['biens_loues'] }} loué(s) · {{ $stats['total_biens'] - $stats['biens_loues'] }} disponible(s)</div>
         </div>
-        <div class="kpi dark">
-            <div class="kpi-lbl">Taux d'occupation</div>
-            <div class="kpi-val" style="color:{{ $stats['total_biens'] > 0 && ($stats['biens_loues']/$stats['total_biens']*100) >= 80 ? 'var(--green)' : 'var(--gold)' }}">
-                {{ $stats['total_biens'] > 0 ? round($stats['biens_loues']/$stats['total_biens']*100) : 0 }}%
-            </div>
-            <div class="kpi-sub">Biens avec locataire actif</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Taux d'occupation</div>
+            @php $taux = $stats['total_biens'] > 0 ? round($stats['biens_loues']/$stats['total_biens']*100) : 0; @endphp
+            <div class="font-display font-extrabold text-2xl leading-none {{ $taux >= 80 ? 'text-bimo-gold' : 'text-bimo-navy' }}">{{ $taux }}%</div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">Biens avec locataire actif</div>
         </div>
     </div>
 
-    {{-- TABLE --}}
-    <div class="card">
-        <div class="card-hd">
-            <div class="card-title">Liste des propriétaires</div>
-            <div class="search-wrap">
-                <input type="text" class="search-input" placeholder="Rechercher..." id="search-input"
-                       oninput="filterTable(this.value)" style="width:220px">
+    {{-- Table --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Liste des propriétaires</span>
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-navy/30 pointer-events-none"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" placeholder="Rechercher..." id="search-input" oninput="filterTable(this.value)"
+                       class="pl-9 pr-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px] font-body text-sm text-bimo-navy
+                              placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                              transition-all duration-150 w-52">
             </div>
         </div>
 
-        <div style="overflow-x:auto">
-            <table class="dt" id="dt-proprio">
+        {{-- Mobile cards --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]" id="mobile-list">
+            @forelse($proprietaires as $user)
+            @php $profil = $user->proprietaire; @endphp
+            <div class="px-5 py-4" data-search="{{ strtolower($user->name . ' ' . $user->email . ' ' . $user->telephone) }}">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-[10px] flex items-center justify-center font-display font-bold text-sm text-bimo-navy flex-shrink-0"
+                         style="background: var(--ac)">
+                        {{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-body font-semibold text-sm text-bimo-navy truncate">{{ $user->name }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $user->email }}</div>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium
+                                 {{ $user->biens_count > 0 ? 'bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold' : 'bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/60' }}">
+                        {{ $user->biens_count }} bien(s)
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="font-body text-xs text-bimo-navy/50">
+                        @if($profil?->ville) {{ $profil->ville }} · @endif
+                        Depuis {{ $user->created_at->format('M Y') }}
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <a href="{{ route('admin.users.show', $user) }}"
+                           class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </a>
+                        <a href="{{ route('admin.users.edit', $user) }}"
+                           class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @empty
+            <div class="px-5 py-16 text-center">
+                <div class="text-4xl mb-3">🏢</div>
+                <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun propriétaire enregistré</div>
+                <p class="font-body text-sm text-bimo-navy/50 mb-5">Commencez par ajouter le premier propriétaire de votre agence.</p>
+                <a href="{{ route('admin.users.create', 'proprietaire') }}"
+                   class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
+                    + Ajouter un propriétaire
+                </a>
+            </div>
+            @endforelse
+        </div>
+
+        {{-- Desktop table --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm" id="dt-proprio">
                 <thead>
-                    <tr>
-                        <th>Propriétaire</th>
-                        <th>Contact</th>
-                        <th>Ville</th>
-                        <th style="text-align:center">Biens</th>
-                        <th>Paiement préféré</th>
-                        <th>NINEA</th>
-                        <th style="text-align:center">Actions</th>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Contact</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widests text-bimo-navy/40">Ville</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Biens</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Paiement</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">NINEA</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
                     @forelse($proprietaires as $user)
                     @php
                         $profil = $user->proprietaire;
-                        $modeIcons = [
-                            'virement'     => '🏦',
-                            'wave'         => '📱',
-                            'orange_money' => '🟠',
-                            'especes'      => '💵',
-                            'cheque'       => '📝',
-                            'mobile_money' => '📲',
-                        ];
-                        $modeLabels = [
-                            'virement'     => 'Virement',
-                            'wave'         => 'Wave',
-                            'orange_money' => 'Orange Money',
-                            'especes'      => 'Espèces',
-                            'cheque'       => 'Chèque',
-                            'mobile_money' => 'Mobile Money',
-                        ];
+                        $modeIcons  = ['virement'=>'🏦','wave'=>'📱','orange_money'=>'🟠','especes'=>'💵','cheque'=>'📝','mobile_money'=>'📲'];
+                        $modeLabels = ['virement'=>'Virement','wave'=>'Wave','orange_money'=>'Orange Money','especes'=>'Espèces','cheque'=>'Chèque','mobile_money'=>'Mobile Money'];
                         $mode = $profil?->mode_paiement_prefere ?? 'virement';
                     @endphp
-                    <tr>
-                        <td data-label="Propriétaire">
-                            <div style="display:flex;align-items:center;gap:12px">
-                                <div class="av">{{ strtoupper(substr($user->name,0,2)) }}</div>
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-[9px] flex items-center justify-center font-display font-bold text-sm text-bimo-navy flex-shrink-0"
+                                     style="background: var(--ac)">
+                                    {{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}
+                                </div>
                                 <div>
-                                    <div style="font-size:13px;font-weight:700;color:#0d1117">{{ $user->name }}</div>
-                                    <div style="font-size:11px;color:#9ca3af;margin-top:1px">
-                                        Depuis {{ $user->created_at->format('M Y') }}
-                                    </div>
+                                    <div class="font-body font-semibold text-sm text-bimo-navy">{{ $user->name }}</div>
+                                    <div class="font-body text-[11px] text-bimo-navy/40">Depuis {{ $user->created_at->format('M Y') }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td data-label="Contact">
-                            <div style="font-size:13px;color:#374151">{{ $user->email }}</div>
+                        <td class="px-5 py-3.5">
+                            <div class="font-body text-sm text-bimo-navy">{{ $user->email }}</div>
                             @if($user->telephone)
-                            <div style="font-size:11px;color:#6b7280;margin-top:2px">{{ $user->telephone }}</div>
+                            <div class="font-body text-xs text-bimo-navy/50 mt-0.5">{{ $user->telephone }}</div>
                             @endif
                         </td>
-                        <td data-label="Ville" style="font-size:13px;color:#374151">{{ $profil?->ville ?? '—' }}</td>
-                        <td data-label="Biens" style="text-align:center">
-                            @if($user->biens_count > 0)
-                                <span class="badge badge-gold">{{ $user->biens_count }} bien(s)</span>
-                            @else
-                                <span class="badge badge-gray">Aucun</span>
-                            @endif
+                        <td class="px-5 py-3.5 font-body text-sm text-bimo-navy/70">{{ $profil?->ville ?? '—' }}</td>
+                        <td class="px-5 py-3.5 text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium
+                                         {{ $user->biens_count > 0 ? 'bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold' : 'bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/50' }}">
+                                {{ $user->biens_count > 0 ? $user->biens_count . ' bien(s)' : 'Aucun' }}
+                            </span>
                         </td>
-                        <td data-label="Paiement">
+                        <td class="px-5 py-3.5">
                             @if($mode)
-                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#374151">
+                            <div class="flex items-center gap-1.5 font-body text-sm text-bimo-navy/70">
                                 <span>{{ $modeIcons[$mode] ?? '💳' }}</span>
                                 {{ $modeLabels[$mode] ?? ucfirst($mode) }}
                             </div>
                             @else
-                            <span style="color:#9ca3af;font-size:12px">—</span>
+                            <span class="font-body text-sm text-bimo-navy/30">—</span>
                             @endif
                         </td>
-                        <td data-label="NINEA">
+                        <td class="px-5 py-3.5">
                             @if($profil?->ninea)
-                                <span style="font-family:monospace;font-size:11px;background:#f3f4f6;padding:3px 7px;border-radius:5px;color:#374151">{{ $profil->ninea }}</span>
+                            <span class="font-body text-[11px] bg-bimo-bg px-2 py-1 rounded-[5px] text-bimo-navy/60">{{ $profil->ninea }}</span>
                             @else
-                                <span style="color:#9ca3af;font-size:12px">—</span>
+                            <span class="font-body text-sm text-bimo-navy/30">—</span>
                             @endif
                         </td>
-                        <td data-label="">
-                            <div style="display:flex;align-items:center;justify-content:center;gap:5px">
-                                <a href="{{ route('admin.users.show', $user) }}" class="act" title="Voir la fiche">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <a href="{{ route('admin.users.show', $user) }}"
+                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"
+                                   title="Voir">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-                                <a href="{{ route('admin.users.edit', $user) }}" class="act" title="Modifier">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                <a href="{{ route('admin.users.edit', $user) }}"
+                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"
+                                   title="Modifier">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </a>
                                 @if(config('features.fiscalite'))
                                 <a href="{{ route('admin.bilans-fiscaux.show', [$user, 'annee' => now()->year]) }}"
-                                   class="act" title="Bilan fiscal"
-                                   style="border-color:#e5e7eb">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150"
+                                   title="Bilan fiscal">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                                 </a>
                                 @endif
                             </div>
@@ -213,16 +194,14 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7">
-                            <div class="empty">
-                                <div class="empty-icon">🏢</div>
-                                <div class="empty-title">Aucun propriétaire enregistré</div>
-                                <div class="empty-sub">Commencez par ajouter le premier propriétaire de votre agence.</div>
-                                <a href="{{ route('admin.users.create', 'proprietaire') }}" class="btn-add" style="display:inline-flex">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    Ajouter un propriétaire
-                                </a>
-                            </div>
+                        <td colspan="7" class="px-5 py-16 text-center">
+                            <div class="text-4xl mb-3">🏢</div>
+                            <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun propriétaire enregistré</div>
+                            <p class="font-body text-sm text-bimo-navy/50 mb-5">Commencez par ajouter le premier propriétaire.</p>
+                            <a href="{{ route('admin.users.create', 'proprietaire') }}"
+                               class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
+                                + Ajouter un propriétaire
+                            </a>
                         </td>
                     </tr>
                     @endforelse
@@ -231,7 +210,7 @@
         </div>
 
         @if($proprietaires->hasPages())
-        <div style="padding:14px 22px;border-top:1px solid #f3f4f6">
+        <div class="px-5 py-3.5 border-t border-bimo-navy/[5%] bg-bimo-bg">
             {{ $proprietaires->links() }}
         </div>
         @endif
@@ -239,13 +218,20 @@
 
 </div>
 
+@push('scripts')
 <script>
 function filterTable(q) {
     q = q.toLowerCase();
+    // Desktop
     document.querySelectorAll('#dt-proprio tbody tr').forEach(tr => {
         tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
     });
+    // Mobile
+    document.querySelectorAll('#mobile-list [data-search]').forEach(el => {
+        el.style.display = el.dataset.search.includes(q) ? '' : 'none';
+    });
 }
 </script>
+@endpush
 
-</x-app-layout>
+@endsection

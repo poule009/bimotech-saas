@@ -1,649 +1,544 @@
-<x-app-layout>
-    <x-slot name="header">
+@extends('layouts.app')
+@section('header', 'Nouveau ' . ($role === 'proprietaire' ? 'propriétaire' : 'locataire'))
+
+@section('content')
+
+{{-- Breadcrumb + titre --}}
+<div class="mb-5">
+    <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">
         Nouveau {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
-    </x-slot>
+    </h1>
+    <p class="font-body text-sm text-bimo-navy/50 mt-1">
+        {{ $role === 'proprietaire'
+            ? 'Renseignez les informations du propriétaire.'
+            : 'Renseignez les informations du locataire.' }}
+    </p>
+</div>
 
-<style>
-:root {
-    --gold:#c9a84c; --gold-light:#f5e9c9; --gold-dark:#8a6e2f;
-    --dark:#0d1117; --green:#16a34a; --red:#dc2626;
-}
+<div class="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6 items-start">
 
-/* ── Layout principal ── */
-.create-page { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 64px); }
+    {{-- ═══ SIDEBAR NAVIGATION ═══ --}}
+    <div class="lg:sticky lg:top-6">
+        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+            {{-- Badge rôle --}}
+            <div class="flex items-center gap-3 px-4 py-4 border-b border-white/10">
+                <div class="w-10 h-10 rounded-[10px] bg-bimo-gold/15 border border-bimo-gold/25 flex items-center justify-center text-xl flex-shrink-0">
+                    {{ $role === 'proprietaire' ? '🏢' : '👤' }}
+                </div>
+                <div>
+                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60">Création</div>
+                    <div class="font-display font-bold text-sm text-white">
+                        {{ $role === 'proprietaire' ? 'Propriétaire' : 'Locataire' }}
+                    </div>
+                </div>
+            </div>
 
-/* ── Sidebar gauche ── */
-.create-sidebar {
-    background:var(--dark);
-    padding:32px 24px;
-    display:flex; flex-direction:column; gap:8px;
-    border-right:1px solid rgba(255,255,255,.06);
-    position:sticky; top:64px; height:calc(100vh - 64px); overflow-y:auto;
-}
-.sidebar-role {
-    display:flex; align-items:center; gap:10px;
-    padding:14px 16px; border-radius:12px;
-    background:rgba(201,168,76,.12); border:1px solid rgba(201,168,76,.2);
-    margin-bottom:20px;
-}
-.sidebar-role-icon { font-size:22px; }
-.sidebar-role-lbl { font-size:10px; color:var(--gold); font-weight:700; text-transform:uppercase; letter-spacing:1px; }
-.sidebar-role-name { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; color:#fff; }
+            {{-- Liens sections --}}
+            <nav class="px-3 py-3 space-y-0.5">
+                <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 px-3 pt-1 pb-2">Sections</div>
+                @php
+                    $sections = [
+                        ['sec-identite', 'Identité'],
+                        ['sec-acces',    'Accès & Mot de passe'],
+                    ];
+                    if ($role === 'proprietaire') {
+                        $sections[] = ['sec-paiement', 'Mode de paiement'];
+                        $sections[] = ['sec-fiscal',   'Fiscal'];
+                    } else {
+                        $sections[] = ['sec-type',     'Type & Statut fiscal'];
+                        $sections[] = ['sec-pro',      'Situation professionnelle'];
+                        $sections[] = ['sec-urgence',  'Contact d\'urgence'];
+                    }
+                @endphp
+                @foreach($sections as $i => [$id, $label])
+                <button onclick="scrollToSection('{{ $id }}')" data-section="{{ $id }}"
+                        class="nav-section-btn flex items-center gap-3 w-full px-3 py-2 rounded-[8px] transition-all duration-150 text-left
+                               {{ $i === 0 ? 'bg-white/10 text-bimo-gold' : 'text-white/50 hover:text-white hover:bg-white/5' }}">
+                    <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold flex-shrink-0
+                                 {{ $i === 0 ? 'border-bimo-gold text-bimo-gold' : 'border-white/20 text-white/30' }}">
+                        {{ $i + 1 }}
+                    </span>
+                    <span class="font-display font-semibold text-xs">{{ $label }}</span>
+                </button>
+                @endforeach
+            </nav>
 
-.nav-section { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:rgba(255,255,255,.25); padding:0 12px; margin-top:16px; margin-bottom:6px; }
-.nav-item {
-    display:flex; align-items:center; gap:10px;
-    padding:10px 12px; border-radius:9px; cursor:pointer;
-    font-size:12px; font-weight:500; color:rgba(255,255,255,.5);
-    transition:all .15s; border:none; background:none; text-align:left; width:100%;
-}
-.nav-item:hover { background:rgba(255,255,255,.06); color:rgba(255,255,255,.8); }
-.nav-item.active { background:rgba(201,168,76,.15); color:var(--gold); }
-.nav-item-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.2); flex-shrink:0; transition:all .15s; }
-.nav-item.active .nav-item-dot { background:var(--gold); }
-.nav-item.done .nav-item-dot { background:var(--green); }
-.nav-item.done { color:rgba(255,255,255,.4); }
-
-.sidebar-tip {
-    margin-top:auto; padding:14px 16px;
-    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-    border-radius:12px; font-size:11px; color:rgba(255,255,255,.4); line-height:1.6;
-}
-
-/* ── Zone formulaire ── */
-.create-main { padding:32px 40px 60px; max-width:720px; }
-.create-header { margin-bottom:32px; }
-.create-title { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; color:#0d1117; letter-spacing:-.5px; margin-bottom:6px; }
-.create-sub { font-size:14px; color:#6b7280; }
-
-/* ── Sections ── */
-.form-section { margin-bottom:36px; }
-.section-hd {
-    display:flex; align-items:center; gap:12px;
-    padding-bottom:14px; border-bottom:1px solid #f3f4f6; margin-bottom:20px;
-}
-.section-num {
-    width:28px; height:28px; border-radius:8px;
-    background:var(--dark); color:#fff;
-    display:flex; align-items:center; justify-content:center;
-    font-size:12px; font-weight:800; font-family:'Syne',sans-serif;
-    flex-shrink:0;
-}
-.section-num.gold { background:var(--gold); color:#0d1117; }
-.section-title { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#0d1117; }
-.section-desc { font-size:12px; color:#9ca3af; margin-top:1px; }
-
-/* ── Champs ── */
-.field-group { margin-bottom:16px; }
-.field-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
-.field-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:16px; }
-.field-label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:6px; }
-.field-req { color:var(--red); margin-left:2px; }
-.field-opt { font-size:11px; font-weight:400; color:#9ca3af; margin-left:4px; }
-.field-input {
-    width:100%; padding:10px 13px;
-    border:1.5px solid #e5e7eb; border-radius:10px;
-    font-size:13px; color:#0d1117; font-family:'DM Sans',sans-serif;
-    background:#fff; outline:none; transition:all .15s;
-}
-.field-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,.1); }
-.field-input.error { border-color:var(--red); }
-.field-select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; background-size:14px; padding-right:36px; cursor:pointer; }
-.field-hint { font-size:11px; color:#9ca3af; margin-top:5px; }
-.field-error { font-size:11px; color:var(--red); margin-top:5px; }
-
-/* ── Genre pills ── */
-.genre-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.genre-pill input { position:absolute; opacity:0; width:0; height:0; }
-.genre-pill { position:relative; }
-.genre-pill label {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    padding:10px; border:1.5px solid #e5e7eb; border-radius:10px;
-    cursor:pointer; font-size:13px; font-weight:500; color:#6b7280;
-    background:#fff; transition:all .15s;
-}
-.genre-pill input:checked + label { border-color:var(--gold); background:var(--gold-light); color:var(--gold-dark); }
-.genre-pill label:hover { border-color:var(--gold); }
-
-/* ── Mode paiement pills ── */
-.mode-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-.mode-pill input { position:absolute; opacity:0; width:0; height:0; }
-.mode-pill { position:relative; }
-.mode-pill label {
-    display:flex; flex-direction:column; align-items:center; gap:4px;
-    padding:10px 8px; border:1.5px solid #e5e7eb; border-radius:10px;
-    cursor:pointer; font-size:11px; font-weight:500; color:#6b7280;
-    background:#fff; transition:all .15s; text-align:center;
-}
-.mode-pill input:checked + label { border-color:var(--gold); background:var(--gold-light); color:var(--gold-dark); }
-.mode-pill label:hover { border-color:var(--gold); }
-.mode-emoji { font-size:18px; }
-
-/* ── Type locataire pills ── */
-.type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
-.type-pill input { position:absolute; opacity:0; width:0; height:0; }
-.type-pill { position:relative; }
-.type-pill label {
-    display:flex; flex-direction:column; align-items:center; gap:4px;
-    padding:10px 8px; border:1.5px solid #e5e7eb; border-radius:10px;
-    cursor:pointer; font-size:11px; font-weight:500; color:#6b7280;
-    background:#fff; transition:all .15s; text-align:center;
-}
-.type-pill input:checked + label { border-color:var(--gold); background:var(--gold-light); color:var(--gold-dark); }
-
-/* ── Alerte entreprise ── */
-.enterprise-bloc {
-    background:#fff1f2; border:1px solid #fecaca; border-radius:12px;
-    padding:16px; margin-top:4px;
-    display:none;
-}
-.enterprise-bloc.visible { display:block; }
-
-/* ── Passwords ── */
-.pwd-strength { height:4px; border-radius:2px; background:#f3f4f6; margin-top:8px; overflow:hidden; }
-.pwd-fill { height:100%; border-radius:2px; transition:all .3s; }
-
-/* ── Submit bar ── */
-.submit-bar {
-    position:sticky; bottom:0;
-    background:rgba(255,255,255,.95); backdrop-filter:blur(8px);
-    border-top:1px solid #e5e7eb; padding:16px 40px;
-    display:flex; align-items:center; gap:12px; justify-content:flex-end;
-    margin:0 -40px -60px;
-}
-/* btn-submit hérite du layout global (couleur agence) */
-.btn-submit svg { width:15px; height:15px; }
-.btn-cancel {
-    padding:12px 22px; background:#fff; color:#6b7280;
-    border:1.5px solid #e5e7eb; border-radius:11px;
-    font-size:13px; font-weight:500; font-family:'DM Sans',sans-serif;
-    text-decoration:none; cursor:pointer; transition:all .15s;
-}
-.btn-cancel:hover { border-color:#9ca3af; }
-
-/* ── Erreurs ── */
-.error-banner {
-    background:#fee2e2; border:1px solid #fecaca; border-radius:12px;
-    padding:14px 18px; margin-bottom:24px;
-}
-.error-banner-title { font-size:13px; font-weight:600; color:var(--red); margin-bottom:6px; }
-.error-banner-item { font-size:12px; color:#9f1239; display:flex; align-items:flex-start; gap:6px; margin-top:4px; }
-</style>
-
-<div class="create-page">
-
-    {{-- ══ SIDEBAR ══════════════════════════════════════════════════════════ --}}
-    <div class="create-sidebar">
-
-        <div class="sidebar-role">
-            <div class="sidebar-role-icon">{{ $role === 'proprietaire' ? '🏢' : '👤' }}</div>
-            <div>
-                <div class="sidebar-role-lbl">Création</div>
-                <div class="sidebar-role-name">{{ $role === 'proprietaire' ? 'Propriétaire' : 'Locataire' }}</div>
+            <div class="px-4 py-4 border-t border-white/10">
+                <p class="font-body text-[11px] text-white/30 leading-relaxed">
+                    Les champs <span class="text-bimo-gold font-semibold">*</span> sont obligatoires. Les autres peuvent être complétés depuis la fiche.
+                </p>
             </div>
         </div>
-
-        <div class="nav-section">Sections</div>
-
-        <button class="nav-item active" onclick="scrollToSection('sec-identite')">
-            <div class="nav-item-dot"></div>
-            Identité
-        </button>
-        <button class="nav-item" onclick="scrollToSection('sec-acces')">
-            <div class="nav-item-dot"></div>
-            Accès & Mot de passe
-        </button>
-        @if($role === 'proprietaire')
-        <button class="nav-item" onclick="scrollToSection('sec-paiement')">
-            <div class="nav-item-dot"></div>
-            Mode de paiement
-        </button>
-        <button class="nav-item" onclick="scrollToSection('sec-fiscal')">
-            <div class="nav-item-dot"></div>
-            Fiscal
-        </button>
-        @else
-        <button class="nav-item" onclick="scrollToSection('sec-type')">
-            <div class="nav-item-dot"></div>
-            Type & Statut fiscal
-        </button>
-        <button class="nav-item" onclick="scrollToSection('sec-pro')">
-            <div class="nav-item-dot"></div>
-            Situation professionnelle
-        </button>
-        <button class="nav-item" onclick="scrollToSection('sec-urgence')">
-            <div class="nav-item-dot"></div>
-            Contact d'urgence
-        </button>
-        @endif
-
-        <div class="sidebar-tip">
-            💡 Tous les champs marqués <strong style="color:var(--gold)">*</strong> sont obligatoires. Les autres peuvent être complétés plus tard depuis la fiche.
-        </div>
-
     </div>
 
-    {{-- ══ FORMULAIRE ════════════════════════════════════════════════════════ --}}
-    <div class="create-main">
-
-        <div class="create-header">
-            <div class="create-title">
-                Nouveau {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
-            </div>
-            <div class="create-sub">
-                {{ $role === 'proprietaire'
-                    ? 'Renseignez les informations du propriétaire. Il pourra accéder à son espace depuis son email.'
-                    : 'Renseignez les informations du locataire. Il pourra consulter ses quittances depuis son espace.' }}
-            </div>
-        </div>
-
-        @if($errors->any())
-        <div class="error-banner">
-            <div class="error-banner-title">Certains champs nécessitent votre attention</div>
-            @foreach($errors->all() as $error)
-            <div class="error-banner-item">
-                <svg style="width:12px;height:12px;flex-shrink:0;margin-top:1px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                {{ $error }}
-            </div>
-            @endforeach
-        </div>
-        @endif
-
-        <form method="POST" action="{{ route('admin.users.store') }}">
+    {{-- ═══ FORMULAIRE ═══ --}}
+    <div>
+        <form method="POST" action="{{ route('admin.users.store') }}" class="space-y-6">
             @csrf
             <input type="hidden" name="role" value="{{ $role }}">
 
-            {{-- ══ SECTION 1 : IDENTITÉ ══════════════════════════════════════ --}}
-            <div class="form-section" id="sec-identite">
-                <div class="section-hd">
-                    <div class="section-num gold">1</div>
+            {{-- ── SECTION 1 : IDENTITÉ ── --}}
+            <div id="sec-identite" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-7 h-7 rounded-full bg-bimo-gold flex items-center justify-center font-display font-bold text-xs text-bimo-navy flex-shrink-0">1</div>
                     <div>
-                        <div class="section-title">Identité personnelle</div>
-                        <div class="section-desc">Informations de contact principales</div>
+                        <div class="font-display font-bold text-sm text-bimo-navy">Identité personnelle</div>
+                        <div class="font-body text-xs text-bimo-navy/40">Informations de contact principales</div>
                     </div>
                 </div>
+                <div class="px-5 py-5 space-y-4">
 
-                {{-- Nom --}}
-                <div class="field-group">
-                    <label class="field-label">Nom complet <span class="field-req">*</span></label>
-                    <input type="text" name="name" class="field-input {{ $errors->has('name') ? 'error':'' }}"
-                           value="{{ old('name') }}" placeholder="Ex: Moussa Diallo" autofocus>
-                    @error('name')<div class="field-error">{{ $message }}</div>@enderror
-                </div>
-
-                {{-- Tél --}}
-                <div class="field-group">
-                    <label class="field-label">Téléphone</label>
-                    <input type="text" name="telephone" class="field-input"
-                           value="{{ old('telephone') }}" placeholder="+221 77 000 00 00">
-                </div>
-
-                {{-- Adresse --}}
-                <div class="field-group">
-                    <label class="field-label">Adresse <span class="field-opt">(optionnel)</span></label>
-                    <input type="text" name="adresse" class="field-input"
-                           value="{{ old('adresse') }}" placeholder="Rue, quartier...">
-                </div>
-
-                {{-- Genre --}}
-                <div class="field-group">
-                    <label class="field-label">Genre</label>
-                    <div class="genre-grid">
-                        <div class="genre-pill">
-                            <input type="radio" name="genre" id="genre_homme" value="M"
-                                   {{ old('genre') === 'M' ? 'checked':'' }}>
-                            <label for="genre_homme">👨 Homme</label>
-                        </div>
-                        <div class="genre-pill">
-                            <input type="radio" name="genre" id="genre_femme" value="F"
-                                   {{ old('genre') === 'F' ? 'checked':'' }}>
-                            <label for="genre_femme">👩 Femme</label>
-                        </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Nom complet <span class="text-bimo-red">*</span></label>
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Ex: Moussa Diallo" autofocus
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        @error('name')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                     </div>
-                </div>
 
-                {{-- Naissance + Nationalité + Ville --}}
-                <div class="field-grid-3">
-                    <div>
-                        <label class="field-label">Date de naissance</label>
-                        <input type="date" name="date_naissance" class="field-input"
-                               value="{{ old('date_naissance') }}">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Téléphone</label>
+                        <input type="text" name="telephone" value="{{ old('telephone') }}" placeholder="+221 77 000 00 00"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
-                    <div>
-                        <label class="field-label">Nationalité</label>
-                        <input type="text" name="nationalite" class="field-input"
-                               value="{{ old('nationalite', 'Sénégalaise') }}">
+
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                            Adresse <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        </label>
+                        <input type="text" name="adresse" value="{{ old('adresse') }}" placeholder="Rue, quartier..."
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
-                    <div>
-                        <label class="field-label">Ville</label>
-                        <select name="ville" class="field-input field-select">
-                            @foreach(['Dakar','Thiès','Saint-Louis','Ziguinchor','Kaolack','Mbour','Rufisque','Touba','Diourbel','Tambacounda'] as $v)
-                            <option value="{{ $v }}" {{ old('ville','Dakar') === $v ? 'selected':'' }}>{{ $v }}</option>
+
+                    {{-- Genre pills --}}
+                    <div class="space-y-2">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Genre</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach(['M' => ['👨', 'Homme'], 'F' => ['👩', 'Femme']] as $val => [$emoji, $lbl])
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="genre" value="{{ $val }}" {{ old('genre') === $val ? 'checked':'' }}
+                                       class="sr-only peer">
+                                <div class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-bimo-navy/10 rounded-[10px] font-body font-medium text-sm text-bimo-navy/60
+                                            peer-checked:border-bimo-gold peer-checked:bg-bimo-gold/10 peer-checked:text-bimo-gold
+                                            hover:border-bimo-gold/40 transition-all duration-150 cursor-pointer">
+                                    <span>{{ $emoji }}</span> {{ $lbl }}
+                                </div>
+                            </label>
                             @endforeach
-                        </select>
+                        </div>
                     </div>
-                </div>
 
-                <div class="field-group">
-                    <label class="field-label">CNI / Passeport <span class="field-opt">(optionnel)</span></label>
-                    <input type="text" name="cni" class="field-input"
-                           value="{{ old('cni') }}" placeholder="1 234 567 890 12">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Date de naissance</label>
+                            <input type="date" name="date_naissance" value="{{ old('date_naissance') }}"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Nationalité</label>
+                            <input type="text" name="nationalite" value="{{ old('nationalite', 'Sénégalaise') }}"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Ville</label>
+                            <select name="ville"
+                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy cursor-pointer
+                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                @foreach(['Dakar','Thiès','Saint-Louis','Ziguinchor','Kaolack','Mbour','Rufisque','Touba','Diourbel','Tambacounda'] as $v)
+                                <option value="{{ $v }}" {{ old('ville','Dakar') === $v ? 'selected':'' }}>{{ $v }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                            CNI / Passeport <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        </label>
+                        <input type="text" name="cni" value="{{ old('cni') }}" placeholder="1 234 567 890 12"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    </div>
+
                 </div>
             </div>
 
-            {{-- ══ SECTION 2 : ACCÈS ════════════════════════════════════════ --}}
-            <div class="form-section" id="sec-acces">
-                <div class="section-hd">
-                    <div class="section-num">2</div>
+            {{-- ── SECTION 2 : ACCÈS ── --}}
+            <div id="sec-acces" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">2</div>
                     <div>
-                        <div class="section-title">Accès à l'espace personnel</div>
-                        <div class="section-desc">
-                            @if($role === 'proprietaire')
-                                Optionnel — si renseigné, le propriétaire pourra se connecter à son espace
-                            @else
-                                Identifiants de connexion au portail locataire
+                        <div class="font-display font-bold text-sm text-bimo-navy">Accès à l'espace personnel</div>
+                        <div class="font-body text-xs text-bimo-navy/40">
+                            @if($role === 'proprietaire') Optionnel — si renseigné, le propriétaire pourra se connecter
+                            @else Identifiants de connexion au portail locataire
                             @endif
                         </div>
                     </div>
                 </div>
+                <div class="px-5 py-5 space-y-4">
 
-                {{-- Email --}}
-                <div class="field-group">
-                    <label class="field-label">
-                        Email
-                        @if($role === 'proprietaire')
-                            <span class="field-opt">(optionnel)</span>
-                        @else
-                            <span class="field-req">*</span>
-                        @endif
-                    </label>
-                    <input type="email" name="email" class="field-input {{ $errors->has('email') ? 'error':'' }}"
-                           value="{{ old('email') }}" placeholder="email@exemple.com">
-                    @error('email')<div class="field-error">{{ $message }}</div>@enderror
-                </div>
-
-                <div class="field-grid-2">
-                    <div>
-                        <label class="field-label">
-                            Mot de passe
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                            Email
                             @if($role === 'proprietaire')
-                                <span class="field-opt">(requis si email renseigné)</span>
+                                <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
                             @else
-                                <span class="field-req">*</span>
+                                <span class="text-bimo-red">*</span>
                             @endif
                         </label>
-                        <input type="password" name="password" id="pwd"
-                               class="field-input {{ $errors->has('password') ? 'error':'' }}"
-                               placeholder="Min. 8 caractères" oninput="checkPwd(this.value)">
-                        <div class="pwd-strength"><div class="pwd-fill" id="pwd-bar" style="width:0%;background:var(--red)"></div></div>
-                        <div class="field-hint" id="pwd-hint">Entrez un mot de passe</div>
-                        @error('password')<div class="field-error">{{ $message }}</div>@enderror
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="email@exemple.com"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        @error('email')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                     </div>
-                    <div>
-                        <label class="field-label">
-                            Confirmer le mot de passe
-                            @if($role === 'proprietaire')
-                                <span class="field-opt">(requis si email renseigné)</span>
-                            @else
-                                <span class="field-req">*</span>
-                            @endif
-                        </label>
-                        <input type="password" name="password_confirmation" id="pwd2"
-                               class="field-input" placeholder="Répétez le mot de passe"
-                               oninput="checkConfirm()">
-                        <div class="field-hint" id="pwd2-hint" style="color:transparent">—</div>
-                    </div>
-                </div>
 
-                @if($role === 'proprietaire')
-                <div style="background:#fefce8;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:12px;color:#92400e">
-                    💡 Sans email, le propriétaire n'aura pas accès à son espace en ligne. Vous pourrez l'activer plus tard depuis sa fiche.
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">
+                                Mot de passe
+                                @if($role === 'proprietaire')
+                                    <span class="font-normal text-bimo-navy/40 text-xs ml-1">(requis si email renseigné)</span>
+                                @else
+                                    <span class="text-bimo-red">*</span>
+                                @endif
+                            </label>
+                            <input type="password" name="password" id="pwd" placeholder="Min. 8 caractères"
+                                   oninput="checkPwd(this.value)"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                          @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                          @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                            <div class="h-1 rounded-full bg-bimo-navy/10 mt-2 overflow-hidden">
+                                <div id="pwd-bar" class="h-full rounded-full transition-all duration-300" style="width:0%;background:#EF4444"></div>
+                            </div>
+                            <p id="pwd-hint" class="font-body text-[11px] text-bimo-navy/40">Entrez un mot de passe</p>
+                            @error('password')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">
+                                Confirmer le mot de passe
+                                @if($role === 'proprietaire')
+                                    <span class="font-normal text-bimo-navy/40 text-xs ml-1">(requis si email renseigné)</span>
+                                @else
+                                    <span class="text-bimo-red">*</span>
+                                @endif
+                            </label>
+                            <input type="password" name="password_confirmation" id="pwd2" placeholder="Répétez le mot de passe"
+                                   oninput="checkConfirm()"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                            <p id="pwd2-hint" class="font-body text-[11px] mt-1" style="color:transparent">—</p>
+                        </div>
+                    </div>
+
+                    @if($role === 'proprietaire')
+                    <div class="flex items-center gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[10px] px-4 py-3">
+                        <span class="text-base">💡</span>
+                        <p class="font-body text-xs text-bimo-gold">Sans email, le propriétaire n'aura pas accès à son espace en ligne. Vous pourrez l'activer plus tard depuis sa fiche.</p>
+                    </div>
+                    @else
+                    <div class="flex items-center gap-3 bg-bimo-navy/[5%] border border-bimo-navy/10 rounded-[10px] px-4 py-3">
+                        <span class="text-base">✉️</span>
+                        <p class="font-body text-xs text-bimo-navy/70">Le locataire pourra se connecter avec son email sur <strong>{{ config('app.url') }}</strong></p>
+                    </div>
+                    @endif
+
                 </div>
-                @else
-                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;font-size:12px;color:#166534">
-                    ✉️ Le locataire pourra se connecter avec son email et ce mot de passe sur
-                    <strong>{{ config('app.url') }}</strong>
-                </div>
-                @endif
             </div>
 
-            {{-- ══ SECTIONS PROPRIÉTAIRE ════════════════════════════════════ --}}
+            {{-- ══ SECTIONS PROPRIÉTAIRE ══ --}}
             @if($role === 'proprietaire')
 
             {{-- Section 3 : Mode de paiement --}}
-            <div class="form-section" id="sec-paiement">
-                <div class="section-hd">
-                    <div class="section-num">3</div>
+            <div id="sec-paiement" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">3</div>
                     <div>
-                        <div class="section-title">Mode de paiement préféré</div>
-                        <div class="section-desc">Comment reverser les loyers nets au propriétaire</div>
+                        <div class="font-display font-bold text-sm text-bimo-navy">Mode de paiement préféré</div>
+                        <div class="font-body text-xs text-bimo-navy/40">Comment reverser les loyers nets au propriétaire</div>
                     </div>
                 </div>
+                <div class="px-5 py-5 space-y-4">
 
-                <div class="mode-grid" style="margin-bottom:16px">
-                    @foreach([
-                        'virement'     => ['Virement',     '🏦'],
-                        'wave'         => ['Wave',          '📱'],
-                        'orange_money' => ['Orange Money',  '🟠'],
-                        'especes'      => ['Espèces',       '💵'],
-                        'cheque'       => ['Chèque',        '📝'],
-                        'mobile_money' => ['Mobile Money',  '📲'],
-                    ] as $val => [$lbl, $emoji])
-                    <div class="mode-pill">
-                        <input type="radio" name="mode_paiement_prefere" id="mode_{{ $val }}" value="{{ $val }}"
-                               {{ old('mode_paiement_prefere','virement') === $val ? 'checked':'' }}>
-                        <label for="mode_{{ $val }}">
-                            <span class="mode-emoji">{{ $emoji }}</span>
-                            {{ $lbl }}
+                    <div class="grid grid-cols-3 gap-2">
+                        @foreach([
+                            'virement'     => ['Virement',    '🏦'],
+                            'wave'         => ['Wave',         '📱'],
+                            'orange_money' => ['Orange Money', '🟠'],
+                            'especes'      => ['Espèces',      '💵'],
+                            'cheque'       => ['Chèque',       '📝'],
+                            'mobile_money' => ['Mobile Money', '📲'],
+                        ] as $val => [$lbl, $emoji])
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="mode_paiement_prefere" value="{{ $val }}"
+                                   {{ old('mode_paiement_prefere','virement') === $val ? 'checked':'' }}
+                                   class="sr-only peer">
+                            <div class="flex flex-col items-center gap-1.5 p-3 border-2 border-bimo-navy/10 rounded-[10px] text-center
+                                        peer-checked:border-bimo-gold peer-checked:bg-bimo-gold/10
+                                        hover:border-bimo-gold/40 transition-all duration-150 cursor-pointer">
+                                <span class="text-xl">{{ $emoji }}</span>
+                                <span class="font-body font-medium text-[11px] text-bimo-navy/60 peer-checked:text-bimo-gold">{{ $lbl }}</span>
+                            </div>
                         </label>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
 
-                <div class="field-grid-2">
-                    <div>
-                        <label class="field-label">Numéro Wave</label>
-                        <input type="text" name="numero_wave" class="field-input"
-                               value="{{ old('numero_wave') }}" placeholder="+221 77 XXX XX XX">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Numéro Wave</label>
+                            <input type="text" name="numero_wave" value="{{ old('numero_wave') }}" placeholder="+221 77 XXX XX XX"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Numéro Orange Money</label>
+                            <input type="text" name="numero_om" value="{{ old('numero_om') }}" placeholder="+221 77 XXX XX XX"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
                     </div>
-                    <div>
-                        <label class="field-label">Numéro Orange Money</label>
-                        <input type="text" name="numero_om" class="field-input"
-                               value="{{ old('numero_om') }}" placeholder="+221 77 XXX XX XX">
-                    </div>
-                </div>
 
-                <div class="field-grid-2">
-                    <div>
-                        <label class="field-label">Banque <span class="field-opt">(optionnel)</span></label>
-                        <input type="text" name="banque" class="field-input"
-                               value="{{ old('banque') }}" placeholder="CBAO, Ecobank, BIS...">
-                    </div>
-                    <div>
-                        <label class="field-label">Numéro de compte <span class="field-opt">(optionnel)</span></label>
-                        <input type="text" name="numero_compte" class="field-input"
-                               value="{{ old('numero_compte') }}" placeholder="RIB / IBAN">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">
+                                Banque <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                            </label>
+                            <input type="text" name="banque" value="{{ old('banque') }}" placeholder="CBAO, Ecobank, BIS..."
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">
+                                Numéro de compte <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                            </label>
+                            <input type="text" name="numero_compte" value="{{ old('numero_compte') }}" placeholder="RIB / IBAN"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Section 4 : Fiscal propriétaire --}}
-            <div class="form-section" id="sec-fiscal">
-                <div class="section-hd">
-                    <div class="section-num">4</div>
+            <div id="sec-fiscal" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">4</div>
                     <div>
-                        <div class="section-title">Informations fiscales</div>
-                        <div class="section-desc">NINEA et statut TVA du propriétaire</div>
+                        <div class="font-display font-bold text-sm text-bimo-navy">Informations fiscales</div>
+                        <div class="font-body text-xs text-bimo-navy/40">NINEA et statut TVA du propriétaire</div>
                     </div>
                 </div>
-
-                <div class="field-grid-2">
-                    <div>
-                        <label class="field-label">NINEA <span class="field-opt">(optionnel)</span></label>
-                        <input type="text" name="ninea" class="field-input"
-                               value="{{ old('ninea') }}" placeholder="Ex: 00123456789">
-                        <div class="field-hint">Numéro d'Identification National des Entreprises</div>
+                <div class="px-5 py-5">
+                    <div class="max-w-xs space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                            NINEA <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        </label>
+                        <input type="text" name="ninea" value="{{ old('ninea') }}" placeholder="Ex: 00123456789"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        <p class="font-body text-[11px] text-bimo-navy/30">Numéro d'Identification National des Entreprises</p>
                     </div>
                 </div>
             </div>
 
             @endif
 
-            {{-- ══ SECTIONS LOCATAIRE ═══════════════════════════════════════ --}}
+            {{-- ══ SECTIONS LOCATAIRE ══ --}}
             @if($role === 'locataire')
 
             {{-- Section 3 : Type & Statut fiscal --}}
-            <div class="form-section" id="sec-type">
-                <div class="section-hd">
-                    <div class="section-num">3</div>
+            <div id="sec-type" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">3</div>
                     <div>
-                        <div class="section-title">Type de locataire & Statut fiscal</div>
-                        <div class="section-desc">Détermine si la Retenue à la Source (BRS) s'applique</div>
+                        <div class="font-display font-bold text-sm text-bimo-navy">Type de locataire & Statut fiscal</div>
+                        <div class="font-body text-xs text-bimo-navy/40">Détermine si la Retenue à la Source (BRS) s'applique</div>
                     </div>
                 </div>
+                <div class="px-5 py-5 space-y-4">
 
-                <div class="field-group">
-                    <label class="field-label">Type de locataire</label>
-                    <div class="type-grid">
-                        @foreach([
-                            'particulier' => ['Particulier',  '👤', false],
-                            'entreprise'  => ['Entreprise',   '🏢', true],
-                            'association' => ['Association',  '🤝', true],
-                            'ambassade'   => ['Ambassade',    '🏛️', false],
-                            'ong'         => ['ONG / Org.',   '🌍', false],
-                        ] as $k => [$lbl, $ico, $brs])
-                        <div class="type-pill">
-                            <input type="radio" name="type_locataire" id="type_{{ $k }}" value="{{ $k }}"
-                                   {{ old('type_locataire','particulier') === $k ? 'checked':'' }}
-                                   onchange="onTypeChange('{{ $k }}', {{ $brs ? 'true':'false' }})">
-                            <label for="type_{{ $k }}">
-                                <span style="font-size:18px">{{ $ico }}</span>
-                                {{ $lbl }}
-                                @if($brs)<span style="font-size:9px;color:var(--red);font-weight:700">BRS 5%</span>@endif
+                    <div class="space-y-2">
+                        <label class="block font-body font-medium text-sm text-bimo-navy">Type de locataire</label>
+                        <div class="grid grid-cols-3 md:grid-cols-5 gap-2">
+                            @foreach([
+                                'particulier' => ['Particulier', '👤', false],
+                                'entreprise'  => ['Entreprise',  '🏢', true],
+                                'association' => ['Association', '🤝', true],
+                                'ambassade'   => ['Ambassade',   '🏛️', false],
+                                'ong'         => ['ONG / Org.', '🌍', false],
+                            ] as $k => [$lbl, $ico, $brs])
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="type_locataire" value="{{ $k }}"
+                                       {{ old('type_locataire','particulier') === $k ? 'checked':'' }}
+                                       onchange="onTypeChange('{{ $k }}', {{ $brs ? 'true':'false' }})"
+                                       class="sr-only peer">
+                                <div class="flex flex-col items-center gap-1 p-3 border-2 border-bimo-navy/10 rounded-[10px] text-center cursor-pointer
+                                            peer-checked:border-bimo-gold peer-checked:bg-bimo-gold/10
+                                            hover:border-bimo-gold/40 transition-all duration-150">
+                                    <span class="text-lg">{{ $ico }}</span>
+                                    <span class="font-body font-medium text-[10px] text-bimo-navy/60">{{ $lbl }}</span>
+                                    @if($brs)<span class="font-body font-bold text-[9px] text-bimo-red">BRS 5%</span>@endif
+                                </div>
                             </label>
+                            @endforeach
                         </div>
-                        @endforeach
+                        <input type="hidden" name="est_entreprise" id="est_entreprise"
+                               value="{{ in_array(old('type_locataire','particulier'),['entreprise','association']) ? '1':'0' }}">
                     </div>
-                    <input type="hidden" name="est_entreprise" id="est_entreprise"
-                           value="{{ in_array(old('type_locataire','particulier'),['entreprise','association']) ? '1':'0' }}">
-                </div>
 
-                {{-- Bloc entreprise --}}
-                <div class="enterprise-bloc {{ in_array(old('type_locataire','particulier'),['entreprise','association']) ? 'visible':'' }}"
-                     id="bloc-entreprise">
-                    <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:12px;display:flex;align-items:center;gap:6px">
-                        <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        BRS 5% — Retenue à la source automatique sur les paiements futurs (Art. 201 CGI SN)
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label">Raison sociale</label>
-                        <input type="text" name="nom_entreprise" class="field-input"
-                               value="{{ old('nom_entreprise') }}" placeholder="Nom officiel de la société">
-                    </div>
-                    <div class="field-grid-2">
-                        <div>
-                            <label class="field-label">NINEA</label>
-                            <input type="text" name="ninea_locataire" class="field-input"
-                                   value="{{ old('ninea_locataire') }}" placeholder="00123456789" maxlength="30">
+                    {{-- Bloc entreprise --}}
+                    <div id="bloc-entreprise"
+                         class="{{ in_array(old('type_locataire','particulier'),['entreprise','association']) ? '' : 'hidden' }}
+                                bg-bimo-red/[4%] border border-bimo-red/20 rounded-[12px] p-4 space-y-3">
+                        <div class="flex items-center gap-2 font-body font-semibold text-sm text-bimo-red">
+                            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            BRS 5% — Retenue à la source automatique sur les paiements futurs (Art. 201 CGI SN)
                         </div>
-                        <div>
-                            <label class="field-label">RCCM</label>
-                            <input type="text" name="rccm_locataire" class="field-input"
-                                   value="{{ old('rccm_locataire') }}" placeholder="SN-DKR-2024-B-XXXXX" maxlength="60">
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Raison sociale</label>
+                            <input type="text" name="nom_entreprise" value="{{ old('nom_entreprise') }}" placeholder="Nom officiel de la société"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1.5">
+                                <label class="block font-body font-medium text-sm text-bimo-navy">NINEA</label>
+                                <input type="text" name="ninea_locataire" value="{{ old('ninea_locataire') }}" placeholder="00123456789"
+                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                              placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block font-body font-medium text-sm text-bimo-navy">RCCM</label>
+                                <input type="text" name="rccm_locataire" value="{{ old('rccm_locataire') }}" placeholder="SN-DKR-2024-B-XXXXX"
+                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                              placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                            </div>
+                        </div>
+                        <div class="max-w-[180px] space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Taux BRS personnalisé (%)</label>
+                            <input type="number" name="taux_brs_override" value="{{ old('taux_brs_override') }}" placeholder="5" min="0" max="20" step="0.5"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                            <p class="font-body text-[11px] text-bimo-navy/30">Vide = 5% légal (Art. 201 CGI SN)</p>
                         </div>
                     </div>
-                    <div style="max-width:180px">
-                        <label class="field-label">Taux BRS personnalisé <span class="field-opt">(%)</span></label>
-                        <input type="number" name="taux_brs_override" class="field-input"
-                               value="{{ old('taux_brs_override') }}" placeholder="5" min="0" max="20" step="0.5">
-                        <div class="field-hint">Vide = 5% légal (Art. 201 CGI SN)</div>
-                    </div>
+
                 </div>
             </div>
 
             {{-- Section 4 : Situation professionnelle --}}
-            <div class="form-section" id="sec-pro">
-                <div class="section-hd">
-                    <div class="section-num">4</div>
+            <div id="sec-pro" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">4</div>
                     <div>
-                        <div class="section-title">Situation professionnelle</div>
-                        <div class="section-desc">Permet de calculer le taux d'effort locatif</div>
+                        <div class="font-display font-bold text-sm text-bimo-navy">Situation professionnelle</div>
+                        <div class="font-body text-xs text-bimo-navy/40">Permet de calculer le taux d'effort locatif</div>
                     </div>
                 </div>
-
-                <div class="field-grid-3">
-                    <div>
-                        <label class="field-label">Profession</label>
-                        <input type="text" name="profession" class="field-input"
-                               value="{{ old('profession') }}" placeholder="Ex: Ingénieur">
-                    </div>
-                    <div>
-                        <label class="field-label">Employeur</label>
-                        <input type="text" name="employeur" class="field-input"
-                               value="{{ old('employeur') }}" placeholder="Nom de l'employeur">
-                    </div>
-                    <div>
-                        <label class="field-label">Revenu mensuel <span class="field-opt">(F)</span></label>
-                        <input type="number" name="revenu_mensuel" class="field-input"
-                               value="{{ old('revenu_mensuel') }}" placeholder="350000" min="0">
+                <div class="px-5 py-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Profession</label>
+                            <input type="text" name="profession" value="{{ old('profession') }}" placeholder="Ex: Ingénieur"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Employeur</label>
+                            <input type="text" name="employeur" value="{{ old('employeur') }}" placeholder="Nom de l'employeur"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Revenu mensuel (F)</label>
+                            <input type="number" name="revenu_mensuel" value="{{ old('revenu_mensuel') }}" placeholder="350000" min="0"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Section 5 : Contact urgence --}}
-            <div class="form-section" id="sec-urgence">
-                <div class="section-hd">
-                    <div class="section-num">5</div>
+            <div id="sec-urgence" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">5</div>
                     <div>
-                        <div class="section-title">Contact d'urgence <span class="field-opt">(optionnel)</span></div>
-                        <div class="section-desc">Personne à contacter en cas d'urgence</div>
+                        <div class="font-display font-bold text-sm text-bimo-navy">
+                            Contact d'urgence <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        </div>
+                        <div class="font-body text-xs text-bimo-navy/40">Personne à contacter en cas d'urgence</div>
                     </div>
                 </div>
-
-                <div class="field-grid-3">
-                    <div>
-                        <label class="field-label">Nom</label>
-                        <input type="text" name="contact_urgence_nom" class="field-input"
-                               value="{{ old('contact_urgence_nom') }}" placeholder="Prénom NOM">
-                    </div>
-                    <div>
-                        <label class="field-label">Téléphone</label>
-                        <input type="text" name="contact_urgence_tel" class="field-input"
-                               value="{{ old('contact_urgence_tel') }}" placeholder="+221 7X XXX XX XX">
-                    </div>
-                    <div>
-                        <label class="field-label">Lien</label>
-                        <input type="text" name="contact_urgence_lien" class="field-input"
-                               value="{{ old('contact_urgence_lien') }}" placeholder="Père, Conjoint...">
+                <div class="px-5 py-5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Nom</label>
+                            <input type="text" name="contact_urgence_nom" value="{{ old('contact_urgence_nom') }}" placeholder="Prénom NOM"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Téléphone</label>
+                            <input type="text" name="contact_urgence_tel" value="{{ old('contact_urgence_tel') }}" placeholder="+221 7X XXX XX XX"
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block font-body font-medium text-sm text-bimo-navy">Lien</label>
+                            <input type="text" name="contact_urgence_lien" value="{{ old('contact_urgence_lien') }}" placeholder="Père, Conjoint..."
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        </div>
                     </div>
                 </div>
             </div>
 
             @endif
 
-            {{-- ══ BARRE SUBMIT ═════════════════════════════════════════════ --}}
-            <div class="submit-bar">
+            {{-- Submit --}}
+            <div class="sticky bottom-0 flex items-center justify-end gap-3 px-0 py-4
+                        bg-bimo-bg/95 backdrop-blur-sm border-t border-bimo-navy/10">
                 <a href="{{ $role === 'proprietaire' ? route('admin.users.proprietaires') : route('admin.users.locataires') }}"
-                   class="btn-cancel">Annuler</a>
-                <button type="submit" class="btn-submit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                   class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
+                          font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                    Annuler
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
+                               font-display font-bold text-sm rounded-[10px]
+                               hover:opacity-90 transition-opacity duration-150">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                     Créer le {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
                 </button>
             </div>
 
         </form>
     </div>
+
 </div>
 
+@push('scripts')
 <script>
-// ── Scroll navigation sidebar ──────────────────────────────────────────────
 function scrollToSection(id) {
     document.getElementById(id)?.scrollIntoView({ behavior:'smooth', block:'start' });
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    document.querySelectorAll('.nav-section-btn').forEach(b => {
+        b.classList.remove('bg-white/10','text-bimo-gold');
+        b.classList.add('text-white/50');
+    });
+    const btn = document.querySelector(`[data-section="${id}"]`);
+    if (btn) { btn.classList.add('bg-white/10','text-bimo-gold'); btn.classList.remove('text-white/50'); }
 }
 
-// ── Force du mot de passe ──────────────────────────────────────────────────
 function checkPwd(v) {
     const bar = document.getElementById('pwd-bar');
     const hint = document.getElementById('pwd-hint');
@@ -652,15 +547,14 @@ function checkPwd(v) {
     if (/[A-Z]/.test(v)) score++;
     if (/[0-9]/.test(v)) score++;
     if (/[^A-Za-z0-9]/.test(v)) score++;
-
     const levels = [
-        { pct:'25%', color:'#dc2626', label:'Trop faible' },
+        { pct:'25%', color:'#EF4444', label:'Trop faible' },
         { pct:'50%', color:'#f59e0b', label:'Faible' },
         { pct:'75%', color:'#3b82f6', label:'Correct' },
-        { pct:'100%',color:'#16a34a', label:'Fort ✓' },
+        { pct:'100%',color:'#C9A84C', label:'Fort ✓' },
     ];
+    if (v.length === 0) { bar.style.width='0%'; hint.textContent='Entrez un mot de passe'; hint.style.color=''; return; }
     const l = levels[Math.max(0, score - 1)] ?? levels[0];
-    if (v.length === 0) { bar.style.width='0%'; hint.textContent='Entrez un mot de passe'; hint.style.color='#9ca3af'; return; }
     bar.style.width = l.pct;
     bar.style.background = l.color;
     hint.textContent = l.label;
@@ -673,15 +567,16 @@ function checkConfirm() {
     const pwd2 = document.getElementById('pwd2').value;
     const hint = document.getElementById('pwd2-hint');
     if (!pwd2) { hint.style.color='transparent'; return; }
-    if (pwd === pwd2) { hint.textContent='✓ Correspondent'; hint.style.color='#16a34a'; }
-    else { hint.textContent='✗ Ne correspondent pas'; hint.style.color='#dc2626'; }
+    if (pwd === pwd2) { hint.textContent='✓ Correspondent'; hint.style.color='#C9A84C'; }
+    else { hint.textContent='✗ Ne correspondent pas'; hint.style.color='#EF4444'; }
 }
 
-// ── Type locataire entreprise ──────────────────────────────────────────────
 function onTypeChange(type, isBrs) {
     document.getElementById('est_entreprise').value = isBrs ? '1' : '0';
     const bloc = document.getElementById('bloc-entreprise');
-    if (bloc) bloc.classList.toggle('visible', isBrs);
+    if (bloc) { if (isBrs) bloc.classList.remove('hidden'); else bloc.classList.add('hidden'); }
 }
 </script>
-</x-app-layout>
+@endpush
+
+@endsection
