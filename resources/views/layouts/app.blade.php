@@ -94,98 +94,106 @@
 
         @php $route = request()->route()?->getName() ?? ''; @endphp
 
-        {{-- Dashboard --}}
+        @php
+            $navLink = function(string $href, string $label, string $icon, bool $active) {
+                return '';
+            };
+        @endphp
+
+        {{-- Tableau de bord --}}
         <a href="{{ route('admin.dashboard') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150 group
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150 mb-1
                   {{ str_starts_with($route, 'admin.dashboard') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-            </svg>
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             <span class="font-display font-semibold text-sm">Tableau de bord</span>
         </a>
 
-        {{-- Biens --}}
+        {{-- ── PATRIMOINE ── --}}
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
+            Patrimoine
+        </div>
+        <a href="{{ route('admin.users.proprietaires') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.users.proprietaires') || str_starts_with($route, 'admin.bailleurs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="font-display font-semibold text-sm">Propriétaires</span>
+        </a>
         <a href="{{ route('admin.biens.index') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
-                  {{ str_starts_with($route, 'admin.biens') || str_starts_with($route, 'admin.immeubles') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.biens') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span class="font-display font-semibold text-sm">Biens</span>
         </a>
+        <a href="{{ route('admin.immeubles.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.immeubles') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9.5" y1="14.5" x2="14.5" y2="14.5"/></svg>
+            <span class="font-display font-semibold text-sm">Immeubles</span>
+        </a>
 
-        {{-- Contrats --}}
+        {{-- ── RELATIONS ── --}}
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
+            Relations
+        </div>
+        <a href="{{ route('admin.users.locataires') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.users.locataires') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            <span class="font-display font-semibold text-sm">Locataires</span>
+        </a>
+        <a href="{{ route('admin.bailleurs.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.bailleurs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="font-display font-semibold text-sm">Bailleurs</span>
+        </a>
         <a href="{{ route('admin.contrats.index') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.contrats') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             <span class="font-display font-semibold text-sm">Contrats</span>
         </a>
 
-        {{-- Paiements --}}
+        {{-- ── CAISSE ── --}}
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
+            Caisse
+        </div>
         <a href="{{ route('admin.paiements.index') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.paiements') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-            </svg>
-            <span class="font-display font-semibold text-sm">Paiements</span>
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            <span class="font-display font-semibold text-sm">Paiements & Quittances</span>
         </a>
-
-        {{-- Impayés --}}
         <a href="{{ route('admin.impayes.index') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.impayes') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             <span class="font-display font-semibold text-sm">Impayés</span>
         </a>
 
-        {{-- Bailleurs --}}
-        <a href="{{ route('admin.bailleurs.index') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
-                  {{ str_starts_with($route, 'admin.bailleurs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <span class="font-display font-semibold text-sm">Bailleurs</span>
-        </a>
-
-        {{-- Locataires --}}
-        <a href="{{ route('admin.users.locataires') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
-                  {{ str_starts_with($route, 'admin.users.locataires') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-            </svg>
-            <span class="font-display font-semibold text-sm">Locataires</span>
-        </a>
-
-        {{-- Séparateur --}}
-        <div class="my-2 border-t border-white/10"></div>
-
-        {{-- Rapports --}}
+        {{-- ── ANALYTIQUE ── --}}
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
+            Analytique
+        </div>
         <a href="{{ route('admin.rapports.financier') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.rapports') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-                <line x1="6" y1="20" x2="6" y2="14"/>
-            </svg>
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             <span class="font-display font-semibold text-sm">Rapports</span>
         </a>
+
+        {{-- ── JOURNAL ── --}}
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
+            Journal
+        </div>
+        <a href="{{ route('admin.activity-logs.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.activity-logs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="17" x2="8" y2="17"/></svg>
+            <span class="font-display font-semibold text-sm">Activité</span>
+        </a>
+
+        <div class="pb-2"></div>
 
     </nav>
 
