@@ -301,17 +301,7 @@
 
     {{-- TOPBAR MOBILE --}}
     <header class="sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-bimo-navy lg:hidden">
-        {{-- Hamburger --}}
-        <button onclick="openSidebar()"
-                class="w-9 h-9 flex items-center justify-center rounded-[8px] text-white/70 hover:text-white hover:bg-white/10 transition-colors duration-150">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-        </button>
-
-        {{-- Logo centré --}}
+        {{-- Logo --}}
         <span class="font-display font-extrabold text-white text-base">
             Bimothèque <span style="color: var(--ac)">Immo</span>
         </span>
@@ -485,49 +475,70 @@
 
     </main>
 
-    {{-- BOTTOM NAV MOBILE --}}
-    <nav class="fixed bottom-0 left-0 right-0 h-16 bg-bimo-navy border-t border-white/10 z-20 lg:hidden
-                flex items-center justify-around px-2"
-         style="padding-bottom: env(safe-area-inset-bottom, 0px)">
+    {{-- BOTTOM NAV MOBILE — Option A : 5 onglets fixes --}}
+    <nav class="fixed bottom-0 left-0 right-0 bg-bimo-navy border-t border-white/10 z-20 lg:hidden flex items-stretch"
+         style="height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px)">
 
-        @php $route = request()->route()?->getName() ?? ''; @endphp
+        @php $routeNow = request()->route()?->getName() ?? ''; @endphp
 
+        {{-- Dashboard --}}
         <a href="{{ route('admin.dashboard') }}"
-           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
-                  {{ str_starts_with($route, 'admin.dashboard') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Accueil</span>
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150
+                  {{ str_starts_with($routeNow, 'admin.dashboard') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Accueil</span>
         </a>
 
+        {{-- Biens --}}
         <a href="{{ route('admin.biens.index') }}"
-           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
-                  {{ str_starts_with($route, 'admin.biens') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Biens</span>
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150
+                  {{ str_starts_with($routeNow, 'admin.biens') || str_starts_with($routeNow, 'admin.contrats') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Biens</span>
         </a>
 
-        {{-- FAB central --}}
-        <div class="relative">
-            <a href="{{ route('admin.biens.create') }}"
-               class="flex items-center justify-center w-[52px] h-[52px] rounded-[14px] shadow-gold-md font-extrabold text-2xl text-bimo-navy transition-transform duration-150 hover:scale-105 active:scale-95"
-               style="background: var(--ac)">
-                +
-            </a>
-        </div>
-
+        {{-- Paiements --}}
         <a href="{{ route('admin.paiements.index') }}"
-           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
-                  {{ str_starts_with($route, 'admin.paiements') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Caisse</span>
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150
+                  {{ str_starts_with($routeNow, 'admin.paiements') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="1" y="4" width="22" height="16" rx="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Paiements</span>
         </a>
 
-        <a href="{{ route('admin.rapports.financier') }}"
-           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
-                  {{ str_starts_with($route, 'admin.rapports') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Rapports</span>
+        {{-- Impayés --}}
+        <a href="{{ route('admin.impayes.index') }}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150 relative
+                  {{ str_starts_with($routeNow, 'admin.impayes') ? 'text-bimo-red' : 'text-white/40 hover:text-white/70' }}">
+            <div class="relative">
+                <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Impayés</span>
         </a>
+
+        {{-- Menu — ouvre la sidebar --}}
+        <button onclick="openSidebar()"
+                class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150 border-none bg-transparent
+                       text-white/40 hover:text-white/70">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Menu</span>
+        </button>
+
     </nav>
 
 </div>{{-- fin .lg:ml-64 --}}
