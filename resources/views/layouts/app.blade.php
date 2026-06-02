@@ -1,331 +1,36 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex,nofollow">
-    <title>{{ auth()->user()?->agency?->name ?? config('app.name') }} — BimoTech Immo</title>
+    <title>{{ auth()->user()?->agency?->name ?? config('app.name') }} — Bimothèque Immo</title>
 
-    {{-- ── PWA : manifest + icône + couleur de thème ── --}}
+    {{-- PWA --}}
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#c9a84c">
+    <meta name="theme-color" content="#1B4F6B">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="BIMO-tech">
+    <meta name="apple-mobile-web-app-title" content="Bimothèque">
 
+    {{-- Polices --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"></noscript>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+          media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap">
+    </noscript>
 
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    {{-- Tailwind + Alpine via Vite --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #f9f7f2;
-            color: #1c2128;
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .main-wrapper {
-            margin-left: 248px;
-            flex: 1;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .topbar {
-            background: #fffef9;
-            border-bottom: 1px solid #ede9e0;
-            padding: 0 2rem;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 90;
-        }
-
-        .topbar-breadcrumb {
-            font-size: 13px;
-            color: #8b949e;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .topbar-breadcrumb strong { color: #1c2128; font-weight: 500; }
-
-        .page-content { padding: 2rem; flex: 1; }
-
-        .btn-primary {
-            background: #c9a84c; color: #0d1117;
-            font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
-            padding: 9px 20px; border-radius: 8px; border: none;
-            cursor: pointer; text-decoration: none; display: inline-flex;
-            align-items: center; gap: 6px; transition: opacity .15s;
-        }
-        .btn-primary:hover { opacity: .85; }
-
-        .btn-secondary {
-            background: transparent; color: #57606a;
-            font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500;
-            padding: 9px 20px; border-radius: 8px; border: 1px solid #d0d7de;
-            cursor: pointer; text-decoration: none; display: inline-flex;
-            align-items: center; gap: 6px; transition: background .15s;
-        }
-        .btn-secondary:hover { background: #f3f4f6; }
-
-        .flash-success {
-            background: rgba(59,109,17,.08); border: 1px solid rgba(59,109,17,.2);
-            border-left: 4px solid #3B6D11; color: #3B6D11;
-            padding: 12px 16px; border-radius: 8px; font-size: 13.5px; margin-bottom: 1.5rem;
-        }
-        .flash-warning {
-            background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.3);
-            border-left: 4px solid #c9a84c; color: #8a6e2f;
-            padding: 12px 16px; border-radius: 8px; font-size: 13.5px; margin-bottom: 1.5rem;
-        }
-        .flash-error {
-            background: rgba(226,75,74,.08); border: 1px solid rgba(226,75,74,.2);
-            border-left: 4px solid #E24B4A; color: #A32D2D;
-            padding: 12px 16px; border-radius: 8px; font-size: 13.5px; margin-bottom: 1.5rem;
-        }
-
-        /* ── Tables ── */
-        .table-card { background:#fffef9;border:1px solid #e8e3d8;border-radius:14px;overflow:hidden; }
-        .dt { width:100%;border-collapse:collapse; }
-        .dt th { padding:10px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f5f2ea;border-bottom:1px solid #e8e3d8; }
-        .dt td { padding:12px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f0ece3;vertical-align:middle; }
-        .dt tbody tr:last-child td { border-bottom:none; }
-        .dt tbody tr:hover { background:#f5f2ea; }
-
-        /* ── Badges ── */
-        .badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600; }
-        .bdot { width:5px;height:5px;border-radius:50%;background:currentColor; }
-
-        /* ── Boutons icône (tableaux) ── */
-        .act-btn { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;border:1px solid #e8e3d8;background:#fffef9;color:#6b7280;text-decoration:none;transition:all .15s;cursor:pointer; }
-        .act-btn:hover { border-color:#c9a84c;color:#8a6e2f; }
-        .act-btn.danger:hover { border-color:#fca5a5;color:#dc2626;background:#fef2f2; }
-        .act-btn.primary { background:#2a4a7f;border-color:#2a4a7f;color:#fff; }
-        .act-btn.primary:hover { background:#1e3a6f; }
-
-        /* ── KPI ligne (pages index) ── */
-        .kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
-        .kpi { background:#fffef9;border:1px solid #e8e3d8;border-radius:12px;padding:16px 18px; }
-        .kpi.gold  { border-top:3px solid #c9a84c; }
-        .kpi.green { border-top:3px solid #16a34a; }
-        .kpi.blue  { border-top:3px solid #1d4ed8; }
-        .kpi.dark  { border-top:3px solid #0d1117; }
-        .kpi.amber { border-top:3px solid #d97706; }
-        .kpi.red   { border-top:3px solid #dc2626; }
-        .kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
-        .kpi-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;line-height:1.1; }
-        .kpi-sub { font-size:11px;color:#9ca3af;margin-top:4px; }
-
-        /* ── Icônes de card (formulaires) ── */
-        .card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-        .card-icon svg { width:15px;height:15px; }
-        .card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
-        .card-icon.blue   { background:#dbeafe;color:#1d4ed8; }
-        .card-icon.green  { background:#dcfce7;color:#16a34a; }
-        .card-icon.purple { background:#ede9fe;color:#7c3aed; }
-        .card-icon.red    { background:#fee2e2;color:#dc2626; }
-
-        /* ── Champs de formulaire ── */
-        .form-row   { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
-        .form-group { margin-bottom:14px; }
-        .form-group:last-child { margin-bottom:0; }
-        .form-label { display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px; }
-        .req { color:#dc2626; }
-        .opt { color:#9ca3af;font-weight:400; }
-        .form-input,.form-select,.form-textarea { width:100%;padding:9px 12px;border:1px solid #e8e3d8;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#0d1117;background:#fffef9;outline:none;transition:border .15s; }
-        .form-input:focus,.form-select:focus,.form-textarea:focus { border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.1); }
-        .form-input.error,.form-select.error { border-color:#dc2626; }
-        .form-error { font-size:11px;color:#dc2626;margin-top:3px; }
-        .form-textarea { resize:vertical;min-height:80px; }
-
-        /* ── Barre de soumission (formulaires) ── */
-        .submit-bar { display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #e8e3d8;background:#f5f2ea; }
-        .btn-cancel { padding:8px 16px;border-radius:8px;border:1px solid #e8e3d8;background:#fffef9;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center; }
-        /* btn-submit = même couleur que btn-primary (couleur agence) — cohérence entre toutes les pages */
-        .btn-submit { padding:8px 18px;border-radius:8px;border:none;background:var(--ac,#c9a84c);color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s; }
-        .btn-submit:hover { opacity:.85; }
-
-        /* ── État vide ── */
-        .empty-state { padding:56px 20px;text-align:center; }
-
-        /* ── Tooltip ── */
-        .tip-wrap { position:relative;display:inline-flex;align-items:center; }
-        .tip-icon { width:15px;height:15px;border-radius:50%;background:#e5e7eb;color:#6b7280;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:help;margin-left:5px;flex-shrink:0;font-style:normal; }
-        .tip-icon::after { content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#0d1117;color:#fff;font-size:11px;font-weight:400;padding:7px 11px;border-radius:7px;width:230px;white-space:normal;text-align:left;z-index:200;pointer-events:none;opacity:0;transition:opacity .15s;line-height:1.5; }
-        .tip-icon::before { content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#0d1117;opacity:0;transition:opacity .15s; }
-        .tip-icon:hover::after,.tip-icon:hover::before { opacity:1; }
-
-        /* ── Flash messages (fermeture + transition) ── */
-        .flash-success,.flash-warning,.flash-error { display:flex;align-items:flex-start;justify-content:space-between;gap:12px;transition:opacity .4s,transform .4s; }
-        .flash-close { background:none;border:none;cursor:pointer;opacity:.45;font-size:16px;line-height:1;padding:0;flex-shrink:0;margin-top:1px; }
-        .flash-close:hover { opacity:.8; }
-
-        /* ── Modale de confirmation ── */
-        #g-confirm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center; }
-        #g-confirm-overlay.open { display:flex; }
-        #g-confirm-box { background:#fffef9;border-radius:14px;padding:28px 28px 22px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:confirmIn .18s ease; }
-        @keyframes confirmIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
-        #g-confirm-icon-wrap { width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-        #g-confirm-actions { display:flex;gap:10px;justify-content:flex-end;margin-top:22px; }
-        .g-btn-cancel { padding:8px 18px;border-radius:8px;border:1px solid #e8e3d8;background:#fffef9;color:#6b7280;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer; }
-        .g-btn-cancel:hover { background:#f5f2ea; }
-        .g-btn-ok { padding:8px 18px;border-radius:8px;border:none;color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer; }
-
-        /* ── Spinner anti-double-submit ── */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .btn-spinning { opacity:.7;pointer-events:none; }
-        .btn-spin-icon { display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px; }
-
-        /* ── Hamburger (mobile) ── */
-        .bm-hamburger { display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;border:none;background:transparent;cursor:pointer;padding:6px;flex-shrink:0; }
-        .bm-hamburger span { display:block;width:20px;height:2px;border-radius:2px;background:#374151;transition:all .22s; }
-        .bm-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99;opacity:0;transition:opacity .25s; }
-        .bm-overlay.open { display:block;opacity:1; }
-
-        /* ── Topbar scroll shadow ── */
-        .topbar { transition: box-shadow .2s ease; }
-        .topbar.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.07); }
-
-        /* ── Hamburger → X quand sidebar ouverte ── */
-        .bm-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-        .bm-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-        .bm-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-        /* ── Icônes dans les flash messages ── */
-        .flash-icon { width:16px;height:16px;flex-shrink:0;margin-top:2px; }
-
-        /* ── Recherche globale cachée sur très petit écran ── */
-        @media (max-width: 479px) {
-            #global-search-wrap { display:none !important; }
-        }
-
-        /* ── Mobile card table : état actif tactile ── */
-        @media (max-width: 768px) {
-            .dt tr { transition: background .12s ease; }
-            .dt tr:active { background: #f0ece3 !important; }
-        }
-
-        /* ─────────────── RESPONSIVE ──────────────────────────────── */
-        @media (max-width: 768px) {
-
-            /* Sidebar masquée par défaut, slide-in depuis la gauche */
-            .bm-sidebar-wrap {
-                transform: translateX(-100%);
-                transition: transform .25s ease;
-                z-index: 110;
-            }
-            .bm-sidebar-wrap.open { transform: translateX(0); }
-
-            /* Contenu principal : plus de marge gauche */
-            .main-wrapper { margin-left: 0; }
-
-            /* Topbar : hamburger visible */
-            .bm-hamburger { display:flex; }
-
-            /* Moins de padding sur les pages */
-            .page-content { padding: 1rem; }
-
-            /* ── Grilles formulaires → colonne unique ── */
-            .form-row,
-            .form-row-3      { grid-template-columns: 1fr !important; }
-
-            /* Formulaires avec récap (contrats, paiements, biens) */
-            .form-grid       { grid-template-columns: 1fr !important; }
-
-            /* Récap sticky → non-sticky sur mobile (suit le formulaire) */
-            .recap-card      { position:static !important; }
-
-            /* Sidebar de création (users/create) */
-            .create-page     { grid-template-columns: 1fr !important; }
-            .create-sidebar  { position:static !important; height:auto !important; flex-direction:row !important; flex-wrap:wrap; gap:6px; padding:16px; }
-            .nav-section     { display:none; }
-
-            /* ── Grilles KPI → 2 colonnes ── */
-            .kpi-row,
-            .kpi-grid        { grid-template-columns: 1fr 1fr !important; }
-
-            /* ── Grilles dashboard → colonne unique ── */
-            .g2, .g3, .g4   { grid-template-columns: 1fr !important; }
-
-            /* ── Submit bar → sticky en bas sur mobile ── */
-            .submit-bar {
-                position: sticky;
-                bottom: 0;
-                z-index: 50;
-                flex-direction: row;
-                box-shadow: 0 -2px 12px rgba(0,0,0,.08);
-            }
-            .btn-submit,
-            .btn-cancel      { flex: 1; justify-content:center; padding:11px 16px; }
-
-            /* ── Tables → cartes verticales ── */
-            .dt thead { display:none; }
-            .dt, .dt tbody { display:block; width:100%; }
-            .dt tr {
-                display:block;
-                background:#fffef9;
-                border:1px solid #e8e3d8;
-                border-radius:12px;
-                margin-bottom:10px;
-                overflow:hidden;
-            }
-            .dt td {
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                padding:10px 14px;
-                border-bottom:1px solid #f0ece3;
-                font-size:13px;
-                text-align:right;
-                gap:10px;
-                min-height:36px;
-            }
-            .dt td:last-child { border-bottom:none; }
-            .dt td::before {
-                content:attr(data-label);
-                font-size:10px;
-                font-weight:700;
-                text-transform:uppercase;
-                letter-spacing:.6px;
-                color:#9ca3af;
-                text-align:left;
-                flex-shrink:0;
-                max-width:40%;
-            }
-            /* Colonne actions : centrée sans label */
-            .dt td[data-label="Actions"],
-            .dt td[data-label=""] { justify-content:center; }
-            .dt td[data-label="Actions"]::before,
-            .dt td[data-label=""]::before { display:none; }
-
-            /* ── Topbar breadcrumb tronqué ── */
-            .topbar-breadcrumb { max-width: calc(100vw - 120px); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-            /* ── Séparateur recap visible sur mobile ── */
-            .recap-mobile-sep { display:block !important; }
-        }
-    </style>
-
-    {{ $styles ?? '' }}
-    @stack('styles')
-
-    {{-- Couleur de l'agence injectée en CSS variable --}}
+    {{-- Couleur agence injectée en runtime --}}
     @php
-        $agencyColor = auth()->user()?->agency?->couleur_primaire ?? '#c9a84c';
+        $agencyColor = auth()->user()?->agency?->couleur_primaire ?? '#C9A84C';
         $hex = ltrim($agencyColor, '#');
         $cr  = hexdec(substr($hex, 0, 2));
         $cg  = hexdec(substr($hex, 2, 2));
@@ -338,474 +43,601 @@
             --ac-g: {{ $cg }};
             --ac-b: {{ $cb }};
         }
-        .btn-primary { background: var(--ac) !important; }
-        /* ── Accent agence : décoration KPI + boutons dorés ── */
-        .kpi-card.gold::before, .kpi.gold::before,
-        .kpi-mini.gold::before, .kpi5.gold::before { background: var(--ac,#c9a84c) !important; }
-        .btn-gold { background: var(--ac,#c9a84c) !important; }
     </style>
+
+    @stack('styles')
 </head>
-<body>
 
-    {{-- Overlay mobile sidebar ── --}}
-    <div class="bm-overlay" id="bm-overlay"></div>
+<body class="h-full bg-bimo-bg font-body antialiased"
+      x-data="{ sidebarOpen: false }">
 
-    <x-sidebar :agency="auth()->user()?->agency" />
+{{-- ═══════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════ --}}
 
-    <div class="main-wrapper">
+{{-- Overlay mobile --}}
+<div x-show="sidebarOpen"
+     x-transition:enter="transition-opacity duration-250"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition-opacity duration-250"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     @click="sidebarOpen = false"
+     class="fixed inset-0 bg-bimo-navy/40 backdrop-blur-sm z-30 lg:hidden"
+     style="display:none">
+</div>
 
-        <header class="topbar">
-            <div style="display:flex;align-items:center;gap:10px;min-width:0">
-                <button class="bm-hamburger" id="bm-hamburger-btn" aria-label="Ouvrir le menu" aria-expanded="false">
-                    <span></span><span></span><span></span>
-                </button>
-                <div class="topbar-breadcrumb">
-                    <a href="{{ route('dashboard') }}" style="color:inherit;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='inherit'">{{ auth()->user()?->agency?->name ?? 'BimoTech' }}</a>
-                    <span style="color:#d0d7de">›</span>
-                    <strong>{{ $header ?? 'Tableau de bord' }}</strong>
-                </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:12px">
-                {{ $topbarActions ?? '' }}
+{{-- Sidebar panel --}}
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+       class="fixed left-0 top-0 h-full w-64 bg-bimo-navy flex flex-col z-40
+              transition-transform duration-250 ease-out
+              lg:translate-x-0">
 
-                @auth
-                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'superadmin')
-                {{-- ── Recherche globale ── --}}
-                <div style="position:relative" id="global-search-wrap">
-                    <div style="position:relative">
-                        <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#9ca3af;pointer-events:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <input type="text" id="global-search-input"
-                               placeholder="Rechercher…"
-                               autocomplete="off"
-                               style="width:200px;padding:7px 12px 7px 28px;border:1px solid #e8e3d8;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:#1c2128;background:#f9f7f2;outline:none;transition:all .2s"
-                               onfocus="this.style.width='280px';this.style.borderColor='#c9a84c';this.style.background='#fff'"
-                               onblur="if(!document.getElementById('global-search-results').matches(':hover')){this.style.width='200px';this.style.borderColor='#e8e3d8';this.style.background='#f9f7f2';setTimeout(()=>document.getElementById('global-search-results').style.display='none',150)}">
-                    </div>
-                    <div id="global-search-results"
-                         style="display:none;position:absolute;top:calc(100% + 6px);right:0;width:340px;background:#fff;border:1px solid #e8e3d8;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden;z-index:500">
-                    </div>
-                </div>
-                @endif
-                @endauth
-            </div>
-        </header>
-
-        {{-- Bandeau invitation 2FA superadmin --}}
-        @auth
-        @if(auth()->user()->isSuperAdmin() && !auth()->user()->hasTwoFactorEnabled())
-        <div style="background:#fffbeb;border-bottom:1px solid #fcd34d;padding:9px 20px;font-size:12px;font-weight:600;color:#92400e;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:7px">
-                <svg style="width:14px;height:14px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Sécurisez votre compte superadmin en activant l'authentification à deux facteurs.
-            </span>
-            <a href="{{ route('superadmin.2fa.setup') }}"
-               style="padding:5px 14px;border-radius:7px;background:#d97706;color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap">
-                Activer le 2FA →
-            </a>
+    {{-- Logo --}}
+    <div class="flex items-center gap-3 h-16 px-5 border-b border-white/10 flex-shrink-0">
+        <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
+             style="background: var(--ac)">
+            <span class="font-display font-extrabold text-bimo-navy text-sm">B</span>
         </div>
-        @endif
-        @endauth
-
-        {{-- Bannière impersonation --}}
-        @if(session('impersonating_id'))
-        <div style="background:#dc2626;color:#fff;padding:9px 20px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:7px">
-                <svg style="width:14px;height:14px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Impersonation active — connecté en tant que <strong style="margin:0 3px">{{ auth()->user()->name }}</strong> ({{ auth()->user()->role }})
-            </span>
-            <a href="{{ route('superadmin.impersonate.stop') }}"
-               style="padding:5px 14px;border-radius:7px;background:rgba(255,255,255,.2);color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid rgba(255,255,255,.3)">
-                ← Quitter l'impersonation
-            </a>
+        <div class="min-w-0">
+            <div class="font-display font-bold text-white text-sm leading-tight truncate">
+                {{ auth()->user()?->agency?->name ?? 'Bimothèque' }}
+            </div>
+            <div class="font-body text-[10px] text-white/40 uppercase tracking-widest">Immo</div>
         </div>
-        @endif
-
-        <main class="page-content">
-
-            @if(session('success'))
-                <div class="flash-success">
-                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    <span style="flex:1">{{ session('success') }}</span>
-                    <button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button>
-                </div>
-            @endif
-            @if(session('warning'))
-                <div class="flash-warning">
-                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    <span style="flex:1">{{ session('warning') }}</span>
-                    <button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button>
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="flash-error">
-                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                    <span style="flex:1">{{ session('error') }}</span>
-                    <button class="flash-close" onclick="this.closest('[class^=flash]').remove()">×</button>
-                </div>
-            @endif
-            @if($errors->any())
-                <div class="flash-error">
-                    <svg class="flash-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span style="flex:1">
-                        <strong>Veuillez corriger les erreurs suivantes :</strong>
-                        @foreach($errors->all() as $e)
-                            <br>{{ $e }}
-                        @endforeach
-                    </span>
-                    <button class="flash-close" onclick="this.closest('.flash-error').remove()">×</button>
-                </div>
-            @endif
-
-            {{-- SLOT PRINCIPAL — contenu de la vue --}}
-            {{ $slot ?? '' }}
-@yield('content')
-
-        </main>
     </div>
 
-    {{-- ── Modale de confirmation globale ── --}}
-    <div id="g-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="g-confirm-title">
-        <div id="g-confirm-box">
-            <div style="display:flex;align-items:flex-start;gap:14px">
-                <div id="g-confirm-icon-wrap">
-                    <svg id="g-confirm-icon" style="width:20px;height:20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    {{-- Navigation --}}
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+
+        @php $route = request()->route()?->getName() ?? ''; @endphp
+
+        {{-- Dashboard --}}
+        <a href="{{ route('admin.dashboard') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150 group
+                  {{ str_starts_with($route, 'admin.dashboard') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Tableau de bord</span>
+        </a>
+
+        {{-- Biens --}}
+        <a href="{{ route('admin.biens.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.biens') || str_starts_with($route, 'admin.immeubles') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Biens</span>
+        </a>
+
+        {{-- Contrats --}}
+        <a href="{{ route('admin.contrats.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.contrats') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Contrats</span>
+        </a>
+
+        {{-- Paiements --}}
+        <a href="{{ route('admin.paiements.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.paiements') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Paiements</span>
+            @php $nbImpayes = cache()->remember('impayes_count_' . auth()->id(), 60, fn() => \App\Models\Contrat::where('agency_id', auth()->user()->agency_id)->where('statut', 'actif')->whereHas('impayesActifs')->count()); @endphp
+            @if($nbImpayes > 0)
+            <span class="ml-auto bg-bimo-red text-white font-body font-medium text-[10px] px-2 py-0.5 rounded-full">
+                {{ $nbImpayes }}
+            </span>
+            @endif
+        </a>
+
+        {{-- Impayés --}}
+        <a href="{{ route('admin.impayes.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.impayes') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Impayés</span>
+        </a>
+
+        {{-- Bailleurs --}}
+        <a href="{{ route('admin.bailleurs.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.bailleurs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Bailleurs</span>
+        </a>
+
+        {{-- Locataires --}}
+        <a href="{{ route('admin.users.locataires') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.users.locataires') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Locataires</span>
+        </a>
+
+        {{-- Séparateur --}}
+        <div class="my-2 border-t border-white/10"></div>
+
+        {{-- Rapports --}}
+        <a href="{{ route('admin.rapports.financier') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.rapports') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            <span class="font-display font-semibold text-sm">Rapports</span>
+        </a>
+
+    </nav>
+
+    {{-- Footer sidebar — profil --}}
+    <div class="flex-shrink-0 p-3 border-t border-white/10"
+         x-data="{ dropOpen: false }">
+        <div class="relative">
+            <button @click="dropOpen = !dropOpen" @click.outside="dropOpen = false"
+                    class="flex items-center gap-3 w-full px-3 py-2.5 rounded-[10px] hover:bg-white/5 transition-colors duration-150">
+                <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 font-display font-bold text-sm"
+                     style="background: var(--ac); color: #1B4F6B">
+                    {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
+                </div>
+                <div class="flex-1 text-left min-w-0">
+                    <div class="font-display font-semibold text-white text-sm truncate">{{ auth()->user()->name }}</div>
+                    <div class="font-body text-[10px] text-white/40 capitalize">{{ auth()->user()->role }}</div>
+                </div>
+                <svg class="w-4 h-4 text-white/30 flex-shrink-0 transition-transform duration-150"
+                     :class="dropOpen ? 'rotate-180' : ''"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </button>
+
+            {{-- Dropdown --}}
+            <div x-show="dropOpen"
+                 x-transition:enter="transition duration-150"
+                 x-transition:enter-start="opacity-0 translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 class="absolute bottom-full left-0 right-0 mb-1 bg-bimo-navy-dk border border-white/10 rounded-[12px] overflow-hidden shadow-xl z-50"
+                 style="display:none">
+                <a href="{{ route('profile.edit') }}"
+                   class="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors duration-150 font-body text-sm">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Mon profil
+                </a>
+                <a href="{{ route('admin.agency.settings') }}"
+                   class="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors duration-150 font-body text-sm border-t border-white/10">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    Paramètres agence
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="border-t border-white/10">
+                    @csrf
+                    <button type="submit"
+                            class="flex items-center gap-3 w-full px-4 py-3 text-bimo-red/80 hover:text-bimo-red hover:bg-white/5 transition-colors duration-150 font-body text-sm">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Déconnexion
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</aside>
+
+{{-- ═══════════════════════════════════════════════
+     CONTENU PRINCIPAL
+═══════════════════════════════════════════════ --}}
+<div class="lg:ml-64 flex flex-col min-h-full">
+
+    {{-- TOPBAR MOBILE --}}
+    <header class="sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-bimo-navy lg:hidden">
+        {{-- Hamburger --}}
+        <button @click="sidebarOpen = true"
+                class="w-9 h-9 flex items-center justify-center rounded-[8px] text-white/70 hover:text-white hover:bg-white/10 transition-colors duration-150">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+
+        {{-- Logo centré --}}
+        <span class="font-display font-extrabold text-white text-base">
+            Bimothèque <span style="color: var(--ac)">Immo</span>
+        </span>
+
+        {{-- Avatar --}}
+        <div class="w-9 h-9 rounded-[9px] flex items-center justify-center font-display font-bold text-sm flex-shrink-0"
+             style="background: var(--ac); color: #1B4F6B">
+            {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
+        </div>
+    </header>
+
+    {{-- TOPBAR DESKTOP --}}
+    <header class="hidden lg:flex items-center justify-between h-14 px-8 bg-bimo-surface border-b border-bimo-navy/10 sticky top-0 z-20">
+        {{-- Breadcrumb --}}
+        <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/50">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-bimo-navy transition-colors duration-150">
+                {{ auth()->user()?->agency?->name ?? 'Bimothèque' }}
+            </a>
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="text-bimo-navy font-medium">{{ $header ?? 'Tableau de bord' }}</span>
+        </div>
+
+        {{-- Actions topbar droite --}}
+        <div class="flex items-center gap-3">
+            {{ $topbarActions ?? '' }}
+
+            {{-- Recherche globale (admin uniquement) --}}
+            @auth
+            @if(in_array(auth()->user()->role, ['admin', 'superadmin']))
+            <div class="relative" x-data="{ q: '', results: [], show: false, timer: null }"
+                 @click.outside="show = false">
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-navy/30 pointer-events-none"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
+                    <input type="text" x-model="q"
+                           @input="clearTimeout(timer); if(q.length > 1) { timer = setTimeout(() => { fetch('{{ route('admin.search') }}?q='+encodeURIComponent(q), {headers:{'X-Requested-With':'XMLHttpRequest'}}).then(r=>r.json()).then(d=>{results=d.results;show=true}) }, 250) } else { show=false }"
+                           @keydown.escape="show=false; q=''"
+                           placeholder="Rechercher…"
+                           class="w-48 pl-8 pr-3 py-1.5 bg-bimo-bg border border-bimo-navy/10 rounded-[8px] font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:w-64 focus:bg-white transition-all duration-150">
                 </div>
-                <div style="flex:1">
-                    <div id="g-confirm-title" style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#0d1117;margin-bottom:4px"></div>
-                    <div id="g-confirm-msg" style="font-size:13px;color:#6b7280;line-height:1.55"></div>
+                <div x-show="show && results.length > 0"
+                     class="absolute right-0 top-full mt-1 w-80 bg-white border border-bimo-navy/10 rounded-[12px] shadow-lg overflow-hidden z-50"
+                     style="display:none">
+                    <template x-for="item in results" :key="item.url">
+                        <a :href="item.url"
+                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-bimo-bg transition-colors duration-100 border-b border-bimo-navy/5 last:border-0">
+                            <div class="w-7 h-7 rounded-[6px] bg-bimo-bg2 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="font-body font-medium text-sm text-bimo-navy truncate" x-text="item.label"></div>
+                                <div class="font-body text-[11px] text-bimo-navy/40 truncate" x-text="item.sub"></div>
+                            </div>
+                        </a>
+                    </template>
                 </div>
             </div>
-            <div id="g-confirm-actions">
-                <button class="g-btn-cancel" id="g-confirm-cancel">Annuler</button>
-                <button class="g-btn-ok" id="g-confirm-ok">Confirmer</button>
+            @endif
+            @endauth
+        </div>
+    </header>
+
+    {{-- Bannière 2FA superadmin --}}
+    @auth
+    @if(auth()->user()->isSuperAdmin() && !auth()->user()->hasTwoFactorEnabled())
+    <div class="flex items-center justify-between gap-3 px-4 lg:px-8 py-2.5 bg-amber-50 border-b border-amber-200 flex-wrap">
+        <span class="flex items-center gap-2 font-body text-xs text-amber-800">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Sécurisez votre compte superadmin en activant l'authentification à deux facteurs.
+        </span>
+        <a href="{{ route('superadmin.2fa.setup') }}"
+           class="font-display font-bold text-xs px-3 py-1.5 bg-amber-600 text-white rounded-[6px] hover:bg-amber-700 transition-colors duration-150 whitespace-nowrap">
+            Activer le 2FA →
+        </a>
+    </div>
+    @endif
+    @endauth
+
+    {{-- Bannière impersonation --}}
+    @if(session('impersonating_id'))
+    <div class="flex items-center justify-between gap-3 px-4 lg:px-8 py-2.5 bg-bimo-red border-b border-bimo-red/80 flex-wrap">
+        <span class="flex items-center gap-2 font-body text-xs text-white">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Impersonation active — connecté en tant que <strong class="mx-1">{{ auth()->user()->name }}</strong> ({{ auth()->user()->role }})
+        </span>
+        <a href="{{ route('superadmin.impersonate.stop') }}"
+           class="font-display font-bold text-xs px-3 py-1.5 bg-white/20 text-white border border-white/30 rounded-[6px] hover:bg-white/30 transition-colors duration-150 whitespace-nowrap">
+            ← Quitter l'impersonation
+        </a>
+    </div>
+    @endif
+
+    {{-- CONTENU PAGE --}}
+    <main class="flex-1 px-4 py-4 md:px-6 md:py-6 lg:px-8 lg:py-8 pb-24 lg:pb-8">
+
+        {{-- Flash success --}}
+        @if(session('success'))
+        <div x-data="{ show: true }" x-show="show"
+             x-init="setTimeout(() => show = false, 5000)"
+             x-transition:leave="transition duration-300"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             class="flex items-center gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[12px] px-4 py-3 mb-4">
+            <svg class="w-4 h-4 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <p class="font-body text-sm text-bimo-gold flex-1">{{ session('success') }}</p>
+            <button @click="show = false" class="text-bimo-gold/50 hover:text-bimo-gold transition-colors duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        @endif
+
+        {{-- Flash warning --}}
+        @if(session('warning'))
+        <div x-data="{ show: true }" x-show="show"
+             x-init="setTimeout(() => show = false, 7000)"
+             x-transition:leave="transition duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-[12px] px-4 py-3 mb-4">
+            <svg class="w-4 h-4 text-amber-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+            <p class="font-body text-sm text-amber-800 flex-1">{{ session('warning') }}</p>
+            <button @click="show = false" class="text-amber-400 hover:text-amber-600 transition-colors duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        @endif
+
+        {{-- Flash error --}}
+        @if(session('error'))
+        <div x-data="{ show: true }" x-show="show"
+             x-init="setTimeout(() => show = false, 12000)"
+             x-transition:leave="transition duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="flex items-center gap-3 bg-bimo-red/[5%] border border-bimo-red/20 rounded-[12px] px-4 py-3 mb-4">
+            <svg class="w-4 h-4 text-bimo-red flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <p class="font-body text-sm text-bimo-red flex-1">{{ session('error') }}</p>
+            <button @click="show = false" class="text-bimo-red/50 hover:text-bimo-red transition-colors duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        @endif
+
+        {{-- Flash errors validation --}}
+        @if($errors->any())
+        <div x-data="{ show: true }" x-show="show"
+             x-transition:leave="transition duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="flex items-start gap-3 bg-bimo-red/[5%] border border-bimo-red/20 rounded-[12px] px-4 py-3 mb-4">
+            <svg class="w-4 h-4 text-bimo-red flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div class="flex-1">
+                <p class="font-body font-medium text-sm text-bimo-red mb-1">Veuillez corriger les erreurs suivantes :</p>
+                @foreach($errors->all() as $error)
+                <p class="font-body text-xs text-bimo-red/80">• {{ $error }}</p>
+                @endforeach
+            </div>
+            <button @click="show = false" class="text-bimo-red/50 hover:text-bimo-red transition-colors duration-150 flex-shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        @endif
+
+        {{-- Contenu de la vue --}}
+        {{ $slot ?? '' }}
+        @yield('content')
+
+    </main>
+
+    {{-- BOTTOM NAV MOBILE --}}
+    <nav class="fixed bottom-0 left-0 right-0 h-16 bg-bimo-navy border-t border-white/10 z-20 lg:hidden
+                flex items-center justify-around px-2"
+         style="padding-bottom: env(safe-area-inset-bottom, 0px)">
+
+        @php $route = request()->route()?->getName() ?? ''; @endphp
+
+        <a href="{{ route('admin.dashboard') }}"
+           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
+                  {{ str_starts_with($route, 'admin.dashboard') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Accueil</span>
+        </a>
+
+        <a href="{{ route('admin.biens.index') }}"
+           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
+                  {{ str_starts_with($route, 'admin.biens') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Biens</span>
+        </a>
+
+        {{-- FAB central --}}
+        <div class="relative">
+            <a href="{{ route('admin.biens.create') }}"
+               class="flex items-center justify-center w-[52px] h-[52px] rounded-[14px] shadow-gold-md font-extrabold text-2xl text-bimo-navy transition-transform duration-150 hover:scale-105 active:scale-95"
+               style="background: var(--ac)">
+                +
+            </a>
+        </div>
+
+        <a href="{{ route('admin.paiements.index') }}"
+           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
+                  {{ str_starts_with($route, 'admin.paiements') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Caisse</span>
+        </a>
+
+        <a href="{{ route('admin.rapports.financier') }}"
+           class="flex flex-col items-center gap-1 px-3 py-2 transition-colors duration-150
+                  {{ str_starts_with($route, 'admin.rapports') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest">Rapports</span>
+        </a>
+    </nav>
+
+</div>{{-- fin .lg:ml-64 --}}
+
+{{-- Modale de confirmation globale --}}
+<div id="g-confirm-overlay"
+     x-data="{}"
+     style="display:none"
+     class="fixed inset-0 bg-bimo-navy/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+     role="dialog" aria-modal="true">
+    <div id="g-confirm-box"
+         class="bg-white rounded-[20px] w-full max-w-sm shadow-xl p-6">
+        <div class="flex items-start gap-4 mb-5">
+            <div id="g-confirm-icon-wrap" class="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0">
+                <svg id="g-confirm-icon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <div id="g-confirm-title" class="font-display font-bold text-base text-bimo-navy mb-1"></div>
+                <div id="g-confirm-msg" class="font-body text-sm text-bimo-navy/60 leading-relaxed"></div>
             </div>
         </div>
+        <div class="flex justify-end gap-2">
+            <button id="g-confirm-cancel"
+                    class="px-4 py-2 rounded-[8px] border border-bimo-navy/15 font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                Annuler
+            </button>
+            <button id="g-confirm-ok"
+                    class="px-4 py-2 rounded-[8px] font-display font-bold text-sm text-white transition-all duration-150">
+                Confirmer
+            </button>
+        </div>
     </div>
+</div>
 
-    {{ $scripts ?? '' }}
+@stack('scripts')
 
-    {{-- ── PWA : enregistrement du Service Worker ── --}}
-    <script>
-        // ── Modale de confirmation globale ─────────────────────────────────────
-        (function () {
-            var overlay    = document.getElementById('g-confirm-overlay');
-            var titleEl    = document.getElementById('g-confirm-title');
-            var msgEl      = document.getElementById('g-confirm-msg');
-            var okBtn      = document.getElementById('g-confirm-ok');
-            var cancelBtn  = document.getElementById('g-confirm-cancel');
-            var iconWrap   = document.getElementById('g-confirm-icon-wrap');
-            var pendingForm = null;
+<script>
+// ── Modale de confirmation globale ──────────────────────────────────────────
+(function () {
+    var overlay   = document.getElementById('g-confirm-overlay');
+    var titleEl   = document.getElementById('g-confirm-title');
+    var msgEl     = document.getElementById('g-confirm-msg');
+    var okBtn     = document.getElementById('g-confirm-ok');
+    var cancelBtn = document.getElementById('g-confirm-cancel');
+    var iconWrap  = document.getElementById('g-confirm-icon-wrap');
+    var pendingForm = null;
 
-            function open(title, msg, okLabel, okColor, iconColor) {
-                titleEl.textContent    = title   || 'Confirmer l\'action';
-                msgEl.textContent      = msg     || 'Cette action est irréversible.';
-                okBtn.textContent      = okLabel || 'Confirmer';
-                okBtn.style.background = okColor || '#dc2626';
-                iconWrap.style.background = iconColor || '#fee2e2';
-                iconWrap.querySelector('svg').style.color = okColor || '#dc2626';
-                overlay.classList.add('open');
-                document.body.style.overflow = 'hidden';
-                okBtn.focus();
-            }
+    function open(title, msg, okLabel, okColor, iconBg) {
+        titleEl.textContent       = title   || 'Confirmer l\'action';
+        msgEl.textContent         = msg     || 'Cette action est irréversible.';
+        okBtn.textContent         = okLabel || 'Confirmer';
+        okBtn.style.background    = okColor || '#EF4444';
+        iconWrap.style.background = iconBg  || 'rgba(239,68,68,0.1)';
+        iconWrap.querySelector('svg').style.color = okColor || '#EF4444';
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        okBtn.focus();
+    }
 
-            function close() {
-                overlay.classList.remove('open');
-                document.body.style.overflow = '';
-                pendingForm = null;
-            }
+    function close() {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        pendingForm = null;
+    }
 
-            cancelBtn.addEventListener('click', close);
-            overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
-            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
+    cancelBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    okBtn.addEventListener('click', function () {
+        if (pendingForm) { pendingForm._gConfirmed = true; pendingForm.requestSubmit(); }
+        close();
+    });
 
-            okBtn.addEventListener('click', function () {
-                if (pendingForm) { pendingForm._gConfirmed = true; pendingForm.requestSubmit(); }
-                close();
-            });
+    document.addEventListener('submit', function (e) {
+        var form = e.target;
+        if (!form.dataset.confirm || form._gConfirmed) return;
+        e.preventDefault();
+        pendingForm = form;
+        open(form.dataset.confirmTitle, form.dataset.confirm, form.dataset.confirmOk, form.dataset.confirmColor, form.dataset.confirmIconBg);
+    }, true);
+})();
 
-            // Intercepte tous les formulaires ayant data-confirm
-            document.addEventListener('submit', function (e) {
-                var form = e.target;
-                if (!form.dataset.confirm) return;
-                if (form._gConfirmed) return;
-                e.preventDefault();
-                pendingForm = form;
-                open(
-                    form.dataset.confirmTitle,
-                    form.dataset.confirm,
-                    form.dataset.confirmOk,
-                    form.dataset.confirmColor,
-                    form.dataset.confirmIconBg
-                );
-            }, true);
-        })();
+// ── Anti double-submit ──────────────────────────────────────────────────────
+document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (form.dataset.confirm && !form._gConfirmed) return;
+    var btn = form.querySelector('button[type=submit]');
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    btn.style.pointerEvents = 'none';
+    btn.insertAdjacentHTML('afterbegin', '<svg style="width:14px;height:14px;margin-right:6px;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>');
+});
 
-        // ── Anti double-submit ──────────────────────────────────────────────────
-        document.addEventListener('submit', function (e) {
-            var form = e.target;
-            // Ne pas désactiver si la confirmation modale n'a pas encore validé
-            if (form.dataset.confirm && !form._gConfirmed) return;
-            var btn = form.querySelector('button[type=submit]');
-            if (!btn || btn.disabled) return;
-            btn.disabled = true;
-            btn.classList.add('btn-spinning');
-            btn.insertAdjacentHTML('afterbegin', '<span class="btn-spin-icon"></span>');
+// ── Tri de colonnes (data-sort sur les th) ─────────────────────────────────
+(function () {
+    var state = {};
+    function parseVal(cell, type) {
+        var t = cell ? cell.innerText.trim() : '';
+        if (type === 'num') return parseFloat(t.replace(/\s/g, '').replace(',', '.').replace(/[^0-9.-]/g, '')) || 0;
+        if (type === 'date') { var m = t.match(/(\d{2})\/(\d{2})\/(\d{4})/); return m ? m[3]+m[2]+m[1] : t; }
+        return t.toLowerCase();
+    }
+    document.addEventListener('click', function (e) {
+        var th = e.target.closest('th[data-sort]');
+        if (!th) return;
+        var table = th.closest('table');
+        if (!table) return;
+        var tid  = table.dataset.sortId || (table.dataset.sortId = 'tbl'+Math.random().toString(36).slice(2));
+        var col  = parseInt(th.dataset.sort, 10);
+        var type = th.dataset.sortType || 'str';
+        var asc  = state[tid] && state[tid].col === col ? !state[tid].asc : true;
+        state[tid] = { col, asc };
+        table.querySelectorAll('th[data-sort]').forEach(function(h) { h.querySelector('.sort-arrow')?.remove(); h.style.color = ''; });
+        var arrow = document.createElement('span');
+        arrow.className = 'sort-arrow';
+        arrow.textContent = asc ? ' ↑' : ' ↓';
+        arrow.style.cssText = 'font-size:10px;opacity:.5';
+        th.appendChild(arrow);
+        var tbody = table.querySelector('tbody');
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort(function(a,b) {
+            var va = parseVal(a.cells[col], type), vb = parseVal(b.cells[col], type);
+            return va < vb ? (asc ? -1 : 1) : va > vb ? (asc ? 1 : -1) : 0;
         });
+        rows.forEach(function(r) { tbody.appendChild(r); });
+    });
+})();
 
-        // ── Flash messages auto-dismiss ─────────────────────────────────────────
-        // Succès/avertissement : 5 s — Erreurs : 12 s (plus de temps pour lire)
-        document.querySelectorAll('.flash-success,.flash-warning').forEach(function (el) {
-            setTimeout(function () {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(-6px)';
-                setTimeout(function () { el.remove(); }, 420);
-            }, 5000);
-        });
-        document.querySelectorAll('.flash-error').forEach(function (el) {
-            setTimeout(function () {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(-6px)';
-                setTimeout(function () { el.remove(); }, 420);
-            }, 12000);
-        });
+// ── Alerte formulaire non sauvegardé ────────────────────────────────────────
+(function () {
+    var dirty = false;
+    document.addEventListener('change', function(e) { var f = e.target.closest('form'); if (f && !f.dataset.noWarn && !f.dataset.confirm) dirty = true; });
+    document.addEventListener('input',  function(e) { var f = e.target.closest('form'); if (f && !f.dataset.noWarn && !f.dataset.confirm) dirty = true; });
+    document.addEventListener('submit', function() { dirty = false; });
+    window.addEventListener('beforeunload', function(e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+})();
 
-        // ── Tri de colonnes ──────────────────────────────────────────────────────
-        // Usage : <th data-sort="0"> sur les colonnes concernées, data-sort-type="num|date|str"
-        (function () {
-            var state = {}; // { tableId: { col, asc } }
+// ── Copier référence ─────────────────────────────────────────────────────────
+function copyRef(text, btn) {
+    navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<svg style="width:11px;height:11px;color:#C9A84C" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+        setTimeout(function() { btn.innerHTML = orig; }, 1500);
+    });
+}
 
-            function parseVal(cell, type) {
-                var t = cell ? cell.innerText.trim() : '';
-                if (type === 'num') {
-                    return parseFloat(t.replace(/\s/g, '').replace(',', '.').replace(/[^0-9.-]/g, '')) || 0;
-                }
-                if (type === 'date') {
-                    var m = t.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-                    return m ? m[3] + m[2] + m[1] : t;
-                }
-                return t.toLowerCase();
-            }
+// ── PWA Service Worker ───────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').catch(function(){});
+    });
+}
 
-            document.addEventListener('click', function (e) {
-                var th = e.target.closest('th[data-sort]');
-                if (!th) return;
-                var table = th.closest('table');
-                if (!table) return;
-                var tid   = table.dataset.sortId || (table.dataset.sortId = 'tbl' + Math.random().toString(36).slice(2));
-                var col   = parseInt(th.dataset.sort, 10);
-                var type  = th.dataset.sortType || 'str';
-                var asc   = state[tid] && state[tid].col === col ? !state[tid].asc : true;
-                state[tid] = { col, asc };
+@keyframes spin { to { transform: rotate(360deg); } }
+</script>
 
-                // Reset indicators
-                table.querySelectorAll('th[data-sort]').forEach(function (h) {
-                    h.querySelector('.sort-arrow')?.remove();
-                    h.style.color = '';
-                });
-                var arrow = document.createElement('span');
-                arrow.className = 'sort-arrow';
-                arrow.textContent = asc ? ' ↑' : ' ↓';
-                arrow.style.cssText = 'font-size:10px;opacity:.6';
-                th.appendChild(arrow);
-                th.style.color = '#c9a84c';
-
-                var tbody = table.querySelector('tbody');
-                var rows  = Array.from(tbody.querySelectorAll('tr'));
-                rows.sort(function (a, b) {
-                    var va = parseVal(a.cells[col], type);
-                    var vb = parseVal(b.cells[col], type);
-                    if (va < vb) return asc ? -1 : 1;
-                    if (va > vb) return asc ? 1 : -1;
-                    return 0;
-                });
-                rows.forEach(function (r) { tbody.appendChild(r); });
-            });
-
-            // Style curseur sur les th triables
-            document.addEventListener('DOMContentLoaded', function () {
-                document.querySelectorAll('th[data-sort]').forEach(function (th) {
-                    th.style.cursor = 'pointer';
-                    th.title = 'Cliquer pour trier';
-                });
-            });
-        })();
-
-        // ── Alerte formulaire non sauvegardé ────────────────────────────────────
-        (function () {
-            var dirty = false;
-
-            // Marquer comme modifié dès le premier changement dans un formulaire principal
-            document.addEventListener('change', function (e) {
-                var form = e.target.closest('form');
-                if (form && !form.dataset.noWarn && !form.dataset.confirm) {
-                    dirty = true;
-                }
-            });
-            document.addEventListener('input', function (e) {
-                var form = e.target.closest('form');
-                if (form && !form.dataset.noWarn && !form.dataset.confirm) {
-                    dirty = true;
-                }
-            });
-
-            // Réinitialiser au submit (l'utilisateur sauvegarde)
-            document.addEventListener('submit', function () { dirty = false; });
-
-            window.addEventListener('beforeunload', function (e) {
-                if (dirty) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                }
-            });
-        })();
-
-        // ── Copier référence ─────────────────────────────────────────────────────
-        function copyRef(text, btn) {
-            navigator.clipboard.writeText(text).then(function () {
-                var orig = btn.innerHTML;
-                btn.innerHTML = '<svg style="width:11px;height:11px;color:#16a34a" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-                btn.style.borderColor = '#bbf7d0';
-                setTimeout(function () { btn.innerHTML = orig; btn.style.borderColor = ''; }, 1500);
-            });
-        }
-
-        // ── Tables → cartes mobile : data-label auto depuis les headers ─────────
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('table.dt').forEach(function (table) {
-                var headers = Array.from(table.querySelectorAll('thead th'))
-                    .map(function (th) { return th.innerText.trim(); });
-                table.querySelectorAll('tbody tr').forEach(function (row) {
-                    Array.from(row.cells).forEach(function (cell, i) {
-                        cell.setAttribute('data-label', headers[i] || '');
-                    });
-                });
-            });
-        });
-
-        // ── Recherche globale ────────────────────────────────────────────────────
-        (function () {
-            var input   = document.getElementById('global-search-input');
-            var results = document.getElementById('global-search-results');
-            if (!input || !results) return;
-
-            var icons = {
-                home: '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>',
-                file: '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>',
-                user: '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>',
-            };
-            var badgeColors = {
-                actif: '#dcfce7;color:#16a34a',
-                loue:  '#dcfce7;color:#16a34a',
-                disponible: '#dbeafe;color:#1d4ed8',
-                résilié: '#fee2e2;color:#dc2626',
-                expiré: '#f3f4f6;color:#6b7280',
-            };
-
-            var timer = null;
-            input.addEventListener('input', function () {
-                clearTimeout(timer);
-                var q = input.value.trim();
-                if (q.length < 2) { results.style.display = 'none'; return; }
-                timer = setTimeout(function () { doSearch(q); }, 250);
-            });
-
-            function doSearch(q) {
-                fetch('{{ route('admin.search') }}?q=' + encodeURIComponent(q), {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(function (r) { return r.json(); })
-                .then(function (data) { renderResults(data.results); })
-                .catch(function () {});
-            }
-
-            function renderResults(items) {
-                if (!items.length) {
-                    results.innerHTML = '<div style="padding:20px;text-align:center;font-size:13px;color:#9ca3af">Aucun résultat</div>';
-                    results.style.display = 'block';
-                    return;
-                }
-                var html = '';
-                var lastType = null;
-                items.forEach(function (item) {
-                    if (item.type !== lastType) {
-                        html += '<div style="padding:6px 14px 2px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;background:#f9fafb">' + item.type + '</div>';
-                        lastType = item.type;
-                    }
-                    var bc = badgeColors[item.badge] || null;
-                    var badgeHtml = bc ? '<span style="display:inline-block;padding:2px 7px;border-radius:99px;font-size:10px;font-weight:600;background:' + bc + ';margin-left:6px">' + item.badge + '</span>' : '';
-                    html += '<a href="' + item.url + '" style="display:flex;align-items:center;gap:10px;padding:10px 14px;text-decoration:none;border-bottom:1px solid #f3f4f6;transition:background .1s" onmouseover="this.style.background=\'#f9fafb\'" onmouseout="this.style.background=\'\'">'+
-                        '<div style="width:28px;height:28px;border-radius:7px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
-                            '<svg style="width:13px;height:13px;color:#6b7280" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + (icons[item.icon] || '') + '</svg>'+
-                        '</div>'+
-                        '<div style="flex:1;min-width:0">'+
-                            '<div style="font-size:13px;font-weight:500;color:#0d1117;display:flex;align-items:center;gap:4px">' + item.label + badgeHtml + '</div>'+
-                            '<div style="font-size:11px;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + item.sub + '</div>'+
-                        '</div>'+
-                    '</a>';
-                });
-                results.innerHTML = html;
-                results.style.display = 'block';
-            }
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') { results.style.display = 'none'; input.blur(); }
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); input.focus(); }
-            });
-        })();
-
-        // ── Sidebar mobile toggle ────────────────────────────────────────────────
-        (function () {
-            var sidebar  = document.querySelector('.bm-sidebar-wrap');
-            var overlay  = document.getElementById('bm-overlay');
-            var hamburger = document.getElementById('bm-hamburger-btn');
-            if (!sidebar || !hamburger) return;
-
-            function openSidebar() {
-                sidebar.classList.add('open');
-                overlay.classList.add('open');
-                hamburger.classList.add('open');
-                hamburger.setAttribute('aria-expanded', 'true');
-                document.body.style.overflow = 'hidden';
-            }
-            function closeSidebar() {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('open');
-                hamburger.classList.remove('open');
-                hamburger.setAttribute('aria-expanded', 'false');
-                document.body.style.overflow = '';
-            }
-
-            hamburger.addEventListener('click', function () {
-                sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-            });
-            overlay.addEventListener('click', closeSidebar);
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') closeSidebar();
-            });
-        })();
-
-        // ── Ombre topbar au scroll ───────────────────────────────────────────────
-        (function () {
-            var tb = document.querySelector('.topbar');
-            if (!tb) return;
-            window.addEventListener('scroll', function () {
-                tb.classList.toggle('scrolled', window.scrollY > 4);
-            }, { passive: true });
-        })();
-
-        // ── PWA ─────────────────────────────────────────────────────────────────
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker
-                    .register('/sw.js')
-                    .then(reg => console.log('[PWA] Service Worker enregistré :', reg.scope))
-                    .catch(err => console.warn('[PWA] Échec enregistrement SW :', err));
-            });
-        }
-    </script>
-    @stack('scripts')
 </body>
 </html>

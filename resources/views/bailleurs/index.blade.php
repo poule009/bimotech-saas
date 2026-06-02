@@ -1,219 +1,174 @@
 @extends('layouts.app')
-@section('title', 'Portefeuille Bailleurs')
-@section('breadcrumb', 'Portefeuille Bailleurs')
+@section('header', 'Portefeuille Bailleurs')
 
 @section('content')
-<style>
-/* ── KPI row ── */
-.kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px; }
-.kpi { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px; }
-.kpi.gold  { border-top:3px solid #c9a84c; }
-.kpi.green { border-top:3px solid #16a34a; }
-.kpi.blue  { border-top:3px solid #1d4ed8; }
-.kpi.dark  { border-top:3px solid #0d1117; }
-.kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#0d1117;line-height:1.1; }
-.kpi-sub { font-size:11px;color:#9ca3af;margin-top:4px; }
 
-/* ── Cards bailleurs ── */
-.cards-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px; }
+@php
+    $totLoyers   = $bailleurs->sum('total_loyers');
+    $totComm     = $bailleurs->sum('total_commissions');
+    $totDepenses = $bailleurs->sum('total_depenses');
+    $totNet      = $bailleurs->sum('net_final');
+@endphp
 
-.bailleur-card {
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:14px;
-    overflow:hidden;
-    transition:box-shadow .15s, border-color .15s;
-    text-decoration:none;
-    display:flex;
-    flex-direction:column;
-}
-.bailleur-card:hover {
-    box-shadow:0 4px 20px rgba(201,168,76,.15);
-    border-color:#c9a84c;
-}
+<div class="space-y-4 md:space-y-6">
 
-.card-header {
-    background:#0d1117;
-    padding:16px 20px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-.card-avatar {
-    width:42px; height:42px;
-    border-radius:50%;
-    background:rgba(201,168,76,.15);
-    border:2px solid rgba(201,168,76,.3);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Syne',sans-serif;
-    font-size:16px; font-weight:700;
-    color:#c9a84c;
-    flex-shrink:0;
-}
-.card-name {
-    font-family:'Syne',sans-serif;
-    font-size:14px; font-weight:700;
-    color:#fff;
-    line-height:1.2;
-}
-.card-email { font-size:11px;color:rgba(255,255,255,.35);margin-top:2px; }
+    {{-- ═══ EN-TÊTE ═══ --}}
+    <div>
+        <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight leading-tight">
+            Portefeuille Bailleurs
+        </h1>
+        <p class="font-body text-sm text-bimo-navy/50 mt-1">
+            {{ $bailleurs->count() }} propriétaire(s) — Exercice {{ now()->year }}
+        </p>
+    </div>
 
-.card-kpis {
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr;
-    border-bottom:1px solid #f3f4f6;
-}
-.card-kpi {
-    padding:12px 14px;
-    border-right:1px solid #f3f4f6;
-    text-align:center;
-}
-.card-kpi:last-child { border-right:none; }
-.card-kpi-lbl { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9ca3af;margin-bottom:4px; }
-.card-kpi-val { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
+    {{-- ═══ KPIs GLOBAUX ═══ --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
 
-.card-financier { padding:14px 18px; flex:1; }
-.fin-row { display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f9fafb;font-size:12px; }
-.fin-row:last-child { border-bottom:none; }
-.fin-lbl { color:#6b7280; }
-.fin-val { font-family:'Syne',sans-serif;font-weight:600;color:#0d1117; }
-.fin-val.green { color:#16a34a; }
-.fin-val.red   { color:#dc2626; }
-.fin-val.gold  { color:#c9a84c; }
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Loyers encaissés</div>
+            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
+                {{ number_format($totLoyers, 0, ',', ' ') }}
+                <span class="font-body font-normal text-sm text-bimo-gold/50">F</span>
+            </div>
+            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">FCFA — {{ now()->year }}</div>
+        </div>
 
-.net-final {
-    margin:10px 18px 16px;
-    padding:10px 14px;
-    background:linear-gradient(135deg,#0d1117,#1c2333);
-    border-radius:10px;
-    border:1px solid rgba(201,168,76,.25);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-.net-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6); }
-.net-val { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#c9a84c; }
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Commissions TTC</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">
+                {{ number_format($totComm, 0, ',', ' ') }}
+                <span class="font-body font-normal text-sm text-bimo-navy/40">F</span>
+            </div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">FCFA agence</div>
+        </div>
 
-</style>
+        <div class="bg-white rounded-[14px] border border-bimo-red/20 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Dépenses gestion</div>
+            <div class="font-display font-extrabold text-xl text-bimo-red leading-none">
+                {{ number_format($totDepenses, 0, ',', ' ') }}
+                <span class="font-body font-normal text-sm text-bimo-red/40">F</span>
+            </div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">FCFA travaux & frais</div>
+        </div>
 
-<div style="padding:0 0 48px">
-
-    {{-- Header ─────────────────────────────────── --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
-        <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
-                Portefeuille Bailleurs
-            </h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
-                {{ $bailleurs->count() }} propriétaire(s) — Exercice {{ now()->year }}
-            </p>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Net total à reverser</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">
+                {{ number_format($totNet, 0, ',', ' ') }}
+                <span class="font-body font-normal text-sm text-bimo-navy/40">F</span>
+            </div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">FCFA aux bailleurs</div>
         </div>
     </div>
 
-    @php
-        $totLoyers     = $bailleurs->sum('total_loyers');
-        $totComm       = $bailleurs->sum('total_commissions');
-        $totDepenses   = $bailleurs->sum('total_depenses');
-        $totNet        = $bailleurs->sum('net_final');
-    @endphp
-
-    {{-- KPI globaux ─────────────────────────────── --}}
-    <div class="kpi-row">
-        <div class="kpi gold">
-            <div class="kpi-lbl">Loyers encaissés</div>
-            <div class="kpi-val">{{ number_format($totLoyers, 0, ',', ' ') }}</div>
-            <div class="kpi-sub">FCFA — {{ now()->year }}</div>
-        </div>
-        <div class="kpi blue">
-            <div class="kpi-lbl">Commissions TTC</div>
-            <div class="kpi-val" style="color:#1d4ed8">{{ number_format($totComm, 0, ',', ' ') }}</div>
-            <div class="kpi-sub">FCFA agence</div>
-        </div>
-        <div class="kpi" style="border-top:3px solid #dc2626">
-            <div class="kpi-lbl">Dépenses gestion</div>
-            <div class="kpi-val" style="color:#dc2626">{{ number_format($totDepenses, 0, ',', ' ') }}</div>
-            <div class="kpi-sub">FCFA travaux & frais</div>
-        </div>
-        <div class="kpi green">
-            <div class="kpi-lbl">Net total à reverser</div>
-            <div class="kpi-val" style="color:#16a34a">{{ number_format($totNet, 0, ',', ' ') }}</div>
-            <div class="kpi-sub">FCFA aux bailleurs</div>
-        </div>
-    </div>
-
-    {{-- Cards ──────────────────────────────────── --}}
+    {{-- ═══ CARDS BAILLEURS ═══ --}}
     @if($bailleurs->isEmpty())
-        <x-empty-state
-            title="Aucun bailleur trouvé"
-            description="Ajoutez des biens avec des propriétaires pour les voir apparaître ici."
-        />
-    @else
-        <div class="cards-grid">
-            @foreach($bailleurs as $b)
-            @php $u = $b['user']; @endphp
-            <a href="{{ route('admin.bailleurs.show', $u->id) }}" class="bailleur-card">
-
-                {{-- En-tête sombre --}}
-                <div class="card-header">
-                    <div class="card-avatar">{{ strtoupper(substr($u->name, 0, 1)) }}</div>
-                    <div>
-                        <div class="card-name">{{ $u->name }}</div>
-                        <div class="card-email">{{ $u->email }}</div>
-                    </div>
-                    <div style="margin-left:auto;text-align:right">
-                        @if($u->telephone)
-                        <div style="font-size:11px;color:rgba(255,255,255,.4)">{{ $u->telephone }}</div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- KPIs biens --}}
-                <div class="card-kpis">
-                    <div class="card-kpi">
-                        <div class="card-kpi-lbl">Biens</div>
-                        <div class="card-kpi-val">{{ $b['nb_biens'] }}</div>
-                    </div>
-                    <div class="card-kpi">
-                        <div class="card-kpi-lbl">Loués</div>
-                        <div class="card-kpi-val" style="color:#16a34a">{{ $b['nb_biens_loues'] }}</div>
-                    </div>
-                    <div class="card-kpi">
-                        <div class="card-kpi-lbl">Paiements</div>
-                        <div class="card-kpi-val">{{ $b['nb_paiements'] }}</div>
-                    </div>
-                </div>
-
-                {{-- Résumé financier --}}
-                <div class="card-financier">
-                    <div class="fin-row">
-                        <span class="fin-lbl">Loyers encaissés</span>
-                        <span class="fin-val gold">{{ number_format($b['total_loyers'], 0, ',', ' ') }} F</span>
-                    </div>
-                    <div class="fin-row">
-                        <span class="fin-lbl">− Commissions TTC</span>
-                        <span class="fin-val red">{{ number_format($b['total_commissions'], 0, ',', ' ') }} F</span>
-                    </div>
-                    @if($b['total_depenses'] > 0)
-                    <div class="fin-row">
-                        <span class="fin-lbl">− Dépenses gestion</span>
-                        <span class="fin-val red">{{ number_format($b['total_depenses'], 0, ',', ' ') }} F</span>
-                    </div>
-                    @endif
-                </div>
-
-                {{-- Net final --}}
-                <div class="net-final">
-                    <div>
-                        <div class="net-lbl">Net à reverser</div>
-                        <div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:2px">{{ now()->year }} — tous mois</div>
-                    </div>
-                    <div class="net-val">{{ number_format($b['net_final'], 0, ',', ' ') }} F</div>
-                </div>
-
-            </a>
-            @endforeach
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
+        <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
         </div>
+        <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun bailleur trouvé</div>
+        <p class="font-body text-sm text-bimo-navy/50">
+            Ajoutez des biens avec des propriétaires pour les voir apparaître ici.
+        </p>
+    </div>
+
+    @else
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        @foreach($bailleurs as $b)
+        @php $u = $b['user']; @endphp
+
+        <a href="{{ route('admin.bailleurs.show', $u->id) }}"
+           class="flex flex-col bg-white rounded-[14px] border border-bimo-navy/10
+                  hover:border-bimo-gold/40 hover:shadow-gold-sm
+                  transition-all duration-150 overflow-hidden group">
+
+            {{-- En-tête sombre --}}
+            <div class="bg-bimo-navy px-5 py-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-[9px] flex items-center justify-center flex-shrink-0
+                            font-display font-bold text-sm text-bimo-gold
+                            bg-bimo-gold/15 border border-bimo-gold/30">
+                    {{ mb_strtoupper(mb_substr($u->name, 0, 2)) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-display font-bold text-sm text-white truncate leading-tight">
+                        {{ $u->name }}
+                    </div>
+                    <div class="font-body text-[11px] text-white/35 mt-0.5 truncate">
+                        {{ $u->email ?? $u->telephone ?? 'Aucun contact' }}
+                    </div>
+                </div>
+                @if($u->telephone && $u->email)
+                <div class="flex-shrink-0 font-body text-[11px] text-white/30 text-right hidden sm:block">
+                    {{ $u->telephone }}
+                </div>
+                @endif
+                <svg class="w-4 h-4 text-white/20 group-hover:text-bimo-gold flex-shrink-0 transition-colors duration-150"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </div>
+
+            {{-- KPIs biens --}}
+            <div class="grid grid-cols-3 border-b border-bimo-navy/[5%]">
+                <div class="px-4 py-3 text-center border-r border-bimo-navy/[5%]">
+                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-navy/40 mb-1">Biens</div>
+                    <div class="font-display font-bold text-sm text-bimo-navy">{{ $b['nb_biens'] }}</div>
+                </div>
+                <div class="px-4 py-3 text-center border-r border-bimo-navy/[5%]">
+                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-navy/40 mb-1">Loués</div>
+                    <div class="font-display font-bold text-sm text-bimo-gold">{{ $b['nb_biens_loues'] }}</div>
+                </div>
+                <div class="px-4 py-3 text-center">
+                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-navy/40 mb-1">Paiements</div>
+                    <div class="font-display font-bold text-sm text-bimo-navy">{{ $b['nb_paiements'] }}</div>
+                </div>
+            </div>
+
+            {{-- Résumé financier --}}
+            <div class="px-5 py-3.5 flex-1 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="font-body text-xs text-bimo-navy/50">Loyers encaissés</span>
+                    <span class="font-display font-bold text-sm text-bimo-gold">
+                        {{ number_format($b['total_loyers'], 0, ',', ' ') }} F
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-body text-xs text-bimo-navy/50">− Commissions TTC</span>
+                    <span class="font-body font-medium text-xs text-bimo-navy/60">
+                        {{ number_format($b['total_commissions'], 0, ',', ' ') }} F
+                    </span>
+                </div>
+                @if($b['total_depenses'] > 0)
+                <div class="flex items-center justify-between">
+                    <span class="font-body text-xs text-bimo-navy/50">− Dépenses gestion</span>
+                    <span class="font-body font-medium text-xs text-bimo-red">
+                        {{ number_format($b['total_depenses'], 0, ',', ' ') }} F
+                    </span>
+                </div>
+                @endif
+            </div>
+
+            {{-- Net final --}}
+            <div class="mx-4 mb-4 px-4 py-3 bg-bimo-navy rounded-[10px] border border-bimo-gold/20
+                        flex items-center justify-between">
+                <div>
+                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-0.5">
+                        Net à reverser
+                    </div>
+                    <div class="font-body text-[10px] text-white/25">{{ now()->year }} — tous mois</div>
+                </div>
+                <div class="font-display font-extrabold text-lg text-bimo-gold">
+                    {{ number_format($b['net_final'], 0, ',', ' ') }} F
+                </div>
+            </div>
+
+        </a>
+        @endforeach
+    </div>
     @endif
 
 </div>

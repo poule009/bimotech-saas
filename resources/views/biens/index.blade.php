@@ -1,243 +1,259 @@
 @extends('layouts.app')
-
-@section('title', 'Biens immobiliers')
-@section('breadcrumb', 'Biens')
+@section('header', 'Biens immobiliers')
 
 @section('content')
-<style>
-/* ── KPI biens ── */
-.bien-kpi { background:#fffef9;border:1px solid #e8e3d8;border-radius:12px;padding:16px 18px;transition:box-shadow .15s; }
-.bien-kpi:hover { box-shadow:0 2px 12px rgba(0,0,0,.06); }
-.bien-kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:8px; }
-.bien-kpi-val { font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:#0d1117; }
+<div class="space-y-4 md:space-y-6">
 
-/* ── Filtres ── */
-.filtre-input {
-    width:100%;padding:8px 12px 8px 32px;
-    border:1px solid #e8e3d8;border-radius:8px;
-    font-size:13px;font-family:'DM Sans',sans-serif;
-    color:#1c2128;background:#fffef9;
-    outline:none;transition:border .15s,box-shadow .15s;
-}
-.filtre-input:focus { border-color:var(--ac,#c9a84c);box-shadow:0 0 0 3px rgba(201,168,76,.1); }
-.filtre-select {
-    font-family:'DM Sans',sans-serif;font-size:13px;
-    border:1px solid #e8e3d8;border-radius:8px;
-    padding:8px 12px;background:#fffef9;color:#1c2128;
-    cursor:pointer;transition:border .15s;outline:none;
-}
-.filtre-select:focus { border-color:var(--ac,#c9a84c); }
-.btn-effacer {
-    display:inline-flex;align-items:center;
-    padding:8px 14px;border:1px solid #e8e3d8;
-    border-radius:8px;font-size:13px;color:#6b7280;
-    text-decoration:none;background:#fffef9;transition:all .15s;
-}
-.btn-effacer:hover { border-color:#9ca3af;color:#374151; }
-
-/* ── Carte bien ── */
-.bien-card {
-    background:#fffef9;border:1px solid #e8e3d8;
-    border-radius:14px;overflow:hidden;
-    transition:box-shadow .2s, transform .2s;
-}
-.bien-card:hover { box-shadow:0 8px 28px -4px rgba(0,0,0,.1);transform:translateY(-2px); }
-.bien-card:active { transform:translateY(0);box-shadow:0 2px 8px rgba(0,0,0,.06); }
-
-.bien-photo { height:160px;background:#f5f2ea;display:flex;align-items:center;justify-content:center;overflow:hidden; }
-.bien-photo img { width:100%;height:100%;object-fit:cover; }
-
-.bien-loyer { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--ac,#c9a84c); }
-.bien-loyer-u { font-size:11px;color:#9ca3af;margin-left:2px; }
-.bien-locataire { font-size:11px;color:#6b7280;margin-top:2px; }
-
-.btn-voir {
-    display:inline-flex;align-items:center;gap:4px;
-    padding:7px 14px;border:1px solid #e8e3d8;
-    border-radius:8px;font-size:12px;font-weight:500;
-    color:#374151;text-decoration:none;background:#fffef9;
-    transition:all .15s;
-}
-.btn-voir:hover { border-color:var(--ac,#c9a84c);color:#8a6e2f;background:#fdf8ed; }
-
-/* ── Pagination ── */
-.pag-wrap { display:flex;justify-content:center;gap:6px;margin-top:24px; }
-.pag-btn {
-    display:inline-flex;align-items:center;justify-content:center;
-    width:32px;height:32px;border:1px solid #e8e3d8;border-radius:8px;
-    font-size:13px;font-weight:500;color:#374151;
-    text-decoration:none;background:#fffef9;transition:all .15s;
-}
-.pag-btn:hover { border-color:var(--ac,#c9a84c);color:#8a6e2f; }
-.pag-btn.active { background:#0d1117;border-color:#0d1117;color:#fff;font-weight:700; }
-.pag-btn.nav { color:#6b7280; }
-</style>
-
-<div style="padding:0 0 48px">
-
-    {{-- HEADER --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+    {{-- ═══ EN-TÊTE ═══ --}}
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117;letter-spacing:-.4px">
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight leading-tight">
                 Biens immobiliers
             </h1>
-            <p style="font-size:13px;color:#6b7280;margin-top:3px">
+            <p class="font-body text-sm text-bimo-navy/50 mt-1">
                 {{ $biens->total() }} bien(s) enregistré(s)
             </p>
         </div>
         @can('create', App\Models\Bien::class)
-            <a href="{{ route('admin.biens.create') }}"
-               class="btn-primary">
-                <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Nouveau bien
-            </a>
+        <a href="{{ route('admin.biens.create') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--ac)] text-white
+                  font-display font-bold text-sm rounded-[10px]
+                  hover:opacity-90 transition-opacity duration-150 self-start">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Nouveau bien
+        </a>
         @endcan
     </div>
 
-    {{-- KPIs --}}
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px">
-        <div class="bien-kpi" style="border-top:3px solid var(--ac,#c9a84c)">
-            <div class="bien-kpi-lbl">Total biens</div>
-            <div class="bien-kpi-val">{{ $biens->total() }}</div>
+    {{-- ═══ KPIs ═══ --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4
+                    border-t-2 border-t-[var(--ac)]">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Total biens</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">
+                {{ $biens->total() }}
+            </div>
         </div>
-        <div class="bien-kpi" style="border-top:3px solid #16a34a">
-            <div class="bien-kpi-lbl">Loués</div>
-            <div class="bien-kpi-val" style="color:#16a34a">{{ $biens->where('statut','loue')->count() }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-gold">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Loués</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-gold leading-none">
+                {{ $biens->getCollection()->where('statut','loue')->count() }}
+            </div>
         </div>
-        <div class="bien-kpi" style="border-top:3px solid #1d4ed8">
-            <div class="bien-kpi-lbl">Disponibles</div>
-            <div class="bien-kpi-val" style="color:#1d4ed8">{{ $biens->where('statut','disponible')->count() }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-navy">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Disponibles</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-navy leading-none">
+                {{ $biens->getCollection()->where('statut','disponible')->count() }}
+            </div>
         </div>
-        <div class="bien-kpi" style="border-top:3px solid #9ca3af">
-            <div class="bien-kpi-lbl">En travaux</div>
-            <div class="bien-kpi-val" style="color:#6b7280">{{ $biens->where('statut','en_travaux')->count() }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-navy/30">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">En travaux</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-navy/40 leading-none">
+                {{ $biens->getCollection()->where('statut','en_travaux')->count() }}
+            </div>
         </div>
     </div>
 
-    {{-- FILTRES --}}
-    <form method="GET" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
-        <div style="position:relative;flex:1;min-width:200px;max-width:320px">
-            <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#9ca3af;pointer-events:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    {{-- ═══ FILTRES ═══ --}}
+    <form method="GET" class="flex flex-wrap gap-2 items-center">
+        {{-- Recherche --}}
+        <div class="relative flex-1 min-w-[200px] max-w-xs">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-navy/30 pointer-events-none"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
             <input type="text" name="q" value="{{ request('q') }}"
                    placeholder="Référence, adresse, ville, propriétaire…"
-                   class="filtre-input">
+                   class="w-full pl-9 pr-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                          font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30
+                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                          transition-all duration-150">
         </div>
-        <select name="statut" onchange="this.form.submit()" class="filtre-select">
+
+        <select name="statut" onchange="this.form.submit()"
+                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                       font-body text-sm text-bimo-navy cursor-pointer
+                       focus:outline-none focus:border-bimo-gold transition-all duration-150">
             <option value="">Tous les statuts</option>
             <option value="disponible" @selected(request('statut')==='disponible')>Disponible</option>
             <option value="loue"       @selected(request('statut')==='loue')>Loué</option>
             <option value="en_travaux" @selected(request('statut')==='en_travaux')>En travaux</option>
             <option value="archive"    @selected(request('statut')==='archive')>Archivé</option>
         </select>
-        <select name="type" onchange="this.form.submit()" class="filtre-select">
+
+        <select name="type" onchange="this.form.submit()"
+                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                       font-body text-sm text-bimo-navy cursor-pointer
+                       focus:outline-none focus:border-bimo-gold transition-all duration-150">
             <option value="">Tous les types</option>
-            <option value="appartement" @selected(request('type')==='appartement')>Appartement</option>
-            <option value="villa"       @selected(request('type')==='villa')>Villa</option>
-            <option value="bureau"      @selected(request('type')==='bureau')>Bureau</option>
-            <option value="commerce"    @selected(request('type')==='commerce')>Commerce</option>
-            <option value="terrain"     @selected(request('type')==='terrain')>Terrain</option>
+            @foreach(\App\Models\Bien::TYPES as $val => $lbl)
+            <option value="{{ $val }}" @selected(request('type')===$val)>{{ $lbl }}</option>
+            @endforeach
         </select>
-        <button type="submit" class="btn-submit">Rechercher</button>
+
+        <button type="submit"
+                class="px-4 py-2 bg-[var(--ac)] text-white font-display font-bold text-sm
+                       rounded-[9px] hover:opacity-90 transition-opacity duration-150">
+            Rechercher
+        </button>
+
         @if(request()->hasAny(['statut','type','q']))
-            <a href="{{ route('admin.biens.index') }}" class="btn-effacer">Effacer les filtres</a>
+        <a href="{{ route('admin.biens.index') }}"
+           class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                  font-body text-sm text-bimo-navy/50 hover:text-bimo-navy hover:border-bimo-navy/30
+                  transition-all duration-150">
+            Effacer
+        </a>
         @endif
     </form>
 
-    {{-- GRILLE / LISTE --}}
+    {{-- ═══ CONTENU ═══ --}}
     @if($biens->isEmpty())
-        <x-empty-state
-            title="Aucun bien enregistré"
-            description="Commencez par ajouter votre premier bien immobilier."
-            action-label="Ajouter un bien"
-            {{-- CORRIGÉ : admin.biens.create --}}
-            :action-url="route('admin.biens.create')"
-        />
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
+        <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+        </div>
+        <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun bien enregistré</div>
+        <p class="font-body text-sm text-bimo-navy/50 mb-5">
+            @if(request()->hasAny(['statut','type','q']))
+                Aucun résultat pour ces filtres.
+            @else
+                Commencez par ajouter votre premier bien immobilier.
+            @endif
+        </p>
+        <a href="{{ route('admin.biens.create') }}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
+                  font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
+            + Ajouter un bien
+        </a>
+    </div>
+
     @else
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
-            @foreach($biens as $bien)
-            <div class="bien-card">
 
-                {{-- Photo ou placeholder --}}
-                <div class="bien-photo">
-                    @php $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first(); @endphp
-                    @if($photo)
-                        <img src="{{ asset('storage/'.$photo->chemin) }}" alt="{{ $bien->titre }}">
-                    @else
-                        <svg style="width:40px;height:40px;color:#d1c9b0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                            <polyline points="21 15 16 10 5 21"/>
-                        </svg>
-                    @endif
-                </div>
+    {{-- Grille de cards --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        @foreach($biens as $bien)
+        @php
+            $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first();
+            $badgeClass = match($bien->statut) {
+                'loue'       => 'bg-bimo-navy/10 border-bimo-navy/20 text-bimo-navy',
+                'disponible' => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
+                'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-navy/50',
+                default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-navy/40',
+            };
+        @endphp
 
-                {{-- Contenu --}}
-                <div style="padding:16px">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                        <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;color:#9ca3af">
-                            {{ $bien->reference }}
-                        </span>
-                        @php
-                            $badgeStyle = match($bien->statut) {
-                                'loue'       => 'background:#dbeafe;color:#1d4ed8',
-                                'disponible' => 'background:#dcfce7;color:#16a34a',
-                                'en_travaux' => 'background:#fef9c3;color:#a16207',
-                                default      => 'background:#f0ece3;color:#6b7280',
-                            };
-                        @endphp
-                        <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;{{ $badgeStyle }}">
-                            {{ $bien->statut_label }}
-                        </span>
-                    </div>
+        <div class="flex flex-col bg-white rounded-[14px] border border-bimo-navy/10
+                    hover:border-bimo-gold/40 hover:shadow-gold-sm hover:-translate-y-0.5
+                    transition-all duration-150 overflow-hidden group">
 
-                    <h3 style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0d1117;margin-bottom:4px">
-                        {{ $bien->type_label }} — {{ $bien->titre ?? $bien->adresse }}
-                    </h3>
-                    <p style="font-size:12px;color:#6b7280;margin-bottom:12px">
-                        {{ $bien->quartier }}, {{ $bien->ville }}
-                    </p>
-
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid #f0ece3">
-                        <div>
-                            <div class="bien-loyer">
-                                {{ number_format($bien->loyer_hors_charges, 0, ',', ' ') }}<span class="bien-loyer-u">F/mois</span>
-                            </div>
-                            @if($bien->contratActif)
-                                <div class="bien-locataire">
-                                    {{ $bien->contratActif->locataire?->name ?? '—' }}
-                                </div>
-                            @endif
-                        </div>
-                        <a href="{{ route('admin.biens.show', $bien) }}" class="btn-voir">
-                            Voir
-                            <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                        </a>
-                    </div>
+            {{-- Photo --}}
+            <div class="h-44 bg-bimo-bg2 overflow-hidden flex items-center justify-center relative">
+                @if($photo)
+                    <img src="{{ asset('storage/'.$photo->chemin) }}"
+                         alt="{{ $bien->titre_fallback }}"
+                         class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                @else
+                    <svg class="w-10 h-10 text-bimo-navy/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                @endif
+                {{-- Badge statut sur la photo --}}
+                <div class="absolute top-3 right-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium border {{ $badgeClass }} backdrop-blur-sm bg-opacity-90">
+                        {{ $bien->statut_label }}
+                    </span>
                 </div>
             </div>
-            @endforeach
-        </div>
 
-        {{-- PAGINATION --}}
-        @if($biens->hasPages())
-        <div class="pag-wrap">
-            @if(!$biens->onFirstPage())
-                <a href="{{ $biens->previousPageUrl() }}" class="pag-btn nav">
-                    <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                </a>
-            @endif
-            @foreach($biens->getUrlRange(max(1,$biens->currentPage()-2), min($biens->lastPage(),$biens->currentPage()+2)) as $page => $url)
-                <a href="{{ $url }}" class="pag-btn {{ $page === $biens->currentPage() ? 'active' : '' }}">{{ $page }}</a>
-            @endforeach
-            @if($biens->hasMorePages())
-                <a href="{{ $biens->nextPageUrl() }}" class="pag-btn nav">
-                    <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
-            @endif
+            {{-- Corps --}}
+            <div class="p-4 flex flex-col flex-1">
+                {{-- Référence + type --}}
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-body text-[10px] text-bimo-navy/40 uppercase tracking-widest">
+                        {{ $bien->reference }}
+                    </span>
+                    <span class="font-body text-[11px] font-medium text-bimo-navy/50">
+                        {{ $bien->type_label }}
+                    </span>
+                </div>
+
+                {{-- Titre --}}
+                <h3 class="font-display font-bold text-sm text-bimo-navy mb-1 leading-tight">
+                    {{ $bien->titre ?? $bien->adresse }}
+                </h3>
+                <p class="font-body text-xs text-bimo-navy/50 mb-3">
+                    @if($bien->quartier) {{ $bien->quartier }}, @endif{{ $bien->ville }}
+                </p>
+
+                {{-- Pied de carte --}}
+                <div class="flex items-center justify-between pt-3 border-t border-bimo-navy/[5%] mt-auto">
+                    <div>
+                        <div class="font-display font-bold text-base text-[var(--ac)] leading-none">
+                            {{ number_format($bien->loyer_hors_charges, 0, ',', ' ') }}
+                            <span class="font-body font-normal text-xs text-bimo-navy/40">F/mois</span>
+                        </div>
+                        @if($bien->contratActif)
+                        <div class="font-body text-[11px] text-bimo-navy/50 mt-0.5">
+                            {{ $bien->contratActif->locataire?->name ?? '—' }}
+                        </div>
+                        @endif
+                    </div>
+                    <a href="{{ route('admin.biens.show', $bien) }}"
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/10
+                              rounded-[8px] font-body font-medium text-xs text-bimo-navy/60
+                              hover:text-bimo-navy hover:border-bimo-gold hover:text-bimo-gold
+                              transition-all duration-150">
+                        Voir
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
+        @endforeach
+    </div>
+
+    {{-- Pagination --}}
+    @if($biens->hasPages())
+    <div class="flex items-center justify-center gap-1.5 mt-2">
+        @if(!$biens->onFirstPage())
+        <a href="{{ $biens->previousPageUrl() }}"
+           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
+                  text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </a>
         @endif
+
+        @foreach($biens->getUrlRange(max(1,$biens->currentPage()-2), min($biens->lastPage(),$biens->currentPage()+2)) as $page => $url)
+        <a href="{{ $url }}"
+           class="w-8 h-8 flex items-center justify-center rounded-[7px] font-body text-sm transition-all duration-150
+                  {{ $page === $biens->currentPage()
+                     ? 'bg-bimo-navy text-white border border-bimo-navy'
+                     : 'border border-bimo-navy/10 text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30' }}">
+            {{ $page }}
+        </a>
+        @endforeach
+
+        @if($biens->hasMorePages())
+        <a href="{{ $biens->nextPageUrl() }}"
+           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
+                  text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        @endif
+    </div>
+    @endif
+
     @endif
 
 </div>
-
 @endsection

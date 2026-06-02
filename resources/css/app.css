@@ -1,4 +1,24 @@
+/* bimotech.css conservé pendant la migration — supprimé en Phase 6 */
+@import './bimotech.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './bimotech.css';
+
+@layer base {
+    html {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(27, 79, 107, 0.15) transparent;
+    }
+    *::-webkit-scrollbar { width: 5px; height: 5px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb {
+        background: rgba(27, 79, 107, 0.15);
+        border-radius: 99px;
+    }
+}

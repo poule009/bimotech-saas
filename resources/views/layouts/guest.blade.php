@@ -1,221 +1,48 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Bimotech') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet"/>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: #f1f5f9;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            -webkit-font-smoothing: antialiased;
-        }
-        a { text-decoration: none; color: inherit; }
+    <title>{{ config('app.name', 'Bimothèque Immo') }}</title>
 
-        .auth-wrapper {
-            width: 100%;
-            max-width: 420px;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+          media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap">
+    </noscript>
 
-        /* Logo / Brand */
-        .auth-brand {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-        .auth-brand-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-        }
-        .auth-brand-logo img { height: 52px; width: auto; }
-        .auth-brand-name {
-            font-size: 22px;
-            font-weight: 800;
-            color: #111111;
-            letter-spacing: -.5px;
-        }
-        .auth-brand-sub {
-            font-size: 13px;
-            color: #64748b;
-            margin-top: 4px;
-        }
-
-        /* Carte */
-        .auth-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 32px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.05);
-        }
-        .auth-card-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 6px;
-            letter-spacing: -.3px;
-        }
-        .auth-card-sub {
-            font-size: 13px;
-            color: #64748b;
-            margin-bottom: 24px;
-        }
-
-        /* Form */
-        .form-group { margin-bottom: 16px; }
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 6px;
-        }
-        .form-input {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 14px;
-            color: #0f172a;
-            background: white;
-            transition: border-color .15s, box-shadow .15s;
-            outline: none;
-            font-family: inherit;
-        }
-        .form-input:focus {
-            border-color: #e8001d;
-            box-shadow: 0 0 0 3px rgba(232,0,29,.1);
-        }
-        .form-input::placeholder { color: #94a3b8; }
-        .form-error {
-            font-size: 12px;
-            color: #dc2626;
-            margin-top: 5px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* Status */
-        .form-status {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #15803d;
-            font-size: 13px;
-            padding: 10px 14px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-        }
-
-        /* Checkbox */
-        .form-check {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .form-check input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 4px;
-            accent-color: #e8001d;
-            cursor: pointer;
-        }
-        .form-check label {
-            font-size: 13px;
-            color: #64748b;
-            cursor: pointer;
-        }
-
-        /* Bouton principal */
-        .btn-auth {
-            width: 100%;
-            padding: 11px 20px;
-            background: #e8001d;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: filter .15s, transform .1s;
-            font-family: inherit;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-auth:hover { filter: brightness(.9); }
-        .btn-auth:active { transform: scale(.99); }
-
-        /* Lien secondaire */
-        .auth-link {
-            font-size: 13px;
-            color: #e8001d;
-            font-weight: 500;
-            transition: opacity .15s;
-        }
-        .auth-link:hover { opacity: .75; text-decoration: underline; }
-
-        /* Footer */
-        .auth-footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #94a3b8;
-        }
-        .auth-footer a { color: #64748b; font-weight: 500; }
-        .auth-footer a:hover { color: #e8001d; }
-
-        /* Divider */
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 20px 0;
-            color: #94a3b8;
-            font-size: 12px;
-        }
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e2e8f0;
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="auth-wrapper">
+<body class="h-full bg-bimo-bg font-body antialiased flex items-center justify-center min-h-screen px-4 py-8">
 
-        {{-- Brand --}}
-        <div class="auth-brand">
-            <div class="auth-brand-logo">
-                <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
-            </div>
-            <div class="auth-brand-name">BiMO-tech Immo</div>
-            <div class="auth-brand-sub">Gestion immobilière professionnelle</div>
+    <div class="w-full max-w-md">
+
+        {{-- Logo --}}
+        <div class="text-center mb-8">
+            <a href="{{ url('/') }}" class="inline-flex flex-col items-center gap-2">
+                <div class="w-12 h-12 rounded-[12px] bg-bimo-navy flex items-center justify-center">
+                    <span class="font-display font-extrabold text-bimo-gold text-lg">B</span>
+                </div>
+                <span class="font-display font-bold text-bimo-navy text-lg">
+                    Bimothèque <span class="text-bimo-gold">Immo</span>
+                </span>
+            </a>
+            <p class="font-body text-sm text-bimo-navy/40 mt-1">Gestion immobilière professionnelle</p>
         </div>
 
-        {{-- Contenu (slot) --}}
+        {{-- Contenu --}}
         {{ $slot }}
 
         {{-- Footer --}}
-        <div class="auth-footer">
-            © {{ date('Y') }} Bimotech — Conçu au Sénégal 🇸🇳
-        </div>
+        <p class="text-center font-body text-xs text-bimo-navy/30 mt-8">
+            © {{ date('Y') }} Bimothèque — Conçu au Sénégal 🇸🇳
+        </p>
 
     </div>
+
 </body>
 </html>

@@ -1,216 +1,258 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Connexion — BimoTech Immo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#ffffff;min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
-.left{background:#111111;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:space-between;padding:3rem;position:relative;overflow:hidden}
-.left::before{content:'';position:absolute;top:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(232,0,29,.08) 0%,transparent 70%);pointer-events:none}
-.grid-deco{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.left-logo{display:block;text-decoration:none}
-.left-logo img{height:38px;width:auto}
-.left-title{font-family:'Syne',sans-serif;font-size:clamp(26px,3vw,36px);font-weight:800;color:#ffffff;line-height:1.15;letter-spacing:-1px;margin-bottom:1.25rem}
-.left-title em{font-style:normal;color:#e8001d}
-.left-sub{font-size:14px;color:#9ca3af;line-height:1.7;max-width:340px;font-weight:300}
-.left-stats{display:flex;gap:2rem;position:relative;z-index:1}
-.left-stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#e8001d}
-.left-stat-label{font-size:12px;color:#6b7280;margin-top:2px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Connexion — Bimothèque Immo</title>
 
-.right{display:flex;align-items:center;justify-content:center;padding:3rem 2rem;overflow-y:auto;background:#ffffff}
-.form-box{width:100%;max-width:380px}
-.form-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#111111;letter-spacing:-.5px;margin-bottom:6px}
-.form-subtitle{font-size:13.5px;color:#6b7280;margin-bottom:2.5rem}
-.form-subtitle a{color:#e8001d;text-decoration:none}
-.form-subtitle a:hover{text-decoration:underline}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+          media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap">
+    </noscript>
 
-.field{margin-bottom:1.15rem}
-label{display:block;font-size:12.5px;font-weight:500;color:#374151;margin-bottom:5px;letter-spacing:.3px}
-.input-wrap{position:relative}
-input[type=email],input[type=password],input[type=text]{
-    width:100%;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:10px;
-    padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#111111;
-    outline:none;transition:border-color .2s,background .2s,box-shadow .2s;-webkit-appearance:none;
-}
-input:focus{border-color:#e8001d;background:#fff8f8;box-shadow:0 0 0 3px rgba(232,0,29,.08)}
-input::placeholder{color:#94a3b8}
-input.is-error{border-color:rgba(226,75,74,.5)!important}
-input.is-error:focus{box-shadow:0 0 0 3px rgba(226,75,74,.08)!important}
-input.has-toggle{padding-right:44px}
-
-.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#9ca3af;transition:color .2s;border-radius:4px;display:flex;align-items:center;line-height:1}
-.toggle-pw:hover{color:#6b7280}
-.toggle-pw:focus-visible{outline:2px solid #e8001d;outline-offset:2px;color:#6b7280}
-
-.remember-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
-.check-label{display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;cursor:pointer;user-select:none}
-.check-label input[type=checkbox]{width:16px;height:16px;accent-color:#e8001d;cursor:pointer;flex-shrink:0}
-.forgot{font-size:13px;color:#e8001d;text-decoration:none}
-.forgot:hover{text-decoration:underline}
-.forgot:focus-visible{outline:2px solid #e8001d;outline-offset:2px;border-radius:4px}
-
-.btn-submit{
-    width:100%;background:#e8001d;color:#ffffff;
-    font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
-    padding:13px;border-radius:10px;border:none;cursor:pointer;
-    transition:opacity .2s,transform .1s;letter-spacing:.2px;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.btn-submit:hover:not(:disabled){opacity:.9}
-.btn-submit:active:not(:disabled){transform:scale(.99)}
-.btn-submit:disabled{opacity:.6;cursor:not-allowed}
-.btn-submit:focus-visible{outline:2px solid #e8001d;outline-offset:3px}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#ffffff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-submit.loading .spinner{display:block}
-.btn-submit.loading .btn-text{opacity:.7}
-
-.divider{display:flex;align-items:center;gap:12px;margin:1.5rem 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e2e8f0}
-.divider span{font-size:12px;color:#9ca3af}
-.to-register{text-align:center;font-size:13.5px;color:#6b7280}
-.to-register a{color:#e8001d;text-decoration:none;font-weight:500}
-.to-register a:hover{text-decoration:underline}
-
-.error-bag{background:rgba(226,75,74,.08);border:1px solid rgba(226,75,74,.2);border-left:3px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:1.25rem;animation:slideIn .25s ease}
-.error-bag p{font-size:12.5px;color:#dc2626;line-height:1.6}
-.input-error{font-size:12px;color:#dc2626;margin-top:4px}
-.status-msg{background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid #3B6D11;border-radius:8px;padding:10px 14px;margin-bottom:1.25rem;font-size:12.5px;color:#15803d;animation:slideIn .25s ease}
-@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-
-a:focus-visible{outline:2px solid #e8001d;outline-offset:2px;border-radius:4px}
-
-@media(max-width:768px){body{grid-template-columns:1fr}.left{display:none}}
-</style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="h-full bg-bimo-bg font-body antialiased">
 
-<div class="left" role="complementary" aria-label="BimoTech Immo">
-    <div class="grid-deco" aria-hidden="true"></div>
-    <a href="{{ url('/') }}" class="left-logo" aria-label="Retour à l'accueil BiMO-tech">
-        <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
-    </a>
-    <div style="position:relative;z-index:1">
-        <h2 class="left-title">Gérez votre agence<br><em>comme un pro</em></h2>
-        <p class="left-sub">Biens, contrats, paiements, quittances — tout centralisé. Conforme TVA 18%, NINEA et loi 81-18.</p>
-    </div>
-    <div class="left-stats">
-        <div><div class="left-stat-num">150+</div><div class="left-stat-label">Biens gérés</div></div>
-        <div><div class="left-stat-num">12</div><div class="left-stat-label">Agences actives</div></div>
-        <div><div class="left-stat-num">98%</div><div class="left-stat-label">Recouvrement</div></div>
-    </div>
-</div>
+<div class="min-h-screen flex">
 
-<main class="right">
-    <div class="form-box">
-        <h1 class="form-title">Connexion</h1>
-        <p class="form-subtitle">Pas encore de compte ? <a href="{{ route('register') }}">Créer une agence gratuitement</a></p>
+    {{-- ═══ PANNEAU GAUCHE — Brand (desktop uniquement) ═══ --}}
+    <div class="hidden lg:flex lg:w-1/2 xl:w-[55%] bg-bimo-navy flex-col justify-between p-12 relative overflow-hidden">
 
-        @if($errors->any())
-            <div class="error-bag" role="alert">
-                @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
+        {{-- Déco grille --}}
+        <div class="absolute inset-0 opacity-[0.03]"
+             style="background-image: linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px); background-size: 48px 48px;">
+        </div>
+        {{-- Halo gold --}}
+        <div class="absolute bottom-0 right-0 w-96 h-96 rounded-full opacity-10"
+             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, 30%)">
+        </div>
+
+        {{-- Logo --}}
+        <a href="{{ url('/') }}" class="relative z-10 inline-flex items-center gap-3">
+            <div class="w-10 h-10 rounded-[10px] bg-bimo-gold flex items-center justify-center flex-shrink-0">
+                <span class="font-display font-extrabold text-bimo-navy text-base">B</span>
             </div>
-        @endif
-        @if(session('status'))
-            <div class="status-msg" role="status">{{ session('status') }}</div>
-        @endif
-
-        <form method="POST" action="{{ route('login') }}" id="login-form" novalidate>
-            @csrf
-
-            <div class="field">
-                <label for="email">Adresse email</label>
-                <input type="email" id="email" name="email"
-                    value="{{ old('email') }}"
-                    placeholder="votre@agence.sn"
-                    autocomplete="email" autofocus
-                    aria-required="true"
-                    class="{{ $errors->has('email') ? 'is-error' : '' }}"
-                >
-                @error('email')<div class="input-error" role="alert">{{ $message }}</div>@enderror
-            </div>
-
-            <div class="field">
-                <label for="password">Mot de passe</label>
-                <div class="input-wrap">
-                    <input type="password" id="password" name="password"
-                        placeholder="••••••••"
-                        autocomplete="current-password"
-                        aria-required="true"
-                        class="has-toggle {{ $errors->has('password') ? 'is-error' : '' }}"
-                    >
-                    <button type="button" class="toggle-pw" id="toggle-pw"
-                        aria-label="Afficher le mot de passe" aria-pressed="false"
-                        onclick="togglePw()">
-                        <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
-                    </button>
-                </div>
-                @error('password')<div class="input-error" role="alert">{{ $message }}</div>@enderror
-            </div>
-
-            <div class="remember-row">
-                <label class="check-label">
-                    <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
-                    Se souvenir de moi
-                </label>
-                @if(Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="forgot">Mot de passe oublié ?</a>
-                @endif
-            </div>
-
-            <button type="submit" class="btn-submit" id="submit-btn">
-                <div class="spinner" aria-hidden="true"></div>
-                <span class="btn-text">Se connecter</span>
-            </button>
-        </form>
-
-        <div class="divider"><span>ou</span></div>
-
-        <a href="{{ route('auth.google') }}"
-           style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-weight:600;color:#111111;background:#ffffff;text-decoration:none;transition:background .15s,border-color .15s;margin-bottom:1.25rem;"
-           onmouseover="this.style.background='#f8fafc';this.style.borderColor='#cbd5e1'"
-           onmouseout="this.style.background='#ffffff';this.style.borderColor='#e2e8f0'">
-            <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0;">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
-            Continuer avec Google
+            <span class="font-display font-bold text-white text-base">
+                Bimothèque <span class="text-bimo-gold">Immo</span>
+            </span>
         </a>
 
-        <p class="to-register">Nouvelle agence ? <a href="{{ route('register') }}">Créer un compte gratuit →</a></p>
+        {{-- Accroche centrale --}}
+        <div class="relative z-10">
+            <h1 class="font-display font-extrabold text-white leading-tight tracking-tight mb-4"
+                style="font-size: clamp(28px, 3.5vw, 42px)">
+                Gérez votre agence<br>
+                <span class="text-bimo-gold">comme un pro</span>
+            </h1>
+            <p class="font-body font-light text-white/50 text-base leading-relaxed max-w-sm">
+                Biens, contrats, paiements, quittances — tout centralisé.<br>
+                Conforme TVA 18%, NINEA et loi 81-18 Sénégal.
+            </p>
+        </div>
+
+        {{-- Stats --}}
+        <div class="relative z-10 flex items-center gap-10">
+            <div>
+                <div class="font-display font-extrabold text-bimo-gold text-3xl">150+</div>
+                <div class="font-body text-xs text-white/40 mt-1 uppercase tracking-widest">Biens gérés</div>
+            </div>
+            <div class="w-px h-10 bg-white/10"></div>
+            <div>
+                <div class="font-display font-extrabold text-bimo-gold text-3xl">12</div>
+                <div class="font-body text-xs text-white/40 mt-1 uppercase tracking-widest">Agences actives</div>
+            </div>
+            <div class="w-px h-10 bg-white/10"></div>
+            <div>
+                <div class="font-display font-extrabold text-bimo-gold text-3xl">98%</div>
+                <div class="font-body text-xs text-white/40 mt-1 uppercase tracking-widest">Recouvrement</div>
+            </div>
+        </div>
     </div>
-</main>
 
-<script>
-function togglePw() {
-    const input = document.getElementById('password');
-    const btn   = document.getElementById('toggle-pw');
-    const show  = input.type === 'password';
-    input.type  = show ? 'text' : 'password';
-    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
-    btn.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
-    document.getElementById('eye-icon').innerHTML = show
-        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
-        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-}
+    {{-- ═══ PANNEAU DROIT — Formulaire ═══ --}}
+    <div class="flex-1 flex items-center justify-center px-6 py-12 bg-white overflow-y-auto">
+        <div class="w-full max-w-[380px]">
 
-document.getElementById('login-form').addEventListener('submit', function() {
-    const btn = document.getElementById('submit-btn');
-    btn.classList.add('loading');
-    btn.disabled = true;
-    btn.querySelector('.btn-text').textContent = 'Connexion en cours...';
-});
-</script>
+            {{-- Logo mobile uniquement --}}
+            <div class="flex justify-center mb-8 lg:hidden">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-[10px] bg-bimo-navy flex items-center justify-center">
+                        <span class="font-display font-extrabold text-bimo-gold text-base">B</span>
+                    </div>
+                    <span class="font-display font-bold text-bimo-navy text-base">
+                        Bimothèque <span class="text-bimo-gold">Immo</span>
+                    </span>
+                </div>
+            </div>
+
+            {{-- Titre --}}
+            <h2 class="font-display font-extrabold text-bimo-navy text-2xl tracking-tight mb-1">
+                Connexion
+            </h2>
+            <p class="font-body text-sm text-bimo-navy/50 mb-8">
+                Pas encore de compte ?
+                <a href="{{ route('register') }}"
+                   class="text-bimo-gold font-medium hover:text-bimo-navy transition-colors duration-150">
+                    Créer une agence gratuitement
+                </a>
+            </p>
+
+            {{-- Erreurs --}}
+            @if($errors->any())
+            <div class="flex items-start gap-3 bg-bimo-red/[5%] border border-bimo-red/20 rounded-[10px] px-4 py-3 mb-5"
+                 role="alert">
+                <svg class="w-4 h-4 text-bimo-red flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <div class="font-body text-sm text-bimo-red">
+                    @foreach($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            {{-- Status --}}
+            @if(session('status'))
+            <div class="flex items-center gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[10px] px-4 py-3 mb-5"
+                 role="status">
+                <svg class="w-4 h-4 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <p class="font-body text-sm text-bimo-gold">{{ session('status') }}</p>
+            </div>
+            @endif
+
+            {{-- Formulaire --}}
+            <form method="POST" action="{{ route('login') }}" id="login-form" novalidate
+                  x-data="{ loading: false }" @submit="loading = true">
+                @csrf
+
+                {{-- Email --}}
+                <div class="mb-4">
+                    <label for="email" class="block font-body font-medium text-sm text-bimo-navy mb-1.5">
+                        Adresse email
+                    </label>
+                    <input type="email" id="email" name="email"
+                           value="{{ old('email') }}"
+                           placeholder="votre@agence.sn"
+                           autocomplete="email" autofocus
+                           aria-required="true"
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                  placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                  @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                  @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                    @error('email')
+                    <p class="mt-1 font-body text-xs text-bimo-red" role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Mot de passe --}}
+                <div class="mb-5" x-data="{ show: false }">
+                    <label for="password" class="block font-body font-medium text-sm text-bimo-navy mb-1.5">
+                        Mot de passe
+                    </label>
+                    <div class="relative">
+                        <input :type="show ? 'text' : 'password'"
+                               id="password" name="password"
+                               placeholder="••••••••"
+                               autocomplete="current-password"
+                               aria-required="true"
+                               class="w-full pl-4 pr-11 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        <button type="button"
+                                @click="show = !show"
+                                :aria-label="show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors duration-150">
+                            <svg x-show="!show" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg x-show="show" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
+                    @error('password')
+                    <p class="mt-1 font-body text-xs text-bimo-red" role="alert">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Se souvenir + mot de passe oublié --}}
+                <div class="flex items-center justify-between mb-6">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" name="remember"
+                               {{ old('remember') ? 'checked' : '' }}
+                               class="w-4 h-4 rounded border-bimo-navy/20 text-bimo-gold cursor-pointer
+                                      focus:ring-bimo-gold/20 focus:ring-2">
+                        <span class="font-body text-sm text-bimo-navy/60">Se souvenir de moi</span>
+                    </label>
+                    @if(Route::has('password.request'))
+                    <a href="{{ route('password.request') }}"
+                       class="font-body text-sm text-bimo-gold hover:text-bimo-navy transition-colors duration-150">
+                        Mot de passe oublié ?
+                    </a>
+                    @endif
+                </div>
+
+                {{-- Bouton connexion --}}
+                <button type="submit"
+                        :disabled="loading"
+                        class="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-[10px]
+                               bg-bimo-navy hover:bg-bimo-navy-dk text-white
+                               font-display font-bold text-sm
+                               transition-all duration-150
+                               disabled:opacity-60 disabled:cursor-not-allowed">
+                    <svg x-show="loading" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                        <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                    </svg>
+                    <span x-text="loading ? 'Connexion en cours…' : 'Se connecter'">Se connecter</span>
+                </button>
+            </form>
+
+            {{-- Divider --}}
+            <div class="flex items-center gap-3 my-6">
+                <div class="flex-1 h-px bg-bimo-navy/10"></div>
+                <span class="font-body text-xs text-bimo-navy/30">ou</span>
+                <div class="flex-1 h-px bg-bimo-navy/10"></div>
+            </div>
+
+            {{-- Google OAuth --}}
+            <a href="{{ route('auth.google') }}"
+               class="flex items-center justify-center gap-3 w-full px-5 py-3 rounded-[10px]
+                      border border-bimo-navy/15 hover:border-bimo-navy/30 hover:bg-bimo-bg
+                      font-body font-medium text-sm text-bimo-navy
+                      transition-all duration-150 mb-6">
+                <svg class="w-[18px] h-[18px] flex-shrink-0" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+                Continuer avec Google
+            </a>
+
+            {{-- Lien inscription --}}
+            <p class="text-center font-body text-sm text-bimo-navy/50">
+                Nouvelle agence ?
+                <a href="{{ route('register') }}"
+                   class="text-bimo-gold font-medium hover:text-bimo-navy transition-colors duration-150">
+                    Créer un compte gratuit →
+                </a>
+            </p>
+
+        </div>
+    </div>
+
+</div>
 
 </body>
 </html>

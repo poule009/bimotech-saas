@@ -1,123 +1,53 @@
 @extends('layouts.app')
-@section('title', $bien->reference . ' — ' . $bien->type_label)
-@section('breadcrumb', 'Biens › ' . $bien->reference)
+@section('header', $bien->reference . ' — ' . $bien->type_label)
 
 @section('content')
-<style>
-.page-grid { display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start; }
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
-.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between; }
-.card-hd-left { display:flex;align-items:center;gap:10px; }
-.card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.card-icon svg { width:15px;height:15px; }
-.card-icon.gold   { background:#f5e9c9;color:#8a6e2f; }
-.card-icon.blue   { background:#dbeafe;color:#1d4ed8; }
-.card-icon.green  { background:#dcfce7;color:#16a34a; }
-.card-icon.purple { background:#ede9fe;color:#7c3aed; }
-.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
-.card-body { padding:18px 20px; }
-.il { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:4px; }
-.iv { font-size:13px;font-weight:500;color:#0d1117; }
-.iv-sub { font-size:11px;color:#6b7280;margin-top:2px; }
-.info-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
-.info-grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
-
-/* Actions */
-.actions-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
-.btn-act { display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s;border:none; }
-.btn-dark    { background:#0d1117;color:#fff; }
-.btn-dark:hover { opacity:.85; }
-.btn-green   { background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0; }
-.btn-green:hover { background:#bbf7d0; }
-.btn-outline { background:#fff;color:#374151;border:1px solid #e5e7eb; }
-.btn-outline:hover { border-color:#c9a84c;color:#8a6e2f; }
-.btn-red     { background:#fee2e2;color:#dc2626;border:1px solid #fecaca; }
-.btn-red:hover { background:#fecaca; }
-.btn-act svg { width:14px;height:14px; }
-
-/* Hero */
-.hero { background:linear-gradient(135deg,#0d1117,#1c2333);border-radius:14px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px; }
-
-/* KPIs */
-.kpi-row { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px; }
-.kpi { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px; }
-.kpi.gold  { border-top:3px solid #c9a84c; }
-.kpi.green { border-top:3px solid #16a34a; }
-.kpi.blue  { border-top:3px solid #1d4ed8; }
-.kpi-lbl { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:6px; }
-.kpi-val { font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#0d1117; }
-.kpi-sub { font-size:11px;color:#9ca3af;margin-top:3px; }
-
-/* Table paiements */
-.dt { width:100%;border-collapse:collapse; }
-.dt th { padding:9px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;background:#f9fafb;border-bottom:1px solid #e5e7eb; }
-.dt td { padding:11px 16px;font-size:13px;color:#374151;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
-.dt tbody tr:last-child td { border-bottom:none; }
-.dt tbody tr:hover { background:#fafafa; }
-
-/* Galerie photos */
-.photo-hero { height:280px;background:#f3f4f6;border-radius:12px;overflow:hidden;margin-bottom:12px;position:relative; }
-.photo-hero img { width:100%;height:100%;object-fit:cover; }
-.photo-thumbs { display:flex;gap:8px;flex-wrap:wrap; }
-.photo-thumb { width:72px;height:56px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:border .15s;flex-shrink:0; }
-.photo-thumb:hover { border-color:#c9a84c; }
-.photo-thumb img { width:100%;height:100%;object-fit:cover; }
-
-/* Sidebar sticky */
-.side-card { background:#0d1117;border-radius:14px;overflow:hidden;margin-bottom:14px;position:sticky;top:24px; }
-.side-hd { padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.07); }
-.side-title { font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#fff; }
-.side-body { padding:14px 16px; }
-.side-row { display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px; }
-.side-row:last-child { border-bottom:none; }
-.side-lbl { color:rgba(255,255,255,.4); }
-.side-val { color:#e6edf3;font-weight:500; }
-.side-val.gold { color:#c9a84c; }
-.badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600; }
-.badge-disponible { background:#dcfce7;color:#16a34a; }
-.badge-loue       { background:#dbeafe;color:#1d4ed8; }
-.badge-en_travaux { background:#fef9c3;color:#a16207; }
-.badge-archive    { background:#f3f4f6;color:#6b7280; }
-@media(max-width:1024px){.page-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:480px){.kpi-row{grid-template-columns:1fr}}
-</style>
-
-<div style="padding:0 0 48px">
+<div class="space-y-4 md:space-y-5">
 
     {{-- Breadcrumb --}}
-    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:16px">
-        <a href="{{ route('admin.biens.index') }}" style="color:#6b7280;text-decoration:none">Biens</a>
-        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span style="color:#0d1117;font-weight:500">{{ $bien->reference }}</span>
+    <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
+        <a href="{{ route('admin.biens.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Biens</a>
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="text-bimo-navy font-medium">{{ $bien->reference }}</span>
     </div>
 
     {{-- Actions --}}
-    <div class="actions-bar">
-        <a href="{{ route('admin.biens.edit', $bien) }}" class="btn-act btn-dark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    <div class="flex flex-wrap gap-2">
+        <a href="{{ route('admin.biens.edit', $bien) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white
+                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Modifier
         </a>
 
         @if(!$bien->contratActif)
-        <a href="{{ route('admin.contrats.create', ['bien_id' => $bien->id]) }}" class="btn-act btn-green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        <a href="{{ route('admin.contrats.create', ['bien_id' => $bien->id]) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/25 text-bimo-gold
+                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
             Créer un contrat
         </a>
         @endif
 
         @if($bien->contratActif)
-        <a href="{{ route('admin.paiements.create', ['contrat_id' => $bien->contratActif->id]) }}" class="btn-act btn-green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        <a href="{{ route('admin.paiements.create', ['contrat_id' => $bien->contratActif->id]) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/25 text-bimo-gold
+                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
             Enregistrer un paiement
         </a>
-        <a href="{{ route('admin.contrats.show', $bien->contratActif) }}" class="btn-act btn-outline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <a href="{{ route('admin.contrats.show', $bien->contratActif) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Voir le contrat
         </a>
         @endif
 
-        <a href="{{ route('admin.biens.index') }}" class="btn-act btn-outline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        <a href="{{ route('admin.biens.index') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Retour
         </a>
 
@@ -127,125 +57,157 @@
               data-confirm-title="Archiver ce bien ?"
               data-confirm-ok="Oui, archiver">
             @csrf @method('DELETE')
-            <button type="submit" class="btn-act btn-red">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-red/10 border border-bimo-red/20 text-bimo-red
+                           font-body text-sm rounded-[10px] hover:bg-bimo-red/20 transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                 Archiver
             </button>
         </form>
         @endif
     </div>
 
-    {{-- Bandeau portail incomplet --}}
+    {{-- Alerte portail incomplet --}}
     @if(!empty($raisonsAbsence))
-    <div style="background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #d97706;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px">
-        <svg style="width:16px;height:16px;color:#d97706;flex-shrink:0;margin-top:1px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="flex items-start gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[12px] px-4 py-3">
+        <svg class="w-4 h-4 text-bimo-gold flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
         <div>
-            <div style="font-size:13px;font-weight:600;color:#92400e;margin-bottom:3px">Ce bien n'est pas affiché sur le portail public</div>
-            <div style="font-size:12px;color:#78350f">
+            <div class="font-body font-semibold text-sm text-bimo-gold mb-0.5">Ce bien n'est pas affiché sur le portail public</div>
+            <div class="font-body text-xs text-bimo-gold/80">
                 Il manque : <strong>{{ implode(', ', $raisonsAbsence) }}</strong>.
-                <a href="{{ route('admin.biens.edit', $bien) }}" style="color:#d97706;font-weight:600;text-decoration:none;margin-left:4px">Compléter la fiche →</a>
+                <a href="{{ route('admin.biens.edit', $bien) }}"
+                   class="font-semibold ml-1 hover:text-bimo-navy transition-colors duration-150">
+                    Compléter la fiche →
+                </a>
             </div>
         </div>
     </div>
     @endif
 
-    {{-- Hero --}}
-    <div class="hero">
-        <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.3);margin-bottom:6px">
+    {{-- Hero card sombre --}}
+    <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
+             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)">
+        </div>
+        <div class="relative z-10">
+            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/30 mb-2">
                 {{ $bien->reference }}
             </div>
-            <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-.3px">
+            <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
                 {{ $bien->titre ?? $bien->type_label }}
-                @if($bien->meuble) <span style="font-size:13px;color:rgba(201,168,76,.7);font-weight:400">· Meublé</span> @endif
+                @if($bien->meuble)
+                <span class="font-body font-normal text-sm text-bimo-gold/70 ml-2">· Meublé</span>
+                @endif
             </div>
             @if($bien->titre)
-            <div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:2px">{{ $bien->type_label }}</div>
+            <div class="font-body text-sm text-white/40 mb-1">{{ $bien->type_label }}</div>
             @endif
-            <div style="font-size:13px;color:rgba(255,255,255,.5)">
+            <div class="font-body text-sm text-white/50 mb-3">
                 {{ $bien->adresse }}
                 @if($bien->quartier) · {{ $bien->quartier }} @endif
                 @if($bien->commune) · {{ $bien->commune }} @endif
                 · {{ $bien->ville }}
             </div>
-            <div style="margin-top:10px">
-                <span class="badge badge-{{ $bien->statut }}">
-                    <span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>
+            <div class="flex items-center gap-3 flex-wrap">
+                @php
+                    $badgeClass = match($bien->statut) {
+                        'disponible' => 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold',
+                        'loue'       => 'bg-bimo-navy-dk/50 border-white/10 text-white/70',
+                        'en_travaux' => 'bg-white/5 border-white/10 text-white/50',
+                        default      => 'bg-white/5 border-white/10 text-white/30',
+                    };
+                @endphp
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-body font-medium {{ $badgeClass }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                     {{ $bien->statut_label }}
                 </span>
                 @if($bien->surface_m2)
-                    <span style="margin-left:8px;font-size:12px;color:rgba(255,255,255,.4)">{{ $bien->surface_m2 }} m²</span>
+                <span class="font-body text-xs text-white/40">{{ $bien->surface_m2 }} m²</span>
                 @endif
                 @if($bien->nombre_pieces)
-                    <span style="margin-left:8px;font-size:12px;color:rgba(255,255,255,.4)">{{ $bien->nombre_pieces }} pièces</span>
+                <span class="font-body text-xs text-white/40">{{ $bien->nombre_pieces }} pièces</span>
                 @endif
             </div>
         </div>
-        <div style="text-align:right">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px">Loyer mensuel</div>
-            <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#c9a84c">
-                {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}<span style="font-size:14px;color:rgba(201,168,76,.5);margin-left:4px">F</span>
+        <div class="relative z-10 text-right flex-shrink-0">
+            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-1">Loyer mensuel</div>
+            <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
+                {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}
+                <span class="font-body font-normal text-base text-bimo-gold/40">F</span>
             </div>
-            <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:3px">
-                Commission {{ $bien->taux_commission ?? 10 }}%
-            </div>
+            <div class="font-body text-xs text-white/30 mt-1">Commission {{ $bien->taux_commission ?? 10 }}%</div>
         </div>
     </div>
 
     {{-- KPIs --}}
-    <div class="kpi-row">
-        <div class="kpi gold">
-            <div class="kpi-lbl">Loyer mensuel</div>
-            <div class="kpi-val">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}</div>
-            <div class="kpi-sub">FCFA / mois</div>
-        </div>
-        <div class="kpi green">
-            <div class="kpi-lbl">Net propriétaire</div>
-            <div class="kpi-val" style="color:#16a34a">
-                {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') }}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Loyer mensuel</div>
+            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
+                {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}
+                <span class="font-body font-normal text-sm text-bimo-gold/50">F</span>
             </div>
-            <div class="kpi-sub">FCFA après commission TTC</div>
+            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">FCFA / mois</div>
         </div>
-        <div class="kpi blue">
-            <div class="kpi-lbl">Contrats</div>
-            <div class="kpi-val" style="color:#1d4ed8">{{ $bien->contrats->count() }}</div>
-            <div class="kpi-sub">{{ $bien->contratActif ? '1 actif' : 'Aucun actif' }}</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Net propriétaire</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">
+                {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') }}
+                <span class="font-body font-normal text-sm text-bimo-navy/40">F</span>
+            </div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">Après commission TTC</div>
+        </div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Contrats</div>
+            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">
+                {{ $bien->contrats->count() }}
+            </div>
+            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">
+                {{ $bien->contratActif ? '1 actif' : 'Aucun actif' }}
+            </div>
         </div>
     </div>
 
-    <div class="page-grid">
+    {{-- Grid principale --}}
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
 
-        {{-- ═══ COLONNE GAUCHE ═══ --}}
-        <div>
+        {{-- COLONNE GAUCHE --}}
+        <div class="space-y-4">
 
-            {{-- PHOTOS --}}
+            {{-- Photos --}}
             @if($bien->photos->count() > 0)
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            @php $principale = $bien->photos->firstWhere('est_principale', true) ?? $bien->photos->first(); @endphp
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         </div>
-                        <div class="card-title">Photos ({{ $bien->photos->count() }})</div>
+                        <span class="font-display font-bold text-sm text-bimo-navy">
+                            Photos <span class="font-body font-normal text-bimo-navy/40 text-xs">({{ $bien->photos->count() }})</span>
+                        </span>
                     </div>
-                    <a href="{{ route('admin.biens.edit', $bien) }}" style="font-size:12px;color:#6b7280;text-decoration:none">
+                    <a href="{{ route('admin.biens.edit', $bien) }}"
+                       class="font-body text-xs text-bimo-navy/40 hover:text-bimo-gold transition-colors duration-150">
                         Gérer les photos →
                     </a>
                 </div>
-                <div class="card-body">
-                    @php $principale = $bien->photos->firstWhere('est_principale', true) ?? $bien->photos->first(); @endphp
-                    <div class="photo-hero">
+                <div class="px-5 py-5">
+                    <div class="h-64 md:h-72 bg-bimo-bg2 rounded-[10px] overflow-hidden mb-3">
                         <img src="{{ asset('storage/'.$principale->chemin) }}"
-                             id="photo-principale" alt="Photo principale">
+                             id="photo-principale" alt="Photo principale"
+                             class="w-full h-full object-cover">
                     </div>
                     @if($bien->photos->count() > 1)
-                    <div class="photo-thumbs">
+                    <div class="flex gap-2 flex-wrap">
                         @foreach($bien->photos as $photo)
-                        <div class="photo-thumb {{ $photo->id === $principale->id ? 'border-amber-400':'' }}"
+                        <div class="w-[72px] h-14 rounded-[8px] overflow-hidden cursor-pointer border-2 transition-all duration-150 flex-shrink-0
+                                    {{ $photo->id === $principale->id ? 'border-bimo-gold' : 'border-transparent hover:border-bimo-gold/50' }}"
                              onclick="changerPhoto('{{ asset('storage/'.$photo->chemin) }}', this)">
-                            <img src="{{ asset('storage/'.$photo->chemin) }}" alt="">
+                            <img src="{{ asset('storage/'.$photo->chemin) }}" alt=""
+                                 class="w-full h-full object-cover">
                         </div>
                         @endforeach
                     </div>
@@ -254,190 +216,205 @@
             </div>
             @endif
 
-            {{-- INFORMATIONS --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                        </div>
-                        <div class="card-title">Informations</div>
+            {{-- Informations --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-navy/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                     </div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Informations</span>
                 </div>
-                <div class="card-body">
-                    <div class="info-grid-3" style="margin-bottom:16px">
+                <div class="px-5 py-5">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
+                        @php
+                            $infos = [
+                                ['Type',      $bien->type_label],
+                                ['Surface',   $bien->surface_m2 ? $bien->surface_m2.' m²' : '—'],
+                                ['Pièces',    $bien->nombre_pieces ?? '—'],
+                                ['Chambres',  $bien->nombre_chambres ?? '—'],
+                                ['SDB',       $bien->nombre_sdb ?? '—'],
+                                ['Étage',     $bien->etage ?? '—'],
+                                ['Meublé',    $bien->meuble ? 'Oui' : 'Non'],
+                                ['Parking',   $bien->parking ? 'Oui' : 'Non'],
+                                ['Climatisé', $bien->climatise ? 'Oui' : 'Non'],
+                                ['Statut',    $bien->statut_label],
+                                ['Référence', $bien->reference],
+                            ];
+                        @endphp
+                        @foreach($infos as [$lbl, $val])
                         <div>
-                            <div class="il">Type</div>
-                            <div class="iv">{{ $bien->type_label }}</div>
+                            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">{{ $lbl }}</div>
+                            <div class="font-body font-medium text-sm text-bimo-navy">{{ $val }}</div>
                         </div>
-                        <div>
-                            <div class="il">Surface</div>
-                            <div class="iv">{{ $bien->surface_m2 ? $bien->surface_m2.' m²' : '—' }}</div>
-                        </div>
-                        <div>
-                            <div class="il">Pièces</div>
-                            <div class="iv">{{ $bien->nombre_pieces ?? '—' }}</div>
-                        </div>
-                        <div>
-                            <div class="il">Meublé</div>
-                            <div class="iv">{{ $bien->meuble ? 'Oui' : 'Non' }}</div>
-                        </div>
-                        <div>
-                            <div class="il">Statut</div>
-                            <div class="iv">{{ $bien->statut_label }}</div>
-                        </div>
-                        <div>
-                            <div class="il">Référence</div>
-                            <div class="iv" style="font-family:'Syne',sans-serif;font-size:12px">{{ $bien->reference }}</div>
+                        @endforeach
+                    </div>
+
+                    {{-- Localisation --}}
+                    <div class="pt-4 border-t border-bimo-navy/[5%]">
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-3">Localisation</div>
+                        <div class="grid grid-cols-2 gap-4">
+                            @foreach([['Adresse', $bien->adresse], ['Quartier', $bien->quartier ?? '—'], ['Commune', $bien->commune ?? '—'], ['Ville', $bien->ville]] as [$lbl, $val])
+                            <div>
+                                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">{{ $lbl }}</div>
+                                <div class="font-body text-sm text-bimo-navy">{{ $val }}</div>
+                            </div>
+                            @endforeach
                         </div>
                     </div>
 
-                    <div style="padding-top:14px;border-top:1px solid #f3f4f6">
-                        <div class="il" style="margin-bottom:8px">Localisation</div>
-                        <div class="info-grid">
-                            <div>
-                                <div class="il">Adresse</div>
-                                <div class="iv">{{ $bien->adresse }}</div>
-                            </div>
-                            <div>
-                                <div class="il">Quartier</div>
-                                <div class="iv">{{ $bien->quartier ?? '—' }}</div>
-                            </div>
-                            <div>
-                                <div class="il">Commune</div>
-                                <div class="iv">{{ $bien->commune ?? '—' }}</div>
-                            </div>
-                            <div>
-                                <div class="il">Ville</div>
-                                <div class="iv">{{ $bien->ville }}</div>
-                            </div>
+                    {{-- Aménités --}}
+                    @if(!empty($bien->amenites))
+                    <div class="pt-4 border-t border-bimo-navy/[5%] mt-4">
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-3">Commodités</div>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($bien->amenites as $item)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full border border-bimo-navy/10 bg-bimo-bg font-body text-xs text-bimo-navy/70">
+                                {{ $item }}
+                            </span>
+                            @endforeach
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
 
-            {{-- CONTRAT ACTIF --}}
+            {{-- Contrat actif --}}
             @if($bien->contratActif)
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon gold">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                         </div>
-                        <div class="card-title">Contrat actif</div>
+                        <span class="font-display font-bold text-sm text-bimo-navy">Contrat actif</span>
                     </div>
                     <a href="{{ route('admin.contrats.show', $bien->contratActif) }}"
-                       style="font-size:12px;color:#6b7280;text-decoration:none">
+                       class="font-body text-xs text-bimo-navy/40 hover:text-bimo-gold transition-colors duration-150">
                         Voir le contrat →
                     </a>
                 </div>
-                <div class="card-body">
-                    <div class="info-grid-3">
-                        <div>
-                            <div class="il">Locataire</div>
-                            <div class="iv">{{ $bien->contratActif->locataire?->name ?? '—' }}</div>
-                            <div class="iv-sub">{{ $bien->contratActif->locataire?->telephone ?? '' }}</div>
+                <div class="px-5 py-5 grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Locataire</div>
+                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $bien->contratActif->locataire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $bien->contratActif->locataire?->telephone ?? '' }}</div>
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Loyer contractuel</div>
+                        <div class="font-display font-bold text-sm text-bimo-gold">
+                            {{ number_format($bien->contratActif->loyer_contractuel, 0, ',', ' ') }} F
                         </div>
-                        <div>
-                            <div class="il">Loyer contractuel</div>
-                            <div class="iv" style="color:#c9a84c;font-weight:700">
-                                {{ number_format($bien->contratActif->loyer_contractuel, 0, ',', ' ') }} F
-                            </div>
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Période</div>
+                        <div class="font-body text-sm text-bimo-navy">{{ $bien->contratActif->date_debut?->format('d/m/Y') }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">
+                            {{ $bien->contratActif->date_fin?->format('d/m/Y') ?? 'Contrat ouvert' }}
                         </div>
-                        <div>
-                            <div class="il">Début</div>
-                            <div class="iv">{{ $bien->contratActif->date_debut?->format('d/m/Y') }}</div>
-                            <div class="iv-sub">
-                                {{ $bien->contratActif->date_fin?->format('d/m/Y') ?? 'Contrat ouvert' }}
-                            </div>
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Type bail</div>
+                        <div class="font-body text-sm text-bimo-navy">
+                            {{ \App\Models\Contrat::TYPES_BAIL[$bien->contratActif->type_bail] ?? $bien->contratActif->type_bail }}
                         </div>
-                        <div>
-                            <div class="il">Type bail</div>
-                            <div class="iv">
-                                {{ \App\Models\Contrat::TYPES_BAIL[$bien->contratActif->type_bail] ?? $bien->contratActif->type_bail }}
-                            </div>
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Référence bail</div>
+                        <div class="font-body text-xs text-bimo-navy">
+                            {{ $bien->contratActif->reference_bail ?? 'BAIL-'.$bien->contratActif->id }}
                         </div>
-                        <div>
-                            <div class="il">Référence bail</div>
-                            <div class="iv" style="font-size:11px">
-                                {{ $bien->contratActif->reference_bail ?? 'BAIL-'.$bien->contratActif->id }}
-                            </div>
-                        </div>
-                        <div>
-                            <div class="il">Caution</div>
-                            <div class="iv">{{ number_format($bien->contratActif->caution, 0, ',', ' ') }} F</div>
-                        </div>
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Caution</div>
+                        <div class="font-body text-sm text-bimo-navy">{{ number_format($bien->contratActif->caution, 0, ',', ' ') }} F</div>
                     </div>
                 </div>
             </div>
             @endif
 
-            {{-- HISTORIQUE PAIEMENTS --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            {{-- Derniers paiements --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                         </div>
-                        <div class="card-title">Derniers paiements</div>
+                        <span class="font-display font-bold text-sm text-bimo-navy">Derniers paiements</span>
                     </div>
                     @if($bien->contratActif)
                     <a href="{{ route('admin.paiements.create', ['contrat_id' => $bien->contratActif->id]) }}"
-                       style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#16a34a;text-decoration:none;padding:5px 10px;background:#dcfce7;border-radius:6px">
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px]
+                              font-body font-medium text-xs text-bimo-gold hover:bg-bimo-gold/20 transition-all duration-150">
                         + Paiement
                     </a>
                     @endif
                 </div>
 
-                {{-- $paiements est préparé dans BienController::show() --}}
-
                 @if($paiements->isEmpty())
-                <div style="padding:28px;text-align:center;color:#9ca3af;font-size:13px">
-                    @if($bien->contratActif)
-                        Aucun paiement enregistré pour ce contrat.
-                    @else
-                        Aucun contrat actif sur ce bien.
-                    @endif
+                <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">
+                    @if($bien->contratActif) Aucun paiement enregistré pour ce contrat.
+                    @else Aucun contrat actif sur ce bien. @endif
                 </div>
                 @else
-                <div style="overflow-x:auto">
-                    <table class="dt">
+
+                {{-- Mobile cards --}}
+                <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+                    @foreach($paiements as $p)
+                    <div class="px-5 py-3.5 flex items-center justify-between gap-3">
+                        <div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
+                                {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
+                            </span>
+                            <div class="font-body text-xs text-bimo-navy/40 mt-1">
+                                {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</div>
+                            <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Net: {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F</div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                {{-- Desktop table --}}
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-sm">
                         <thead>
-                            <tr>
-                                <th>Période</th>
-                                <th>Date</th>
-                                <th style="text-align:right">Montant</th>
-                                <th style="text-align:right">Net proprio</th>
-                                <th>Mode</th>
-                                <th style="text-align:center">PDF</th>
+                            <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Période</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Date</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Montant</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net proprio</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Mode</th>
+                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">PDF</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-bimo-navy/[5%]">
                             @foreach($paiements as $p)
-                            <tr>
-                                <td>
-                                    <span style="display:inline-flex;padding:2px 8px;background:#f5e9c9;color:#8a6e2f;border-radius:99px;font-size:11px;font-weight:600;font-family:'Syne',sans-serif">
+                            <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                                <td class="px-5 py-3.5">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
                                         {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
                                     </span>
                                 </td>
-                                <td style="font-size:12px;color:#6b7280">
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/50">
                                     {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
                                 </td>
-                                <td style="text-align:right;font-family:'Syne',sans-serif;font-weight:700;color:#0d1117">
+                                <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">
                                     {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
                                 </td>
-                                <td style="text-align:right;color:#16a34a;font-weight:600">
+                                <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy">
                                     {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
                                 </td>
-                                <td style="font-size:12px;color:#6b7280">
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/50">
                                     {{ \App\Http\Controllers\PaiementController::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}
                                 </td>
-                                <td style="text-align:center">
+                                <td class="px-5 py-3.5 text-center">
                                     <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                                       style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border:1px solid #e5e7eb;border-radius:6px;color:#6b7280;text-decoration:none"
-                                       onmouseover="this.style.borderColor='#c9a84c';this.style.color='#8a6e2f'"
-                                       onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280'">
-                                        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                       class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
+                                              text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </a>
                                 </td>
                             </tr>
@@ -448,130 +425,110 @@
                 @endif
             </div>
 
-            {{-- DESCRIPTION --}}
+            {{-- Description --}}
             @if($bien->description)
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-hd-left">
-                        <div class="card-icon purple">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        </div>
-                        <div class="card-title">Description</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     </div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Description</span>
                 </div>
-                <div class="card-body">
-                    <p style="font-size:13px;color:#374151;line-height:1.7">{{ $bien->description }}</p>
+                <div class="px-5 py-5">
+                    <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">{{ $bien->description }}</p>
                 </div>
             </div>
             @endif
 
         </div>{{-- fin colonne gauche --}}
 
-        {{-- ═══ COLONNE DROITE ═══ --}}
-        <div>
+        {{-- COLONNE DROITE --}}
+        <div class="lg:sticky lg:top-6 space-y-4">
 
             {{-- Propriétaire --}}
-            <div class="side-card">
-                <div class="side-hd"><div class="side-title">Propriétaire</div></div>
-                <div class="side-body">
-                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-                        <div style="width:36px;height:36px;border-radius:50%;background:rgba(201,168,76,.15);border:1.5px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#c9a84c;flex-shrink:0">
-                            {{ strtoupper(substr($bien->proprietaire?->name ?? 'P', 0, 1)) }}
+            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/[7%]">
+                    <div class="font-display font-bold text-sm text-white">Propriétaire</div>
+                </div>
+                <div class="px-5 py-4">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
+                                    font-display font-bold text-sm text-bimo-gold
+                                    bg-bimo-gold/15 border border-bimo-gold/30">
+                            {{ mb_strtoupper(mb_substr($bien->proprietaire?->name ?? 'P', 0, 2)) }}
                         </div>
                         <div>
-                            <div style="font-size:13px;font-weight:600;color:#e6edf3">
-                                {{ $bien->proprietaire?->name ?? '—' }}
-                            </div>
-                            <div style="font-size:11px;color:#484f58">{{ $bien->proprietaire?->email ?? '' }}</div>
+                            <div class="font-body font-semibold text-sm text-white">{{ $bien->proprietaire?->name ?? '—' }}</div>
+                            <div class="font-body text-xs text-white/35">{{ $bien->proprietaire?->email ?? '' }}</div>
                         </div>
                     </div>
                     @if($bien->proprietaire?->telephone)
-                    <div class="side-row">
-                        <span class="side-lbl">Téléphone</span>
-                        <span class="side-val">{{ $bien->proprietaire->telephone }}</span>
+                    <div class="flex items-center justify-between py-2 border-t border-white/[6%]">
+                        <span class="font-body text-xs text-white/40">Téléphone</span>
+                        <span class="font-body text-xs text-white/70">{{ $bien->proprietaire->telephone }}</span>
                     </div>
                     @endif
                     @if($bien->proprietaire)
                     <a href="{{ route('admin.users.show', $bien->proprietaire) }}"
-                       style="display:flex;align-items:center;justify-content:center;gap:5px;margin-top:10px;padding:7px;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#c9a84c;font-size:12px;text-decoration:none">
+                       class="flex items-center justify-center gap-2 mt-3 px-4 py-2.5
+                              border border-white/10 rounded-[9px]
+                              font-body text-xs text-bimo-gold hover:text-white hover:border-white/20
+                              transition-all duration-150">
                         Voir le profil →
                     </a>
                     @endif
                 </div>
             </div>
 
-            {{-- Infos bien --}}
-            <div class="side-card">
-                <div class="side-hd"><div class="side-title">Récapitulatif</div></div>
-                <div class="side-body">
-                    <div class="side-row">
-                        <span class="side-lbl">Référence</span>
-                        <span class="side-val" style="font-family:'Syne',sans-serif;font-size:11px">{{ $bien->reference }}</span>
+            {{-- Récapitulatif --}}
+            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/[7%]">
+                    <div class="font-display font-bold text-sm text-white">Récapitulatif</div>
+                </div>
+                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                    @php
+                        $sideRows = [
+                            ['Référence',   $bien->reference, 'font-display font-semibold text-xs'],
+                            ['Loyer',        number_format($bien->loyer_mensuel, 0, ',', ' ') . ' F', 'text-bimo-gold font-semibold'],
+                            ['Commission',   ($bien->taux_commission ?? 10) . ' %', ''],
+                            ['Net proprio',  number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') . ' F', 'text-white font-semibold'],
+                            ['Statut',       $bien->statut_label, ''],
+                            ['Surface',      $bien->surface_m2 ? $bien->surface_m2.' m²' : '—', ''],
+                            ['Pièces',       $bien->nombre_pieces ?? '—', ''],
+                            ['Meublé',       $bien->meuble ? 'Oui' : 'Non', ''],
+                            ['Ajouté le',    $bien->created_at?->format('d/m/Y') ?? '—', ''],
+                        ];
+                    @endphp
+                    @foreach($sideRows as [$lbl, $val, $valClass])
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs text-white/70 {{ $valClass }}">{{ $val }}</span>
                     </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Loyer mensuel</span>
-                        <span class="side-val gold">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Commission</span>
-                        <span class="side-val">{{ $bien->taux_commission ?? 10 }} %</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Net proprio</span>
-                        <span class="side-val" style="color:#4ade80">
-                            {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') }} F
-                        </span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Statut</span>
-                        <span class="side-val">{{ $bien->statut_label }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Surface</span>
-                        <span class="side-val">{{ $bien->surface_m2 ? $bien->surface_m2.' m²' : '—' }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Pièces</span>
-                        <span class="side-val">{{ $bien->nombre_pieces ?? '—' }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Meublé</span>
-                        <span class="side-val">{{ $bien->meuble ? 'Oui' : 'Non' }}</span>
-                    </div>
-                    <div class="side-row">
-                        <span class="side-lbl">Ajouté le</span>
-                        <span class="side-val">{{ $bien->created_at?->format('d/m/Y') }}</span>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
             {{-- Historique contrats --}}
             @if($bien->contrats->count() > 0)
-            <div class="side-card">
-                <div class="side-hd"><div class="side-title">Historique contrats</div></div>
-                <div class="side-body">
+            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/[7%]">
+                    <div class="font-display font-bold text-sm text-white">Historique contrats</div>
+                </div>
+                <div class="px-5 py-2 divide-y divide-white/[6%]">
                     @foreach($bien->contrats->take(5) as $c)
-                    <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
-                            <span style="font-size:12px;color:#e6edf3;font-weight:500">
-                                {{ $c->locataire?->name ?? '—' }}
-                            </span>
-                            @php
-                                $cs = match($c->statut) {
-                                    'actif'   => 'color:#4ade80',
-                                    'resilié' => 'color:#f87171',
-                                    default   => 'color:#9ca3af',
-                                };
-                            @endphp
-                            <span style="font-size:10px;font-weight:600;{{ $cs }}">
+                    <div class="py-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-body font-medium text-sm text-white/80">{{ $c->locataire?->name ?? '—' }}</span>
+                            <span class="font-body text-[10px] font-semibold
+                                         {{ $c->statut === 'actif' ? 'text-bimo-gold' : ($c->statut === 'resilié' ? 'text-bimo-red/70' : 'text-white/30') }}">
                                 {{ \App\Models\Contrat::STATUTS[$c->statut] ?? $c->statut }}
                             </span>
                         </div>
-                        <div style="font-size:11px;color:rgba(255,255,255,.3)">
+                        <div class="font-body text-xs text-white/30 mb-1">
                             {{ $c->date_debut?->format('d/m/Y') }} → {{ $c->date_fin?->format('d/m/Y') ?? 'En cours' }}
                         </div>
                         <a href="{{ route('admin.contrats.show', $c) }}"
-                           style="font-size:11px;color:#c9a84c;text-decoration:none">
+                           class="font-body text-xs text-bimo-gold hover:text-white transition-colors duration-150">
                             Voir →
                         </a>
                     </div>
@@ -582,17 +539,20 @@
 
         </div>
 
-    </div>{{-- /page-grid --}}
+    </div>
 
 </div>
 
+@push('scripts')
 <script>
 function changerPhoto(url, thumb) {
     document.getElementById('photo-principale').src = url;
-    document.querySelectorAll('.photo-thumb').forEach(t => {
-        t.style.borderColor = 'transparent';
+    document.querySelectorAll('[onclick*="changerPhoto"]').forEach(t => {
+        t.className = t.className.replace('border-bimo-gold', 'border-transparent');
     });
-    thumb.style.borderColor = '#c9a84c';
+    thumb.className = thumb.className.replace('border-transparent', 'border-bimo-gold').replace('hover:border-bimo-gold/50', '');
 }
 </script>
+@endpush
+
 @endsection
