@@ -1,94 +1,73 @@
 @extends('layouts.app')
-@section('title', 'Configurer le 2FA')
+@section('header', 'Configurer le 2FA')
 
 @section('content')
-<style>
-.tfa-wrap { max-width:520px;margin:0 auto;padding:8px 0; }
-.tfa-card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:20px; }
-.tfa-card-hd { padding:18px 22px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:12px; }
-.tfa-card-icon { width:36px;height:36px;border-radius:10px;background:#ede9fe;color:#7c3aed;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.tfa-card-icon svg { width:18px;height:18px; }
-.tfa-card-title { font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#0d1117; }
-.tfa-card-body { padding:22px; }
-.tfa-step { display:flex;align-items:flex-start;gap:12px;margin-bottom:18px; }
-.tfa-step-num { width:22px;height:22px;border-radius:50%;background:#6366f1;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px; }
-.tfa-step-text { font-size:13px;color:#374151;line-height:1.5; }
-.tfa-qr { display:flex;justify-content:center;margin:20px 0;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e5e7eb; }
-.tfa-qr svg { width:180px;height:180px; }
-.tfa-secret { font-family:'Courier New',monospace;font-size:15px;font-weight:700;letter-spacing:3px;color:#374151;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;text-align:center;word-break:break-all; }
-.tfa-input-wrap { margin-top:22px; }
-.tfa-input { width:100%;padding:12px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:22px;font-weight:700;font-family:'Courier New',monospace;text-align:center;letter-spacing:6px;color:#0d1117;outline:none;transition:border .15s; }
-.tfa-input:focus { border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.12); }
-.tfa-input.error { border-color:#dc2626; }
-.tfa-actions { display:flex;gap:10px;margin-top:16px; }
-.btn-purple { background:#6366f1;color:#fff;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;padding:10px 22px;border-radius:8px;border:none;cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity .15s; }
-.btn-purple:hover { opacity:.88; }
-</style>
 
-<div class="tfa-wrap">
+<div class="max-w-lg mx-auto space-y-4">
 
-    @if ($errors->any())
-    <div class="flash-error" style="margin-bottom:16px">
-        <span>{{ $errors->first() }}</span>
-        <button class="flash-close" onclick="this.closest('.flash-error').remove()">✕</button>
-    </div>
-    @endif
-
-    <div class="tfa-card">
-        <div class="tfa-card-hd">
-            <div class="tfa-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <div class="w-9 h-9 rounded-[10px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 text-bimo-navy/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
             </div>
             <div>
-                <div class="tfa-card-title">Configurer l'authentification à deux facteurs</div>
-                <div style="font-size:12px;color:#6b7280;margin-top:2px">Protégez votre compte superadmin avec Google Authenticator ou Authy</div>
+                <div class="font-display font-bold text-sm text-bimo-navy">Configurer l'authentification à deux facteurs</div>
+                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Protégez votre compte superadmin avec Google Authenticator ou Authy</div>
             </div>
         </div>
-        <div class="tfa-card-body">
+        <div class="px-5 py-6 space-y-5">
 
-            <div class="tfa-step">
-                <div class="tfa-step-num">1</div>
-                <div class="tfa-step-text">Installez <strong>Google Authenticator</strong>, <strong>Authy</strong> ou toute app TOTP compatible sur votre téléphone.</div>
+            @if($errors->any())
+            <div class="flex items-start gap-2 bg-bimo-red/[5%] border border-bimo-red/20 rounded-[10px] px-4 py-3">
+                <svg class="w-4 h-4 text-bimo-red flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span class="font-body text-sm text-bimo-red">{{ $errors->first() }}</span>
+            </div>
+            @endif
+
+            {{-- Étape 1 --}}
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-[11px] text-white flex-shrink-0 mt-0.5">1</div>
+                <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">Installez <strong class="text-bimo-navy">Google Authenticator</strong>, <strong class="text-bimo-navy">Authy</strong> ou toute app TOTP compatible sur votre téléphone.</p>
             </div>
 
-            <div class="tfa-step">
-                <div class="tfa-step-num">2</div>
-                <div class="tfa-step-text">Scannez ce QR code avec l'application, ou saisissez la clé manuellement.</div>
+            {{-- Étape 2 --}}
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-[11px] text-white flex-shrink-0 mt-0.5">2</div>
+                <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">Scannez ce QR code avec l'application, ou saisissez la clé manuellement.</p>
             </div>
 
-            <div class="tfa-qr">
+            {{-- QR Code --}}
+            <div class="flex justify-center py-4 px-4 bg-bimo-bg rounded-[10px] border border-bimo-navy/[8%]">
                 {!! $qrCode !!}
             </div>
 
-            <div style="margin-bottom:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#9ca3af;text-align:center">Clé de configuration manuelle</div>
-            <div class="tfa-secret">{{ $secret }}</div>
-
-            <div class="tfa-step" style="margin-top:20px;margin-bottom:0">
-                <div class="tfa-step-num">3</div>
-                <div class="tfa-step-text">Saisissez le code à 6 chiffres affiché dans l'application pour confirmer la configuration.</div>
+            <div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 text-center mb-2">Clé de configuration manuelle</div>
+                <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[8px] px-4 py-3 text-center font-body font-bold text-base text-bimo-navy tracking-[3px]" style="font-family:'Courier New',monospace">{{ $secret }}</div>
             </div>
 
-            <form method="POST" action="{{ route('superadmin.2fa.confirm') }}" class="tfa-input-wrap">
+            {{-- Étape 3 --}}
+            <div class="flex items-start gap-3">
+                <div class="w-6 h-6 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-[11px] text-white flex-shrink-0 mt-0.5">3</div>
+                <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">Saisissez le code à 6 chiffres affiché dans l'application pour confirmer la configuration.</p>
+            </div>
+
+            <form method="POST" action="{{ route('superadmin.2fa.confirm') }}" class="space-y-4">
                 @csrf
-                <input
-                    type="text"
-                    name="code"
-                    class="tfa-input {{ $errors->has('code') ? 'error' : '' }}"
-                    inputmode="numeric"
-                    autocomplete="one-time-code"
-                    maxlength="6"
-                    placeholder="000000"
-                    autofocus
-                >
-                @error('code')
-                <div class="form-error" style="text-align:center;margin-top:6px">{{ $message }}</div>
-                @enderror
-                <div class="tfa-actions">
-                    <button type="submit" class="btn-purple">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        Confirmer et activer le 2FA
-                    </button>
+                <div class="space-y-1.5">
+                    <input type="text" name="code"
+                           class="w-full px-4 py-4 rounded-[10px] bg-white border text-center font-bold text-2xl tracking-[6px] focus:outline-none focus:ring-2 transition-all duration-150 @error('code') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror"
+                           style="font-family:'Courier New',monospace"
+                           inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" autofocus>
+                    @error('code')
+                    <p class="font-body text-xs text-bimo-red text-center">{{ $message }}</p>
+                    @enderror
                 </div>
+                <button type="submit"
+                        class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-bimo-navy text-white font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150 cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Confirmer et activer le 2FA
+                </button>
             </form>
 
         </div>

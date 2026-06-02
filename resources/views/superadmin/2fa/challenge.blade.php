@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,165 +8,50 @@
     <title>Vérification 2FA — BimoTech Immo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #f0eee9;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-        }
-        .card {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 36px 32px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 4px 24px rgba(0,0,0,.07);
-        }
-        .logo {
-            font-family: 'Syne', sans-serif;
-            font-size: 18px;
-            font-weight: 800;
-            color: #0d1117;
-            margin-bottom: 28px;
-            text-align: center;
-        }
-        .logo span { color: #c9a84c; }
-        .lock-icon {
-            width: 52px; height: 52px;
-            background: #ede9fe;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 20px;
-        }
-        .lock-icon svg { width: 26px; height: 26px; color: #7c3aed; }
-        h1 {
-            font-family: 'Syne', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: #0d1117;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            font-size: 13px;
-            color: #6b7280;
-            text-align: center;
-            margin-bottom: 28px;
-            line-height: 1.5;
-        }
-        .form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-        .code-input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-            text-align: center;
-            letter-spacing: 8px;
-            color: #0d1117;
-            outline: none;
-            transition: border .15s, box-shadow .15s;
-            background: #fafafa;
-        }
-        .code-input:focus {
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 3px rgba(124,58,237,.12);
-            background: #fff;
-        }
-        .code-input.error { border-color: #dc2626; }
-        .form-error {
-            font-size: 12px;
-            color: #dc2626;
-            margin-top: 6px;
-            text-align: center;
-        }
-        .btn-submit {
-            width: 100%;
-            margin-top: 20px;
-            padding: 13px;
-            background: #6366f1;
-            color: #fff;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: opacity .15s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-        }
-        .btn-submit:hover { opacity: .88; }
-        .hint {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #9ca3af;
-            text-align: center;
-            line-height: 1.6;
-        }
-    </style>
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap"></noscript>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-<div class="card">
-    <div class="logo">BIMO<span>tech</span></div>
+<body class="font-body bg-bimo-bg min-h-screen flex items-center justify-center p-6">
 
-    <div class="lock-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<div class="bg-white border border-bimo-navy/10 rounded-[16px] p-9 w-full max-w-[400px] shadow-lg">
+    <div class="font-display font-extrabold text-lg text-bimo-navy text-center mb-7">
+        BIMO<span class="text-bimo-gold">tech</span>
+    </div>
+
+    <div class="w-[52px] h-[52px] bg-bimo-navy/10 rounded-[14px] flex items-center justify-center mx-auto mb-5">
+        <svg class="w-6 h-6 text-bimo-navy/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="5" y="11" width="14" height="10" rx="2"/>
             <path d="M8 11V7a4 4 0 018 0v4"/>
         </svg>
     </div>
 
-    <h1>Vérification 2FA</h1>
-    <p class="subtitle">Saisissez le code à 6 chiffres de votre application d'authentification ou un code de récupération.</p>
+    <h1 class="font-display font-extrabold text-xl text-bimo-navy text-center mb-2">Vérification 2FA</h1>
+    <p class="font-body text-sm text-bimo-navy/50 text-center leading-relaxed mb-7">Saisissez le code à 6 chiffres de votre application d'authentification ou un code de récupération.</p>
 
-    <form method="POST" action="{{ route('superadmin.2fa.verify') }}">
+    <form method="POST" action="{{ route('superadmin.2fa.verify') }}" class="space-y-4">
         @csrf
-        <label class="form-label" for="code">Code d'authentification</label>
-        <input
-            type="text"
-            id="code"
-            name="code"
-            class="code-input {{ $errors->has('code') ? 'error' : '' }}"
-            inputmode="text"
-            autocomplete="one-time-code"
-            maxlength="11"
-            placeholder="000000"
-            autofocus
-            value="{{ old('code') }}"
-        >
-        @error('code')
-        <div class="form-error">{{ $message }}</div>
-        @enderror
-
-        <button type="submit" class="btn-submit">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="space-y-1.5">
+            <label class="block font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40" for="code">Code d'authentification</label>
+            <input type="text" id="code" name="code"
+                   class="w-full px-4 py-4 rounded-[10px] bg-bimo-bg border text-center font-bold text-2xl tracking-[8px] focus:outline-none focus:ring-2 transition-all duration-150 @error('code') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror"
+                   style="font-family:'Courier New',monospace"
+                   inputmode="text" autocomplete="one-time-code" maxlength="11" placeholder="000000" autofocus value="{{ old('code') }}">
+            @error('code')
+            <p class="font-body text-xs text-bimo-red text-center">{{ $message }}</p>
+            @enderror
+        </div>
+        <button type="submit"
+                class="w-full inline-flex items-center justify-center gap-2 py-3 bg-bimo-navy text-white font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150 cursor-pointer">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             Vérifier
         </button>
     </form>
 
-    <p class="hint">
+    <p class="font-body text-xs text-bimo-navy/30 text-center mt-5 leading-relaxed">
         Code à 6 chiffres (TOTP) ou code de récupération (ex: ABCDE-12345).<br>
         Utilisez un code de récupération si vous n'avez plus accès à votre app.
     </p>
 </div>
+
 </body>
 </html>

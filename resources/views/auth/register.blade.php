@@ -1,348 +1,204 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Créer mon agence — BimoTech Immo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#ffffff;min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
-.left{background:#111111;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:space-between;padding:3rem;position:relative;overflow:hidden}
-.left::before{content:'';position:absolute;top:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(232,0,29,.08) 0%,transparent 70%);pointer-events:none}
-.grid-deco{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.left-logo{display:block;text-decoration:none}
-.left-logo img{height:38px;width:auto}
-.left-title{font-family:'Syne',sans-serif;font-size:clamp(22px,2.5vw,32px);font-weight:800;color:#ffffff;line-height:1.15;letter-spacing:-1px;margin-bottom:1.25rem}
-.left-title em{font-style:normal;color:#e8001d}
-.left-sub{font-size:14px;color:#9ca3af;line-height:1.7;font-weight:300;max-width:320px;margin-bottom:2rem}
-.perks{display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
-.perk{display:flex;gap:12px;align-items:flex-start}
-.perk-check{width:20px;height:20px;background:rgba(232,0,29,.12);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.perk-title{font-size:13px;font-weight:500;color:#ffffff;margin-bottom:2px}
-.perk-desc{font-size:12px;color:#6b7280;line-height:1.4}
-.left-footer{font-size:12px;color:#6b7280;position:relative;z-index:1}
-.left-footer a{color:#e8001d;text-decoration:none}
-
-.right{display:flex;align-items:center;justify-content:center;padding:2.5rem 2rem;overflow-y:auto;background:#ffffff}
-.form-box{width:100%;max-width:420px}
-.form-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#111111;letter-spacing:-.5px;margin-bottom:6px}
-.form-subtitle{font-size:13.5px;color:#6b7280;margin-bottom:2rem}
-.form-subtitle a{color:#e8001d;text-decoration:none}
-.form-subtitle a:hover{text-decoration:underline}
-
-.form-section{font-size:11px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;margin:1.5rem 0 1rem;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
-
-.field{margin-bottom:1rem}
-label{display:block;font-size:12.5px;font-weight:500;color:#374151;margin-bottom:5px;letter-spacing:.3px}
-.input-wrap{position:relative}
-input[type=email],input[type=password],input[type=text],input[type=tel]{
-    width:100%;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:10px;
-    padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#111111;
-    outline:none;transition:border-color .2s,background .2s,box-shadow .2s;-webkit-appearance:none;
-}
-input:focus{border-color:#e8001d;background:#fff8f8;box-shadow:0 0 0 3px rgba(232,0,29,.08)}
-input::placeholder{color:#94a3b8}
-input.is-error{border-color:rgba(226,75,74,.5)!important}
-input.is-valid{border-color:rgba(59,109,17,.5)!important}
-input.has-toggle{padding-right:44px}
-
-.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#9ca3af;transition:color .2s;border-radius:4px;display:flex;align-items:center}
-.toggle-pw:hover{color:#6b7280}
-.toggle-pw:focus-visible{outline:2px solid #e8001d;outline-offset:2px}
-
-.row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.input-error{font-size:12px;color:#dc2626;margin-top:4px}
-.input-hint{font-size:12px;color:#9ca3af;margin-top:4px}
-
-.pw-strength{margin-top:8px}
-.pw-bars{display:flex;gap:4px;margin-bottom:5px}
-.pw-bar{flex:1;height:3px;border-radius:99px;background:#e2e8f0;transition:background .3s}
-.pw-label{font-size:11px;color:#9ca3af;transition:color .3s}
-.strength-0 .pw-bar:nth-child(1){background:#E24B4A}
-.strength-1 .pw-bar:nth-child(1){background:#E24B4A}
-.strength-1 .pw-bar:nth-child(2){background:#E24B4A}
-.strength-2 .pw-bar:nth-child(1),.strength-2 .pw-bar:nth-child(2){background:#BA7517}
-.strength-2 .pw-bar:nth-child(3){background:#BA7517}
-.strength-3 .pw-bar:nth-child(1),.strength-3 .pw-bar:nth-child(2),.strength-3 .pw-bar:nth-child(3){background:#3B6D11}
-.strength-3 .pw-bar:nth-child(4){background:#3B6D11}
-.strength-4 .pw-bar{background:#3B6D11}
-.strength-0 .pw-label{color:#A32D2D}
-.strength-1 .pw-label{color:#A32D2D}
-.strength-2 .pw-label{color:#854F0B}
-.strength-3 .pw-label,.strength-4 .pw-label{color:#3B6D11}
-
-.field-valid::after{content:'✓';position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#3B6D11;font-size:14px;font-weight:700;pointer-events:none}
-.field-valid input{padding-right:36px}
-
-.cgu-row{display:flex;align-items:flex-start;gap:10px;margin:1.25rem 0}
-input[type=checkbox]{width:16px;height:16px;accent-color:#e8001d;cursor:pointer;flex-shrink:0;margin-top:2px}
-.cgu-label{font-size:12.5px;color:#6b7280;line-height:1.5}
-.cgu-label a{color:#e8001d;text-decoration:none}
-.cgu-label a:hover{text-decoration:underline}
-
-.btn-submit{
-    width:100%;background:#e8001d;color:#ffffff;
-    font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
-    padding:13px;border-radius:10px;border:none;cursor:pointer;
-    transition:opacity .2s,transform .1s;letter-spacing:.2px;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-}
-.btn-submit:hover:not(:disabled){opacity:.9}
-.btn-submit:active:not(:disabled){transform:scale(.99)}
-.btn-submit:disabled{opacity:.6;cursor:not-allowed}
-.btn-submit:focus-visible{outline:2px solid #e8001d;outline-offset:3px}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#ffffff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-submit.loading .spinner{display:block}
-.btn-submit.loading .btn-text{opacity:.7}
-
-.to-login{text-align:center;font-size:13.5px;color:#6b7280;margin-top:1.25rem}
-.to-login a{color:#e8001d;text-decoration:none;font-weight:500}
-.to-login a:hover{text-decoration:underline}
-
-.error-bag{background:rgba(226,75,74,.08);border:1px solid rgba(226,75,74,.2);border-left:3px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:1.25rem;animation:slideIn .25s ease}
-.error-bag p{font-size:12.5px;color:#dc2626;line-height:1.6}
-@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-
-a:focus-visible{outline:2px solid #e8001d;outline-offset:2px;border-radius:4px}
-
-@media(max-width:768px){body{grid-template-columns:1fr}.left{display:none}.row-2{grid-template-columns:1fr}}
-</style>
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="font-body bg-bimo-bg antialiased min-h-screen grid md:grid-cols-2">
 
-<div class="left" role="complementary">
-    <div class="grid-deco" aria-hidden="true"></div>
-    <a href="{{ url('/') }}" class="left-logo" aria-label="BiMO-tech Immo — Retour à l'accueil">
-        <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
+{{-- Panneau gauche brand --}}
+<div class="hidden md:flex flex-col justify-between bg-bimo-navy p-12 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.03]"
+         style="background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);background-size:48px 48px;pointer-events:none"></div>
+    <a href="{{ url('/') }}" class="relative z-10">
+        <img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-10 w-auto">
     </a>
-    <div style="position:relative;z-index:1">
-        <h2 class="left-title">Votre agence en ligne<br>en <em>moins de 10 min</em></h2>
-        <p class="left-sub">Rejoignez les agences sénégalaises qui gèrent leur activité avec BimoTech.</p>
-        <div class="perks">
-            <div class="perk">
-                <div class="perk-check" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
-                <div><div class="perk-title">Conformité fiscale incluse</div><div class="perk-desc">TVA 18%, NINEA, loi 81-18, TOM — automatiquement.</div></div>
+    <div class="relative z-10">
+        <h2 class="font-display font-extrabold text-[clamp(22px,2.5vw,32px)] text-white tracking-tight leading-tight mb-5">
+            Votre agence en ligne<br>en <em class="not-italic text-bimo-gold">moins de 10 min</em>
+        </h2>
+        <p class="font-body font-light text-sm text-white/50 leading-relaxed max-w-xs mb-7">Rejoignez les agences sénégalaises qui gèrent leur activité avec BimoTech.</p>
+        <div class="flex flex-col gap-3">
+            @foreach([['Conformité fiscale incluse','TVA 18%, NINEA, loi 81-18, TOM — automatiquement.'],['Quittances PDF légales','Générées et archivées automatiquement.'],['Gratuit jusqu\'à 5 biens','Aucune carte bancaire requise.']] as [$t,$d])
+            <div class="flex items-start gap-3">
+                <div class="w-5 h-5 rounded-[5px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-3 h-3 text-bimo-gold" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+                </div>
+                <div>
+                    <div class="font-body font-semibold text-sm text-white mb-0.5">{{ $t }}</div>
+                    <div class="font-body text-xs text-white/40">{{ $d }}</div>
+                </div>
             </div>
-            <div class="perk">
-                <div class="perk-check" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
-                <div><div class="perk-title">Quittances PDF légales</div><div class="perk-desc">Générées et archivées automatiquement.</div></div>
-            </div>
-            <div class="perk">
-                <div class="perk-check" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg></div>
-                <div><div class="perk-title">Gratuit jusqu'à 5 biens</div><div class="perk-desc">Aucune carte bancaire requise.</div></div>
-            </div>
+            @endforeach
         </div>
     </div>
-    <div class="left-footer">Déjà un compte ? <a href="{{ route('login') }}">Se connecter →</a></div>
+    <div class="relative z-10 font-body text-sm text-white/40">Déjà un compte ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-white transition-colors duration-150">Se connecter →</a></div>
 </div>
 
-<main class="right">
-    <div class="form-box">
-        <h1 class="form-title">Créer mon agence</h1>
-        <p class="form-subtitle">Déjà inscrit ? <a href="{{ route('login') }}">Se connecter</a></p>
+{{-- Panneau droit formulaire --}}
+<main class="flex items-center justify-center p-8 bg-white overflow-y-auto">
+    <div class="w-full max-w-[420px]">
+        <h1 class="font-display font-extrabold text-2xl text-bimo-navy tracking-tight mb-2">Créer mon agence</h1>
+        <p class="font-body text-sm text-bimo-navy/50 mb-6">Déjà inscrit ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-navy transition-colors duration-150 font-medium">Se connecter</a></p>
 
         @if($errors->any())
-            <div class="error-bag" role="alert">
-                @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
-            </div>
+        <div class="border-l-[3px] border-bimo-red bg-bimo-red/[5%] border border-bimo-red/20 rounded-[8px] px-4 py-2.5 mb-5">
+            @foreach($errors->all() as $error)<p class="font-body text-xs text-bimo-red leading-relaxed">{{ $error }}</p>@endforeach
+        </div>
         @endif
 
-        <form method="POST" action="{{ route('register') }}" id="register-form" novalidate>
+        <form method="POST" action="{{ route('register') }}" id="register-form" novalidate class="space-y-3">
             @csrf
 
-            <div class="form-section">Votre agence</div>
+            {{-- Section Agence --}}
+            <div class="font-body font-medium text-[11px] uppercase tracking-[1.5px] text-bimo-navy/30 pb-2 border-b border-bimo-navy/[8%] mt-5 mb-1">Votre agence</div>
 
-            <div class="field">
-                <label for="agency_nom">Nom de l'agence *</label>
-                <input type="text" id="agency_nom" name="agency_nom"
-                    value="{{ old('agency_nom') }}"
-                    placeholder="Agence Immobilière Diallo"
-                    aria-required="true"
-                    class="{{ $errors->has('agency_nom') ? 'is-error' : '' }}"
-                >
-                @error('agency_nom')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_nom">Nom de l'agence <span class="text-bimo-red">*</span></label>
+                <input type="text" id="agency_nom" name="agency_nom" value="{{ old('agency_nom') }}" placeholder="Agence Immobilière Diallo"
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('agency_nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                @error('agency_nom')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
-            <div class="row-2">
-                <div class="field">
-                    <label for="agency_ninea">NINEA</label>
-                    <input type="text" id="agency_ninea" name="agency_ninea"
-                        value="{{ old('agency_ninea') }}" placeholder="1234567A"
-                        class="{{ $errors->has('agency_ninea') ? 'is-error' : '' }}"
-                    >
-                    @error('agency_ninea')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_ninea">NINEA</label>
+                    <input type="text" id="agency_ninea" name="agency_ninea" value="{{ old('agency_ninea') }}" placeholder="1234567A"
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    @error('agency_ninea')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
-                <div class="field">
-                    <label for="agency_telephone">Téléphone</label>
-                    <input type="tel" id="agency_telephone" name="agency_telephone"
-                        value="{{ old('agency_telephone') }}" placeholder="+221 77 000 00 00"
-                        autocomplete="tel"
-                        class="{{ $errors->has('agency_telephone') ? 'is-error' : '' }}"
-                    >
-                    @error('agency_telephone')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_telephone">Téléphone</label>
+                    <input type="tel" id="agency_telephone" name="agency_telephone" value="{{ old('agency_telephone') }}" placeholder="+221 77 000 00 00" autocomplete="tel"
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                 </div>
             </div>
 
-            <div class="form-section">Votre compte administrateur</div>
+            {{-- Section Admin --}}
+            <div class="font-body font-medium text-[11px] uppercase tracking-[1.5px] text-bimo-navy/30 pb-2 border-b border-bimo-navy/[8%] mt-6 mb-1">Votre compte administrateur</div>
 
-            <div class="row-2">
-                <div class="field">
-                    <label for="prenom">Prénom *</label>
-                    <input type="text" id="prenom" name="prenom"
-                        value="{{ old('prenom') }}" placeholder="Amadou"
-                        autocomplete="given-name" aria-required="true"
-                        class="{{ $errors->has('prenom') ? 'is-error' : '' }}"
-                    >
-                    @error('prenom')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy" for="prenom">Prénom <span class="text-bimo-red">*</span></label>
+                    <input type="text" id="prenom" name="prenom" value="{{ old('prenom') }}" placeholder="Amadou" autocomplete="given-name"
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('prenom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                    @error('prenom')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
-                <div class="field">
-                    <label for="nom">Nom *</label>
-                    <input type="text" id="nom" name="nom"
-                        value="{{ old('nom') }}" placeholder="Diallo"
-                        autocomplete="family-name" aria-required="true"
-                        class="{{ $errors->has('nom') ? 'is-error' : '' }}"
-                    >
-                    @error('nom')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                <div class="space-y-1.5">
+                    <label class="block font-body font-medium text-sm text-bimo-navy" for="nom">Nom <span class="text-bimo-red">*</span></label>
+                    <input type="text" id="nom" name="nom" value="{{ old('nom') }}" placeholder="Diallo" autocomplete="family-name"
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                    @error('nom')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
             </div>
 
-            <div class="field">
-                <label for="email">Adresse email *</label>
-                <input type="email" id="email" name="email"
-                    value="{{ old('email') }}" placeholder="amadou@agence.sn"
-                    autocomplete="email" aria-required="true"
-                    class="{{ $errors->has('email') ? 'is-error' : '' }}"
-                >
-                @error('email')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-navy" for="email">Adresse email <span class="text-bimo-red">*</span></label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="amadou@agence.sn" autocomplete="email"
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                @error('email')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
-            <div class="field">
-                <label for="password">Mot de passe *</label>
-                <div class="input-wrap">
-                    <input type="password" id="password" name="password"
-                        placeholder="8 caractères minimum"
-                        autocomplete="new-password" aria-required="true"
-                        aria-describedby="pw-strength-label"
-                        class="has-toggle {{ $errors->has('password') ? 'is-error' : '' }}"
-                        oninput="checkStrength(this.value)"
-                    >
-                    <button type="button" class="toggle-pw" id="toggle-pw1"
-                        aria-label="Afficher le mot de passe" aria-pressed="false"
-                        onclick="togglePw('password','toggle-pw1','eye1')">
-                        <svg id="eye1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-navy" for="password">Mot de passe <span class="text-bimo-red">*</span></label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" placeholder="8 caractères minimum" autocomplete="new-password" oninput="checkStrength(this.value)"
+                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors cursor-pointer" onclick="togglePw('password','eye1')">
+                        <svg id="eye1" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                @error('password')<div class="input-error" role="alert">{{ $message }}</div>@enderror
-                <div class="pw-strength" id="pw-strength" aria-live="polite">
-                    <div class="pw-bars" aria-hidden="true">
-                        <div class="pw-bar"></div><div class="pw-bar"></div>
-                        <div class="pw-bar"></div><div class="pw-bar"></div>
-                    </div>
-                    <div class="pw-label" id="pw-strength-label"></div>
+                @error('password')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                <div id="pw-strength" class="flex gap-1 mt-1.5">
+                    <div class="pw-bar flex-1 h-1 rounded-full bg-bimo-navy/10 transition-colors duration-300"></div>
+                    <div class="pw-bar flex-1 h-1 rounded-full bg-bimo-navy/10 transition-colors duration-300"></div>
+                    <div class="pw-bar flex-1 h-1 rounded-full bg-bimo-navy/10 transition-colors duration-300"></div>
+                    <div class="pw-bar flex-1 h-1 rounded-full bg-bimo-navy/10 transition-colors duration-300"></div>
                 </div>
+                <div id="pw-label" class="font-body text-xs text-bimo-navy/30 mt-0.5 transition-colors duration-300"></div>
             </div>
 
-            <div class="field">
-                <label for="password_confirmation">Confirmer le mot de passe *</label>
-                <div class="input-wrap">
-                    <input type="password" id="password_confirmation" name="password_confirmation"
-                        placeholder="Répéter le mot de passe"
-                        autocomplete="new-password" aria-required="true"
-                        class="has-toggle"
-                        oninput="checkMatch()"
-                    >
-                    <button type="button" class="toggle-pw" id="toggle-pw2"
-                        aria-label="Afficher la confirmation" aria-pressed="false"
-                        onclick="togglePw('password_confirmation','toggle-pw2','eye2')">
-                        <svg id="eye2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-navy" for="password_confirmation">Confirmer le mot de passe <span class="text-bimo-red">*</span></label>
+                <div class="relative">
+                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Répéter le mot de passe" autocomplete="new-password" oninput="checkMatch()"
+                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors cursor-pointer" onclick="togglePw('password_confirmation','eye2')">
+                        <svg id="eye2" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                <div id="match-hint" class="input-hint" aria-live="polite"></div>
+                <div id="match-hint" class="font-body text-xs text-bimo-navy/30 transition-colors duration-300"></div>
             </div>
 
-            <div class="cgu-row">
-                <input type="checkbox" id="cgu" name="cgu" value="1" {{ old('cgu') ? 'checked' : '' }} aria-required="true">
-                <label for="cgu" class="cgu-label">
-                    J'accepte les <a href="{{ route('mentions-legales') }}" target="_blank">conditions d'utilisation</a>
-                    et la <a href="{{ route('confidentialite') }}" target="_blank">politique de confidentialité</a>.
+            <div class="flex items-start gap-2.5 my-4">
+                <input type="checkbox" id="cgu" name="cgu" value="1" {{ old('cgu') ? 'checked' : '' }}
+                       class="w-4 h-4 mt-0.5 rounded cursor-pointer accent-bimo-gold flex-shrink-0">
+                <label for="cgu" class="font-body text-sm text-bimo-navy/60 leading-relaxed cursor-pointer">
+                    J'accepte les <a href="{{ route('mentions-legales') }}" target="_blank" class="text-bimo-gold hover:underline">conditions d'utilisation</a>
+                    et la <a href="{{ route('confidentialite') }}" target="_blank" class="text-bimo-gold hover:underline">politique de confidentialité</a>.
                 </label>
             </div>
-            @error('cgu')<div class="input-error" role="alert" style="margin-top:-8px;margin-bottom:10px">{{ $message }}</div>@enderror
+            @error('cgu')<p class="font-body text-xs text-bimo-red -mt-2 mb-2">{{ $message }}</p>@enderror
 
-            <button type="submit" class="btn-submit" id="submit-btn">
-                <div class="spinner" aria-hidden="true"></div>
-                <span class="btn-text">Créer mon agence gratuitement →</span>
+            <button type="submit" id="submit-btn"
+                    class="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150 cursor-pointer">
+                <span id="btn-text">Créer mon agence gratuitement →</span>
+                <svg id="btn-spinner" class="w-4 h-4 hidden animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/><path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
             </button>
         </form>
 
-        <p class="to-login">Déjà un compte ? <a href="{{ route('login') }}">Se connecter</a></p>
+        <p class="text-center font-body text-sm text-bimo-navy/40 mt-4">Déjà un compte ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-navy font-medium transition-colors duration-150">Se connecter</a></p>
     </div>
 </main>
 
 <script>
-// Toggle mot de passe
-function togglePw(inputId, btnId, iconId) {
-    const input = document.getElementById(inputId);
-    const btn   = document.getElementById(btnId);
-    const show  = input.type === 'password';
-    input.type  = show ? 'text' : 'password';
-    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
-    btn.setAttribute('aria-label', show ? 'Masquer' : 'Afficher');
+function togglePw(inputId, iconId) {
+    var input = document.getElementById(inputId);
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
     document.getElementById(iconId).innerHTML = show
         ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
         : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
 }
-
-// Force du mot de passe
 function checkStrength(pw) {
-    const el = document.getElementById('pw-strength');
-    const label = document.getElementById('pw-strength-label');
-    if (!pw) { el.className = 'pw-strength'; label.textContent = ''; return; }
-    let score = 0;
-    if (pw.length >= 8)  score++;
+    var bars = document.querySelectorAll('#pw-strength .pw-bar');
+    var label = document.getElementById('pw-label');
+    if (!pw) { bars.forEach(function(b){ b.style.background=''; }); label.textContent=''; return; }
+    var score = 0;
+    if (pw.length >= 8) score++;
     if (pw.length >= 12) score++;
     if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
     if (/[0-9]/.test(pw)) score++;
     if (/[^A-Za-z0-9]/.test(pw)) score++;
     score = Math.min(score, 4);
-    const labels = ['', 'Trop faible', 'Faible', 'Bon', 'Excellent'];
-    el.className = 'pw-strength strength-' + score;
-    label.textContent = score > 0 ? labels[score] : '';
+    var colors = ['#EF4444','#EF4444','#f97316','#C9A84C','#1B4F6B'];
+    var labels = ['','Trop faible','Faible','Bon','Excellent'];
+    bars.forEach(function(b, i){ b.style.background = i < score ? colors[score] : ''; });
+    label.textContent = labels[score];
+    label.style.color = score > 0 ? colors[score] : '';
     checkMatch();
 }
-
-// Correspondance des mots de passe
 function checkMatch() {
-    const pw1  = document.getElementById('password').value;
-    const pw2  = document.getElementById('password_confirmation').value;
-    const hint = document.getElementById('match-hint');
-    if (!pw2) { hint.textContent = ''; hint.style.color = ''; return; }
-    if (pw1 === pw2) {
-        hint.textContent = '✓ Les mots de passe correspondent';
-        hint.style.color = '#3B6D11';
-    } else {
-        hint.textContent = 'Les mots de passe ne correspondent pas';
-        hint.style.color = '#f0a0a0';
-    }
+    var pw1 = document.getElementById('password').value;
+    var pw2 = document.getElementById('password_confirmation').value;
+    var hint = document.getElementById('match-hint');
+    if (!pw2) { hint.textContent=''; return; }
+    if (pw1 === pw2) { hint.textContent='✓ Les mots de passe correspondent'; hint.style.color='#1B4F6B'; }
+    else { hint.textContent='Les mots de passe ne correspondent pas'; hint.style.color='#EF4444'; }
 }
-
-// Loading state
 document.getElementById('register-form').addEventListener('submit', function() {
-    const btn = document.getElementById('submit-btn');
-    btn.classList.add('loading');
-    btn.disabled = true;
-    btn.querySelector('.btn-text').textContent = 'Création en cours...';
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.style.opacity = '.7';
+    document.getElementById('btn-text').textContent = 'Création en cours...';
+    document.getElementById('btn-spinner').classList.remove('hidden');
 });
 </script>
-
 </body>
 </html>

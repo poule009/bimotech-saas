@@ -1,173 +1,95 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Réinitialiser le mot de passe — BimoTech Immo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#ffffff;min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
-.left{background:#111111;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;justify-content:space-between;padding:3rem;position:relative;overflow:hidden}
-.left::before{content:'';position:absolute;top:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(232,0,29,.08) 0%,transparent 70%);pointer-events:none}
-.grid-deco{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.left-logo{display:block;text-decoration:none}
-.left-logo img{height:38px;width:auto}
-.left-title{font-family:'Syne',sans-serif;font-size:clamp(26px,3vw,36px);font-weight:800;color:#ffffff;line-height:1.15;letter-spacing:-1px;margin-bottom:1.25rem}
-.left-title em{font-style:normal;color:#e8001d}
-.left-sub{font-size:14px;color:#9ca3af;line-height:1.7;max-width:340px;font-weight:300}
-.left-stats{display:flex;gap:2rem;position:relative;z-index:1}
-.left-stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#e8001d}
-.left-stat-label{font-size:12px;color:#6b7280;margin-top:2px}
-
-.right{display:flex;align-items:center;justify-content:center;padding:3rem 2rem;overflow-y:auto;background:#ffffff}
-.form-box{width:100%;max-width:380px}
-.form-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#111111;letter-spacing:-.5px;margin-bottom:6px}
-.form-subtitle{font-size:13.5px;color:#6b7280;margin-bottom:2.5rem;line-height:1.6}
-
-.field{margin-bottom:1.15rem}
-label{display:block;font-size:12.5px;font-weight:500;color:#374151;margin-bottom:5px;letter-spacing:.3px}
-.input-wrap{position:relative}
-input[type=email],input[type=password],input[type=text]{
-    width:100%;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:10px;
-    padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#111111;
-    outline:none;transition:border-color .2s,background .2s,box-shadow .2s;-webkit-appearance:none;
-}
-input:focus{border-color:#e8001d;background:#fff8f8;box-shadow:0 0 0 3px rgba(232,0,29,.08)}
-input::placeholder{color:#94a3b8}
-input.is-error{border-color:rgba(226,75,74,.5)!important}
-input.is-error:focus{box-shadow:0 0 0 3px rgba(226,75,74,.08)!important}
-input.has-toggle{padding-right:44px}
-
-.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;color:#9ca3af;transition:color .2s;border-radius:4px;display:flex;align-items:center;line-height:1}
-.toggle-pw:hover{color:#6b7280}
-.toggle-pw:focus-visible{outline:2px solid #e8001d;outline-offset:2px;color:#6b7280}
-
-.btn-submit{
-    width:100%;background:#e8001d;color:#ffffff;
-    font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
-    padding:13px;border-radius:10px;border:none;cursor:pointer;
-    transition:opacity .2s,transform .1s;letter-spacing:.2px;
-    display:flex;align-items:center;justify-content:center;gap:8px;
-    margin-top:1.5rem;
-}
-.btn-submit:hover:not(:disabled){opacity:.9}
-.btn-submit:active:not(:disabled){transform:scale(.99)}
-.btn-submit:disabled{opacity:.6;cursor:not-allowed}
-.btn-submit:focus-visible{outline:2px solid #e8001d;outline-offset:3px}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#ffffff;border-radius:50%;animation:spin .7s linear infinite;display:none;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-submit.loading .spinner{display:block}
-.btn-submit.loading .btn-text{opacity:.7}
-
-.error-bag{background:rgba(226,75,74,.08);border:1px solid rgba(226,75,74,.2);border-left:3px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:1.25rem;animation:slideIn .25s ease}
-.error-bag p{font-size:12.5px;color:#dc2626;line-height:1.6}
-.input-error{font-size:12px;color:#dc2626;margin-top:4px}
-@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-
-.strength-bar{height:3px;border-radius:2px;margin-top:6px;background:#e2e8f0;overflow:hidden}
-.strength-fill{height:100%;width:0;border-radius:2px;transition:width .3s,background .3s}
-.strength-label{font-size:11.5px;color:#9ca3af;margin-top:4px;min-height:16px;transition:color .3s}
-
-a:focus-visible{outline:2px solid #e8001d;outline-offset:2px;border-radius:4px}
-
-@media(max-width:768px){body{grid-template-columns:1fr}.left{display:none}}
-</style>
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="font-body bg-bimo-bg antialiased min-h-screen grid md:grid-cols-2">
 
-<div class="left" role="complementary" aria-label="BimoTech Immo">
-    <div class="grid-deco" aria-hidden="true"></div>
-    <a href="{{ url('/') }}" class="left-logo" aria-label="Retour à l'accueil BiMO-tech">
-        <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
+{{-- Panneau gauche brand --}}
+<div class="hidden md:flex flex-col justify-between bg-bimo-navy p-12 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-[0.03]"
+         style="background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);background-size:48px 48px;pointer-events:none"></div>
+    <a href="{{ url('/') }}" class="relative z-10">
+        <img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-10 w-auto">
     </a>
-    <div style="position:relative;z-index:1">
-        <h2 class="left-title">Gérez votre agence<br><em>comme un pro</em></h2>
-        <p class="left-sub">Biens, contrats, paiements, quittances — tout centralisé. Conforme TVA 18%, NINEA et loi 81-18.</p>
+    <div class="relative z-10">
+        <h2 class="font-display font-extrabold text-[clamp(26px,3vw,36px)] text-white tracking-tight leading-tight mb-5">
+            Gérez votre agence<br><em class="not-italic text-bimo-gold">comme un pro</em>
+        </h2>
+        <p class="font-body font-light text-sm text-white/50 leading-relaxed max-w-xs">Biens, contrats, paiements, quittances — tout centralisé. Conforme TVA 18%, NINEA et loi 81-18.</p>
     </div>
-    <div class="left-stats">
-        <div><div class="left-stat-num">150+</div><div class="left-stat-label">Biens gérés</div></div>
-        <div><div class="left-stat-num">12</div><div class="left-stat-label">Agences actives</div></div>
-        <div><div class="left-stat-num">98%</div><div class="left-stat-label">Recouvrement</div></div>
+    <div class="relative z-10 flex gap-8">
+        @foreach([['150+','Biens gérés'],['12','Agences actives'],['98%','Recouvrement']] as [$n,$l])
+        <div>
+            <div class="font-display font-extrabold text-2xl text-bimo-gold">{{ $n }}</div>
+            <div class="font-body text-xs text-white/40 mt-0.5">{{ $l }}</div>
+        </div>
+        @endforeach
     </div>
 </div>
 
-<main class="right">
-    <div class="form-box">
-        <h1 class="form-title">Nouveau mot de passe</h1>
-        <p class="form-subtitle">Choisissez un mot de passe sécurisé pour votre compte.</p>
+{{-- Panneau droit formulaire --}}
+<main class="flex items-center justify-center p-8 bg-white overflow-y-auto">
+    <div class="w-full max-w-sm">
+        <h1 class="font-display font-extrabold text-2xl text-bimo-navy tracking-tight mb-2">Nouveau mot de passe</h1>
+        <p class="font-body text-sm text-bimo-navy/50 mb-8 leading-relaxed">Choisissez un mot de passe sécurisé pour votre compte.</p>
 
         @if($errors->any())
-            <div class="error-bag" role="alert">
-                @foreach($errors->all() as $error)<p>{{ $error }}</p>@endforeach
-            </div>
+        <div class="border-l-[3px] border-bimo-red bg-bimo-red/[5%] border border-bimo-red/20 rounded-[8px] px-4 py-2.5 mb-5">
+            @foreach($errors->all() as $error)<p class="font-body text-xs text-bimo-red leading-relaxed">{{ $error }}</p>@endforeach
+        </div>
         @endif
 
-        <form method="POST" action="{{ route('password.store') }}" id="reset-form" novalidate>
+        <form method="POST" action="{{ route('password.store') }}" id="reset-form" novalidate class="space-y-4">
             @csrf
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-            <div class="field">
-                <label for="email">Adresse email</label>
-                <input type="email" id="email" name="email"
-                    value="{{ old('email', $request->email) }}"
-                    placeholder="votre@agence.sn"
-                    autocomplete="username"
-                    aria-required="true"
-                    class="{{ $errors->has('email') ? 'is-error' : '' }}"
-                >
-                @error('email')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-navy" for="email">Adresse email</label>
+                <input type="email" id="email" name="email" value="{{ old('email', $request->email) }}" placeholder="votre@agence.sn" autocomplete="username"
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                @error('email')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
-            <div class="field">
-                <label for="password">Nouveau mot de passe</label>
-                <div class="input-wrap">
-                    <input type="password" id="password" name="password"
-                        placeholder="••••••••"
-                        autocomplete="new-password"
-                        aria-required="true"
-                        class="has-toggle {{ $errors->has('password') ? 'is-error' : '' }}"
-                        oninput="checkStrength(this.value)"
-                    >
-                    <button type="button" class="toggle-pw"
-                        aria-label="Afficher le mot de passe" aria-pressed="false"
-                        onclick="togglePw('password','eye1')">
-                        <svg id="eye1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-navy" for="password">Nouveau mot de passe</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="new-password"
+                           oninput="checkStrength(this.value)"
+                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors cursor-pointer" onclick="togglePw('password','eye1')">
+                        <svg id="eye1" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
-                <div class="strength-label" id="strength-label"></div>
-                @error('password')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                <div class="h-1 bg-bimo-navy/10 rounded-full overflow-hidden"><div id="strength-fill" class="h-full rounded-full transition-all duration-300" style="width:0"></div></div>
+                <div id="strength-label" class="font-body text-xs transition-colors duration-300"></div>
+                @error('password')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
-            <div class="field">
-                <label for="password_confirmation">Confirmer le mot de passe</label>
-                <div class="input-wrap">
-                    <input type="password" id="password_confirmation" name="password_confirmation"
-                        placeholder="••••••••"
-                        autocomplete="new-password"
-                        aria-required="true"
-                        class="has-toggle {{ $errors->has('password_confirmation') ? 'is-error' : '' }}"
-                    >
-                    <button type="button" class="toggle-pw"
-                        aria-label="Afficher le mot de passe" aria-pressed="false"
-                        onclick="togglePw('password_confirmation','eye2')">
-                        <svg id="eye2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                        </svg>
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-navy" for="password_confirmation">Confirmer le mot de passe</label>
+                <div class="relative">
+                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="••••••••" autocomplete="new-password"
+                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('password_confirmation') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors cursor-pointer" onclick="togglePw('password_confirmation','eye2')">
+                        <svg id="eye2" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                @error('password_confirmation')<div class="input-error" role="alert">{{ $message }}</div>@enderror
+                @error('password_confirmation')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
-            <button type="submit" class="btn-submit" id="submit-btn">
-                <div class="spinner" aria-hidden="true"></div>
-                <span class="btn-text">Réinitialiser le mot de passe</span>
+            <button type="submit" id="submit-btn"
+                    class="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150 cursor-pointer mt-2">
+                <span id="btn-text">Réinitialiser le mot de passe</span>
+                <svg id="btn-spinner" class="w-4 h-4 hidden animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/><path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
             </button>
         </form>
     </div>
@@ -175,46 +97,33 @@ a:focus-visible{outline:2px solid #e8001d;outline-offset:2px;border-radius:4px}
 
 <script>
 function togglePw(inputId, iconId) {
-    const input = document.getElementById(inputId);
-    const btn   = input.nextElementSibling;
-    const show  = input.type === 'password';
-    input.type  = show ? 'text' : 'password';
-    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
-    btn.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+    var input = document.getElementById(inputId);
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
     document.getElementById(iconId).innerHTML = show
         ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
         : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
 }
-
 function checkStrength(val) {
-    const fill  = document.getElementById('strength-fill');
-    const label = document.getElementById('strength-label');
+    var fill = document.getElementById('strength-fill');
+    var label = document.getElementById('strength-label');
     if (!val) { fill.style.width='0'; label.textContent=''; return; }
-    let score = 0;
-    if (val.length >= 8)  score++;
+    var score = 0;
+    if (val.length >= 8) score++;
     if (/[A-Z]/.test(val)) score++;
     if (/[0-9]/.test(val)) score++;
     if (/[^A-Za-z0-9]/.test(val)) score++;
-    const levels = [
-        {w:'25%', bg:'#E24B4A', txt:'Trop court'},
-        {w:'50%', bg:'#e07b39', txt:'Faible'},
-        {w:'75%', bg:'#f59e0b', txt:'Moyen'},
-        {w:'100%',bg:'#3B6D11', txt:'Fort'},
-    ];
-    const lvl = levels[Math.max(0, score - 1)];
-    fill.style.width = lvl.w;
-    fill.style.background = lvl.bg;
-    label.textContent = lvl.txt;
-    label.style.color = lvl.bg;
+    var levels = [{w:'25%',bg:'#EF4444',txt:'Trop court'},{w:'50%',bg:'#f97316',txt:'Faible'},{w:'75%',bg:'#C9A84C',txt:'Moyen'},{w:'100%',bg:'#1B4F6B',txt:'Fort'}];
+    var lvl = levels[Math.max(0, score-1)];
+    fill.style.width = lvl.w; fill.style.background = lvl.bg;
+    label.textContent = lvl.txt; label.style.color = lvl.bg;
 }
-
 document.getElementById('reset-form').addEventListener('submit', function() {
-    const btn = document.getElementById('submit-btn');
-    btn.classList.add('loading');
-    btn.disabled = true;
-    btn.querySelector('.btn-text').textContent = 'Réinitialisation...';
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.style.opacity = '.7';
+    document.getElementById('btn-text').textContent = 'Réinitialisation...';
+    document.getElementById('btn-spinner').classList.remove('hidden');
 });
 </script>
-
 </body>
 </html>
