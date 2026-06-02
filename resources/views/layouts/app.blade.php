@@ -638,8 +638,8 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
 </script>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
 
 </body>
 </html>
