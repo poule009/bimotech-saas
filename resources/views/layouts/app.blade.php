@@ -131,6 +131,13 @@
             <span class="font-display font-semibold text-sm">Immeubles</span>
         </a>
 
+        <a href="{{ route('admin.import.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.import') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span class="font-display font-semibold text-sm">Import Excel</span>
+        </a>
+
         {{-- ── RELATIONS ── --}}
         <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
             Relations
