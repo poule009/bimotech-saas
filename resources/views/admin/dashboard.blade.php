@@ -818,5 +818,3 @@ function copierLienPortail() {
 }
 </script>
 @endpush
-
-@endsection
