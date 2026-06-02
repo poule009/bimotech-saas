@@ -1,83 +1,43 @@
 @extends('layouts.app')
-@section('title', 'Paiement — ' . $paiement->reference_paiement)
-@section('breadcrumb', 'Paiements › Détail')
+@section('header', 'Paiements › ' . $paiement->reference_paiement)
 
 @section('content')
-<style>
-.page-grid { display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start; }
-.card { background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px; }
-.card-hd { padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px; }
-.card-icon { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
-.card-icon svg { width:15px;height:15px; }
-.card-icon.gold  { background:#f5e9c9;color:#8a6e2f; }
-.card-icon.green { background:#dcfce7;color:#16a34a; }
-.card-icon.blue  { background:#dbeafe;color:#1d4ed8; }
-.card-title { font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#0d1117; }
-.card-body { padding:18px 20px; }
-.info-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
-.info-grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px; }
-.il { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin-bottom:4px; }
-.iv { font-size:13px;font-weight:500;color:#0d1117; }
 
-.actions-bar { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px; }
-.btn-act { display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;text-decoration:none;transition:all .15s;border:none; }
-.btn-dark    { background:#0d1117;color:#fff; }
-.btn-dark:hover { opacity:.85; }
-.btn-outline { background:#fff;color:#374151;border:1px solid #e5e7eb; }
-.btn-outline:hover { border-color:#c9a84c;color:#8a6e2f; }
-.btn-red  { background:#fee2e2;color:#dc2626;border:1px solid #fecaca; }
-.btn-act svg { width:14px;height:14px; }
+@php
+    $depenses    = $paiement->depenses ?? collect();
+    $totalDep    = (float) $depenses->sum('montant');
+    $netBailleur = (float) ($paiement->montant_net_bailleur ?? $paiement->net_a_verser_proprietaire ?? 0);
+    $netFinalAff = round($netBailleur - $totalDep, 2);
+    $canEditDep  = in_array(auth()->user()?->role, ['admin','superadmin']);
+@endphp
 
-/* Décompte fiscal */
-.fiscal-card { background:#0d1117;border-radius:14px;overflow:hidden; }
-.fiscal-hd { padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.07); }
-.fiscal-title { font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#fff; }
-.fiscal-body { padding:14px 16px; }
-.fp-row { display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px; }
-.fp-row:last-child { border-bottom:none; }
-.fp-lbl { color:rgba(255,255,255,.4); }
-.fp-val { color:#e6edf3;font-weight:500;font-family:'Syne',sans-serif; }
-.fp-val.gold  { color:#c9a84c; }
-.fp-val.green { color:#4ade80; }
-.fp-sep { height:1px;background:rgba(255,255,255,.07);margin:8px 0; }
-.fp-total { background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px;margin-top:10px; }
-.fp-total-lbl { font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:3px; }
-.fp-total-val { font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#c9a84c; }
-
-/* Hero */
-.hero { background:linear-gradient(135deg,#0d1117,#1c2333);border-radius:14px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px; }
-
-/* Responsive dépenses */
-@media(max-width:640px){
-    .page-grid { grid-template-columns:1fr; }
-    .dep-form-grid { grid-template-columns:1fr !important; }
-    .info-grid { grid-template-columns:1fr; }
-    .info-grid-3 { grid-template-columns:1fr 1fr; }
-}
-@media(max-width:400px){.info-grid-3{grid-template-columns:1fr}}
-</style>
-
-<div style="padding:0 0 48px">
+<div class="space-y-4 md:space-y-5">
 
     {{-- Breadcrumb --}}
-    <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#6b7280;margin-bottom:16px">
-        <a href="{{ route('admin.paiements.index') }}" style="color:#6b7280;text-decoration:none">Paiements</a>
-        <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span style="color:#0d1117;font-weight:500">{{ $paiement->reference_paiement }}</span>
+    <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
+        <a href="{{ route('admin.paiements.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Paiements</a>
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="text-bimo-navy font-medium">{{ $paiement->reference_paiement }}</span>
     </div>
 
     {{-- Actions --}}
-    <div class="actions-bar">
-        <a href="{{ route('admin.paiements.pdf', $paiement) }}" target="_blank" class="btn-act btn-dark">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <div class="flex flex-wrap gap-2">
+        <a href="{{ route('admin.paiements.pdf', $paiement) }}" target="_blank"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white
+                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Télécharger quittance
         </a>
-        <a href="{{ route('admin.contrats.show', $paiement->contrat) }}" class="btn-act btn-outline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <a href="{{ route('admin.contrats.show', $paiement->contrat) }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Voir le contrat
         </a>
-        <a href="{{ route('admin.paiements.index') }}" class="btn-act btn-outline">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        <a href="{{ route('admin.paiements.index') }}"
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Retour
         </a>
         @if($paiement->statut === 'valide')
@@ -86,10 +46,12 @@
               data-confirm-title="Annuler ce paiement ?"
               data-confirm-ok="Oui, annuler"
               data-confirm-color="#d97706"
-              data-confirm-icon-bg="#fef3c7">
+              data-confirm-icon-bg="rgba(217,119,6,0.1)">
             @csrf @method('PATCH')
-            <button type="submit" class="btn-act btn-red">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-red/10 border border-bimo-red/20 text-bimo-red
+                           font-body text-sm rounded-[10px] hover:bg-bimo-red/20 transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                 Annuler
             </button>
         </form>
@@ -97,187 +59,173 @@
     </div>
 
     {{-- Hero --}}
-    <div class="hero">
-        <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.3);margin-bottom:6px">
-                {{ $paiement->reference_paiement }}
-            </div>
-            <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:4px">
+    @php
+        $heroBadge = match($paiement->statut) {
+            'valide' => 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold',
+            'annule' => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
+            default  => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/60',
+        };
+    @endphp
+    <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
+             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)"></div>
+        <div class="relative z-10">
+            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/30 mb-2">{{ $paiement->reference_paiement }}</div>
+            <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
                 {{ $paiement->contrat?->bien?->reference }} — {{ $paiement->contrat?->locataire?->name }}
             </div>
-            <div style="font-size:13px;color:rgba(255,255,255,.5)">
+            <div class="font-body text-sm text-white/50 mb-3">
                 Période : {{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}
                 · Payé le {{ $paiement->date_paiement ? \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') : '—' }}
             </div>
-            <div style="margin-top:10px">
-                @php
-                    $bs = match($paiement->statut) {
-                        'valide' => 'background:rgba(74,222,128,.15);color:#4ade80',
-                        'annule' => 'background:rgba(248,113,113,.15);color:#f87171',
-                        default  => 'background:rgba(255,255,255,.1);color:#9ca3af',
-                    };
-                @endphp
-                <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;{{ $bs }}">
-                    <span style="width:5px;height:5px;border-radius:50%;background:currentColor"></span>
+            <div class="flex items-center gap-3 flex-wrap">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-body font-medium {{ $heroBadge }}">
+                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                     {{ ucfirst($paiement->statut) }}
                 </span>
-                <span style="margin-left:8px;font-size:12px;color:rgba(255,255,255,.4)">
+                <span class="font-body text-xs text-white/40">
                     {{ \App\Http\Controllers\PaiementController::MODES_PAIEMENT[$paiement->mode_paiement] ?? $paiement->mode_paiement }}
                 </span>
             </div>
         </div>
-        <div style="text-align:right">
-            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:4px">Montant encaissé</div>
-            <div style="font-family:'Syne',sans-serif;font-size:30px;font-weight:700;color:#c9a84c">
-                {{ number_format($paiement->montant_encaisse, 0, ',', ' ') }}<span style="font-size:14px;color:rgba(201,168,76,.5);margin-left:4px">FCFA</span>
+        <div class="relative z-10 text-right flex-shrink-0">
+            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-1">Montant encaissé</div>
+            <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
+                {{ number_format($paiement->montant_encaisse, 0, ',', ' ') }}
+                <span class="font-body font-normal text-base text-bimo-gold/40">FCFA</span>
             </div>
         </div>
     </div>
 
-    <div class="page-grid">
+    {{-- Grid principale --}}
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 items-start">
 
         {{-- COLONNE GAUCHE --}}
-        <div>
+        <div class="space-y-4">
 
-            {{-- PARTIES --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-icon gold">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            {{-- Parties --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                     </div>
-                    <div class="card-title">Parties</div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Parties</span>
                 </div>
-                <div class="card-body">
-                    <div class="info-grid">
-                        <div>
-                            <div class="il">Locataire</div>
-                            <div class="iv">{{ $paiement->contrat?->locataire?->name ?? '—' }}</div>
-                            <div style="font-size:11px;color:#6b7280">{{ $paiement->contrat?->locataire?->email }}</div>
-                            <div style="font-size:11px;color:#6b7280">{{ $paiement->contrat?->locataire?->telephone ?? '' }}</div>
-                        </div>
-                        <div>
-                            <div class="il">Propriétaire</div>
-                            <div class="iv">{{ $paiement->contrat?->bien?->proprietaire?->name ?? '—' }}</div>
-                            <div style="font-size:11px;color:#6b7280">{{ $paiement->contrat?->bien?->proprietaire?->email }}</div>
-                            <div style="font-size:11px;color:#6b7280">{{ $paiement->contrat?->bien?->proprietaire?->telephone ?? '' }}</div>
-                        </div>
+                <div class="px-5 py-5 grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Locataire</div>
+                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $paiement->contrat?->locataire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->locataire?->email }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->locataire?->telephone ?? '' }}</div>
+                    </div>
+                    <div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Propriétaire</div>
+                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $paiement->contrat?->bien?->proprietaire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->bien?->proprietaire?->email }}</div>
+                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->bien?->proprietaire?->telephone ?? '' }}</div>
                     </div>
                 </div>
             </div>
 
+            {{-- Décompte fiscal complet --}}
             @if(config('features.fiscalite'))
-            {{-- DÉCOMPTE FISCAL COMPLET --}}
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-icon gold">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     </div>
-                    <div class="card-title">Décompte fiscal complet</div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Décompte fiscal complet</span>
                 </div>
-                <div style="padding:0">
+                <div>
                     <x-fiscal.decompte-paiement :paiement="$paiement" />
                 </div>
             </div>
             @endif
 
-            {{-- NOTES --}}
+            {{-- Notes --}}
             @if($paiement->notes)
-            <div class="card">
-                <div class="card-hd">
-                    <div class="card-icon blue">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
                     </div>
-                    <div class="card-title">Notes</div>
+                    <span class="font-display font-bold text-sm text-bimo-navy">Notes</span>
                 </div>
-                <div class="card-body">
-                    <p style="font-size:13px;color:#374151">{{ $paiement->notes }}</p>
+                <div class="px-5 py-5">
+                    <p class="font-body text-sm text-bimo-navy/70">{{ $paiement->notes }}</p>
                 </div>
             </div>
             @endif
 
-            {{-- ── DÉPENSES DE GESTION ─────────────────────────────────── --}}
-            @php
-                $depenses      = $paiement->depenses ?? collect();
-                $totalDep      = (float) $depenses->sum('montant');
-                $netBailleur   = (float) ($paiement->montant_net_bailleur ?? $paiement->net_a_verser_proprietaire ?? 0);
-                $netFinalAff   = round($netBailleur - $totalDep, 2);
-                $canEditDep    = auth()->user()?->role === 'admin' || auth()->user()?->role === 'superadmin';
-            @endphp
-            <div class="card" id="card-depenses">
-                <div class="card-hd" style="justify-content:space-between">
-                    <div style="display:flex;align-items:center;gap:10px">
-                        <div class="card-icon" style="background:#fef2f2;color:#dc2626">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
+            {{-- Dépenses de gestion --}}
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden" id="card-depenses">
+                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-[8px] bg-bimo-red/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-bimo-red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
                         </div>
-                        <div class="card-title">Dépenses pour le bailleur</div>
+                        <span class="font-display font-bold text-sm text-bimo-navy">Dépenses pour le bailleur</span>
                         @if($totalDep > 0)
-                        <span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:99px;font-size:11px;font-weight:700;padding:2px 9px">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">
                             − {{ number_format($totalDep, 0, ',', ' ') }} F
                         </span>
                         @endif
                     </div>
                     @if($canEditDep)
                     <button onclick="toggleDepForm()" id="btn-dep-toggle"
-                        style="display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:12px;font-weight:500;cursor:pointer">
-                        <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px]
+                                   font-body text-xs text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Ajouter
                     </button>
                     @endif
                 </div>
 
-                {{-- Liste des dépenses existantes --}}
-                <div class="card-body" style="padding-top:12px">
+                <div class="px-5 py-4">
 
                     @if($depenses->isEmpty())
-                    <div id="dep-empty" style="text-align:center;padding:20px 0;color:#9ca3af;font-size:13px">
-                        <svg style="width:28px;height:28px;margin:0 auto 8px;display:block;color:#d1d5db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
+                    <div id="dep-empty" class="text-center py-8 font-body text-sm text-bimo-navy/30">
+                        <svg class="w-7 h-7 text-bimo-navy/15 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
                         Aucune dépense enregistrée pour ce mois
                     </div>
                     @else
                     <div id="dep-empty" style="display:none"></div>
                     @endif
 
-                    <div id="dep-list">
+                    <div id="dep-list" class="divide-y divide-bimo-navy/[5%]">
                     @foreach($depenses as $dep)
-                    <div class="dep-row" style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f3f4f6" id="dep-{{ $dep->id }}">
-                        {{-- Icône catégorie --}}
-                        <div style="width:32px;height:32px;border-radius:8px;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                            <svg style="width:14px;height:14px;color:#dc2626" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
+                    <div class="flex items-start gap-3 py-3.5" id="dep-{{ $dep->id }}">
+                        <div class="w-8 h-8 rounded-[8px] bg-bimo-red/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <svg class="w-3.5 h-3.5 text-bimo-red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
                         </div>
-                        {{-- Infos --}}
-                        <div style="flex:1;min-width:0">
-                            <div style="font-size:13px;font-weight:600;color:#0d1117">{{ $dep->libelle }}</div>
-                            <div style="font-size:11px;color:#9ca3af;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap">
-                                <span>{{ $dep->categorie_libelle }}</span>
-                                <span>·</span>
-                                <span>{{ \Carbon\Carbon::parse($dep->date_depense)->format('d/m/Y') }}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-body font-semibold text-sm text-bimo-navy">{{ $dep->libelle }}</div>
+                            <div class="flex items-center flex-wrap gap-1.5 mt-0.5">
+                                <span class="font-body text-[11px] text-bimo-navy/50">{{ $dep->categorie_libelle }}</span>
+                                <span class="text-bimo-navy/30 text-[10px]">·</span>
+                                <span class="font-body text-[11px] text-bimo-navy/50">{{ \Carbon\Carbon::parse($dep->date_depense)->format('d/m/Y') }}</span>
                                 @if($dep->prestataire)
-                                <span>· {{ $dep->prestataire }}</span>
+                                <span class="text-bimo-navy/30 text-[10px]">·</span>
+                                <span class="font-body text-[11px] text-bimo-navy/50">{{ $dep->prestataire }}</span>
                                 @endif
                             </div>
                             @if($dep->notes)
-                            <div style="font-size:11px;color:#6b7280;margin-top:3px;font-style:italic">{{ $dep->notes }}</div>
+                            <div class="font-body text-[11px] text-bimo-navy/40 italic mt-0.5">{{ $dep->notes }}</div>
                             @endif
                         </div>
-                        {{-- Montant + supprimer --}}
-                        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-                            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#dc2626">
-                                {{ number_format($dep->montant, 0, ',', ' ') }} F
-                            </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($dep->montant, 0, ',', ' ') }} F</span>
                             @if($canEditDep)
                             <form method="POST"
                                   action="{{ route('admin.paiements.depenses.destroy', [$paiement, $dep]) }}"
                                   data-confirm="Supprimer « {{ $dep->libelle }} » ({{ number_format($dep->montant, 0, ',', ' ') }} F) ?"
                                   data-confirm-title="Supprimer cette dépense ?"
-                                  data-confirm-ok="Oui, supprimer"
-                                  data-confirm-color="#dc2626"
-                                  data-confirm-icon-bg="#fef2f2">
+                                  data-confirm-ok="Oui, supprimer">
                                 @csrf @method('DELETE')
-                                <button type="submit" title="Supprimer"
-                                    style="border:none;background:none;cursor:pointer;color:#9ca3af;padding:4px;border-radius:6px;display:flex;align-items:center"
-                                    onmouseover="this.style.color='#dc2626';this.style.background='#fef2f2'"
-                                    onmouseout="this.style.color='#9ca3af';this.style.background='none'">
-                                    <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                <button type="submit"
+                                        class="w-6 h-6 flex items-center justify-center text-bimo-navy/25 hover:text-bimo-red transition-colors duration-150"
+                                        title="Supprimer">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
                                 </button>
                             </form>
                             @endif
@@ -286,76 +234,51 @@
                     @endforeach
                     </div>
 
-                    {{-- Total si plusieurs dépenses --}}
                     @if($depenses->count() > 1)
-                    <div style="display:flex;justify-content:space-between;padding:10px 0 4px;font-size:12px;color:#6b7280">
-                        <span>Total dépenses ({{ $depenses->count() }})</span>
-                        <span style="font-weight:700;color:#dc2626">{{ number_format($totalDep, 0, ',', ' ') }} F</span>
+                    <div class="flex items-center justify-between py-3 border-t border-bimo-navy/[5%] mt-1">
+                        <span class="font-body text-xs text-bimo-navy/50">Total dépenses ({{ $depenses->count() }})</span>
+                        <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($totalDep, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
 
-                    {{-- Net final bailleur mis à jour --}}
                     @if($totalDep > 0)
-                    <div style="margin-top:12px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;display:flex;justify-content:space-between;align-items:center">
+                    <div class="flex items-center justify-between mt-3 p-3.5 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[9px]">
                         <div>
-                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#16a34a;margin-bottom:2px">Net à reverser au bailleur</div>
-                            <div style="font-size:10px;color:#6b7280">Après déduction des dépenses</div>
+                            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-navy/40 mb-0.5">Net à reverser au bailleur</div>
+                            <div class="font-body text-[10px] text-bimo-navy/30">Après déduction des dépenses</div>
                         </div>
-                        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#16a34a">
-                            {{ number_format($netFinalAff, 0, ',', ' ') }} F
-                        </div>
+                        <div class="font-display font-bold text-lg text-bimo-navy">{{ number_format($netFinalAff, 0, ',', ' ') }} F</div>
                     </div>
                     @endif
 
-                    {{-- Formulaire ajout (masqué par défaut) --}}
+                    {{-- Formulaire ajout dépense --}}
                     @if($canEditDep)
-                    <div id="dep-form-wrap" style="display:none;margin-top:16px;padding:16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px">
-                        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:12px;text-transform:uppercase;letter-spacing:.6px">Nouvelle dépense</div>
+                    <div id="dep-form-wrap" style="display:none" class="mt-4 p-5 bg-bimo-bg border border-bimo-navy/10 rounded-[12px]">
+                        <div class="font-body font-semibold text-xs uppercase tracking-widest text-bimo-navy/50 mb-4">Nouvelle dépense</div>
 
-                        @if($errors->any() && old('_dep_form_open'))
-                        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#dc2626">
-                            <ul style="margin:0;padding-left:14px">
-                                @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
-                            </ul>
-                        </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('admin.paiements.depenses.store', $paiement) }}" id="dep-form">
+                        <form method="POST" action="{{ route('admin.paiements.depenses.store', $paiement) }}" id="dep-form" class="space-y-3">
                             @csrf
                             <input type="hidden" name="_dep_form_open" value="1">
 
-                            {{-- Libellé --}}
-                            <div style="margin-bottom:12px">
-                                <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
-                                    Libellé <span style="color:#dc2626">*</span>
-                                </label>
-                                <input type="text" name="libelle" value="{{ old('libelle') }}" required
-                                    placeholder="Ex : Facture plombier Moussa"
-                                    style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
-                                    onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
-                                    onblur="this.style.borderColor='#e5e7eb'">
+                            <div class="space-y-1.5">
+                                <label class="block font-body font-medium text-sm text-bimo-navy">Libellé <span class="text-bimo-red">*</span></label>
+                                <input type="text" name="libelle" value="{{ old('libelle') }}" required placeholder="Ex : Facture plombier Moussa"
+                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                              placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             </div>
 
-                            {{-- Montant + Catégorie --}}
-                            <div class="dep-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-                                <div>
-                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
-                                        Montant (FCFA) <span style="color:#dc2626">*</span>
-                                    </label>
-                                    <input type="number" name="montant" value="{{ old('montant') }}" required min="1" step="1"
-                                        placeholder="25 000"
-                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
-                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
-                                        onblur="this.style.borderColor='#e5e7eb'">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="space-y-1.5">
+                                    <label class="block font-body font-medium text-sm text-bimo-navy">Montant (FCFA) <span class="text-bimo-red">*</span></label>
+                                    <input type="number" name="montant" value="{{ old('montant') }}" required min="1" step="1" placeholder="25000"
+                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                                  focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 </div>
-                                <div>
-                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
-                                        Catégorie <span style="color:#dc2626">*</span>
-                                    </label>
+                                <div class="space-y-1.5">
+                                    <label class="block font-body font-medium text-sm text-bimo-navy">Catégorie <span class="text-bimo-red">*</span></label>
                                     <select name="categorie" required
-                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box;appearance:none"
-                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
-                                        onblur="this.style.borderColor='#e5e7eb'">
+                                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy cursor-pointer
+                                                   focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                         <option value="">Choisir…</option>
                                         @foreach(\App\Models\DepenseGestion::CATEGORIES as $key => $label)
                                         <option value="{{ $key }}" {{ old('categorie') === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -364,49 +287,39 @@
                                 </div>
                             </div>
 
-                            {{-- Date + Prestataire --}}
-                            <div class="dep-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-                                <div>
-                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
-                                        Date de la dépense <span style="color:#dc2626">*</span>
-                                    </label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="space-y-1.5">
+                                    <label class="block font-body font-medium text-sm text-bimo-navy">Date de la dépense <span class="text-bimo-red">*</span></label>
                                     <input type="date" name="date_depense" value="{{ old('date_depense', now()->format('Y-m-d')) }}" required
-                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
-                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
-                                        onblur="this.style.borderColor='#e5e7eb'">
+                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                                  focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 </div>
-                                <div>
-                                    <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
-                                        Prestataire
-                                    </label>
-                                    <input type="text" name="prestataire" value="{{ old('prestataire') }}"
-                                        placeholder="Ex : Moussa Diallo"
-                                        style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box"
-                                        onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
-                                        onblur="this.style.borderColor='#e5e7eb'">
+                                <div class="space-y-1.5">
+                                    <label class="block font-body font-medium text-sm text-bimo-navy">Prestataire</label>
+                                    <input type="text" name="prestataire" value="{{ old('prestataire') }}" placeholder="Ex : Moussa Diallo"
+                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                                  placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 </div>
                             </div>
 
-                            {{-- Notes --}}
-                            <div style="margin-bottom:14px">
-                                <label style="font-size:11px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px">
-                                    Notes (optionnel)
+                            <div class="space-y-1.5">
+                                <label class="block font-body font-medium text-sm text-bimo-navy">
+                                    Notes <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
                                 </label>
                                 <textarea name="notes" rows="2" placeholder="Détails supplémentaires…"
-                                    style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;box-sizing:border-box;resize:vertical"
-                                    onfocus="this.style.borderColor='var(--ac,#c9a84c)'"
-                                    onblur="this.style.borderColor='#e5e7eb'">{{ old('notes') }}</textarea>
+                                          class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                                 placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                                                 transition-all duration-150 resize-y">{{ old('notes') }}</textarea>
                             </div>
 
-                            {{-- Boutons --}}
-                            <div style="display:flex;gap:8px;justify-content:flex-end">
+                            <div class="flex items-center justify-end gap-3 pt-2">
                                 <button type="button" onclick="toggleDepForm()"
-                                    style="padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;color:#6b7280;font-size:12px;font-weight:500;cursor:pointer">
+                                        class="px-4 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy/60 hover:text-bimo-navy transition-all duration-150">
                                     Annuler
                                 </button>
                                 <button type="submit"
-                                    style="padding:8px 18px;border-radius:8px;border:none;background:var(--ac,#c9a84c);color:#fff;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
-                                    <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                        class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[8px] hover:opacity-90 transition-opacity duration-150">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                                     Enregistrer la dépense
                                 </button>
                             </div>
@@ -416,113 +329,106 @@
 
                 </div>
             </div>
-            {{-- ── FIN DÉPENSES ────────────────────────────────────────── --}}
 
-        </div>
+        </div>{{-- fin colonne gauche --}}
 
         {{-- COLONNE DROITE --}}
-        <div>
-            <div class="fiscal-card">
-                <div class="fiscal-hd"><div class="fiscal-title">Résumé fiscal</div></div>
-                <div class="fiscal-body">
-                    <div class="fp-row">
-                        <span class="fp-lbl">Référence</span>
-                        <span class="fp-val" style="font-size:10px">{{ $paiement->reference_paiement }}</span>
+        <div class="lg:sticky lg:top-6">
+            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
+                <div class="px-5 py-4 border-b border-white/[7%]">
+                    <div class="font-display font-bold text-sm text-white">Résumé fiscal</div>
+                </div>
+                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                    @php
+                        $sideRows = [
+                            ['Référence',   $paiement->reference_paiement, 'text-xs'],
+                            ['Référence bail', $paiement->reference_bail ?? '—', 'text-xs'],
+                            ['Période',     \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y'), ''],
+                            ['Date paiement', $paiement->date_paiement ? \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') : '—', ''],
+                            ['Mode',        \App\Http\Controllers\PaiementController::MODES_PAIEMENT[$paiement->mode_paiement] ?? $paiement->mode_paiement, ''],
+                        ];
+                    @endphp
+                    @foreach($sideRows as [$lbl, $val, $cls])
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
                     </div>
-                    <div class="fp-row">
-                        <span class="fp-lbl">Référence bail</span>
-                        <span class="fp-val" style="font-size:10px">{{ $paiement->reference_bail ?? '—' }}</span>
-                    </div>
-                    <div class="fp-row">
-                        <span class="fp-lbl">Période</span>
-                        <span class="fp-val">{{ \Carbon\Carbon::parse($paiement->periode)->translatedFormat('F Y') }}</span>
-                    </div>
-                    <div class="fp-row">
-                        <span class="fp-lbl">Date paiement</span>
-                        <span class="fp-val">{{ $paiement->date_paiement ? \Carbon\Carbon::parse($paiement->date_paiement)->format('d/m/Y') : '—' }}</span>
-                    </div>
-                    <div class="fp-row">
-                        <span class="fp-lbl">Mode</span>
-                        <span class="fp-val">{{ \App\Http\Controllers\PaiementController::MODES_PAIEMENT[$paiement->mode_paiement] ?? $paiement->mode_paiement }}</span>
-                    </div>
-                    <div class="fp-sep"></div>
-                    <div class="fp-row">
-                        <span class="fp-lbl">Loyer encaissé</span>
-                        <span class="fp-val gold">{{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} F</span>
+                    @endforeach
+
+                    <div class="py-3 border-t border-white/[7%]"></div>
+
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-white/40">Loyer encaissé</span>
+                        <span class="font-display font-semibold text-sm text-bimo-gold">{{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} F</span>
                     </div>
                     @if(($paiement->frais_agence_ttc ?? 0) > 0)
-                    <div class="fp-row">
-                        <span class="fp-lbl">Honoraires TTC</span>
-                        <span class="fp-val" style="color:#60a5fa">{{ number_format($paiement->frais_agence_ttc, 0, ',', ' ') }} F</span>
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-white/40">Honoraires TTC</span>
+                        <span class="font-body text-xs text-blue-300">{{ number_format($paiement->frais_agence_ttc, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
                     @if(($paiement->caution_montant ?? 0) > 0)
-                    <div class="fp-row">
-                        <span class="fp-lbl">Caution</span>
-                        <span class="fp-val" style="color:#a78bfa">{{ number_format($paiement->caution_montant, 0, ',', ' ') }} F</span>
-                    </div>
-                    @endif
-                    @if(($paiement->total_encaissement_initial ?? 0) > $paiement->montant_encaisse)
-                    <div class="fp-row" style="border-top:1px solid rgba(201,168,76,.3)">
-                        <span class="fp-lbl" style="color:rgba(201,168,76,.7)">Total facturé</span>
-                        <span class="fp-val gold" style="font-size:14px">{{ number_format($paiement->total_encaissement_initial, 0, ',', ' ') }} F</span>
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-white/40">Caution</span>
+                        <span class="font-body text-xs text-purple-300">{{ number_format($paiement->caution_montant, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
                     @if(config('features.fiscalite') && ($paiement->brs_amount ?? 0) > 0)
-                    <div class="fp-row">
-                        <span class="fp-lbl" style="color:rgba(248,113,113,.7)">BRS retenu</span>
-                        <span class="fp-val" style="color:#f87171">- {{ number_format($paiement->brs_amount, 0, ',', ' ') }} F</span>
+                    <div class="flex items-center justify-between py-2.5">
+                        <span class="font-body text-xs text-bimo-red/70">BRS retenu</span>
+                        <span class="font-body text-xs text-bimo-red">− {{ number_format($paiement->brs_amount, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
-                    <div class="fp-sep"></div>
-                    {{-- NET LOCATAIRE — en gras, ligne principale --}}
-                    <div style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.25);border-radius:8px;padding:10px 12px;margin-bottom:10px">
-                        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(201,168,76,.6);margin-bottom:3px">Net à payer — Locataire</div>
-                        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:#c9a84c">
+                </div>
+
+                {{-- Net locataire --}}
+                <div class="px-5 pb-3">
+                    <div class="p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px] mb-3">
+                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net à payer — Locataire</div>
+                        <div class="font-display font-extrabold text-lg text-bimo-gold">
                             {{ number_format($paiement->montant_net_locataire ?? ($paiement->total_encaissement_initial ?? $paiement->montant_encaisse), 0, ',', ' ') }} F
                         </div>
                     </div>
-                    {{-- NET BAILLEUR --}}
+
+                    {{-- Net bailleur --}}
                     @php $netBrut = (float)($paiement->montant_net_bailleur ?? $paiement->net_a_verser_proprietaire ?? 0); @endphp
                     @if($totalDep > 0)
-                    <div style="margin-bottom:6px;padding:8px 10px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:7px;display:flex;justify-content:space-between;align-items:center">
-                        <span style="font-size:10px;color:rgba(220,38,38,.7)">Dépenses déduites</span>
-                        <span style="font-size:12px;font-weight:700;color:#dc2626">− {{ number_format($totalDep, 0, ',', ' ') }} F</span>
+                    <div class="flex items-center justify-between p-3 bg-bimo-red/10 border border-bimo-red/20 rounded-[8px] mb-2">
+                        <span class="font-body text-xs text-bimo-red/70">Dépenses déduites</span>
+                        <span class="font-display font-bold text-sm text-bimo-red">− {{ number_format($totalDep, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
-                    <div class="fp-total" style="{{ $totalDep > 0 ? 'border-color:rgba(22,163,74,.4);background:rgba(22,163,74,.08)' : '' }}">
-                        <div class="fp-total-lbl" style="{{ $totalDep > 0 ? 'color:rgba(22,163,74,.7)' : '' }}">
+                    <div class="p-3.5 rounded-[9px] border {{ $totalDep > 0 ? 'bg-bimo-navy-dk/30 border-white/10' : 'bg-white/[4%] border-white/10' }}">
+                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/30 mb-1">
                             Net à reverser — Bailleur{{ $totalDep > 0 ? ' (après dépenses)' : '' }}
                         </div>
-                        <div class="fp-total-val" style="{{ $totalDep > 0 ? 'color:#16a34a' : '' }}">
+                        <div class="font-display font-extrabold text-lg text-white">
                             {{ number_format($totalDep > 0 ? $netFinalAff : $netBrut, 0, ',', ' ') }} F
                         </div>
                         @if($totalDep > 0)
-                        <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:3px">
-                            Brut : {{ number_format($netBrut, 0, ',', ' ') }} F
-                        </div>
+                        <div class="font-body text-[10px] text-white/25 mt-0.5">Brut : {{ number_format($netBrut, 0, ',', ' ') }} F</div>
                         @endif
                     </div>
+
                     @if($paiement->caution_percue > 0)
-                    <div style="margin-top:10px;padding:8px 10px;background:rgba(29,78,216,.1);border:1px solid rgba(29,78,216,.2);border-radius:7px">
-                        <div style="font-size:10px;color:rgba(29,78,216,.6);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Caution perçue (saisie manuelle)</div>
-                        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#1d4ed8">
-                            {{ number_format($paiement->caution_percue, 0, ',', ' ') }} F
-                        </div>
+                    <div class="mt-3 p-3.5 bg-bimo-navy-dk/50 border border-white/10 rounded-[9px]">
+                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/30 mb-1">Caution perçue (saisie manuelle)</div>
+                        <div class="font-display font-bold text-base text-white">{{ number_format($paiement->caution_percue, 0, ',', ' ') }} F</div>
                     </div>
                     @endif
-                    <div style="margin-top:10px;text-align:center">
-                        <a href="{{ route('admin.paiements.pdf', $paiement) }}" target="_blank"
-                           style="display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#c9a84c;font-size:12px;font-weight:600;text-decoration:none">
-                            <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            Télécharger la quittance PDF
-                        </a>
-                    </div>
+
+                    <a href="{{ route('admin.paiements.pdf', $paiement) }}" target="_blank"
+                       class="flex items-center justify-center gap-2 mt-3 px-4 py-2.5 border border-white/10 rounded-[9px]
+                              font-body text-xs text-bimo-gold hover:text-white hover:border-white/20 transition-all duration-150">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Télécharger la quittance PDF
+                    </a>
                 </div>
             </div>
         </div>
 
     </div>
+
 </div>
 
 @push('scripts')
@@ -534,27 +440,18 @@ function toggleDepForm() {
     var open = wrap.style.display === 'none' || wrap.style.display === '';
     wrap.style.display = open ? 'block' : 'none';
     if (btn) btn.innerHTML = open
-        ? '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg> Fermer'
-        : '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter';
-    if (open) {
-        setTimeout(function() {
-            wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 60);
-    }
+        ? '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="ml-1">Fermer</span>'
+        : '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span class="ml-1">Ajouter</span>';
+    if (open) setTimeout(() => wrap.scrollIntoView({ behavior:'smooth', block:'nearest' }), 60);
 }
 
-// Rouvrir le formulaire automatiquement après une erreur de validation
 @if($errors->any())
 document.addEventListener('DOMContentLoaded', function() {
     var wrap = document.getElementById('dep-form-wrap');
-    var btn  = document.getElementById('btn-dep-toggle');
-    if (wrap) {
-        wrap.style.display = 'block';
-        if (btn) btn.innerHTML = '<svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg> Fermer';
-        wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+    if (wrap) { wrap.style.display = 'block'; wrap.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
 });
 @endif
 </script>
 @endpush
+
 @endsection
