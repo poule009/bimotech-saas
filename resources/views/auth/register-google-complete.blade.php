@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Créer votre agence — Renlio</title>
+<title>Créer votre agence — BimoTech Immo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
@@ -22,7 +22,7 @@
                 <span class="font-display font-extrabold text-bimo-gold text-lg">B</span>
             </div>
             <span class="font-display font-bold text-bimo-navy text-lg">
-                Renlio <span class="text-bimo-gold">Immo</span>
+                Bimothèque <span class="text-bimo-gold">Immo</span>
             </span>
         </a>
     </div>
@@ -91,7 +91,7 @@
     </div>
 
     <p class="text-center font-body text-xs text-bimo-navy/30 mt-6">
-        © {{ date('Y') }} Renlio — Conçu au Sénégal 🇸🇳
+        © {{ date('Y') }} Bimothèque — Conçu au Sénégal 🇸🇳
     </p>
 </div>
 

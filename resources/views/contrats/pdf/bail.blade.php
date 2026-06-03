@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -62,7 +62,7 @@ tfoot td.right { text-align:right; color:#c9a84c; font-size:12px; }
 
 {{-- Footer fixe --}}
 <div class="footer">
-    <div class="footer-left">{{ $agency->name ?? 'Renlio' }} · Contrat de bail · Réf. {{ $contrat->reference_bail ?? $contrat->id }}</div>
+    <div class="footer-left">{{ $agency->name ?? 'BimoTech Immo' }} · Contrat de bail · Réf. {{ $contrat->reference_bail ?? $contrat->id }}</div>
     <div class="footer-right">Généré le {{ now()->format('d/m/Y') }} · Document confidentiel</div>
 </div>
 
@@ -82,7 +82,7 @@ tfoot td.right { text-align:right; color:#c9a84c; font-size:12px; }
         @if($logoSrc)
             <img src="{{ $logoSrc }}" style="height:44px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;">
         @else
-            <div class="agency-name">{{ $agency->name ?? 'Renlio' }}</div>
+            <div class="agency-name">{{ $agency->name ?? 'BimoTech Immo' }}</div>
         @endif
         <div class="agency-info">
             @if($agency->adresse){{ $agency->adresse }}<br>@endif

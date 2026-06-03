@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Renlio') }}</title>
+    <title>{{ config('app.name', 'Bimothèque Immo') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +28,7 @@
                     <span class="font-display font-extrabold text-bimo-gold text-lg">B</span>
                 </div>
                 <span class="font-display font-bold text-bimo-navy text-lg">
-                    Renlio <span class="text-bimo-gold">Immo</span>
+                    Bimothèque <span class="text-bimo-gold">Immo</span>
                 </span>
             </a>
             <p class="font-body text-sm text-bimo-navy/40 mt-1">Gestion immobilière professionnelle</p>
@@ -39,7 +39,7 @@
 
         {{-- Footer --}}
         <p class="text-center font-body text-xs text-bimo-navy/30 mt-8">
-            © {{ date('Y') }} Renlio — Conçu au Sénégal 🇸🇳
+            © {{ date('Y') }} Bimothèque — Conçu au Sénégal 🇸🇳
         </p>
 
     </div>

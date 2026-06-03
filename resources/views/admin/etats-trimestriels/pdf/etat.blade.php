@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -211,7 +211,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
     T{{ $trimestre }} {{ $annee }} ({{ $triMois }} {{ $annee }}).
     Seuls les paiements pour lesquels une Retenue à la Source (BRS) a été opérée sont inclus.
     Les bailleurs personnes morales (IS) sont exclus conformément à la réglementation.
-    Généré le {{ now()->format('d/m/Y à H:i') }} par Renlio-SaaS — {{ $agency?->name }}.
+    Généré le {{ now()->format('d/m/Y à H:i') }} par Bimotech-SaaS — {{ $agency?->name }}.
 </div>
 
 {{-- FOOTER --}}

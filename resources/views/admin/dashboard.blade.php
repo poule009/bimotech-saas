@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 @section('header', 'Tableau de bord')
 
 @section('content')
@@ -177,7 +177,7 @@
                 <div>
                     <div class="font-display font-bold text-sm text-bimo-navy">
                         @if($allDone) Votre agence est prête ! 🎉
-                        @else Bienvenue sur Renlio — Commencez ici
+                        @else Bienvenue sur Bimothèque — Commencez ici
                         @endif
                     </div>
                     <div class="font-body text-xs text-bimo-navy/50 mt-0.5">
@@ -672,7 +672,7 @@
 </div>
 
 {{-- WhatsApp support --}}
-<a href="https://wa.me/+221781318176?text={{ urlencode('Bonjour, j\'ai besoin d\'aide avec Renlio 👋') }}"
+<a href="https://wa.me/+221781318176?text={{ urlencode('Bonjour, j\'ai besoin d\'aide avec Bimothèque Immo 👋') }}"
    target="_blank" rel="noopener noreferrer"
    class="fixed right-4 z-50 group
           bottom-[84px] lg:bottom-7 lg:right-7"

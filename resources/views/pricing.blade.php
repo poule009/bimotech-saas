@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Tarifs Renlio — Starter, Pro, Agence. Essai gratuit 30 jours sans carte bancaire.">
-<title>Tarifs — Renlio</title>
+<meta name="description" content="Tarifs BimoTech Immo — Starter, Pro, Agence. Essai gratuit 30 jours sans carte bancaire.">
+<title>Tarifs — BimoTech Immo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" media="print" onload="this.media='all'">
@@ -172,7 +172,7 @@
 
 <footer class="border-t border-bimo-navy/10 px-[5%] py-8 bg-bimo-bg2">
     <div class="max-w-[1040px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 flex-wrap">
-        <span class="font-body text-xs text-bimo-navy/30">© {{ date('Y') }} Renlio. Tous droits réservés.</span>
+        <span class="font-body text-xs text-bimo-navy/30">© {{ date('Y') }} BimoTech Immo. Tous droits réservés.</span>
         <div class="flex flex-wrap items-center gap-5 justify-center">
             @foreach([[route('home'),'Accueil'],[route('demo'),'Démo'],[route('faq'),'FAQ'],[route('contact'),'Contact'],[route('mentions-legales'),'Mentions légales'],[route('confidentialite'),'Confidentialité']] as [$href,$lbl])
             <a href="{{ $href }}" class="font-body text-xs text-bimo-navy/40 no-underline hover:text-bimo-navy transition-colors duration-150">{{ $lbl }}</a>

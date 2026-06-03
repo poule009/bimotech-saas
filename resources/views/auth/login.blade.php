@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Connexion — Renlio</title>
+    <title>Connexion — Bimothèque Immo</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +39,7 @@
                 <span class="font-display font-extrabold text-bimo-navy text-base">B</span>
             </div>
             <span class="font-display font-bold text-white text-base">
-                Renlio <span class="text-bimo-gold">Immo</span>
+                Bimothèque <span class="text-bimo-gold">Immo</span>
             </span>
         </a>
 
@@ -86,7 +86,7 @@
                         <span class="font-display font-extrabold text-bimo-gold text-base">B</span>
                     </div>
                     <span class="font-display font-bold text-bimo-navy text-base">
-                        Renlio <span class="text-bimo-gold">Immo</span>
+                        Bimothèque <span class="text-bimo-gold">Immo</span>
                     </span>
                 </div>
             </div>

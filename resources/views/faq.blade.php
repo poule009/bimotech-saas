@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://immo.bimotechsn.com/faq">
-<title>FAQ — Renlio</title>
+<title>FAQ — BimoTech Immo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
@@ -20,7 +20,7 @@
 <div class="pt-[120px] pb-16 px-[5%] text-center bg-bimo-bg">
     <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold mb-4">FAQ</div>
     <h1 class="font-display font-extrabold text-[clamp(28px,5vw,50px)] tracking-tight leading-tight text-bimo-navy mb-4">Les réponses à vos <em class="not-italic text-bimo-gold">questions</em></h1>
-    <p class="font-body font-light text-base text-bimo-navy/50 max-w-[440px] mx-auto leading-relaxed">Tout ce que vous voulez savoir avant de démarrer avec Renlio.</p>
+    <p class="font-body font-light text-base text-bimo-navy/50 max-w-[440px] mx-auto leading-relaxed">Tout ce que vous voulez savoir avant de démarrer avec BimoTech.</p>
 </div>
 
 {{-- FAQ --}}
@@ -34,12 +34,12 @@
             ['q' => 'Combien de temps prend la mise en place ?', 'a' => 'Moins de 10 minutes pour créer votre agence. Si vous souhaitez importer un grand nombre de biens existants, notre équipe peut vous accompagner lors d\'une démo sur site à Dakar.'],
         ],
         'Conformité fiscale' => [
-            ['q' => 'Renlio est-il vraiment conforme à la TVA sénégalaise à 18% ?', 'a' => 'Oui. Le calcul de TVA à 18% sur les commissions d\'agence est intégré nativement, conformément au CGI article 357. Chaque quittance affiche la décomposition HT / TVA / TTC automatiquement. Aucune configuration nécessaire.'],
-            ['q' => 'Qu\'est-ce que la loi 81-18 et comment Renlio la gère ?', 'a' => 'La loi 81-18 encadre les loyers au Sénégal en fixant des plafonds selon la surface du bien. Renlio vérifie automatiquement si le loyer saisi respecte ces plafonds et affiche une alerte si ce n\'est pas le cas.'],
-            ['q' => 'Les quittances générées sont-elles légalement valides ?', 'a' => 'Oui. Les quittances PDF générées par Renlio incluent le NINEA de votre agence, le détail TVA, les références du contrat et sont numérotées séquentiellement. Elles sont conformes aux exigences de la Direction des Impôts du Sénégal.'],
+            ['q' => 'BimoTech est-il vraiment conforme à la TVA sénégalaise à 18% ?', 'a' => 'Oui. Le calcul de TVA à 18% sur les commissions d\'agence est intégré nativement, conformément au CGI article 357. Chaque quittance affiche la décomposition HT / TVA / TTC automatiquement. Aucune configuration nécessaire.'],
+            ['q' => 'Qu\'est-ce que la loi 81-18 et comment BimoTech la gère ?', 'a' => 'La loi 81-18 encadre les loyers au Sénégal en fixant des plafonds selon la surface du bien. BimoTech vérifie automatiquement si le loyer saisi respecte ces plafonds et affiche une alerte si ce n\'est pas le cas.'],
+            ['q' => 'Les quittances générées sont-elles légalement valides ?', 'a' => 'Oui. Les quittances PDF générées par BimoTech incluent le NINEA de votre agence, le détail TVA, les références du contrat et sont numérotées séquentiellement. Elles sont conformes aux exigences de la Direction des Impôts du Sénégal.'],
         ],
         'Fonctionnement' => [
-            ['q' => 'Mes données sont-elles sécurisées et séparées des autres agences ?', 'a' => 'Absolument. Renlio utilise une architecture multi-tenant : les données de chaque agence sont strictement isolées. Un utilisateur d\'une agence ne peut jamais voir les données d\'une autre. Toutes les connexions sont chiffrées (HTTPS).'],
+            ['q' => 'Mes données sont-elles sécurisées et séparées des autres agences ?', 'a' => 'Absolument. BimoTech utilise une architecture multi-tenant : les données de chaque agence sont strictement isolées. Un utilisateur d\'une agence ne peut jamais voir les données d\'une autre. Toutes les connexions sont chiffrées (HTTPS).'],
             ['q' => 'Comment mes locataires et propriétaires accèdent-ils à leur espace ?', 'a' => 'Chaque locataire et propriétaire reçoit une invitation par email avec ses identifiants de connexion. Ils accèdent ensuite à leur espace personnel depuis n\'importe quel navigateur ou smartphone. Aucune application à installer.'],
             ['q' => 'Si je veux arrêter, est-ce que je récupère mes données ?', 'a' => 'Oui. Avant toute résiliation, vous pouvez exporter l\'intégralité de vos données aux formats CSV et PDF. Vos données sont conservées 30 jours après résiliation, puis définitivement supprimées.'],
         ],
@@ -80,13 +80,13 @@
 </div>
 
 <footer class="px-[5%] py-8 border-t border-bimo-navy/10 flex flex-col md:flex-row items-center justify-between gap-4 flex-wrap bg-bimo-bg2">
-    <div class="font-display font-extrabold text-base text-bimo-navy">Renlio</div>
+    <div class="font-display font-extrabold text-base text-bimo-navy">BimoTech Immo</div>
     <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6">
         @foreach([[url('/'),'Accueil'],[route('contact'),'Contact'],[route('mentions-legales'),'Mentions légales']] as [$href,$lbl])
         <a href="{{ $href }}" class="font-body text-xs text-bimo-navy/50 no-underline hover:text-bimo-navy transition-colors duration-150">{{ $lbl }}</a>
         @endforeach
     </div>
-    <div class="font-body text-xs text-bimo-navy/30">© {{ date('Y') }} Renlio · Dakar, Sénégal</div>
+    <div class="font-body text-xs text-bimo-navy/30">© {{ date('Y') }} BimoTech · Dakar, Sénégal</div>
 </footer>
 
 <script>

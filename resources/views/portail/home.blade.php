@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -279,7 +279,7 @@ footer{background:var(--bleu);padding:24px 20px;margin-top:32px}
     Bimo<em>Portail</em>
   </a>
   <div class="topbar-spacer"></div>
-  <a href="{{ route('home') }}" class="topbar-link">Renlio.sn</a>
+  <a href="{{ route('home') }}" class="topbar-link">bimotech.sn</a>
 </header>
 
 {{-- HERO --}}
@@ -388,9 +388,9 @@ footer{background:var(--bleu);padding:24px 20px;margin-top:32px}
 
 <footer>
   <div class="footer-inner">
-    <span class="footer-copy">© {{ date('Y') }} Renlio. Tous droits réservés.</span>
+    <span class="footer-copy">© {{ date('Y') }} BIMO-tech. Tous droits réservés.</span>
     <div class="footer-links">
-      <a href="{{ route('home') }}">Renlio.sn</a>
+      <a href="{{ route('home') }}">bimotech.sn</a>
       <a href="{{ route('pricing') }}">Tarifs</a>
       <a href="{{ route('contact') }}">Contact</a>
       <a href="{{ route('mentions-legales') }}">Mentions légales</a>

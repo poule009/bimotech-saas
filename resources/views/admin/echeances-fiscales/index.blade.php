@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 @section('header', 'Calendrier fiscal')
 
 @section('content')
@@ -171,7 +171,7 @@
                     {{-- Hors périmètre --}}
                     @if(count($horsApp) > 0)
                     <tr class="bg-bimo-bg">
-                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/30">Hors périmètre Renlio</td>
+                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/30">Hors périmètre Bimotech</td>
                     </tr>
                     @foreach($horsApp as $e)
                     <tr class="opacity-50 hover:bg-bimo-bg transition-colors duration-100">

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -141,7 +141,7 @@
 {{-- Pied de page fixe --}}
 <div class="footer">
     <div class="footer-left">
-        {{ $agency->name ?? 'Renlio' }} · Rapport de gestion isolé
+        {{ $agency->name ?? 'BIMO-tech' }} · Rapport de gestion isolé
         · Généré le {{ now()->format('d/m/Y à H:i') }}
     </div>
     <div class="footer-right">Document confidentiel — Usage exclusif du bailleur</div>
@@ -166,7 +166,7 @@
             @if($logoSrc)
                 <img src="{{ $logoSrc }}" style="height:36px;max-width:140px;object-fit:contain;display:block;margin-bottom:6px;{{ $logoInvert ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
-                <div class="agency-name">{{ $agency->name ?? 'Renlio' }}</div>
+                <div class="agency-name">{{ $agency->name ?? 'BIMO-tech' }}</div>
             @endif
             <h1>Rapport de Gestion {{ $mois !== null ? 'Mensuel' : 'Annuel' }}</h1>
             <h2>Document isolé · Données exclusives du bailleur</h2>

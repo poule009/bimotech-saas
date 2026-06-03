@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -181,7 +181,7 @@
         <div class="header-inner">
             <div class="header-left">
                 <div class="h1" style="font-size:18px;font-weight:700;color:#fff;">
-                    {{ $agency->name ?? 'Renlio' }}
+                    {{ $agency->name ?? 'BimoTech Immo' }}
                 </div>
                 <div class="h2" style="font-size:11px;color:#93c5fd;margin-top:3px;">
                     Rapport Financier Mensuel
@@ -405,12 +405,12 @@
     ═══════════════════════════════════════════════════════════════ --}}
     <div class="footer">
         <div class="footer-left">
-            <strong>{{ $agency->name ?? 'Renlio' }}</strong>
+            <strong>{{ $agency->name ?? 'BimoTech Immo' }}</strong>
             @if($agency->email ?? false) · {{ $agency->email }} @endif
             @if($agency->ninea ?? false) · NINEA : {{ $agency->ninea }} @endif
         </div>
         <div class="footer-right">
-            Document confidentiel — Rapport généré automatiquement par Renlio
+            Document confidentiel — Rapport généré automatiquement par BimoTech Immo
         </div>
     </div>
 

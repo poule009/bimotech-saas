@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 @section('header', 'Codes de récupération')
 
 @section('content')
@@ -56,14 +56,14 @@
 <script>
 function downloadCodes() {
     var codes = @json($codes);
-    var text = "Codes de récupération Renlio — 2FA\n"
+    var text = "Codes de récupération BimoTech Immo — 2FA\n"
              + "Générés le: {{ now()->format('d/m/Y H:i') }}\n\n"
              + "IMPORTANT: Ces codes sont à usage unique. Conservez-les en lieu sûr.\n\n"
              + codes.join("\n");
     var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'Renlio-2fa-recovery-codes.txt';
+    a.download = 'bimotech-2fa-recovery-codes.txt';
     a.click();
     URL.revokeObjectURL(a.href);
 }

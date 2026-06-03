@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accès refusé — Renlio</title>
+    <title>Accès refusé — BimoTech Immo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap">
     <style>
@@ -104,7 +104,7 @@
             @endauth
         </div>
 
-        <div class="brand"><strong>Renlio</strong> Immo — Gestion immobilière</div>
+        <div class="brand"><strong>BimoTech</strong> Immo — Gestion immobilière</div>
     </div>
 </body>
 </html>

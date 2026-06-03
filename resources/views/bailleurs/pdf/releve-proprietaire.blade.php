@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -64,7 +64,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
 <body>
 
 <div class="footer">
-    <div class="footer-left">{{ $agency->name ?? 'Renlio' }} · Relevé confidentiel · {{ $user->name }}</div>
+    <div class="footer-left">{{ $agency->name ?? 'BimoTech Immo' }} · Relevé confidentiel · {{ $user->name }}</div>
     <div class="footer-right">Généré le {{ now()->format('d/m/Y à H:i') }}</div>
 </div>
 
@@ -87,7 +87,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
             @if($logoSrc)
                 <img src="{{ $logoSrc }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;{{ $logoInvert ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
-                <div class="agency-name">{{ $agency->name ?? 'Renlio' }}</div>
+                <div class="agency-name">{{ $agency->name ?? 'BimoTech Immo' }}</div>
             @endif
             <div class="agency-sub">{{ $agency->adresse ?? '' }}@if($agency->telephone) · {{ $agency->telephone }}@endif</div>
         </div>
@@ -228,7 +228,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
     </div>
 
     <div style="font-size:8.5px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:10px;line-height:1.6">
-        Ce relevé est établi par {{ $agency->name ?? 'Renlio' }} conformément aux paiements enregistrés sur la période.
+        Ce relevé est établi par {{ $agency->name ?? 'BimoTech Immo' }} conformément aux paiements enregistrés sur la période.
         Honoraires d'agence calculés conformément au mandat de gestion — TVA 18% incluse (Art. 357 CGI SN).
         Document confidentiel — réservé au propriétaire mentionné.
     </div>
