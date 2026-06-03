@@ -30,6 +30,11 @@ class CheckSubscription
         'profile.destroy',
         'redirect.home',
         'dashboard',
+        // Google OAuth
+        'auth.google',
+        'auth.google.callback',
+        'agency.register.google.complete',
+        'agency.register.google.store',
         // Routes d'authentification complémentaires
         'home',
         'landing',
