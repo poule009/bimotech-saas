@@ -40,18 +40,6 @@
 - Icônes : SVG inline uniquement (pas de librairie d'icônes externe)
 - Pas de jQuery, pas d'autres CSS frameworks
 
-### CRITIQUE — @vite() absent du layout actuel
-
-Le layout `layouts/app.blade.php` ne charge pas encore Tailwind via Vite.
-**La Phase 1 de la migration doit ajouter dans le `<head>` du layout :**
-
-```blade
-@vite(['resources/css/app.css', 'resources/js/app.js'])
-```
-
-Sans cette ligne, aucune classe Tailwind ne fonctionnera en production.
-Pendant le développement : lancer `npm run dev` en parallèle.
-
 ---
 
 ## Couleur agence dynamique — `var(--ac)`
@@ -571,75 +559,99 @@ Pour les erreurs de validation inline dans un formulaire (en plus du flash globa
 
 ---
 
-## Ordre de migration
+## Rôles & Plans
 
-### Phase 1 — Foundation (obligatoire en premier)
-1. `tailwind.config.js`
-2. `resources/css/app.css`
-3. `resources/views/layouts/app.blade.php`
-4. `resources/views/layouts/guest.blade.php`
+### Rôles utilisateur
 
-### Phase 2 — Vues critiques
-5. `auth/login.blade.php`
-6. `admin/dashboard.blade.php`
-7. `paiements/index.blade.php`
-8. `bailleurs/index.blade.php`
+| Rôle | Accès | Notes |
+|------|-------|-------|
+| `superadmin` | Plateforme entière | Pas d'agence — `auth()->user()->agency` est **null** |
+| `admin` | Son agence uniquement | Créé automatiquement à la création d'agence |
+| `locataire` | Portail locataire | Vues `locataire/` uniquement |
+| `proprietaire` | Portail propriétaire | Vues `proprietaire/` uniquement |
 
-### Phase 3 — Biens & contrats
-9. `biens/index.blade.php`
-10. `biens/create.blade.php`
-11. `biens/edit.blade.php`
-12. `biens/show.blade.php`
-13. `admin/contrats/index.blade.php`
-14. `admin/contrats/create.blade.php`
-15. `admin/contrats/show.blade.php`
-16. `admin/contrats/edit.blade.php`
+**Middleware superadmin :** `auth → verified → isSuperAdmin → require2fa`
+**Middleware agence :** `auth → verified → isStaff`
 
-### Phase 4 — Utilisateurs & finances
-17. `users/create.blade.php`
-18. `users/edit.blade.php`
-19. `users/show.blade.php`
-20. `users/proprietaires.blade.php`
-21. `users/locataires.blade.php`
-22. `paiements/create.blade.php`
-23. `paiements/show.blade.php`
-24. `impayes/index.blade.php`
+La sidebar et la bottom nav s'adaptent automatiquement selon `isSuperAdmin()` dans `layouts/app.blade.php`. Ne pas dupliquer cette logique dans les vues.
 
-### Phase 5 — Secondaires
-25. `immeubles/` (4 vues)
-26. `bailleurs/show.blade.php`
-27. `rapports/financier.blade.php`
-28. `admin/agency-settings.blade.php`
-29. `profile/edit.blade.php`
-30. `locataire/` (3 vues)
-31. `proprietaire/dashboard.blade.php`
+### Plans d'abonnement
 
-### Phase 6 — Admin & superadmin
-32. `superadmin/` (4 vues)
-33. `admin/` fiscalité, bilans, TVA (6 vues)
-34. `subscription/` (3 vues)
-35. `errors/` (404, 403, 500)
-36. `activity-logs/index.blade.php`
-37. Supprimer `bimotech.css` seulement ici
+Hiérarchie : `starter` < `pro` < `agence`
 
-### Phase 7 — Marketing public
-38. `contact.blade.php`
-39. `demo.blade.php`
-40. `mentions-legales.blade.php`
+```php
+$canAccess('nom_feature')    // true si le plan actuel permet l'accès
+$planRequired('nom_feature') // retourne 'Pro' / 'Agence' / null si starter
+config('plans.features.X')   // plan minimum requis pour la feature X
+```
 
-### NE PAS TOUCHER
-- `portail/` — design system public indépendant
-- `*/pdf/` — documents impression, règles différentes
-- `emails/` — templates email
-- `sitemap.blade.php`
-- `users/create.blade.php` sections locataire (fiscal BRS) — logique métier complexe, ne pas casser
+Les badges plan dans la nav sont calculés automatiquement — ne pas les hardcoder.
+
+### Zones à ne pas toucher
+
+| Zone | Raison |
+|------|--------|
+| `portail/` | Design system public indépendant — polices et règles différentes |
+| `*/pdf/` | Documents impression — gradients autorisés, CSS propre |
+| `emails/` | Templates email — pas de Tailwind |
+| `sitemap.blade.php` | Fichier XML déguisé en Blade |
+| `FiscalService` | TVA 18%, BRS 5%, CFPB, loi 81-18 — ne jamais modifier les calculs |
+| `bimotech.css` | Encore actif — ne supprimer qu'après migration 100% des vues |
+| `users/create.blade.php` sections BRS | Logique fiscale locataire complexe — ne pas casser |
 
 ---
 
-## Points de vigilance métier
+## Pièges connus — ne pas répéter ces erreurs
 
-- `montant_encaisse` absent de `StorePaiementRequest::rules()` → calculé par `FiscalService`
-- Global scope `agency_id` absent sur `Bien` → toujours filtrer manuellement
-- Module fiscal contrôlé par `config('features.fiscalite')` → ne jamais toucher aux calculs
-- `bimotech.css` reste actif jusqu'à Phase 6 complète — ne pas supprimer avant
-- Validation email propriétaire optionnelle (nullable) — password required_with:email
+### Subscription — noms de champs exacts
+
+```php
+// ✅ Correct
+$sub->date_fin_essai         $sub->date_debut_essai
+$sub->date_fin_abonnement    $sub->date_debut_abonnement
+$sub->statut                 // 'essai' | 'actif' | 'expiré' | 'suspendu'
+
+// ❌ Ces propriétés n'existent PAS — erreur silencieuse (retourne null)
+$sub->essai_fin    $sub->abonnement_fin
+```
+
+### Bien — pas de global scope agency_id
+
+`Bien` n'a **pas** de global scope `agency_id`. Toujours filtrer manuellement :
+
+```php
+Bien::where('agency_id', $agencyId)->...    // admin agence
+Bien::portail()->...                         // portail public (visible_portail + statut)
+Bien::withoutGlobalScope(AgencyScope::class) // cross-agency (superadmin, rapports)
+```
+
+### Superadmin — agency est null
+
+`auth()->user()->agency` retourne `null` pour le superadmin.
+Toujours vérifier `isSuperAdmin()` avant d'accéder à `->agency` ou `->agency_id`.
+
+### montant_encaisse — ne pas mettre dans les inputs
+
+Absent de `StorePaiementRequest::rules()` — calculé automatiquement par `FiscalService`.
+Ne jamais l'ajouter dans un formulaire, une validation ou une requête.
+
+### Email propriétaire — nullable
+
+`email` du propriétaire est `nullable`. `password` est `required_with:email`.
+Ne pas rendre l'email obligatoire — casse la création de propriétaire sans compte.
+
+### Flash messages — déjà dans le layout
+
+`success`, `warning`, `error` et erreurs de validation sont gérés dans `layouts/app.blade.php`.
+Ne jamais les ré-implémenter dans une vue — ils s'affichent automatiquement.
+
+### Impersonation — auth() retourne l'utilisateur impersonné
+
+Quand actif, `auth()->user()` retourne l'utilisateur impersonné, pas le superadmin.
+Détecter l'état avec `session('impersonating_id')`.
+La bannière d'impersonation est déjà dans `layouts/app.blade.php`.
+
+### config('features.fiscalite')
+
+Le module fiscal est contrôlé par ce flag feature.
+Ne jamais modifier les calculs dans `FiscalService` — règles légales sénégalaises.
