@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,follow">
-<title>Bien indisponible — Bimothèque Immo</title>
+<title>Bien indisponible — Renlio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
@@ -55,7 +55,7 @@ footer{background:#0d1117;border-top:1px solid #1f2937;padding:1.5rem 5%}
 
 <footer>
     <div class="footer-inner">
-        <span class="footer-copy">© {{ date('Y') }} BIMO-tech. Tous droits réservés.</span>
+        <span class="footer-copy">© {{ date('Y') }} Renlio. Tous droits réservés.</span>
     </div>
 </footer>
 </body>

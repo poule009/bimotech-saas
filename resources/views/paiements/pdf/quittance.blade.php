@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -164,7 +164,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
             @if($logoSrc)
                 <img src="{{ $logoSrc }}" style="height:44px;max-width:160px;object-fit:contain;display:block;margin-bottom:6px;{{ $logoInvert ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
-                <div class="agency-name">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+                <div class="agency-name">{{ $agence?->name ?? 'Renlio' }}</div>
             @endif
             <div class="agency-sub">
                 {{ $agence?->adresse ?? '' }}
@@ -496,7 +496,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
         @if($estProratise) Paiement proratisé (prorata temporis — entrée en cours de mois). @endif
         <strong>Cette quittance ne vaut pas renonciation aux créances antérieures éventuellement dues.</strong>
         Honoraires d'agence calculés sur loyer nu, TVA 18% incluse (Art. 357 CGI SN).
-        {{ $agence?->name ?? 'BimoTech Immo' }} agit en qualité de Mandataire du Propriétaire Bailleur.
+        {{ $agence?->name ?? 'Renlio' }} agit en qualité de Mandataire du Propriétaire Bailleur.
         Document généré le {{ now()->format('d/m/Y') }}.
     </div>
 
@@ -521,7 +521,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
                 <img src="{{ $sigBase64 }}"
                      style="max-height:60px;max-width:180px;object-fit:contain;margin:8px auto;display:block">
             @else
-                <div class="sig-line">{{ $agence?->name ?? 'BimoTech Immo' }}</div>
+                <div class="sig-line">{{ $agence?->name ?? 'Renlio' }}</div>
             @endif
         </div>
         <div class="sig-spacer"></div>
@@ -537,12 +537,12 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
 <div class="footer">
     <div class="footer-left">
         <div class="footer-text">
-            {{ $agence?->name ?? 'BimoTech Immo' }}
+            {{ $agence?->name ?? 'Renlio' }}
             @if($agence?->adresse) · {{ $agence->adresse }} @endif
             @if($agence?->telephone) · {{ $agence->telephone }} @endif
         </div>
         <div class="footer-text" style="margin-top:2px">
-            Plateforme BimoTech Immo — Gestion immobilière conforme CGI SN
+            Plateforme Renlio — Gestion immobilière conforme CGI SN
         </div>
     </div>
     <div class="footer-right">

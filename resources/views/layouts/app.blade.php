@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex,nofollow">
-    <title>{{ auth()->user()?->agency?->name ?? config('app.name') }} — Bimothèque Immo</title>
+    <title>{{ auth()->user()?->agency?->name ?? config('app.name') }} — Renlio</title>
 
     {{-- PWA --}}
     <link rel="manifest" href="/manifest.json">
@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Bimothèque">
+    <meta name="apple-mobile-web-app-title" content="Renlio">
 
     {{-- Polices --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,7 +75,7 @@
         </div>
         <div class="min-w-0 flex-1">
             <div class="font-display font-bold text-white text-sm leading-tight truncate">
-                {{ auth()->user()?->agency?->name ?? 'Bimothèque' }}
+                {{ auth()->user()?->agency?->name ?? 'Renlio' }}
             </div>
             <div class="font-body text-[10px] text-white/40 uppercase tracking-widest">Immo</div>
         </div>
@@ -303,7 +303,7 @@
     <header class="sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-bimo-navy lg:hidden">
         {{-- Logo --}}
         <span class="font-display font-extrabold text-white text-base">
-            Bimothèque <span style="color: var(--ac)">Immo</span>
+            Renlio <span style="color: var(--ac)">Immo</span>
         </span>
 
         {{-- Avatar --}}
@@ -318,7 +318,7 @@
         {{-- Breadcrumb --}}
         <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/50">
             <a href="{{ route('admin.dashboard') }}" class="hover:text-bimo-navy transition-colors duration-150">
-                {{ auth()->user()?->agency?->name ?? 'Bimothèque' }}
+                {{ auth()->user()?->agency?->name ?? 'Renlio' }}
             </a>
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             <span class="text-bimo-navy font-medium">{{ $header ?? 'Tableau de bord' }}</span>

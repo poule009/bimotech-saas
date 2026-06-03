@@ -1,22 +1,22 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="BimoTech Immo — Logiciel de gestion immobilière pour agences au Sénégal. Biens, contrats, loyers, quittances conformes TVA 18%, BRS, DGID. Essai gratuit 30 jours.">
+<meta name="description" content="Renlio — Logiciel de gestion immobilière pour agences au Sénégal. Biens, contrats, loyers, quittances conformes TVA 18%, BRS, DGID. Essai gratuit 30 jours.">
 <meta name="keywords" content="gestion immobilière Sénégal, logiciel agence immobilière Dakar, quittance loyer Sénégal, TVA immobilier CGI SN">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://immo.bimotechsn.com/">
-<title>BimoTech Immo — Gestion immobilière Sénégal</title>
+<title>Renlio — Gestion immobilière Sénégal</title>
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://immo.bimotechsn.com/">
-<meta property="og:title" content="BimoTech Immo — Gestion immobilière professionnelle au Sénégal">
+<meta property="og:title" content="Renlio — Gestion immobilière professionnelle au Sénégal">
 <meta property="og:description" content="Gérez biens, contrats, loyers et quittances conformes TVA 18% et CGI SN. Essai gratuit 30 jours, sans carte bancaire.">
 <meta property="og:image" content="https://immo.bimotechsn.com/og-image.png">
 <meta property="og:locale" content="fr_SN">
-<meta property="og:site_name" content="BimoTech Immo">
+<meta property="og:site_name" content="Renlio">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="BimoTech Immo — Logiciel gestion immobilière Sénégal">
+<meta name="twitter:title" content="Renlio — Logiciel gestion immobilière Sénégal">
 <meta name="twitter:description" content="Biens, contrats, loyers, quittances. Conforme TVA 18%, BRS, DGID. Essai 30 jours gratuit.">
 <meta name="twitter:image" content="https://immo.bimotechsn.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,7 +85,7 @@
                     {{-- Sidebar --}}
                     <div class="hidden md:flex flex-col gap-0.5 bg-bimo-navy-dk border-r border-white/[8%] p-3">
                         <div class="flex items-center gap-1.5 font-display font-extrabold text-sm text-bimo-gold px-2 py-1 mb-4">
-                            <div class="w-2 h-2 bg-bimo-gold rounded-[2px]"></div>BimoTech
+                            <div class="w-2 h-2 bg-bimo-gold rounded-[2px]"></div>Renlio
                         </div>
                         @foreach([['active','<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>','Dashboard'],['','<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>','Biens'],['','<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>','Contrats'],['','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>','Paiements'],['','<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>','Rapports'],['','<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>','Locataires']] as [$a,$icon,$lbl])
                         <div class="flex items-center gap-2 px-2.5 py-2 rounded-[7px] font-body text-[11.5px] {{ $a === 'active' ? 'bg-bimo-gold/10 text-bimo-gold font-semibold' : 'text-white/40' }}">
@@ -129,7 +129,7 @@
 {{-- ─── TRUST BAR ─── --}}
 <div class="px-[5%] py-10 border-t border-b border-bimo-navy/10 bg-bimo-bg2">
     <div class="max-w-[1000px] mx-auto flex flex-wrap items-center justify-center gap-10">
-        <div class="font-body font-semibold text-[11px] text-bimo-navy/40 uppercase tracking-[1.5px] whitespace-nowrap">Pourquoi BimoTech</div>
+        <div class="font-body font-semibold text-[11px] text-bimo-navy/40 uppercase tracking-[1.5px] whitespace-nowrap">Pourquoi Renlio</div>
         <div class="w-px h-7 bg-bimo-navy/15 flex-shrink-0 hidden md:block"></div>
         <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             @foreach([['Dakar · Thiès · Régions','Agences partout au Sénégal',15],['Wave · Orange Money · Virement','Tous modes de paiement inclus',13],['98%','Taux de recouvrement',22],['TVA · BRS · TOM · DGID','Conformité fiscale CGI SN',13]] as [$n,$d,$fs])
@@ -165,7 +165,7 @@
                 </div>
                 <div class="text-center">
                     <div class="font-display font-bold text-base text-white mb-1.5">Démo disponible sur demande</div>
-                    <div class="font-body text-sm text-white/40">Obtenez une démonstration personnalisée avec un expert BimoTech</div>
+                    <div class="font-body text-sm text-white/40">Obtenez une démonstration personnalisée avec un expert Renlio</div>
                 </div>
                 <a href="{{ route('demo') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[10px] text-bimo-gold font-body font-semibold text-sm no-underline hover:bg-bimo-gold/20 transition-colors duration-150">
                     Demander une démo gratuite →
@@ -184,7 +184,7 @@
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Fonctionnalités
             </div>
             <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy mb-4">Tout ce dont votre agence<br>a besoin, <em class="not-italic text-bimo-gold">rien de superflu</em></h2>
-            <p class="font-body text-base text-bimo-navy/50 max-w-[540px] leading-relaxed">BimoTech n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
+            <p class="font-body text-base text-bimo-navy/50 max-w-[540px] leading-relaxed">Renlio n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach([
@@ -214,13 +214,13 @@
             <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Témoignages
             </div>
-            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy">Ce que disent les agences<br>qui utilisent <em class="not-italic text-bimo-gold">BimoTech</em></h2>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy">Ce que disent les agences<br>qui utilisent <em class="not-italic text-bimo-gold">Renlio</em></h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             @foreach([
-                ['AD','Aminata Dieng','Directrice — Agence Fann Immo, Dakar','Avant BimoTech, je passais mes lundis à relancer les locataires par téléphone. Maintenant les quittances partent automatiquement et mes propriétaires consultent leurs revenus eux-mêmes. Je récupère deux heures par semaine.'],
+                ['AD','Aminata Dieng','Directrice — Agence Fann Immo, Dakar','Avant Renlio, je passais mes lundis à relancer les locataires par téléphone. Maintenant les quittances partent automatiquement et mes propriétaires consultent leurs revenus eux-mêmes. Je récupère deux heures par semaine.'],
                 ['MF','Moustapha Fall','Gérant — Cabinet Thioro Patrimoine, Thiès','La conformité TVA et TOM est ce qui m\'a convaincu. Mon comptable a validé les calculs du premier coup. Je n\'avais rien à paramétrer, tout était déjà dans la loi sénégalaise. Aucun autre logiciel ne fait ça.'],
-                ['SC','Sokhna Cissé','Associée — Immo Almadies, Dakar','On gère 34 appartements à Almadies avec 2 personnes. BimoTech nous a permis de doubler notre portefeuille sans embaucher. Le tableau de bord suffit pour voir en 30 secondes ce qui est payé et ce qui ne l\'est pas.'],
+                ['SC','Sokhna Cissé','Associée — Immo Almadies, Dakar','On gère 34 appartements à Almadies avec 2 personnes. Renlio nous a permis de doubler notre portefeuille sans embaucher. Le tableau de bord suffit pour voir en 30 secondes ce qui est payé et ce qui ne l\'est pas.'],
             ] as [$initials,$name,$role,$text])
             <div class="bg-white border border-bimo-navy/10 rounded-[14px] p-7 hover:border-bimo-navy/20 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div class="font-[Georgia,serif] text-[32px] text-bimo-gold opacity-40 leading-none mb-4">"</div>
@@ -247,7 +247,7 @@
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Conformité fiscale
             </div>
             <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy mb-4">Le seul SaaS immobilier<br><em class="not-italic text-bimo-gold">conforme au droit sénégalais</em></h2>
-            <p class="font-body text-base text-bimo-navy/50 max-w-[540px] leading-relaxed">BimoTech intègre nativement les obligations fiscales et légales du Sénégal. Pas de modules à activer, pas de configuration complexe.</p>
+            <p class="font-body text-base text-bimo-navy/50 max-w-[540px] leading-relaxed">Renlio intègre nativement les obligations fiscales et légales du Sénégal. Pas de modules à activer, pas de configuration complexe.</p>
         </div>
         <div class="bg-bimo-bg border border-bimo-navy/10 rounded-[20px] p-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
@@ -343,7 +343,7 @@
         <div class="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-6">
             <span class="w-4 h-px bg-bimo-gold inline-block"></span>Prêt à vous lancer ?
         </div>
-        <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-white mb-4">Rejoignez les agences qui<br>gèrent mieux avec <em class="not-italic text-bimo-gold">BimoTech</em></h2>
+        <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-white mb-4">Rejoignez les agences qui<br>gèrent mieux avec <em class="not-italic text-bimo-gold">Renlio</em></h2>
         <p class="font-body font-light text-base text-white/50 max-w-[460px] mx-auto mb-10 leading-[1.75]">Votre agence est en ligne en moins de 10 minutes. Aucune installation, aucun engagement.</p>
         <div class="flex items-center justify-center gap-3 flex-wrap mb-6">
             <a href="{{ route('agency.register') }}" class="inline-flex items-center gap-1.5 font-display font-bold text-sm text-bimo-navy no-underline px-7 py-3.5 rounded-[10px] bg-bimo-gold hover:opacity-90 hover:-translate-y-0.5 transition-all duration-150">
@@ -366,7 +366,7 @@
     <div class="max-w-[1040px] mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 pb-12 border-b border-white/[8%]">
             <div>
-                <a href="{{ url('/') }}" class="block mb-3"><img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-9 w-auto"></a>
+                <a href="{{ url('/') }}" class="block mb-3"><img src="/images/logo.jpeg" alt="Renlio" class="h-9 w-auto"></a>
                 <p class="font-body text-sm text-white/40 leading-relaxed max-w-[220px] mb-6">La plateforme de gestion immobilière professionnelle pour les agences sénégalaises.</p>
                 <div class="inline-flex items-center gap-1.5 bg-white/[6%] border border-white/10 rounded-[6px] px-2.5 py-1.5 font-body text-[11px] text-white/40">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -399,7 +399,7 @@
             </div>
         </div>
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-8">
-            <div class="font-body text-xs text-white/30">© {{ date('Y') }} BimoTech · Dakar, Sénégal · support@bimotech.sn</div>
+            <div class="font-body text-xs text-white/30">© {{ date('Y') }} Renlio · Dakar, Sénégal · support@bimotech.sn</div>
             <div class="flex gap-6">
                 <a href="{{ route('mentions-legales') }}" class="font-body text-xs text-white/30 no-underline hover:text-white/50 transition-colors duration-150">Mentions légales</a>
                 <a href="{{ route('confidentialite') }}" class="font-body text-xs text-white/30 no-underline hover:text-white/50 transition-colors duration-150">Confidentialité</a>
@@ -409,12 +409,12 @@
 </footer>
 
 @php
-$schemaOrg = json_encode(['@context'=>'https://schema.org','@graph'=>[['@type'=>'SoftwareApplication','name'=>'BimoTech Immo','url'=>'https://immo.bimotechsn.com','description'=>'Logiciel de gestion immobilière pour agences au Sénégal. Conforme TVA 18%, BRS et CGI SN.','applicationCategory'=>'BusinessApplication','operatingSystem'=>'Web','offers'=>['@type'=>'Offer','price'=>'0','priceCurrency'=>'XOF'],'aggregateRating'=>['@type'=>'AggregateRating','ratingValue'=>'4.9','reviewCount'=>'12']],['@type'=>'Organization','name'=>'BimoTech','url'=>'https://immo.bimotechsn.com','address'=>['@type'=>'PostalAddress','addressLocality'=>'Dakar','addressCountry'=>'SN']]]], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+$schemaOrg = json_encode(['@context'=>'https://schema.org','@graph'=>[['@type'=>'SoftwareApplication','name'=>'Renlio','url'=>'https://immo.bimotechsn.com','description'=>'Logiciel de gestion immobilière pour agences au Sénégal. Conforme TVA 18%, BRS et CGI SN.','applicationCategory'=>'BusinessApplication','operatingSystem'=>'Web','offers'=>['@type'=>'Offer','price'=>'0','priceCurrency'=>'XOF'],'aggregateRating'=>['@type'=>'AggregateRating','ratingValue'=>'4.9','reviewCount'=>'12']],['@type'=>'Organization','name'=>'Renlio','url'=>'https://immo.bimotechsn.com','address'=>['@type'=>'PostalAddress','addressLocality'=>'Dakar','addressCountry'=>'SN']]]], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
 @endphp
 <script type="application/ld+json">{!! $schemaOrg !!}</script>
 
 {{-- Bouton WhatsApp flottant — exception palette documentée (#25D366) --}}
-<a href="https://wa.me/221781318176?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9mo%20de%20BimoTech%20Immo"
+<a href="https://wa.me/221781318176?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9mo%20de%20Renlio%20Immo"
    target="_blank" rel="noopener" title="Discuter sur WhatsApp"
    class="fixed bottom-7 right-7 z-[999] w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center no-underline hover:scale-110 transition-transform duration-150 shadow-lg"
    style="animation:wa-pop .4s cubic-bezier(.34,1.56,.64,1) .8s both">

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -466,7 +466,7 @@ footer{background:var(--noir);border-top:1px solid #1f2937;padding:2rem 20px}
 
 <footer>
   <div class="footer-inner">
-    <span class="footer-copy">© {{ date('Y') }} BIMO-tech. Tous droits réservés.</span>
+    <span class="footer-copy">© {{ date('Y') }} Renlio. Tous droits réservés.</span>
     <div class="footer-links">
       <a href="{{ route('home') }}">Accueil</a>
       <a href="{{ route('pricing') }}">Tarifs</a>

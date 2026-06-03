@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -118,7 +118,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 
 {{-- Pied de page fixe --}}
 <div class="footer">
-    <div class="footer-l">{{ $agency->name ?? 'BimoTech Immo' }} · Contrat de bail · Réf. {{ $contrat->reference_bail_affichee }}</div>
+    <div class="footer-l">{{ $agency->name ?? 'Renlio' }} · Contrat de bail · Réf. {{ $contrat->reference_bail_affichee }}</div>
     <div class="footer-r">Établi le {{ now()->format('d/m/Y') }} · Document confidentiel — à conserver</div>
 </div>
 
@@ -176,7 +176,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             @if($logoSrc)
                 <img src="{{ $logoSrc }}" style="height:40px;max-width:160px;object-fit:contain;display:block;margin-bottom:5px;{{ $logoInvert ? 'filter:brightness(0) invert(1);opacity:.9' : '' }}">
             @else
-                <div class="agence-nom">{{ $agency->name ?? 'BimoTech Immo' }}</div>
+                <div class="agence-nom">{{ $agency->name ?? 'Renlio' }}</div>
             @endif
             <div class="agence-sub">Agence Immobilière · Gestion Locative</div>
             <div class="agence-pill">Mandataire du Propriétaire Bailleur</div>
@@ -621,7 +621,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         Contrat régi par la loi n° 81-18 du 30 mars 1981 relative aux rapports entre bailleurs et locataires.
         @if($contrat->loyer_assujetti_tva) TVA applicable sur le loyer (Art. 355 CGI SN — bail commercial/meublé).@endif
         @if($contrat->brs_applicable) BRS applicable (Art. 201 CGI SN — locataire personne morale).@endif
-        Document établi par <strong>{{ $agency->name ?? 'BimoTech Immo' }}</strong> en qualité de Mandataire.
+        Document établi par <strong>{{ $agency->name ?? 'Renlio' }}</strong> en qualité de Mandataire.
         Toute modification manuelle annule ce document.
     </div>
 

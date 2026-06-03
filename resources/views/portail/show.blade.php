@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -21,14 +21,14 @@ $amenites  = is_array($bien->amenites) ? array_filter($bien->amenites) : [];
     $telBrut   = $bien->agency->whatsapp ?? $bien->agency->telephone ?? null;
     $telClean  = $telBrut ? preg_replace('/[^0-9+]/', '', $telBrut) : null;
 @endphp
-<title>{{ $titrePage }} — Bimothèque Immo</title>
+<title>{{ $titrePage }} — Renlio</title>
 <meta name="description" content="{{ $descPage }}">
-<meta property="og:title"       content="{{ $titrePage }} — Bimothèque Immo">
+<meta property="og:title"       content="{{ $titrePage }} — Renlio">
 <meta property="og:description" content="{{ $descPage }}">
 <meta property="og:image"       content="{{ $imageOg }}">
 <meta property="og:url"         content="{{ route('portail.show', $bien->slug) }}">
 <meta property="og:type"        content="article">
-<meta property="og:site_name"   content="Bimothèque Immo">
+<meta property="og:site_name"   content="Renlio">
 <meta name="twitter:card"       content="summary_large_image">
 <meta name="twitter:title"      content="{{ $titrePage }}">
 <meta name="twitter:image"      content="{{ $imageOg }}">

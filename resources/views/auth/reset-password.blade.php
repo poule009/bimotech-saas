@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr" class="h-full">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Réinitialiser le mot de passe — BimoTech Immo</title>
+<title>Réinitialiser le mot de passe — Renlio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
@@ -18,7 +18,7 @@
     <div class="absolute inset-0 opacity-[0.03]"
          style="background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);background-size:48px 48px;pointer-events:none"></div>
     <a href="{{ url('/') }}" class="relative z-10">
-        <img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-10 w-auto">
+        <img src="/images/logo.jpeg" alt="Renlio" class="h-10 w-auto">
     </a>
     <div class="relative z-10">
         <h2 class="font-display font-extrabold text-[clamp(26px,3vw,36px)] text-white tracking-tight leading-tight mb-5">
