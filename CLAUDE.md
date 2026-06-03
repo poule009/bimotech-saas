@@ -665,6 +665,88 @@ abort_unless($canAccess('immeubles'), 403, 'Fonctionnalité non disponible sur v
 
 ---
 
+## Architecture & Code — règles spécifiques au projet
+
+### Subscription — passer par les méthodes du modèle
+
+Jamais de `update()` direct sur le statut ou les dates d'un abonnement. Le modèle `Subscription` expose des méthodes dédiées qui encapsulent la logique métier :
+
+```php
+// ❌ Jamais
+$subscription->update(['statut' => 'actif', 'date_fin_abonnement' => $date]);
+
+// ✅ Toujours
+$subscription->activer($plan, $dateDebut, $dateFin);
+$subscription->estEnEssai();
+$subscription->estActif();
+$subscription->joursRestantsEssai();
+```
+
+### ActivityLog — logger toutes les actions CRUD sur les ressources clés
+
+Toute création, modification ou suppression sur `Bien`, `Contrat`, `Paiement`, `User`, `Agency` doit être tracée. Sans ça, l'audit est impossible et la fonctionnalité "Activité" du superadmin est inutile.
+
+```php
+// Après chaque action significative dans un contrôleur
+activity()->on($bien)->log('Bien créé');
+activity()->on($contrat)->log('Contrat résilié');
+```
+
+Si un contrôleur existant loggue déjà — vérifier le pattern utilisé et le reproduire à l'identique.
+
+### FiscalService — seule source de vérité des calculs
+
+Zéro calcul de TVA, BRS, CFPB ou montant net en dehors de `FiscalService`. Même pour un calcul "simple" en apparence.
+
+```php
+// ❌ Jamais calculer manuellement
+$tva = $loyer * 0.18;
+$montant_net = $loyer - $tva;
+
+// ✅ Toujours déléguer
+$resultat = app(FiscalService::class)->calculer($contrat, $montant);
+```
+
+### N+1 queries — eager load obligatoire
+
+Les chaînes `Agency → Users → Biens → Contrats → Paiements` génèrent des N+1 dès qu'on itère. Toujours eager load les relations utilisées dans la vue ou le calcul :
+
+```php
+// ❌ N+1 — 1 requête par agence pour charger subscription
+$agences = Agency::all();
+// Dans la vue : $agence->subscription->statut  → N requêtes
+
+// ✅ Eager load
+$agences = Agency::with('subscription', 'users')->get();
+
+// ✅ Pour les listes avec biens + contrats
+$biens = Bien::with(['contratActif', 'proprietaire', 'photos'])->get();
+```
+
+### Soft deletes — 6 modèles concernés
+
+Les modèles suivants utilisent `SoftDeletes` : **`Bien`, `User`, `Contrat`, `Locataire`, `Proprietaire`, `Immeuble`**.
+
+Les modèles suivants **n'en ont pas** : `Agency`, `Subscription`, `Paiement`, `ActivityLog`.
+
+Conséquences :
+```php
+// Sur un modèle avec SoftDeletes
+Bien::find($id)           // exclut automatiquement les supprimés ✅
+Bien::withTrashed()       // inclut les supprimés (portail, archives)
+Bien::onlyTrashed()       // uniquement les supprimés
+
+// Vérifier avant toute action
+if ($bien->trashed()) { abort(404); }
+
+// Sur un modèle SANS SoftDeletes
+Paiement::find($id)       // suppression définitive — pas de withTrashed()
+```
+
+Ne jamais appeler `withTrashed()` sur `Agency`, `Subscription` ou `Paiement` — la méthode n'existe pas.
+
+---
+
 ## Rôles & Plans
 
 ### Rôles utilisateur
