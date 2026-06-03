@@ -94,18 +94,60 @@
 
         @php $route = request()->route()?->getName() ?? ''; @endphp
 
+        @if(auth()->user()->isSuperAdmin())
+        {{-- ══ NAV SUPERADMIN ══════════════════════════════════════════════ --}}
+
+        <a href="{{ route('superadmin.dashboard') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150 mb-1
+                  {{ str_starts_with($route, 'superadmin.dashboard') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="font-display font-semibold text-sm">Tableau de bord</span>
+        </a>
+
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">Plateforme</div>
+
+        <a href="{{ route('superadmin.agencies.create') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'superadmin.agencies') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span class="font-display font-semibold text-sm">Agences</span>
+        </a>
+
+        <a href="{{ route('superadmin.subscriptions') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'superadmin.subscriptions') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            <span class="font-display font-semibold text-sm">Abonnements</span>
+        </a>
+
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">Journal</div>
+
+        <a href="{{ route('superadmin.activity-logs.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'superadmin.activity-logs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="17" x2="8" y2="17"/></svg>
+            <span class="font-display font-semibold text-sm">Activité</span>
+        </a>
+
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">Sécurité</div>
+
+        <a href="{{ route('superadmin.2fa.setup') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'superadmin.2fa') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <span class="font-display font-semibold text-sm">Authentification 2FA</span>
+        </a>
+
+        @else
+        {{-- ══ NAV AGENCE ══════════════════════════════════════════════════ --}}
+
         @php
-            // Calcul du niveau effectif de l'agence connectée
             $planNiveau     = auth()->user()?->agency?->subscription?->plan_niveau ?? 'starter';
             $niveauEffectif = config('plans.niveau_effectif')[$planNiveau] ?? 'starter';
             $hierarchy      = config('plans.hierarchy', ['starter','pro','agence']);
             $posActuelle    = array_search($niveauEffectif, $hierarchy);
-
-            // Retourne true si l'utilisateur a accès à la feature
             $canAccess = fn(string $feature) =>
                 $posActuelle >= array_search(config("plans.features.{$feature}", 'starter'), $hierarchy);
-
-            // Retourne le label du plan requis (ex: 'Pro', 'Agence') ou null si starter
             $planRequired = fn(string $feature) =>
                 ($req = config("plans.features.{$feature}")) && $req !== 'starter'
                     ? config("plans.labels.{$req}", ucfirst($req))
@@ -152,7 +194,6 @@
                 @endif
             @endif
         </a>
-
         <a href="{{ route('admin.import.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.import') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
@@ -242,6 +283,8 @@
             @endif
         </a>
 
+        @endif {{-- /isSuperAdmin --}}
+
         <div class="pb-2"></div>
 
     </nav>
@@ -276,11 +319,13 @@
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     Mon profil
                 </a>
+                @if(!auth()->user()->isSuperAdmin())
                 <a href="{{ route('admin.agency.settings') }}" onclick="closeSidebar()"
                    class="flex items-center gap-3 px-4 py-3 text-white/70 hover:text-white hover:bg-white/5 transition-colors duration-150 font-body text-sm border-t border-white/10">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                     Paramètres agence
                 </a>
+                @endif
                 <form method="POST" action="{{ route('logout') }}" class="border-t border-white/10">
                     @csrf
                     <button type="submit"
@@ -475,11 +520,76 @@
 
     </main>
 
-    {{-- BOTTOM NAV MOBILE — Option A : 5 onglets fixes --}}
+    {{-- BOTTOM NAV MOBILE --}}
+    @php $routeNow = request()->route()?->getName() ?? ''; @endphp
+
+    @if(auth()->user()->isSuperAdmin())
+    {{-- Bottom nav superadmin --}}
     <nav class="fixed bottom-0 left-0 right-0 bg-bimo-navy border-t border-white/10 z-20 lg:hidden flex items-stretch"
          style="height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px)">
 
-        @php $routeNow = request()->route()?->getName() ?? ''; @endphp
+        {{-- Dashboard --}}
+        <a href="{{ route('superadmin.dashboard') }}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150
+                  {{ str_starts_with($routeNow, 'superadmin.dashboard') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Accueil</span>
+        </a>
+
+        {{-- Agences --}}
+        <a href="{{ route('superadmin.agencies.create') }}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150
+                  {{ str_starts_with($routeNow, 'superadmin.agencies') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Agences</span>
+        </a>
+
+        {{-- Abonnements --}}
+        <a href="{{ route('superadmin.subscriptions') }}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150
+                  {{ str_starts_with($routeNow, 'superadmin.subscriptions') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <rect x="1" y="4" width="22" height="16" rx="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Abonnem.</span>
+        </a>
+
+        {{-- Activité --}}
+        <a href="{{ route('superadmin.activity-logs.index') }}"
+           class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150
+                  {{ str_starts_with($routeNow, 'superadmin.activity-logs') ? 'text-bimo-gold' : 'text-white/40 hover:text-white/70' }}">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="17" x2="8" y2="17"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Activité</span>
+        </a>
+
+        {{-- Menu — ouvre la sidebar --}}
+        <button onclick="openSidebar()"
+                class="flex flex-col items-center justify-center gap-0.5 flex-1 py-2 transition-colors duration-150 border-none bg-transparent
+                       text-white/40 hover:text-white/70">
+            <svg class="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Menu</span>
+        </button>
+
+    </nav>
+    @else
+    {{-- Bottom nav agence --}}
+    <nav class="fixed bottom-0 left-0 right-0 bg-bimo-navy border-t border-white/10 z-20 lg:hidden flex items-stretch"
+         style="height: calc(56px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px)">
 
         {{-- Dashboard --}}
         <a href="{{ route('admin.dashboard') }}"
@@ -540,6 +650,7 @@
         </button>
 
     </nav>
+    @endif
 
 </div>{{-- fin .lg:ml-64 --}}
 

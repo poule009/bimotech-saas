@@ -7,7 +7,7 @@
 $expirantBientot = $agences->filter(function($a) {
     $sub = $a->subscription;
     if (!$sub) return false;
-    $date = $sub->statut === 'essai' ? $sub->essai_fin : $sub->abonnement_fin;
+    $date = $sub->statut === 'essai' ? $sub->date_fin_essai : $sub->date_fin_abonnement;
     return $date && \Carbon\Carbon::parse($date)->diffInDays(now(), false) >= -7 && \Carbon\Carbon::parse($date)->isFuture();
 });
 @endphp
@@ -110,7 +110,7 @@ $expirantBientot = $agences->filter(function($a) {
             @forelse($agences as $agence)
             @php
                 $sub = $agence->subscription;
-                $date = $sub ? ($sub->statut === 'essai' ? $sub->essai_fin : $sub->abonnement_fin) : null;
+                $date = $sub ? ($sub->statut === 'essai' ? $sub->date_fin_essai : $sub->date_fin_abonnement) : null;
                 $jours = $date ? (int)\Carbon\Carbon::parse($date)->diffInDays(now(), false) * -1 : null;
                 $filterStatut = !$agence->actif ? 'suspendu' : ($sub ? $sub->statut : 'aucun');
             @endphp
@@ -150,7 +150,7 @@ $expirantBientot = $agences->filter(function($a) {
                     @forelse($agences as $agence)
                     @php
                         $sub = $agence->subscription;
-                        $date = $sub ? ($sub->statut === 'essai' ? $sub->essai_fin : $sub->abonnement_fin) : null;
+                        $date = $sub ? ($sub->statut === 'essai' ? $sub->date_fin_essai : $sub->date_fin_abonnement) : null;
                         $jours = $date ? (int)\Carbon\Carbon::parse($date)->diffInDays(now(), false) * -1 : null;
                         $filterStatut = !$agence->actif ? 'suspendu' : ($sub ? $sub->statut : 'aucun');
                     @endphp
