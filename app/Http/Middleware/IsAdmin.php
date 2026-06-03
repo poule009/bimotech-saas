@@ -30,22 +30,3 @@ class IsAdmin
         return $next($request);
     }
 }
-// ```
-
-// ---
-
-// ## Récapitulatif de ce qu'on vient de faire
-// ```
-// app/
-// ├── Models/
-// │   ├── Agency.php          ← NOUVEAU  : le modèle agence
-// │   ├── Scopes/
-// │   │   └── AgencyScope.php ← NOUVEAU  : le filtre automatique
-// │   ├── User.php            ← MODIFIÉ  : + agency_id, + isSuperAdmin()
-// │   ├── Bien.php            ← MODIFIÉ  : + AgencyScope + auto agency_id
-// │   ├── Contrat.php         ← MODIFIÉ  : + AgencyScope + auto agency_id
-// │   └── Paiement.php        ← MODIFIÉ  : + AgencyScope + auto agency_id
-// ├── Http/Middleware/
-// │   └── IsAdmin.php         ← MODIFIÉ  : suppression du hardcode email
-// └── Providers/
-//     └── AppServiceProvider.php ← MODIFIÉ : + isSuperAdmin, + View::composer

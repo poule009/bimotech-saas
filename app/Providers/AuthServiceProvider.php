@@ -45,6 +45,11 @@ class AuthServiceProvider extends ServiceProvider
             return in_array($user->role, ['admin', 'superadmin']);
         });
 
+        // Directeur d'agence uniquement (is_owner=true) — paramètres agence, gestion équipe
+        Gate::define('isOwner', function ($user) {
+            return $user->role === 'superadmin' || ($user->role === 'admin' && $user->is_owner);
+        });
+
         // ── Gates sémantiques — utilisées dans les vues via @can ─────────────
 
         Gate::define('admin-agence', function ($user) {

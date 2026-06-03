@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^3.1",
         "pragmarx/google2fa-laravel": "*",
+        "sentry/sentry-laravel": "*",
         "voku/portable-ascii": "^2.1"
     },
     "require-dev": {

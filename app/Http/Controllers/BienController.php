@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBienRequest;
+use App\Http\Requests\UpdateBienRequest;
 use App\Models\Bien;
 use App\Models\Immeuble;
 use App\Models\User;
@@ -23,14 +25,19 @@ class BienController extends Controller
         // Pour tous les autres statuts, le scope SoftDeletes exclut automatiquement les archivés.
         $isArchive = $request->statut === 'archive';
 
+        $colonnes = ['id', 'agency_id', 'proprietaire_id', 'immeuble_id', 'reference',
+                     'titre', 'type', 'adresse', 'quartier', 'ville', 'statut', 'loyer_mensuel'];
+
         $query = $isArchive
-            ? Bien::onlyTrashed()->with([
+            ? Bien::onlyTrashed()->select($colonnes)->with([
                 'proprietaire:id,name,email',
                 'contratActif.locataire:id,name,telephone',
+                'photos' => fn($q) => $q->where('est_principale', true)->select(['id', 'bien_id', 'chemin', 'est_principale']),
             ])
-            : Bien::with([
+            : Bien::select($colonnes)->with([
                 'proprietaire:id,name,email',
                 'contratActif.locataire:id,name,telephone',
+                'photos' => fn($q) => $q->where('est_principale', true)->select(['id', 'bien_id', 'chemin', 'est_principale']),
             ]);
 
         if ($request->filled('q')) {
@@ -109,40 +116,10 @@ class BienController extends Controller
         return view('biens.create', compact('proprietaires', 'immeubles', 'immeubleSelectionne'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreBienRequest $request): RedirectResponse
     {
-        $this->authorize('isStaff');
-
-        $validated = $request->validate([
-            'proprietaire_id' => ['required', 'exists:users,id'],
-            'immeuble_id'     => ['nullable', 'exists:immeubles,id'],
-            'titre'           => ['nullable', 'string', 'max:255'],
-            'type'            => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::TYPES))],
-            'adresse'         => ['required', 'string', 'max:255'],
-            'quartier'        => ['nullable', 'string', 'max:100'],
-            'commune'         => ['nullable', 'string', 'max:100'],
-            'ville'           => ['required', 'string', 'max:100'],
-            'surface_m2'      => ['nullable', 'numeric', 'min:1'],
-            'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
-            'nombre_chambres' => ['nullable', 'integer', 'min:0', 'max:99'],
-            'nombre_sdb'      => ['nullable', 'integer', 'min:0', 'max:99'],
-            'parking'         => ['nullable', 'boolean'],
-            'climatise'       => ['nullable', 'boolean'],
-            'etage'           => ['nullable', 'integer', 'min:-1', 'max:50'],
-            'amenites'        => ['nullable', 'string', 'max:500'],
-            'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
-            'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
-            'meuble'          => ['nullable', 'boolean'],
-            'description'     => ['nullable', 'string'],
-        ], [
-            'proprietaire_id.required' => 'Veuillez sélectionner un propriétaire.',
-            'type.required'            => 'Le type de bien est obligatoire.',
-            'type.in'                  => 'Le type sélectionné est invalide.',
-            'adresse.required'         => "L'adresse est obligatoire.",
-            'ville.required'           => 'La ville est obligatoire.',
-            'loyer_mensuel.required'   => 'Le loyer est obligatoire.',
-            'loyer_mensuel.min'        => 'Le loyer doit être d\'au moins 1 000 FCFA.',
-        ]);
+        // authorize() et rules() gérés par StoreBienRequest
+        $validated = $request->validated();
 
         $agencyId = Auth::user()->agency_id;
 
@@ -233,39 +210,10 @@ class BienController extends Controller
         return view('biens.edit', compact('bien', 'proprietaires'));
     }
 
-    public function update(Request $request, Bien $bien): RedirectResponse
+    public function update(UpdateBienRequest $request, Bien $bien): RedirectResponse
     {
-        $this->authorize('isStaff');
-
-        $validated = $request->validate([
-            'proprietaire_id' => ['required', 'exists:users,id'],
-            'titre'           => ['nullable', 'string', 'max:255'],
-            'type'            => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Models\Bien::TYPES))],
-            'adresse'         => ['required', 'string', 'max:255'],
-            'quartier'        => ['nullable', 'string', 'max:100'],
-            'commune'         => ['nullable', 'string', 'max:100'],
-            'ville'           => ['required', 'string', 'max:100'],
-            'surface_m2'      => ['nullable', 'numeric', 'min:1'],
-            'nombre_pieces'   => ['nullable', 'integer', 'min:1'],
-            'nombre_chambres' => ['nullable', 'integer', 'min:0', 'max:99'],
-            'nombre_sdb'      => ['nullable', 'integer', 'min:0', 'max:99'],
-            'parking'         => ['nullable', 'boolean'],
-            'climatise'       => ['nullable', 'boolean'],
-            'etage'           => ['nullable', 'integer', 'min:-1', 'max:50'],
-            'amenites'        => ['nullable', 'string', 'max:500'],
-            'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
-            'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
-            'meuble'          => ['nullable', 'boolean'],
-            'statut'          => ['required', \Illuminate\Validation\Rule::in(['disponible', 'loue', 'en_travaux'])],
-            'description'     => ['nullable', 'string'],
-            'visible_portail' => ['nullable', 'boolean'],
-        ], [
-            'type.required'          => 'Le type de bien est obligatoire.',
-            'type.in'                => 'Le type sélectionné est invalide.',
-            'statut.required'        => 'Le statut est obligatoire.',
-            'statut.in'              => 'Le statut sélectionné est invalide.',
-            'loyer_mensuel.min'      => 'Le loyer doit être d\'au moins 1 000 FCFA.',
-        ]);
+        // authorize() et rules() gérés par UpdateBienRequest
+        $validated = $request->validated();
 
         // Vérification IDOR : empêche de rattacher ce bien à un propriétaire d'une autre agence
         $proprioValide = \App\Models\User::where('id', $validated['proprietaire_id'])

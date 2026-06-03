@@ -27,6 +27,14 @@ return [
         'logs_activite'       => 'agence',
     ],
 
+    // Nombre max de collaborateurs admins par agence (directeur inclus)
+    'nb_admins_max' => [
+        'starter' => 2,
+        'pro'     => 5,
+        'agence'  => null, // illimité
+        'legacy'  => 5,
+    ],
+
     // Labels affichés dans les messages utilisateur
     'labels' => [
         'starter' => 'Starter',

@@ -45,8 +45,15 @@ trait LogsActivity
                 default   => sprintf('%s #%s %s', class_basename($model), $model->getKey(), $action),
             };
 
+            // Pendant une impersonation, auth()->user() retourne l'admin impersonné.
+            // On note le superadmin réel dans la description pour l'audit.
+            $superadminId = session('impersonating_id');
+            if ($superadminId) {
+                $description .= sprintf(' [via impersonation superadmin #%s]', $superadminId);
+            }
+
             ActivityLog::create([
-                'user_id'     => $user?->id,
+                'user_id'     => $superadminId ?? $user?->id,
                 'agency_id'   => $agencyId,
                 'action'      => $action,
                 'description' => $description,

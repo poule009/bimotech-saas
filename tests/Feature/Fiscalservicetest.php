@@ -6,7 +6,7 @@ use App\Services\FiscalContext;
 use App\Services\FiscalResult;
 use App\Services\FiscalService;
 use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 /**
  * FiscalServiceTest — Tests unitaires du moteur de calcul fiscal sénégalais.
@@ -22,6 +22,7 @@ class FiscalServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['features.fiscalite' => true]);
         $this->service = new FiscalService();
     }
 

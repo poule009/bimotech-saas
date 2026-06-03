@@ -217,6 +217,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('{user}',      [UserController::class, 'destroy'])->name('destroy');
         });
 
+        // Gestion équipe (collaborateurs) — directeur uniquement
+        Route::middleware('can:isOwner')->prefix('equipe')->name('equipe.')->group(function () {
+            Route::get('/',              [\App\Http\Controllers\EquipeController::class, 'index'])->name('index');
+            Route::get('/invite',        [\App\Http\Controllers\EquipeController::class, 'create'])->name('create');
+            Route::post('/',             [\App\Http\Controllers\EquipeController::class, 'store'])->name('store');
+            Route::delete('/{user}',     [\App\Http\Controllers\EquipeController::class, 'destroy'])->name('destroy');
+        });
+
         // Import Excel
         Route::prefix('import')->name('import.')->middleware('check.feature:import_excel')->group(function () {
             Route::get('/',                         [ImportController::class, 'index'])->name('index');

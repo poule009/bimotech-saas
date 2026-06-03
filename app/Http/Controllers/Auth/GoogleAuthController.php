@@ -113,6 +113,7 @@ class GoogleAuthController extends Controller
                 $admin->password          = Hash::make(Str::random(32));
                 $admin->email_verified_at = now();
                 $admin->role              = 'admin';
+                $admin->is_owner          = true;
                 $admin->agency_id         = $agency->id;
                 $admin->save();
 

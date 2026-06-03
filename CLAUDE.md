@@ -32,7 +32,7 @@
 
 ## Stack technique
 
-- Laravel 11 (bootstrap/app.php — pas de Kernel.php)
+- Laravel 12 (bootstrap/app.php — pas de Kernel.php)
 - Blade templates (pas de Vue/React/Livewire)
 - **Tailwind CSS v3** + **Alpine.js v3**
 - Vite (`npm run dev` / `npm run build`)
@@ -103,6 +103,19 @@ bg-bimo-gold/7       ❌  →  invalide sans []
 ### Exception couleur — Rouge impayés
 
 `bimo-red` (`#EF4444`) — UNIQUEMENT pour impayés et alertes critiques.
+
+### Contrastes WCAG 2.1 — Ratios minimum
+
+| Type de texte | Ratio AA minimum | Ratio AAA |
+|---------------|-----------------|-----------|
+| Texte normal (< 18pt) | **4.5:1** | 7:1 |
+| Texte large (≥ 18pt ou ≥ 14pt bold) | **3:1** | 4.5:1 |
+| Composants UI (bordures, icônes) | **3:1** | — |
+
+**Règles pour ce projet :**
+- `text-bimo-navy/50` sur fond blanc → ratio ~3.2:1 — **sous le seuil AA** pour du texte normal. Utiliser `/70` minimum pour les labels importants, réserver `/50` aux métadonnées secondaires (caps uppercase < 11px uniquement).
+- `text-[9.5px]` labels KPI — accepté comme exception documentée (caps uppercase, contexte dense), mais ne jamais descendre en dessous.
+- `text-bimo-gold/70` sur fond blanc → ratio ~2.8:1 — **exception documentée** pour les labels caps de cards highlighted uniquement.
 
 ### Règle absolue
 
@@ -623,6 +636,20 @@ $bien = Bien::where('agency_id', auth()->user()->agency_id)->findOrFail($id);
 **IDOR — toujours vérifier la propriété de la ressource**
 
 Règle : tout `findOrFail($id)` dans un contrôleur admin doit être suivi d'une vérification d'appartenance ou d'une policy. Un admin d'agence A ne doit jamais pouvoir lire, modifier ou supprimer une ressource de l'agence B.
+
+**Policy — préférer `denyAsNotFound()` pour les ressources privées**
+
+Quand une ressource existe mais n'appartient pas à l'agence courante, retourner 404 plutôt que 403 pour ne pas révéler l'existence de la ressource :
+
+```php
+// ❌ Révèle que la ressource existe mais est interdite
+return Response::deny('Ce bien n\'appartient pas à votre agence.');
+
+// ✅ Ne révèle pas l'existence — plus sûr en multi-tenant
+return Response::denyAsNotFound();
+```
+
+Réservé aux ressources que l'utilisateur ne devrait pas savoir qu'elles existent (biens, contrats, paiements d'autres agences). Garder `deny()` avec message pour les erreurs métier légitimes (ex : contrat actif ne peut pas être supprimé).
 
 **Escalade de rôle — jamais permettre l'auto-modification de rôle**
 

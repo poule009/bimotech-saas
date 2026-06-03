@@ -46,17 +46,17 @@ class PaiementPolicy
         return match ($user->role) {
             'admin' => $user->agency_id === $paiement->agency_id
                 ? Response::allow()
-                : Response::deny('Ce paiement n\'appartient pas à votre agence.'),
+                : Response::denyAsNotFound(),
 
             'proprietaire' => $paiement->contrat?->bien?->proprietaire_id === $user->id
                 ? Response::allow()
-                : Response::deny('Ce paiement ne concerne pas l\'un de vos biens.'),
+                : Response::denyAsNotFound(),
 
             'locataire' => (int) $paiement->contrat?->locataire_id === (int) $user->id
                 ? Response::allow()
-                : Response::deny('Ce paiement ne vous concerne pas.'),
+                : Response::denyAsNotFound(),
 
-            default => Response::deny('Accès refusé.'),
+            default => Response::denyAsNotFound(),
         };
     }
 
@@ -85,7 +85,7 @@ class PaiementPolicy
 
         return $user->agency_id === $paiement->agency_id
             ? Response::allow()
-            : Response::deny('Ce paiement n\'appartient pas à votre agence.');
+            : Response::denyAsNotFound();
     }
 
     /**
@@ -103,7 +103,7 @@ class PaiementPolicy
 
         return $user->agency_id === $paiement->agency_id
             ? Response::allow()
-            : Response::deny('Accès refusé.');
+            : Response::denyAsNotFound();
     }
 
     /**
@@ -134,6 +134,6 @@ class PaiementPolicy
 
         return $user->agency_id === $paiement->agency_id
             ? Response::allow()
-            : Response::deny('Accès refusé.');
+            : Response::denyAsNotFound();
     }
 }

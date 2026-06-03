@@ -462,6 +462,7 @@ class SuperAdminController extends Controller
                 $admin->email     = $request->admin_email;
                 $admin->password  = \Illuminate\Support\Facades\Hash::make($request->admin_password);
                 $admin->role      = 'admin';
+                $admin->is_owner  = true;
                 $admin->agency_id = $agency->id;
                 $admin->email_verified_at = now();
                 $admin->save();

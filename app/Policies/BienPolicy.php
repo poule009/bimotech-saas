@@ -56,7 +56,7 @@ class BienPolicy
         if ($user->role === 'proprietaire') {
             return $user->id === $bien->proprietaire_id
                 ? Response::allow()
-                : Response::deny('Vous n\'êtes pas le propriétaire de ce bien.');
+                : Response::denyAsNotFound();
         }
 
         // Le locataire peut voir le bien associé à son contrat actif
@@ -68,13 +68,13 @@ class BienPolicy
 
             return $contratActif
                 ? Response::allow()
-                : Response::deny('Vous n\'avez pas accès à ce bien.');
+                : Response::denyAsNotFound();
         }
 
         // Admin de l'agence : accès complet à tous les biens de son agence
         return $user->agency_id === $bien->agency_id
             ? Response::allow()
-            : Response::deny('Ce bien n\'appartient pas à votre agence.');
+            : Response::denyAsNotFound();
     }
 
     /**
@@ -96,7 +96,7 @@ class BienPolicy
 
         return $user->agency_id === $bien->agency_id
             ? Response::allow()
-            : Response::deny('Ce bien n\'appartient pas à votre agence.');
+            : Response::denyAsNotFound();
     }
 
     /**
@@ -115,7 +115,7 @@ class BienPolicy
 
         return $user->agency_id === $bien->agency_id
             ? Response::allow()
-            : Response::deny('Ce bien n\'appartient pas à votre agence.');
+            : Response::denyAsNotFound();
     }
 
     /**

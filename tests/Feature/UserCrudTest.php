@@ -111,8 +111,8 @@ class UserCrudTest extends TestCase
                  'name'                  => 'Aissatou Ba',
                  'email'                 => 'aissatou.ba@test.com',
                  'telephone'             => '+221 76 222 33 44',
-                 'password'              => 'password123',
-                 'password_confirmation' => 'password123',
+                 'password'              => 'Password123!',
+                 'password_confirmation' => 'Password123!',
              ])
              ->assertRedirect();
 

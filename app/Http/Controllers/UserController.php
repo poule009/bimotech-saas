@@ -71,11 +71,16 @@ class UserController extends Controller
             ->orderBy('name')
             ->paginate(15);
 
-        // Agrégats SQL — pas de get() en mémoire
+        // Agrégats SQL — 1 requête groupée au lieu de 2 COUNT séparés
+        $bienStats = Bien::selectRaw("
+            COUNT(*) AS total_biens,
+            SUM(CASE WHEN statut = 'loue' THEN 1 ELSE 0 END) AS biens_loues
+        ")->first();
+
         $stats = [
             'total'       => User::where('role', 'proprietaire')->where('agency_id', $agencyId)->count(),
-            'total_biens' => Bien::count(),
-            'biens_loues' => Bien::where('statut', 'loue')->count(),
+            'total_biens' => (int) ($bienStats->total_biens ?? 0),
+            'biens_loues' => (int) ($bienStats->biens_loues ?? 0),
         ];
 
         return view('users.proprietaires', compact('proprietaires', 'stats'));

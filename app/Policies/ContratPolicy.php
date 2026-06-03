@@ -44,17 +44,17 @@ class ContratPolicy
         return match ($user->role) {
             'admin' => $user->agency_id === $contrat->agency_id
                 ? Response::allow()
-                : Response::deny('Ce contrat n\'appartient pas à votre agence.'),
+                : Response::denyAsNotFound(),
 
             'proprietaire' => $contrat->bien?->proprietaire_id === $user->id
                 ? Response::allow()
-                : Response::deny('Vous n\'êtes pas le propriétaire du bien concerné.'),
+                : Response::denyAsNotFound(),
 
             'locataire' => (int) $contrat->locataire_id === (int) $user->id
                 ? Response::allow()
-                : Response::deny('Ce contrat ne vous concerne pas.'),
+                : Response::denyAsNotFound(),
 
-            default => Response::deny('Accès refusé.'),
+            default => Response::denyAsNotFound(),
         };
     }
 
@@ -80,7 +80,7 @@ class ContratPolicy
 
         return $user->agency_id === $contrat->agency_id
             ? Response::allow()
-            : Response::deny('Ce contrat n\'appartient pas à votre agence.');
+            : Response::denyAsNotFound();
     }
 
     /**
@@ -98,7 +98,7 @@ class ContratPolicy
 
         return $user->agency_id === $contrat->agency_id
             ? Response::allow()
-            : Response::deny('Ce contrat n\'appartient pas à votre agence.');
+            : Response::denyAsNotFound();
     }
 
     /**
@@ -117,6 +117,6 @@ class ContratPolicy
 
         return $user->agency_id === $contrat->agency_id
             ? Response::allow()
-            : Response::deny('Accès refusé.');
+            : Response::denyAsNotFound();
     }
 }

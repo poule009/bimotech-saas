@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Services\FiscalContext;
 use App\Services\FiscalService;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 
 /**
  * FiscalServiceTest — Vérifie les règles BRS et TVA du moteur fiscal.
@@ -20,6 +20,12 @@ use PHPUnit\Framework\TestCase;
  */
 class FiscalServiceTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config(['features.fiscalite' => true]);
+    }
+
     // ── Constructeur FiscalContext minimal réutilisable ──────────────────────
 
     private function makeCtx(array $overrides = []): FiscalContext

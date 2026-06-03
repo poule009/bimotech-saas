@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, LogsActivity;
 
     /**
      * SÉCURITÉ — Mass Assignment :
@@ -39,6 +40,8 @@ class User extends Authenticatable
         'email_verified_at',
     ];
 
+    // is_owner et role intentionnellement absents de $fillable — assignation directe uniquement
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -47,6 +50,7 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
+        'is_owner'                 => 'boolean',
         'email_verified_at'        => 'datetime',
         'two_factor_confirmed_at'  => 'datetime',
         'password'                 => 'hashed',
@@ -105,6 +109,7 @@ class User extends Authenticatable
 
     public function isSuperAdmin(): bool   { return $this->role === UserRole::SuperAdmin->value; }
     public function isAdmin(): bool        { return $this->role === UserRole::Admin->value; }
+    public function isOwner(): bool        { return $this->isAdmin() && (bool) $this->is_owner; }
     public function isProprietaire(): bool { return $this->role === UserRole::Proprietaire->value; }
     public function isLocataire(): bool    { return $this->role === UserRole::Locataire->value; }
 

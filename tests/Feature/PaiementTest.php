@@ -172,9 +172,9 @@ class PaiementTest extends TestCase
             'statut'                   => 'valide',
         ]);
 
-        // L'autre locataire tente d'accéder au PDF → doit recevoir 403
+        // L'autre locataire tente d'accéder au PDF → 404 (denyAsNotFound — ne révèle pas l'existence)
         $this->actingAs($autreLocataire)
              ->get(route('locataire.paiements.pdf', $paiement))
-             ->assertForbidden();
+             ->assertNotFound();
     }
 }

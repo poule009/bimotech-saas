@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasAgencyScope;
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class Paiement extends Model
 {
-    use HasFactory, HasAgencyScope;
+    use HasFactory, HasAgencyScope, LogsActivity;
 
     // ── Fillable — reflète exactement la structure après migrations fiscales ──
 

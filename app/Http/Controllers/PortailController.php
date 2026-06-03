@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agency;
 use App\Models\Bien;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class PortailController extends Controller
@@ -28,9 +29,12 @@ class PortailController extends Controller
             ->limit(8)
             ->get();
 
-        $nbBiens   = Bien::portail()->count();
-        $nbAgences = \App\Models\Agency::where('actif', true)->count();
-        $nbVilles  = Bien::portail()->distinct('ville')->count('ville');
+        // Cache 10 min — stats affichées en vitrine, pas critiques au temps réel
+        [$nbBiens, $nbAgences, $nbVilles] = Cache::remember('portail_stats', 600, fn() => [
+            Bien::portail()->count(),
+            Agency::where('actif', true)->count(),
+            Bien::portail()->distinct('ville')->count('ville'),
+        ]);
 
         return view('portail.home', compact('nouveaux', 'quartiers', 'nbBiens', 'nbAgences', 'nbVilles'));
     }
