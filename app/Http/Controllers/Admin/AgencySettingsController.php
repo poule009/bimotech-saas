@@ -21,9 +21,11 @@ class AgencySettingsController extends Controller
 
     public function edit(): View
     {
-        abort_unless(Auth::user()->isOwner() || Auth::user()->isSuperAdmin(), 403);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        abort_unless($user->isOwner() || $user->isSuperAdmin(), 403);
 
-        $agency = Auth::user()->agency;
+        $agency = $user->agency;
 
         return view('admin.agency-settings', compact('agency'));
     }
@@ -32,7 +34,9 @@ class AgencySettingsController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        abort_unless(Auth::user()->isOwner() || Auth::user()->isSuperAdmin(), 403);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        abort_unless($user->isOwner() || $user->isSuperAdmin(), 403);
 
         $agency = Auth::user()->agency;
 
