@@ -559,6 +559,112 @@ Pour les erreurs de validation inline dans un formulaire (en plus du flash globa
 
 ---
 
+## Sécurité — règles non négociables
+
+### Règles de base Laravel (toujours)
+
+**XSS — `{{ }}` par défaut, jamais `{!! !!}` sans raison documentée**
+```blade
+{{ $variable }}      ✅ — échappe automatiquement
+{!! $variable !!}    ❌ — uniquement si HTML de confiance ET commentaire qui explique pourquoi
+```
+
+**CSRF — `@csrf` dans chaque formulaire sans exception**
+```blade
+<form method="POST">
+    @csrf   {{-- obligatoire --}}
+```
+
+**Mass assignment — toujours passer par un FormRequest**
+```php
+// ❌ Jamais
+Bien::create($request->all());
+
+// ✅ Toujours
+Bien::create($request->validated());
+// ou un FormRequest explicite avec rules()
+```
+
+**SQL injection — Eloquent/query builder uniquement, jamais de raw avec input**
+```php
+// ❌ Jamais
+DB::select("SELECT * FROM biens WHERE quartier = '$quartier'");
+
+// ✅ Toujours
+Bien::where('quartier', $quartier)->get();
+```
+
+**Logs — jamais de données sensibles**
+```php
+// ❌ Jamais logger
+Log::info('Paiement', ['montant' => $montant, 'token' => $token]);
+
+// ✅ Logger uniquement les IDs et statuts
+Log::info('Paiement créé', ['paiement_id' => $paiement->id]);
+```
+
+---
+
+### Règles spécifiques à ce SaaS
+
+**Multi-tenancy — vérifier agency_id avant chaque action**
+
+Chaque contrôleur admin doit s'assurer que la ressource appartient à l'agence courante. Ne jamais faire confiance à l'ID dans l'URL seul :
+
+```php
+// ❌ Dangereux — un admin peut accéder aux biens d'une autre agence
+$bien = Bien::findOrFail($id);
+
+// ✅ Correct — scope forcé à l'agence courante
+$bien = Bien::where('agency_id', auth()->user()->agency_id)->findOrFail($id);
+// ou via policy : $this->authorize('view', $bien);
+```
+
+**IDOR — toujours vérifier la propriété de la ressource**
+
+Règle : tout `findOrFail($id)` dans un contrôleur admin doit être suivi d'une vérification d'appartenance ou d'une policy. Un admin d'agence A ne doit jamais pouvoir lire, modifier ou supprimer une ressource de l'agence B.
+
+**Escalade de rôle — jamais permettre l'auto-modification de rôle**
+
+```php
+// ❌ Jamais dans une mise à jour de profil
+$user->update($request->validated()); // si 'role' est dans validated()
+
+// ✅ Exclure explicitement le rôle des champs modifiables par l'utilisateur lui-même
+$user->update($request->safe()->except(['role', 'agency_id']));
+```
+
+**Fiscalité = responsabilité légale**
+
+Les calculs TVA 18%, BRS 5%, CFPB sont des obligations légales sénégalaises. Une erreur n'est pas un bug UI, c'est un problème juridique. Règle absolue :
+- Zéro modification de `FiscalService` sans validation métier explicite du client
+- Zéro arrondi manuel sur les montants fiscaux — laisser `FiscalService` gérer
+- Zéro contournement de `config('features.fiscalite')`
+
+**Superadmin — compte unique, protection maximale**
+
+- Le 2FA est obligatoire et déjà enforced par le middleware `require2fa`
+- Jamais de seeder qui crée un superadmin avec un mot de passe par défaut (`password`, `admin123`, etc.) en production
+- Jamais d'endpoint qui permet de créer un second superadmin depuis l'interface
+
+**Impersonation — traçabilité obligatoire**
+
+Quand un superadmin impersonne un admin et effectue une action, l'`ActivityLog` doit enregistrer l'ID du superadmin réel (dans `session('impersonating_id')`), pas seulement l'ID de l'admin impersonné. Sans ça, impossible d'auditer qui a vraiment fait quoi.
+
+**Abonnements expirés — vérification serveur, pas seulement UI**
+
+Les badges et locks dans la nav sont de l'UI — ils peuvent être contournés. Toute feature payante doit être vérifiée côté contrôleur ou middleware :
+
+```php
+// ❌ Insuffisant — vérification UI seulement (dans la vue)
+@if($canAccess('immeubles'))
+
+// ✅ Vérification serveur en plus (dans le contrôleur)
+abort_unless($canAccess('immeubles'), 403, 'Fonctionnalité non disponible sur votre plan.');
+```
+
+---
+
 ## Rôles & Plans
 
 ### Rôles utilisateur
