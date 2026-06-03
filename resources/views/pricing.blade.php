@@ -46,7 +46,7 @@
             <div class="font-body font-bold text-[13px] uppercase tracking-[1px] text-bimo-navy/40 mb-1.5">Agence</div>
             <div class="font-body text-xs text-bimo-navy/30 mb-5">Unités illimitées</div>
             <div class="mb-1.5">
-                <span class="font-display font-extrabold text-[36px] tracking-tight leading-none text-bimo-navy" id="price-agence">89 900</span>
+                <span class="font-display font-extrabold text-[36px] tracking-tight leading-none text-bimo-navy" id="price-agence">69 900</span>
                 <span class="font-body text-sm text-bimo-navy/40 ml-1">FCFA / mois</span>
             </div>
             <div class="font-body text-xs text-bimo-navy/30 mb-5 min-h-[18px]" id="annual-agence">&nbsp;</div>
@@ -76,7 +76,7 @@
             <div class="font-body font-bold text-[13px] uppercase tracking-[1px] text-white/40 mb-1.5">Pro</div>
             <div class="font-body text-xs text-white/30 mb-5">Jusqu'à 50 unités</div>
             <div class="mb-1.5">
-                <span class="font-display font-extrabold text-[36px] tracking-tight leading-none text-white" id="price-pro">49 900</span>
+                <span class="font-display font-extrabold text-[36px] tracking-tight leading-none text-white" id="price-pro">39 900</span>
                 <span class="font-body text-sm text-white/40 ml-1">FCFA / mois</span>
             </div>
             <div class="font-body text-xs text-white/35 mb-5 min-h-[18px]" id="annual-pro">&nbsp;</div>
@@ -183,8 +183,8 @@
 
 <script>
 var prices = {
-    mensuel: { agence: '89 900', pro: '49 900', starter: '19 900' },
-    annuel:  { agence: '899 000', pro: '499 000', starter: '199 000' }
+    mensuel: { agence: '69 900', pro: '39 900', starter: '19 900' },
+    annuel:  { agence: '699 000', pro: '399 000', starter: '199 000' }
 };
 var savings = { agence: '139 800', pro: '79 800', starter: '39 800' };
 function setBilling(mode) {

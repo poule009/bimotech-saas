@@ -30,7 +30,7 @@
     $faqs = [
         'Démarrage & Tarifs' => [
             ['q' => 'Est-ce vraiment gratuit pour commencer ?', 'a' => 'Oui. Le plan Démarrage est gratuit pour toujours, jusqu\'à 5 biens. Aucune carte bancaire requise. Vous passez au plan Agence uniquement si vous en avez besoin.'],
-            ['q' => 'Quels sont les tarifs après l\'essai gratuit ?', 'a' => 'Trois plans : Starter à 19 900 FCFA/mois (jusqu\'à 15 unités), Pro à 49 900 FCFA/mois (jusqu\'à 50 unités), Agence à 89 900 FCFA/mois (illimité). Formule annuelle disponible avec 2 mois offerts. Résiliation à tout moment, sans frais.'],
+            ['q' => 'Quels sont les tarifs après l\'essai gratuit ?', 'a' => 'Trois plans : Starter à 19 900 FCFA/mois (jusqu\'à 15 unités), Pro à 39 900 FCFA/mois (jusqu\'à 50 unités), Agence à 69 900 FCFA/mois (illimité). Formule annuelle disponible avec 2 mois offerts. Résiliation à tout moment, sans frais.'],
             ['q' => 'Combien de temps prend la mise en place ?', 'a' => 'Moins de 10 minutes pour créer votre agence. Si vous souhaitez importer un grand nombre de biens existants, notre équipe peut vous accompagner lors d\'une démo sur site à Dakar.'],
         ],
         'Conformité fiscale' => [

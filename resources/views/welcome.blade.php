@@ -309,8 +309,8 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[840px] mx-auto mb-8">
             @foreach([
                 [false,'Starter','19 900','Jusqu\'à 15 unités — Dashboard, biens, contrats, paiements, impayés, quittances PDF.'],
-                [true,'Pro','49 900','Jusqu\'à 50 unités — Tout Starter + immeubles, rapports PDF, import Excel, relevés propriétaires.'],
-                [false,'Agence','89 900','Unités illimitées — Tout Pro + déclarations DGID, bilans fiscaux, logs d\'activité, support prioritaire.'],
+                [true,'Pro','39 900','Jusqu\'à 50 unités — Tout Starter + immeubles, rapports PDF, import Excel, relevés propriétaires.'],
+                [false,'Agence','69 900','Unités illimitées — Tout Pro + déclarations DGID, bilans fiscaux, logs d\'activité, support prioritaire.'],
             ] as [$featured,$name,$price,$desc])
             <div class="rounded-[14px] p-8 flex flex-col relative transition-all duration-200 hover:-translate-y-1 {{ $featured ? 'bg-bimo-navy border border-bimo-navy shadow-xl pt-11' : 'bg-white border border-bimo-navy/10 hover:shadow-md hover:border-bimo-navy/20' }}">
                 @if($featured)
