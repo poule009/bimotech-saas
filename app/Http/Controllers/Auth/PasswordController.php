@@ -11,13 +11,36 @@ use Illuminate\Validation\Rules\Password;
 class PasswordController extends Controller
 {
     /**
-     * Update the user's password.
+     * Update the user's password (utilisateurs avec mot de passe existant).
      */
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password'],
             'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return back()->with('status', 'password-updated');
+    }
+
+    /**
+     * Définir un mot de passe pour les utilisateurs Google (pas d'ancien mot de passe).
+     * La session active suffit à prouver l'identité.
+     */
+    public function set(Request $request): RedirectResponse
+    {
+        if (! $request->user()->google_id) {
+            return back()->withErrors(['password' => 'Utilisez le formulaire de changement de mot de passe.'], 'setPassword');
+        }
+
+        $validated = $request->validateWithBag('setPassword', [
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ], [
+            'password.confirmed' => 'Les deux mots de passe ne correspondent pas.',
         ]);
 
         $request->user()->update([
