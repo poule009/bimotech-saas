@@ -3,403 +3,220 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Tarifs BimoTech Immo — Starter, Pro, Agence. Essai gratuit 30 jours sans carte bancaire. Paiement Wave, Orange Money, carte bancaire.">
+<meta name="description" content="Tarifs BimoTech Immo — Starter, Pro, Agence. Essai gratuit 30 jours sans carte bancaire.">
 <title>Tarifs — BimoTech Immo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"></noscript>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-    --red:#e8001d;
-    --bg:#f9fafb;--surface:#fff;
-    --text:#111111;--text2:#374151;--muted:#6b7280;--muted2:#9ca3af;
-    --border:#e5e7eb;--border-md:#d1d5db;
-    --radius:14px;--radius-sm:10px;
-}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-
-/* ── PAGE ── */
-.pricing-wrap{max-width:1100px;margin:0 auto;padding:80px 5% 100px}
-
-/* ── EN-TÊTE ── */
-.pricing-head{text-align:center;margin-bottom:48px}
-.pricing-tag{display:inline-flex;align-items:center;gap:7px;background:#fff0f0;border:1px solid #fecaca;border-radius:99px;padding:5px 16px;font-size:12px;color:var(--red);font-weight:500;margin-bottom:20px}
-.pricing-tag-dot{width:6px;height:6px;background:var(--red);border-radius:50%}
-.pricing-head h1{font-family:'Syne',sans-serif;font-size:clamp(30px,5vw,52px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:14px}
-.pricing-head h1 em{font-style:normal;color:var(--red)}
-.pricing-sub{font-size:16px;color:var(--muted);max-width:480px;margin:0 auto 32px;line-height:1.7}
-
-/* ── TOGGLE MENSUEL / ANNUEL ── */
-.billing-toggle{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--border);border-radius:99px;padding:4px;margin-bottom:48px}
-.billing-btn{padding:8px 22px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif}
-.billing-btn.active{background:#111111;color:#fff;font-weight:600}
-.annual-badge{display:inline-flex;align-items:center;background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;margin-left:6px}
-
-/* ── GRILLE PLANS ── */
-.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:start;margin-bottom:56px}
-
-/* ── CARTE PLAN (standard) ── */
-.plan-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;transition:box-shadow .2s}
-.plan-card:hover{box-shadow:0 10px 32px rgba(0,0,0,.08)}
-
-/* ── CARTE PRO (mise en avant) ── */
-.plan-card.featured{background:#111111;border-color:#111111;box-shadow:0 16px 48px rgba(0,0,0,.18);position:relative;padding-top:44px}
-
-/* ── BADGE RECOMMANDÉ ── */
-.badge-recommended{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:4px 16px;border-radius:99px;white-space:nowrap;letter-spacing:.3px}
-
-/* ── EN-TÊTE CARTE ── */
-.plan-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.plan-card .plan-name{color:var(--muted)}
-.plan-card.featured .plan-name{color:rgba(255,255,255,.5)}
-.plan-limit{font-size:12px;margin-bottom:20px}
-.plan-card .plan-limit{color:var(--muted2)}
-.plan-card.featured .plan-limit{color:rgba(255,255,255,.4)}
-.plan-price-wrap{margin-bottom:6px}
-.plan-price{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1}
-.plan-card .plan-price{color:#111111}
-.plan-card.featured .plan-price{color:#ffffff}
-.plan-price-unit{font-size:13px;font-weight:400;margin-left:2px}
-.plan-card .plan-price-unit{color:var(--muted)}
-.plan-card.featured .plan-price-unit{color:rgba(255,255,255,.45)}
-.plan-annual-detail{font-size:12px;margin-bottom:20px;min-height:18px}
-.plan-card .plan-annual-detail{color:var(--muted2)}
-.plan-card.featured .plan-annual-detail{color:rgba(255,255,255,.45)}
-.plan-saving{color:#16a34a;font-weight:600}
-.plan-card.featured .plan-saving{color:#4ade80}
-
-/* ── BOUTON CTA ── */
-.plan-cta{display:block;width:100%;padding:12px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;text-align:center;text-decoration:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-bottom:6px}
-.plan-cta.dark{background:#111111;color:#fff}
-.plan-cta.dark:hover{opacity:.85;transform:translateY(-1px)}
-.plan-cta.red{background:var(--red);color:#fff;box-shadow:0 4px 16px rgba(232,0,29,.25)}
-.plan-cta.red:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,0,29,.3)}
-.plan-cta-note{font-size:11px;text-align:center;margin-bottom:22px}
-.plan-card .plan-cta-note{color:var(--muted2)}
-.plan-card.featured .plan-cta-note{color:rgba(255,255,255,.35)}
-
-/* ── SÉPARATEUR ── */
-.plan-divider{border:none;border-top:1px solid;margin:20px 0}
-.plan-card .plan-divider{border-color:var(--border)}
-.plan-card.featured .plan-divider{border-color:rgba(255,255,255,.1)}
-
-/* ── FEATURES ── */
-.plan-features{display:flex;flex-direction:column;gap:10px}
-.plan-feature{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.4}
-.plan-card .plan-feature{color:var(--text2)}
-.plan-card.featured .plan-feature{color:rgba(255,255,255,.75)}
-.feat-check{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.plan-card .feat-check{background:#dcfce7}
-.plan-card.featured .feat-check{background:rgba(74,222,128,.15)}
-.feat-check svg{width:9px;height:9px}
-.plan-card .feat-check svg{color:#16a34a}
-.plan-card.featured .feat-check svg{color:#4ade80}
-.feat-extra{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:inline-block;margin-top:6px;margin-bottom:2px}
-.plan-card .feat-extra{color:var(--red)}
-.plan-card.featured .feat-extra{color:#f87171}
-
-/* ── SECTION PAIEMENTS ── */
-.payment-section{text-align:center;margin-bottom:56px}
-.payment-title{font-size:13px;color:var(--muted);margin-bottom:16px;font-weight:500}
-.payment-methods{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
-.pay-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:#fff;font-size:13px;font-weight:600}
-.pay-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-
-/* ── GARANTIE ── */
-.guarantee-section{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:28px 32px;display:flex;align-items:flex-start;gap:20px;margin-bottom:56px}
-.guarantee-icon{width:44px;height:44px;border-radius:12px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.guarantee-icon svg{width:22px;height:22px;color:#16a34a}
-.guarantee-body h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:#111;margin-bottom:6px}
-.guarantee-body p{font-size:13px;color:var(--muted);line-height:1.6}
-
-/* ── FAQ ── */
-.faq-section{margin-bottom:56px}
-.faq-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;text-align:center;margin-bottom:28px;letter-spacing:-.4px}
-.faq-list{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:0}
-.faq-item{border-bottom:1px solid var(--border)}
-.faq-item:first-child{border-top:1px solid var(--border)}
-.faq-q{display:flex;justify-content:space-between;align-items:center;padding:16px 0;cursor:pointer;font-size:14px;font-weight:600;color:#111;gap:12px}
-.faq-q:hover{color:var(--red)}
-.faq-arrow{width:18px;height:18px;flex-shrink:0;transition:transform .2s;color:var(--muted)}
-.faq-a{font-size:13px;color:var(--muted);line-height:1.7;padding-bottom:16px;display:none}
-.faq-item.open .faq-a{display:block}
-.faq-item.open .faq-arrow{transform:rotate(180deg)}
-
-/* ── FOOTER ── */
-footer{background:#1a1a1a;border-top:1px solid var(--border);padding:3rem 5% 2rem}
-.footer-inner{max-width:1040px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-.footer-copy{font-size:12px;color:#6b7280}
-.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
-.footer-links a{font-size:12px;color:#6b7280;text-decoration:none;transition:color .15s}
-.footer-links a:hover{color:#9ca3af}
-
-/* ── RESPONSIVE ── */
-@media(max-width:900px){
-    .plans-grid{grid-template-columns:1fr;max-width:420px;margin-left:auto;margin-right:auto}
-    .plan-card.featured{padding-top:44px}
-    .guarantee-section{flex-direction:column}
-}
-@media(max-width:640px){
-    .pricing-wrap{padding:60px 4% 80px}
-    .billing-toggle{width:100%}
-    .billing-btn{flex:1;text-align:center;font-size:12px}
-    .footer-inner{flex-direction:column;text-align:center}
-    .footer-links{justify-content:center}
-}
-</style>
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="font-body bg-[#f9fafb] text-[#111111] antialiased">
 
 @include('partials.public-nav', ['active' => 'pricing'])
 
-<div class="pricing-wrap">
+<div class="max-w-[1100px] mx-auto px-[5%] pt-20 pb-24">
 
-    {{-- EN-TÊTE --}}
-    <div class="pricing-head">
-        <div class="pricing-tag"><div class="pricing-tag-dot"></div>Tarifs transparents</div>
-        <h1>Le bon plan pour<br>votre <em>agence</em></h1>
-        <p class="pricing-sub">30 jours d'essai gratuit sur chaque plan. Aucune carte bancaire requise.</p>
+    {{-- En-tête --}}
+    <div class="text-center mb-12">
+        <div class="inline-flex items-center gap-2 bg-bimo-red/[5%] border border-bimo-red/20 rounded-full px-4 py-1.5 font-body font-medium text-xs text-bimo-gold mb-5">
+            <span class="w-1.5 h-1.5 rounded-full bg-bimo-gold"></span>
+            Tarifs transparents
+        </div>
+        <h1 class="font-display font-extrabold text-[clamp(30px,5vw,52px)] tracking-tight leading-tight mb-4">Le bon plan pour<br>votre <em class="not-italic text-bimo-gold">agence</em></h1>
+        <p class="font-body text-[16px] text-[#6b7280] max-w-[480px] mx-auto mb-8 leading-relaxed">30 jours d'essai gratuit sur chaque plan. Aucune carte bancaire requise.</p>
 
-        {{-- TOGGLE MENSUEL / ANNUEL --}}
+        {{-- Toggle --}}
+        <div class="inline-flex items-center gap-1 bg-white border border-[#e5e7eb] rounded-full p-1">
+            <button id="btn-mensuel" onclick="setBilling('mensuel')"
+                    class="px-5 py-2 rounded-full font-body font-semibold text-[13px] cursor-pointer border-none bg-[#111111] text-white transition-all duration-200">Mensuel</button>
+            <button id="btn-annuel" onclick="setBilling('annuel')"
+                    class="px-5 py-2 rounded-full font-body text-[13px] text-[#6b7280] cursor-pointer border-none bg-transparent transition-all duration-200 flex items-center gap-2">
+                Annuel
+                <span class="font-body font-bold text-[11px] bg-bimo-navy/10 text-bimo-navy/60 px-2 py-0.5 rounded-full">−17%</span>
+            </button>
+        </div>
+    </div>
+
+    {{-- 3 plans --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-start mb-14">
+
+        {{-- Agence --}}
+        <div class="bg-white border border-[#e5e7eb] rounded-[14px] p-7 hover:shadow-lg transition-shadow duration-200">
+            <div class="font-body font-bold text-[13px] uppercase tracking-[1px] text-[#6b7280] mb-1.5">Agence</div>
+            <div class="font-body text-xs text-[#9ca3af] mb-5">Unités illimitées</div>
+            <div class="mb-1.5">
+                <span class="font-display font-extrabold text-[36px] tracking-tight leading-none text-[#111111]" id="price-agence">89 900</span>
+                <span class="font-body text-[13px] text-[#6b7280] ml-1">FCFA / mois</span>
+            </div>
+            <div class="font-body text-xs text-[#9ca3af] mb-5 min-h-[18px]" id="annual-agence">&nbsp;</div>
+            <a href="{{ route('agency.register') }}" class="block w-full py-3 rounded-[10px] font-body font-bold text-[13px] text-center text-white no-underline bg-[#111111] hover:opacity-85 hover:-translate-y-0.5 transition-all duration-200 mb-1.5">Essai gratuit 30 jours</a>
+            <p class="font-body text-[11px] text-center text-[#9ca3af] mb-5">Sans carte bancaire</p>
+            <hr class="border-none border-t border-[#e5e7eb] my-5">
+            <div class="flex flex-col gap-2.5">
+                @foreach(['Tout le plan Pro inclus'] as $f)
+                <div class="flex items-start gap-2.5 font-body text-[13px] text-[#374151] leading-snug">
+                    <div class="w-4 h-4 rounded-full bg-[#dcfce7] flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-2.5 h-2.5 text-[#16a34a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <span>{{ $f }}</span>
+                </div>
+                @endforeach
+                <div class="font-body font-semibold text-[10px] uppercase tracking-[.5px] text-bimo-gold mt-1 mb-0.5">Exclusif Agence</div>
+                @foreach(['Déclarations DGID prêtes (BRS, TVA, IRPP)','Bilans fiscaux PDF par propriétaire','Logs d\'activité complets','Support prioritaire'] as $f)
+                <div class="flex items-start gap-2.5 font-body text-[13px] text-[#374151] leading-snug">
+                    <div class="w-4 h-4 rounded-full bg-[#dcfce7] flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-2.5 h-2.5 text-[#16a34a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <span>{{ $f }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Pro (recommandé) --}}
+        <div class="bg-[#111111] border border-[#111111] rounded-[14px] p-7 pt-11 relative shadow-2xl">
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-bimo-gold text-[#111111] font-body font-extrabold text-[11px] px-4 py-1 rounded-full whitespace-nowrap">⭐ Recommandé</div>
+            <div class="font-body font-bold text-[13px] uppercase tracking-[1px] text-white/50 mb-1.5">Pro</div>
+            <div class="font-body text-xs text-white/40 mb-5">Jusqu'à 50 unités</div>
+            <div class="mb-1.5">
+                <span class="font-display font-extrabold text-[36px] tracking-tight leading-none text-white" id="price-pro">49 900</span>
+                <span class="font-body text-[13px] text-white/45 ml-1">FCFA / mois</span>
+            </div>
+            <div class="font-body text-xs text-white/40 mb-5 min-h-[18px]" id="annual-pro">&nbsp;</div>
+            <a href="{{ route('agency.register') }}" class="block w-full py-3 rounded-[10px] font-body font-bold text-[13px] text-center text-white no-underline bg-bimo-gold hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200 mb-1.5 shadow-lg">Essai gratuit 30 jours</a>
+            <p class="font-body text-[11px] text-center text-white/35 mb-5">Sans carte bancaire</p>
+            <hr class="border-none border-t border-white/10 my-5">
+            <div class="flex flex-col gap-2.5">
+                @foreach(['Tout le plan Starter inclus'] as $f)
+                <div class="flex items-start gap-2.5 font-body text-[13px] text-white/75 leading-snug">
+                    <div class="w-4 h-4 rounded-full bg-[rgba(74,222,128,.15)] flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-2.5 h-2.5 text-[#4ade80]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <span>{{ $f }}</span>
+                </div>
+                @endforeach
+                <div class="font-body font-semibold text-[10px] uppercase tracking-[.5px] text-[#f87171] mt-1 mb-0.5">Fonctions Pro</div>
+                @foreach(['Gestion immeubles (Immeuble → Unités)','Rapport financier mensuel PDF','Relevé PDF par propriétaire','Import Excel · Export CSV','Contrat de bail formel PDF'] as $f)
+                <div class="flex items-start gap-2.5 font-body text-[13px] text-white/75 leading-snug">
+                    <div class="w-4 h-4 rounded-full bg-[rgba(74,222,128,.15)] flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-2.5 h-2.5 text-[#4ade80]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <span>{{ $f }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Starter --}}
+        <div class="bg-white border border-[#e5e7eb] rounded-[14px] p-7 hover:shadow-lg transition-shadow duration-200">
+            <div class="font-body font-bold text-[13px] uppercase tracking-[1px] text-[#6b7280] mb-1.5">Starter</div>
+            <div class="font-body text-xs text-[#9ca3af] mb-5">Jusqu'à 15 unités</div>
+            <div class="mb-1.5">
+                <span class="font-display font-extrabold text-[36px] tracking-tight leading-none text-[#111111]" id="price-starter">19 900</span>
+                <span class="font-body text-[13px] text-[#6b7280] ml-1">FCFA / mois</span>
+            </div>
+            <div class="font-body text-xs text-[#9ca3af] mb-5 min-h-[18px]" id="annual-starter">&nbsp;</div>
+            <a href="{{ route('agency.register') }}" class="block w-full py-3 rounded-[10px] font-body font-bold text-[13px] text-center text-white no-underline bg-[#111111] hover:opacity-85 hover:-translate-y-0.5 transition-all duration-200 mb-1.5">Essai gratuit 30 jours</a>
+            <p class="font-body text-[11px] text-center text-[#9ca3af] mb-5">Sans carte bancaire</p>
+            <hr class="border-none border-t border-[#e5e7eb] my-5">
+            <div class="flex flex-col gap-2.5">
+                @foreach(['Dashboard + graphiques 12 mois','Biens, contrats, paiements','Locataires + propriétaires','Suivi impayés + relances','Quittances PDF conformes CGI SN'] as $f)
+                <div class="flex items-start gap-2.5 font-body text-[13px] text-[#374151] leading-snug">
+                    <div class="w-4 h-4 rounded-full bg-[#dcfce7] flex items-center justify-center flex-shrink-0 mt-0.5"><svg class="w-2.5 h-2.5 text-[#16a34a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <span>{{ $f }}</span>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+    </div>
+
+    {{-- Méthodes de paiement --}}
+    <div class="text-center mb-14">
+        <p class="font-body font-medium text-[13px] text-[#6b7280] mb-4">Paiement sécurisé via PayTech — accepté en</p>
+        <div class="flex items-center justify-center gap-3 flex-wrap">
+            @foreach([['#0066FF','Wave'],['#FF6600','Orange Money'],['#6b7280','Free Money'],['#1a56db','Carte bancaire']] as [$color,$name])
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] border border-[#e5e7eb] bg-white font-body font-semibold text-[13px]">
+                <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background:{{ $color }}"></div>
+                <span style="color:{{ $color }}">{{ $name }}</span>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Garantie --}}
+    <div class="bg-white border border-[#e5e7eb] rounded-[14px] px-8 py-7 flex flex-col md:flex-row items-start gap-5 mb-14">
+        <div class="w-11 h-11 rounded-[12px] bg-[#f0fdf4] flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-[#16a34a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        </div>
         <div>
-            <div class="billing-toggle">
-                <button class="billing-btn active" id="btn-mensuel" onclick="setBilling('mensuel')">Mensuel</button>
-                <button class="billing-btn" id="btn-annuel" onclick="setBilling('annuel')">
-                    Annuel <span class="annual-badge">−17%</span>
-                </button>
-            </div>
+            <h3 class="font-display font-bold text-[15px] text-[#111] mb-1.5">Essai 30 jours — zéro risque</h3>
+            <p class="font-body text-[13px] text-[#6b7280] leading-relaxed">Accès complet au plan Pro pendant 30 jours. Aucune carte bancaire, aucun engagement. Vous choisissez votre plan seulement si vous êtes convaincu.</p>
         </div>
     </div>
 
-    {{-- GRILLE 3 PLANS : Agence | Pro★ | Starter --}}
-    <div class="plans-grid">
-
-        {{-- ── AGENCE ── --}}
-        <div class="plan-card">
-            <div class="plan-name">Agence</div>
-            <div class="plan-limit">Unités illimitées</div>
-            <div class="plan-price-wrap">
-                <span class="plan-price" id="price-agence">89 900</span><span class="plan-price-unit">FCFA / mois</span>
+    {{-- FAQ rapide --}}
+    <div class="mb-14">
+        <h2 class="font-display font-extrabold text-xl text-center text-[#111] mb-7 tracking-tight">Questions fréquentes</h2>
+        <div class="max-w-[680px] mx-auto">
+            @foreach([
+                ['Qu\'est-ce qu\'une "unité" ?', 'Une unité est un bien immobilier géré dans la plateforme — appartement, villa, studio, bureau ou commerce. Les biens archivés ne sont pas comptés. Un immeuble de 10 appartements compte pour 10 unités.'],
+                ['Peut-on changer de plan en cours d\'abonnement ?', 'Oui. Vous pouvez passer à un plan supérieur à tout moment depuis la page abonnement. Vos données et biens existants sont toujours accessibles.'],
+                ['Le tarif annuel "10+2" — comment ça marche ?', 'Vous réglez l\'équivalent de 10 mois et bénéficiez de 12 mois d\'accès. Les 2 mois offerts sont déduits directement du montant annuel.'],
+                ['Les déclarations DGID sont-elles prêtes à envoyer ?', 'En plan Agence, la plateforme calcule automatiquement la BRS, la TVA sur commissions, l\'IRPP et génère des bilans fiscaux PDF conformes CGI SN.'],
+            ] as [$q, $a])
+            <div class="faq-item border-b border-[#e5e7eb] first:border-t first:border-[#e5e7eb]">
+                <div class="flex items-center justify-between py-4 cursor-pointer font-body font-semibold text-sm text-[#111] gap-3 hover:text-bimo-gold transition-colors duration-200" onclick="toggleFaq(this)">
+                    {{ $q }}
+                    <svg class="faq-arrow w-[18px] h-[18px] flex-shrink-0 text-[#6b7280] transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="faq-a font-body text-[13px] text-[#6b7280] leading-relaxed pb-4 hidden">{{ $a }}</div>
             </div>
-            <div class="plan-annual-detail" id="annual-agence">&nbsp;</div>
-            <a href="{{ route('agency.register') }}" class="plan-cta dark">Essai gratuit 30 jours</a>
-            <p class="plan-cta-note">Sans carte bancaire</p>
-            <hr class="plan-divider">
-            <div class="plan-features">
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Tout le plan Pro inclus</span>
-                </div>
-                <div class="feat-extra">Exclusif Agence</div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Déclarations DGID prêtes (BRS, TVA, IRPP)</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Bilans fiscaux PDF par propriétaire</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Logs d'activité complets</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Support prioritaire</span>
-                </div>
-            </div>
-        </div>
-
-        {{-- ── PRO (RECOMMANDÉ) ── --}}
-        <div class="plan-card featured">
-            <div class="badge-recommended">⭐ Recommandé</div>
-            <div class="plan-name">Pro</div>
-            <div class="plan-limit">Jusqu'à 50 unités</div>
-            <div class="plan-price-wrap">
-                <span class="plan-price" id="price-pro">49 900</span><span class="plan-price-unit">FCFA / mois</span>
-            </div>
-            <div class="plan-annual-detail" id="annual-pro">&nbsp;</div>
-            <a href="{{ route('agency.register') }}" class="plan-cta red">Essai gratuit 30 jours</a>
-            <p class="plan-cta-note">Sans carte bancaire</p>
-            <hr class="plan-divider">
-            <div class="plan-features">
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Tout le plan Starter inclus</span>
-                </div>
-                <div class="feat-extra">Fonctions Pro</div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Gestion immeubles (Immeuble → Unités)</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Rapport financier mensuel PDF</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Relevé PDF par propriétaire</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Import Excel · Export CSV</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Contrat de bail formel PDF</span>
-                </div>
-            </div>
-        </div>
-
-        {{-- ── STARTER ── --}}
-        <div class="plan-card">
-            <div class="plan-name">Starter</div>
-            <div class="plan-limit">Jusqu'à 15 unités</div>
-            <div class="plan-price-wrap">
-                <span class="plan-price" id="price-starter">19 900</span><span class="plan-price-unit">FCFA / mois</span>
-            </div>
-            <div class="plan-annual-detail" id="annual-starter">&nbsp;</div>
-            <a href="{{ route('agency.register') }}" class="plan-cta dark">Essai gratuit 30 jours</a>
-            <p class="plan-cta-note">Sans carte bancaire</p>
-            <hr class="plan-divider">
-            <div class="plan-features">
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Dashboard + graphiques 12 mois</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Biens, contrats, paiements</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Locataires + propriétaires</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Suivi impayés + relances</span>
-                </div>
-                <div class="plan-feature">
-                    <div class="feat-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <span>Quittances PDF conformes CGI SN</span>
-                </div>
-            </div>
-        </div>
-
-    </div>{{-- /plans-grid --}}
-
-    {{-- MÉTHODES DE PAIEMENT --}}
-    <div class="payment-section">
-        <p class="payment-title">Paiement sécurisé via PayTech — accepté en</p>
-        <div class="payment-methods">
-            <div class="pay-badge">
-                <div class="pay-dot" style="background:#0066FF"></div>
-                <span style="color:#0066FF">Wave</span>
-            </div>
-            <div class="pay-badge">
-                <div class="pay-dot" style="background:#FF6600"></div>
-                <span style="color:#FF6600">Orange Money</span>
-            </div>
-            <div class="pay-badge">
-                <div class="pay-dot" style="background:#6b7280"></div>
-                <span>Free Money</span>
-            </div>
-            <div class="pay-badge">
-                <div class="pay-dot" style="background:#1a56db"></div>
-                <span>Carte bancaire</span>
-            </div>
+            @endforeach
         </div>
     </div>
 
-    {{-- GARANTIE --}}
-    <div class="guarantee-section">
-        <div class="guarantee-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                <polyline points="9 12 11 14 15 10"/>
-            </svg>
-        </div>
-        <div class="guarantee-body">
-            <h3>Essai 30 jours — zéro risque</h3>
-            <p>Accès complet au plan Pro pendant 30 jours. Aucune carte bancaire, aucun engagement. Vous choisissez votre plan seulement si vous êtes convaincu.</p>
-        </div>
-    </div>
+</div>
 
-    {{-- FAQ --}}
-    <div class="faq-section">
-        <h2 class="faq-title">Questions fréquentes</h2>
-        <div class="faq-list">
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">
-                    Qu'est-ce qu'une "unité" ?
-                    <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                </div>
-                <div class="faq-a">Une unité est un bien immobilier géré dans la plateforme — appartement, villa, studio, bureau ou commerce. Les biens archivés ne sont pas comptés. Un immeuble de 10 appartements compte pour 10 unités.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">
-                    Peut-on changer de plan en cours d'abonnement ?
-                    <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                </div>
-                <div class="faq-a">Oui. Vous pouvez passer à un plan supérieur à tout moment depuis la page abonnement. Vos données et biens existants sont toujours accessibles — on ne rétrograde jamais en cours de période payée.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">
-                    Le tarif annuel "10+2" — comment ça marche ?
-                    <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                </div>
-                <div class="faq-a">Vous réglez l'équivalent de 10 mois et bénéficiez de 12 mois d'accès. Les 2 mois offerts sont déduits directement du montant annuel — c'est l'économie la plus simple possible.</div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-q" onclick="toggleFaq(this)">
-                    Les déclarations DGID sont-elles prêtes à envoyer ?
-                    <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                </div>
-                <div class="faq-a">En plan Agence, la plateforme calcule automatiquement la BRS, la TVA sur commissions, l'IRPP et génère des bilans fiscaux PDF conformes CGI SN. Ces documents sont utilisables directement pour vos déclarations DGID.</div>
-            </div>
-        </div>
-    </div>
-
-</div>{{-- /pricing-wrap --}}
-
-<footer>
-    <div class="footer-inner">
-        <span class="footer-copy">© {{ date('Y') }} BimoTech Immo. Tous droits réservés.</span>
-        <div class="footer-links">
-            <a href="{{ route('home') }}">Accueil</a>
-            <a href="{{ route('demo') }}">Démo</a>
-            <a href="{{ route('faq') }}">FAQ</a>
-            <a href="{{ route('contact') }}">Contact</a>
-            <a href="{{ route('mentions-legales') }}">Mentions légales</a>
-            <a href="{{ route('confidentialite') }}">Confidentialité</a>
+<footer class="bg-[#1a1a1a] border-t border-[#e5e7eb] px-[5%] py-10">
+    <div class="max-w-[1040px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4 flex-wrap">
+        <span class="font-body text-xs text-[#6b7280]">© {{ date('Y') }} BimoTech Immo. Tous droits réservés.</span>
+        <div class="flex flex-wrap items-center gap-5 justify-center">
+            @foreach([[route('home'),'Accueil'],[route('demo'),'Démo'],[route('faq'),'FAQ'],[route('contact'),'Contact'],[route('mentions-legales'),'Mentions légales'],[route('confidentialite'),'Confidentialité']] as [$href,$lbl])
+            <a href="{{ $href }}" class="font-body text-xs text-[#6b7280] no-underline hover:text-[#9ca3af] transition-colors duration-150">{{ $lbl }}</a>
+            @endforeach
         </div>
     </div>
 </footer>
 
 <script>
-const prices = {
+var prices = {
     mensuel: { agence: '89 900', pro: '49 900', starter: '19 900' },
-    annuel:  { agence: '899 000', pro: '499 000', starter: '199 000' },
+    annuel:  { agence: '899 000', pro: '499 000', starter: '199 000' }
 };
-const savings = { agence: '139 800', pro: '79 800', starter: '39 800' };
+var savings = { agence: '139 800', pro: '79 800', starter: '39 800' };
 
 function setBilling(mode) {
-    document.getElementById('btn-mensuel').classList.toggle('active', mode === 'mensuel');
-    document.getElementById('btn-annuel').classList.toggle('active', mode === 'annuel');
-    ['agence','pro','starter'].forEach(plan => {
+    var isMensuel = mode === 'mensuel';
+    var btnM = document.getElementById('btn-mensuel'), btnA = document.getElementById('btn-annuel');
+    btnM.className = isMensuel
+        ? 'px-5 py-2 rounded-full font-body font-semibold text-[13px] cursor-pointer border-none bg-[#111111] text-white transition-all duration-200'
+        : 'px-5 py-2 rounded-full font-body text-[13px] text-[#6b7280] cursor-pointer border-none bg-transparent transition-all duration-200 flex items-center gap-2';
+    btnA.className = !isMensuel
+        ? 'px-5 py-2 rounded-full font-body font-semibold text-[13px] cursor-pointer border-none bg-[#111111] text-white transition-all duration-200 flex items-center gap-2'
+        : 'px-5 py-2 rounded-full font-body text-[13px] text-[#6b7280] cursor-pointer border-none bg-transparent transition-all duration-200 flex items-center gap-2';
+    ['agence','pro','starter'].forEach(function(plan){
         document.getElementById('price-' + plan).textContent = prices[mode][plan];
-        const detail = document.getElementById('annual-' + plan);
-        detail.innerHTML = mode === 'annuel'
-            ? '10 mois + 2 offerts · <span class="plan-saving">économie ' + savings[plan] + ' F</span>'
+        var d = document.getElementById('annual-' + plan);
+        d.innerHTML = mode === 'annuel'
+            ? '10 mois + 2 offerts · <strong style="color:#16a34a">économie ' + savings[plan] + ' F</strong>'
             : '&nbsp;';
     });
 }
 
 function toggleFaq(el) {
     el.parentElement.classList.toggle('open');
+    var a = el.parentElement.querySelector('.faq-a');
+    if (el.parentElement.classList.contains('open')) {
+        a.classList.remove('hidden');
+        el.querySelector('.faq-arrow').style.transform = 'rotate(180deg)';
+    } else {
+        a.classList.add('hidden');
+        el.querySelector('.faq-arrow').style.transform = '';
+    }
 }
 </script>
 </body>

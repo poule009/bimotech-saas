@@ -1,906 +1,173 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="BimoTech Immo — Logiciel de gestion immobilière pour agences au Sénégal. Biens, contrats, loyers, quittances conformes TVA 18%, BRS, DGID. Essai gratuit 30 jours.">
-<meta name="keywords" content="gestion immobilière Sénégal, logiciel agence immobilière Dakar, quittance loyer Sénégal, gestion locataires, TVA immobilier CGI SN, logiciel gestion biens, contrat bail Sénégal">
-<meta name="author" content="BimoTech">
+<meta name="keywords" content="gestion immobilière Sénégal, logiciel agence immobilière Dakar, quittance loyer Sénégal, TVA immobilier CGI SN">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://immo.bimotechsn.com/">
 <title>BimoTech Immo — Gestion immobilière Sénégal</title>
-
-{{-- Open Graph (Facebook, LinkedIn, WhatsApp) --}}
-<meta property="og:type"        content="website">
-<meta property="og:url"         content="https://immo.bimotechsn.com/">
-<meta property="og:title"       content="BimoTech Immo — Gestion immobilière professionnelle au Sénégal">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://immo.bimotechsn.com/">
+<meta property="og:title" content="BimoTech Immo — Gestion immobilière professionnelle au Sénégal">
 <meta property="og:description" content="Gérez biens, contrats, loyers et quittances conformes TVA 18% et CGI SN. Essai gratuit 30 jours, sans carte bancaire.">
-<meta property="og:image"       content="https://immo.bimotechsn.com/og-image.png">
-<meta property="og:image:width"  content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:locale"      content="fr_SN">
-<meta property="og:site_name"   content="BimoTech Immo">
-
-{{-- Twitter Card --}}
-<meta name="twitter:card"        content="summary_large_image">
-<meta name="twitter:title"       content="BimoTech Immo — Logiciel gestion immobilière Sénégal">
+<meta property="og:image" content="https://immo.bimotechsn.com/og-image.png">
+<meta property="og:locale" content="fr_SN">
+<meta property="og:site_name" content="BimoTech Immo">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BimoTech Immo — Logiciel gestion immobilière Sénégal">
 <meta name="twitter:description" content="Biens, contrats, loyers, quittances. Conforme TVA 18%, BRS, DGID. Essai 30 jours gratuit.">
-<meta name="twitter:image"       content="https://immo.bimotechsn.com/og-image.png">
+<meta name="twitter:image" content="https://immo.bimotechsn.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"></noscript>
-<style>
-/* ─── RESET & VARIABLES ─────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-    --red:#e8001d;
-    --red-dark:#c0001a;
-    --gold:#e8001d;
-    
-    --bg:#f9fafb;
-    --bg2:#f3f4f6;
-    --bg3:#eef0f2;
-    --surface:#ffffff;
-    --text:#111111;
-    --text2:#374151;
-    --muted:#6b7280;
-    --muted2:#9ca3af;
-    --border:#e5e7eb;
-    --border-md:#d1d5db;
-    --card-shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
-    --card-shadow-hover:0 10px 25px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.05);
-    --radius:14px;
-    --radius-sm:10px;
-}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
-
-/* ─── CARDS ─────────────────────────────────────────────── */
-.gold-card{
-    background:#ffffff;
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    box-shadow:var(--card-shadow);
-    transition:all .2s ease;
-}
-.gold-card:hover{
-    box-shadow:var(--card-shadow-hover);
-    border-color:var(--border-md);
-    transform:translateY(-2px);
-}
-
-/* ─── HERO ──────────────────────────────────────────────── */
-.hero{
-    min-height:100vh;
-    display:flex;align-items:center;justify-content:center;flex-direction:column;
-    text-align:center;
-    padding:100px 5% 80px;
-    position:relative;overflow:hidden;
-    background:#ffffff;
-}
-.hero::after{display:none}
-.hero-inner{position:relative;z-index:1;max-width:820px;width:100%}
-
-.hero-badge{
-    display:inline-flex;align-items:center;gap:8px;
-    background:#fff0f0;border:1px solid #fecaca;
-    border-radius:99px;padding:6px 18px;
-    font-size:12px;color:var(--gold);font-weight:500;letter-spacing:.3px;
-    margin-bottom:2rem;
-    animation:fadeUp .5s ease both;
-}
-.pulse-dot{
-    width:7px;height:7px;background:var(--gold);
-    border-radius:50%;flex-shrink:0;
-    box-shadow:0 0 0 0 rgba(232,0,29,.5);
-    animation:pulse-ring 2s infinite;
-}
-@keyframes pulse-ring{
-    0%{box-shadow:0 0 0 0 rgba(232,0,29,.5)}
-    70%{box-shadow:0 0 0 8px rgba(232,0,29,0)}
-    100%{box-shadow:0 0 0 0 rgba(232,0,29,0)}
-}
-
-.hero h1{
-    font-family:'Syne',sans-serif;
-    font-size:clamp(38px,6.5vw,76px);
-    font-weight:800;
-    line-height:1.04;
-    letter-spacing:-2.5px;
-    margin-bottom:1.5rem;
-    animation:fadeUp .6s .08s ease both;
-}
-.hero h1 em{
-    font-style:normal;
-    color:#e8001d;
-}
-.hero-sub{
-    font-size:clamp(15px,2vw,18px);
-    color:var(--muted2);
-    max-width:540px;margin:0 auto 2.5rem;
-    line-height:1.75;font-weight:400;
-    animation:fadeUp .6s .16s ease both;
-}
-.hero-btns{
-    display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
-    animation:fadeUp .6s .24s ease both;
-    margin-bottom:1.5rem;
-}
-.hero-note{
-    font-size:12px;color:var(--muted2);
-    animation:fadeUp .6s .32s ease both;
-}
-.hero-note span{color:var(--gold)}
-
-/* CTA Buttons */
-.btn-gold{
-    background:#e8001d;
-    color:#ffffff;
-    font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;
-    padding:13px 28px;border-radius:var(--radius-sm);
-    text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;
-    box-shadow:0 4px 16px rgba(0,0,0,.15);
-}
-.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.18);opacity:.95}
-.btn-outline{
-    background:#fff;color:var(--text);
-    font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;
-    padding:13px 28px;border-radius:var(--radius-sm);
-    text-decoration:none;border:1px solid var(--border-md);
-    transition:all .2s;display:inline-flex;align-items:center;gap:6px;
-    box-shadow:0 1px 4px rgba(0,0,0,.06);
-}
-.btn-outline:hover{border-color:var(--gold);color:var(--gold);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.12)}
-
-/* Mockup browser */
-.mockup-wrap{
-    margin-top:4rem;position:relative;
-    max-width:960px;width:100%;
-    animation:fadeUp .7s .4s ease both;
-}
-.mockup-halo{
-    position:absolute;top:-60px;left:50%;transform:translateX(-50%);
-    width:700px;height:280px;
-    background:none;
-    pointer-events:none;
-}
-.mockup-browser{
-    background:#222222;
-    border:1px solid var(--border-md);
-    border-radius:16px;overflow:hidden;
-    box-shadow:0 0 0 1px rgba(255,255,255,.04), 0 60px 120px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
-}
-.browser-bar{
-    background:#2a2a2a;padding:12px 16px;
-    display:flex;align-items:center;gap:10px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-.b-dots{display:flex;gap:6px}
-.b-dot{width:11px;height:11px;border-radius:50%}
-.url-bar{
-    flex:1;margin:0 12px;
-    background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);
-    border-radius:6px;padding:5px 12px;
-    font-size:11px;color:var(--muted2);font-family:monospace;
-    display:flex;align-items:center;gap:6px;
-}
-.url-lock{color:var(--gold);opacity:.6}
-.browser-body{
-    display:grid;grid-template-columns:190px 1fr;min-height:340px;
-}
-/* Sidebar */
-.b-sidebar{
-    background:#1a1a1a;
-    border-right:1px solid rgba(255,255,255,.08);
-    padding:16px 12px;
-    display:flex;flex-direction:column;gap:2px;
-}
-.b-brand{
-    font-family:'Syne',sans-serif;font-size:13px;font-weight:800;
-    color:var(--gold);padding:4px 8px;margin-bottom:16px;
-    display:flex;align-items:center;gap:6px;
-}
-.b-brand-dot{width:8px;height:8px;background:var(--gold);border-radius:2px}
-.b-nav-item{
-    padding:8px 10px;border-radius:7px;
-    font-size:11.5px;display:flex;align-items:center;gap:8px;
-    color:var(--muted);cursor:default;transition:all .15s;
-}
-.b-nav-item.active{background:#fff0f0;color:var(--gold);font-weight:600}
-.b-nav-item svg{flex-shrink:0;opacity:.7}
-.b-nav-item.active svg{opacity:1}
-/* Main content */
-.b-main{padding:20px;display:flex;flex-direction:column;gap:14px;background:#1a1a1a}
-.b-page-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#e5e7eb;margin-bottom:2px}
-.b-page-sub{font-size:11px;color:var(--muted)}
-.b-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.b-kpi{
-    background:#222222;border:1px solid rgba(255,255,255,.08);
-    border-radius:10px;padding:12px;
-    border-top:2px solid;
-}
-.b-kpi-label{font-size:9.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.b-kpi-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;line-height:1}
-.b-kpi-sub{font-size:9px;color:var(--muted2);margin-top:4px}
-.b-table{background:#222222;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
-.b-table-head{
-    display:grid;grid-template-columns:1.2fr 1.4fr .8fr .7fr 80px;
-    padding:8px 14px;background:rgba(255,255,255,.02);
-    border-bottom:1px solid rgba(255,255,255,.06);
-    font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;
-}
-.b-table-row{
-    display:grid;grid-template-columns:1.2fr 1.4fr .8fr .7fr 80px;
-    padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.03);
-    font-size:10.5px;color:var(--muted);align-items:center;
-}
-.b-table-row:last-child{border-bottom:none}
-.b-badge{
-    display:inline-block;font-size:9px;font-weight:600;
-    padding:2px 8px;border-radius:99px;
-}
-.b-badge.paid{background:rgba(34,197,94,.12);color:#4ade80}
-.b-badge.pending{background:rgba(234,179,8,.1);color:#fbbf24}
-.b-badge.late{background:rgba(239,68,68,.1);color:#f87171}
-
-/* ─── TRUST BAR ─────────────────────────────────────────── */
-.trust-bar{
-    padding:2.5rem 5%;
-    border-top:1px solid var(--border);
-    border-bottom:1px solid var(--border);
-    background:var(--bg3);
-}
-.trust-inner{
-    max-width:1000px;margin:0 auto;
-    display:flex;align-items:center;gap:3rem;
-    flex-wrap:wrap;justify-content:center;
-}
-.trust-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;white-space:nowrap;font-weight:600}
-.trust-divider{width:1px;height:28px;background:var(--border-md);flex-shrink:0}
-.trust-stats{
-    display:flex;gap:3rem;flex-wrap:wrap;
-    justify-content:center;
-}
-.trust-stat{text-align:center}
-.trust-num{
-    font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
-    color:#e8001d;
-    line-height:1;
-}
-.trust-desc{font-size:11px;color:var(--muted);margin-top:4px}
-
-/* ─── SECTIONS COMMUNES ──────────────────────────────────── */
-.section{padding:6rem 5%}
-.section-inner{max-width:1040px;margin:0 auto}
-.section-header{margin-bottom:3.5rem}
-.section-tag{
-    display:inline-flex;align-items:center;gap:6px;
-    font-size:11px;color:var(--gold);font-weight:600;
-    letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;
-}
-.section-tag::before{content:'';width:16px;height:1px;background:var(--gold)}
-h2{
-    font-family:'Syne',sans-serif;
-    font-size:clamp(28px,4vw,46px);
-    font-weight:800;letter-spacing:-1.5px;line-height:1.08;
-    margin-bottom:1rem;
-}
-h2 em{
-    font-style:normal;
-    color:#e8001d;
-}
-.section-sub{
-    font-size:15px;color:var(--muted);
-    line-height:1.75;max-width:540px;font-weight:400;
-}
-
-/* ─── FEATURES ──────────────────────────────────────────── */
-.features-grid{
-    display:grid;
-    grid-template-columns:repeat(3, 1fr);
-    gap:16px;
-    border-radius:var(--radius);
-    overflow:hidden;
-}
-.feat{
-    background:#ffffff;
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:2rem 1.75rem;
-    transition:all .22s cubic-bezier(.4,0,.2,1);
-    position:relative;
-    overflow:hidden;
-    box-shadow:var(--card-shadow);
-}
-.feat::after{
-    content:'';
-    position:absolute;inset:0;
-    background:transparent;
-    opacity:0;transition:opacity .3s;pointer-events:none;
-}
-.feat:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-hover);border-color:var(--border-md)}
-.feat:hover::after{opacity:1}
-.feat-icon{
-    width:44px;height:44px;
-    background:#fff0f0;
-    border:1px solid var(--border);
-    border-radius:12px;
-    display:flex;align-items:center;justify-content:center;
-    margin-bottom:1.25rem;
-}
-.feat-title{
-    font-family:'Syne',sans-serif;
-    font-size:15px;font-weight:700;
-    margin-bottom:.5rem;color:var(--text);
-}
-.feat-desc{font-size:13px;color:var(--muted);line-height:1.7}
-
-/* ─── TESTIMONIALS ──────────────────────────────────────── */
-.testimonials-section{
-    padding:6rem 5%;
-    background:var(--bg2);
-    border-top:1px solid var(--border);
-    border-bottom:1px solid var(--border);
-}
-.testi-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:1.25rem;
-    margin-top:3rem;
-}
-.testi-card{
-    background:#ffffff;
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:1.75rem;
-    position:relative;
-    transition:all .22s cubic-bezier(.4,0,.2,1);
-    box-shadow:var(--card-shadow);
-}
-.testi-card:hover{border-color:var(--border-md);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
-.testi-quote{
-    font-size:32px;color:var(--gold);
-    opacity:.4;line-height:1;
-    margin-bottom:1rem;
-    font-family:Georgia,serif;
-}
-.testi-text{
-    font-size:13.5px;color:var(--text2);
-    line-height:1.75;margin-bottom:1.5rem;
-    font-weight:400;font-style:italic;
-}
-.testi-author{display:flex;align-items:center;gap:10px}
-.testi-avatar{
-    width:38px;height:38px;border-radius:50%;
-    background:#e8001d;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#ffffff;
-    flex-shrink:0;
-}
-.testi-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
-.testi-role{font-size:11px;color:var(--muted)}
-.testi-stars{
-    display:flex;gap:2px;margin-top:.75rem;
-    color:var(--gold);font-size:12px;
-}
-
-/* ─── COMPLIANCE ────────────────────────────────────────── */
-.compliance-card{
-    background:#ffffff;
-    border:1px solid var(--border);
-    border-radius:20px;padding:3rem;
-    position:relative;overflow:hidden;margin-top:3rem;
-    box-shadow:var(--card-shadow);
-}
-.comp-grid{
-    display:grid;grid-template-columns:1fr 1fr;
-    gap:1.75rem;position:relative;z-index:1;
-}
-.comp-item{display:flex;gap:14px;align-items:flex-start}
-.comp-check{
-    width:24px;height:24px;
-    background:#fff0f0;
-    border:1px solid var(--border);
-    border-radius:7px;
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;margin-top:1px;
-}
-.comp-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
-.comp-desc{font-size:12.5px;color:var(--muted);line-height:1.6}
-
-/* ─── STEPS ─────────────────────────────────────────────── */
-.steps-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;
-    margin-top:3rem;position:relative;
-}
-.steps-line{
-    position:absolute;top:27px;
-    left:calc(16.7% + 12px);right:calc(16.7% + 12px);
-    height:1px;
-    background:#e8001d;
-    z-index:0;
-}
-.step{text-align:center;position:relative;z-index:1}
-.step-num{
-    width:54px;height:54px;
-    background:#e8001d;
-    color:#ffffff;
-    border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
-    margin:0 auto 1.25rem;
-    box-shadow:0 8px 24px rgba(0,0,0,.15);
-}
-.step-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:.5rem;color:#ffffff}
-.step-desc{font-size:13px;color:#9ca3af;line-height:1.65}
-
-/* ─── PRICING ────────────────────────────────────────────── */
-.pricing-section{
-    padding:6rem 5%;
-    background:var(--bg2);
-    border-top:1px solid var(--border);
-}
-/* Billing toggle */
-.billing-toggle{
-    display:inline-flex;
-    background:#fff;
-    border:1px solid var(--border-md);
-    border-radius:10px;
-    padding:4px;gap:2px;
-    margin:2rem auto 0;
-    flex-wrap:wrap;
-    justify-content:center;
-    box-shadow:0 1px 4px rgba(0,0,0,.06);
-}
-.billing-btn{
-    padding:8px 18px;
-    border-radius:7px;
-    border:none;cursor:pointer;
-    font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
-    color:var(--muted);background:transparent;
-    transition:all .2s;white-space:nowrap;
-    display:flex;align-items:center;gap:6px;
-}
-.billing-btn.active{
-    background:#1a1a1a;color:#fff;
-    border:1px solid transparent;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);
-}
-.billing-badge{
-    background:rgba(34,197,94,.15);
-    color:#4ade80;
-    font-size:10px;font-weight:700;
-    padding:1px 6px;border-radius:99px;
-}
-/* Plans grid */
-.plans-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:1.25rem;
-    margin-top:2.5rem;
-}
-.plan{
-    background:#ffffff;
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:2rem;
-    transition:all .22s cubic-bezier(.4,0,.2,1);
-    position:relative;
-    display:flex;flex-direction:column;
-    box-shadow:var(--card-shadow);
-}
-.plan:hover{border-color:var(--border-md);transform:translateY(-4px);box-shadow:var(--card-shadow-hover)}
-.plan.featured{
-    border-color:var(--gold);
-    background:#ffffff;
-    box-shadow:0 1px 3px rgba(0,0,0,.1),0 16px 40px rgba(0,0,0,.12);
-}
-.plan-badge-top{
-    position:absolute;top:-13px;left:50%;transform:translateX(-50%);
-    background:#e8001d;
-    color:#ffffff;
-    font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;
-    padding:4px 16px;border-radius:99px;white-space:nowrap;
-    box-shadow:0 4px 12px rgba(0,0,0,.12);
-}
-.plan-name{
-    font-family:'Syne',sans-serif;
-    font-size:11px;font-weight:700;
-    color:var(--muted);
-    text-transform:uppercase;letter-spacing:1.5px;
-    margin-bottom:.75rem;
-}
-.plan-price-wrap{margin-bottom:.5rem}
-.plan-price{
-    font-family:'Syne',sans-serif;
-    font-size:36px;font-weight:800;color:var(--text);
-    line-height:1;display:flex;align-items:baseline;gap:6px;
-}
-.plan-price .currency{font-size:14px;color:var(--muted);font-weight:400}
-.plan-price .period{font-size:13px;color:var(--muted);font-weight:400}
-.plan-price-alt{font-size:12px;color:var(--muted);margin-top:4px;min-height:18px}
-.plan-economy{
-    display:inline-block;
-    background:rgba(22,163,74,.1);color:#16a34a;
-    font-size:10px;font-weight:700;
-    padding:2px 7px;border-radius:99px;
-    margin-top:6px;
-}
-.plan-desc{
-    font-size:13px;color:var(--muted);
-    margin:1rem 0 1.5rem;line-height:1.65;
-}
-.plan-features{
-    list-style:none;display:flex;flex-direction:column;gap:9px;
-    margin-bottom:2rem;flex:1;
-}
-.plan-features li{
-    font-size:13px;color:var(--text2);
-    display:flex;gap:9px;align-items:flex-start;
-}
-.plan-features li .check{
-    width:16px;height:16px;
-    background:#fff0f0;
-    border-radius:4px;
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;margin-top:1px;
-}
-.plan-features li.muted-feat{color:var(--muted)}
-.plan-btn{
-    display:block;text-align:center;
-    padding:12px;border-radius:var(--radius-sm);
-    font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;
-    text-decoration:none;transition:all .2s;
-    margin-top:auto;
-}
-.plan-btn-ghost{
-    border:1px solid var(--border-md);color:var(--text);
-}
-.plan-btn-ghost:hover{border-color:var(--gold);color:var(--gold);background:#f9fafb}
-.plan-btn-gold{
-    background:#e8001d;
-    color:#ffffff;font-weight:700;
-    box-shadow:0 4px 16px rgba(0,0,0,.12);
-}
-.plan-btn-gold:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
-
-/* ─── CTA FINAL ─────────────────────────────────────────── */
-.cta-section{
-    padding:7rem 5%;text-align:center;
-    background:#111111;
-    border-top:1px solid var(--border);
-    position:relative;overflow:hidden;
-}
-.cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
-.cta-inner h2{letter-spacing:-2px;color:#ffffff}
-.cta-sub{
-    font-size:16px;color:#9ca3af;
-    max-width:460px;margin:.75rem auto 2.5rem;
-    line-height:1.75;font-weight:300;
-}
-.cta-meta{
-    margin-top:1.5rem;
-    display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;
-    font-size:12.5px;color:#6b7280;
-}
-.cta-meta span{display:flex;align-items:center;gap:5px}
-.cta-meta .dot{width:4px;height:4px;background:#e8001d;border-radius:50%}
-
-/* ─── FOOTER ────────────────────────────────────────────── */
-footer{
-    background:#1a1a1a;
-    border-top:1px solid var(--border);
-    padding:3.5rem 5% 2rem;
-}
-.footer-top{
-    display:grid;
-    grid-template-columns:1.5fr repeat(3,1fr);
-    gap:3rem;
-    max-width:1040px;margin:0 auto;
-    padding-bottom:3rem;
-    border-bottom:1px solid var(--border);
-}
-.footer-brand{}
-.footer-logo{display:block;margin-bottom:.75rem}
-.footer-logo img{height:36px;width:auto}
-.footer-tagline{font-size:13px;color:#9ca3af;line-height:1.6;max-width:220px;margin-bottom:1.5rem}
-.footer-badge{
-    display:inline-flex;align-items:center;gap:6px;
-    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
-    border-radius:6px;padding:5px 10px;
-    font-size:11px;color:#9ca3af;
-}
-.footer-col-title{
-    font-family:'Syne',sans-serif;font-size:12px;font-weight:700;
-    color:#e5e7eb;text-transform:uppercase;letter-spacing:1px;
-    margin-bottom:1rem;
-}
-.footer-col a{
-    display:block;font-size:13px;color:#9ca3af;
-    text-decoration:none;margin-bottom:.6rem;
-    transition:color .15s;
-}
-.footer-col a:hover{color:#ffffff}
-.footer-bottom{
-    max-width:1040px;margin:2rem auto 0;
-    display:flex;justify-content:space-between;align-items:center;
-    flex-wrap:wrap;gap:1rem;
-}
-.footer-copy{font-size:12px;color:#6b7280}
-.footer-legal{display:flex;gap:1.5rem}
-.footer-legal a{font-size:12px;color:#6b7280;text-decoration:none;transition:color .15s}
-.footer-legal a:hover{color:#9ca3af}
-
-/* ─── SECTIONS SOMBRES ──────────────────────────────────── */
-.section-dark h2{color:#ffffff}
-.section-dark .section-sub{color:#9ca3af}
-.section-dark .section-tag{color:#e8001d}
-.section-dark .section-tag::before{background:#e8001d}
-
-/* ─── ANIMATIONS ─────────────────────────────────────────── */
-@keyframes fadeUp{
-    from{opacity:0;transform:translateY(22px)}
-    to{opacity:1;transform:translateY(0)}
-}
-
-/* ─── RESPONSIVE ─────────────────────────────────────────── */
-@media(max-width:900px){
-    .features-grid{grid-template-columns:repeat(2,1fr)}
-    .testi-grid{grid-template-columns:1fr 1fr}
-    .plans-grid{grid-template-columns:1fr}
-    .browser-body{grid-template-columns:1fr}
-    .b-sidebar{display:none}
-    .b-kpis{grid-template-columns:repeat(2,1fr)}
-    .comp-grid{grid-template-columns:1fr}
-    .footer-top{grid-template-columns:1fr 1fr}
-}
-@media(max-width:640px){
-    .hero h1{letter-spacing:-1.5px}
-    .features-grid{grid-template-columns:1fr}
-    .testi-grid{grid-template-columns:1fr}
-    .steps-grid{grid-template-columns:1fr;gap:1.5rem}
-    .steps-line{display:none}
-    .b-kpis{grid-template-columns:repeat(2,1fr)}
-    .b-table-head .b-col3,.b-table-row .b-col3{display:none}
-    .trust-stats{gap:1.5rem}
-    .footer-top{grid-template-columns:1fr}
-    .footer-bottom{flex-direction:column;text-align:center}
-    .cta-meta{flex-direction:column;align-items:center;gap:.75rem}
-    .billing-toggle{width:100%}
-    .billing-btn{flex:1;justify-content:center;font-size:12px;padding:7px 10px}
-}
-@media(max-width:480px){
-    .hero{padding:90px 4% 60px}
-    .hero-btns{flex-direction:column;align-items:center}
-    .btn-gold,.btn-outline{width:100%;justify-content:center}
-    .section{padding:4rem 4%}
-    .testimonials-section{padding:4rem 4%}
-    .pricing-section{padding:4rem 4%}
-    .cta-section{padding:4.5rem 4%}
-    .trust-bar{padding:2rem 4%}
-    .trust-inner{flex-direction:column;gap:1rem}
-    .trust-divider{display:none}
-    .trust-stats{gap:1rem}
-    .mockup-wrap{margin-top:2rem}
-    .b-main{padding:10px;gap:8px}
-    .b-kpis{grid-template-columns:1fr 1fr}
-    .b-table{display:none}
-    .footer-legal{flex-direction:column;gap:.5rem;align-items:center}
-    .compliance-card{padding:1.75rem}
-    .plan{padding:1.5rem}
-}
-</style>
+@vite(['resources/css/app.css', 'resources/js/app.js'])
+<style>@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(201,168,76,.5)}70%{box-shadow:0 0 0 8px rgba(201,168,76,0)}100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}}@keyframes wa-pop{from{opacity:0;transform:scale(.5) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}.fade-up{animation:fadeUp .6s ease both}.pulse{animation:pulse-ring 2s infinite}</style>
 </head>
-<body>
+<body class="font-body bg-[#f9fafb] text-[#111111] antialiased overflow-x-hidden [-webkit-font-smoothing:antialiased]">
 
 @include('partials.public-nav', ['active' => ''])
 
-<!-- ─── HERO ───────────────────────────────────────────── -->
-<section class="hero">
-<div class="hero-inner">
-    <div class="hero-badge">
-        <div class="pulse-dot"></div>
-        🇸🇳 Conçu pour le marché sénégalais
-    </div>
+{{-- ─── HERO ───────────────────────────────────────────── --}}
+<section class="min-h-screen flex items-center justify-center flex-col text-center px-[5%] pt-[100px] pb-20 bg-white relative overflow-hidden">
+    <div class="relative z-10 max-w-[820px] w-full">
 
-    <h1>Gérez votre agence<br>immobilière, <em>l'esprit<br>tranquille</em></h1>
+        <div class="inline-flex items-center gap-2 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-full px-4 py-1.5 font-body font-medium text-xs text-bimo-gold mb-8 fade-up">
+            <div class="w-[7px] h-[7px] bg-bimo-gold rounded-full pulse flex-shrink-0"></div>
+            🇸🇳 Conçu pour le marché sénégalais
+        </div>
 
-    <p class="hero-sub">
-        Biens, contrats, loyers, quittances et conformité fiscale —
-        tout en un seul outil. Conforme TVA 18%, NINEA, loi 81-18 et CGI article 357.
-    </p>
+        <h1 class="font-display font-extrabold text-[clamp(38px,6.5vw,76px)] leading-[1.04] tracking-[-2.5px] mb-6 fade-up" style="animation-delay:.08s">
+            Gérez votre agence<br>immobilière, <em class="not-italic text-bimo-gold">l'esprit<br>tranquille</em>
+        </h1>
 
-    <div class="hero-btns">
-        <a href="{{ route('agency.register') }}" class="btn-gold">
-            Créer mon agence gratuitement
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
-        <a href="{{ route('demo') }}" class="btn-outline">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            Demander une démo
-        </a>
-    </div>
-    <p class="hero-note">30 jours d'essai gratuit · <span>Aucune carte bancaire requise</span> · Accès immédiat</p>
+        <p class="font-body text-[clamp(15px,2vw,18px)] text-[#9ca3af] max-w-[540px] mx-auto mb-10 leading-[1.75] fade-up" style="animation-delay:.16s">
+            Biens, contrats, loyers, quittances et conformité fiscale — tout en un seul outil. Conforme TVA 18%, NINEA, loi 81-18 et CGI article 357.
+        </p>
 
-    {{-- Mockup navigateur ──────────────────────────── --}}
-    <div class="mockup-wrap">
-        <div class="mockup-halo"></div>
-        <div class="mockup-browser">
-            <div class="browser-bar">
-                <div class="b-dots">
-                    <div class="b-dot" style="background:#ff5f57"></div>
-                    <div class="b-dot" style="background:#febc2e"></div>
-                    <div class="b-dot" style="background:#28c840"></div>
-                </div>
-                <div class="url-bar">
-                    <span class="url-lock">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    </span>
-                    app.bimotech.sn/dashboard
-                </div>
-            </div>
-            <div class="browser-body">
-                <div class="b-sidebar">
-                    <div class="b-brand"><div class="b-brand-dot"></div>BimoTech</div>
-                    <div class="b-nav-item active">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                        Dashboard
+        <div class="flex items-center justify-center gap-3 flex-wrap mb-6 fade-up" style="animation-delay:.24s">
+            <a href="{{ route('agency.register') }}"
+               class="inline-flex items-center gap-1.5 font-body font-bold text-sm text-white no-underline px-7 py-3.5 rounded-[10px] bg-bimo-gold hover:opacity-95 hover:-translate-y-0.5 transition-all duration-200 shadow-md">
+                Créer mon agence gratuitement
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a href="{{ route('demo') }}"
+               class="inline-flex items-center gap-1.5 font-body font-medium text-sm text-[#111111] no-underline px-7 py-3.5 rounded-[10px] bg-white border border-[#d1d5db] hover:border-bimo-gold hover:text-bimo-gold hover:-translate-y-0.5 transition-all duration-200 shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Demander une démo
+            </a>
+        </div>
+        <p class="font-body text-xs text-[#9ca3af] fade-up" style="animation-delay:.32s">30 jours d'essai gratuit · <span class="text-bimo-gold">Aucune carte bancaire requise</span> · Accès immédiat</p>
+
+        {{-- Mockup navigateur --}}
+        <div class="mt-16 relative max-w-[960px] w-full mx-auto fade-up" style="animation-delay:.4s">
+            <div class="bg-[#222] border border-[#d1d5db] rounded-[16px] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,.04),0_60px_120px_rgba(0,0,0,.7),inset_0_1px_0_rgba(255,255,255,.08)]">
+                {{-- Browser bar --}}
+                <div class="bg-[#2a2a2a] px-4 py-3 flex items-center gap-2.5 border-b border-white/[8%]">
+                    <div class="flex gap-1.5">
+                        <div class="w-[11px] h-[11px] rounded-full bg-[#ff5f57]"></div>
+                        <div class="w-[11px] h-[11px] rounded-full bg-[#febc2e]"></div>
+                        <div class="w-[11px] h-[11px] rounded-full bg-[#28c840]"></div>
                     </div>
-                    <div class="b-nav-item">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                        Biens
-                    </div>
-                    <div class="b-nav-item">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
-                        Contrats
-                    </div>
-                    <div class="b-nav-item">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                        Paiements
-                    </div>
-                    <div class="b-nav-item">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                        Rapports
-                    </div>
-                    <div class="b-nav-item">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                        Locataires
+                    <div class="flex-1 mx-3 bg-black/30 border border-white/[8%] rounded-[6px] px-3 py-1.5 flex items-center gap-1.5">
+                        <span class="text-bimo-gold opacity-60">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        </span>
+                        <span class="font-body text-[11px] text-[#9ca3af]" style="font-family:monospace">app.bimotech.sn/dashboard</span>
                     </div>
                 </div>
-                <div class="b-main">
-                    <div>
-                        <div class="b-page-title">Tableau de bord</div>
-                        <div class="b-page-sub">Agence Fann Immo · Avril 2026</div>
+                {{-- Browser content --}}
+                <div class="grid md:grid-cols-[190px_1fr] min-h-[340px]">
+                    {{-- Sidebar --}}
+                    <div class="hidden md:flex flex-col gap-0.5 bg-[#1a1a1a] border-r border-white/[8%] p-3">
+                        <div class="flex items-center gap-1.5 font-display font-extrabold text-[13px] text-bimo-gold px-2 py-1 mb-4">
+                            <div class="w-2 h-2 bg-bimo-gold rounded-[2px]"></div>BimoTech
+                        </div>
+                        @foreach([['active','<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>','Dashboard'],['','<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>','Biens'],['','<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>','Contrats'],['','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>','Paiements'],['','<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>','Rapports'],['','<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>','Locataires']] as [$a,$icon,$lbl])
+                        <div class="flex items-center gap-2 px-2.5 py-2 rounded-[7px] font-body text-[11.5px] {{ $a === 'active' ? 'bg-bimo-gold/[8%] text-bimo-gold font-semibold' : 'text-[#6b7280]' }}">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 opacity-70">{!! $icon !!}</svg>
+                            {{ $lbl }}
+                        </div>
+                        @endforeach
                     </div>
-                    <div class="b-kpis">
-                        <div class="b-kpi" style="border-color:var(--gold)">
-                            <div class="b-kpi-label">Loyers encaissés</div>
-                            <div class="b-kpi-val" style="color:var(--gold)">3,2M</div>
-                            <div class="b-kpi-sub">FCFA ce mois</div>
+                    {{-- Main --}}
+                    <div class="bg-[#1a1a1a] p-5 flex flex-col gap-3.5">
+                        <div>
+                            <div class="font-display font-bold text-sm text-[#e5e7eb] mb-0.5">Tableau de bord</div>
+                            <div class="font-body text-[11px] text-[#6b7280]">Agence Fann Immo · Avril 2026</div>
                         </div>
-                        <div class="b-kpi" style="border-color:#4ade80">
-                            <div class="b-kpi-label">Biens occupés</div>
-                            <div class="b-kpi-val" style="color:#4ade80">18/20</div>
-                            <div class="b-kpi-sub">90% d'occupation</div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                            @foreach([['border-bimo-gold','text-bimo-gold','Loyers encaissés','3,2M','FCFA ce mois'],['border-[#4ade80]','text-[#4ade80]','Biens occupés','18/20','90% d\'occupation'],['border-[#f87171]','text-[#f87171]','Impayés','2','Relances envoyées'],['border-[#a78bfa]','text-[#a78bfa]','Net propriétaires','2,7M','Après commission']] as [$bc,$vc,$lbl,$val,$sub])
+                            <div class="bg-[#222] border border-white/[8%] rounded-[10px] p-3 border-t-2 {{ $bc }}">
+                                <div class="font-body text-[9.5px] text-[#9ca3af] uppercase tracking-[.6px] mb-1.5">{{ $lbl }}</div>
+                                <div class="font-display font-extrabold text-[18px] leading-none {{ $vc }}">{{ $val }}</div>
+                                <div class="font-body text-[9px] text-[#9ca3af] mt-1">{{ $sub }}</div>
+                            </div>
+                            @endforeach
                         </div>
-                        <div class="b-kpi" style="border-color:#f87171">
-                            <div class="b-kpi-label">Impayés</div>
-                            <div class="b-kpi-val" style="color:#f87171">2</div>
-                            <div class="b-kpi-sub">Relances envoyées</div>
-                        </div>
-                        <div class="b-kpi" style="border-color:#a78bfa">
-                            <div class="b-kpi-label">Net propriétaires</div>
-                            <div class="b-kpi-val" style="color:#a78bfa">2,7M</div>
-                            <div class="b-kpi-sub">Après commission</div>
-                        </div>
-                    </div>
-                    <div class="b-table">
-                        <div class="b-table-head">
-                            <span>Locataire</span>
-                            <span>Bien</span>
-                            <span>Montant</span>
-                            <span>Mode</span>
-                            <span>Statut</span>
-                        </div>
-                        <div class="b-table-row">
-                            <span>A. Diallo</span>
-                            <span>Villa Fann</span>
-                            <span>350 000</span>
-                            <span>Wave</span>
-                            <span><span class="b-badge paid">Payé</span></span>
-                        </div>
-                        <div class="b-table-row">
-                            <span>M. Ndiaye</span>
-                            <span>Appt Plateau</span>
-                            <span>280 000</span>
-                            <span>Virement</span>
-                            <span><span class="b-badge pending">Attente</span></span>
-                        </div>
-                        <div class="b-table-row">
-                            <span>F. Sow</span>
-                            <span>Bureau Almadies</span>
-                            <span>520 000</span>
-                            <span>Chèque</span>
-                            <span><span class="b-badge paid">Payé</span></span>
-                        </div>
-                        <div class="b-table-row">
-                            <span>I. Ba</span>
-                            <span>Studio Mermoz</span>
-                            <span>185 000</span>
-                            <span>OM</span>
-                            <span><span class="b-badge late">Retard</span></span>
+                        <div class="hidden md:block bg-[#222] border border-white/[8%] rounded-[10px] overflow-hidden">
+                            <div class="grid grid-cols-5 px-3.5 py-2 bg-white/[2%] border-b border-white/[6%] font-body text-[9px] text-[#9ca3af] uppercase tracking-[.7px]">
+                                <span>Locataire</span><span>Bien</span><span>Montant</span><span>Mode</span><span>Statut</span>
+                            </div>
+                            @foreach([['A. Diallo','Villa Fann','350 000','Wave','Payé','paid'],['M. Ndiaye','Appt Plateau','280 000','Virement','Attente','pending'],['F. Sow','Bureau Almadies','520 000','Chèque','Payé','paid'],['I. Ba','Studio Mermoz','185 000','OM','Retard','late']] as [$n,$b,$m,$md,$st,$sc])
+                            <div class="grid grid-cols-5 px-3.5 py-2.5 border-b border-white/[3%] last:border-0 font-body text-[10.5px] text-[#6b7280] items-center">
+                                <span>{{ $n }}</span><span>{{ $b }}</span><span>{{ $m }}</span><span>{{ $md }}</span>
+                                <span class="inline-block font-body font-semibold text-[9px] px-2 py-0.5 rounded-full {{ $sc === 'paid' ? 'bg-[rgba(34,197,94,.12)] text-[#4ade80]' : ($sc === 'late' ? 'bg-[rgba(239,68,68,.1)] text-[#f87171]' : 'bg-[rgba(234,179,8,.1)] text-[#fbbf24]') }}">{{ $st }}</span>
+                            </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </section>
 
-<!-- ─── TRUST BAR ──────────────────────────────────────── -->
-<div class="trust-bar">
-    <div class="trust-inner">
-        <div class="trust-label">Pourquoi BimoTech</div>
-        <div class="trust-divider"></div>
-        <div class="trust-stats">
-            <div class="trust-stat">
-                <div class="trust-num" style="font-size:15px;letter-spacing:-.3px">Dakar · Thiès · Régions</div>
-                <div class="trust-desc">Agences partout au Sénégal</div>
+{{-- ─── TRUST BAR ──────────────────────────────────────── --}}
+<div class="px-[5%] py-10 border-t border-b border-[#e5e7eb] bg-[#eef0f2]">
+    <div class="max-w-[1000px] mx-auto flex flex-wrap items-center justify-center gap-10">
+        <div class="font-body font-semibold text-[11px] text-[#6b7280] uppercase tracking-[1.5px] whitespace-nowrap">Pourquoi BimoTech</div>
+        <div class="w-px h-7 bg-[#d1d5db] flex-shrink-0 hidden md:block"></div>
+        <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+            @foreach([['Dakar · Thiès · Régions','Agences partout au Sénégal',15],['Wave · Orange Money · Virement','Tous modes de paiement inclus',13],['98%','Taux de recouvrement',22],['TVA · BRS · TOM · DGID','Conformité fiscale CGI SN',13]] as [$n,$d,$fs])
+            <div class="text-center">
+                <div class="font-display font-extrabold text-bimo-gold leading-none" style="font-size:{{ $fs }}px;letter-spacing:-.3px">{{ $n }}</div>
+                <div class="font-body text-[11px] text-[#6b7280] mt-1">{{ $d }}</div>
             </div>
-            <div class="trust-stat">
-                <div class="trust-num" style="font-size:13px;letter-spacing:-.3px">Wave · Orange Money · Virement</div>
-                <div class="trust-desc">Tous modes de paiement inclus</div>
-            </div>
-            <div class="trust-stat">
-                <div class="trust-num">98%</div>
-                <div class="trust-desc">Taux de recouvrement</div>
-            </div>
-            <div class="trust-stat">
-                <div class="trust-num" style="font-size:13px;letter-spacing:-.3px">TVA · BRS · TOM · DGID</div>
-                <div class="trust-desc">Conformité fiscale CGI SN</div>
-            </div>
+            @endforeach
         </div>
     </div>
 </div>
 
-<!-- ─── VIDÉO DÉMO ─────────────────────────────────────── -->
-<section class="section" id="demo" style="padding:5rem 5%">
-    <div class="section-inner" style="max-width:860px">
-        <div class="section-header" style="text-align:center">
-            <div class="section-tag" style="justify-content:center">Démonstration</div>
-            <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:.8rem">La gestion locative <em>automatisée</em></h2>
-            <p class="section-sub" style="max-width:520px;margin:0 auto">Découvrez comment les agences modernes automatisent leur gestion — loyers, quittances, relances — en quelques clics.</p>
+{{-- ─── VIDÉO DÉMO ─────────────────────────────────────── --}}
+<section class="px-[5%] py-20">
+    <div class="max-w-[860px] mx-auto">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
+                <span class="w-4 h-px bg-bimo-gold inline-block"></span>Démonstration
+            </div>
+            <h2 class="font-display font-extrabold text-[clamp(1.6rem,3vw,2.2rem)] tracking-tight mb-3">La gestion locative <em class="not-italic text-bimo-gold">automatisée</em></h2>
+            <p class="font-body text-[15px] text-[#6b7280] max-w-[520px] mx-auto leading-relaxed">Découvrez comment les agences modernes automatisent leur gestion — loyers, quittances, relances — en quelques clics.</p>
         </div>
-
-        {{-- Conteneur vidéo avec fallback --}}
-        <div style="position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--border);box-shadow:0 0 40px rgba(0,0,0,.15);background:#0d1117;margin-top:2.5rem">
-
-            @php $videoUrl = 'https://www.youtube.com/embed/1CqDVBCsT78'; @endphp
-
+        @php $videoUrl = 'https://www.youtube.com/embed/1CqDVBCsT78'; @endphp
+        <div class="rounded-[18px] overflow-hidden border border-[#e5e7eb] shadow-xl bg-[#0d1117] mt-10">
             @if($videoUrl)
-            <div style="position:relative;padding-bottom:56.25%;height:0">
-                <iframe src="{{ $videoUrl }}"
-                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen></iframe>
+            <div class="relative pb-[56.25%] h-0">
+                <iframe src="{{ $videoUrl }}" class="absolute top-0 left-0 w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
             @else
-            {{-- Placeholder affiché tant qu'aucune vidéo n'est configurée --}}
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:1.5rem">
-                <div style="width:72px;height:72px;border-radius:50%;background:#fff0f0;border:1.5px solid rgba(232,0,29,.3);display:flex;align-items:center;justify-content:center;cursor:pointer"
-                     onclick="this.closest('section').querySelector('a').click()">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#e8001d" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <div class="flex flex-col items-center justify-center py-20 px-8 gap-6">
+                <div class="w-[72px] h-[72px] rounded-full bg-bimo-gold/[8%] border border-bimo-gold/30 flex items-center justify-center cursor-pointer">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="#C9A84C" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 </div>
-                <div style="text-align:center">
-                    <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#e6edf3;margin-bottom:6px">Démo disponible sur demande</div>
-                    <div style="font-size:13px;color:#6e7681">Obtenez une démonstration personnalisée avec un expert BimoTech</div>
+                <div class="text-center">
+                    <div class="font-display font-bold text-base text-[#e6edf3] mb-1.5">Démo disponible sur demande</div>
+                    <div class="font-body text-[13px] text-[#6e7681]">Obtenez une démonstration personnalisée avec un expert BimoTech</div>
                 </div>
-                <a href="{{ route('demo') }}"
-                   style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:#fff0f0;border:1px solid var(--border);border-radius:10px;color:#e8001d;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s"
-                   onmouseover="this.style.background='rgba(232,0,29,.18)'"
-                   onmouseout="this.style.background='rgba(232,0,29,.1)'">
+                <a href="{{ route('demo') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-bimo-gold/[8%] border border-bimo-gold/20 rounded-[10px] text-bimo-gold font-body font-semibold text-[13px] no-underline hover:bg-bimo-gold/15 transition-colors duration-200">
                     Demander une démo gratuite →
                 </a>
             </div>
@@ -909,249 +176,160 @@ footer{
     </div>
 </section>
 
-<!-- ─── FONCTIONNALITÉS ───────────────────────────────── -->
-<section class="section" id="fonctionnalites">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-tag">Fonctionnalités</div>
-            <h2>Tout ce dont votre agence<br>a besoin, <em>rien de superflu</em></h2>
-            <p class="section-sub">BimoTech n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
+{{-- ─── FONCTIONNALITÉS ───────────────────────────────── --}}
+<section class="px-[5%] py-24" id="fonctionnalites">
+    <div class="max-w-[1040px] mx-auto">
+        <div class="mb-14">
+            <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
+                <span class="w-4 h-px bg-bimo-gold inline-block"></span>Fonctionnalités
+            </div>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] mb-4">Tout ce dont votre agence<br>a besoin, <em class="not-italic text-bimo-gold">rien de superflu</em></h2>
+            <p class="font-body text-[15px] text-[#6b7280] max-w-[540px] leading-relaxed">BimoTech n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
         </div>
-
-        <div class="features-grid">
-            <div class="feat">
-                <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach([
+                ['<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>','Gestion des biens','Ajoutez vos biens avec photos, surface, type et loyer. Suivez l\'occupation en temps réel avec des statuts clairs.'],
+                ['<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/>','Contrats de bail','Créez vos contrats de bail vide ou meublé. Durée, dépôt de garantie, clauses — tout est archivé et accessible.'],
+                ['<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>','Encaissement des loyers','Espèces, virement, Wave, Orange Money, Free Money. Chaque paiement génère automatiquement une quittance légale.'],
+                ['<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>','Espace propriétaire','Chaque propriétaire accède à ses biens, ses revenus nets et l\'historique de ses paiements. En temps réel, sans appel.'],
+                ['<path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>','Espace locataire','Vos locataires accèdent à leurs quittances, suivent leur bail et contactent l\'agence via WhatsApp en un clic.'],
+                ['<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>','Rapports financiers','Commission HT/TTC, TVA, TOM, BRS, net propriétaire. Bilans mensuels et annuels exportables avec taux d\'occupation.'],
+            ] as [$icon,$title,$desc])
+            <div class="bg-white border border-[#e5e7eb] rounded-[14px] p-8 hover:-translate-y-1 hover:shadow-lg hover:border-[#d1d5db] transition-all duration-200">
+                <div class="w-11 h-11 bg-bimo-gold/[8%] border border-[#e5e7eb] rounded-[12px] flex items-center justify-center mb-5">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8">{!! $icon !!}</svg>
                 </div>
-                <h3 class="feat-title" style="font-size:15px">Gestion des biens</h3>
-                <div class="feat-desc">Ajoutez vos biens avec photos, surface, type et loyer. Suivez l'occupation en temps réel avec des statuts clairs.</div>
+                <h3 class="font-display font-bold text-[15px] text-[#111111] mb-2">{{ $title }}</h3>
+                <p class="font-body text-[13px] text-[#6b7280] leading-[1.7]">{{ $desc }}</p>
             </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-                </div>
-                <h3 class="feat-title" style="font-size:15px">Contrats de bail</h3>
-                <div class="feat-desc">Créez vos contrats de bail vide ou meublé. Durée, dépôt de garantie, clauses — tout est archivé et accessible.</div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                </div>
-                <h3 class="feat-title" style="font-size:15px">Encaissement des loyers</h3>
-                <div class="feat-desc">Espèces, virement, Wave, Orange Money, Free Money. Chaque paiement enregistré génère automatiquement une quittance légale.</div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                </div>
-                <h3 class="feat-title" style="font-size:15px">Espace propriétaire</h3>
-                <div class="feat-desc">Chaque propriétaire accède à ses biens, ses revenus nets et l'historique de ses paiements. En temps réel, sans appel.</div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div>
-                <h3 class="feat-title" style="font-size:15px">Espace locataire</h3>
-                <div class="feat-desc">Vos locataires accèdent à leurs quittances, suivent leur bail et contactent l'agence via WhatsApp en un clic.</div>
-            </div>
-            <div class="feat">
-                <div class="feat-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                </div>
-                <h3 class="feat-title" style="font-size:15px">Rapports financiers</h3>
-                <div class="feat-desc">Commission HT/TTC, TVA, TOM, BRS, net propriétaire. Bilans mensuels et annuels exportables avec taux d'occupation.</div>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
 
-<!-- ─── TÉMOIGNAGES ───────────────────────────────────── -->
-<div class="testimonials-section">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-tag">Témoignages</div>
-            <h2>Ce que disent les agences<br>qui utilisent <em>BimoTech</em></h2>
+{{-- ─── TÉMOIGNAGES ───────────────────────────────────── --}}
+<div class="px-[5%] py-24 bg-[#f3f4f6] border-t border-b border-[#e5e7eb]">
+    <div class="max-w-[1040px] mx-auto">
+        <div class="mb-14">
+            <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
+                <span class="w-4 h-px bg-bimo-gold inline-block"></span>Témoignages
+            </div>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08]">Ce que disent les agences<br>qui utilisent <em class="not-italic text-bimo-gold">BimoTech</em></h2>
         </div>
-        <div class="testi-grid">
-            <div class="testi-card">
-                <div class="testi-quote">"</div>
-                <p class="testi-text">Avant BimoTech, je passais mes lundis à relancer les locataires par téléphone. Maintenant les quittances partent automatiquement et mes propriétaires consultent leurs revenus eux-mêmes. Je récupère deux heures par semaine.</p>
-                <div class="testi-author">
-                    <div class="testi-avatar">AD</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @foreach([
+                ['AD','Aminata Dieng','Directrice — Agence Fann Immo, Dakar','Avant BimoTech, je passais mes lundis à relancer les locataires par téléphone. Maintenant les quittances partent automatiquement et mes propriétaires consultent leurs revenus eux-mêmes. Je récupère deux heures par semaine.'],
+                ['MF','Moustapha Fall','Gérant — Cabinet Thioro Patrimoine, Thiès','La conformité TVA et TOM est ce qui m\'a convaincu. Mon comptable a validé les calculs du premier coup. Je n\'avais rien à paramétrer, tout était déjà dans la loi sénégalaise. Aucun autre logiciel ne fait ça.'],
+                ['SC','Sokhna Cissé','Associée — Immo Almadies, Dakar','On gère 34 appartements à Almadies avec 2 personnes. BimoTech nous a permis de doubler notre portefeuille sans embaucher. Le tableau de bord suffit pour voir en 30 secondes ce qui est payé et ce qui ne l\'est pas.'],
+            ] as [$initials,$name,$role,$text])
+            <div class="bg-white border border-[#e5e7eb] rounded-[14px] p-7 hover:border-[#d1d5db] hover:-translate-y-1 hover:shadow-lg transition-all duration-200">
+                <div class="font-[Georgia,serif] text-[32px] text-bimo-gold opacity-40 leading-none mb-4">"</div>
+                <p class="font-body text-[13.5px] text-[#374151] leading-[1.75] mb-6 italic">{{ $text }}</p>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-[38px] h-[38px] rounded-full bg-bimo-gold flex items-center justify-center font-display font-bold text-sm text-white flex-shrink-0">{{ $initials }}</div>
                     <div>
-                        <div class="testi-name">Aminata Dieng</div>
-                        <div class="testi-role">Directrice — Agence Fann Immo, Dakar</div>
+                        <div class="font-display font-bold text-[13px] text-[#111]">{{ $name }}</div>
+                        <div class="font-body text-[11px] text-[#6b7280]">{{ $role }}</div>
                     </div>
                 </div>
-                <div class="testi-stars">★★★★★</div>
+                <div class="text-bimo-gold text-xs mt-3 flex gap-0.5">★★★★★</div>
             </div>
-            <div class="testi-card">
-                <div class="testi-quote">"</div>
-                <p class="testi-text">La conformité TVA et TOM est ce qui m'a convaincu. Mon comptable a validé les calculs du premier coup. Je n'avais rien à paramétrer, tout était déjà dans la loi sénégalaise. Aucun autre logiciel ne fait ça.</p>
-                <div class="testi-author">
-                    <div class="testi-avatar">MF</div>
-                    <div>
-                        <div class="testi-name">Moustapha Fall</div>
-                        <div class="testi-role">Gérant — Cabinet Thioro Patrimoine, Thiès</div>
-                    </div>
-                </div>
-                <div class="testi-stars">★★★★★</div>
-            </div>
-            <div class="testi-card">
-                <div class="testi-quote">"</div>
-                <p class="testi-text">On gère 34 appartements à Almadies avec 2 personnes. BimoTech nous a permis de doubler notre portefeuille sans embaucher. Le tableau de bord suffit pour voir en 30 secondes ce qui est payé et ce qui ne l'est pas.</p>
-                <div class="testi-author">
-                    <div class="testi-avatar">SC</div>
-                    <div>
-                        <div class="testi-name">Sokhna Cissé</div>
-                        <div class="testi-role">Associée — Immo Almadies, Dakar</div>
-                    </div>
-                </div>
-                <div class="testi-stars">★★★★★</div>
-            </div>
+            @endforeach
         </div>
     </div>
 </div>
 
-<!-- ─── CONFORMITÉ ─────────────────────────────────────── -->
-<section class="section" id="conformite">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-tag">Conformité fiscale</div>
-            <h2>Le seul SaaS immobilier<br><em>conforme au droit sénégalais</em></h2>
-            <p class="section-sub">BimoTech intègre nativement les obligations fiscales et légales du Sénégal. Pas de modules à activer, pas de configuration complexe.</p>
+{{-- ─── CONFORMITÉ ────────────────────────────────────── --}}
+<section class="px-[5%] py-24" id="conformite">
+    <div class="max-w-[1040px] mx-auto">
+        <div class="mb-14">
+            <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
+                <span class="w-4 h-px bg-bimo-gold inline-block"></span>Conformité fiscale
+            </div>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] mb-4">Le seul SaaS immobilier<br><em class="not-italic text-bimo-gold">conforme au droit sénégalais</em></h2>
+            <p class="font-body text-[15px] text-[#6b7280] max-w-[540px] leading-relaxed">BimoTech intègre nativement les obligations fiscales et légales du Sénégal. Pas de modules à activer, pas de configuration complexe.</p>
         </div>
-
-        <div class="compliance-card">
-            <div class="comp-grid">
-                <div class="comp-item">
-                    <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
+        <div class="bg-white border border-[#e5e7eb] rounded-[20px] p-12 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+                @foreach([
+                    ['TVA 18% — CGI article 357','Calcul automatique sur les commissions d\'agence, décomposition HT/TTC claire sur chaque quittance.'],
+                    ['Loi 81-18 — Encadrement des loyers','Vérification automatique des plafonds selon la surface. Alerte si le loyer saisi est non conforme.'],
+                    ['TOM — Taxe sur Ordures Ménagères','Taux paramétrable par commune. Dakar 5%, autres communes selon arrêté local.'],
+                    ['BRS — Contribution Foncière des Propriétés Bâties','Calcul et report automatique de la contribution foncière dans les bilans propriétaires.'],
+                    ['NINEA — Identification fiscale de l\'agence','Le NINEA apparaît automatiquement sur toutes les quittances, factures et documents PDF.'],
+                    ['Dépôt de garantie — 2 mois max','Plafonnement automatique au seuil légal loi 81-18, avec avertissement en cas de dépassement.'],
+                ] as [$title,$desc])
+                <div class="flex items-start gap-3.5">
+                    <div class="w-6 h-6 bg-bimo-gold/[8%] border border-[#e5e7eb] rounded-[7px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#C9A84C" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
-                        <div class="comp-title">TVA 18% — CGI article 357</div>
-                        <div class="comp-desc">Calcul automatique sur les commissions d'agence, décomposition HT/TTC claire sur chaque quittance.</div>
+                        <div class="font-body font-semibold text-sm text-[#111] mb-1">{{ $title }}</div>
+                        <div class="font-body text-[12.5px] text-[#6b7280] leading-relaxed">{{ $desc }}</div>
                     </div>
                 </div>
-                <div class="comp-item">
-                    <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
-                    </div>
-                    <div>
-                        <div class="comp-title">Loi 81-18 — Encadrement des loyers</div>
-                        <div class="comp-desc">Vérification automatique des plafonds selon la surface. Alerte si le loyer saisi est non conforme.</div>
-                    </div>
-                </div>
-                <div class="comp-item">
-                    <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
-                    </div>
-                    <div>
-                        <div class="comp-title">TOM — Taxe sur Ordures Ménagères</div>
-                        <div class="comp-desc">Taux paramétrable par commune. Dakar 5%, autres communes selon arrêté local.</div>
-                    </div>
-                </div>
-                <div class="comp-item">
-                    <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
-                    </div>
-                    <div>
-                        <div class="comp-title">BRS — Contribution Foncière des Propriétés Bâties</div>
-                        <div class="comp-desc">Calcul et report automatique de la contribution foncière dans les bilans propriétaires.</div>
-                    </div>
-                </div>
-                <div class="comp-item">
-                    <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
-                    </div>
-                    <div>
-                        <div class="comp-title">NINEA — Identification fiscale de l'agence</div>
-                        <div class="comp-desc">Le NINEA apparaît automatiquement sur toutes les quittances, factures et documents PDF.</div>
-                    </div>
-                </div>
-                <div class="comp-item">
-                    <div class="comp-check">
-                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#e8001d" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
-                    </div>
-                    <div>
-                        <div class="comp-title">Dépôt de garantie — 2 mois max</div>
-                        <div class="comp-desc">Plafonnement automatique au seuil légal loi 81-18, avec avertissement en cas de dépassement.</div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
 </section>
 
-<!-- ─── COMMENT ÇA MARCHE ─────────────────────────────── -->
-<section class="section section-dark" style="background:#1a1a1a;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)">
-    <div class="section-inner">
-        <div class="section-header">
-            <div class="section-tag">Démarrage rapide</div>
-            <h2>Opérationnel en <em>moins de 10 minutes</em></h2>
+{{-- ─── COMMENT ÇA MARCHE ──────────────────────────────── --}}
+<section class="px-[5%] py-24 bg-[#1a1a1a] border-t border-b border-white/[8%]">
+    <div class="max-w-[1040px] mx-auto">
+        <div class="mb-14">
+            <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
+                <span class="w-4 h-px bg-bimo-gold inline-block"></span>Démarrage rapide
+            </div>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-white">Opérationnel en <em class="not-italic text-bimo-gold">moins de 10 minutes</em></h2>
         </div>
-        <div class="steps-grid">
-            <div class="steps-line"></div>
-            <div class="step">
-                <div class="step-num">1</div>
-                <div class="step-title">Créez votre agence</div>
-                <div class="step-desc">Renseignez nom, NINEA et coordonnées. Votre espace est immédiatement actif, sécurisé et isolé.</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div class="hidden md:block absolute top-[27px] left-[calc(16.7%+12px)] right-[calc(16.7%+12px)] h-px bg-bimo-gold z-0"></div>
+            @foreach([['1','Créez votre agence','Renseignez nom, NINEA et coordonnées. Votre espace est immédiatement actif, sécurisé et isolé.'],['2','Ajoutez vos biens','Importez votre portefeuille avec photos, loyers et propriétaires. Créez vos premiers contrats de bail.'],['3','Gérez en temps réel','Paiements, quittances PDF, rapports fiscaux — tout se génère automatiquement depuis votre tableau de bord.']] as [$num,$title,$desc])
+            <div class="text-center relative z-10">
+                <div class="w-[54px] h-[54px] bg-bimo-gold rounded-full flex items-center justify-center font-display font-extrabold text-lg text-white mx-auto mb-5 shadow-xl">{{ $num }}</div>
+                <div class="font-display font-bold text-[15px] text-white mb-2">{{ $title }}</div>
+                <div class="font-body text-[13px] text-[#9ca3af] leading-relaxed">{{ $desc }}</div>
             </div>
-            <div class="step">
-                <div class="step-num">2</div>
-                <div class="step-title">Ajoutez vos biens</div>
-                <div class="step-desc">Importez votre portefeuille avec photos, loyers et propriétaires. Créez vos premiers contrats de bail.</div>
-            </div>
-            <div class="step">
-                <div class="step-num">3</div>
-                <div class="step-title">Gérez en temps réel</div>
-                <div class="step-desc">Paiements, quittances PDF, rapports fiscaux — tout se génère automatiquement depuis votre tableau de bord.</div>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
 
-<!-- ─── TARIFS ─────────────────────────────────────────── -->
-<section class="pricing-section" id="tarifs">
-    <div class="section-inner">
-        <div class="section-header" style="text-align:center">
-            <div class="section-tag" style="justify-content:center">Tarifs</div>
-            <h2>Starter, Pro ou Agence —<br><em>30 jours d'essai gratuit</em></h2>
-            <p class="section-sub" style="margin:0 auto">Aucune carte bancaire. Choisissez votre plan après l'essai.</p>
+{{-- ─── TARIFS ─────────────────────────────────────────── --}}
+<section class="px-[5%] py-24 bg-[#f3f4f6] border-t border-[#e5e7eb]" id="tarifs">
+    <div class="max-w-[1040px] mx-auto">
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
+                <span class="w-4 h-px bg-bimo-gold inline-block"></span>Tarifs
+            </div>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] mb-3">Starter, Pro ou Agence —<br><em class="not-italic text-bimo-gold">30 jours d'essai gratuit</em></h2>
+            <p class="font-body text-[15px] text-[#6b7280] mx-auto">Aucune carte bancaire. Choisissez votre plan après l'essai.</p>
         </div>
-
-        <div class="plans-grid" style="max-width:840px;margin:0 auto 2.5rem">
-            <div class="plan">
-                <div class="plan-name">Starter</div>
-                <div class="plan-price-wrap">
-                    <div class="plan-price">19 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[840px] mx-auto mb-8">
+            @foreach([
+                [false,'Starter','19 900','Jusqu\'à 15 unités — Dashboard, biens, contrats, paiements, impayés, quittances PDF.'],
+                [true,'Pro','49 900','Jusqu\'à 50 unités — Tout Starter + immeubles, rapports PDF, import Excel, relevés propriétaires.'],
+                [false,'Agence','89 900','Unités illimitées — Tout Pro + déclarations DGID, bilans fiscaux, logs d\'activité, support prioritaire.'],
+            ] as [$featured,$name,$price,$desc])
+            <div class="bg-white border rounded-[14px] p-8 flex flex-col relative transition-all duration-200 hover:-translate-y-1 {{ $featured ? 'border-bimo-gold shadow-xl pt-11' : 'border-[#e5e7eb] hover:shadow-lg hover:border-[#d1d5db]' }}">
+                @if($featured)
+                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-bimo-gold text-[#111] font-body font-extrabold text-[11px] px-4 py-1 rounded-full whitespace-nowrap">⭐ Recommandé</div>
+                @endif
+                <div class="font-body font-bold text-[11px] text-[#6b7280] uppercase tracking-[1.5px] mb-3">{{ $name }}</div>
+                <div class="font-display font-extrabold text-[36px] text-[#111] leading-none mb-3 flex items-baseline gap-1.5">
+                    {{ $price }} <span class="font-body text-sm text-[#6b7280] font-normal">FCFA</span><span class="font-body text-[13px] text-[#6b7280] font-normal">/ mois</span>
                 </div>
-                <p class="plan-desc">Jusqu'à 15 unités — Dashboard, biens, contrats, paiements, impayés, quittances PDF.</p>
-                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-ghost">Démarrer gratuitement</a>
+                <p class="font-body text-[13px] text-[#6b7280] leading-relaxed mb-6 flex-1">{{ $desc }}</p>
+                <a href="{{ route('agency.register') }}"
+                   class="block text-center py-3 rounded-[10px] font-body font-semibold text-[13.5px] no-underline transition-all duration-200 {{ $featured ? 'bg-bimo-gold text-[#111] hover:opacity-90 hover:-translate-y-0.5 shadow-md' : 'border border-[#d1d5db] text-[#111] hover:border-bimo-gold hover:text-bimo-gold hover:bg-[#f9fafb]' }}">
+                    {{ $featured ? 'Démarrer — 30 jours gratuits' : 'Démarrer gratuitement' }}
+                </a>
             </div>
-            <div class="plan featured">
-                <div class="plan-badge-top">⭐ Recommandé</div>
-                <div class="plan-name">Pro</div>
-                <div class="plan-price-wrap">
-                    <div class="plan-price">49 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
-                </div>
-                <p class="plan-desc">Jusqu'à 50 unités — Tout Starter + immeubles, rapports PDF, import Excel, relevés propriétaires.</p>
-                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-gold">Démarrer — 30 jours gratuits</a>
-            </div>
-            <div class="plan">
-                <div class="plan-name">Agence</div>
-                <div class="plan-price-wrap">
-                    <div class="plan-price">89 900 <span class="currency">FCFA</span><span class="period">/ mois</span></div>
-                </div>
-                <p class="plan-desc">Unités illimitées — Tout Pro + déclarations DGID, bilans fiscaux, logs d'activité, support prioritaire.</p>
-                <a href="{{ route('agency.register') }}" class="plan-btn plan-btn-ghost">Démarrer gratuitement</a>
-            </div>
+            @endforeach
         </div>
-
-        <div style="text-align:center">
-            <a href="{{ route('pricing') }}"
-               style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border);padding-bottom:2px;transition:color .15s"
-               onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">
+        <div class="text-center">
+            <a href="{{ route('pricing') }}" class="inline-flex items-center gap-1.5 font-body text-[13px] text-[#6b7280] no-underline border-b border-[#e5e7eb] pb-0.5 hover:text-[#111] hover:border-[#d1d5db] transition-colors duration-150">
                 Comparer tous les plans en détail
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
@@ -1159,208 +337,92 @@ footer{
     </div>
 </section>
 
-<!-- ─── CTA FINAL ──────────────────────────────────────── -->
-<div class="cta-section">
-    <div class="cta-inner">
-        <div class="section-tag" style="justify-content:center">Prêt à vous lancer ?</div>
-        <h2>Rejoignez les agences qui<br>gèrent mieux avec <em>BimoTech</em></h2>
-        <p class="cta-sub">Votre agence est en ligne en moins de 10 minutes. Aucune installation, aucun engagement.</p>
-        <div class="hero-btns">
-            <a href="{{ route('agency.register') }}" class="btn-gold">
+{{-- ─── CTA FINAL ──────────────────────────────────────── --}}
+<div class="px-[5%] py-28 text-center bg-[#111111] border-t border-[#e5e7eb] relative overflow-hidden">
+    <div class="relative z-10 max-w-[600px] mx-auto">
+        <div class="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-6">
+            <span class="w-4 h-px bg-bimo-gold inline-block"></span>Prêt à vous lancer ?
+        </div>
+        <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-[-2px] leading-[1.08] text-white mb-4">Rejoignez les agences qui<br>gèrent mieux avec <em class="not-italic text-bimo-gold">BimoTech</em></h2>
+        <p class="font-body font-light text-[16px] text-[#9ca3af] max-w-[460px] mx-auto mb-10 leading-[1.75]">Votre agence est en ligne en moins de 10 minutes. Aucune installation, aucun engagement.</p>
+        <div class="flex items-center justify-center gap-3 flex-wrap mb-6">
+            <a href="{{ route('agency.register') }}" class="inline-flex items-center gap-1.5 font-body font-bold text-sm text-[#111] no-underline px-7 py-3.5 rounded-[10px] bg-bimo-gold hover:opacity-95 hover:-translate-y-0.5 transition-all duration-200">
                 Créer mon agence gratuitement →
             </a>
-            <a href="{{ route('demo') }}" class="btn-outline">Demander une démo</a>
+            <a href="{{ route('demo') }}" class="inline-flex items-center gap-1.5 font-body font-medium text-sm text-white no-underline px-7 py-3.5 rounded-[10px] bg-transparent border border-white/10 hover:border-white/20 transition-all duration-200">
+                Demander une démo
+            </a>
         </div>
-        <div class="cta-meta">
-            <span><span class="dot"></span>30 jours d'essai gratuit</span>
-            <span><span class="dot"></span>Sans carte bancaire</span>
-            <span><span class="dot"></span>Données hébergées au Sénégal</span>
-            <span><span class="dot"></span>Support WhatsApp inclus</span>
+        <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 font-body text-[12.5px] text-[#6b7280]">
+            @foreach(['30 jours d\'essai gratuit','Sans carte bancaire','Données hébergées au Sénégal','Support WhatsApp inclus'] as $item)
+            <span class="flex items-center gap-1.5"><span class="w-1 h-1 rounded-full bg-bimo-gold inline-block flex-shrink-0"></span>{{ $item }}</span>
+            @endforeach
         </div>
     </div>
 </div>
 
-<!-- ─── FOOTER ─────────────────────────────────────────── -->
-<footer>
-    <div class="footer-top">
-        <div class="footer-brand">
-            <a href="{{ url('/') }}" class="footer-logo"><img src="/images/logo.jpeg" alt="BiMO-tech Immo"></a>
-            <p class="footer-tagline">La plateforme de gestion immobilière professionnelle pour les agences sénégalaises.</p>
-            <div class="footer-badge">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e8001d" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                Conforme CGI · Loi 81-18 · NINEA
+{{-- ─── FOOTER ─────────────────────────────────────────── --}}
+<footer class="bg-[#1a1a1a] border-t border-[#e5e7eb] px-[5%] pt-14 pb-8">
+    <div class="max-w-[1040px] mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 pb-12 border-b border-[#e5e7eb]">
+            <div>
+                <a href="{{ url('/') }}" class="block mb-3"><img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-9 w-auto"></a>
+                <p class="font-body text-[13px] text-[#9ca3af] leading-relaxed max-w-[220px] mb-6">La plateforme de gestion immobilière professionnelle pour les agences sénégalaises.</p>
+                <div class="inline-flex items-center gap-1.5 bg-white/[6%] border border-white/10 rounded-[6px] px-2.5 py-1.5 font-body text-[11px] text-[#9ca3af] mb-6">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Conforme CGI · Loi 81-18 · NINEA
+                </div>
+                <div class="flex gap-2.5">
+                    @foreach([['https://wa.me/221781318176','rgba(37,211,102,.15)','rgba(37,211,102,.3)','<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>']] as [$href,$h1,$h2,$icon])
+                    <a href="{{ $href }}" target="_blank" rel="noopener"
+                       class="w-[34px] h-[34px] rounded-[8px] bg-white/[6%] border border-white/[8%] flex items-center justify-center transition-all duration-150 hover:bg-[{{ $h1 }}] hover:border-[{{ $h2 }}]">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="#8b949e">{!! $icon !!}</svg>
+                    </a>
+                    @endforeach
+                </div>
             </div>
-            {{-- Réseaux sociaux — remplacez # par vos vrais liens --}}
-            <div style="display:flex;gap:10px;margin-top:1.2rem">
-                {{-- WhatsApp --}}
-                <a href="https://wa.me/221781318176" target="_blank" rel="noopener"
-                   style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:all .15s"
-                   onmouseover="this.style.background='rgba(37,211,102,.15)';this.style.borderColor='rgba(37,211,102,.3)'"
-                   onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.borderColor='rgba(255,255,255,.08)'"
-                   title="WhatsApp">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#8b949e"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                </a>
-                {{-- Facebook — remplacez # --}}
-                <a href="#" target="_blank" rel="noopener"
-                   style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:all .15s"
-                   onmouseover="this.style.background='rgba(24,119,242,.15)';this.style.borderColor='rgba(24,119,242,.3)'"
-                   onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.borderColor='rgba(255,255,255,.08)'"
-                   title="Facebook">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#8b949e"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                </a>
-                {{-- Instagram — remplacez # --}}
-                <a href="#" target="_blank" rel="noopener"
-                   style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:all .15s"
-                   onmouseover="this.style.background='rgba(228,64,95,.15)';this.style.borderColor='rgba(228,64,95,.3)'"
-                   onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.borderColor='rgba(255,255,255,.08)'"
-                   title="Instagram">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#8b949e"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                </a>
-                {{-- LinkedIn — remplacez # --}}
-                <a href="#" target="_blank" rel="noopener"
-                   style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;transition:all .15s"
-                   onmouseover="this.style.background='rgba(10,102,194,.15)';this.style.borderColor='rgba(10,102,194,.3)'"
-                   onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.borderColor='rgba(255,255,255,.08)'"
-                   title="LinkedIn">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#8b949e"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                </a>
+            <div>
+                <div class="font-display font-bold text-xs text-[#e5e7eb] uppercase tracking-[1px] mb-4">Produit</div>
+                @foreach([['#fonctionnalites','Fonctionnalités'],['#tarifs','Tarifs'],[route('faq'),'FAQ'],[route('demo'),'Demander une démo']] as [$href,$lbl])
+                <a href="{{ $href }}" class="block font-body text-[13px] text-[#9ca3af] no-underline mb-2.5 hover:text-white transition-colors duration-150">{{ $lbl }}</a>
+                @endforeach
+            </div>
+            <div>
+                <div class="font-display font-bold text-xs text-[#e5e7eb] uppercase tracking-[1px] mb-4">Conformité</div>
+                @foreach([['#conformite','TVA 18% — CGI 357'],['#conformite','Loi 81-18'],['#conformite','Quittances légales'],['#conformite','NINEA & DGID']] as [$href,$lbl])
+                <a href="{{ $href }}" class="block font-body text-[13px] text-[#9ca3af] no-underline mb-2.5 hover:text-white transition-colors duration-150">{{ $lbl }}</a>
+                @endforeach
+            </div>
+            <div>
+                <div class="font-display font-bold text-xs text-[#e5e7eb] uppercase tracking-[1px] mb-4">Entreprise</div>
+                @foreach([[route('contact'),'Contact'],[route('login'),'Connexion'],[route('mentions-legales'),'Mentions légales'],[route('confidentialite'),'Confidentialité']] as [$href,$lbl])
+                <a href="{{ $href }}" class="block font-body text-[13px] text-[#9ca3af] no-underline mb-2.5 hover:text-white transition-colors duration-150">{{ $lbl }}</a>
+                @endforeach
             </div>
         </div>
-        <div class="footer-col">
-            <div class="footer-col-title">Produit</div>
-            <a href="#fonctionnalites">Fonctionnalités</a>
-            <a href="#tarifs">Tarifs</a>
-            <a href="{{ route('faq') }}">FAQ</a>
-            <a href="{{ route('demo') }}">Demander une démo</a>
-        </div>
-        <div class="footer-col">
-            <div class="footer-col-title">Conformité</div>
-            <a href="#conformite">TVA 18% — CGI 357</a>
-            <a href="#conformite">Loi 81-18</a>
-            <a href="#conformite">Quittances légales</a>
-            <a href="#conformite">NINEA & DGID</a>
-        </div>
-        <div class="footer-col">
-            <div class="footer-col-title">Entreprise</div>
-            <a href="{{ route('contact') }}">Contact</a>
-            <a href="{{ route('login') }}">Connexion</a>
-            <a href="{{ route('mentions-legales') }}">Mentions légales</a>
-            <a href="{{ route('confidentialite') }}">Confidentialité</a>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <div class="footer-copy">© {{ date('Y') }} BimoTech · Dakar, Sénégal · support@bimotech.sn</div>
-        <div class="footer-legal">
-            <a href="{{ route('mentions-legales') }}">Mentions légales</a>
-            <a href="{{ route('confidentialite') }}">Confidentialité</a>
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 mt-8">
+            <div class="font-body text-xs text-[#6b7280]">© {{ date('Y') }} BimoTech · Dakar, Sénégal · support@bimotech.sn</div>
+            <div class="flex gap-6">
+                <a href="{{ route('mentions-legales') }}" class="font-body text-xs text-[#6b7280] no-underline hover:text-[#9ca3af] transition-colors duration-150">Mentions légales</a>
+                <a href="{{ route('confidentialite') }}" class="font-body text-xs text-[#6b7280] no-underline hover:text-[#9ca3af] transition-colors duration-150">Confidentialité</a>
+            </div>
         </div>
     </div>
 </footer>
 
-<!-- ─── SCHEMA.ORG JSON-LD ──────────────────────────────── -->
-{{-- Les @ dans le JSON-LD (@type, @context, @graph) doivent être
-     passés via PHP pour éviter que Blade les interprète comme directives --}}
+{{-- Schema.org --}}
 @php
-$schemaOrg = json_encode([
-    '@context' => 'https://schema.org',
-    '@graph'   => [
-        [
-            '@type'               => 'SoftwareApplication',
-            'name'                => 'BimoTech Immo',
-            'url'                 => 'https://immo.bimotechsn.com',
-            'description'         => 'Logiciel de gestion immobilière pour agences au Sénégal. Gestion des biens, contrats de bail, loyers, quittances PDF conformes TVA 18%, BRS et CGI SN.',
-            'applicationCategory' => 'BusinessApplication',
-            'operatingSystem'     => 'Web',
-            'offers' => [
-                '@type'       => 'Offer',
-                'price'       => '0',
-                'priceCurrency' => 'XOF',
-                'description' => 'Essai gratuit 30 jours',
-            ],
-            'aggregateRating' => [
-                '@type'       => 'AggregateRating',
-                'ratingValue' => '4.9',
-                'reviewCount' => '12',
-            ],
-        ],
-        [
-            '@type'  => 'Organization',
-            'name'   => 'BimoTech',
-            'url'    => 'https://immo.bimotechsn.com',
-            'logo'   => 'https://immo.bimotechsn.com/icons/icon-512.png',
-            'contactPoint' => [
-                '@type'             => 'ContactPoint',
-                'telephone'         => '+221-78-131-81-76',
-                'contactType'       => 'customer support',
-                'availableLanguage' => 'French',
-            ],
-            'address' => [
-                '@type'           => 'PostalAddress',
-                'addressLocality' => 'Dakar',
-                'addressCountry'  => 'SN',
-            ],
-        ],
-        [
-            '@type'      => 'FAQPage',
-            'mainEntity' => [
-                [
-                    '@type' => 'Question',
-                    'name'  => 'BimoTech est-il conforme à la loi sénégalaise ?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text'  => 'Oui. BimoTech intègre nativement la TVA 18% (CGI SN Art. 357), le BRS (Art. 201), la TOM, et les obligations DGID pour l\'enregistrement des baux commerciaux.',
-                    ],
-                ],
-                [
-                    '@type' => 'Question',
-                    'name'  => 'Combien coûte BimoTech Immo ?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text'  => 'BimoTech propose un essai gratuit 30 jours sans carte bancaire. Starter à 19 900 FCFA/mois (15 unités), Pro à 49 900 FCFA/mois (50 unités), Agence à 89 900 FCFA/mois (illimité). Formule annuelle : 2 mois offerts.',
-                    ],
-                ],
-                [
-                    '@type' => 'Question',
-                    'name'  => 'Puis-je générer des quittances PDF avec BimoTech ?',
-                    'acceptedAnswer' => [
-                        '@type' => 'Answer',
-                        'text'  => 'Oui. BimoTech génère automatiquement des quittances PDF légales pour chaque paiement, avec signature agence, décompte loyer et mentions légales conformes.',
-                    ],
-                ],
-            ],
-        ],
-    ],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+$schemaOrg = json_encode(['@context'=>'https://schema.org','@graph'=>[['@type'=>'SoftwareApplication','name'=>'BimoTech Immo','url'=>'https://immo.bimotechsn.com','description'=>'Logiciel de gestion immobilière pour agences au Sénégal. Conforme TVA 18%, BRS et CGI SN.','applicationCategory'=>'BusinessApplication','operatingSystem'=>'Web','offers'=>['@type'=>'Offer','price'=>'0','priceCurrency'=>'XOF','description'=>'Essai gratuit 30 jours'],'aggregateRating'=>['@type'=>'AggregateRating','ratingValue'=>'4.9','reviewCount'=>'12']],['@type'=>'Organization','name'=>'BimoTech','url'=>'https://immo.bimotechsn.com','contactPoint'=>['@type'=>'ContactPoint','telephone'=>'+221-78-131-81-76','contactType'=>'customer support','availableLanguage'=>'French'],'address'=>['@type'=>'PostalAddress','addressLocality'=>'Dakar','addressCountry'=>'SN']]]], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
 @endphp
 <script type="application/ld+json">{!! $schemaOrg !!}</script>
 
-<!-- ─── BOUTON WHATSAPP FLOTTANT ────────────────────────── -->
+{{-- Bouton WhatsApp flottant --}}
 <a href="https://wa.me/221781318176?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9mo%20de%20BimoTech%20Immo"
-   target="_blank" rel="noopener"
-   id="wa-btn"
-   title="Discuter sur WhatsApp"
-   style="
-       position:fixed;bottom:28px;right:28px;z-index:999;
-       width:56px;height:56px;border-radius:50%;
-       background:#25D366;
-       display:flex;align-items:center;justify-content:center;
-       box-shadow:0 4px 20px rgba(37,211,102,.4);
-       text-decoration:none;
-       animation:wa-pop .4s cubic-bezier(.34,1.56,.64,1) .8s both;
-       transition:transform .15s,box-shadow .15s;
-   "
-   onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 6px 28px rgba(37,211,102,.55)'"
-   onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(37,211,102,.4)'">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-    </svg>
+   target="_blank" rel="noopener" title="Discuter sur WhatsApp"
+   class="fixed bottom-7 right-7 z-[999] w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,.4)] no-underline hover:scale-110 hover:shadow-[0_6px_28px_rgba(37,211,102,.55)] transition-all duration-150"
+   style="animation:wa-pop .4s cubic-bezier(.34,1.56,.64,1) .8s both">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 </a>
-<style>
-@keyframes wa-pop {
-    from { opacity:0; transform:scale(.5) translateY(20px); }
-    to   { opacity:1; transform:scale(1) translateY(0); }
-}
-</style>
 
 </body>
 </html>

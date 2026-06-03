@@ -1,142 +1,84 @@
-﻿{{--
+{{--
     Partial : @include('partials.public-nav', ['active' => 'contact'])
     $active : '', 'fonctionnalites', 'conformite', 'tarifs', 'faq', 'contact'
 --}}
 
 @php $active = $active ?? ''; @endphp
 
-<style>
-.pub-nav{
-    position:fixed;top:0;left:0;right:0;z-index:200;
-    padding:0 5%;height:64px;
-    display:flex;align-items:center;justify-content:space-between;
-    background:rgba(255,255,255,.97);
-    backdrop-filter:blur(16px);
-    -webkit-backdrop-filter:blur(16px);
-    border-bottom:1px solid rgba(0,0,0,.07);
-    transition:background .3s;
-    box-shadow:0 1px 8px rgba(0,0,0,.06);
-}
-.pub-nav-logo{text-decoration:none;flex-shrink:0;display:flex;align-items:center}
-.pub-nav-logo img{height:36px;width:auto}
-
-.pub-nav-links{display:flex;align-items:center;gap:1.75rem}
-.pub-nav-links a{color:#6b7280;text-decoration:none;font-size:13.5px;transition:color .2s;white-space:nowrap}
-.pub-nav-links a:hover,.pub-nav-links a.active-link{color:#0d1117}
-.pub-nav-links a.active-link{color:#e8001d}
-
-.pub-nav-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.pub-nav-login{color:#374151;text-decoration:none;font-size:13.5px;padding:8px 14px;border-radius:8px;transition:color .2s;white-space:nowrap}
-.pub-nav-login:hover{color:#0d1117}
-.pub-nav-cta{background:#e8001d;color:#ffffff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 18px;border-radius:8px;text-decoration:none;transition:all .2s;white-space:nowrap;border:1px solid #e8001d}
-.pub-nav-cta:hover{background:#c0001a;border-color:#c0001a}
-
-/* Hamburger */
-.hamburger{
-    display:none;
-    flex-direction:column;gap:5px;
-    background:none;border:none;cursor:pointer;padding:8px;
-    border-radius:8px;transition:background .2s;
-}
-.hamburger:hover{background:rgba(0,0,0,.05)}
-.hamburger span{display:block;width:20px;height:2px;background:#6b7280;border-radius:2px;transition:all .25s}
-.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
-.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
-
-/* Drawer mobile */
-.mobile-drawer{
-    position:fixed;top:64px;left:0;right:0;bottom:0;
-    background:#fff;
-    z-index:190;
-    transform:translateX(100%);
-    transition:transform .3s cubic-bezier(.4,0,.2,1);
-    display:flex;flex-direction:column;
-    padding:1.5rem 5%;
-    border-top:1px solid rgba(0,0,0,.07);
-    overflow-y:auto;
-}
-.mobile-drawer.open{transform:translateX(0)}
-.mobile-drawer a{
-    display:block;padding:14px 0;
-    font-size:16px;color:#6b7280;text-decoration:none;
-    border-bottom:1px solid rgba(0,0,0,.06);
-    transition:color .2s;
-}
-.mobile-drawer a:hover,.mobile-drawer a.active-link{color:#e8001d}
-.mobile-drawer-actions{margin-top:1.5rem;display:flex;flex-direction:column;gap:10px}
-.mobile-drawer .mob-cta{background:#e8001d;color:#ffffff;font-weight:700;font-size:15px;padding:14px;border-radius:10px;text-align:center;text-decoration:none;transition:opacity .2s}
-.mobile-drawer .mob-cta:hover{opacity:.9}
-.mobile-drawer .mob-login{border:1px solid rgba(0,0,0,.1);color:#374151;font-size:15px;padding:14px;border-radius:10px;text-align:center;text-decoration:none;transition:all .2s}
-.mobile-drawer .mob-login:hover{color:#0d1117;border-color:rgba(0,0,0,.2)}
-
-@media(max-width:860px){
-    .pub-nav-links{display:none}
-    .pub-nav-login{display:none}
-    .hamburger{display:flex}
-}
-@media(max-width:480px){
-    .pub-nav-cta{display:none}
-}
-</style>
-
-<nav class="pub-nav" role="navigation" aria-label="Navigation principale">
-    <a href="{{ url('/') }}" class="pub-nav-logo" aria-label="BiMO-tech Immo — Accueil">
-        <img src="/images/logo.jpeg" alt="BiMO-tech Immo">
+<nav class="fixed top-0 left-0 right-0 z-[200] px-[5%] h-16 flex items-center justify-between bg-[rgba(255,255,255,.97)] backdrop-blur-md border-b border-[rgba(0,0,0,.07)] shadow-[0_1px_8px_rgba(0,0,0,.06)]" role="navigation" aria-label="Navigation principale">
+    <a href="{{ url('/') }}" class="no-underline flex items-center flex-shrink-0" aria-label="BiMO-tech Immo — Accueil">
+        <img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-9 w-auto">
     </a>
 
-    <div class="pub-nav-links" role="menubar">
-        <a href="{{ url('/') }}#fonctionnalites" role="menuitem" @if($active==='fonctionnalites') class="active-link" aria-current="page" @endif>Fonctionnalités</a>
-        <a href="{{ url('/') }}#conformite"      role="menuitem" @if($active==='conformite')      class="active-link" aria-current="page" @endif>Conformité</a>
-        <a href="{{ route('pricing') }}"           role="menuitem" @if($active==='pricing')         class="active-link" aria-current="page" @endif>Tarifs</a>
-        <a href="{{ route('faq') }}"     role="menuitem" @if($active==='faq')     class="active-link" aria-current="page" @endif>FAQ</a>
-        <a href="{{ route('contact') }}" role="menuitem" @if($active==='contact') class="active-link" aria-current="page" @endif>Contact</a>
+    {{-- Desktop links --}}
+    <div class="hidden md:flex items-center gap-7" role="menubar">
+        @foreach([
+            ['fonctionnalites', url('/') . '#fonctionnalites', 'Fonctionnalités'],
+            ['conformite',      url('/') . '#conformite',      'Conformité'],
+            ['pricing',         route('pricing'),              'Tarifs'],
+            ['faq',             route('faq'),                  'FAQ'],
+            ['contact',         route('contact'),              'Contact'],
+        ] as [$key, $href, $label])
+        <a href="{{ $href }}" role="menuitem"
+           class="font-body text-[13.5px] no-underline transition-colors duration-200 whitespace-nowrap {{ $active === $key ? 'text-bimo-gold font-semibold' : 'text-[#6b7280] hover:text-[#0d1117]' }}">
+            {{ $label }}
+        </a>
+        @endforeach
     </div>
 
-    <div class="pub-nav-actions">
-        <a href="{{ route('login') }}"    class="pub-nav-login" aria-label="Se connecter">Connexion</a>
-        <a href="{{ route('agency.register') }}" class="pub-nav-cta"   aria-label="Créer un compte gratuitement">Démarrer gratuitement</a>
-        <button class="hamburger" id="hamburger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
-            <span></span><span></span><span></span>
+    <div class="flex items-center gap-2 flex-shrink-0">
+        <a href="{{ route('login') }}" class="hidden md:block font-body text-[13.5px] text-[#374151] no-underline px-3.5 py-2 rounded-[8px] hover:text-[#0d1117] transition-colors duration-200 whitespace-nowrap">Connexion</a>
+        <a href="{{ route('agency.register') }}" class="font-body font-semibold text-[13px] text-white no-underline px-4 py-2 rounded-[8px] bg-bimo-gold hover:opacity-90 transition-opacity duration-200 whitespace-nowrap hidden xs:block">Démarrer gratuitement</a>
+        <button id="hamburger" class="md:hidden flex flex-col gap-[5px] bg-transparent border-none cursor-pointer p-2 rounded-[8px] hover:bg-[rgba(0,0,0,.05)] transition-colors" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
+            <span id="ham-1" class="block w-5 h-[2px] bg-[#6b7280] rounded-[2px] transition-transform duration-250"></span>
+            <span id="ham-2" class="block w-5 h-[2px] bg-[#6b7280] rounded-[2px] transition-opacity duration-250"></span>
+            <span id="ham-3" class="block w-5 h-[2px] bg-[#6b7280] rounded-[2px] transition-transform duration-250"></span>
         </button>
     </div>
 </nav>
 
-<div class="mobile-drawer" id="mobile-drawer" aria-hidden="true" role="dialog" aria-label="Menu mobile">
-    <a href="{{ url('/') }}#fonctionnalites" onclick="closeDrawer()" @if($active==='fonctionnalites') class="active-link" @endif>Fonctionnalités</a>
-    <a href="{{ url('/') }}#conformite"      onclick="closeDrawer()" @if($active==='conformite')      class="active-link" @endif>Conformité</a>
-    <a href="{{ route('pricing') }}"           onclick="closeDrawer()" @if($active==='pricing')         class="active-link" @endif>Tarifs</a>
-    <a href="{{ route('faq') }}"     @if($active==='faq')     class="active-link" @endif>FAQ</a>
-    <a href="{{ route('contact') }}" @if($active==='contact') class="active-link" @endif>Contact</a>
-    <div class="mobile-drawer-actions">
-        <a href="{{ route('agency.register') }}" class="mob-cta">Créer mon agence gratuitement →</a>
-        <a href="{{ route('login') }}"    class="mob-login">Se connecter</a>
+{{-- Drawer mobile --}}
+<div id="mobile-drawer" class="fixed top-16 left-0 right-0 bottom-0 bg-white z-[190] translate-x-full transition-transform duration-300 ease-[cubic-bezier(.4,0,.2,1)] flex flex-col px-[5%] py-6 border-t border-[rgba(0,0,0,.07)] overflow-y-auto" aria-hidden="true" role="dialog" aria-label="Menu mobile">
+    @foreach([
+        ['fonctionnalites', url('/') . '#fonctionnalites', 'Fonctionnalités'],
+        ['conformite',      url('/') . '#conformite',      'Conformité'],
+        ['pricing',         route('pricing'),              'Tarifs'],
+        ['faq',             route('faq'),                  'FAQ'],
+        ['contact',         route('contact'),              'Contact'],
+    ] as [$key, $href, $label])
+    <a href="{{ $href }}" onclick="closeDrawer()"
+       class="block py-3.5 font-body text-base no-underline border-b border-[rgba(0,0,0,.06)] transition-colors duration-200 {{ $active === $key ? 'text-bimo-gold' : 'text-[#6b7280] hover:text-bimo-gold' }}">
+        {{ $label }}
+    </a>
+    @endforeach
+    <div class="mt-6 flex flex-col gap-2.5">
+        <a href="{{ route('agency.register') }}" class="block text-center font-body font-bold text-[15px] text-white no-underline py-3.5 px-4 rounded-[10px] bg-bimo-gold hover:opacity-90 transition-opacity duration-200">Créer mon agence gratuitement →</a>
+        <a href="{{ route('login') }}" class="block text-center font-body text-[15px] text-[#374151] no-underline py-3.5 px-4 rounded-[10px] border border-[rgba(0,0,0,.1)] hover:text-[#0d1117] hover:border-[rgba(0,0,0,.2)] transition-all duration-200">Se connecter</a>
     </div>
 </div>
 
 <script>
 (function(){
-    const btn    = document.getElementById('hamburger');
-    const drawer = document.getElementById('mobile-drawer');
+    var btn    = document.getElementById('hamburger');
+    var drawer = document.getElementById('mobile-drawer');
+    var h1 = document.getElementById('ham-1'), h2 = document.getElementById('ham-2'), h3 = document.getElementById('ham-3');
     function openDrawer(){
-        btn.classList.add('open');
-        drawer.classList.add('open');
+        drawer.classList.remove('translate-x-full');
         btn.setAttribute('aria-expanded','true');
         drawer.setAttribute('aria-hidden','false');
         document.body.style.overflow='hidden';
+        h1.style.transform='rotate(45deg) translate(5px,5px)';
+        h2.style.opacity='0';
+        h3.style.transform='rotate(-45deg) translate(5px,-5px)';
     }
     window.closeDrawer = function(){
-        btn.classList.remove('open');
-        drawer.classList.remove('open');
+        drawer.classList.add('translate-x-full');
         btn.setAttribute('aria-expanded','false');
         drawer.setAttribute('aria-hidden','true');
         document.body.style.overflow='';
-    }
-    btn.addEventListener('click',function(){
-        btn.classList.contains('open') ? closeDrawer() : openDrawer();
-    });
-    document.addEventListener('keydown',function(e){
-        if(e.key==='Escape') closeDrawer();
-    });
+        h1.style.transform=''; h2.style.opacity=''; h3.style.transform='';
+    };
+    btn.addEventListener('click', function(){ drawer.classList.contains('translate-x-full') ? openDrawer() : closeDrawer(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDrawer(); });
 })();
 </script>

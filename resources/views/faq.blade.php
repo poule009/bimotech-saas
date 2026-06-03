@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -10,186 +10,101 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--gold:#e8001d;--dark:#0d1117;--dark2:#161b22;--dark3:#21262d;--text:#e6edf3;--muted:#8b949e;--border:rgba(255,255,255,.08)}
-body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text)}
-
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,17,23,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
-.nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--gold);text-decoration:none}
-.nav-logo span{color:var(--text)}
-.nav-back{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
-.nav-back:hover{color:var(--text)}
-
-.hero{padding:120px 5% 4rem;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:600px;background:none;pointer-events:none}
-.section-tag{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem}
-h1{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,50px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1rem}
-h1 em{font-style:normal;color:var(--gold)}
-.hero-sub{font-size:15px;color:var(--muted);max-width:440px;margin:0 auto;line-height:1.7;font-weight:300}
-
-.main{max-width:780px;margin:0 auto;padding:0 5% 6rem}
-
-/* Catégories */
-.cat-label{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin:3rem 0 1rem;display:flex;align-items:center;gap:10px}
-.cat-label::after{content:'';flex:1;height:1px;background:var(--border)}
-
-/* Accordion */
-.faq-item{border:1px solid var(--border);border-radius:12px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
-.faq-item:hover{border-color:rgba(255,255,255,.15)}
-.faq-item.open{border-color:rgba(255,255,255,.15)}
-
-.faq-q{
-    width:100%;background:transparent;border:none;padding:1.1rem 1.25rem;
-    display:flex;justify-content:space-between;align-items:center;
-    cursor:pointer;text-align:left;
-    font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;
-    color:var(--text);gap:12px;
-}
-.faq-q:hover{background:rgba(255,255,255,.02)}
-.faq-icon{
-    width:22px;height:22px;background:#e8001d;border-radius:6px;
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    transition:transform .25s,background .2s;
-}
-.faq-item.open .faq-icon{transform:rotate(45deg);background:rgba(232,0,29,.2)}
-
-.faq-a{
-    max-height:0;overflow:hidden;
-    transition:max-height .3s ease,padding .3s ease;
-    padding:0 1.25rem;
-}
-.faq-item.open .faq-a{max-height:400px;padding:0 1.25rem 1.25rem}
-.faq-a p{font-size:13.5px;color:var(--muted);line-height:1.8}
-.faq-a a{color:var(--gold);text-decoration:none}
-.faq-a a:hover{text-decoration:underline}
-.faq-a strong{color:var(--text);font-weight:500}
-
-/* CTA final */
-.cta-box{background:var(--dark2);border:1px solid var(--border);border-radius:16px;padding:2.5rem;text-align:center;margin-top:3rem}
-.cta-box h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:.75rem}
-.cta-box p{font-size:14px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
-.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-gold{background:var(--gold);color:var(--dark);font-family:'DM Sans',sans-serif;font-weight:700;font-size:13.5px;padding:11px 24px;border-radius:10px;text-decoration:none;transition:opacity .2s}
-.btn-gold:hover{opacity:.9}
-.btn-outline{background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;font-weight:500;font-size:13.5px;padding:11px 24px;border-radius:10px;text-decoration:none;border:1px solid var(--border);transition:all .2s}
-.btn-outline:hover{border-color:rgba(255,255,255,.2)}
-
-footer{padding:2rem 5%;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
-.footer-logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--gold)}
-.footer-links{display:flex;gap:1.5rem}
-.footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
-.footer-copy{font-size:12px;color:#484f58}
-
-@media(max-width:768px){footer{flex-direction:column;text-align:center}}
-</style>
+@vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="font-body bg-[#0d1117] text-[#e6edf3]">
 
-@include('partials.public-nav', ['active' => 'contact'])
+@include('partials.public-nav', ['active' => 'faq'])
 
-<div class="hero">
-    <div class="section-tag">FAQ</div>
-    <h1>Les réponses à vos <em>questions</em></h1>
-    <p class="hero-sub">Tout ce que vous voulez savoir avant de démarrer avec BimoTech.</p>
+{{-- Hero --}}
+<div class="pt-[120px] pb-16 px-[5%] text-center relative overflow-hidden">
+    <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold mb-4">FAQ</div>
+    <h1 class="font-display font-extrabold text-[clamp(28px,5vw,50px)] tracking-tight leading-tight mb-4">Les réponses à vos <em class="not-italic text-bimo-gold">questions</em></h1>
+    <p class="font-body font-light text-[15px] text-[#8b949e] max-w-[440px] mx-auto leading-relaxed">Tout ce que vous voulez savoir avant de démarrer avec BimoTech.</p>
 </div>
 
-<div class="main">
+{{-- FAQ --}}
+<div class="max-w-[780px] mx-auto px-[5%] pb-24">
 
     @php
     $faqs = [
         'Démarrage & Tarifs' => [
-            [
-                'q' => 'Est-ce vraiment gratuit pour commencer ?',
-                'a' => 'Oui. Le plan Démarrage est gratuit pour toujours, jusqu\'à 5 biens. Aucune carte bancaire requise. Vous passez au plan Agence uniquement si vous en avez besoin.'
-            ],
-            [
-                'q' => 'Quels sont les tarifs après l\'essai gratuit ?',
-                'a' => 'Trois plans : Starter à 19 900 FCFA/mois (jusqu\'à 15 unités), Pro à 49 900 FCFA/mois (jusqu\'à 50 unités), Agence à 89 900 FCFA/mois (illimité). Formule annuelle disponible avec 2 mois offerts. Résiliation à tout moment, sans frais. Paiement par virement ou Mobile Money (Wave, Orange Money).'
-            ],
-            [
-                'q' => 'Combien de temps prend la mise en place ?',
-                'a' => 'Moins de 10 minutes pour créer votre agence. Si vous souhaitez importer un grand nombre de biens existants, notre équipe peut vous accompagner lors d\'une démo sur site à Dakar.'
-            ],
+            ['q' => 'Est-ce vraiment gratuit pour commencer ?', 'a' => 'Oui. Le plan Démarrage est gratuit pour toujours, jusqu\'à 5 biens. Aucune carte bancaire requise. Vous passez au plan Agence uniquement si vous en avez besoin.'],
+            ['q' => 'Quels sont les tarifs après l\'essai gratuit ?', 'a' => 'Trois plans : Starter à 19 900 FCFA/mois (jusqu\'à 15 unités), Pro à 49 900 FCFA/mois (jusqu\'à 50 unités), Agence à 89 900 FCFA/mois (illimité). Formule annuelle disponible avec 2 mois offerts. Résiliation à tout moment, sans frais. Paiement par virement ou Mobile Money (Wave, Orange Money).'],
+            ['q' => 'Combien de temps prend la mise en place ?', 'a' => 'Moins de 10 minutes pour créer votre agence. Si vous souhaitez importer un grand nombre de biens existants, notre équipe peut vous accompagner lors d\'une démo sur site à Dakar.'],
         ],
         'Conformité fiscale' => [
-            [
-                'q' => 'BimoTech est-il vraiment conforme à la TVA sénégalaise à 18% ?',
-                'a' => 'Oui. Le calcul de TVA à 18% sur les commissions d\'agence est intégré nativement, conformément au CGI article 357. Chaque quittance affiche la décomposition HT / TVA / TTC automatiquement. Aucune configuration nécessaire.'
-            ],
-            [
-                'q' => 'Qu\'est-ce que la loi 81-18 et comment BimoTech la gère ?',
-                'a' => 'La loi 81-18 encadre les loyers au Sénégal en fixant des plafonds selon la surface du bien. BimoTech vérifie automatiquement si le loyer saisi respecte ces plafonds et affiche une alerte si ce n\'est pas le cas. Le dépôt de garantie est également plafonné automatiquement à 2 mois de loyer hors charges.'
-            ],
-            [
-                'q' => 'Les quittances générées sont-elles légalement valides ?',
-                'a' => 'Oui. Les quittances PDF générées par BimoTech incluent le NINEA de votre agence, le détail TVA, les références du contrat et sont numérotées séquentiellement. Elles sont conformes aux exigences de la Direction des Impôts du Sénégal.'
-            ],
+            ['q' => 'BimoTech est-il vraiment conforme à la TVA sénégalaise à 18% ?', 'a' => 'Oui. Le calcul de TVA à 18% sur les commissions d\'agence est intégré nativement, conformément au CGI article 357. Chaque quittance affiche la décomposition HT / TVA / TTC automatiquement. Aucune configuration nécessaire.'],
+            ['q' => 'Qu\'est-ce que la loi 81-18 et comment BimoTech la gère ?', 'a' => 'La loi 81-18 encadre les loyers au Sénégal en fixant des plafonds selon la surface du bien. BimoTech vérifie automatiquement si le loyer saisi respecte ces plafonds et affiche une alerte si ce n\'est pas le cas.'],
+            ['q' => 'Les quittances générées sont-elles légalement valides ?', 'a' => 'Oui. Les quittances PDF générées par BimoTech incluent le NINEA de votre agence, le détail TVA, les références du contrat et sont numérotées séquentiellement. Elles sont conformes aux exigences de la Direction des Impôts du Sénégal.'],
         ],
         'Fonctionnement' => [
-            [
-                'q' => 'Mes données sont-elles sécurisées et séparées des autres agences ?',
-                'a' => 'Absolument. BimoTech utilise une architecture multi-tenant : les données de chaque agence sont strictement isolées. Un utilisateur d\'une agence ne peut jamais voir les données d\'une autre, même en cas de bug. Toutes les connexions sont chiffrées (HTTPS).'
-            ],
-            [
-                'q' => 'Est-ce que ça fonctionne sans connexion internet ?',
-                'a' => 'BimoTech est une application web qui nécessite une connexion internet. Pour les zones à connexion instable, les opérations légères (consultation, saisie simple) fonctionnent avec un réseau 3G. Nous travaillons sur un mode hors-ligne partiel pour une prochaine version.'
-            ],
-            [
-                'q' => 'Comment mes locataires et propriétaires accèdent-ils à leur espace ?',
-                'a' => 'Chaque locataire et propriétaire reçoit une invitation par email avec ses identifiants de connexion. Ils accèdent ensuite à leur espace personnel depuis n\'importe quel navigateur ou smartphone. Aucune application à installer.'
-            ],
-            [
-                'q' => 'Si je veux arrêter, est-ce que je récupère mes données ?',
-                'a' => 'Oui. Avant toute résiliation, vous pouvez exporter l\'intégralité de vos données (biens, contrats, paiements, quittances) aux formats CSV et PDF. Vos données sont conservées 30 jours après résiliation, puis définitivement supprimées.'
-            ],
+            ['q' => 'Mes données sont-elles sécurisées et séparées des autres agences ?', 'a' => 'Absolument. BimoTech utilise une architecture multi-tenant : les données de chaque agence sont strictement isolées. Un utilisateur d\'une agence ne peut jamais voir les données d\'une autre, même en cas de bug. Toutes les connexions sont chiffrées (HTTPS).'],
+            ['q' => 'Est-ce que ça fonctionne sans connexion internet ?', 'a' => 'BimoTech est une application web qui nécessite une connexion internet. Pour les zones à connexion instable, les opérations légères fonctionnent avec un réseau 3G. Nous travaillons sur un mode hors-ligne partiel pour une prochaine version.'],
+            ['q' => 'Comment mes locataires et propriétaires accèdent-ils à leur espace ?', 'a' => 'Chaque locataire et propriétaire reçoit une invitation par email avec ses identifiants de connexion. Ils accèdent ensuite à leur espace personnel depuis n\'importe quel navigateur ou smartphone. Aucune application à installer.'],
+            ['q' => 'Si je veux arrêter, est-ce que je récupère mes données ?', 'a' => 'Oui. Avant toute résiliation, vous pouvez exporter l\'intégralité de vos données (biens, contrats, paiements, quittances) aux formats CSV et PDF. Vos données sont conservées 30 jours après résiliation, puis définitivement supprimées.'],
         ],
     ];
     @endphp
 
     @foreach($faqs as $categorie => $questions)
-        <div class="cat-label">{{ $categorie }}</div>
-
-        @foreach($questions as $i => $faq)
-            <div class="faq-item" id="faq-{{ $loop->parent->index }}-{{ $loop->index }}">
-                <button class="faq-q" onclick="toggleFaq(this)">
-                    {{ $faq['q'] }}
-                    <div class="faq-icon">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#e8001d" stroke-width="2"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg>
-                    </div>
-                </button>
-                <div class="faq-a"><p>{{ $faq['a'] }}</p></div>
+    <div class="flex items-center gap-3 mt-12 mb-4 font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold">
+        {{ $categorie }}
+        <div class="flex-1 h-px bg-[rgba(255,255,255,.08)]"></div>
+    </div>
+    @foreach($questions as $i => $faq)
+    <div class="faq-item border border-[rgba(255,255,255,.08)] rounded-[12px] mb-2 overflow-hidden hover:border-[rgba(255,255,255,.15)] transition-colors duration-200">
+        <button class="w-full bg-transparent border-none px-5 py-4 flex items-center justify-between cursor-pointer text-left font-body font-medium text-sm text-[#e6edf3] gap-3 hover:bg-[rgba(255,255,255,.02)] transition-colors duration-150"
+                onclick="toggleFaq(this)">
+            {{ $faq['q'] }}
+            <div class="faq-icon w-[22px] h-[22px] bg-bimo-gold rounded-[6px] flex items-center justify-center flex-shrink-0 transition-transform duration-250">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#0d1117" stroke-width="2.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg>
             </div>
-        @endforeach
+        </button>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 ease-in-out px-5">
+            <p class="font-body text-[13.5px] text-[#8b949e] leading-[1.8] pb-4">{{ $faq['a'] }}</p>
+        </div>
+    </div>
+    @endforeach
     @endforeach
 
-    <div class="cta-box">
-        <h2>Vous avez une autre question ?</h2>
-        <p>Notre équipe vous répond dans la journée, sur WhatsApp ou par email.</p>
-        <div class="cta-btns">
-            <a href="{{ route('demo') }}" class="btn-gold">Réserver une démo →</a>
-            <a href="{{ route('contact') }}" class="btn-outline">Nous contacter</a>
+    {{-- CTA --}}
+    <div class="bg-[#161b22] border border-[rgba(255,255,255,.08)] rounded-[16px] px-10 py-10 text-center mt-12">
+        <h2 class="font-display font-extrabold text-xl text-[#e6edf3] mb-3">Vous avez une autre question ?</h2>
+        <p class="font-body text-sm text-[#8b949e] mb-6 leading-relaxed">Notre équipe vous répond dans la journée, sur WhatsApp ou par email.</p>
+        <div class="flex items-center justify-center gap-3 flex-wrap">
+            <a href="{{ route('demo') }}" class="font-body font-bold text-[13.5px] text-[#0d1117] no-underline px-6 py-3 rounded-[10px] bg-bimo-gold hover:opacity-90 transition-opacity duration-200">Réserver une démo →</a>
+            <a href="{{ route('contact') }}" class="font-body font-medium text-[13.5px] text-[#e6edf3] no-underline px-6 py-3 rounded-[10px] border border-[rgba(255,255,255,.1)] hover:border-[rgba(255,255,255,.2)] transition-all duration-200">Nous contacter</a>
         </div>
     </div>
 
 </div>
 
-<footer>
-    <div class="footer-logo">BimoTech Immo</div>
-    <div class="footer-links">
-        <a href="{{ url('/') }}">Accueil</a>
-        <a href="{{ route('contact') }}">Contact</a>
-        <a href="{{ route('mentions-legales') }}">Mentions légales</a>
+<footer class="px-[5%] py-8 border-t border-[rgba(255,255,255,.08)] flex flex-col md:flex-row items-center justify-between gap-4 flex-wrap">
+    <div class="font-display font-extrabold text-[15px] text-bimo-gold">BimoTech Immo</div>
+    <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+        @foreach([[url('/'),'Accueil'],[route('contact'),'Contact'],[route('mentions-legales'),'Mentions légales']] as [$href,$lbl])
+        <a href="{{ $href }}" class="font-body text-xs text-[#8b949e] no-underline hover:text-[#e6edf3] transition-colors duration-200">{{ $lbl }}</a>
+        @endforeach
     </div>
-    <div class="footer-copy">© {{ date('Y') }} BimoTech · Dakar, Sénégal</div>
+    <div class="font-body text-xs text-[#484f58]">© {{ date('Y') }} BimoTech · Dakar, Sénégal</div>
 </footer>
 
 <script>
 function toggleFaq(btn) {
-    const item = btn.closest('.faq-item');
-    const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
+    var item = btn.closest('.faq-item');
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(el){
+        el.classList.remove('open');
+        el.querySelector('.faq-a').style.maxHeight = '0';
+        el.querySelector('.faq-icon').style.transform = '';
+    });
+    if (!isOpen) {
+        item.classList.add('open');
+        var answer = item.querySelector('.faq-a');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        item.querySelector('.faq-icon').style.transform = 'rotate(45deg)';
+    }
 }
 </script>
 
