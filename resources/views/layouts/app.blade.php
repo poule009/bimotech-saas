@@ -246,6 +246,71 @@
             <span class="font-display font-semibold text-sm">Rapports</span>
         </a>
 
+        {{-- ── COMPTABILITÉ ── --}}
+        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
+            Comptabilité
+        </div>
+        <a href="{{ route('admin.comptabilite.dashboard') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.comptabilite') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span class="font-display font-semibold text-sm flex-1">Comptabilité</span>
+            @if($badge = $planRequired('comptabilite'))
+                @if($canAccess('comptabilite'))
+                    <span class="font-body font-semibold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-white/10 text-white/30">{{ $badge }}</span>
+                @else
+                    <span class="font-body font-semibold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-bimo-gold/20 text-bimo-gold flex items-center gap-1">
+                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        {{ $badge }}
+                    </span>
+                @endif
+            @endif
+        </a>
+        <a href="{{ route('admin.charges-agence.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.charges-agence') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span class="font-display font-semibold text-sm flex-1">Charges agence</span>
+            @if($badge = $planRequired('comptabilite'))
+                @if(!$canAccess('comptabilite'))
+                    <span class="font-body font-semibold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-bimo-gold/20 text-bimo-gold flex items-center gap-1">
+                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        {{ $badge }}
+                    </span>
+                @endif
+            @endif
+        </a>
+        <a href="{{ route('admin.reversements.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.reversements') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span class="font-display font-semibold text-sm flex-1">Reversements</span>
+            @if($badge = $planRequired('comptabilite'))
+                @if(!$canAccess('comptabilite'))
+                    <span class="font-body font-semibold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-bimo-gold/20 text-bimo-gold flex items-center gap-1">
+                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        {{ $badge }}
+                    </span>
+                @endif
+            @endif
+        </a>
+        <a href="{{ route('admin.tresorerie.index') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.tresorerie') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            <span class="font-display font-semibold text-sm flex-1">Trésorerie</span>
+            @if($badge = $planRequired('tresorerie'))
+                @if($canAccess('tresorerie'))
+                    <span class="font-body font-semibold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-white/10 text-white/30">{{ $badge }}</span>
+                @else
+                    <span class="font-body font-semibold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-bimo-gold/20 text-bimo-gold flex items-center gap-1">
+                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        {{ $badge }}
+                    </span>
+                @endif
+            @endif
+        </a>
+
         {{-- ── JOURNAL ── --}}
         <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white/25 px-3 pt-4 pb-1">
             Journal
