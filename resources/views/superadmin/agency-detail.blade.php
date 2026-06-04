@@ -186,6 +186,172 @@
         </div>
     </div>
 
+    {{-- Abonnement --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2 flex items-center justify-between gap-3">
+            <span class="font-display font-bold text-sm text-bimo-navy">Abonnement</span>
+            <div class="flex items-center gap-2">
+                <form method="POST" action="{{ route('superadmin.agencies.essai.reinitialiser', $agency) }}"
+                      data-confirm="Réinitialiser l'essai de 30 jours pour {{ $agency->name }} ?">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-navy/30 hover:text-bimo-navy transition-all duration-150 cursor-pointer">
+                        Réinitialiser essai
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="px-5 py-5">
+            @if($subscription)
+            @php
+                $statutColors = match($subscription->statut) {
+                    'actif'   => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
+                    'essai'   => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70',
+                    'expiré'  => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
+                    default   => 'bg-bimo-navy/[5%] border-bimo-navy/10 text-bimo-navy/40',
+                };
+                $planLabel = config('plans.labels.'.$subscription->plan_niveau, ucfirst($subscription->plan_niveau ?? 'N/A'));
+            @endphp
+            <div class="flex flex-wrap gap-4 items-start">
+                <div>
+                    <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Statut</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium border {{ $statutColors }}">{{ ucfirst($subscription->statut) }}</span>
+                </div>
+                <div>
+                    <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Plan</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy font-semibold">{{ $planLabel }}</span>
+                </div>
+                @if($subscription->date_fin_abonnement)
+                <div>
+                    <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Expire le</p>
+                    <p class="font-body text-sm text-bimo-navy/70">{{ $subscription->date_fin_abonnement->format('d/m/Y') }}</p>
+                </div>
+                @elseif($subscription->date_fin_essai)
+                <div>
+                    <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Essai jusqu'au</p>
+                    <p class="font-body text-sm text-bimo-navy/70">{{ $subscription->date_fin_essai->format('d/m/Y') }}</p>
+                </div>
+                @endif
+            </div>
+            <div class="mt-5">
+                <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-3">Activer un abonnement</p>
+                <form method="POST" action="{{ route('superadmin.agencies.abonnement.activer', $agency) }}" class="flex flex-wrap items-end gap-3">
+                    @csrf
+                    <div>
+                        <label class="block font-body text-xs text-bimo-navy/50 mb-1">Niveau</label>
+                        <select name="plan_niveau" class="px-3 py-2 rounded-[8px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 appearance-none cursor-pointer">
+                            <option value="starter">Starter</option>
+                            <option value="pro" selected>Pro</option>
+                            <option value="agence">Agence</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-body text-xs text-bimo-navy/50 mb-1">Cycle</label>
+                        <select name="plan" class="px-3 py-2 rounded-[8px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 appearance-none cursor-pointer">
+                            <option value="mensuel">Mensuel</option>
+                            <option value="annuel">Annuel</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-[8px] bg-bimo-navy text-white font-display font-bold text-xs hover:bg-bimo-navy-dk transition-colors duration-150 cursor-pointer">
+                        Activer
+                    </button>
+                </form>
+            </div>
+            @else
+            <p class="font-body text-sm text-bimo-navy/40">Aucun abonnement.</p>
+            @endif
+        </div>
+    </div>
+
+    {{-- Features à la carte --}}
+    @php
+        $hierarchy     = config('plans.hierarchy', ['starter', 'pro', 'agence']);
+        $planNiveau    = $subscription?->plan_niveau ?? 'starter';
+        $niveauEffect  = config('plans.niveau_effectif')[$planNiveau] ?? 'starter';
+        $posActuelle   = array_search($niveauEffect, $hierarchy);
+
+        $featureLabels = [
+            'immeubles'           => 'Immeubles',
+            'rapports_pdf'        => 'Rapports PDF',
+            'export_csv'          => 'Export CSV',
+            'releve_bailleur_pdf' => 'Relevé bailleur PDF',
+            'recherche_globale'   => 'Recherche globale',
+            'import_excel'        => 'Import Excel',
+            'contrat_formel_pdf'  => 'Contrat PDF',
+            'fiscalite'           => 'Fiscalité',
+            'bilans_fiscaux'      => 'Bilans fiscaux',
+            'logs_activite'       => 'Logs d\'activité',
+        ];
+    @endphp
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+            <span class="font-display font-bold text-sm text-bimo-navy">Features personnalisées</span>
+            <p class="font-body text-xs text-bimo-navy/40 mt-0.5">Activer ou désactiver des features individuellement, indépendamment du plan.</p>
+        </div>
+        <div class="divide-y divide-bimo-navy/[5%]">
+            @foreach(config('plans.features') as $feature => $planRequis)
+            @php
+                $override      = $overrides->get($feature);
+                $enabledByPlan = $posActuelle >= array_search($planRequis, $hierarchy);
+                $enabledFinal  = $override ? $override->enabled : $enabledByPlan;
+                $planRequisLabel = config('plans.labels.'.$planRequis, ucfirst($planRequis));
+                $label         = $featureLabels[$feature] ?? $feature;
+            @endphp
+            <div class="px-5 py-3.5 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3 min-w-0">
+                    {{-- Icône état --}}
+                    @if($enabledFinal)
+                    <div class="w-6 h-6 rounded-full bg-bimo-gold/10 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-3.5 h-3.5 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    @else
+                    <div class="w-6 h-6 rounded-full bg-bimo-navy/[5%] flex items-center justify-center flex-shrink-0">
+                        <svg class="w-3.5 h-3.5 text-bimo-navy/25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    @endif
+                    <div class="min-w-0">
+                        <p class="font-body font-medium text-sm text-bimo-navy">{{ $label }}</p>
+                        <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+                            <span class="font-body text-[10px] uppercase tracking-widest text-bimo-navy/30">Requis : {{ $planRequisLabel }}</span>
+                            @if($override)
+                                @if($override->enabled && !$enabledByPlan)
+                                <span class="inline-flex items-center px-1.5 py-0 rounded text-[9.5px] font-body font-medium bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold uppercase tracking-widest">Sur devis</span>
+                                @elseif(!$override->enabled && $enabledByPlan)
+                                <span class="inline-flex items-center px-1.5 py-0 rounded text-[9.5px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red uppercase tracking-widest">Bloqué</span>
+                                @else
+                                <span class="inline-flex items-center px-1.5 py-0 rounded text-[9.5px] font-body font-medium bg-bimo-navy/[5%] border border-bimo-navy/10 text-bimo-navy/40 uppercase tracking-widest">Override</span>
+                                @endif
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    @if($override)
+                    {{-- Retirer l'override --}}
+                    <form method="POST" action="{{ route('superadmin.agencies.features.remove', [$agency, $feature]) }}">
+                        @csrf @method('DELETE')
+                        <button type="submit" title="Retirer l'override (revenir au plan)"
+                                class="inline-flex items-center px-2.5 py-1 border border-bimo-navy/15 rounded-[6px] font-body text-[11px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150 cursor-pointer">
+                            ← Plan
+                        </button>
+                    </form>
+                    @endif
+                    {{-- Toggle --}}
+                    <form method="POST" action="{{ route('superadmin.agencies.features.toggle', [$agency, $feature]) }}">
+                        @csrf
+                        <button type="submit"
+                                class="inline-flex items-center px-3 py-1.5 rounded-[7px] font-body text-xs font-medium border transition-all duration-150 cursor-pointer
+                                    {{ $enabledFinal
+                                        ? 'border-bimo-red/20 bg-bimo-red/[5%] text-bimo-red hover:bg-bimo-red/10'
+                                        : 'border-bimo-gold/25 bg-bimo-gold/[5%] text-bimo-gold hover:bg-bimo-gold/10' }}">
+                            {{ $enabledFinal ? 'Désactiver' : 'Activer' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
     {{-- Biens --}}
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agency;
+use App\Models\AgencyFeatureOverride;
 use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\Paiement;
@@ -178,8 +179,10 @@ class SuperAdminController extends Controller
             'total_commissions' => (float) ($p->total_commissions ?? 0),
         ];
 
+        $overrides = $agency->featureOverrides()->get()->keyBy('feature');
+
         return view('superadmin.agency-detail', compact(
-            'agency', 'users', 'biens', 'stats', 'subscription'
+            'agency', 'users', 'biens', 'stats', 'subscription', 'overrides'
         ));
     }
 
@@ -423,6 +426,49 @@ class SuperAdminController extends Controller
         return redirect()
             ->route('superadmin.dashboard')
             ->with('success', 'Impersonation terminée. Vous êtes de retour en tant que Super Admin.');
+    }
+
+    public function toggleFeature(Agency $agency, string $feature): RedirectResponse
+    {
+        abort_unless(array_key_exists($feature, config('plans.features', [])), 404);
+
+        $override = AgencyFeatureOverride::where('agency_id', $agency->id)
+            ->where('feature', $feature)
+            ->first();
+
+        $planNiveau     = $agency->subscription?->plan_niveau ?? 'starter';
+        $hierarchy      = config('plans.hierarchy', ['starter', 'pro', 'agence']);
+        $niveauEffectif = config('plans.niveau_effectif')[$planNiveau] ?? 'starter';
+        $niveauRequis   = config('plans.features')[$feature];
+        $enabledByPlan  = array_search($niveauEffectif, $hierarchy) >= array_search($niveauRequis, $hierarchy);
+
+        if ($override) {
+            // Cycler : override → retirer l'override (revenir au plan)
+            $override->delete();
+            $msg = "Override retiré pour « {$feature} » — comportement plan restauré.";
+        } else {
+            // Créer l'override inverse du plan actuel
+            AgencyFeatureOverride::create([
+                'agency_id' => $agency->id,
+                'feature'   => $feature,
+                'enabled'   => ! $enabledByPlan,
+            ]);
+            $etat = $enabledByPlan ? 'désactivée' : 'activée';
+            $msg  = "Feature « {$feature} » {$etat} pour {$agency->name}.";
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    public function removeFeatureOverride(Agency $agency, string $feature): RedirectResponse
+    {
+        abort_unless(array_key_exists($feature, config('plans.features', [])), 404);
+
+        AgencyFeatureOverride::where('agency_id', $agency->id)
+            ->where('feature', $feature)
+            ->delete();
+
+        return back()->with('success', "Override supprimé — plan appliqué pour « {$feature} ».");
     }
 
     public function createAgency(): View

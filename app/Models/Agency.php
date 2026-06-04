@@ -74,6 +74,11 @@ class Agency extends Model
         return $this->hasOne(Subscription::class);
     }
 
+    public function featureOverrides(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AgencyFeatureOverride::class);
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────
 
     public function isActif(): bool

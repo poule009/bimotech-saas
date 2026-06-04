@@ -24,6 +24,17 @@ class PlanFeatureService
             return false;
         }
 
+        // Override superadmin par agence — priorité absolue sur le plan
+        if ($user->agency_id) {
+            $override = \App\Models\AgencyFeatureOverride::where('agency_id', $user->agency_id)
+                ->where('feature', $feature)
+                ->first();
+
+            if ($override !== null) {
+                return $override->enabled;
+            }
+        }
+
         $plans = config('plans');
 
         if (! isset($plans['features'][$feature])) {

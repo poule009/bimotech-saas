@@ -146,8 +146,8 @@
             $niveauEffectif = config('plans.niveau_effectif')[$planNiveau] ?? 'starter';
             $hierarchy      = config('plans.hierarchy', ['starter','pro','agence']);
             $posActuelle    = array_search($niveauEffectif, $hierarchy);
-            $canAccess = fn(string $feature) =>
-                $posActuelle >= array_search(config("plans.features.{$feature}", 'starter'), $hierarchy);
+            $_planFeatureSvc = app(\App\Services\PlanFeatureService::class);
+            $canAccess = fn(string $feature) => $_planFeatureSvc->canAccess($feature);
             $planRequired = fn(string $feature) =>
                 ($req = config("plans.features.{$feature}")) && $req !== 'starter'
                     ? config("plans.labels.{$req}", ucfirst($req))

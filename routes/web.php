@@ -149,8 +149,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
             Route::get('agencies/{agency}/edit',        [SuperAdminController::class, 'editAgency'])->name('agencies.edit');
             Route::patch('agencies/{agency}',           [SuperAdminController::class, 'updateAgency'])->name('agencies.update');
-            Route::post('agencies/{agency}/abonnement', [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
-            Route::post('agencies/{agency}/essai',      [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
+            Route::post('agencies/{agency}/abonnement',           [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
+            Route::post('agencies/{agency}/essai',                [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
+            Route::post('agencies/{agency}/features/{feature}',   [SuperAdminController::class, 'toggleFeature'])->name('agencies.features.toggle');
+            Route::delete('agencies/{agency}/features/{feature}', [SuperAdminController::class, 'removeFeatureOverride'])->name('agencies.features.remove');
             Route::post('agencies/{agency}/users/{userId}/reset-password', [SuperAdminController::class, 'resetUserPassword'])->name('agencies.users.reset-password');
             Route::patch('agencies/{agency}/users/{userId}/toggle',        [SuperAdminController::class, 'toggleUser'])->name('agencies.users.toggle');
             Route::post('impersonate/{user}',           [SuperAdminController::class, 'impersonate'])->name('impersonate');
