@@ -6,6 +6,7 @@ use App\Models\ChargeAgence;
 use App\Models\DepenseGestion;
 use App\Models\Paiement;
 use App\Models\ReversementProprietaire;
+use App\Models\TvaDeclaration;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -53,7 +54,20 @@ class ComptabiliteService
             ->toArray();
 
         $revenusTotal = (float) $revenus->commissions_ht + (float) $revenus->frais_entree_ht;
-        $resultatNet  = $revenusTotal - $chargesTotal;
+
+        // ── Charges fiscales depuis le module fiscal ──────────────────────
+        // TVA nette due = TVA collectée - TVA déductible (ce que l'agence verse à la DGI)
+        $tvaQuery = TvaDeclaration::withoutGlobalScopes()
+            ->where('agency_id', $agencyId)
+            ->where('annee', $annee);
+
+        if ($mois) {
+            $tvaQuery->where('mois', $mois);
+        }
+
+        $tvaNetteDue     = (float) $tvaQuery->sum('tva_nette_due');
+        $chargesTotal    = $chargesTotal + $tvaNetteDue;
+        $resultatNet     = $revenusTotal - $chargesTotal;
 
         // Détail mensuel si vue annuelle
         $parMois = [];
@@ -94,6 +108,7 @@ class ComptabiliteService
             'revenus_total_ht'     => $revenusTotal,
             'charges_total'        => $chargesTotal,
             'charges_par_categorie'=> $chargesParCategorie,
+            'tva_nette_due'        => $tvaNetteDue,
             'resultat_net'         => $resultatNet,
             'nb_paiements'         => (int) $revenus->nb_paiements,
             'par_mois'             => $parMois,

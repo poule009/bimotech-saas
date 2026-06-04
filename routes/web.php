@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ChargeAgenceController;
 use App\Http\Controllers\Admin\ComptabiliteController;
 use App\Http\Controllers\Admin\EcheancesFiscalesController;
 use App\Http\Controllers\Admin\EtatTrimestrielController;
+use App\Http\Controllers\Admin\FiscalDashboardController;
 use App\Http\Controllers\Admin\ReversementController;
 use App\Http\Controllers\Admin\TvaAgenceController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
@@ -265,11 +266,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Module fiscal (désactivé via FEATURE_FISCALITE=false dans .env)
         if (config('features.fiscalite')) {
+            // Dashboard + simulation fiscal
+            Route::get('fiscal',            [FiscalDashboardController::class, 'dashboard'])->name('fiscal.dashboard')->middleware('check.feature:fiscalite');
+            Route::get('fiscal/simulation', [FiscalDashboardController::class, 'simuler'])->name('fiscal.simulation')->middleware('check.feature:fiscalite');
+
             Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->middleware('check.feature:bilans_fiscaux')->group(function () {
-                Route::get('/',                         [BilanFiscalController::class, 'index'])->name('index');
-                Route::post('{proprietaire}/calculate', [BilanFiscalController::class, 'calculate'])->name('calculate');
-                Route::get('{proprietaire}',            [BilanFiscalController::class, 'show'])->name('show');
-                Route::get('{proprietaire}/pdf',        [BilanFiscalController::class, 'exportPdf'])->name('pdf');
+                Route::get('/',                               [BilanFiscalController::class, 'index'])->name('index');
+                Route::post('{proprietaire}/calculate',       [BilanFiscalController::class, 'calculate'])->name('calculate');
+                Route::get('{proprietaire}',                  [BilanFiscalController::class, 'show'])->name('show');
+                Route::get('{proprietaire}/pdf',              [BilanFiscalController::class, 'exportPdf'])->name('pdf');
+                Route::get('{proprietaire}/fiche-transparente', [BilanFiscalController::class, 'ficheTransparente'])->name('fiche-transparente');
+                Route::get('{proprietaire}/attestation-brs',  [BilanFiscalController::class, 'attestationBrs'])->name('attestation-brs');
             });
 
             Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->middleware('check.feature:fiscalite')->group(function () {

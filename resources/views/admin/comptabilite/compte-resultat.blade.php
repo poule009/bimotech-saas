@@ -62,7 +62,7 @@
                         Ajouter
                     </a>
                 </div>
-                @if(empty($resultat['charges_par_categorie']))
+                @if(empty($resultat['charges_par_categorie']) && $resultat['tva_nette_due'] == 0)
                 <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucune charge saisie pour cette période.</div>
                 @else
                 <div class="divide-y divide-bimo-navy/[5%]">
@@ -72,6 +72,15 @@
                         <p class="font-display font-bold text-sm text-bimo-navy/70">-{{ number_format($montant, 0, ',', ' ') }} F</p>
                     </div>
                     @endforeach
+                    @if($resultat['tva_nette_due'] > 0)
+                    <div class="px-5 py-3.5 flex items-center justify-between">
+                        <div>
+                            <p class="font-body text-sm text-bimo-navy/70">TVA nette due (DGI)</p>
+                            <p class="font-body text-[10px] text-bimo-navy/30 mt-0.5">Depuis module Fiscalité — TVA collectée − TVA déductible</p>
+                        </div>
+                        <p class="font-display font-bold text-sm text-bimo-navy/70">-{{ number_format($resultat['tva_nette_due'], 0, ',', ' ') }} F</p>
+                    </div>
+                    @endif
                     <div class="px-5 py-3.5 flex items-center justify-between bg-bimo-navy/[3%]">
                         <p class="font-display font-bold text-sm text-bimo-navy">Total charges</p>
                         <p class="font-display font-extrabold text-base text-bimo-navy">-{{ number_format($resultat['charges_total'], 0, ',', ' ') }} F</p>

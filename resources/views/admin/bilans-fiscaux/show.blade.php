@@ -29,7 +29,17 @@
             <a href="{{ route('admin.bilans-fiscaux.pdf', [$proprietaire, 'annee' => $annee]) }}" target="_blank"
                class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Exporter PDF DGI
+                PDF DGI
+            </a>
+            <a href="{{ route('admin.bilans-fiscaux.fiche-transparente', [$proprietaire, 'annee' => $annee]) }}" target="_blank"
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold text-bimo-navy font-display font-bold text-sm rounded-[10px] hover:brightness-90 transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="12" y1="12" x2="12" y2="18"/></svg>
+                Fiche comptable
+            </a>
+            <a href="{{ route('admin.bilans-fiscaux.attestation-brs', [$proprietaire, 'annee' => $annee]) }}" target="_blank"
+               class="inline-flex items-center gap-2 px-4 py-2.5 border border-bimo-navy/15 text-bimo-navy/60 font-body text-sm rounded-[10px] hover:border-bimo-navy/30 hover:text-bimo-navy transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Attestation BRS
             </a>
         </div>
     </div>

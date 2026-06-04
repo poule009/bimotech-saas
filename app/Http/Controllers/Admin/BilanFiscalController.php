@@ -225,4 +225,123 @@ class BilanFiscalController extends Controller
 
         return $pdf->download($filename);
     }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // FICHE TRANSPARENTE — PDF étape par étape pour le comptable
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function ficheTransparente(Request $request, User $proprietaire)
+    {
+        $this->authorize('isAdmin');
+
+        $agencyId = Auth::user()->agency_id;
+
+        abort_if(
+            $proprietaire->agency_id !== $agencyId || $proprietaire->role !== 'proprietaire',
+            403,
+            'Ce propriétaire n\'appartient pas à votre agence.'
+        );
+
+        $annee = (int) $request->input('annee', now()->year);
+
+        $bilan = BilanFiscalProprietaire::where('agency_id', $agencyId)
+            ->where('proprietaire_id', $proprietaire->id)
+            ->where('annee', $annee)
+            ->first();
+
+        if (! $bilan) {
+            return redirect()
+                ->route('admin.bilans-fiscaux.show', [$proprietaire, 'annee' => $annee])
+                ->with('warning', "Calculez d'abord le bilan {$annee} avant d'exporter la fiche.");
+        }
+
+        $paiements = \App\Models\Paiement::query()
+            ->join('contrats', 'contrats.id', '=', 'paiements.contrat_id')
+            ->join('biens', 'biens.id', '=', 'contrats.bien_id')
+            ->where('biens.proprietaire_id', $proprietaire->id)
+            ->where('paiements.agency_id', $agencyId)
+            ->where('paiements.statut', 'valide')
+            ->whereYear('paiements.date_paiement', $annee)
+            ->select('paiements.*', 'biens.reference as bien_reference', 'biens.type as bien_type', 'contrats.type_bail')
+            ->with(['contrat.locataire:id,name'])
+            ->orderBy('paiements.date_paiement')
+            ->get();
+
+        $agency  = Auth::user()->agency;
+        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_total);
+        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_total, (float) $bilan->irpp_estime);
+        $irppDetail = is_array($bilan->irpp_detail)
+            ? $bilan->irpp_detail
+            : FiscalService::calculerIRPPDetail((float) $bilan->base_imposable);
+
+        $pdf = Pdf::loadView('admin.fiscal.pdf.fiche-transparente', compact(
+            'bilan', 'proprietaire', 'agency', 'annee', 'paiements', 'cgfData', 'regimes', 'irppDetail'
+        ))
+            ->setPaper('a4', 'portrait')
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('dpi', 96)
+            ->setOption('isRemoteEnabled', false);
+
+        $filename = sprintf('fiche-fiscale-%s-%d.pdf', $proprietaire->id, $annee);
+
+        return $pdf->download($filename);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // ATTESTATION BRS — PDF officiel de retenue BRS
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function attestationBrs(Request $request, User $proprietaire)
+    {
+        $this->authorize('isAdmin');
+
+        $agencyId = Auth::user()->agency_id;
+
+        abort_if(
+            $proprietaire->agency_id !== $agencyId || $proprietaire->role !== 'proprietaire',
+            403,
+            'Ce propriétaire n\'appartient pas à votre agence.'
+        );
+
+        $annee = (int) $request->input('annee', now()->year);
+
+        $bilan = BilanFiscalProprietaire::where('agency_id', $agencyId)
+            ->where('proprietaire_id', $proprietaire->id)
+            ->where('annee', $annee)
+            ->first();
+
+        if (! $bilan) {
+            return redirect()
+                ->route('admin.bilans-fiscaux.show', [$proprietaire, 'annee' => $annee])
+                ->with('warning', "Calculez d'abord le bilan {$annee} avant d'exporter l'attestation BRS.");
+        }
+
+        $paiements = \App\Models\Paiement::query()
+            ->join('contrats', 'contrats.id', '=', 'paiements.contrat_id')
+            ->join('biens', 'biens.id', '=', 'contrats.bien_id')
+            ->where('biens.proprietaire_id', $proprietaire->id)
+            ->where('paiements.agency_id', $agencyId)
+            ->where('paiements.statut', 'valide')
+            ->whereYear('paiements.date_paiement', $annee)
+            ->where('paiements.brs_amount', '>', 0)
+            ->select('paiements.*', 'biens.reference as bien_reference')
+            ->with(['contrat.bien:id,reference,adresse'])
+            ->orderBy('paiements.date_paiement')
+            ->get();
+
+        $agency       = Auth::user()->agency;
+        $brsEnLettres = FiscalService::montantEnLettresFr((float) $bilan->brs_retenu_total);
+
+        $pdf = Pdf::loadView('admin.fiscal.pdf.attestation-brs', compact(
+            'bilan', 'proprietaire', 'agency', 'annee', 'paiements', 'brsEnLettres'
+        ))
+            ->setPaper('a4', 'portrait')
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('dpi', 96)
+            ->setOption('isRemoteEnabled', false);
+
+        $filename = sprintf('attestation-brs-%s-%d.pdf', $proprietaire->id, $annee);
+
+        return $pdf->download($filename);
+    }
 }
