@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'fiscalite' => env('FEATURE_FISCALITE', false),
+    'fiscalite' => env('FEATURE_FISCALITE', true),
 ];
