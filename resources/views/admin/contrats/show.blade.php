@@ -41,12 +41,6 @@
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
             Voir le bien
         </a>
-        <a href="{{ route('admin.contrats.bail-pdf', $contrat) }}" target="_blank"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Bail PDF
-        </a>
         <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" target="_blank"
            class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold
                   font-body text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">

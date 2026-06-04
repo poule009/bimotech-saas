@@ -23,6 +23,11 @@
                     @endforeach
                 </select>
             </form>
+            <a href="{{ route('admin.reversements.releve-pdf', array_filter(['proprietaire' => $proprietaire->id, 'periode' => $periode])) }}" target="_blank"
+               class="inline-flex items-center gap-2 border border-bimo-navy/15 text-bimo-navy/60 font-body text-sm px-4 py-2 rounded-[10px] hover:border-bimo-navy/30 hover:text-bimo-navy transition-all duration-150">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Relevé PDF
+            </a>
             <a href="{{ route('admin.reversements.create', ['proprietaire_id' => $proprietaire->id]) }}"
                class="inline-flex items-center gap-2 bg-[var(--ac)] text-white font-display font-bold text-sm px-4 py-2 rounded-[10px] hover:opacity-90 transition-opacity duration-150">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>

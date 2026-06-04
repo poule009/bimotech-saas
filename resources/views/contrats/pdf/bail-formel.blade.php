@@ -9,7 +9,7 @@
 body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c; background:#fff; line-height:1.5; }
 
 /* ── EN-TÊTE SOMBRE ── */
-.header { background:#0d1117; padding:0; }
+.header { background:#1B4F6B; padding:0; }
 .header-inner { display:table; width:100%; padding:18px 28px; }
 .header-left  { display:table-cell; width:60%; vertical-align:middle; }
 .header-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
@@ -23,10 +23,10 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .title-band { display:table; width:100%; background:#f5e9c9; border-left:5px solid #c9a84c; padding:10px 28px; }
 .title-left  { display:table-cell; vertical-align:middle; }
 .title-right { display:table-cell; vertical-align:middle; text-align:right; }
-.doc-title { font-size:14px; font-weight:bold; text-transform:uppercase; letter-spacing:2.5px; color:#0d1117; }
+.doc-title { font-size:14px; font-weight:bold; text-transform:uppercase; letter-spacing:2.5px; color:#1a2e3b; }
 .doc-type   { font-size:10px; color:#8a6e2f; margin-top:2px; font-weight:bold; }
 .ref-label  { font-size:7px; text-transform:uppercase; letter-spacing:.8px; color:#8a6e2f; margin-bottom:1px; }
-.ref-value  { font-size:10px; font-weight:bold; color:#0d1117; }
+.ref-value  { font-size:10px; font-weight:bold; color:#1a2e3b; }
 
 /* ── BANDEAU INFO BAIL ── */
 .bail-band { display:table; width:100%; background:#f9fafb; border-top:1px solid #e5e7eb; border-bottom:1px solid #e5e7eb; }
@@ -34,7 +34,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .bail-cell:first-child { padding-left:28px; }
 .bail-cell:last-child  { border-right:none; padding-right:28px; }
 .bail-label { font-size:7px; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; margin-bottom:2px; }
-.bail-value { font-size:10px; font-weight:bold; color:#0d1117; }
+.bail-value { font-size:10px; font-weight:bold; color:#1a2e3b; }
 
 /* ── CORPS ── */
 .body { padding:16px 28px 20px; }
@@ -50,7 +50,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .col:last-child  { padding-left:10px; }
 .partie-box { background:#f9fafb; border:1px solid #e5e7eb; border-radius:4px; padding:10px 12px; }
 .partie-role  { font-size:7.5px; font-weight:bold; text-transform:uppercase; letter-spacing:.8px; color:#c9a84c; margin-bottom:4px; }
-.partie-name  { font-size:11px; font-weight:bold; color:#0d1117; margin-bottom:2px; }
+.partie-name  { font-size:11px; font-weight:bold; color:#1a2e3b; margin-bottom:2px; }
 .partie-sub   { font-size:9px; color:#6b7280; line-height:1.7; }
 .partie-repr  { font-size:8px; color:#9ca3af; font-style:italic; margin-top:4px; }
 
@@ -60,27 +60,27 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 
 /* Bien loué */
 .bien-box { background:#f9fafb; border:1px solid #e5e7eb; border-left:4px solid #c9a84c; border-radius:0 4px 4px 0; padding:10px 14px; margin-top:10px; }
-.bien-titre { font-size:11px; font-weight:bold; color:#0d1117; margin-bottom:3px; }
+.bien-titre { font-size:11px; font-weight:bold; color:#1a2e3b; margin-bottom:3px; }
 .bien-adr   { font-size:9.5px; color:#374151; }
 
 /* ── ARTICLES ── */
 .article { margin-bottom:12px; }
 .art-num  { font-size:8px; font-weight:bold; text-transform:uppercase; letter-spacing:1px; color:#9ca3af; margin-bottom:1px; }
-.art-titre { font-size:10.5px; font-weight:bold; color:#0d1117; margin-bottom:5px; border-left:3px solid #c9a84c; padding-left:8px; }
+.art-titre { font-size:10.5px; font-weight:bold; color:#1a2e3b; margin-bottom:5px; border-left:3px solid #c9a84c; padding-left:8px; }
 .art-corps { font-size:9.5px; color:#374151; line-height:1.75; text-align:justify; padding-left:11px; }
 .art-corps p { margin-bottom:4px; }
 .art-corps p:last-child { margin-bottom:0; }
 
 /* ── TABLEAU LOYER (article 3) ── */
 .tbl-loyer { width:100%; border-collapse:collapse; margin:8px 0; font-size:9.5px; }
-.tbl-loyer th { background:#0d1117; color:#fff; padding:6px 10px; text-align:left; font-size:8px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; }
+.tbl-loyer th { background:#1B4F6B; color:#fff; padding:6px 10px; text-align:left; font-size:8px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; }
 .tbl-loyer th.r { text-align:right; }
 .tbl-loyer td { padding:6px 10px; border-bottom:1px solid #f3f4f6; color:#374151; }
-.tbl-loyer td.r { text-align:right; font-weight:bold; color:#0d1117; }
+.tbl-loyer td.r { text-align:right; font-weight:bold; color:#1a2e3b; }
 .tbl-loyer td.obs { font-size:8px; color:#9ca3af; text-align:right; }
 .tbl-loyer tr.tva td { background:#fffbeb; color:#92400e; font-size:9px; }
 .tbl-loyer tr.tva td.r { color:#d97706; }
-.tbl-loyer tr.total td { background:#f5e9c9; font-weight:bold; font-size:10px; color:#0d1117; border-top:2px solid #c9a84c; border-bottom:2px solid #c9a84c; }
+.tbl-loyer tr.total td { background:#f5e9c9; font-weight:bold; font-size:10px; color:#1a2e3b; border-top:2px solid #c9a84c; border-bottom:2px solid #c9a84c; }
 .tbl-loyer tr.total td.r { color:#8a6e2f; font-size:11px; }
 .en-lettres { background:#fffbeb; border:1px solid #fde68a; border-radius:3px; padding:5px 10px; font-size:8.5px; font-style:italic; color:#78350f; margin-top:4px; }
 .en-lettres-lbl { font-size:7px; text-transform:uppercase; letter-spacing:.7px; color:#d97706; margin-bottom:1px; }
@@ -97,12 +97,12 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .sig-cell   { display:table-cell; width:44%; vertical-align:top; border:1.5px dashed #d1d5db; border-radius:5px; padding:14px 12px; text-align:center; }
 .sig-spacer { display:table-cell; width:12%; }
 .sig-role   { font-size:7.5px; font-weight:bold; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; margin-bottom:3px; }
-.sig-nom    { font-size:10px; font-weight:bold; color:#0d1117; }
+.sig-nom    { font-size:10px; font-weight:bold; color:#1a2e3b; }
 .sig-detail { font-size:8px; color:#9ca3af; margin-top:2px; }
 .sig-espace { height:44px; }
 .sig-mention{ margin-top:10px; padding-top:6px; border-top:1px solid #e5e7eb; font-size:7.5px; color:#9ca3af; }
-.tampon { width:56px; height:56px; border:2px solid #0d1117; border-radius:50%; margin:4px auto; display:table; }
-.tampon-inner { display:table-cell; vertical-align:middle; text-align:center; font-size:7px; font-weight:bold; color:#0d1117; text-transform:uppercase; line-height:1.4; }
+.tampon { width:56px; height:56px; border:2px solid #1B4F6B; border-radius:50%; margin:4px auto; display:table; }
+.tampon-inner { display:table-cell; vertical-align:middle; text-align:center; font-size:7px; font-weight:bold; color:#1a2e3b; text-transform:uppercase; line-height:1.4; }
 
 /* ── MENTIONS ── */
 .mentions { background:#fff7ed; border:1px solid #fed7aa; border-radius:4px; padding:9px 12px; margin-top:14px; font-size:7.5px; color:#9a3412; line-height:1.75; }
@@ -268,7 +268,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         <div class="garant-role">Garant — Caution solidaire (Art. 783 et s. COCC SN)</div>
         <div style="display:table;width:100%">
             <div style="display:table-cell;width:50%;vertical-align:top">
-                <div style="font-size:10px;font-weight:bold;color:#0d1117">{{ $contrat->garant_nom }}</div>
+                <div style="font-size:10px;font-weight:bold;color:#1a2e3b">{{ $contrat->garant_nom }}</div>
                 <div style="font-size:9px;color:#374151;margin-top:2px">
                     @if($contrat->garant_telephone)Tél. {{ $contrat->garant_telephone }}<br>@endif
                     @if($contrat->garant_cni)CNI : {{ $contrat->garant_cni }}@endif
@@ -288,7 +288,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
     </div>
     @endif
 
-    <p style="font-size:10px;font-weight:bold;text-align:center;margin:14px 0 10px;color:#0d1117">
+    <p style="font-size:10px;font-weight:bold;text-align:center;margin:14px 0 10px;color:#1a2e3b">
         Il a été convenu et arrêté ce qui suit :
     </p>
 

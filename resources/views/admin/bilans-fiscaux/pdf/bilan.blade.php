@@ -7,7 +7,7 @@
 body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c; background:#fff; line-height:1.5; }
 
 /* En-tête */
-.header { background:#0d1117; padding:22px 28px; }
+.header { background:#1B4F6B; padding:22px 28px; }
 .header-table { display:table; width:100%; }
 .header-left  { display:table-cell; width:60%; vertical-align:middle; }
 .header-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
@@ -23,7 +23,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .proprio-left  { display:table-cell; width:60%; vertical-align:middle; }
 .proprio-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
 .proprio-label { font-size:7.5px; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; margin-bottom:2px; }
-.proprio-name  { font-size:14px; font-weight:bold; color:#0d1117; }
+.proprio-name  { font-size:14px; font-weight:bold; color:#1a2e3b; }
 .proprio-sub   { font-size:9px; color:#6b7280; margin-top:2px; }
 .ref-pill { display:inline-block; background:#f5e9c9; border:1px solid #c9a84c; border-radius:4px; padding:3px 10px; font-size:8px; font-weight:bold; color:#8a6e2f; }
 
@@ -41,7 +41,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .kpi-box.red    { background:#fff1f2; border-color:#fecaca; }
 .kpi-box.blue   { background:#eff6ff; border-color:#bfdbfe; }
 .kpi-lbl { font-size:7.5px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; margin-bottom:5px; }
-.kpi-val { font-size:14px; font-weight:bold; color:#0d1117; }
+.kpi-val { font-size:14px; font-weight:bold; color:#1a2e3b; }
 .kpi-val.gold  { color:#8a6e2f; }
 .kpi-val.green { color:#16a34a; }
 .kpi-val.red   { color:#dc2626; }
@@ -49,10 +49,10 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 
 /* Tables */
 .calc-table { width:100%; border-collapse:collapse; font-size:10px; margin-bottom:14px; }
-.calc-table th { background:#0d1117; color:#fff; padding:7px 12px; text-align:left; font-size:8px; text-transform:uppercase; letter-spacing:.5px; }
+.calc-table th { background:#1B4F6B; color:#fff; padding:7px 12px; text-align:left; font-size:8px; text-transform:uppercase; letter-spacing:.5px; }
 .calc-table th:last-child { text-align:right; }
 .calc-table td { padding:8px 12px; border-bottom:1px solid #f3f4f6; color:#374151; }
-.calc-table td:last-child { text-align:right; font-weight:bold; color:#0d1117; white-space:nowrap; }
+.calc-table td:last-child { text-align:right; font-weight:bold; color:#1a2e3b; white-space:nowrap; }
 .calc-table tr.abattement td { color:#16a34a; background:#f0fdf4; }
 .calc-table tr.base td { background:#f5e9c9; font-weight:bold; font-size:11px; border-top:2px solid #c9a84c; border-bottom:2px solid #c9a84c; }
 .calc-table tr.irpp td { background:#fff1f2; color:#dc2626; font-weight:bold; font-size:11px; border-top:1.5px solid #fecaca; }
@@ -85,8 +85,8 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .footer-left  { display:table-cell; width:60%; vertical-align:bottom; font-size:7.5px; color:#9ca3af; line-height:1.7; }
 .footer-right { display:table-cell; width:40%; vertical-align:bottom; text-align:right; }
 .sign-box { border:1.5px dashed #d1d5db; border-radius:5px; padding:10px; display:inline-block; text-align:center; min-width:100px; }
-.tampon { width:52px; height:52px; border:2.5px solid #0d1117; border-radius:50%; margin:0 auto 4px; display:table; }
-.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#0d1117; text-align:center; line-height:1.3; text-transform:uppercase; }
+.tampon { width:52px; height:52px; border:2.5px solid #1B4F6B; border-radius:50%; margin:0 auto 4px; display:table; }
+.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#1a2e3b; text-align:center; line-height:1.3; text-transform:uppercase; }
 .sign-label { font-size:7px; color:#9ca3af; }
 </style>
 </head>
@@ -338,8 +338,8 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
             <td style="background:#fef2f2;font-weight:bold;color:#dc2626">− {{ number_format($bilan->brs_retenu_total, 0, ',', ' ') }}</td>
         </tr>
         <tr>
-            <td style="background:#0d1117;font-weight:bold;color:#4ade80;padding:8px 12px">NET RÉELLEMENT VERSÉ AU PROPRIÉTAIRE (après BRS)</td>
-            <td style="background:#0d1117;font-weight:bold;color:#6ee7b7;padding:8px 12px">{{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total, 0, ',', ' ') }}</td>
+            <td style="background:#1B4F6B;font-weight:bold;color:#4ade80;padding:8px 12px">NET RÉELLEMENT VERSÉ AU PROPRIÉTAIRE (après BRS)</td>
+            <td style="background:#1B4F6B;font-weight:bold;color:#6ee7b7;padding:8px 12px">{{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total, 0, ',', ' ') }}</td>
         </tr>
         @endif
     </table>

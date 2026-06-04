@@ -7,6 +7,7 @@ use App\Http\Requests\StoreReversementRequest;
 use App\Models\ReversementProprietaire;
 use App\Models\User;
 use App\Services\ComptabiliteService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -95,5 +96,41 @@ class ReversementController extends Controller
         return view('admin.reversements.compte-mandant', compact(
             'proprietaire', 'compte', 'reversements', 'periodes', 'periode'
         ));
+    }
+
+    public function relevePdf(Request $request, User $proprietaire): \Illuminate\Http\Response
+    {
+        $agencyId = Auth::user()->agency_id;
+
+        abort_unless($proprietaire->agency_id === $agencyId && $proprietaire->role === 'proprietaire', 404);
+
+        $periode = $request->get('periode');
+        $compte  = $this->comptabiliteService->compteMandant($agencyId, $proprietaire->id, $periode);
+        $agency  = Auth::user()->agency;
+
+        $reversementsPeriode = ReversementProprietaire::where('proprietaire_id', $proprietaire->id)
+            ->where('agency_id', $agencyId)
+            ->when($periode, function ($q) use ($periode) {
+                $q->where(function ($q2) use ($periode) {
+                    $q2->where('periode_debut', '<=', $periode)
+                       ->where('periode_fin', '>=', $periode);
+                });
+            })
+            ->orderByDesc('date_reversement')
+            ->get();
+
+        $refDoc = 'RELEVE-' . $proprietaire->id . '-' . ($periode ?? now()->format('Y-m'));
+
+        $pdf = Pdf::loadView('admin.reversements.pdf.releve-mensuel', compact(
+            'proprietaire', 'compte', 'agency', 'periode', 'reversementsPeriode', 'refDoc'
+        ))
+            ->setPaper('a4', 'portrait')
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('dpi', 96)
+            ->setOption('isRemoteEnabled', false);
+
+        $filename = 'releve-gestion-' . $proprietaire->id . '-' . ($periode ?? now()->format('Y-m')) . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

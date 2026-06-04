@@ -8,7 +8,7 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a; }
 
-.header { background:#0d1117; padding:18px 24px; margin-bottom:0; }
+.header { background:#1B4F6B; padding:18px 24px; margin-bottom:0; }
 .header-inner { display:table; width:100%; }
 .header-left  { display:table-cell; vertical-align:middle; }
 .header-right { display:table-cell; vertical-align:middle; text-align:right; }
@@ -21,7 +21,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
 .periode-left  { display:table-cell; vertical-align:middle; }
 .periode-right { display:table-cell; vertical-align:middle; text-align:right; }
 .periode-lbl   { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8a6e2f; }
-.periode-val   { font-size:14px; font-weight:700; color:#0d1117; margin-top:2px; }
+.periode-val   { font-size:14px; font-weight:700; color:#1a2e3b; margin-top:2px; }
 
 .content { padding:18px 24px; }
 
@@ -29,7 +29,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
 .proprio-left  { display:table-cell; width:70%; vertical-align:top; }
 .proprio-right { display:table-cell; width:30%; vertical-align:top; text-align:right; }
 .p-lbl { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:#9ca3af; margin-bottom:2px; }
-.p-val { font-size:12px; font-weight:700; color:#0d1117; }
+.p-val { font-size:12px; font-weight:700; color:#1a2e3b; }
 .p-sub { font-size:9px; color:#6b7280; margin-top:1px; }
 
 /* KPIs */
@@ -37,7 +37,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
 .kpi-cell { display:table-cell; padding:12px 14px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; text-align:center; }
 .kpi-spacer { display:table-cell; width:10px; }
 .kpi-lbl { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:#9ca3af; margin-bottom:4px; }
-.kpi-val { font-size:18px; font-weight:700; color:#0d1117; font-family:'DejaVu Sans',sans-serif; }
+.kpi-val { font-size:18px; font-weight:700; color:#1a2e3b; font-family:'DejaVu Sans',sans-serif; }
 .kpi-sub { font-size:8px; color:#9ca3af; margin-top:2px; }
 
 /* Table paiements */
@@ -46,10 +46,10 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1a1a1a
 .dt th.right { text-align:right; }
 .dt td { padding:8px 10px; font-size:9.5px; color:#374151; border-bottom:1px solid #f3f4f6; }
 .dt td.right { text-align:right; font-weight:600; }
-.dt tfoot td { padding:9px 10px; background:#0d1117; color:#fff; font-weight:700; font-size:10px; }
+.dt tfoot td { padding:9px 10px; background:#1B4F6B; color:#fff; font-weight:700; font-size:10px; }
 .dt tfoot td.gold { color:#c9a84c; font-size:13px; text-align:right; }
 
-.net-box { background:#0d1117; border-radius:10px; padding:14px 18px; display:table; width:100%; margin-bottom:18px; }
+.net-box { background:#1B4F6B; border-radius:10px; padding:14px 18px; display:table; width:100%; margin-bottom:18px; }
 .net-left  { display:table-cell; vertical-align:middle; }
 .net-right { display:table-cell; vertical-align:middle; text-align:right; }
 .net-lbl   { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:rgba(201,168,76,.6); margin-bottom:3px; }

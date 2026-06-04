@@ -9,7 +9,7 @@
         body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 10px; color: #1f2937; background: #fff; }
 
         /* ── En-tête ── */
-        .header { background: #0d1117; color: #fff; padding: 20px 28px; margin-bottom: 22px; }
+        .header { background: #1B4F6B; color: #fff; padding: 20px 28px; margin-bottom: 22px; }
         .header-table { display: table; width: 100%; }
         .header-left  { display: table-cell; vertical-align: middle; }
         .header-right { display: table-cell; vertical-align: middle; text-align: right; }
@@ -37,7 +37,7 @@
         }
         .bailleur-col { display: table-cell; vertical-align: top; width: 50%; }
         .bl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: #9ca3af; margin-bottom: 3px; }
-        .bv { font-size: 12px; font-weight: 600; color: #0d1117; }
+        .bv { font-size: 12px; font-weight: 600; color: #1a2e3b; }
         .bvsub { font-size: 10px; color: #6b7280; margin-top: 2px; }
 
         /* ── KPI ── */
@@ -101,7 +101,7 @@
         .net-final-box {
             margin: 0 28px 22px;
             padding: 14px 18px;
-            background: #0d1117;
+            background: #1B4F6B;
             border-radius: 8px;
             display: table;
             width: calc(100% - 56px);

@@ -258,6 +258,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('create',                                  [ReversementController::class, 'create'])->name('create');
             Route::post('/',                                      [ReversementController::class, 'store'])->name('store');
             Route::get('proprietaire/{proprietaire}',             [ReversementController::class, 'compteMandant'])->name('compte-mandant');
+            Route::get('proprietaire/{proprietaire}/releve-pdf', [ReversementController::class, 'relevePdf'])->name('releve-pdf');
         });
 
         Route::get('tresorerie', [ComptabiliteController::class, 'tresorerie'])
@@ -316,8 +317,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Export CSV paiements
         Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv')->middleware(['check.feature:export_csv', 'throttle:10,1']);
 
-        // Contrat de bail PDF
-        Route::get('contrats/{contrat}/bail-pdf', [ContratController::class, 'bailPdf'])->name('contrats.bail-pdf')->middleware('check.feature:contrat_formel_pdf');
+        // Contrat de bail PDF (bail simple supprimé — bail formel uniquement)
         Route::get('contrats/{contrat}/bail-formel-pdf', [ContratController::class, 'bailFormelPdf'])->name('contrats.bail-formel-pdf')->middleware('check.feature:contrat_formel_pdf');
     });
 

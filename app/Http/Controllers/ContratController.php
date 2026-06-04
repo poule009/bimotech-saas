@@ -279,31 +279,6 @@ class ContratController extends Controller
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // BAIL PDF — contrat de bail complet avec clauses agence + particulières
-    // ─────────────────────────────────────────────────────────────────────
-
-    public function bailPdf(Contrat $contrat): \Illuminate\Http\Response
-    {
-        $this->authorize('view', $contrat);
-
-        $contrat->load([
-            'bien:id,reference,type,adresse,ville,quartier,surface_m2,nombre_pieces,meuble',
-            'bien.proprietaire:id,name,email,telephone,adresse',
-            'locataire:id,name,email,telephone,adresse',
-        ]);
-
-        $agency = Auth::user()->agency;
-
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('contrats.pdf.bail', compact(
-            'contrat', 'agency'
-        ))->setPaper('a4', 'portrait');
-
-        $filename = 'bail-' . ($contrat->reference_bail ?? 'contrat-' . $contrat->id) . '.pdf';
-
-        return $pdf->download(str_replace(' ', '-', $filename));
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
     // BAIL FORMEL PDF — format notarial sénégalais avec articles numérotés
     // ─────────────────────────────────────────────────────────────────────
 

@@ -28,7 +28,7 @@ body {
 }
 
 /* ── EN-TÊTE ── */
-.header { background:#0d1117; padding:0; }
+.header { background:#1B4F6B; padding:0; }
 .header-inner { display:table; width:100%; padding:20px 28px; }
 .header-left  { display:table-cell; width:60%; vertical-align:middle; }
 .header-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
@@ -42,10 +42,10 @@ body {
 .title-band { display:table; width:100%; background:#f5e9c9; border-left:5px solid #c9a84c; padding:10px 28px; }
 .title-left  { display:table-cell; vertical-align:middle; }
 .title-right { display:table-cell; vertical-align:middle; text-align:right; }
-.doc-title { font-size:13px; font-weight:bold; text-transform:uppercase; letter-spacing:2.5px; color:#0d1117; }
+.doc-title { font-size:13px; font-weight:bold; text-transform:uppercase; letter-spacing:2.5px; color:#1a2e3b; }
 .doc-periode { font-size:10px; color:#8a6e2f; margin-top:2px; font-weight:bold; }
 .ref-label { font-size:7px; text-transform:uppercase; letter-spacing:.8px; color:#8a6e2f; margin-bottom:1px; }
-.ref-value { font-size:10px; font-weight:bold; color:#0d1117; }
+.ref-value { font-size:10px; font-weight:bold; color:#1a2e3b; }
 
 /* ── BADGE RÉGIME FISCAL ── */
 .regime-band { display:table; width:100%; background:#f9fafb; border-bottom:1px solid #e5e7eb; padding:7px 28px; }
@@ -60,7 +60,7 @@ body {
 .bail-cell:first-child { padding-left:28px; }
 .bail-cell:last-child  { border-right:none; padding-right:28px; }
 .bail-label { font-size:7px; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; margin-bottom:2px; }
-.bail-value { font-size:10px; font-weight:bold; color:#0d1117; }
+.bail-value { font-size:10px; font-weight:bold; color:#1a2e3b; }
 
 /* ── CORPS ── */
 .body { padding:18px 28px; }
@@ -74,13 +74,13 @@ body {
 .col   { display:table-cell; width:50%; vertical-align:top; padding-right:18px; }
 .col:last-child { padding-right:0; padding-left:18px; }
 .col-label { font-size:8px; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; margin-bottom:2px; }
-.col-value { font-size:11px; font-weight:bold; color:#0d1117; margin-bottom:2px; }
+.col-value { font-size:11px; font-weight:bold; color:#1a2e3b; margin-bottom:2px; }
 .col-sub   { font-size:9px; color:#6b7280; line-height:1.6; }
 
 /* ── PARTIE (locataire / propriétaire) ── */
 .partie-box { background:#f9fafb; border:1px solid #e5e7eb; border-radius:4px; padding:10px 12px; }
 .partie-role  { font-size:7.5px; font-weight:bold; text-transform:uppercase; letter-spacing:.8px; color:#c9a84c; margin-bottom:4px; }
-.partie-name  { font-size:11px; font-weight:bold; color:#0d1117; margin-bottom:2px; }
+.partie-name  { font-size:11px; font-weight:bold; color:#1a2e3b; margin-bottom:2px; }
 .partie-sub   { font-size:9px; color:#6b7280; line-height:1.6; }
 .repr-by { display:table; width:100%; text-align:center; font-size:8px; color:#9ca3af; font-style:italic; margin:5px 0; }
 
@@ -96,10 +96,10 @@ body {
    - Commercial + entreprise (TVA loyer + BRS)
 ══════════════════════════════════════════════════════ */
 .montant-table { width:100%; border-collapse:collapse; font-size:10px; margin-top:6px; }
-.montant-table th { background:#0d1117; color:#fff; padding:7px 12px; text-align:left; font-size:8px; text-transform:uppercase; letter-spacing:.8px; }
+.montant-table th { background:#1B4F6B; color:#fff; padding:7px 12px; text-align:left; font-size:8px; text-transform:uppercase; letter-spacing:.8px; }
 .montant-table th:last-child { text-align:right; }
 .montant-table td { padding:7px 12px; border-bottom:1px solid #f3f4f6; color:#374151; vertical-align:middle; }
-.montant-table td:last-child { text-align:right; font-weight:bold; color:#0d1117; white-space:nowrap; }
+.montant-table td:last-child { text-align:right; font-weight:bold; color:#1a2e3b; white-space:nowrap; }
 
 /* Lignes spécifiques */
 .row-loyer      td { background:#fff; }
@@ -107,14 +107,14 @@ body {
 .row-loyer-ttc  td { background:#fef3c7; font-weight:bold; font-size:11px; color:#92400e; border-top:1.5px solid #d97706; border-bottom:1.5px solid #d97706; }
 .row-charges    td { font-size:9.5px; color:#6b7280; background:#fafafa; }
 .row-tom        td { font-size:9.5px; color:#6b7280; background:#fafafa; }
-.row-total      td { background:#f5e9c9; font-weight:bold; font-size:11px; color:#0d1117; border-top:2px solid #c9a84c; border-bottom:2px solid #c9a84c; }
+.row-total      td { background:#f5e9c9; font-weight:bold; font-size:11px; color:#1a2e3b; border-top:2px solid #c9a84c; border-bottom:2px solid #c9a84c; }
 .row-sep        th { background:#f3f4f6; color:#6b7280; font-size:7.5px; padding:5px 12px; letter-spacing:.5px; }
 .row-comm       td { font-size:9.5px; }
 .row-comm       td:last-child { color:#8a6e2f; }
 .row-tva-comm   td { font-size:9px; color:#9ca3af; font-style:italic; background:#fafafa; }
 .row-tva-comm   td:last-child { color:#9ca3af; font-weight:normal; }
 .row-comm-ttc   td { color:#d97706; font-size:10px; }
-.row-net        td { background:#0d1117; color:#fff; font-size:12px; font-weight:bold; padding:10px 12px; }
+.row-net        td { background:#1B4F6B; color:#fff; font-size:12px; font-weight:bold; padding:10px 12px; }
 .row-net        td:last-child { color:#4ade80; }
 /* BRS */
 .row-brs-sep    th { background:#fee2e2; color:#dc2626; font-size:7.5px; padding:5px 12px; letter-spacing:.5px; }
@@ -157,8 +157,8 @@ body {
 .doc-ref-label { font-size:7px; color:#9ca3af; text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px; }
 .doc-ref-value { font-size:8px; font-weight:bold; color:#374151; word-break:break-all; }
 .sign-box { border:1.5px dashed #d1d5db; border-radius:5px; padding:12px 8px 7px; text-align:center; }
-.tampon { width:58px; height:58px; border:2.5px solid #0d1117; border-radius:50%; margin:0 auto 5px; display:table; }
-.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#0d1117; line-height:1.4; text-align:center; text-transform:uppercase; }
+.tampon { width:58px; height:58px; border:2.5px solid #1B4F6B; border-radius:50%; margin:0 auto 5px; display:table; }
+.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#1a2e3b; line-height:1.4; text-align:center; text-transform:uppercase; }
 .sign-label { font-size:7px; color:#9ca3af; margin-top:4px; }
 
 /* ── ALERTE DGID ── */
@@ -308,7 +308,7 @@ $regimeLabel = $regimeLabels[$regime_fiscal] ?? ucwords(str_replace('_', ' ', $r
     {{-- BIEN --}}
     <div class="section-title">Bien loué</div>
     <div class="bien-box">
-        <div style="font-size:11px;font-weight:bold;color:#0d1117;margin-bottom:2px">
+        <div style="font-size:11px;font-weight:bold;color:#1a2e3b;margin-bottom:2px">
             {{ $bien->type }} — Réf. {{ $bien->reference }}
             @if($bien->meuble) &nbsp;·&nbsp; <em>Meublé</em> @endif
         </div>

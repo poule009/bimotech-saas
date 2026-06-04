@@ -9,7 +9,7 @@
 body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1f2937; background:#fff; }
 
 /* ── En-tête ── */
-.header { background:#0d1117; padding:20px 28px; margin-bottom:0; }
+.header { background:#1B4F6B; padding:20px 28px; margin-bottom:0; }
 .header-inner { display:table; width:100%; }
 .header-left  { display:table-cell; vertical-align:middle; }
 .header-right { display:table-cell; vertical-align:middle; text-align:right; }
@@ -26,7 +26,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1f2937
 .periode-left  { display:table-cell; vertical-align:middle; }
 .periode-right { display:table-cell; vertical-align:middle; text-align:right; }
 .periode-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#8a6e2f; }
-.periode-value { font-size:16px; font-weight:700; color:#0d1117; margin-top:2px; }
+.periode-value { font-size:16px; font-weight:700; color:#1a2e3b; margin-top:2px; }
 .statut-badge  { display:inline-block; background:#dcfce7; color:#16a34a; padding:4px 12px; border-radius:20px; font-size:10px; font-weight:700; }
 
 /* ── Contenu principal ── */
@@ -37,7 +37,7 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1f2937
 .partie-cell  { display:table-cell; width:48%; padding:14px 16px; vertical-align:top; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; }
 .partie-spacer{ display:table-cell; width:4%; }
 .partie-label { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#9ca3af; margin-bottom:6px; }
-.partie-name  { font-size:12px; font-weight:700; color:#0d1117; margin-bottom:3px; }
+.partie-name  { font-size:12px; font-weight:700; color:#1a2e3b; margin-bottom:3px; }
 .partie-info  { font-size:9px; color:#6b7280; line-height:1.5; }
 
 /* ── Bien ── */
@@ -45,33 +45,33 @@ body { font-family:'DejaVu Sans',Arial,sans-serif; font-size:10px; color:#1f2937
 .bien-left    { display:table-cell; vertical-align:middle; width:70%; }
 .bien-right   { display:table-cell; vertical-align:middle; text-align:right; }
 .bien-label   { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#9ca3af; margin-bottom:4px; }
-.bien-ref     { font-size:13px; font-weight:700; color:#0d1117; }
+.bien-ref     { font-size:13px; font-weight:700; color:#1a2e3b; }
 .bien-adresse { font-size:9px; color:#6b7280; margin-top:2px; }
 .loyer-label  { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#9ca3af; margin-bottom:4px; }
 .loyer-val    { font-size:20px; font-weight:700; color:#c9a84c; }
 .loyer-unit   { font-size:10px; color:#9ca3af; }
 
 /* ── Tableau décompte ── */
-.section-title { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#0d1117; border-bottom:2px solid #0d1117; padding-bottom:4px; margin-bottom:10px; }
+.section-title { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#1a2e3b; border-bottom:2px solid #1B4F6B; padding-bottom:4px; margin-bottom:10px; }
 table { width:100%; border-collapse:collapse; margin-bottom:20px; }
-thead th { background:#0d1117; color:#fff; padding:7px 10px; text-align:left; font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+thead th { background:#1B4F6B; color:#fff; padding:7px 10px; text-align:left; font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
 thead th.right { text-align:right; }
 tbody tr:nth-child(even) { background:#f9fafb; }
 tbody td { padding:7px 10px; border-bottom:1px solid #f3f4f6; font-size:9px; color:#374151; vertical-align:middle; }
 tbody td.right { text-align:right; font-weight:600; }
 tbody td.label { color:#6b7280; }
 tfoot td { padding:8px 10px; font-size:10px; font-weight:700; }
-tfoot tr.total-row td { background:#0d1117; color:#fff; }
+tfoot tr.total-row td { background:#1B4F6B; color:#fff; }
 tfoot tr.total-row td.gold { color:#c9a84c; font-size:13px; }
 tfoot tr.net-row td { background:#f5e9c9; color:#8a6e2f; }
-tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
+tfoot tr.net-row td.gold { color:#1a2e3b; font-size:12px; font-weight:700; }
 
 /* ── Infos paiement ── */
 .paiement-info { display:table; width:100%; margin-bottom:20px; }
 .pi-cell { display:table-cell; width:33%; padding:10px 12px; background:#f9fafb; border:1px solid #e5e7eb; vertical-align:top; }
 .pi-spacer { display:table-cell; width:2%; }
 .pi-label { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#9ca3af; margin-bottom:3px; }
-.pi-value { font-size:11px; font-weight:600; color:#0d1117; }
+.pi-value { font-size:11px; font-weight:600; color:#1a2e3b; }
 
 /* ── Signature & cachet ── */
 .signature-section { display:table; width:100%; margin-top:10px; }
@@ -416,7 +416,7 @@ tfoot tr.net-row td.gold { color:#0d1117; font-size:12px; font-weight:700; }
 
     {{-- ENCADRÉ NET — adapté selon destinataire --}}
     @if($destinataire === 'locataire' || $destinataire === 'agence')
-    <div style="background:#0d1117;border-radius:6px;padding:12px 16px;margin-bottom:12px;display:table;width:100%">
+    <div style="background:#1B4F6B;border-radius:6px;padding:12px 16px;margin-bottom:12px;display:table;width:100%">
         <div style="display:table-cell;vertical-align:middle">
             <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(201,168,76,.6);margin-bottom:3px">
                 NET À PAYER PAR LE LOCATAIRE{{ (config('features.fiscalite') && $brs > 0) ? ' (après retenue BRS)' : '' }}

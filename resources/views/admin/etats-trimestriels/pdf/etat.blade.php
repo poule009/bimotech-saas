@@ -7,7 +7,7 @@
 body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c; background:#fff; line-height:1.5; }
 
 /* En-tête */
-.header { background:#0d1117; padding:22px 28px; }
+.header { background:#1B4F6B; padding:22px 28px; }
 .header-table { display:table; width:100%; }
 .header-left  { display:table-cell; width:60%; vertical-align:middle; }
 .header-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
@@ -23,7 +23,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .tri-left  { display:table-cell; width:60%; vertical-align:middle; }
 .tri-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
 .tri-label { font-size:7.5px; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; margin-bottom:2px; }
-.tri-title { font-size:13px; font-weight:bold; color:#0d1117; }
+.tri-title { font-size:13px; font-weight:bold; color:#1a2e3b; }
 .tri-sub   { font-size:9px; color:#6b7280; margin-top:2px; }
 .ref-pill  { display:inline-block; background:#f5e9c9; border:1px solid #c9a84c; border-radius:4px; padding:3px 10px; font-size:8px; font-weight:bold; color:#8a6e2f; }
 
@@ -34,7 +34,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 
 /* Tableau principal */
 .dt { width:100%; border-collapse:collapse; font-size:9px; }
-.dt th { background:#0d1117; color:#fff; padding:7px 10px; text-align:left; font-size:8px; text-transform:uppercase; letter-spacing:.5px; }
+.dt th { background:#1B4F6B; color:#fff; padding:7px 10px; text-align:left; font-size:8px; text-transform:uppercase; letter-spacing:.5px; }
 .dt th.r { text-align:right; }
 .dt td { padding:7px 10px; border-bottom:1px solid #f3f4f6; color:#374151; vertical-align:top; }
 .dt td.r { text-align:right; font-weight:bold; }
@@ -55,7 +55,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .kpi-box  { background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; padding:9px 12px; text-align:center; }
 .kpi-box.red { background:#fff1f2; border-color:#fecaca; }
 .kpi-lbl  { font-size:7.5px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; margin-bottom:4px; }
-.kpi-val  { font-size:14px; font-weight:bold; color:#0d1117; }
+.kpi-val  { font-size:14px; font-weight:bold; color:#1a2e3b; }
 .kpi-val.red { color:#dc2626; }
 
 /* Mentions */
@@ -66,8 +66,8 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .footer-left  { display:table-cell; width:60%; vertical-align:bottom; font-size:7.5px; color:#9ca3af; line-height:1.7; }
 .footer-right { display:table-cell; width:40%; vertical-align:bottom; text-align:right; }
 .sign-box   { border:1.5px dashed #d1d5db; border-radius:5px; padding:10px; display:inline-block; text-align:center; min-width:100px; }
-.tampon     { width:52px; height:52px; border:2.5px solid #0d1117; border-radius:50%; margin:0 auto 4px; display:table; }
-.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#0d1117; text-align:center; line-height:1.3; text-transform:uppercase; }
+.tampon     { width:52px; height:52px; border:2.5px solid #1B4F6B; border-radius:50%; margin:0 auto 4px; display:table; }
+.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#1a2e3b; text-align:center; line-height:1.3; text-transform:uppercase; }
 .sign-label { font-size:7px; color:#9ca3af; }
 </style>
 </head>

@@ -7,7 +7,7 @@
 body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c; background:#fff; line-height:1.5; }
 
 /* En-tête */
-.header { background:#0d1117; padding:22px 28px; }
+.header { background:#1B4F6B; padding:22px 28px; }
 .header-table { display:table; width:100%; }
 .header-left  { display:table-cell; width:60%; vertical-align:middle; }
 .header-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
@@ -23,7 +23,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .statut-left  { display:table-cell; width:60%; vertical-align:middle; }
 .statut-right { display:table-cell; width:40%; vertical-align:middle; text-align:right; }
 .statut-label { font-size:7.5px; text-transform:uppercase; letter-spacing:.8px; color:#9ca3af; margin-bottom:2px; }
-.statut-val   { font-size:13px; font-weight:bold; color:#0d1117; }
+.statut-val   { font-size:13px; font-weight:bold; color:#1a2e3b; }
 .pill { display:inline-block; padding:3px 9px; border-radius:4px; font-size:8px; font-weight:bold; }
 .pill-b { background:#dbeafe; color:#1d4ed8; }
 .pill-v { background:#fef9c3; color:#854d0e; }
@@ -39,7 +39,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .kpi-cell { display:table-cell; width:33.33%; vertical-align:top; }
 .kpi-box  { background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; padding:9px 12px; text-align:center; }
 .kpi-lbl  { font-size:7.5px; font-weight:bold; text-transform:uppercase; letter-spacing:.5px; color:#6b7280; margin-bottom:4px; }
-.kpi-val  { font-size:13px; font-weight:bold; color:#0d1117; }
+.kpi-val  { font-size:13px; font-weight:bold; color:#1a2e3b; }
 .kpi-box.blue  { background:#eff6ff; border-color:#bfdbfe; }
 .kpi-box.green { background:#f0fdf4; border-color:#bbf7d0; }
 .kpi-box.red   { background:#fff1f2; border-color:#fecaca; }
@@ -49,7 +49,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 
 /* Tables */
 .dt { width:100%; border-collapse:collapse; font-size:9px; margin-bottom:12px; }
-.dt th { background:#0d1117; color:#fff; padding:6px 10px; text-align:left; font-size:7.5px; text-transform:uppercase; letter-spacing:.4px; }
+.dt th { background:#1B4F6B; color:#fff; padding:6px 10px; text-align:left; font-size:7.5px; text-transform:uppercase; letter-spacing:.4px; }
 .dt th.r { text-align:right; }
 .dt td { padding:6px 10px; border-bottom:1px solid #f3f4f6; color:#374151; }
 .dt td.r { text-align:right; font-weight:bold; }
@@ -71,7 +71,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .st-cell { display:table-cell; width:25%; vertical-align:top; }
 .st-box  { background:#f9fafb; border:1px solid #e5e7eb; border-radius:4px; padding:7px 10px; text-align:center; }
 .st-lbl  { font-size:7px; text-transform:uppercase; letter-spacing:.4px; color:#9ca3af; margin-bottom:3px; }
-.st-val  { font-size:11px; font-weight:bold; color:#0d1117; }
+.st-val  { font-size:11px; font-weight:bold; color:#1a2e3b; }
 
 /* Alerte */
 .alerte-due    { background:#fff7ed; border:1px solid #fed7aa; border-radius:4px; padding:9px 12px; margin:10px 0; font-size:8px; color:#9a3412; line-height:1.7; }
@@ -83,8 +83,8 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
 .footer-left  { display:table-cell; width:60%; vertical-align:bottom; font-size:7.5px; color:#9ca3af; line-height:1.7; }
 .footer-right { display:table-cell; width:40%; vertical-align:bottom; text-align:right; }
 .sign-box { border:1.5px dashed #d1d5db; border-radius:5px; padding:10px; display:inline-block; text-align:center; min-width:100px; }
-.tampon { width:48px; height:48px; border:2.5px solid #0d1117; border-radius:50%; margin:0 auto 4px; display:table; }
-.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#0d1117; text-align:center; line-height:1.3; text-transform:uppercase; }
+.tampon { width:48px; height:48px; border:2.5px solid #1B4F6B; border-radius:50%; margin:0 auto 4px; display:table; }
+.tampon-inner { display:table-cell; vertical-align:middle; font-size:7px; font-weight:bold; color:#1a2e3b; text-align:center; line-height:1.3; text-transform:uppercase; }
 .sign-label { font-size:7px; color:#9ca3af; }
 </style>
 </head>
@@ -235,7 +235,7 @@ body { font-family:"DejaVu Sans",Arial,sans-serif; font-size:10px; color:#1a202c
         @endforeach
     </div>
 
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:4px;padding:8px 12px;text-align:right;font-size:11px;font-weight:bold;color:#0d1117;margin-bottom:14px">
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:4px;padding:8px 12px;text-align:right;font-size:11px;font-weight:bold;color:#1a2e3b;margin-bottom:14px">
         TOTAL TVA COLLECTÉE : {{ number_format($declaration->total_tva_collectee, 0, ',', ' ') }} FCFA
     </div>
 
