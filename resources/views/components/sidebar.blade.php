@@ -51,6 +51,13 @@
         ['section' => null,           'route' => 'admin.impayes.index',       'label' => 'Impayés'],
 
         ['section' => 'ANALYTIQUE',   'route' => 'admin.rapports.financier',       'label' => 'Rapports',               'feature' => 'rapports_pdf'],
+
+        ['section' => 'COMPTABILITÉ', 'route' => 'admin.comptabilite.dashboard',   'label' => 'Vue d\'ensemble',         'feature' => 'comptabilite'],
+        ['section' => null,           'route' => 'admin.charges-agence.index',     'label' => 'Charges agence',          'feature' => 'comptabilite'],
+        ['section' => null,           'route' => 'admin.reversements.index',       'label' => 'Reversements',            'feature' => 'comptabilite'],
+        ['section' => null,           'route' => 'admin.comptabilite.compte-resultat', 'label' => 'Compte de résultat',  'feature' => 'comptabilite'],
+        ['section' => null,           'route' => 'admin.tresorerie.index',         'label' => 'Trésorerie',              'feature' => 'tresorerie'],
+
         ...config('features.fiscalite') ? [
             ['section' => null,       'route' => 'admin.bilans-fiscaux.index',     'label' => 'Bilans Fiscaux',         'feature' => 'bilans_fiscaux'],
             ['section' => 'FISCAL',   'route' => 'admin.tva-agence.index',         'label' => 'TVA mensuelle',          'feature' => 'fiscalite'],
@@ -93,6 +100,11 @@
         'admin.bailleurs.index'     => '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/><line x1="19" y1="11" x2="19" y2="17"/><line x1="22" y1="14" x2="16" y2="14"/>',
         'admin.users.locataires'    => '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>',
         'admin.rapports.financier'  => '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+        'admin.comptabilite.dashboard'     => '<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+        'admin.charges-agence.index'       => '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>',
+        'admin.reversements.index'         => '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+        'admin.comptabilite.compte-resultat' => '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+        'admin.tresorerie.index'           => '<path d="M3 3h18v18H3z M3 9h18 M9 21V9"/>',
         'admin.bilans-fiscaux.index'=> '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/><line x1="12" y1="12" x2="12" y2="18"/>',
         'admin.tva-agence.index'          => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/><line x1="5" y1="18" x2="11" y2="18"/>',
         'admin.etats-trimestriels.index'  => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',

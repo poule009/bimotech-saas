@@ -22,6 +22,8 @@ return [
         'recherche_globale'   => 'pro',
         'import_excel'        => 'pro',
         'contrat_formel_pdf'  => 'pro',
+        'comptabilite'        => 'pro',
+        'tresorerie'          => 'agence',
         'fiscalite'           => 'agence',
         'bilans_fiscaux'      => 'agence',
         'logs_activite'       => 'agence',

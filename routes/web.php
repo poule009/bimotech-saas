@@ -3,8 +3,11 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AgencySettingsController;
 use App\Http\Controllers\Admin\BilanFiscalController;
+use App\Http\Controllers\Admin\ChargeAgenceController;
+use App\Http\Controllers\Admin\ComptabiliteController;
 use App\Http\Controllers\Admin\EcheancesFiscalesController;
 use App\Http\Controllers\Admin\EtatTrimestrielController;
+use App\Http\Controllers\Admin\ReversementController;
 use App\Http\Controllers\Admin\TvaAgenceController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\Auth\GoogleAuthController;
@@ -238,6 +241,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('template/locataires',       [ImportController::class, 'templateLocataires'])->name('template.locataires');
             Route::get('template/biens',            [ImportController::class, 'templateBiens'])->name('template.biens');
         });
+
+        // ── Module Comptabilité ────────────────────────────────────────────────
+        Route::prefix('comptabilite')->name('comptabilite.')->middleware('check.feature:comptabilite')->group(function () {
+            Route::get('/',               [ComptabiliteController::class, 'dashboard'])->name('dashboard');
+            Route::get('compte-resultat', [ComptabiliteController::class, 'compteResultat'])->name('compte-resultat');
+        });
+
+        Route::resource('charges-agence', ChargeAgenceController::class)
+            ->middleware('check.feature:comptabilite')
+            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+        Route::prefix('reversements')->name('reversements.')->middleware('check.feature:comptabilite')->group(function () {
+            Route::get('/',                                       [ReversementController::class, 'index'])->name('index');
+            Route::get('create',                                  [ReversementController::class, 'create'])->name('create');
+            Route::post('/',                                      [ReversementController::class, 'store'])->name('store');
+            Route::get('proprietaire/{proprietaire}',             [ReversementController::class, 'compteMandant'])->name('compte-mandant');
+        });
+
+        Route::get('tresorerie', [ComptabiliteController::class, 'tresorerie'])
+            ->name('tresorerie.index')
+            ->middleware('check.feature:tresorerie');
 
         // Module fiscal (désactivé via FEATURE_FISCALITE=false dans .env)
         if (config('features.fiscalite')) {
