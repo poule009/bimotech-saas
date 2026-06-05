@@ -134,7 +134,7 @@ bg-bimo-gold/7       ❌  →  invalide sans []
 ### Chargement polices (dans layouts/app.blade.php)
 
 ```html
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 ```
 
 ### Classes Tailwind
@@ -148,9 +148,12 @@ bg-bimo-gold/7       ❌  →  invalide sans []
 | Texte secondaire | `font-body font-light` |
 | Label, badge, cap | `font-body font-medium` |
 
+> `font-display` et `font-body` pointent toutes les deux vers **Poppins** — seul le grammage les différencie.
+
 ### Règles
 
-- Jamais Inter, Roboto, Arial ou autre police
+- Police unique : **Poppins** (grammages 300 à 800)
+- Jamais Inter, Roboto, Arial, Syne, DM Sans ou autre police
 - Taille minimum : `text-[10px]`
 - Caps : `uppercase tracking-widest`
 - Titres : `tracking-tight leading-tight`

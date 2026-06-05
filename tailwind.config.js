@@ -22,8 +22,8 @@ export default {
                 'bimo-red':       '#EF4444',
             },
             fontFamily: {
-                'display': ['Syne', ...defaultTheme.fontFamily.sans],
-                'body':    ['DM Sans', ...defaultTheme.fontFamily.sans],
+                'display': ['Poppins', ...defaultTheme.fontFamily.sans],
+                'body':    ['Poppins', ...defaultTheme.fontFamily.sans],
             },
             borderRadius: {
                 'card':  '14px',
