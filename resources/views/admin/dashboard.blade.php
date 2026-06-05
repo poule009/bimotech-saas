@@ -3,12 +3,12 @@
 
 @section('content')
 
-<div class="space-y-4 md:space-y-5">
+<div class="space-y-5 md:space-y-7">
 
     {{-- ═══ EN-TÊTE ═══ --}}
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight leading-tight">
+            <h1 class="font-display font-extrabold text-2xl md:text-3xl text-bimo-text tracking-tight leading-tight">
                 Bonjour, {{ Str::before(auth()->user()->name, ' ') ?: auth()->user()->name }} 👋
             </h1>
             <p class="font-body text-sm text-bimo-text/50 mt-1">
@@ -165,12 +165,12 @@
     @endif
 
     {{-- ═══ 5 KPIs ═══ --}}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
 
         {{-- 1. Loyers encaissés — highlighted --}}
-        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-9 h-9 rounded-[9px] bg-bimo-gold/20 flex items-center justify-center">
+        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-5 lg:p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-10 h-10 rounded-[10px] bg-bimo-gold/20 flex items-center justify-center">
                     <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
                     </svg>
@@ -187,11 +187,11 @@
                 </span>
                 @endif
             </div>
-            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
+            <div class="font-display font-extrabold text-2xl lg:text-3xl text-bimo-gold leading-none">
                 {{ number_format($statsMois['loyers'], 0, ',', ' ') }}
                 <span class="font-body font-normal text-sm text-bimo-gold/60">F</span>
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mt-1.5">Loyers encaissés</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mt-2">Loyers encaissés</div>
             <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">
                 @if($delta['loyers'] !== null) vs mois dernier
                 @else {{ $statsMois['nb_payes'] }} paiements
@@ -201,12 +201,12 @@
 
         {{-- 2. Impayés ce mois --}}
         <a href="{{ route('admin.impayes.index') }}"
-           class="block rounded-[14px] border p-4 transition-all duration-150
+           class="block rounded-[14px] border p-5 lg:p-6 transition-all duration-150
                   {{ $nb_impayes_mois > 0
                      ? 'bg-bimo-red/[5%] border-bimo-red/25 hover:border-bimo-red/40'
                      : 'bg-white border-bimo-navy/10 hover:border-bimo-navy/25' }}">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-9 h-9 rounded-[9px] flex items-center justify-center
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-10 h-10 rounded-[10px] flex items-center justify-center
                             {{ $nb_impayes_mois > 0 ? 'bg-bimo-red/10' : 'bg-bimo-navy/5' }}">
                     <svg class="w-4 h-4 {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text/30' }}"
                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -228,12 +228,12 @@
                 </span>
                 @endif
             </div>
-            <div class="font-display font-extrabold text-xl leading-none
+            <div class="font-display font-extrabold text-2xl lg:text-3xl leading-none
                         {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text' }}">
                 {{ $nb_impayes_mois }}
                 <span class="font-body font-normal text-sm text-bimo-text/40">contrats</span>
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Impayés ce mois</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-2">Impayés ce mois</div>
             <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">
                 @if($delta['impayes'] !== null) vs mois dernier
                 @else Cliquer pour relancer
@@ -242,44 +242,44 @@
         </a>
 
         {{-- 3. Taux d'occupation --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5 lg:p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/5 flex items-center justify-center">
                     <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
                         <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
                     </svg>
                 </div>
             </div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
+            <div class="font-display font-extrabold text-2xl lg:text-3xl text-bimo-text leading-none">
                 {{ $stats['taux_occupation'] }}<span class="font-body font-normal text-sm text-bimo-text/40">%</span>
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Occupation</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-2">Occupation</div>
             <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">{{ $stats['nb_biens_loues'] }} / {{ $stats['nb_biens'] }} biens loués</div>
         </div>
 
         {{-- 4. Contrats actifs --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5 lg:p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/5 flex items-center justify-center">
                     <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
                         <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
                     </svg>
                 </div>
             </div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
+            <div class="font-display font-extrabold text-2xl lg:text-3xl text-bimo-text leading-none">
                 {{ $stats['nb_contrats'] }}
                 <span class="font-body font-normal text-sm text-bimo-text/40">baux</span>
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Contrats actifs</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-2">Contrats actifs</div>
             <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">{{ $stats['nb_locataires'] }} locataires · {{ $stats['nb_proprietaires'] }} propriétaires</div>
         </div>
 
         {{-- 5. Commission agence --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 col-span-2 sm:col-span-1">
-            <div class="flex items-start justify-between mb-3">
-                <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5 lg:p-6 col-span-2 sm:col-span-1">
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/5 flex items-center justify-center">
                     <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
                     </svg>
@@ -296,11 +296,11 @@
                 </span>
                 @endif
             </div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
+            <div class="font-display font-extrabold text-2xl lg:text-3xl text-bimo-text leading-none">
                 {{ number_format($statsMois['commissions'], 0, ',', ' ') }}
                 <span class="font-body font-normal text-sm text-bimo-text/40">F</span>
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Commission TTC</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-2">Commission TTC</div>
             <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">
                 @if($delta['commissions'] !== null) vs mois dernier
                 @else {{ $periodeLabel }}
@@ -311,12 +311,12 @@
     </div>
 
     {{-- ═══ BOUTONS D'ACTION ═══ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
 
         {{-- Enregistrer un paiement — action principale --}}
         <a href="{{ route('admin.paiements.create') }}"
-           class="flex items-center gap-3 p-4 bg-[var(--ac)] text-white rounded-[12px]
-                  hover:opacity-90 active:opacity-95 transition-all duration-150 group min-h-[64px]">
+           class="flex items-center gap-4 p-5 bg-[var(--ac)] text-white rounded-[14px]
+                  hover:opacity-90 active:opacity-95 transition-all duration-150 group min-h-[72px]">
             <div class="w-10 h-10 rounded-[10px] bg-white/15 flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
@@ -335,8 +335,8 @@
 
         {{-- Nouveau contrat --}}
         <a href="{{ route('admin.contrats.create') }}"
-           class="flex items-center gap-3 p-4 bg-white rounded-[12px] border border-bimo-navy/10
-                  hover:border-bimo-navy/25 hover:shadow-sm transition-all duration-150 group min-h-[64px]">
+           class="flex items-center gap-4 p-5 bg-white rounded-[14px] border border-bimo-navy/10
+                  hover:border-bimo-navy/25 hover:shadow-sm transition-all duration-150 group min-h-[72px]">
             <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/[6%] flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
@@ -356,8 +356,8 @@
 
         {{-- Ajouter un bien --}}
         <a href="{{ route('admin.biens.create') }}"
-           class="flex items-center gap-3 p-4 bg-white rounded-[12px] border border-bimo-navy/10
-                  hover:border-bimo-navy/25 hover:shadow-sm transition-all duration-150 group min-h-[64px]">
+           class="flex items-center gap-4 p-5 bg-white rounded-[14px] border border-bimo-navy/10
+                  hover:border-bimo-navy/25 hover:shadow-sm transition-all duration-150 group min-h-[72px]">
             <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/[6%] flex items-center justify-center flex-shrink-0">
                 <svg class="w-5 h-5 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
@@ -431,7 +431,7 @@
 
         {{-- Graphique évolution loyers --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
+            <div class="flex items-center justify-between px-6 py-5 border-b border-bimo-navy/[5%]">
                 <div>
                     <div class="font-display font-bold text-sm text-bimo-text">Encaissements</div>
                     <div class="font-body text-[11px] text-bimo-text/40 mt-0.5">12 derniers mois</div>
@@ -441,7 +441,7 @@
                     <span class="font-body font-normal text-xs text-bimo-text/40">ce mois</span>
                 </div>
             </div>
-            <div class="relative h-52 px-5 py-4">
+            <div class="relative h-64 px-6 py-5">
                 @if($loyersParMois->isEmpty())
                 <div class="flex flex-col items-center justify-center h-full text-bimo-text/30 gap-2">
                     <svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -461,7 +461,7 @@
             {{-- Impayés urgents --}}
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
-                    <div class="font-display font-bold text-sm text-bimo-text">Impayés urgents</div>
+                    <div class="font-display font-bold text-base text-bimo-text">Impayés urgents</div>
                     <a href="{{ route('admin.impayes.index') }}"
                        class="font-body text-xs text-bimo-red/70 hover:text-bimo-red transition-colors duration-150">
                         Relancer →
@@ -534,8 +534,8 @@
 
     {{-- ═══ DERNIERS PAIEMENTS ═══ --}}
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
-            <div class="font-display font-bold text-sm text-bimo-text">Derniers paiements</div>
+        <div class="flex items-center justify-between px-6 py-5 border-b border-bimo-navy/[5%]">
+            <div class="font-display font-bold text-base text-bimo-text">Derniers paiements</div>
             <a href="{{ route('admin.paiements.index') }}"
                class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
                 Voir tout →
