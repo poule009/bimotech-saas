@@ -95,61 +95,6 @@
     </div>
     @endif
 
-    {{-- ═══ ACTIONS RAPIDES ═══ --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
-        {{-- Impayés --}}
-        <a href="{{ route('admin.impayes.index') }}"
-           class="flex items-center gap-4 p-4 bg-white rounded-[14px] border transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md
-                  {{ $nb_impayes_mois > 0 ? 'border-bimo-red/30 bg-bimo-red/[3%]' : 'border-bimo-navy/10' }}">
-            <div class="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0
-                        {{ $nb_impayes_mois > 0 ? 'bg-bimo-red/10' : 'bg-bimo-navy/5' }}">
-                <svg class="w-5 h-5 {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text/30' }}"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-            </div>
-            <div>
-                <div class="font-display font-extrabold text-2xl {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text' }} leading-none">
-                    {{ $nb_impayes_mois }}
-                </div>
-                <div class="font-body text-xs text-bimo-text/50 mt-1">Impayé{{ $nb_impayes_mois > 1 ? 's' : '' }} ce mois</div>
-            </div>
-        </a>
-
-        {{-- Enregistrer paiement --}}
-        <a href="{{ route('admin.paiements.create') }}"
-           class="flex items-center gap-4 p-4 bg-white rounded-[14px] border border-bimo-navy/10
-                  transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
-            <div class="w-10 h-10 rounded-[10px] bg-bimo-gold/10 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-            </div>
-            <div>
-                <div class="font-body font-semibold text-sm text-bimo-text">Enregistrer un paiement</div>
-                <div class="font-body text-xs text-bimo-text/40 mt-0.5">Saisir le loyer d'un locataire</div>
-            </div>
-        </a>
-
-        {{-- Nouveau contrat --}}
-        <a href="{{ route('admin.contrats.create') }}"
-           class="flex items-center gap-4 p-4 bg-white rounded-[14px] border border-bimo-navy/10
-                  transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md">
-            <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
-                </svg>
-            </div>
-            <div>
-                <div class="font-body font-semibold text-sm text-bimo-text">Nouveau contrat</div>
-                <div class="font-body text-xs text-bimo-text/40 mt-0.5">Créer un bail locatif</div>
-            </div>
-        </a>
-    </div>
-
     {{-- ═══ ONBOARDING ═══ --}}
     @if($onboarding !== null)
     @php
@@ -265,7 +210,7 @@
         </div>
 
         {{-- Impayés ce mois --}}
-        <div class="bg-white rounded-[14px] border {{ $nb_impayes_mois > 0 ? 'border-bimo-red/30' : 'border-bimo-navy/10' }} p-4">
+        <a href="{{ route('admin.impayes.index') }}" class="block bg-white rounded-[14px] border {{ $nb_impayes_mois > 0 ? 'border-bimo-red/30 hover:border-bimo-red/50' : 'border-bimo-navy/10 hover:border-bimo-navy/25' }} p-4 transition-all duration-150">
             <div class="w-9 h-9 rounded-[9px] {{ $nb_impayes_mois > 0 ? 'bg-bimo-red/10' : 'bg-bimo-navy/5' }} flex items-center justify-center mb-3">
                 <svg class="w-4 h-4 {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text/30' }}"
                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -280,7 +225,7 @@
             <div class="font-body text-[10.5px] mt-1.5 {{ $nb_impayes_mois > 0 ? 'text-bimo-red/70' : 'text-bimo-text/40' }}">
                 {{ number_format($montant_du_mois, 0, ',', ' ') }} F à recouvrer
             </div>
-        </div>
+        </a>
 
         {{-- Commission agence --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
@@ -428,64 +373,27 @@
         </div>
     </div>
 
-    {{-- ═══ GRAPHIQUES LIGNE 2 ═══ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        {{-- Net propriétaires --}}
-        <div class="lg:col-span-2 bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
-                <div class="font-display font-bold text-sm text-bimo-text">Loyers reversés par propriétaire</div>
-                <a href="{{ route('admin.rapports.financier') }}"
-                   class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
-                    Rapport détaillé →
-                </a>
-            </div>
-            <div class="font-body text-[11px] text-bimo-text/40 px-5 pt-3">Net après commission · 12 derniers mois</div>
-            <div class="relative h-52 px-5 pb-5 pt-2">
-                @if(count($netParProprietaire) === 0)
-                <div class="flex flex-col items-center justify-center h-full text-bimo-text/30 gap-2">
-                    <svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-                    </svg>
-                    <span class="font-body text-sm">Aucun paiement enregistré</span>
-                </div>
-                @else
-                <canvas id="chartProprio"></canvas>
-                @endif
-            </div>
+    {{-- ═══ NET PROPRIÉTAIRES ═══ --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
+            <div class="font-display font-bold text-sm text-bimo-text">Loyers reversés par propriétaire</div>
+            <a href="{{ route('admin.rapports.financier') }}"
+               class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
+                Rapport détaillé →
+            </a>
         </div>
-
-        {{-- Statut paiements --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="px-5 py-4 border-b border-bimo-navy/[5%]">
-                <div class="font-display font-bold text-sm text-bimo-text">Statut paiements</div>
+        <div class="font-body text-[11px] text-bimo-text/40 px-5 pt-3">Net après commission · 12 derniers mois</div>
+        <div class="relative h-52 px-5 pb-5 pt-2">
+            @if(count($netParProprietaire) === 0)
+            <div class="flex flex-col items-center justify-center h-full text-bimo-text/30 gap-2">
+                <svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span class="font-body text-sm">Aucun paiement enregistré</span>
             </div>
-            <div class="relative h-36 flex items-center justify-center px-5 pt-4">
-                @if($statsMois['nb_payes'] === 0 && $nb_impayes_mois === 0)
-                <div class="flex flex-col items-center justify-center h-full text-bimo-text/30 gap-2 text-center">
-                    <svg class="w-7 h-7 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-                    </svg>
-                    <span class="font-body text-xs">Aucun contrat actif</span>
-                </div>
-                @else
-                <canvas id="chartStatuts"></canvas>
-                @endif
-            </div>
-            <div class="px-5 pb-5 pt-2 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 font-body text-xs text-bimo-text/50">
-                        <div class="w-2 h-2 rounded-sm bg-bimo-gold"></div>Validés
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">{{ $statsMois['nb_payes'] }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 font-body text-xs text-bimo-text/50">
-                        <div class="w-2 h-2 rounded-sm bg-bimo-red"></div>Impayés
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-red">{{ $nb_impayes_mois }}</span>
-                </div>
-            </div>
+            @else
+            <canvas id="chartProprio"></canvas>
+            @endif
         </div>
     </div>
 
@@ -792,16 +700,6 @@ if (elProprio) {
                 y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: NAVY, callback: (_, i) => npl[i]?.split(' ')[0] ?? '' } }
             }
         }
-    });
-}
-
-// ── 4. Statuts paiements ───────────────────────────────────────────
-const elStatuts = document.getElementById('chartStatuts');
-if (elStatuts) {
-    new Chart(elStatuts, {
-        type: 'doughnut',
-        data: { labels: ['Validés', 'Impayés'], datasets: [{ data: [{{ $statsMois['nb_payes'] }}, {{ max(0, $nb_impayes_mois) }}], backgroundColor: [GOLD, RED], borderColor: '#fff', borderWidth: 3, hoverOffset: 4 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false }, tooltip: { ...tip } } }
     });
 }
 
