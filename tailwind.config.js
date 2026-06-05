@@ -19,7 +19,7 @@ export default {
                 'bimo-navy':      '#7B1E3A',
                 'bimo-navy-dk':   '#641630',
                 'bimo-text':      '#111111',
-                'bimo-gold':      '#C9A84C',
+                'bimo-gold':      '#6B7280',
                 'bimo-red':       '#EF4444',
             },
             fontFamily: {
