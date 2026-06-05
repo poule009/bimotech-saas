@@ -13,8 +13,8 @@ export default {
     theme: {
         extend: {
             colors: {
-                'bimo-bg':        '#F7F5F0',
-                'bimo-bg2':       '#F0EDE6',
+                'bimo-bg':        '#F4F4F5',
+                'bimo-bg2':       '#E9E9EA',
                 'bimo-surface':   '#FFFFFF',
                 'bimo-navy':      '#1B4F6B',
                 'bimo-navy-dk':   '#163F56',
