@@ -20,6 +20,23 @@ class Bien extends Model
         return 'Bien ' . ($this->reference ?? '#' . $this->id);
     }
 
+    protected static array $activityFieldLabels = [
+        'reference'       => 'Référence',
+        'titre'           => 'Titre',
+        'statut'          => 'Statut',
+        'type'            => 'Type',
+        'loyer_mensuel'   => 'Loyer mensuel',
+        'charges'         => 'Charges',
+        'surface'         => 'Surface',
+        'adresse'         => 'Adresse',
+        'quartier'        => 'Quartier',
+        'ville'           => 'Ville',
+        'visible_portail' => 'Visible sur portail',
+        'proprietaire_id' => 'Propriétaire',
+        'taux_commission' => 'Commission',
+        'caution'         => 'Caution',
+    ];
+
     public const TYPES = [
         'appartement' => 'Appartement',
         'villa'       => 'Villa',

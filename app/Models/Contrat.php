@@ -18,8 +18,25 @@ class Contrat extends Model
 
     public function getActivityLogTitle(): string
     {
-        return 'Contrat #' . $this->id;
+        $this->loadMissing(['bien:id,reference', 'locataire:id,name']);
+        $bien      = $this->bien?->reference      ?? 'Bien #' . $this->bien_id;
+        $locataire = $this->locataire?->name       ?? 'Locataire #' . $this->locataire_id;
+        return "Contrat {$bien} / {$locataire}";
     }
+
+    protected static array $activityFieldLabels = [
+        'statut'                  => 'Statut',
+        'loyer_contractuel'       => 'Loyer contractuel',
+        'charges_contractuelles'  => 'Charges',
+        'caution'                 => 'Caution',
+        'date_debut'              => 'Date début',
+        'date_fin'                => 'Date fin',
+        'type_bail'               => 'Type de bail',
+        'bien_id'                 => 'Bien',
+        'locataire_id'            => 'Locataire',
+        'index_annuel'            => 'Indexation annuelle',
+        'taux_commission'         => 'Commission',
+    ];
 
     public const TYPES_BAIL = [
         'habitation'  => "Bail d'habitation",

@@ -36,6 +36,15 @@ class User extends Authenticatable
         return ($this->name ?? 'Utilisateur #' . $this->id) . $role;
     }
 
+    protected static array $activityFieldLabels = [
+        'name'      => 'Nom',
+        'email'     => 'Email',
+        'telephone' => 'Téléphone',
+        'role'      => 'Rôle',
+        'agency_id' => 'Agence',
+        'actif'     => 'Actif',
+    ];
+
     protected $fillable = [
         'name',
         'email',

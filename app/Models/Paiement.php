@@ -16,9 +16,27 @@ class Paiement extends Model
 
     public function getActivityLogTitle(): string
     {
-        $montant = $this->montant_encaisse ? number_format((float) $this->montant_encaisse, 0, ',', ' ') . ' F' : '#' . $this->id;
-        return 'Paiement ' . $montant;
+        $montant = $this->montant_encaisse
+            ? number_format((float) $this->montant_encaisse, 0, ',', ' ') . ' F'
+            : '#' . $this->id;
+        $periode = $this->periode
+            ? ' · ' . \Carbon\Carbon::parse($this->periode)->translatedFormat('M Y')
+            : '';
+        $this->loadMissing('contrat.bien');
+        $bien = $this->contrat?->bien?->reference ? ' — ' . $this->contrat->bien->reference : '';
+        return 'Paiement ' . $montant . $periode . $bien;
     }
+
+    protected static array $activityFieldLabels = [
+        'statut'             => 'Statut',
+        'montant_encaisse'   => 'Montant encaissé',
+        'mode_paiement'      => 'Mode de paiement',
+        'periode'            => 'Période',
+        'date_paiement'      => 'Date de paiement',
+        'reference_paiement' => 'Référence',
+        'net_proprietaire'   => 'Net propriétaire',
+        'commission_ttc'     => 'Commission TTC',
+    ];
 
     protected $fillable = [
         'agency_id',

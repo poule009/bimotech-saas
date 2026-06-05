@@ -74,7 +74,6 @@ trait LogsActivity
     {
         $changes = array_keys($model->getChanges());
 
-        // On retire updated_at ET les champs sensibles définis dans $hiddenFields
         $changes = array_values(
             array_diff($changes, array_merge(['updated_at'], static::$hiddenFields))
         );
@@ -83,6 +82,12 @@ trait LogsActivity
             return $title . ' modifié';
         }
 
-        return $title . ' modifié (champs: ' . implode(', ', $changes) . ')';
+        $labels = property_exists(static::class, 'activityFieldLabels')
+            ? static::$activityFieldLabels
+            : [];
+
+        $readable = array_map(fn($f) => $labels[$f] ?? $f, $changes);
+
+        return $title . ' modifié (' . implode(', ', $readable) . ')';
     }
 }

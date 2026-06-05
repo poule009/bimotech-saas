@@ -15,6 +15,18 @@ class Agency extends Model
         return 'Agence ' . ($this->name ?? '#' . $this->id);
     }
 
+    protected static array $activityFieldLabels = [
+        'name'                 => 'Nom',
+        'email'                => 'Email',
+        'telephone'            => 'Téléphone',
+        'adresse'              => 'Adresse',
+        'couleur_primaire'     => 'Couleur principale',
+        'logo_path'            => 'Logo',
+        'ninea'                => 'NINEA',
+        'actif'                => 'Actif',
+        'onboarding_completed' => 'Onboarding terminé',
+    ];
+
     /**
      * SÉCURITÉ — Mass Assignment :
      *
