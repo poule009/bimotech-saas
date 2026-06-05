@@ -165,13 +165,6 @@
                        title="Modifier">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
-                    @if(config('features.fiscalite'))
-                    <a href="{{ route('admin.bilans-fiscaux.show', [$u, 'annee' => now()->year]) }}"
-                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white/10 hover:bg-white/20 text-white transition-all duration-150"
-                       title="Bilan fiscal">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                    </a>
-                    @endif
                 </div>
             </div>
 
