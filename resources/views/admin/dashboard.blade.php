@@ -393,6 +393,12 @@
                 </div>
             </div>
 
+            @php
+                $tauxRecouvrement = $bilanMois['attendu'] > 0
+                    ? min(100, round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100))
+                    : 0;
+            @endphp
+
             <div class="md:px-7 md:border-r md:border-white/10">
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/40 mb-2">Encaissé</div>
                 <div class="font-display font-extrabold text-2xl md:text-3xl text-bimo-gold leading-none">
@@ -401,25 +407,26 @@
                 </div>
                 <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-bimo-gold/10 border border-bimo-gold/20">
                     <span class="font-body text-[11px] text-bimo-gold">
-                        ✓ {{ $bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0 }}% de recouvrement
+                        ✓ {{ $tauxRecouvrement }}% de recouvrement
                     </span>
                 </div>
             </div>
 
             <div class="md:pl-7">
+                @php $reliquat = max(0, $bilanMois['attendu'] - $bilanMois['encaisse']); @endphp
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/40 mb-2">Reliquat</div>
                 <div class="font-display font-extrabold text-2xl md:text-3xl leading-none
-                            {{ $bilanMois['a_recouvrer'] > 0 ? 'text-bimo-red' : 'text-white' }}">
-                    {{ number_format($bilanMois['a_recouvrer'], 0, ',', ' ') }}
+                            {{ $reliquat > 0 ? 'text-bimo-red' : 'text-white' }}">
+                    {{ number_format($reliquat, 0, ',', ' ') }}
                     <span class="font-body font-light text-sm opacity-50">F</span>
                 </div>
-                @if($bilanMois['a_recouvrer'] > 0)
+                @if($reliquat > 0)
                 <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-bimo-red/10 border border-bimo-red/20">
                     <span class="font-body text-[11px] text-bimo-red">⚠ {{ $nb_impayes_mois }} contrats en défaut</span>
                 </div>
                 @else
                 <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-bimo-gold/10 border border-bimo-gold/20">
-                    <span class="font-body text-[11px] text-bimo-gold">✓ Recouvrement complet</span>
+                    <span class="font-body text-[11px] text-bimo-gold">✓ Tout encaissé</span>
                 </div>
                 @endif
             </div>
@@ -491,7 +498,7 @@
                 @endforelse
 
                 {{-- Taux de recouvrement --}}
-                @php $taux = $bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0; @endphp
+                @php $taux = $bilanMois['attendu'] > 0 ? min(100, round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100)) : 0; @endphp
                 <div class="px-5 py-4 border-t border-bimo-navy/[5%] bg-bimo-bg">
                     <div class="flex items-center justify-between mb-2">
                         <span class="font-body font-medium text-xs text-bimo-text/50">Taux de recouvrement</span>
