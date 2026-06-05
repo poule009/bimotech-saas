@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class BailleurController extends Controller
@@ -21,17 +22,10 @@ class BailleurController extends Controller
     {
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // INDEX — Liste de tous les bailleurs du portefeuille de l'agence
-    // ─────────────────────────────────────────────────────────────────────
-
-    public function index(): View
+    // INDEX — redirige vers la page fusionnée Propriétaires
+    public function index(): RedirectResponse
     {
-        $this->authorize('isStaff');
-
-        $bailleurs = $this->portfolioService->getPortfolioIndex(Auth::user()->agency_id);
-
-        return view('bailleurs.index', compact('bailleurs'));
+        return redirect()->route('admin.users.proprietaires');
     }
 
     // ─────────────────────────────────────────────────────────────────────

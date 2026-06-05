@@ -8,6 +8,7 @@ use App\Models\Locataire;
 use App\Models\Paiement;
 use App\Models\Proprietaire;
 use App\Models\User;
+use App\Services\BailleurPortfolioService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,10 @@ use App\Support\PasswordPolicy;
 class UserController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(private readonly BailleurPortfolioService $portfolioService)
+    {
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // HELPER PRIVÉ — Vérification appartenance cross-agence
@@ -52,35 +57,39 @@ class UserController extends Controller
 
         $agencyId = Auth::user()->agency_id;
 
-        /**
-         * PERFORMANCE — select() + withCount :
-         *
-         * Avant : ->with('biens') chargeait TOUS les biens (toutes leurs colonnes)
-         * juste pour afficher le nombre dans la liste.
-         *
-         * Après : withCount('biens') fait un COUNT(*) SQL en sous-requête.
-         * Plus besoin de charger les objets Bien en mémoire.
-         *
-         * select() : on ne charge que les colonnes affichées dans la liste.
-         */
-        $proprietaires = User::where('role', 'proprietaire')
+        // Données financières via service (indexées par user_id)
+        $portfolios = $this->portfolioService->getPortfolioIndex($agencyId)
+            ->keyBy(fn($p) => $p['user']->id);
+
+        // Tous les propriétaires de l'agence (y compris ceux sans biens)
+        $users = User::where('role', 'proprietaire')
             ->where('agency_id', $agencyId)
             ->select(['id', 'agency_id', 'name', 'email', 'telephone', 'created_at'])
             ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere'])
-            ->withCount('biens')
             ->orderBy('name')
-            ->paginate(15);
+            ->get();
 
-        // Agrégats SQL — 1 requête groupée au lieu de 2 COUNT séparés
-        $bienStats = Bien::selectRaw("
-            COUNT(*) AS total_biens,
-            SUM(CASE WHEN statut = 'loue' THEN 1 ELSE 0 END) AS biens_loues
-        ")->first();
+        // Fusion identité + financier
+        $proprietaires = $users->map(function (User $user) use ($portfolios) {
+            $p = $portfolios->get($user->id);
+            return [
+                'user'              => $user,
+                'nb_biens'          => $p['nb_biens'] ?? 0,
+                'nb_biens_loues'    => $p['nb_biens_loues'] ?? 0,
+                'total_loyers'      => $p['total_loyers'] ?? 0,
+                'total_commissions' => $p['total_commissions'] ?? 0,
+                'total_depenses'    => $p['total_depenses'] ?? 0,
+                'net_final'         => $p['net_final'] ?? 0,
+                'nb_paiements'      => $p['nb_paiements'] ?? 0,
+            ];
+        });
 
         $stats = [
-            'total'       => User::where('role', 'proprietaire')->where('agency_id', $agencyId)->count(),
-            'total_biens' => (int) ($bienStats->total_biens ?? 0),
-            'biens_loues' => (int) ($bienStats->biens_loues ?? 0),
+            'total'            => $users->count(),
+            'total_biens'      => $portfolios->sum('nb_biens'),
+            'biens_loues'      => $portfolios->sum('nb_biens_loues'),
+            'total_loyers'     => $portfolios->sum('total_loyers'),
+            'total_net'        => $portfolios->sum('net_final'),
         ];
 
         return view('users.proprietaires', compact('proprietaires', 'stats'));

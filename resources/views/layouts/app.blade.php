@@ -205,12 +205,6 @@
             <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
             <span class="font-display font-semibold text-sm">Locataires</span>
         </a>
-        <a href="{{ route('admin.bailleurs.index') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
-                  {{ str_starts_with($route, 'admin.bailleurs') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
-            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span class="font-display font-semibold text-sm">Bailleurs</span>
-        </a>
         <a href="{{ route('admin.contrats.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.contrats') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
