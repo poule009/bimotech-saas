@@ -226,7 +226,7 @@
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.impayes') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <span class="font-display font-semibold text-sm">Impayés</span>
+            <span class="font-display font-semibold text-sm">Relances</span>
         </a>
 
         {{-- ── ANALYTIQUE ── --}}
@@ -237,7 +237,7 @@
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.rapports') ? 'bg-white/10 text-bimo-gold' : 'text-white/60 hover:text-white hover:bg-white/5' }}">
             <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            <span class="font-display font-semibold text-sm">Rapports</span>
+            <span class="font-display font-semibold text-sm">Bilan mensuel</span>
         </a>
 
         {{-- ── COMPTABILITÉ ── --}}
@@ -761,7 +761,7 @@
                     <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
             </div>
-            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Impayés</span>
+            <span class="font-display font-semibold text-[9px] uppercase tracking-widest leading-none">Relances</span>
         </a>
 
         {{-- Menu — ouvre la sidebar --}}

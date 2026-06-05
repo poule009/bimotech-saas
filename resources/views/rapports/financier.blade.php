@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('header', 'Rapports › Financier')
+@section('header', 'Bilan mensuel')
 
 @section('content')
 
@@ -334,50 +334,24 @@
         @endif
     </div>
 
-    {{-- Impayés --}}
+    {{-- Impayés — bandeau résumé --}}
     @if(isset($biensImpayes) && $biensImpayes->count() > 0)
-    <div class="bg-white rounded-[14px] border border-bimo-red/20 overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-red/10 bg-bimo-red/[3%]">
-            <div class="flex items-center gap-2 font-display font-bold text-sm text-bimo-red">
-                <span class="w-2 h-2 rounded-full bg-bimo-red"></span>
-                Impayés — {{ $biensImpayes->count() }} contrat(s)
+    <a href="{{ route('admin.impayes.index', ['mois' => $mois, 'annee' => $annee]) }}"
+       class="flex items-center justify-between gap-4 bg-bimo-red/[5%] border border-bimo-red/20 rounded-[12px] px-5 py-4 hover:bg-bimo-red/[8%] transition-all duration-150">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-[10px] bg-bimo-red/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-bimo-red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </div>
-            <span class="font-body font-medium text-xs text-bimo-red">{{ number_format($biensImpayes->sum('loyer_contractuel'), 0, ',', ' ') }} F non encaissés</span>
+            <div>
+                <div class="font-display font-bold text-sm text-bimo-red">{{ $biensImpayes->count() }} impayé(s) ce mois</div>
+                <div class="font-body text-xs text-bimo-text/50 mt-0.5">{{ number_format($biensImpayes->sum('loyer_contractuel'), 0, ',', ' ') }} F non encaissés</div>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Bien</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Locataire</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Propriétaire</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Loyer dû</th>
-                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-bimo-navy/[5%]">
-                    @foreach($biensImpayes as $c)
-                    <tr class="hover:bg-bimo-red/[2%] transition-colors duration-100">
-                        <td class="px-5 py-3.5">
-                            <div class="font-body font-medium text-sm text-bimo-text">{{ $c->bien?->reference ?? '—' }}</div>
-                            <div class="font-body text-xs text-bimo-text/40">{{ $c->bien?->ville }}</div>
-                        </td>
-                        <td class="px-5 py-3.5 font-body text-sm text-bimo-text/70">{{ $c->locataire?->name ?? '—' }}</td>
-                        <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $c->bien?->proprietaire?->name ?? '—' }}</td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-red whitespace-nowrap">{{ number_format($c->loyer_contractuel, 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-center">
-                            <a href="{{ route('admin.paiements.create', ['contrat_id' => $c->id]) }}"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px] font-body font-semibold text-xs text-bimo-gold hover:bg-bimo-gold/20 transition-all duration-150">
-                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                Paiement
-                            </a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="flex items-center gap-1.5 font-body font-semibold text-sm text-bimo-red flex-shrink-0">
+            Gérer les relances
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </div>
-    </div>
+    </a>
     @else
     <div class="flex items-center gap-3 bg-bimo-gold/[5%] border border-bimo-gold/20 rounded-[12px] px-4 py-3.5">
         <svg class="w-5 h-5 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>

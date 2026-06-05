@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('header', 'Impayés')
+@section('header', 'Relances & impayés')
 
 @section('content')
 <div class="space-y-4 md:space-y-5">
@@ -8,12 +8,17 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
             <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight leading-tight">
-                Suivi des impayés
+                Relances & impayés
             </h1>
             <p class="font-body text-sm text-bimo-text/50 mt-1">
                 {{ $periode->translatedFormat('F Y') }}
                 · {{ $stats['nb_impayes'] }} impayé(s) sur {{ $stats['nb_impayes'] + $stats['nb_payes'] }} contrats actifs
             </p>
+            <a href="{{ route('admin.rapports.financier', ['mois' => $mois, 'annee' => $annee]) }}"
+               class="inline-flex items-center gap-1 font-body text-xs text-bimo-text/40 hover:text-bimo-text transition-colors duration-150 mt-1">
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                Voir le bilan mensuel
+            </a>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
