@@ -13,13 +13,13 @@ export default {
     theme: {
         extend: {
             colors: {
-                'bimo-bg':        '#F4F4F5',
-                'bimo-bg2':       '#E9E9EA',
+                'bimo-bg':        '#F7F5F0',
+                'bimo-bg2':       '#F0EDE6',
                 'bimo-surface':   '#FFFFFF',
-                'bimo-navy':      '#7B1E3A',
-                'bimo-navy-dk':   '#641630',
+                'bimo-navy':      '#1B4F6B',
+                'bimo-navy-dk':   '#163F56',
                 'bimo-text':      '#111111',
-                'bimo-gold':      '#6B7280',
+                'bimo-gold':      '#C9A84C',
                 'bimo-red':       '#EF4444',
             },
             fontFamily: {
