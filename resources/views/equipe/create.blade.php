@@ -105,13 +105,21 @@
                 </div>
             </div>
 
-            <div class="bg-bimo-bg2 rounded-[10px] px-4 py-3">
-                <p class="font-body text-xs text-bimo-text/60 leading-relaxed">
-                    <svg class="w-3.5 h-3.5 inline mr-1 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    Ce collaborateur aura accès à tous les biens, contrats et paiements de votre agence.
-                    Il ne pourra pas modifier les paramètres de l'agence ni gérer l'équipe.
+            {{-- Profil initial --}}
+            <div class="space-y-1.5">
+                <label class="block font-body font-medium text-sm text-bimo-text">
+                    Profil d'accès initial
+                    <span class="font-light text-bimo-text/40 ml-1">(modifiable après)</span>
+                </label>
+                <select name="preset_role"
+                        class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                               focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 appearance-none cursor-pointer">
+                    @foreach(\Database\Seeders\PermissionsSeeder::ROLE_LABELS as $val => $lbl)
+                    <option value="{{ $val }}" {{ old('preset_role', 'gestionnaire') === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                    @endforeach
+                </select>
+                <p class="font-body text-xs text-bimo-text/40">
+                    Vous pourrez affiner les permissions une par une depuis la fiche du collaborateur.
                 </p>
             </div>
         </div>

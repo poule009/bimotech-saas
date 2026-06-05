@@ -196,20 +196,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         if (config('features.fiscalite')) {
             Route::get('paiements/fiscal-preview/{contrat}', [PaiementController::class, 'fiscalPreview'])->name('paiements.fiscal-preview')->middleware('check.feature:fiscalite');
         }
-        Route::get('paiements/create',               [PaiementController::class, 'create'])->name('paiements.create');
-        Route::post('paiements',                     [PaiementController::class, 'store'])->name('paiements.store');
-        Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler');
+        Route::get('paiements/create',               [PaiementController::class, 'create'])->name('paiements.create')->middleware('agency.can:paiements.creer');
+        Route::post('paiements',                     [PaiementController::class, 'store'])->name('paiements.store')->middleware('agency.can:paiements.creer');
+        Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler')->middleware('agency.can:paiements.annuler');
 
         // Contrats — écriture
-        Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide')->middleware('throttle:20,1');
-        Route::get('contrats/create',            [ContratController::class, 'create'])->name('contrats.create');
-        Route::post('contrats',                  [ContratController::class, 'store'])->name('contrats.store');
-        Route::get('contrats/{contrat}/edit',    [ContratController::class, 'edit'])->name('contrats.edit');
-        Route::put('contrats/{contrat}',         [ContratController::class, 'update'])->name('contrats.update');
-        Route::delete('contrats/{contrat}',      [ContratController::class, 'destroy'])->name('contrats.destroy');
+        Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide')->middleware(['throttle:20,1', 'agency.can:locataires.creer']);
+        Route::get('contrats/create',            [ContratController::class, 'create'])->name('contrats.create')->middleware('agency.can:contrats.creer');
+        Route::post('contrats',                  [ContratController::class, 'store'])->name('contrats.store')->middleware('agency.can:contrats.creer');
+        Route::get('contrats/{contrat}/edit',    [ContratController::class, 'edit'])->name('contrats.edit')->middleware('agency.can:contrats.modifier');
+        Route::put('contrats/{contrat}',         [ContratController::class, 'update'])->name('contrats.update')->middleware('agency.can:contrats.modifier');
+        Route::delete('contrats/{contrat}',      [ContratController::class, 'destroy'])->name('contrats.destroy')->middleware('agency.can:contrats.supprimer');
 
         // Impayés — écriture (relance + export)
-        Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance');
+        Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance')->middleware('agency.can:impayes.relance');
         Route::get('impayes/export',             [ImpayeController::class, 'export'])->name('impayes.export');
 
         // Utilisateurs
@@ -226,10 +226,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Gestion équipe (collaborateurs) — directeur uniquement
         Route::middleware('can:isOwner')->prefix('equipe')->name('equipe.')->group(function () {
-            Route::get('/',              [\App\Http\Controllers\EquipeController::class, 'index'])->name('index');
-            Route::get('/invite',        [\App\Http\Controllers\EquipeController::class, 'create'])->name('create');
-            Route::post('/',             [\App\Http\Controllers\EquipeController::class, 'store'])->name('store');
-            Route::delete('/{user}',     [\App\Http\Controllers\EquipeController::class, 'destroy'])->name('destroy');
+            Route::get('/',                          [\App\Http\Controllers\EquipeController::class, 'index'])->name('index');
+            Route::get('/invite',                    [\App\Http\Controllers\EquipeController::class, 'create'])->name('create');
+            Route::post('/',                         [\App\Http\Controllers\EquipeController::class, 'store'])->name('store');
+            Route::get('/{user}/permissions',        [\App\Http\Controllers\EquipeController::class, 'editPermissions'])->name('permissions');
+            Route::post('/{user}/permissions',       [\App\Http\Controllers\EquipeController::class, 'updatePermissions'])->name('permissions.update');
+            Route::delete('/{user}',                 [\App\Http\Controllers\EquipeController::class, 'destroy'])->name('destroy');
         });
 
         // Import Excel
@@ -327,13 +329,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:isStaff')->prefix('admin')->name('admin.')->group(function () {
 
         // Biens
-        Route::resource('biens', BienController::class);
-        Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store');
-        Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy');
-        Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale');
+        Route::resource('biens', BienController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
+        Route::get('biens/create',        [BienController::class, 'create'])->name('biens.create')->middleware('agency.can:biens.creer');
+        Route::post('biens',              [BienController::class, 'store'])->name('biens.store')->middleware('agency.can:biens.creer');
+        Route::get('biens/{bien}/edit',   [BienController::class, 'edit'])->name('biens.edit')->middleware('agency.can:biens.modifier');
+        Route::put('biens/{bien}',        [BienController::class, 'update'])->name('biens.update')->middleware('agency.can:biens.modifier');
+        Route::patch('biens/{bien}',      [BienController::class, 'update'])->middleware('agency.can:biens.modifier');
+        Route::delete('biens/{bien}',     [BienController::class, 'destroy'])->name('biens.destroy')->middleware('agency.can:biens.supprimer');
+        Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store')->middleware('agency.can:biens.modifier');
+        Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy')->middleware('agency.can:biens.modifier');
+        Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale')->middleware('agency.can:biens.modifier');
 
         // Immeubles
-        Route::resource('immeubles', ImmeubleController::class)->middleware('check.feature:immeubles');
+        Route::resource('immeubles', ImmeubleController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])->middleware('check.feature:immeubles');
+        Route::get('immeubles/create',         [\App\Http\Controllers\ImmeubleController::class, 'create'])->name('immeubles.create')->middleware(['check.feature:immeubles', 'agency.can:immeubles.creer']);
+        Route::post('immeubles',               [\App\Http\Controllers\ImmeubleController::class, 'store'])->name('immeubles.store')->middleware(['check.feature:immeubles', 'agency.can:immeubles.creer']);
+        Route::get('immeubles/{immeuble}/edit',[\App\Http\Controllers\ImmeubleController::class, 'edit'])->name('immeubles.edit')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
+        Route::put('immeubles/{immeuble}',     [\App\Http\Controllers\ImmeubleController::class, 'update'])->name('immeubles.update')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
+        Route::patch('immeubles/{immeuble}',   [\App\Http\Controllers\ImmeubleController::class, 'update'])->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
+        Route::delete('immeubles/{immeuble}',  [\App\Http\Controllers\ImmeubleController::class, 'destroy'])->name('immeubles.destroy')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
 
         // Contrats — lecture
         Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index');

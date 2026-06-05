@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, LogsActivity;
+    use HasFactory, Notifiable, SoftDeletes, LogsActivity, HasRoles;
 
     /**
      * SÉCURITÉ — Mass Assignment :
@@ -116,6 +117,16 @@ class User extends Authenticatable
     public function contrats(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Contrat::class, 'locataire_id');
+    }
+
+    // ── Permissions granulaires (collaborateurs) ──────────────────────────
+    // Superadmin et directeur (is_owner) passent toujours.
+    // Collaborateurs (role=admin, is_owner=false) → vérifié via spatie.
+    public function hasAgencyPermission(string $permission): bool
+    {
+        if ($this->isSuperAdmin() || $this->isOwner()) return true;
+        if ($this->role !== UserRole::Admin->value) return false;
+        return $this->hasPermissionTo($permission);
     }
 
     // ── Helpers rôles ─────────────────────────────────────────────────────

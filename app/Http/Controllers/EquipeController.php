@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Notifications\CollaborateurInvitationNotification;
 use App\Support\PasswordPolicy;
+use Database\Seeders\PermissionsSeeder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
 use Illuminate\View\View;
 
 class EquipeController extends Controller
@@ -20,6 +22,7 @@ class EquipeController extends Controller
 
         $collaborateurs = User::where('agency_id', $agencyId)
             ->where('role', 'admin')
+            ->with('roles')
             ->select(['id', 'name', 'email', 'telephone', 'is_owner', 'created_at', 'email_verified_at'])
             ->orderByDesc('is_owner')
             ->orderBy('name')
@@ -50,14 +53,15 @@ class EquipeController extends Controller
         }
 
         $validated = $request->validate([
-            'name'      => ['required', 'string', 'max:255'],
-            'email'     => ['required', 'email', 'unique:users,email', 'max:255'],
-            'telephone' => ['nullable', 'string', 'max:20'],
-            'password'  => ['required', 'confirmed', PasswordPolicy::rules()],
+            'name'       => ['required', 'string', 'max:255'],
+            'email'      => ['required', 'email', 'unique:users,email', 'max:255'],
+            'telephone'  => ['nullable', 'string', 'max:20'],
+            'password'   => ['required', 'confirmed', PasswordPolicy::rules()],
+            'preset_role'=> ['nullable', 'string', 'in:' . implode(',', array_keys(PermissionsSeeder::ROLES))],
         ], [
-            'email.unique'    => 'Cet email est déjà utilisé par un autre compte.',
-            'name.required'   => 'Le nom est obligatoire.',
-            'email.required'  => "L'email est obligatoire.",
+            'email.unique'   => 'Cet email est déjà utilisé par un autre compte.',
+            'name.required'  => 'Le nom est obligatoire.',
+            'email.required' => "L'email est obligatoire.",
         ]);
 
         $user                    = new User();
@@ -71,7 +75,14 @@ class EquipeController extends Controller
         $user->email_verified_at = now();
         $user->save();
 
-        // Notification email — ne bloque pas si l'envoi échoue
+        // Appliquer le rôle prédéfini si choisi
+        if (! empty($validated['preset_role'])) {
+            $user->assignRole($validated['preset_role']);
+        } else {
+            // Gestionnaire par défaut
+            $user->assignRole('gestionnaire');
+        }
+
         try {
             if ($user->email) {
                 $user->notify(new CollaborateurInvitationNotification(
@@ -88,32 +99,82 @@ class EquipeController extends Controller
 
         return redirect()
             ->route('admin.equipe.index')
-            ->with('success', "{$user->name} a été ajouté à votre équipe. Un email de bienvenue lui a été envoyé.");
+            ->with('success', "{$user->name} a été ajouté à votre équipe.");
+    }
+
+    public function editPermissions(User $user): View
+    {
+        $authUser = Auth::user();
+
+        if ($user->agency_id !== $authUser->agency_id || $user->role !== 'admin' || $user->is_owner) {
+            abort(403);
+        }
+
+        $permissions   = PermissionsSeeder::PERMISSIONS;
+        $userPermNames = $user->getAllPermissions()->pluck('name')->toArray();
+        $userRoleName  = $user->roles->first()?->name;
+        $presetRoles   = PermissionsSeeder::ROLES;
+        $roleLabels    = PermissionsSeeder::ROLE_LABELS;
+        $moduleLabels  = PermissionsSeeder::MODULE_LABELS;
+        $permLabels    = PermissionsSeeder::PERMISSION_LABELS;
+
+        return view('equipe.permissions', compact(
+            'user', 'permissions', 'userPermNames', 'userRoleName',
+            'presetRoles', 'roleLabels', 'moduleLabels', 'permLabels'
+        ));
+    }
+
+    public function updatePermissions(Request $request, User $user): RedirectResponse
+    {
+        $authUser = Auth::user();
+
+        if ($user->agency_id !== $authUser->agency_id || $user->role !== 'admin' || $user->is_owner) {
+            abort(403);
+        }
+
+        // Appliquer un rôle prédéfini si demandé
+        if ($request->filled('preset_role') && array_key_exists($request->preset_role, PermissionsSeeder::ROLES)) {
+            $user->syncRoles([$request->preset_role]);
+            $user->syncPermissions(PermissionsSeeder::ROLES[$request->preset_role]);
+
+            return redirect()
+                ->route('admin.equipe.permissions', $user)
+                ->with('success', 'Profil "' . PermissionsSeeder::ROLE_LABELS[$request->preset_role] . '" appliqué à ' . $user->name . '.');
+        }
+
+        // Sinon mise à jour manuelle des permissions cochées
+        $allPerms   = collect(PermissionsSeeder::PERMISSIONS)->flatten()->toArray();
+        $checked    = $request->input('permissions', []);
+        $toSync     = array_intersect($checked, $allPerms);
+
+        $user->syncRoles([]);
+        $user->syncPermissions($toSync);
+
+        return redirect()
+            ->route('admin.equipe.permissions', $user)
+            ->with('success', 'Permissions de ' . $user->name . ' mises à jour.');
     }
 
     public function destroy(User $user): RedirectResponse
     {
         $authUser = Auth::user();
 
-        // Sécurité : on ne peut supprimer que des admins de sa propre agence
         if ($user->agency_id !== $authUser->agency_id || $user->role !== 'admin') {
             abort(403);
         }
 
-        // Impossible de supprimer le directeur
         if ($user->is_owner) {
             return redirect()->route('admin.equipe.index')
                 ->with('error', 'Impossible de supprimer le directeur de l\'agence.');
         }
 
-        // Impossible de se supprimer soi-même
         if ($user->id === $authUser->id) {
             return redirect()->route('admin.equipe.index')
                 ->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
 
         $nom = $user->name;
-        $user->delete(); // Soft delete — accès bloqué, données conservées
+        $user->delete();
 
         return redirect()
             ->route('admin.equipe.index')
