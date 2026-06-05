@@ -15,6 +15,11 @@ class Bien extends Model
 {
     use HasFactory, HasAgencyScope, LogsActivity, SoftDeletes;
 
+    public function getActivityLogTitle(): string
+    {
+        return 'Bien ' . ($this->reference ?? '#' . $this->id);
+    }
+
     public const TYPES = [
         'appartement' => 'Appartement',
         'villa'       => 'Villa',

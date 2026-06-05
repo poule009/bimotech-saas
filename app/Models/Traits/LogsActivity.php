@@ -38,11 +38,15 @@ trait LogsActivity
 
             $agencyId = $model->agency_id ?? $user?->agency_id ?? null;
 
+            $title = method_exists($model, 'getActivityLogTitle')
+                ? $model->getActivityLogTitle()
+                : class_basename($model) . ' #' . $model->getKey();
+
             $description = match ($action) {
-                'created' => sprintf('%s #%s créé', class_basename($model), $model->getKey()),
-                'updated' => self::buildUpdatedDescription($model),
-                'deleted' => sprintf('%s #%s supprimé', class_basename($model), $model->getKey()),
-                default   => sprintf('%s #%s %s', class_basename($model), $model->getKey(), $action),
+                'created' => $title . ' créé',
+                'updated' => self::buildUpdatedDescription($model, $title),
+                'deleted' => $title . ' supprimé',
+                default   => $title . ' ' . $action,
             };
 
             // Pendant une impersonation, auth()->user() retourne l'admin impersonné.
@@ -66,7 +70,7 @@ trait LogsActivity
         }
     }
 
-    protected static function buildUpdatedDescription(Model $model): string
+    protected static function buildUpdatedDescription(Model $model, string $title): string
     {
         $changes = array_keys($model->getChanges());
 
@@ -76,14 +80,9 @@ trait LogsActivity
         );
 
         if (empty($changes)) {
-            return sprintf('%s #%s modifié', class_basename($model), $model->getKey());
+            return $title . ' modifié';
         }
 
-        return sprintf(
-            '%s #%s modifié (champs: %s)',
-            class_basename($model),
-            $model->getKey(),
-            implode(', ', $changes)
-        );
+        return $title . ' modifié (champs: ' . implode(', ', $changes) . ')';
     }
 }

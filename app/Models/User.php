@@ -30,6 +30,12 @@ class User extends Authenticatable
      * OU passez par forceFill() uniquement dans des contextes contrôlés
      * (seeders, migrations de données, commandes artisan).
      */
+    public function getActivityLogTitle(): string
+    {
+        $role = $this->role ? ' (' . $this->role . ')' : '';
+        return ($this->name ?? 'Utilisateur #' . $this->id) . $role;
+    }
+
     protected $fillable = [
         'name',
         'email',

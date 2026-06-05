@@ -14,6 +14,12 @@ class Paiement extends Model
 
     // ── Fillable — reflète exactement la structure après migrations fiscales ──
 
+    public function getActivityLogTitle(): string
+    {
+        $montant = $this->montant_encaisse ? number_format((float) $this->montant_encaisse, 0, ',', ' ') . ' F' : '#' . $this->id;
+        return 'Paiement ' . $montant;
+    }
+
     protected $fillable = [
         'agency_id',
         'contrat_id',

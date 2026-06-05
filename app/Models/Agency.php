@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Agency extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
+
+    public function getActivityLogTitle(): string
+    {
+        return 'Agence ' . ($this->name ?? '#' . $this->id);
+    }
 
     /**
      * SÉCURITÉ — Mass Assignment :

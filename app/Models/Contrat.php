@@ -16,6 +16,11 @@ class Contrat extends Model
 
     // ── Constantes ────────────────────────────────────────────────────────────
 
+    public function getActivityLogTitle(): string
+    {
+        return 'Contrat #' . $this->id;
+    }
+
     public const TYPES_BAIL = [
         'habitation'  => "Bail d'habitation",
         'commercial'  => 'Bail commercial',
