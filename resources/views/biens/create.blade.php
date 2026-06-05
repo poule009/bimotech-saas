@@ -14,8 +14,8 @@
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
         </div>
-        <h2 class="font-display font-bold text-lg text-bimo-navy mb-3">Limite atteinte</h2>
-        <p class="font-body text-sm text-bimo-navy/70 leading-relaxed mb-6">
+        <h2 class="font-display font-bold text-lg text-bimo-text mb-3">Limite atteinte</h2>
+        <p class="font-body text-sm text-bimo-text/70 leading-relaxed mb-6">
             Vous gérez déjà <strong>{{ $up['nb_unites'] }} unités sur {{ $up['limite'] }}</strong>
             autorisées en plan <strong>{{ $up['plan_actuel'] }}</strong>.<br><br>
             Le plan <strong>{{ $up['plan_suivant'] }}</strong> vous permet d'en gérer
@@ -27,7 +27,7 @@
                 Voir le plan {{ $up['plan_suivant'] }}
             </a>
             <button onclick="document.getElementById('modal-limite').style.display='none'"
-                    class="flex-1 px-4 py-2.5 bg-bimo-bg text-bimo-navy/60 font-body text-sm rounded-[9px] hover:bg-bimo-bg2 transition-colors duration-150">
+                    class="flex-1 px-4 py-2.5 bg-bimo-bg text-bimo-text/60 font-body text-sm rounded-[9px] hover:bg-bimo-bg2 transition-colors duration-150">
                 Pas maintenant
             </button>
         </div>
@@ -36,13 +36,13 @@
 @endif
 
 <div class="mb-5">
-    <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40 mb-3">
-        <a href="{{ route('admin.biens.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Biens</a>
+    <div class="flex items-center gap-2 font-body text-sm text-bimo-text/40 mb-3">
+        <a href="{{ route('admin.biens.index') }}" class="hover:text-bimo-text transition-colors duration-150">Biens</a>
         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span class="text-bimo-navy font-medium">Nouveau bien</span>
+        <span class="text-bimo-text font-medium">Nouveau bien</span>
     </div>
-    <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Ajouter un bien</h1>
-    <p class="font-body text-sm text-bimo-navy/50 mt-1">La référence est générée automatiquement.</p>
+    <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">Ajouter un bien</h1>
+    <p class="font-body text-sm text-bimo-text/50 mt-1">La référence est générée automatiquement.</p>
 </div>
 
 <form method="POST" action="{{ route('admin.biens.store') }}" id="form-bien" enctype="multipart/form-data">
@@ -59,15 +59,15 @@
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Propriétaire</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Propriétaire</span>
             </div>
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">
+                    <label class="block font-body font-medium text-sm text-bimo-text">
                         Propriétaire <span class="text-bimo-red">*</span>
                     </label>
                     <select name="proprietaire_id"
-                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                    focus:outline-none focus:ring-2 transition-all duration-150 cursor-pointer
                                    @error('proprietaire_id') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                    @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -82,12 +82,12 @@
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">
+                    <label class="block font-body font-medium text-sm text-bimo-text">
                         Immeuble
-                        <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel — laisser vide pour un bien standalone)</span>
+                        <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel — laisser vide pour un bien standalone)</span>
                     </label>
                     <select name="immeuble_id"
-                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                    focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                    transition-all duration-150 cursor-pointer">
                         <option value="">— Bien standalone (aucun immeuble) —</option>
@@ -111,17 +111,17 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-navy/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Informations générales</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Informations générales</span>
             </div>
             <div class="px-5 py-5 space-y-4">
 
                 {{-- Type --}}
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">Type <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text">Type <span class="text-bimo-red">*</span></label>
                     <select name="type" id="select-type" onchange="onTypeChange(this.value)"
-                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                    focus:outline-none focus:ring-2 transition-all duration-150 cursor-pointer
                                    @error('type') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                    @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -137,18 +137,18 @@
                 {{-- SECTION IMMEUBLE --}}
                 <div id="section-immeuble" style="display:none" class="space-y-4">
                     <div class="bg-bimo-navy/[5%] border border-bimo-navy/10 rounded-[10px] px-4 py-3">
-                        <div class="font-body font-semibold text-xs text-bimo-navy mb-1">Immeuble multi-unités</div>
-                        <div class="font-body text-xs text-bimo-navy/50">
+                        <div class="font-body font-semibold text-xs text-bimo-text mb-1">Immeuble multi-unités</div>
+                        <div class="font-body text-xs text-bimo-text/50">
                             L'immeuble sera créé automatiquement avec toutes ses unités liées au même propriétaire.
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Nom de l'immeuble <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Nom de l'immeuble <span class="text-bimo-red">*</span></label>
                         <input type="text" name="nom" id="nom"
                                value="{{ old('nom') }}" placeholder="Ex: Immeuble Fann Résidence"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         @error('nom')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
@@ -156,7 +156,7 @@
 
                     {{-- Mode de numérotation --}}
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Mode de numérotation <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Mode de numérotation <span class="text-bimo-red">*</span></label>
                         <div class="grid grid-cols-2 gap-3">
                             <label id="lbl-simple"
                                    class="flex items-center gap-3 cursor-pointer p-3.5 border rounded-[10px] transition-all duration-150"
@@ -166,8 +166,8 @@
                                        onchange="onModeChange('simple')"
                                        class="accent-bimo-gold">
                                 <div>
-                                    <div class="font-body font-semibold text-sm text-bimo-navy">Simple</div>
-                                    <div class="font-body text-xs text-bimo-navy/40">Appt 01, Appt 02…</div>
+                                    <div class="font-body font-semibold text-sm text-bimo-text">Simple</div>
+                                    <div class="font-body text-xs text-bimo-text/40">Appt 01, Appt 02…</div>
                                 </div>
                             </label>
                             <label id="lbl-etage"
@@ -177,47 +177,47 @@
                                        onchange="onModeChange('etage')"
                                        class="accent-bimo-gold">
                                 <div>
-                                    <div class="font-body font-semibold text-sm text-bimo-navy">Par étage</div>
-                                    <div class="font-body text-xs text-bimo-navy/40">Appt 101, Appt 102…</div>
+                                    <div class="font-body font-semibold text-sm text-bimo-text">Par étage</div>
+                                    <div class="font-body text-xs text-bimo-text/40">Appt 101, Appt 102…</div>
                                 </div>
                             </label>
                         </div>
                     </div>
 
                     <div id="bloc-simple" class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Nombre d'unités <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Nombre d'unités <span class="text-bimo-red">*</span></label>
                         <input type="number" name="nombre_unites" id="nombre_unites"
                                value="{{ old('nombre_unites', 1) }}" min="1" max="999" placeholder="Ex: 10"
                                oninput="calcRecap()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         @error('nombre_unites')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                     </div>
 
                     <div id="bloc-etage" style="display:none" class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Niveaux <span class="text-bimo-red">*</span></label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Niveaux <span class="text-bimo-red">*</span></label>
                             <input type="number" name="nombre_niveaux" id="nombre_niveaux"
                                    value="{{ old('nombre_niveaux', 1) }}" min="1" max="99" placeholder="Ex: 3"
                                    oninput="calcRecap()"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Unités/niveau <span class="text-bimo-red">*</span></label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Unités/niveau <span class="text-bimo-red">*</span></label>
                             <input type="number" name="unites_par_niveau" id="unites_par_niveau"
                                    value="{{ old('unites_par_niveau', 2) }}" min="1" max="99" placeholder="Ex: 4"
                                    oninput="calcRecap()"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Type des unités <span class="text-bimo-red">*</span></label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Type des unités <span class="text-bimo-red">*</span></label>
                             <select name="type_unite"
-                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                            focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                            transition-all duration-150 cursor-pointer">
                                 <option value="">— Choisir —</option>
@@ -227,11 +227,11 @@
                             </select>
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Loyer/unité (FCFA) <span class="text-bimo-red">*</span></label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Loyer/unité (FCFA) <span class="text-bimo-red">*</span></label>
                             <input type="number" name="loyer_par_unite" id="loyer_par_unite"
                                    value="{{ old('loyer_par_unite') }}" min="0" step="500"
                                    oninput="calcRecap()"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
@@ -241,43 +241,43 @@
                 <div id="section-bien" class="space-y-4">
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
                             Titre
-                            <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                            <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
                         <input type="text" name="titre" value="{{ old('titre') }}"
                                placeholder="Ex: Villa F4 avec piscine — Almadies"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                       transition-all duration-150">
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Surface (m²)</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Surface (m²)</label>
                             <input type="number" name="surface_m2" value="{{ old('surface_m2') }}" min="1" step="0.5"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Nombre de pièces</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Nombre de pièces</label>
                             <input type="number" name="nombre_pieces" value="{{ old('nombre_pieces') }}" min="1"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Chambres</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Chambres</label>
                             <input type="number" name="nombre_chambres" value="{{ old('nombre_chambres') }}" min="0"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Salles de bain</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Salles de bain</label>
                             <input type="number" name="nombre_sdb" value="{{ old('nombre_sdb') }}" min="0"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
@@ -287,42 +287,42 @@
                             <input type="checkbox" name="parking" value="1" {{ old('parking') ? 'checked':'' }}
                                    class="w-4 h-4 rounded border-bimo-navy/20 cursor-pointer focus:ring-bimo-gold/20 focus:ring-2"
                                    style="accent-color: var(--ac)">
-                            <span class="font-body font-medium text-sm text-bimo-navy">Parking</span>
+                            <span class="font-body font-medium text-sm text-bimo-text">Parking</span>
                         </label>
                         <label class="flex items-center gap-2.5 cursor-pointer p-3 border border-bimo-navy/10 rounded-[10px] hover:border-bimo-gold/40 transition-all duration-150">
                             <input type="checkbox" name="climatise" value="1" {{ old('climatise') ? 'checked':'' }}
                                    class="w-4 h-4 rounded border-bimo-navy/20 cursor-pointer focus:ring-bimo-gold/20 focus:ring-2"
                                    style="accent-color: var(--ac)">
-                            <span class="font-body font-medium text-sm text-bimo-navy">Climatisé</span>
+                            <span class="font-body font-medium text-sm text-bimo-text">Climatisé</span>
                         </label>
                         <label class="flex items-center gap-2.5 cursor-pointer p-3 border border-bimo-navy/10 rounded-[10px] hover:border-bimo-gold/40 transition-all duration-150">
                             <input type="checkbox" name="meuble" value="1" {{ old('meuble') ? 'checked':'' }}
                                    class="w-4 h-4 rounded border-bimo-navy/20 cursor-pointer focus:ring-bimo-gold/20 focus:ring-2"
                                    style="accent-color: var(--ac)">
-                            <span class="font-body font-medium text-sm text-bimo-navy">Meublé</span>
+                            <span class="font-body font-medium text-sm text-bimo-text">Meublé</span>
                         </label>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
                             Étage
-                            <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                            <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
                         <input type="number" name="etage" value="{{ old('etage') }}" min="-1" max="50"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
                             Aménités
-                            <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                            <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
                         <textarea name="amenites" rows="2" placeholder="Vue mer, Gardiennage, Fibre optique…"
-                                  class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                         placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                                  class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                         placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                          transition-all duration-150 resize-y">{{ old('amenites') }}</textarea>
-                        <p class="font-body text-[11px] text-bimo-navy/30">Séparés par des virgules</p>
+                        <p class="font-body text-[11px] text-bimo-text/30">Séparés par des virgules</p>
                     </div>
                 </div>
 
@@ -335,37 +335,37 @@
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/10 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Localisation</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Localisation</span>
             </div>
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">Adresse <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text">Adresse <span class="text-bimo-red">*</span></label>
                     <input type="text" name="adresse" value="{{ old('adresse') }}" placeholder="Rue, numéro"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                  placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                  placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('adresse') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                   @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('adresse')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Quartier</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Quartier</label>
                         <input type="text" name="quartier" value="{{ old('quartier') }}" placeholder="Ex: Almadies"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Commune</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Commune</label>
                         <input type="text" name="commune" value="{{ old('commune') }}" placeholder="Ex: Dakar Plateau"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">Ville <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text">Ville <span class="text-bimo-red">*</span></label>
                     <input type="text" name="ville" value="{{ old('ville', 'Dakar') }}" placeholder="Ex: Dakar"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                  placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                  placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('ville') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                   @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('ville')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
@@ -379,27 +379,27 @@
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Informations financières</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Informations financières</span>
             </div>
             <div class="px-5 py-5">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Loyer mensuel (FCFA) <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Loyer mensuel (FCFA) <span class="text-bimo-red">*</span></label>
                         <input type="number" name="loyer_mensuel" id="loyer_mensuel"
                                value="{{ old('loyer_mensuel') }}" min="0" step="500"
                                oninput="calcRecap()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('loyer_mensuel') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         @error('loyer_mensuel')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Taux commission (%) <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Taux commission (%) <span class="text-bimo-red">*</span></label>
                         <input type="number" name="taux_commission" id="taux_commission"
                                value="{{ old('taux_commission', 10) }}" min="0" max="30" step="0.5"
                                oninput="calcRecap()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('taux_commission') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -413,12 +413,12 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                     </svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">
-                    Photos <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                <span class="font-display font-bold text-sm text-bimo-text">
+                    Photos <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                 </span>
             </div>
             <div class="px-5 py-5">
@@ -428,12 +428,12 @@
                      ondragover="event.preventDefault();this.style.borderColor='#C9A84C';this.style.background='#fffbeb'"
                      ondragleave="this.style.borderColor='';this.style.background=''"
                      ondrop="handleDrop(event)">
-                    <svg class="w-8 h-8 text-bimo-navy/20 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <svg class="w-8 h-8 text-bimo-text/20 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                         <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    <p class="font-body text-sm text-bimo-navy/50 mb-1">Cliquez ou glissez vos photos ici</p>
-                    <p class="font-body text-xs text-bimo-navy/30">JPG, PNG, WEBP — max 3 Mo par photo</p>
+                    <p class="font-body text-sm text-bimo-text/50 mb-1">Cliquez ou glissez vos photos ici</p>
+                    <p class="font-body text-xs text-bimo-text/30">JPG, PNG, WEBP — max 3 Mo par photo</p>
                 </div>
 
                 <input type="file" id="photos-input" name="photos[]"
@@ -444,7 +444,7 @@
                      style="display:none;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:14px">
                 </div>
 
-                <p class="font-body text-[11px] text-bimo-navy/30 mt-3">
+                <p class="font-body text-[11px] text-bimo-text/30 mt-3">
                     La première photo sélectionnée sera la photo principale.
                 </p>
             </div>
@@ -454,17 +454,17 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">
-                    Description <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                <span class="font-display font-bold text-sm text-bimo-text">
+                    Description <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                 </span>
             </div>
             <div class="px-5 py-5">
                 <textarea name="description" rows="4"
                           placeholder="Description du bien, équipements, état général…"
-                          class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                 placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                          class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                 placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                  transition-all duration-150 resize-y">{{ old('description') }}</textarea>
             </div>
 
@@ -473,7 +473,7 @@
                         bg-white/95 backdrop-blur-sm border-t border-bimo-navy/[5%]">
                 <a href="{{ route('admin.biens.index') }}"
                    class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
-                          font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30
+                          font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30
                           transition-all duration-150">
                     Annuler
                 </a>

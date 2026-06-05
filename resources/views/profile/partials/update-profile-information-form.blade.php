@@ -4,9 +4,9 @@
     @csrf @method('patch')
 
     <div class="space-y-1.5">
-        <label class="block font-body font-medium text-sm text-bimo-navy" for="name">Nom complet</label>
+        <label class="block font-body font-medium text-sm text-bimo-text" for="name">Nom complet</label>
         <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required autofocus autocomplete="name"
-               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                       focus:outline-none focus:ring-2 transition-all duration-150
                       @error('name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -14,9 +14,9 @@
     </div>
 
     <div class="space-y-1.5">
-        <label class="block font-body font-medium text-sm text-bimo-navy" for="email">Email</label>
+        <label class="block font-body font-medium text-sm text-bimo-text" for="email">Email</label>
         <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required autocomplete="username"
-               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                       focus:outline-none focus:ring-2 transition-all duration-150
                       @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -25,7 +25,7 @@
         @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
         <div class="flex items-center gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[10px] px-4 py-3 mt-2">
             <p class="font-body text-sm text-bimo-gold flex-1">Votre adresse email n'est pas vérifiée.</p>
-            <button form="send-verification" class="font-body font-semibold text-xs text-bimo-gold underline hover:text-bimo-navy transition-colors duration-150">
+            <button form="send-verification" class="font-body font-semibold text-xs text-bimo-gold underline hover:text-bimo-text transition-colors duration-150">
                 Renvoyer l'email
             </button>
         </div>

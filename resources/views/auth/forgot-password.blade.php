@@ -39,8 +39,8 @@
 {{-- Panneau droit formulaire --}}
 <main class="flex items-center justify-center p-8 bg-white overflow-y-auto">
     <div class="w-full max-w-sm">
-        <h1 class="font-display font-extrabold text-2xl text-bimo-navy tracking-tight mb-2">Mot de passe oublié</h1>
-        <p class="font-body text-sm text-bimo-navy/50 mb-8 leading-relaxed">Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
+        <h1 class="font-display font-extrabold text-2xl text-bimo-text tracking-tight mb-2">Mot de passe oublié</h1>
+        <p class="font-body text-sm text-bimo-text/50 mb-8 leading-relaxed">Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
 
         @if($errors->any())
         <div class="border-l-[3px] border-bimo-red bg-bimo-red/[5%] border border-bimo-red/20 rounded-[8px] px-4 py-2.5 mb-5">
@@ -57,9 +57,9 @@
         <form method="POST" action="{{ route('password.email') }}" id="forgot-form" novalidate class="space-y-4">
             @csrf
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="email">Adresse email</label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="email">Adresse email</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="votre@agence.sn" autocomplete="email" autofocus
-                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                 @error('email')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
             <button type="submit" id="submit-btn"
@@ -70,7 +70,7 @@
         </form>
 
         <a href="{{ route('login') }}"
-           class="flex items-center justify-center gap-1.5 font-body text-sm text-bimo-navy/40 hover:text-bimo-navy transition-colors duration-150 mt-5">
+           class="flex items-center justify-center gap-1.5 font-body text-sm text-bimo-text/40 hover:text-bimo-text transition-colors duration-150 mt-5">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             Retour à la connexion
         </a>

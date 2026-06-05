@@ -44,33 +44,33 @@
 
     {{-- ── LOYER ── --}}
     <tr class="bg-bimo-bg2">
-        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">
+        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">
             Loyer
             @if($loyerAssujetti)
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold ml-1">TVA 18% applicable</span>
             @else
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/60 ml-1">Exonéré TVA</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60 ml-1">Exonéré TVA</span>
             @endif
         </td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%]">
-        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-navy/70">Loyer {{ $loyerAssujetti ? 'HT' : 'nu' }} mensuel{{ $paiement->est_premier_paiement ? ' (proratisé si applicable)' : '' }}</td>
-        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-navy">{{ $fmt($loyerHt) }} F</td>
+        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-text/70">Loyer {{ $loyerAssujetti ? 'HT' : 'nu' }} mensuel{{ $paiement->est_premier_paiement ? ' (proratisé si applicable)' : '' }}</td>
+        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-text">{{ $fmt($loyerHt) }} F</td>
     </tr>
     @if($loyerAssujetti)
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-navy/50">+ TVA loyer (18% — bail commercial/meublé)</td>
+        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-text/50">+ TVA loyer (18% — bail commercial/meublé)</td>
         <td class="px-3.5 py-2 text-right font-display font-semibold text-xs text-bimo-gold">{{ $fmt($tvaLoyer) }} F</td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%]">
-        <td class="px-3.5 py-2.5 font-body font-medium text-sm text-bimo-navy">= Loyer TTC</td>
-        <td class="px-3.5 py-2.5 text-right font-display font-bold text-sm text-bimo-navy">{{ $fmt($loyerTtc) }} F</td>
+        <td class="px-3.5 py-2.5 font-body font-medium text-sm text-bimo-text">= Loyer TTC</td>
+        <td class="px-3.5 py-2.5 text-right font-display font-bold text-sm text-bimo-text">{{ $fmt($loyerTtc) }} F</td>
     </tr>
     @endif
     @if($charges > 0)
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-navy/50">+ Charges locatives récupérables{{ $tvaCharges > 0 ? ' HT' : '' }}</td>
-        <td class="px-3.5 py-2 text-right font-display font-semibold text-xs text-bimo-navy/50">{{ $fmt($charges) }} F</td>
+        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-text/50">+ Charges locatives récupérables{{ $tvaCharges > 0 ? ' HT' : '' }}</td>
+        <td class="px-3.5 py-2 text-right font-display font-semibold text-xs text-bimo-text/50">{{ $fmt($charges) }} F</td>
     </tr>
     @if($tvaCharges > 0)
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-gold/[4%]">
@@ -81,45 +81,45 @@
     @endif
     @if($tom > 0)
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-navy/50">+ TOM — Taxe sur les Ordures Ménagères</td>
-        <td class="px-3.5 py-2 text-right font-display font-semibold text-xs text-bimo-navy/50">{{ $fmt($tom) }} F</td>
+        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-text/50">+ TOM — Taxe sur les Ordures Ménagères</td>
+        <td class="px-3.5 py-2 text-right font-display font-semibold text-xs text-bimo-text/50">{{ $fmt($tom) }} F</td>
     </tr>
     @endif
     <tr class="border-b-2 border-bimo-gold/30 bg-bimo-gold/[8%]">
-        <td class="px-3.5 py-3 font-display font-bold text-sm text-bimo-navy">LOYER ENCAISSÉ (mensuel)</td>
+        <td class="px-3.5 py-3 font-display font-bold text-sm text-bimo-text">LOYER ENCAISSÉ (mensuel)</td>
         <td class="px-3.5 py-3 text-right font-display font-extrabold text-sm text-bimo-gold">{{ $fmt($total) }} F</td>
     </tr>
 
     {{-- ── FRAIS D'ENTRÉE ── --}}
     @if($estPremier)
     <tr class="bg-bimo-bg2">
-        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">
+        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">
             Frais d'entrée
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/60 ml-1">Premier paiement</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60 ml-1">Premier paiement</span>
         </td>
     </tr>
     @if($fraisTtc > 0)
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-navy/70">Honoraires d'agence HT</td>
-        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ $fmt($fraisHt) }} F</td>
+        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-text/70">Honoraires d'agence HT</td>
+        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ $fmt($fraisHt) }} F</td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-navy/50">↳ TVA honoraires (18% — art. 364 + 369 CGI SN)</td>
+        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-text/50">↳ TVA honoraires (18% — art. 364 + 369 CGI SN)</td>
         <td class="px-3.5 py-2 text-right font-display font-semibold text-xs text-bimo-gold">{{ $fmt($tvaFrais) }} F</td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%]">
-        <td class="px-3.5 py-2.5 font-body font-medium text-sm text-bimo-navy">= Honoraires TTC</td>
-        <td class="px-3.5 py-2.5 text-right font-display font-bold text-sm text-bimo-navy">{{ $fmt($fraisTtc) }} F</td>
+        <td class="px-3.5 py-2.5 font-body font-medium text-sm text-bimo-text">= Honoraires TTC</td>
+        <td class="px-3.5 py-2.5 text-right font-display font-bold text-sm text-bimo-text">{{ $fmt($fraisTtc) }} F</td>
     </tr>
     @endif
     @if($caution > 0)
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-navy/[4%]">
-        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-navy/70">Dépôt de garantie (caution)</td>
-        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-navy">{{ $fmt($caution) }} F</td>
+        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-text/70">Dépôt de garantie (caution)</td>
+        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-text">{{ $fmt($caution) }} F</td>
     </tr>
     @endif
     <tr class="border-b-2 border-bimo-gold/30 bg-bimo-gold/[8%]">
-        <td class="px-3.5 py-3 font-display font-bold text-sm text-bimo-navy">TOTAL FACTURÉ AU LOCATAIRE</td>
+        <td class="px-3.5 py-3 font-display font-bold text-sm text-bimo-text">TOTAL FACTURÉ AU LOCATAIRE</td>
         <td class="px-3.5 py-3 text-right font-display font-extrabold text-sm text-bimo-gold">{{ $fmt($totalInitial) }} F</td>
     </tr>
     @endif
@@ -127,21 +127,21 @@
     {{-- ── DGID ── --}}
     @if($dgidApplicable)
     <tr class="bg-bimo-bg2">
-        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">
+        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">
             Droits d'enregistrement — DGID
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/60 ml-1">CGI SN art. 464 B</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60 ml-1">CGI SN art. 464 B</span>
         </td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg border-l-[3px] border-l-bimo-gold">
         <td class="px-3.5 py-2.5">
-            <div class="font-body text-sm text-bimo-navy/70">Droits d'enregistrement</div>
-            <div class="font-body text-[11px] text-bimo-navy/40 mt-0.5">Assiette annuelle (loyer × durée) × taux%</div>
+            <div class="font-body text-sm text-bimo-text/70">Droits d'enregistrement</div>
+            <div class="font-body text-[11px] text-bimo-text/40 mt-0.5">Assiette annuelle (loyer × durée) × taux%</div>
         </td>
-        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ $fmt($dgidDroits) }} F</td>
+        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ $fmt($dgidDroits) }} F</td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg border-l-[3px] border-l-bimo-gold">
-        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-navy/70">Timbre fiscal (fixe — CGI SN)</td>
-        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ $fmt($dgidTimbre) }} F</td>
+        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-text/70">Timbre fiscal (fixe — CGI SN)</td>
+        <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ $fmt($dgidTimbre) }} F</td>
     </tr>
     <tr class="border-b-2 border-bimo-navy bg-bimo-navy border-l-[3px] border-l-bimo-gold">
         <td class="px-3.5 py-3">
@@ -154,18 +154,18 @@
 
     {{-- ── COMMISSION ── --}}
     <tr class="bg-bimo-bg2">
-        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Commission agence — mandat de gestion</td>
+        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Commission agence — mandat de gestion</td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%]">
-        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-navy/70">Commission HT ({{ $paiement->taux_commission_applique }}% sur loyer {{ $loyerAssujetti ? 'HT' : 'nu' }})</td>
+        <td class="px-3.5 py-2.5 font-body text-sm text-bimo-text/70">Commission HT ({{ $paiement->taux_commission_applique }}% sur loyer {{ $loyerAssujetti ? 'HT' : 'nu' }})</td>
         <td class="px-3.5 py-2.5 text-right font-display font-semibold text-sm text-bimo-gold">{{ $fmt($commHt) }} F</td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-navy/50">↳ TVA sur commission (18% — art. 364 + 369 CGI SN)</td>
+        <td class="px-3.5 py-2 pl-7 font-body text-xs text-bimo-text/50">↳ TVA sur commission (18% — art. 364 + 369 CGI SN)</td>
         <td class="px-3.5 py-2 text-right font-display font-semibold text-xs text-bimo-gold">{{ $fmt($tvaComm) }} F</td>
     </tr>
     <tr class="border-b border-bimo-navy/[5%]">
-        <td class="px-3.5 py-2.5 font-body font-medium text-sm text-bimo-navy">Commission TTC</td>
+        <td class="px-3.5 py-2.5 font-body font-medium text-sm text-bimo-text">Commission TTC</td>
         <td class="px-3.5 py-2.5 text-right font-display font-bold text-sm text-bimo-gold">{{ $fmt($commTtc) }} F</td>
     </tr>
 
@@ -178,7 +178,7 @@
     {{-- ── BRS ── --}}
     @if($brsApplicable)
     <tr class="bg-bimo-bg2">
-        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">
+        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">
             Retenue à la Source (BRS)
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red ml-1">Locataire entreprise</span>
         </td>
@@ -188,14 +188,14 @@
         <td class="px-3.5 py-2.5 text-right font-display font-bold text-sm text-bimo-red">− {{ $fmt($brs) }} F</td>
     </tr>
     <tr class="border-b-2 border-bimo-navy bg-bimo-navy/[8%]">
-        <td class="px-3.5 py-3 font-display font-bold text-sm text-bimo-navy">NET À VERSER AU PROPRIÉTAIRE (loyer seul)</td>
-        <td class="px-3.5 py-3 text-right font-display font-extrabold text-sm text-bimo-navy">{{ $fmt($netAVerser) }} F</td>
+        <td class="px-3.5 py-3 font-display font-bold text-sm text-bimo-text">NET À VERSER AU PROPRIÉTAIRE (loyer seul)</td>
+        <td class="px-3.5 py-3 text-right font-display font-extrabold text-sm text-bimo-text">{{ $fmt($netAVerser) }} F</td>
     </tr>
     @endif
 
     {{-- ── SYNTHÈSE ── --}}
     <tr class="bg-bimo-bg2">
-        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Synthèse du versement</td>
+        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Synthèse du versement</td>
     </tr>
     <tr class="border-b border-bimo-gold/30 bg-bimo-navy">
         <td class="px-3.5 py-3">
@@ -208,9 +208,9 @@
     </tr>
     <tr class="border-b border-bimo-navy/10 bg-bimo-gold/[6%]">
         <td class="px-3.5 py-3">
-            <div class="font-display font-bold text-sm text-bimo-navy">SOUS-TOTAL BAILLEUR{{ $depensesPresente ? ' (avant déductions)' : '' }}</div>
+            <div class="font-display font-bold text-sm text-bimo-text">SOUS-TOTAL BAILLEUR{{ $depensesPresente ? ' (avant déductions)' : '' }}</div>
             @if($caution > 0)
-            <div class="font-body text-[11px] text-bimo-navy/40 mt-0.5">Dont caution {{ $fmt($caution) }} F (dépôt de garantie)</div>
+            <div class="font-body text-[11px] text-bimo-text/40 mt-0.5">Dont caution {{ $fmt($caution) }} F (dépôt de garantie)</div>
             @endif
         </td>
         <td class="px-3.5 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ $fmt($netBailleur) }} F</td>
@@ -219,7 +219,7 @@
     {{-- ── DÉPENSES ── --}}
     @if($depensesPresente)
     <tr class="bg-bimo-bg2">
-        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">
+        <td colspan="2" class="px-3.5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">
             Dépenses & Travaux
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red ml-1">Déduites sur reversement bailleur</span>
         </td>

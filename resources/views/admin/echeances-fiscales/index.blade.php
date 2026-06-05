@@ -6,13 +6,13 @@
 <div class="space-y-4 md:space-y-5">
 
     <div>
-        <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Calendrier des échéances fiscales</h1>
-        <p class="font-body text-sm text-bimo-navy/50 mt-1">Obligation déclaratives et de paiement</p>
+        <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">Calendrier des échéances fiscales</h1>
+        <p class="font-body text-sm text-bimo-text/50 mt-1">Obligation déclaratives et de paiement</p>
     </div>
 
     {{-- Synthèse urgences --}}
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5">
-        <div class="font-display font-bold text-sm text-bimo-navy mb-4">
+        <div class="font-display font-bold text-sm text-bimo-text mb-4">
             @if(count($echeancesUrgentes) > 0)
                 {{ count($echeancesUrgentes) }} échéance{{ count($echeancesUrgentes) > 1 ? 's' : '' }} dans les 30 prochains jours
             @else
@@ -37,7 +37,7 @@
             @endforeach
         </div>
         @else
-        <p class="font-body text-sm text-bimo-navy/40">Toutes les prochaines échéances sont à plus de 30 jours.</p>
+        <p class="font-body text-sm text-bimo-text/40">Toutes les prochaines échéances sont à plus de 30 jours.</p>
         @endif
     </div>
 
@@ -53,32 +53,32 @@
         <div class="md:hidden">
             {{-- Section annuelles --}}
             <div class="px-5 py-2.5 bg-bimo-bg border-b border-bimo-navy/[5%]">
-                <span class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Échéances annuelles</span>
+                <span class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Échéances annuelles</span>
             </div>
             @foreach($fixes as $e)
             <div class="px-4 py-3.5 border-b border-bimo-navy/[5%] flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <div class="font-body font-semibold text-sm text-bimo-navy truncate">{{ $e['label'] }}</div>
-                    <div class="font-body text-xs text-bimo-navy/40 mt-0.5">{{ $moisLabels[$e['mois_num']] ?? '' }} {{ $e['jour'] }}</div>
+                    <div class="font-body font-semibold text-sm text-bimo-text truncate">{{ $e['label'] }}</div>
+                    <div class="font-body text-xs text-bimo-text/40 mt-0.5">{{ $moisLabels[$e['mois_num']] ?? '' }} {{ $e['jour'] }}</div>
                 </div>
                 @php
                     $sLbl = match($e['statut']) { 'urgent'=>'🔴 Urgent', 'bientot'=>'🟠 Bientôt', 'a_venir'=>'À venir', 'passee'=>'Passée', default=>$e['statut'] };
-                    $sCls = match($e['statut']) { 'urgent'=>'bg-bimo-red/10 border-bimo-red/20 text-bimo-red', 'bientot'=>'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold', 'passee'=>'bg-bimo-navy/[5%] text-bimo-navy/20', default=>'bg-bimo-navy/[5%] text-bimo-navy/40' };
+                    $sCls = match($e['statut']) { 'urgent'=>'bg-bimo-red/10 border-bimo-red/20 text-bimo-red', 'bientot'=>'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold', 'passee'=>'bg-bimo-navy/[5%] text-bimo-text/20', default=>'bg-bimo-navy/[5%] text-bimo-text/40' };
                 @endphp
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold border {{ $sCls }} whitespace-nowrap flex-shrink-0">{{ $sLbl }}</span>
             </div>
             @endforeach
             {{-- Section récurrentes --}}
             <div class="px-5 py-2.5 bg-bimo-bg border-b border-bimo-navy/[5%]">
-                <span class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Récurrentes (mensuel / trimestriel)</span>
+                <span class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Récurrentes (mensuel / trimestriel)</span>
             </div>
             @foreach($recurrents as $e)
             <div class="px-4 py-3.5 border-b border-bimo-navy/[5%] flex items-start justify-between gap-3">
                 <div class="min-w-0">
-                    <div class="font-body font-semibold text-sm text-bimo-navy truncate">{{ $e['label'] }}</div>
-                    <div class="font-body text-xs text-bimo-navy/40 mt-0.5">{{ $e['type'] }}</div>
+                    <div class="font-body font-semibold text-sm text-bimo-text truncate">{{ $e['label'] }}</div>
+                    <div class="font-body text-xs text-bimo-text/40 mt-0.5">{{ $e['type'] }}</div>
                 </div>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70 whitespace-nowrap flex-shrink-0">En cours</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70 whitespace-nowrap flex-shrink-0">En cours</span>
             </div>
             @endforeach
         </div>
@@ -98,33 +98,33 @@
                 <tbody class="divide-y divide-bimo-navy/[5%]">
                     {{-- Section annuelles --}}
                     <tr class="bg-bimo-bg">
-                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Échéances annuelles</td>
+                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Échéances annuelles</td>
                     </tr>
                     @foreach($fixes as $e)
                     @php
-                        $typeCls = match($e['type']) { 'Déclaration'=>'bg-bimo-navy/10 text-bimo-navy/60', 'Paiement'=>'bg-bimo-gold/10 text-bimo-gold', default=>'bg-bimo-navy/[5%] text-bimo-navy/40' };
+                        $typeCls = match($e['type']) { 'Déclaration'=>'bg-bimo-navy/10 text-bimo-text/60', 'Paiement'=>'bg-bimo-gold/10 text-bimo-gold', default=>'bg-bimo-navy/[5%] text-bimo-text/40' };
                         $sLbl = match($e['statut']) { 'urgent'=>'🔴 Urgent', 'bientot'=>'🟠 Bientôt', 'a_venir'=>'⬜ À venir', 'passee'=>'✔ Passée', default=>$e['statut'] };
-                        $sCls = match($e['statut']) { 'urgent'=>'bg-bimo-red/10 border-bimo-red/20 text-bimo-red', 'bientot'=>'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold', 'passee'=>'bg-bimo-navy/[5%] text-bimo-navy/20 border-transparent', default=>'bg-bimo-navy/[5%] text-bimo-navy/40 border-transparent' };
+                        $sCls = match($e['statut']) { 'urgent'=>'bg-bimo-red/10 border-bimo-red/20 text-bimo-red', 'bientot'=>'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold', 'passee'=>'bg-bimo-navy/[5%] text-bimo-text/20 border-transparent', default=>'bg-bimo-navy/[5%] text-bimo-text/40 border-transparent' };
                     @endphp
                     <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-navy whitespace-nowrap">
-                            {{ $moisLabels[$e['mois_num']] ?? '' }} <span class="font-normal text-bimo-navy/50">{{ $e['jour'] }}</span>
+                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-text whitespace-nowrap">
+                            {{ $moisLabels[$e['mois_num']] ?? '' }} <span class="font-normal text-bimo-text/50">{{ $e['jour'] }}</span>
                         </td>
-                        <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-navy/70">{{ $e['label'] }}</td>
+                        <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-text/70">{{ $e['label'] }}</td>
                         <td class="px-5 py-3.5">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-[10px] font-body font-semibold uppercase tracking-wide {{ $typeCls }}">{{ $e['type'] }}</span>
                         </td>
                         <td class="px-5 py-3.5">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold border {{ $sCls }}">{{ $sLbl }}</span>
                             @if($e['date'] && in_array($e['statut'], ['urgent','bientot','a_venir']))
-                            <span class="font-body text-[10px] text-bimo-navy/30 ml-2">{{ $e['date']->format('d/m/Y') }}</span>
+                            <span class="font-body text-[10px] text-bimo-text/30 ml-2">{{ $e['date']->format('d/m/Y') }}</span>
                             @endif
                         </td>
                         <td class="px-5 py-3.5">
                             @if($e['lien'])
                             <a href="{{ $e['lien'] }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-bimo-navy text-white rounded-[7px] font-body text-xs hover:bg-bimo-navy-dk transition-colors duration-150">{{ $e['lien_label'] }} →</a>
                             @else
-                            <span class="font-body text-xs text-bimo-navy/25">{{ $e['lien_label'] }}</span>
+                            <span class="font-body text-xs text-bimo-text/25">{{ $e['lien_label'] }}</span>
                             @endif
                         </td>
                     </tr>
@@ -132,28 +132,28 @@
 
                     {{-- Section récurrentes --}}
                     <tr class="bg-bimo-bg">
-                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Récurrentes (mensuel / trimestriel)</td>
+                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Récurrentes (mensuel / trimestriel)</td>
                     </tr>
                     @foreach($recurrents as $e)
                     @php
-                        $typeCls = match($e['type']) { 'Déclaration'=>'bg-bimo-navy/10 text-bimo-navy/60', 'Paiement'=>'bg-bimo-gold/10 text-bimo-gold', default=>'bg-bimo-navy/[5%] text-bimo-navy/40' };
+                        $typeCls = match($e['type']) { 'Déclaration'=>'bg-bimo-navy/10 text-bimo-text/60', 'Paiement'=>'bg-bimo-gold/10 text-bimo-gold', default=>'bg-bimo-navy/[5%] text-bimo-text/40' };
                     @endphp
                     <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                        <td class="px-5 py-3.5 font-body text-sm text-bimo-navy/50">
+                        <td class="px-5 py-3.5 font-body text-sm text-bimo-text/50">
                             @if(in_array($e['label'], ['TVA mensuelle','BRS mensuel'])) Mensuel — 15
                             @elseif($e['label'] === 'BRS trimestriel') Trimestriel — 15
                             @else — @endif
                         </td>
-                        <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-navy/70">{{ $e['label'] }}</td>
+                        <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-text/70">{{ $e['label'] }}</td>
                         <td class="px-5 py-3.5">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-[10px] font-body font-semibold uppercase tracking-wide {{ $typeCls }}">{{ $e['type'] }}</span>
                         </td>
                         <td class="px-5 py-3.5">
                             @if($e['statut'] === 'recurrent')
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">↗ En cours</span>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">↗ En cours</span>
                             @else
                             @php $j = $e['date'] ? (int)$today->diffInDays($e['date']) : null; @endphp
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold {{ match($e['statut']) { 'urgent'=>'bg-bimo-red/10 border border-bimo-red/20 text-bimo-red', 'bientot'=>'bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold', default=>'bg-bimo-navy/[5%] text-bimo-navy/40' } }}">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold {{ match($e['statut']) { 'urgent'=>'bg-bimo-red/10 border border-bimo-red/20 text-bimo-red', 'bientot'=>'bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold', default=>'bg-bimo-navy/[5%] text-bimo-text/40' } }}">
                                 {{ match($e['statut']) { 'urgent'=>'🔴 Urgent J-'.$j, 'bientot'=>'🟠 Bientôt J-'.$j, 'a_venir'=>'⬜ À venir', default=>$e['statut'] } }}
                             </span>
                             @endif
@@ -162,7 +162,7 @@
                             @if($e['lien'])
                             <a href="{{ $e['lien'] }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-bimo-navy text-white rounded-[7px] font-body text-xs hover:bg-bimo-navy-dk transition-colors duration-150">{{ $e['lien_label'] }} →</a>
                             @else
-                            <span class="font-body text-xs text-bimo-navy/25">{{ $e['lien_label'] }}</span>
+                            <span class="font-body text-xs text-bimo-text/25">{{ $e['lien_label'] }}</span>
                             @endif
                         </td>
                     </tr>
@@ -171,15 +171,15 @@
                     {{-- Hors périmètre --}}
                     @if(count($horsApp) > 0)
                     <tr class="bg-bimo-bg">
-                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/30">Hors périmètre Bimotech</td>
+                        <td colspan="5" class="px-5 py-2 font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/30">Hors périmètre Bimotech</td>
                     </tr>
                     @foreach($horsApp as $e)
                     <tr class="opacity-50 hover:bg-bimo-bg transition-colors duration-100">
-                        <td class="px-5 py-3 font-body text-sm text-bimo-navy/40">Annuel</td>
-                        <td class="px-5 py-3 font-body text-sm text-bimo-navy/40">{{ $e['label'] }}</td>
-                        <td class="px-5 py-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-[10px] font-body font-semibold uppercase bg-bimo-navy/[5%] text-bimo-navy/30">{{ $e['type'] }}</span></td>
-                        <td class="px-5 py-3"><span class="font-body text-xs text-bimo-navy/30">ℹ Hors app</span></td>
-                        <td class="px-5 py-3"><span class="font-body text-xs text-bimo-navy/25">{{ $e['lien_label'] }}</span></td>
+                        <td class="px-5 py-3 font-body text-sm text-bimo-text/40">Annuel</td>
+                        <td class="px-5 py-3 font-body text-sm text-bimo-text/40">{{ $e['label'] }}</td>
+                        <td class="px-5 py-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-[5px] text-[10px] font-body font-semibold uppercase bg-bimo-navy/[5%] text-bimo-text/30">{{ $e['type'] }}</span></td>
+                        <td class="px-5 py-3"><span class="font-body text-xs text-bimo-text/30">ℹ Hors app</span></td>
+                        <td class="px-5 py-3"><span class="font-body text-xs text-bimo-text/25">{{ $e['lien_label'] }}</span></td>
                     </tr>
                     @endforeach
                     @endif
@@ -189,8 +189,8 @@
     </div>
 
     <div class="flex items-start gap-2 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[10px] px-4 py-3">
-        <svg class="w-4 h-4 text-bimo-navy/40 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <p class="font-body text-xs text-bimo-navy/50 leading-relaxed"><strong>Note :</strong> Ce calendrier est fourni à titre indicatif. Les dates peuvent varier selon les décisions de la DGID. Les agences immobilières sont exclues de la CGU et relèvent de la CEL (Art. 320-338 CGI SN). Consultez un expert-comptable pour votre situation spécifique.</p>
+        <svg class="w-4 h-4 text-bimo-text/40 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p class="font-body text-xs text-bimo-text/50 leading-relaxed"><strong>Note :</strong> Ce calendrier est fourni à titre indicatif. Les dates peuvent varier selon les décisions de la DGID. Les agences immobilières sont exclues de la CGU et relèvent de la CEL (Art. 320-338 CGI SN). Consultez un expert-comptable pour votre situation spécifique.</p>
     </div>
 
 </div>

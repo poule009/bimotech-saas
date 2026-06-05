@@ -14,10 +14,10 @@
 <div class="space-y-4 md:space-y-5">
 
     {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
-        <a href="{{ route('admin.paiements.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Paiements</a>
+    <div class="flex items-center gap-2 font-body text-sm text-bimo-text/40">
+        <a href="{{ route('admin.paiements.index') }}" class="hover:text-bimo-text transition-colors duration-150">Paiements</a>
         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span class="text-bimo-navy font-medium">{{ $paiement->reference_paiement }}</span>
+        <span class="text-bimo-text font-medium">{{ $paiement->reference_paiement }}</span>
     </div>
 
     {{-- Actions --}}
@@ -29,14 +29,14 @@
             Télécharger quittance
         </a>
         <a href="{{ route('admin.contrats.show', $paiement->contrat) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             Voir le contrat
         </a>
         <a href="{{ route('admin.paiements.index') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Retour
         </a>
@@ -63,7 +63,7 @@
         $heroBadge = match($paiement->statut) {
             'valide' => 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold',
             'annule' => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
-            default  => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/60',
+            default  => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/60',
         };
     @endphp
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
@@ -109,20 +109,20 @@
                     <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                     </div>
-                    <span class="font-display font-bold text-sm text-bimo-navy">Parties</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">Parties</span>
                 </div>
                 <div class="px-5 py-5 grid grid-cols-2 gap-4">
                     <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Locataire</div>
-                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $paiement->contrat?->locataire?->name ?? '—' }}</div>
-                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->locataire?->email }}</div>
-                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->locataire?->telephone ?? '' }}</div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Locataire</div>
+                        <div class="font-body font-medium text-sm text-bimo-text">{{ $paiement->contrat?->locataire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-text/50">{{ $paiement->contrat?->locataire?->email }}</div>
+                        <div class="font-body text-xs text-bimo-text/50">{{ $paiement->contrat?->locataire?->telephone ?? '' }}</div>
                     </div>
                     <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1">Propriétaire</div>
-                        <div class="font-body font-medium text-sm text-bimo-navy">{{ $paiement->contrat?->bien?->proprietaire?->name ?? '—' }}</div>
-                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->bien?->proprietaire?->email }}</div>
-                        <div class="font-body text-xs text-bimo-navy/50">{{ $paiement->contrat?->bien?->proprietaire?->telephone ?? '' }}</div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Propriétaire</div>
+                        <div class="font-body font-medium text-sm text-bimo-text">{{ $paiement->contrat?->bien?->proprietaire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-text/50">{{ $paiement->contrat?->bien?->proprietaire?->email }}</div>
+                        <div class="font-body text-xs text-bimo-text/50">{{ $paiement->contrat?->bien?->proprietaire?->telephone ?? '' }}</div>
                     </div>
                 </div>
             </div>
@@ -134,7 +134,7 @@
                     <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
                         <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                     </div>
-                    <span class="font-display font-bold text-sm text-bimo-navy">Décompte fiscal complet</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">Décompte fiscal complet</span>
                 </div>
                 <div>
                     <x-fiscal.decompte-paiement :paiement="$paiement" />
@@ -147,12 +147,12 @@
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+                        <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
                     </div>
-                    <span class="font-display font-bold text-sm text-bimo-navy">Notes</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">Notes</span>
                 </div>
                 <div class="px-5 py-5">
-                    <p class="font-body text-sm text-bimo-navy/70">{{ $paiement->notes }}</p>
+                    <p class="font-body text-sm text-bimo-text/70">{{ $paiement->notes }}</p>
                 </div>
             </div>
             @endif
@@ -164,7 +164,7 @@
                         <div class="w-8 h-8 rounded-[8px] bg-bimo-red/10 flex items-center justify-center flex-shrink-0">
                             <svg class="w-4 h-4 text-bimo-red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
                         </div>
-                        <span class="font-display font-bold text-sm text-bimo-navy">Dépenses pour le bailleur</span>
+                        <span class="font-display font-bold text-sm text-bimo-text">Dépenses pour le bailleur</span>
                         @if($totalDep > 0)
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">
                             − {{ number_format($totalDep, 0, ',', ' ') }} F
@@ -174,7 +174,7 @@
                     @if($canEditDep)
                     <button onclick="toggleDepForm()" id="btn-dep-toggle"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px]
-                                   font-body text-xs text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                                   font-body text-xs text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         Ajouter
                     </button>
@@ -184,8 +184,8 @@
                 <div class="px-5 py-4">
 
                     @if($depenses->isEmpty())
-                    <div id="dep-empty" class="text-center py-8 font-body text-sm text-bimo-navy/30">
-                        <svg class="w-7 h-7 text-bimo-navy/15 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
+                    <div id="dep-empty" class="text-center py-8 font-body text-sm text-bimo-text/30">
+                        <svg class="w-7 h-7 text-bimo-text/15 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
                         Aucune dépense enregistrée pour ce mois
                     </div>
                     @else
@@ -199,18 +199,18 @@
                             <svg class="w-3.5 h-3.5 text-bimo-red" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14l2-2 4 4"/><path d="M3 6h18M3 12h9m-9 6h5"/></svg>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="font-body font-semibold text-sm text-bimo-navy">{{ $dep->libelle }}</div>
+                            <div class="font-body font-semibold text-sm text-bimo-text">{{ $dep->libelle }}</div>
                             <div class="flex items-center flex-wrap gap-1.5 mt-0.5">
-                                <span class="font-body text-[11px] text-bimo-navy/50">{{ $dep->categorie_libelle }}</span>
-                                <span class="text-bimo-navy/30 text-[10px]">·</span>
-                                <span class="font-body text-[11px] text-bimo-navy/50">{{ \Carbon\Carbon::parse($dep->date_depense)->format('d/m/Y') }}</span>
+                                <span class="font-body text-[11px] text-bimo-text/50">{{ $dep->categorie_libelle }}</span>
+                                <span class="text-bimo-text/30 text-[10px]">·</span>
+                                <span class="font-body text-[11px] text-bimo-text/50">{{ \Carbon\Carbon::parse($dep->date_depense)->format('d/m/Y') }}</span>
                                 @if($dep->prestataire)
-                                <span class="text-bimo-navy/30 text-[10px]">·</span>
-                                <span class="font-body text-[11px] text-bimo-navy/50">{{ $dep->prestataire }}</span>
+                                <span class="text-bimo-text/30 text-[10px]">·</span>
+                                <span class="font-body text-[11px] text-bimo-text/50">{{ $dep->prestataire }}</span>
                                 @endif
                             </div>
                             @if($dep->notes)
-                            <div class="font-body text-[11px] text-bimo-navy/40 italic mt-0.5">{{ $dep->notes }}</div>
+                            <div class="font-body text-[11px] text-bimo-text/40 italic mt-0.5">{{ $dep->notes }}</div>
                             @endif
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0">
@@ -223,7 +223,7 @@
                                   data-confirm-ok="Oui, supprimer">
                                 @csrf @method('DELETE')
                                 <button type="submit"
-                                        class="w-6 h-6 flex items-center justify-center text-bimo-navy/25 hover:text-bimo-red transition-colors duration-150"
+                                        class="w-6 h-6 flex items-center justify-center text-bimo-text/25 hover:text-bimo-red transition-colors duration-150"
                                         title="Supprimer">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
                                 </button>
@@ -236,7 +236,7 @@
 
                     @if($depenses->count() > 1)
                     <div class="flex items-center justify-between py-3 border-t border-bimo-navy/[5%] mt-1">
-                        <span class="font-body text-xs text-bimo-navy/50">Total dépenses ({{ $depenses->count() }})</span>
+                        <span class="font-body text-xs text-bimo-text/50">Total dépenses ({{ $depenses->count() }})</span>
                         <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($totalDep, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
@@ -244,40 +244,40 @@
                     @if($totalDep > 0)
                     <div class="flex items-center justify-between mt-3 p-3.5 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[9px]">
                         <div>
-                            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-navy/40 mb-0.5">Net à reverser au bailleur</div>
-                            <div class="font-body text-[10px] text-bimo-navy/30">Après déduction des dépenses</div>
+                            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-0.5">Net à reverser au bailleur</div>
+                            <div class="font-body text-[10px] text-bimo-text/30">Après déduction des dépenses</div>
                         </div>
-                        <div class="font-display font-bold text-lg text-bimo-navy">{{ number_format($netFinalAff, 0, ',', ' ') }} F</div>
+                        <div class="font-display font-bold text-lg text-bimo-text">{{ number_format($netFinalAff, 0, ',', ' ') }} F</div>
                     </div>
                     @endif
 
                     {{-- Formulaire ajout dépense --}}
                     @if($canEditDep)
                     <div id="dep-form-wrap" style="display:none" class="mt-4 p-5 bg-bimo-bg border border-bimo-navy/10 rounded-[12px]">
-                        <div class="font-body font-semibold text-xs uppercase tracking-widest text-bimo-navy/50 mb-4">Nouvelle dépense</div>
+                        <div class="font-body font-semibold text-xs uppercase tracking-widest text-bimo-text/50 mb-4">Nouvelle dépense</div>
 
                         <form method="POST" action="{{ route('admin.paiements.depenses.store', $paiement) }}" id="dep-form" class="space-y-3">
                             @csrf
                             <input type="hidden" name="_dep_form_open" value="1">
 
                             <div class="space-y-1.5">
-                                <label class="block font-body font-medium text-sm text-bimo-navy">Libellé <span class="text-bimo-red">*</span></label>
+                                <label class="block font-body font-medium text-sm text-bimo-text">Libellé <span class="text-bimo-red">*</span></label>
                                 <input type="text" name="libelle" value="{{ old('libelle') }}" required placeholder="Ex : Facture plombier Moussa"
-                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                              placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                              placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="space-y-1.5">
-                                    <label class="block font-body font-medium text-sm text-bimo-navy">Montant (FCFA) <span class="text-bimo-red">*</span></label>
+                                    <label class="block font-body font-medium text-sm text-bimo-text">Montant (FCFA) <span class="text-bimo-red">*</span></label>
                                     <input type="number" name="montant" value="{{ old('montant') }}" required min="1" step="1" placeholder="25000"
-                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                                   focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 </div>
                                 <div class="space-y-1.5">
-                                    <label class="block font-body font-medium text-sm text-bimo-navy">Catégorie <span class="text-bimo-red">*</span></label>
+                                    <label class="block font-body font-medium text-sm text-bimo-text">Catégorie <span class="text-bimo-red">*</span></label>
                                     <select name="categorie" required
-                                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy cursor-pointer
+                                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
                                                    focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                         <option value="">Choisir…</option>
                                         @foreach(\App\Models\DepenseGestion::CATEGORIES as $key => $label)
@@ -289,32 +289,32 @@
 
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="space-y-1.5">
-                                    <label class="block font-body font-medium text-sm text-bimo-navy">Date de la dépense <span class="text-bimo-red">*</span></label>
+                                    <label class="block font-body font-medium text-sm text-bimo-text">Date de la dépense <span class="text-bimo-red">*</span></label>
                                     <input type="date" name="date_depense" value="{{ old('date_depense', now()->format('Y-m-d')) }}" required
-                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                                   focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 </div>
                                 <div class="space-y-1.5">
-                                    <label class="block font-body font-medium text-sm text-bimo-navy">Prestataire</label>
+                                    <label class="block font-body font-medium text-sm text-bimo-text">Prestataire</label>
                                     <input type="text" name="prestataire" value="{{ old('prestataire') }}" placeholder="Ex : Moussa Diallo"
-                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                                  placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                                  placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 </div>
                             </div>
 
                             <div class="space-y-1.5">
-                                <label class="block font-body font-medium text-sm text-bimo-navy">
-                                    Notes <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                                <label class="block font-body font-medium text-sm text-bimo-text">
+                                    Notes <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                                 </label>
                                 <textarea name="notes" rows="2" placeholder="Détails supplémentaires…"
-                                          class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                                 placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                                          class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                                 placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                                  transition-all duration-150 resize-y">{{ old('notes') }}</textarea>
                             </div>
 
                             <div class="flex items-center justify-end gap-3 pt-2">
                                 <button type="button" onclick="toggleDepForm()"
-                                        class="px-4 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy/60 hover:text-bimo-navy transition-all duration-150">
+                                        class="px-4 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-text/60 hover:text-bimo-text transition-all duration-150">
                                     Annuler
                                 </button>
                                 <button type="submit"

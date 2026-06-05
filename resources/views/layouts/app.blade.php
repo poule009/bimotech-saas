@@ -71,7 +71,7 @@
     <div class="flex items-center gap-3 h-16 px-5 border-b border-white/10 flex-shrink-0">
         <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
              style="background: var(--ac)">
-            <span class="font-display font-extrabold text-bimo-navy text-sm">B</span>
+            <span class="font-display font-extrabold text-bimo-text text-sm">B</span>
         </div>
         <div class="min-w-0 flex-1">
             <div class="font-display font-bold text-white text-sm leading-tight truncate">
@@ -494,12 +494,12 @@
     {{-- TOPBAR DESKTOP --}}
     <header class="hidden lg:flex items-center justify-between h-14 px-8 bg-bimo-surface border-b border-bimo-navy/10 sticky top-0 z-20">
         {{-- Breadcrumb --}}
-        <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/50">
-            <a href="{{ route('admin.dashboard') }}" class="hover:text-bimo-navy transition-colors duration-150">
+        <div class="flex items-center gap-2 font-body text-sm text-bimo-text/50">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-bimo-text transition-colors duration-150">
                 {{ auth()->user()?->agency?->name ?? 'Bimothèque' }}
             </a>
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="text-bimo-navy font-medium">{{ $header ?? 'Tableau de bord' }}</span>
+            <span class="text-bimo-text font-medium">{{ $header ?? 'Tableau de bord' }}</span>
         </div>
 
         {{-- Actions topbar droite --}}
@@ -512,7 +512,7 @@
             <div class="relative" x-data="{ q: '', results: [], show: false, timer: null }"
                  @click.outside="show = false">
                 <div class="relative">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-navy/30 pointer-events-none"
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-text/30 pointer-events-none"
                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
@@ -520,7 +520,7 @@
                            @input="clearTimeout(timer); if(q.length > 1) { timer = setTimeout(() => { fetch('{{ route('admin.search') }}?q='+encodeURIComponent(q), {headers:{'X-Requested-With':'XMLHttpRequest'}}).then(r=>r.json()).then(d=>{results=d.results;show=true}) }, 250) } else { show=false }"
                            @keydown.escape="show=false; q=''"
                            placeholder="Rechercher…"
-                           class="w-48 pl-8 pr-3 py-1.5 bg-bimo-bg border border-bimo-navy/10 rounded-[8px] font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:w-64 focus:bg-white transition-all duration-150">
+                           class="w-48 pl-8 pr-3 py-1.5 bg-bimo-bg border border-bimo-navy/10 rounded-[8px] font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:w-64 focus:bg-white transition-all duration-150">
                 </div>
                 <div x-show="show && results.length > 0"
                      class="absolute right-0 top-full mt-1 w-80 bg-white border border-bimo-navy/10 rounded-[12px] shadow-lg overflow-hidden z-50"
@@ -529,13 +529,13 @@
                         <a :href="item.url"
                            class="flex items-center gap-3 px-4 py-2.5 hover:bg-bimo-bg transition-colors duration-100 border-b border-bimo-navy/5 last:border-0">
                             <div class="w-7 h-7 rounded-[6px] bg-bimo-bg2 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-3.5 h-3.5 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <svg class="w-3.5 h-3.5 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
                                 </svg>
                             </div>
                             <div class="min-w-0 flex-1">
-                                <div class="font-body font-medium text-sm text-bimo-navy truncate" x-text="item.label"></div>
-                                <div class="font-body text-[11px] text-bimo-navy/40 truncate" x-text="item.sub"></div>
+                                <div class="font-body font-medium text-sm text-bimo-text truncate" x-text="item.label"></div>
+                                <div class="font-body text-[11px] text-bimo-text/40 truncate" x-text="item.sub"></div>
                             </div>
                         </a>
                     </template>
@@ -803,13 +803,13 @@
                 </svg>
             </div>
             <div class="flex-1">
-                <div id="g-confirm-title" class="font-display font-bold text-base text-bimo-navy mb-1"></div>
-                <div id="g-confirm-msg" class="font-body text-sm text-bimo-navy/60 leading-relaxed"></div>
+                <div id="g-confirm-title" class="font-display font-bold text-base text-bimo-text mb-1"></div>
+                <div id="g-confirm-msg" class="font-body text-sm text-bimo-text/60 leading-relaxed"></div>
             </div>
         </div>
         <div class="flex justify-end gap-2">
             <button id="g-confirm-cancel"
-                    class="px-4 py-2 rounded-[8px] border border-bimo-navy/15 font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                    class="px-4 py-2 rounded-[8px] border border-bimo-navy/15 font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                 Annuler
             </button>
             <button id="g-confirm-ok"

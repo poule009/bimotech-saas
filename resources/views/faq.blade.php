@@ -12,15 +12,15 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"></noscript>
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-body bg-bimo-bg text-bimo-navy">
+<body class="font-body bg-bimo-bg text-bimo-text">
 
 @include('partials.public-nav', ['active' => 'faq'])
 
 {{-- Hero --}}
 <div class="pt-[120px] pb-16 px-[5%] text-center bg-bimo-bg">
     <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold mb-4">FAQ</div>
-    <h1 class="font-display font-extrabold text-[clamp(28px,5vw,50px)] tracking-tight leading-tight text-bimo-navy mb-4">Les réponses à vos <em class="not-italic text-bimo-gold">questions</em></h1>
-    <p class="font-body font-light text-base text-bimo-navy/50 max-w-[440px] mx-auto leading-relaxed">Tout ce que vous voulez savoir avant de démarrer avec BimoTech.</p>
+    <h1 class="font-display font-extrabold text-[clamp(28px,5vw,50px)] tracking-tight leading-tight text-bimo-text mb-4">Les réponses à vos <em class="not-italic text-bimo-gold">questions</em></h1>
+    <p class="font-body font-light text-base text-bimo-text/50 max-w-[440px] mx-auto leading-relaxed">Tout ce que vous voulez savoir avant de démarrer avec BimoTech.</p>
 </div>
 
 {{-- FAQ --}}
@@ -53,7 +53,7 @@
     </div>
     @foreach($questions as $faq)
     <div class="faq-item bg-white border border-bimo-navy/10 rounded-[12px] mb-2 overflow-hidden hover:border-bimo-navy/20 transition-colors duration-200">
-        <button class="w-full bg-transparent border-none px-5 py-4 flex items-center justify-between cursor-pointer text-left font-body font-medium text-sm text-bimo-navy gap-3 hover:bg-bimo-bg transition-colors duration-150"
+        <button class="w-full bg-transparent border-none px-5 py-4 flex items-center justify-between cursor-pointer text-left font-body font-medium text-sm text-bimo-text gap-3 hover:bg-bimo-bg transition-colors duration-150"
                 onclick="toggleFaq(this)">
             {{ $faq['q'] }}
             <div class="faq-icon w-[22px] h-[22px] bg-bimo-gold rounded-[6px] flex items-center justify-center flex-shrink-0 transition-transform duration-250">
@@ -61,7 +61,7 @@
             </div>
         </button>
         <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 ease-in-out px-5">
-            <p class="font-body text-sm text-bimo-navy/60 leading-[1.8] pb-4">{{ $faq['a'] }}</p>
+            <p class="font-body text-sm text-bimo-text/60 leading-[1.8] pb-4">{{ $faq['a'] }}</p>
         </div>
     </div>
     @endforeach
@@ -72,7 +72,7 @@
         <h2 class="font-display font-extrabold text-xl text-white mb-3">Vous avez une autre question ?</h2>
         <p class="font-body text-sm text-white/50 mb-6 leading-relaxed">Notre équipe vous répond dans la journée, sur WhatsApp ou par email.</p>
         <div class="flex items-center justify-center gap-3 flex-wrap">
-            <a href="{{ route('demo') }}" class="font-body font-bold text-sm text-bimo-navy no-underline px-6 py-3 rounded-[10px] bg-bimo-gold hover:opacity-90 transition-opacity duration-150">Réserver une démo →</a>
+            <a href="{{ route('demo') }}" class="font-body font-bold text-sm text-bimo-text no-underline px-6 py-3 rounded-[10px] bg-bimo-gold hover:opacity-90 transition-opacity duration-150">Réserver une démo →</a>
             <a href="{{ route('contact') }}" class="font-body font-medium text-sm text-white no-underline px-6 py-3 rounded-[10px] border border-white/15 hover:border-white/30 transition-all duration-150">Nous contacter</a>
         </div>
     </div>
@@ -80,13 +80,13 @@
 </div>
 
 <footer class="px-[5%] py-8 border-t border-bimo-navy/10 flex flex-col md:flex-row items-center justify-between gap-4 flex-wrap bg-bimo-bg2">
-    <div class="font-display font-extrabold text-base text-bimo-navy">BimoTech Immo</div>
+    <div class="font-display font-extrabold text-base text-bimo-text">BimoTech Immo</div>
     <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6">
         @foreach([[url('/'),'Accueil'],[route('contact'),'Contact'],[route('mentions-legales'),'Mentions légales']] as [$href,$lbl])
-        <a href="{{ $href }}" class="font-body text-xs text-bimo-navy/50 no-underline hover:text-bimo-navy transition-colors duration-150">{{ $lbl }}</a>
+        <a href="{{ $href }}" class="font-body text-xs text-bimo-text/50 no-underline hover:text-bimo-text transition-colors duration-150">{{ $lbl }}</a>
         @endforeach
     </div>
-    <div class="font-body text-xs text-bimo-navy/30">© {{ date('Y') }} BimoTech · Dakar, Sénégal</div>
+    <div class="font-body text-xs text-bimo-text/30">© {{ date('Y') }} BimoTech · Dakar, Sénégal</div>
 </footer>
 
 <script>

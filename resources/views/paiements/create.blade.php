@@ -4,15 +4,15 @@
 @section('content')
 
 {{-- Breadcrumb --}}
-<div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40 mb-5">
-    <a href="{{ route('admin.paiements.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Paiements</a>
+<div class="flex items-center gap-2 font-body text-sm text-bimo-text/40 mb-5">
+    <a href="{{ route('admin.paiements.index') }}" class="hover:text-bimo-text transition-colors duration-150">Paiements</a>
     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    <span class="text-bimo-navy font-medium">Enregistrer un paiement</span>
+    <span class="text-bimo-text font-medium">Enregistrer un paiement</span>
 </div>
 
 <div class="mb-5">
-    <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Enregistrer un paiement</h1>
-    <p class="font-body text-sm text-bimo-navy/50 mt-1">La commission et le net propriétaire sont calculés automatiquement.</p>
+    <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">Enregistrer un paiement</h1>
+    <p class="font-body text-sm text-bimo-text/50 mt-1">La commission et le net propriétaire sont calculés automatiquement.</p>
 </div>
 
 <form method="POST" action="{{ route('admin.paiements.store') }}" id="form-paiement">
@@ -29,15 +29,15 @@
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Contrat</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Contrat</span>
             </div>
             <div class="px-5 py-5 space-y-3">
 
                 <div class="space-y-2">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">Contrat concerné <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text">Contrat concerné <span class="text-bimo-red">*</span></label>
                     {{-- Recherche --}}
                     <div class="relative">
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-navy/30 pointer-events-none"
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-text/30 pointer-events-none"
                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
@@ -46,12 +46,12 @@
                                autocomplete="off"
                                oninput="filtrerContrats(this.value)"
                                class="w-full pl-9 pr-3 py-2.5 bg-bimo-bg border border-bimo-navy/15 rounded-[9px]
-                                      font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30
+                                      font-body text-sm text-bimo-text placeholder:text-bimo-text/30
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                       transition-all duration-150">
                     </div>
                     <select name="contrat_id" id="contrat_id" onchange="chargerContrat(this.value)"
-                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                    focus:outline-none focus:ring-2 transition-all duration-150 cursor-pointer
                                    @error('contrat_id') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                    @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -94,15 +94,15 @@
                 <div id="contrat-details" style="display:none" class="space-y-3">
                     <div class="bg-bimo-bg border border-bimo-navy/10 rounded-[10px] divide-y divide-bimo-navy/[5%]">
                         <div class="flex items-center justify-between px-3 py-2.5">
-                            <span class="font-body text-xs text-bimo-navy/50">Bien</span>
-                            <span class="font-body font-medium text-xs text-bimo-navy" id="info-bien">—</span>
+                            <span class="font-body text-xs text-bimo-text/50">Bien</span>
+                            <span class="font-body font-medium text-xs text-bimo-text" id="info-bien">—</span>
                         </div>
                         <div class="flex items-center justify-between px-3 py-2.5">
-                            <span class="font-body text-xs text-bimo-navy/50">Locataire</span>
-                            <span class="font-body font-medium text-xs text-bimo-navy" id="info-locataire">—</span>
+                            <span class="font-body text-xs text-bimo-text/50">Locataire</span>
+                            <span class="font-body font-medium text-xs text-bimo-text" id="info-locataire">—</span>
                         </div>
                         <div class="flex items-center justify-between px-3 py-2.5">
-                            <span class="font-body text-xs text-bimo-navy/50">Loyer contractuel</span>
+                            <span class="font-body text-xs text-bimo-text/50">Loyer contractuel</span>
                             <span class="font-display font-bold text-sm text-bimo-gold" id="info-loyer">—</span>
                         </div>
                     </div>
@@ -129,27 +129,27 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-navy/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Période & Date</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Période & Date</span>
             </div>
             <div class="px-5 py-5 grid grid-cols-2 gap-3">
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">Période concernée <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text">Période concernée <span class="text-bimo-red">*</span></label>
                     <input type="month" name="periode" id="periode"
                            value="{{ old('periode', now()->format('Y-m')) }}"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('periode') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                   @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
-                    <p class="font-body text-[11px] text-bimo-navy/30">Mois du loyer, pas la date de paiement</p>
+                    <p class="font-body text-[11px] text-bimo-text/30">Mois du loyer, pas la date de paiement</p>
                     @error('periode')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">Date de paiement <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text">Date de paiement <span class="text-bimo-red">*</span></label>
                     <input type="date" name="date_paiement"
                            value="{{ old('date_paiement', $datePaiement) }}"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('date_paiement') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                   @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -164,16 +164,16 @@
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Montant</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Montant</span>
             </div>
             <div class="px-5 py-5 space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Montant encaissé (FCFA) <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Montant encaissé (FCFA) <span class="text-bimo-red">*</span></label>
                         <input type="number" name="montant_encaisse" id="montant_encaisse"
                                value="{{ old('montant_encaisse') }}" min="0" step="500"
                                oninput="verifierMontant()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('montant_encaisse') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -182,9 +182,9 @@
                         @error('montant_encaisse')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Mode de paiement <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Mode de paiement <span class="text-bimo-red">*</span></label>
                         <select name="mode_paiement"
-                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy cursor-pointer
+                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text cursor-pointer
                                        focus:outline-none focus:ring-2 transition-all duration-150
                                        @error('mode_paiement') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                        @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
@@ -198,22 +198,22 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
-                            Caution perçue <span class="font-normal text-bimo-navy/40 text-xs ml-1">(premier mois)</span>
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            Caution perçue <span class="font-normal text-bimo-text/40 text-xs ml-1">(premier mois)</span>
                         </label>
                         <input type="number" name="caution_percue"
                                value="{{ old('caution_percue', 0) }}" min="0" step="500"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        <p class="font-body text-[11px] text-bimo-navy/30">Saisir uniquement au premier paiement</p>
+                        <p class="font-body text-[11px] text-bimo-text/30">Saisir uniquement au premier paiement</p>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
-                            Notes <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            Notes <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
                         <input type="text" name="notes" value="{{ old('notes') }}" placeholder="Ex: Paiement partiel…"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                 </div>
             </div>
@@ -222,7 +222,7 @@
         {{-- Note + Submit --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="px-5 py-4 border-b border-bimo-navy/[5%]">
-                <p class="font-body text-xs text-bimo-navy/50">
+                <p class="font-body text-xs text-bimo-text/50">
                     La commission, TVA et net propriétaire sont calculés automatiquement à partir du taux de commission du bien.
                 </p>
             </div>
@@ -230,7 +230,7 @@
                         bg-white/95 backdrop-blur-sm border-t border-bimo-navy/[5%]">
                 <a href="{{ route('admin.paiements.index') }}"
                    class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
-                          font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                          font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                     Annuler
                 </a>
                 <button type="submit"

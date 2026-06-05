@@ -45,8 +45,8 @@
 {{-- Panneau droit formulaire --}}
 <main class="flex items-center justify-center p-8 bg-white overflow-y-auto">
     <div class="w-full max-w-[420px]">
-        <h1 class="font-display font-extrabold text-2xl text-bimo-navy tracking-tight mb-1">Créer votre agence</h1>
-        <p class="font-body text-sm text-bimo-navy/50 mb-6">Essai gratuit 30 jours — sans engagement</p>
+        <h1 class="font-display font-extrabold text-2xl text-bimo-text tracking-tight mb-1">Créer votre agence</h1>
+        <p class="font-body text-sm text-bimo-text/50 mb-6">Essai gratuit 30 jours — sans engagement</p>
 
         {{-- Erreurs --}}
         @if($errors->any())
@@ -57,7 +57,7 @@
 
         {{-- Google --}}
         <a href="{{ route('auth.google') }}"
-           class="flex items-center justify-center gap-2.5 w-full px-4 py-3 border border-bimo-navy/15 rounded-[10px] font-body font-semibold text-sm text-bimo-navy bg-white hover:bg-bimo-bg hover:border-bimo-navy/25 transition-all duration-150 mb-5">
+           class="flex items-center justify-center gap-2.5 w-full px-4 py-3 border border-bimo-navy/15 rounded-[10px] font-body font-semibold text-sm text-bimo-text bg-white hover:bg-bimo-bg hover:border-bimo-navy/25 transition-all duration-150 mb-5">
             <svg width="18" height="18" viewBox="0 0 48 48" class="flex-shrink-0">
                 <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                 <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -70,7 +70,7 @@
         {{-- Séparateur --}}
         <div class="flex items-center gap-3 mb-5">
             <div class="flex-1 h-px bg-bimo-navy/10"></div>
-            <span class="font-body text-xs text-bimo-navy/30">ou</span>
+            <span class="font-body text-xs text-bimo-text/30">ou</span>
             <div class="flex-1 h-px bg-bimo-navy/10"></div>
         </div>
 
@@ -78,44 +78,44 @@
             @csrf
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_name">Nom de l'agence <span class="text-bimo-red">*</span></label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="agency_name">Nom de l'agence <span class="text-bimo-red">*</span></label>
                 <input type="text" id="agency_name" name="agency_name" value="{{ old('agency_name') }}" placeholder="Ex : Immobilier Prestige Dakar" required autocomplete="organization"
-                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('agency_name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('agency_name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                 @error('agency_name')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="admin_name">Votre nom <span class="text-bimo-red">*</span></label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="admin_name">Votre nom <span class="text-bimo-red">*</span></label>
                 <input type="text" id="admin_name" name="admin_name" value="{{ old('admin_name') }}" placeholder="Prénom et Nom" required autocomplete="name"
-                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('admin_name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('admin_name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                 @error('admin_name')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="admin_email">Email <span class="text-bimo-red">*</span></label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="admin_email">Email <span class="text-bimo-red">*</span></label>
                 <input type="email" id="admin_email" name="admin_email" value="{{ old('admin_email') }}" placeholder="votre@email.com" required autocomplete="email"
-                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('admin_email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('admin_email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                 @error('admin_email')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="admin_password">Mot de passe <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="admin_password">Mot de passe <span class="text-bimo-red">*</span></label>
                     <input type="password" id="admin_password" name="admin_password" placeholder="Min. 8 caractères" required autocomplete="new-password"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('admin_password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('admin_password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('admin_password')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="admin_password_confirmation">Confirmer <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="admin_password_confirmation">Confirmer <span class="text-bimo-red">*</span></label>
                     <input type="password" id="admin_password_confirmation" name="admin_password_confirmation" placeholder="Répétez" required autocomplete="new-password"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                 </div>
             </div>
 
             <div class="flex items-start gap-2.5 py-2">
                 <input type="checkbox" id="cgu" name="cgu" value="1"
                        class="w-4 h-4 mt-0.5 rounded cursor-pointer accent-bimo-gold flex-shrink-0">
-                <label for="cgu" class="font-body text-sm text-bimo-navy/60 leading-relaxed cursor-pointer">
+                <label for="cgu" class="font-body text-sm text-bimo-text/60 leading-relaxed cursor-pointer">
                     J'accepte les <a href="#" class="text-bimo-gold hover:underline font-medium">conditions générales d'utilisation</a>
                 </label>
             </div>
@@ -127,8 +127,8 @@
             </button>
         </form>
 
-        <p class="text-center font-body text-sm text-bimo-navy/40 mt-5">
-            Déjà inscrit ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-navy font-medium transition-colors duration-150">Se connecter →</a>
+        <p class="text-center font-body text-sm text-bimo-text/40 mt-5">
+            Déjà inscrit ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-text font-medium transition-colors duration-150">Se connecter →</a>
         </p>
     </div>
 </main>

@@ -18,8 +18,8 @@
     {{-- En-tête --}}
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight leading-tight">Rapport financier</h1>
-            <p class="font-body text-sm text-bimo-navy/50 mt-1">
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight leading-tight">Rapport financier</h1>
+            <p class="font-body text-sm text-bimo-text/50 mt-1">
                 {{ $debutMois->translatedFormat('F Y') }}
                 · {{ $kpiMois['nb_paiements'] }} paiement(s) validé(s)
                 @if($biensImpayes->count() > 0)
@@ -31,17 +31,17 @@
             {{-- Navigation mois --}}
             <div class="flex items-center gap-1">
                 <a href="{{ route('admin.rapports.financier', ['mois' => $prevMois, 'annee' => $prevAnnee]) }}"
-                   class="w-8 h-8 flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-navy/50 hover:text-bimo-navy hover:border-bimo-gold transition-all duration-150">
+                   class="w-8 h-8 flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-text/50 hover:text-bimo-text hover:border-bimo-gold transition-all duration-150">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                 </a>
-                <div class="font-display font-semibold text-sm text-bimo-navy min-w-[140px] text-center px-2">{{ $debutMois->translatedFormat('F Y') }}</div>
+                <div class="font-display font-semibold text-sm text-bimo-text min-w-[140px] text-center px-2">{{ $debutMois->translatedFormat('F Y') }}</div>
                 @if(!$isFutur)
                 <a href="{{ route('admin.rapports.financier', ['mois' => $nextMois, 'annee' => $nextAnnee]) }}"
-                   class="w-8 h-8 flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-navy/50 hover:text-bimo-navy hover:border-bimo-gold transition-all duration-150">
+                   class="w-8 h-8 flex items-center justify-center border border-bimo-navy/15 rounded-[7px] text-bimo-text/50 hover:text-bimo-text hover:border-bimo-gold transition-all duration-150">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
                 @else
-                <span class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-navy/20 cursor-not-allowed">
+                <span class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-text/20 cursor-not-allowed">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </span>
                 @endif
@@ -52,7 +52,7 @@
             <form method="GET" class="flex items-center">
                 <input type="hidden" name="mois" value="{{ $mois }}">
                 <select name="annee" onchange="this.form.submit()"
-                        class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px] font-body text-sm text-bimo-navy cursor-pointer
+                        class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px] font-body text-sm text-bimo-text cursor-pointer
                                focus:outline-none focus:border-bimo-gold transition-all duration-150">
                     @foreach($anneesDisponibles as $a)
                     <option value="{{ $a }}" {{ $a == $annee ? 'selected' : '' }}>{{ $a }}</option>
@@ -75,10 +75,10 @@
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5">
         <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
             <div>
-                <div class="font-display font-bold text-sm text-bimo-navy">Évolution sur 6 mois</div>
-                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Loyers encaissés et commissions</div>
+                <div class="font-display font-bold text-sm text-bimo-text">Évolution sur 6 mois</div>
+                <div class="font-body text-xs text-bimo-text/40 mt-0.5">Loyers encaissés et commissions</div>
             </div>
-            <div class="flex items-center gap-4 font-body text-xs text-bimo-navy/50">
+            <div class="flex items-center gap-4 font-body text-xs text-bimo-text/50">
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-[3px] bg-bimo-gold inline-block"></span>Loyers</span>
                 <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-[3px] bg-bimo-navy/15 inline-block"></span>Commission</span>
             </div>
@@ -98,11 +98,11 @@
                     <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80"
                          style="height:{{ $hComm }}px; background: {{ $isCur ? '#C9A84C' : 'rgba(27,79,107,0.15)' }}"></div>
                 </div>
-                <div class="font-body text-[9px] text-center {{ $isCur ? 'text-bimo-navy font-bold' : 'text-bimo-navy/40' }}">{{ $label }}</div>
+                <div class="font-body text-[9px] text-center {{ $isCur ? 'text-bimo-text font-bold' : 'text-bimo-text/40' }}">{{ $label }}</div>
             </div>
             @endforeach
         </div>
-        <div class="font-body text-[10px] text-bimo-navy/30 text-right mt-1">Max : {{ number_format($maxLoyer, 0, ',', ' ') }} F</div>
+        <div class="font-body text-[10px] text-bimo-text/30 text-right mt-1">Max : {{ number_format($maxLoyer, 0, ',', ' ') }} F</div>
     </div>
     @endif
 
@@ -111,17 +111,17 @@
         @php
             $kpis = [
                 ['Loyers encaissés',  number_format($kpiMois['total_loyers'], 0, ',', ' '), 'FCFA · '.$kpiMois['nb_paiements'].' paiements', 'border-t-bimo-gold', 'text-bimo-gold'],
-                ['Net propriétaires', number_format($kpiMois['total_net_proprio'], 0, ',', ' '), 'FCFA à reverser', 'border-t-bimo-navy', 'text-bimo-navy'],
-                ['Commission HT',     number_format($kpiMois['total_commission'], 0, ',', ' '), 'FCFA agence', 'border-t-bimo-navy', 'text-bimo-navy'],
-                ['TVA commission',    number_format($kpiMois['total_tva'], 0, ',', ' '), 'FCFA (18%)', 'border-t-bimo-navy', 'text-bimo-navy'],
-                ['Commission TTC',    number_format($kpiMois['total_ttc'], 0, ',', ' '), 'FCFA total agence', 'border-t-bimo-navy-dk', 'text-bimo-navy'],
+                ['Net propriétaires', number_format($kpiMois['total_net_proprio'], 0, ',', ' '), 'FCFA à reverser', 'border-t-bimo-navy', 'text-bimo-text'],
+                ['Commission HT',     number_format($kpiMois['total_commission'], 0, ',', ' '), 'FCFA agence', 'border-t-bimo-navy', 'text-bimo-text'],
+                ['TVA commission',    number_format($kpiMois['total_tva'], 0, ',', ' '), 'FCFA (18%)', 'border-t-bimo-navy', 'text-bimo-text'],
+                ['Commission TTC',    number_format($kpiMois['total_ttc'], 0, ',', ' '), 'FCFA total agence', 'border-t-bimo-navy-dk', 'text-bimo-text'],
             ];
         @endphp
         @foreach($kpis as [$lbl, $val, $sub, $topClass, $valClass])
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 {{ $topClass }}">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">{{ $lbl }}</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">{{ $lbl }}</div>
             <div class="font-display font-extrabold text-xl {{ $valClass }} leading-none">{{ $val }}</div>
-            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">{{ $sub }}</div>
+            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">{{ $sub }}</div>
         </div>
         @endforeach
     </div>
@@ -136,14 +136,14 @@
             ['Locataires',     $statsGenerales['nb_locataires']],
         ] as [$lbl, $val])
         <div class="bg-bimo-bg rounded-[10px] border border-bimo-navy/10 p-3 text-center">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/40 mb-1">{{ $lbl }}</div>
-            <div class="font-display font-bold text-lg text-bimo-navy leading-none">{{ $val }}</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">{{ $lbl }}</div>
+            <div class="font-display font-bold text-lg text-bimo-text leading-none">{{ $val }}</div>
         </div>
         @endforeach
         {{-- Taux d'occupation --}}
         @php $taux = $statsGenerales['taux_occupation']; @endphp
         <div class="bg-bimo-bg rounded-[10px] border border-bimo-navy/10 p-3">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/40 mb-1">Taux d'occupation</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Taux d'occupation</div>
             <div class="font-display font-bold text-lg leading-none {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-amber-500' : 'text-bimo-red') }}">{{ $taux }}%</div>
             <div class="h-1.5 bg-bimo-navy/10 rounded-full overflow-hidden mt-2">
                 <div class="h-full rounded-full" style="width:{{ $taux }}%; background: {{ $taux >= 80 ? '#C9A84C' : ($taux >= 50 ? '#f59e0b' : '#EF4444') }}"></div>
@@ -155,19 +155,19 @@
     @if($parProprietaire->count() > 0)
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-            <span class="font-display font-bold text-sm text-bimo-navy">Récapitulatif par propriétaire</span>
-            <span class="font-body text-xs text-bimo-navy/40">{{ $parProprietaire->count() }} propriétaire(s)</span>
+            <span class="font-display font-bold text-sm text-bimo-text">Récapitulatif par propriétaire</span>
+            <span class="font-body text-xs text-bimo-text/40">{{ $parProprietaire->count() }} propriétaire(s)</span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
-                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Paiements</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Total encaissé</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Commission TTC</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net reversé</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Part</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Paiements</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Total encaissé</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Commission TTC</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Net reversé</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Part</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-bimo-navy/[5%]">
@@ -179,18 +179,18 @@
                                 <div class="w-7 h-7 rounded-[7px] bg-bimo-gold/15 flex items-center justify-center font-display font-bold text-[10px] text-bimo-gold flex-shrink-0">
                                     {{ mb_strtoupper(mb_substr($nom, 0, 2)) }}
                                 </div>
-                                <span class="font-body font-medium text-sm text-bimo-navy">{{ $nom }}</span>
+                                <span class="font-body font-medium text-sm text-bimo-text">{{ $nom }}</span>
                             </div>
                         </td>
                         <td class="px-5 py-3.5 text-center">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-bimo-navy/10 border border-bimo-navy/15 font-body text-[11px] text-bimo-navy/60">{{ $data['nb_paiements'] }}</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-bimo-navy/10 border border-bimo-navy/15 font-body text-[11px] text-bimo-text/60">{{ $data['nb_paiements'] }}</span>
                         </td>
                         <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($data['total_encaisse'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-navy/60">{{ number_format($data['total_commission'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy">{{ number_format($data['total_net'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/60">{{ number_format($data['total_commission'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">{{ number_format($data['total_net'], 0, ',', ' ') }} F</td>
                         <td class="px-5 py-3.5 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <span class="font-body text-[11px] text-bimo-navy/40">{{ $part }}%</span>
+                                <span class="font-body text-[11px] text-bimo-text/40">{{ $part }}%</span>
                                 <div class="w-10 h-1 bg-bimo-navy/10 rounded-full overflow-hidden">
                                     <div class="h-full bg-bimo-gold rounded-full" style="width:{{ $part }}%"></div>
                                 </div>
@@ -201,11 +201,11 @@
                 </tbody>
                 <tfoot>
                     <tr class="bg-bimo-bg2 font-semibold border-t border-bimo-navy/10">
-                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-navy">Total</td>
-                        <td class="px-5 py-3.5 text-center font-body text-sm text-bimo-navy">{{ $kpiMois['nb_paiements'] }}</td>
+                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-text">Total</td>
+                        <td class="px-5 py-3.5 text-center font-body text-sm text-bimo-text">{{ $kpiMois['nb_paiements'] }}</td>
                         <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-navy/60">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/60">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }} F</td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -217,17 +217,17 @@
     {{-- Détail paiements --}}
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-            <span class="font-display font-bold text-sm text-bimo-navy">Détail des paiements</span>
-            <span class="font-body text-xs text-bimo-navy/40">{{ $paiementsMois->total() }} paiement(s)</span>
+            <span class="font-display font-bold text-sm text-bimo-text">Détail des paiements</span>
+            <span class="font-body text-xs text-bimo-text/40">{{ $paiementsMois->total() }} paiement(s)</span>
         </div>
 
         @if($paiementsMois->isEmpty())
         <div class="px-5 py-16 text-center">
             <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">
-                <svg class="w-6 h-6 text-bimo-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <svg class="w-6 h-6 text-bimo-text/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
             </div>
-            <div class="font-display font-bold text-base text-bimo-navy mb-2">Aucun paiement ce mois</div>
-            <p class="font-body text-sm text-bimo-navy/50 mb-5">Aucun paiement validé pour {{ $debutMois->translatedFormat('F Y') }}.</p>
+            <div class="font-display font-bold text-base text-bimo-text mb-2">Aucun paiement ce mois</div>
+            <p class="font-body text-sm text-bimo-text/50 mb-5">Aucun paiement validé pour {{ $debutMois->translatedFormat('F Y') }}.</p>
             <a href="{{ route('admin.paiements.create') }}"
                class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
                 + Enregistrer un paiement
@@ -240,12 +240,12 @@
             @foreach($paiementsMois as $p)
             <div class="px-5 py-3.5 flex items-center justify-between gap-3">
                 <div>
-                    <div class="font-body font-medium text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                    <div class="font-body text-xs text-bimo-navy/50">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
+                    <div class="font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                    <div class="font-body text-xs text-bimo-text/50">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
                 </div>
                 <div class="text-right">
                     <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse ?? 0, 0, ',', ' ') }} F</div>
-                    <div class="font-body text-xs text-bimo-navy/40">{{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}</div>
+                    <div class="font-body text-xs text-bimo-text/40">{{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}</div>
                 </div>
             </div>
             @endforeach
@@ -256,51 +256,51 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Référence</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Bien</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Locataire</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Mode</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer nu</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Comm. TTC</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net proprio</th>
-                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">PDF</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Référence</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Bien</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Locataire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Mode</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Loyer nu</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Comm. TTC</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Net proprio</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">PDF</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-bimo-navy/[5%]">
                     @foreach($paiementsMois as $p)
                     @php $proprio = $p->contrat?->bien?->proprietaire; @endphp
                     <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                        <td class="px-5 py-3.5 font-body text-[11px] text-bimo-navy/40 uppercase tracking-widest whitespace-nowrap">{{ $p->reference_paiement }}</td>
+                        <td class="px-5 py-3.5 font-body text-[11px] text-bimo-text/40 uppercase tracking-widest whitespace-nowrap">{{ $p->reference_paiement }}</td>
                         <td class="px-5 py-3.5">
-                            <div class="font-body font-medium text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                            <div class="font-body text-xs text-bimo-navy/40">{{ $p->contrat?->bien?->ville }}</div>
+                            <div class="font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-text/40">{{ $p->contrat?->bien?->ville }}</div>
                         </td>
-                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/70">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-text/70">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
                         <td class="px-5 py-3.5">
                             @if($proprio)
                             <div class="flex items-center gap-2">
                                 <div class="w-6 h-6 rounded-[5px] bg-bimo-gold/15 flex items-center justify-center font-body font-bold text-[9px] text-bimo-gold flex-shrink-0">{{ mb_strtoupper(mb_substr($proprio->name,0,2)) }}</div>
-                                <span class="font-body text-xs text-bimo-navy/60">{{ $proprio->name }}</span>
+                                <span class="font-body text-xs text-bimo-text/60">{{ $proprio->name }}</span>
                             </div>
                             @else
-                            <span class="font-body text-xs text-bimo-navy/30">—</span>
+                            <span class="font-body text-xs text-bimo-text/30">—</span>
                             @endif
                         </td>
                         <td class="px-5 py-3.5">
                             @php
-                                $modeClasses = ['especes'=>'bg-bimo-navy/10 text-bimo-navy/60','virement'=>'bg-bimo-navy/10 text-bimo-navy/60','cheque'=>'bg-bimo-navy/10 text-bimo-navy/60','wave'=>'bg-amber-50 text-amber-700','orange_money'=>'bg-orange-50 text-orange-700','free_money'=>'bg-pink-50 text-pink-700','e_money'=>'bg-bimo-gold/10 text-bimo-gold'];
+                                $modeClasses = ['especes'=>'bg-bimo-navy/10 text-bimo-text/60','virement'=>'bg-bimo-navy/10 text-bimo-text/60','cheque'=>'bg-bimo-navy/10 text-bimo-text/60','wave'=>'bg-amber-50 text-amber-700','orange_money'=>'bg-orange-50 text-orange-700','free_money'=>'bg-pink-50 text-pink-700','e_money'=>'bg-bimo-gold/10 text-bimo-gold'];
                             @endphp
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-bold {{ $modeClasses[$p->mode_paiement] ?? 'bg-bimo-navy/10 text-bimo-navy/60' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-bold {{ $modeClasses[$p->mode_paiement] ?? 'bg-bimo-navy/10 text-bimo-text/60' }}">
                                 {{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}
                             </span>
                         </td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy whitespace-nowrap">{{ number_format($p->loyer_nu ?? 0, 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-navy/50 whitespace-nowrap">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-navy whitespace-nowrap">{{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text whitespace-nowrap">{{ number_format($p->loyer_nu ?? 0, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/50 whitespace-nowrap">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text whitespace-nowrap">{{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F</td>
                         <td class="px-5 py-3.5 text-center">
                             <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                               class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                               class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             </a>
                         </td>
@@ -313,20 +313,20 @@
         {{-- Pagination --}}
         @if($paiementsMois->hasPages())
         <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%] bg-bimo-bg">
-            <span class="font-body text-xs text-bimo-navy/40">{{ $paiementsMois->firstItem() }}–{{ $paiementsMois->lastItem() }} sur {{ $paiementsMois->total() }}</span>
+            <span class="font-body text-xs text-bimo-text/40">{{ $paiementsMois->firstItem() }}–{{ $paiementsMois->lastItem() }} sur {{ $paiementsMois->total() }}</span>
             <div class="flex items-center gap-1">
                 @if($paiementsMois->onFirstPage())
-                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
                 @else
-                <a href="{{ $paiementsMois->previousPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+                <a href="{{ $paiementsMois->previousPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
                 @endif
                 @foreach($paiementsMois->getUrlRange(max(1,$paiementsMois->currentPage()-2), min($paiementsMois->lastPage(),$paiementsMois->currentPage()+2)) as $page => $url)
-                <a href="{{ $url }}" class="w-7 h-7 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150 {{ $page == $paiementsMois->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30' }}">{{ $page }}</a>
+                <a href="{{ $url }}" class="w-7 h-7 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150 {{ $page == $paiementsMois->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30' }}">{{ $page }}</a>
                 @endforeach
                 @if($paiementsMois->hasMorePages())
-                <a href="{{ $paiementsMois->nextPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+                <a href="{{ $paiementsMois->nextPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
                 @else
-                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
                 @endif
             </div>
         </div>
@@ -348,22 +348,22 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Bien</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Locataire</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Propriétaire</th>
-                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer dû</th>
-                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Action</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Bien</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Locataire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Propriétaire</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Loyer dû</th>
+                        <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Action</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-bimo-navy/[5%]">
                     @foreach($biensImpayes as $c)
                     <tr class="hover:bg-bimo-red/[2%] transition-colors duration-100">
                         <td class="px-5 py-3.5">
-                            <div class="font-body font-medium text-sm text-bimo-navy">{{ $c->bien?->reference ?? '—' }}</div>
-                            <div class="font-body text-xs text-bimo-navy/40">{{ $c->bien?->ville }}</div>
+                            <div class="font-body font-medium text-sm text-bimo-text">{{ $c->bien?->reference ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-text/40">{{ $c->bien?->ville }}</div>
                         </td>
-                        <td class="px-5 py-3.5 font-body text-sm text-bimo-navy/70">{{ $c->locataire?->name ?? '—' }}</td>
-                        <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $c->bien?->proprietaire?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5 font-body text-sm text-bimo-text/70">{{ $c->locataire?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $c->bien?->proprietaire?->name ?? '—' }}</td>
                         <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-red whitespace-nowrap">{{ number_format($c->loyer_contractuel, 0, ',', ' ') }} F</td>
                         <td class="px-5 py-3.5 text-center">
                             <a href="{{ route('admin.paiements.create', ['contrat_id' => $c->id]) }}"

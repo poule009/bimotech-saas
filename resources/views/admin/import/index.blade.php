@@ -10,8 +10,8 @@
 @php $type = session('import_type'); @endphp
 @if(session('import_created') > 0)
 <div class="flex items-start gap-2 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[10px] px-4 py-3">
-    <svg class="w-4 h-4 text-bimo-navy flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-    <span class="font-body text-sm text-bimo-navy">✓ {{ session('import_created') }} {{ match($type) { 'proprietaires'=>'propriétaire(s) importé(s)', 'locataires'=>'locataire(s) importé(s)', 'biens'=>'bien(s) importé(s)', default=>'enregistrement(s) importé(s)' } }} avec succès</span>
+    <svg class="w-4 h-4 text-bimo-text flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    <span class="font-body text-sm text-bimo-text">✓ {{ session('import_created') }} {{ match($type) { 'proprietaires'=>'propriétaire(s) importé(s)', 'locataires'=>'locataire(s) importé(s)', 'biens'=>'bien(s) importé(s)', default=>'enregistrement(s) importé(s)' } }} avec succès</span>
 </div>
 @endif
 @if(session('import_rolled_back'))
@@ -56,7 +56,7 @@
 
 {{-- Guide --}}
 <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5">
-    <div class="flex items-center gap-2 font-display font-bold text-sm text-bimo-navy mb-4">
+    <div class="flex items-center gap-2 font-display font-bold text-sm text-bimo-text mb-4">
         <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Comment utiliser l'import Excel
     </div>
@@ -65,8 +65,8 @@
         <div class="flex items-start gap-3 bg-bimo-bg border border-bimo-navy/[8%] rounded-[10px] p-4">
             <div class="w-6 h-6 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-[11px] text-white flex-shrink-0">{{ $num }}</div>
             <div>
-                <div class="font-body font-semibold text-sm text-bimo-navy mb-1">{{ $title }}</div>
-                <div class="font-body text-xs text-bimo-navy/50 leading-relaxed">{{ $desc }}</div>
+                <div class="font-body font-semibold text-sm text-bimo-text mb-1">{{ $title }}</div>
+                <div class="font-body text-xs text-bimo-text/50 leading-relaxed">{{ $desc }}</div>
             </div>
         </div>
         @endforeach
@@ -89,7 +89,7 @@
     @foreach([['proprietaires','① Propriétaires'],['biens','② Biens'],['locataires','③ Locataires']] as [$id,$lbl])
     <button id="tab-btn-{{ $id }}"
             onclick="switchTab('{{ $id }}', this)"
-            class="px-4 py-2 rounded-[8px] border font-body font-semibold text-sm cursor-pointer transition-all duration-150 {{ $id === 'proprietaires' ? 'bg-bimo-gold/10 border-bimo-gold/30 text-bimo-gold' : 'border-bimo-navy/15 text-bimo-navy/50 bg-white hover:border-bimo-gold/30 hover:text-bimo-gold' }}">
+            class="px-4 py-2 rounded-[8px] border font-body font-semibold text-sm cursor-pointer transition-all duration-150 {{ $id === 'proprietaires' ? 'bg-bimo-gold/10 border-bimo-gold/30 text-bimo-gold' : 'border-bimo-navy/15 text-bimo-text/50 bg-white hover:border-bimo-gold/30 hover:text-bimo-gold' }}">
         {{ $lbl }}
     </button>
     @endforeach
@@ -296,7 +296,7 @@ function renderImportPanel($id, $title, $icon, $iconColor, $templateRoute, $uplo
 function switchTab(name, btn) {
     ['proprietaires','biens','locataires'].forEach(function(id){
         document.getElementById('tab-' + id).classList.add('hidden');
-        document.getElementById('tab-btn-' + id).className = 'px-4 py-2 rounded-[8px] border font-body font-semibold text-sm cursor-pointer transition-all duration-150 border-bimo-navy/15 text-bimo-navy/50 bg-white hover:border-bimo-gold/30 hover:text-bimo-gold';
+        document.getElementById('tab-btn-' + id).className = 'px-4 py-2 rounded-[8px] border font-body font-semibold text-sm cursor-pointer transition-all duration-150 border-bimo-navy/15 text-bimo-text/50 bg-white hover:border-bimo-gold/30 hover:text-bimo-gold';
     });
     document.getElementById('tab-' + name).classList.remove('hidden');
     btn.className = 'px-4 py-2 rounded-[8px] border font-body font-semibold text-sm cursor-pointer transition-all duration-150 bg-bimo-gold/10 border-bimo-gold/30 text-bimo-gold';

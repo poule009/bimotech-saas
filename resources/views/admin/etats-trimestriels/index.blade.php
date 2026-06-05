@@ -8,20 +8,20 @@
     {{-- En-tête --}}
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">États trimestriels BRS</h1>
-            <p class="font-body text-sm text-bimo-navy/50 mt-1">Retenues à la source sur loyers — Art. 200 §5 CGI Sénégal — Année {{ $annee }}</p>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">États trimestriels BRS</h1>
+            <p class="font-body text-sm text-bimo-text/50 mt-1">Retenues à la source sur loyers — Art. 200 §5 CGI Sénégal — Année {{ $annee }}</p>
         </div>
         <div class="flex-shrink-0 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[10px] px-4 py-3 text-right">
-            <div class="font-body font-medium text-xs text-bimo-navy/50">📋 À déposer au Centre des Services Fiscaux</div>
-            <div class="font-body text-xs text-bimo-navy/30 mt-0.5">15 Avr · 15 Juil · 15 Oct · 15 Jan N+1</div>
+            <div class="font-body font-medium text-xs text-bimo-text/50">📋 À déposer au Centre des Services Fiscaux</div>
+            <div class="font-body text-xs text-bimo-text/30 mt-0.5">15 Avr · 15 Juil · 15 Oct · 15 Jan N+1</div>
         </div>
     </div>
 
     {{-- Filtre --}}
     <form method="GET" class="flex items-center gap-3 bg-white rounded-[12px] border border-bimo-navy/10 px-5 py-3.5">
-        <span class="font-body font-medium text-xs text-bimo-navy/50 whitespace-nowrap">Année fiscale :</span>
+        <span class="font-body font-medium text-xs text-bimo-text/50 whitespace-nowrap">Année fiscale :</span>
         <select name="annee"
-                class="px-3 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy bg-bimo-bg focus:outline-none focus:border-bimo-gold cursor-pointer transition-all duration-150">
+                class="px-3 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-text bg-bimo-bg focus:outline-none focus:border-bimo-gold cursor-pointer transition-all duration-150">
             @foreach($anneesDisponibles as $a)
             <option value="{{ $a }}" {{ $annee == $a ? 'selected' : '' }}>{{ $a }}</option>
             @endforeach
@@ -42,16 +42,16 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden flex flex-col" style="border-top: 3px solid {{ match($statut) { 'telecharge'=>'#C9A84C', 'en_cours'=>'#1B4F6B', 'a_deposer','en_retard'=>'#EF4444', default=>'rgba(27,79,107,.1)' } }}">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div>
-                    <div class="font-display font-bold text-base text-bimo-navy">{{ $t['label'] }}</div>
-                    <div class="font-body text-xs text-bimo-navy/40 mt-0.5">{{ $t['mois_label'] }}</div>
+                    <div class="font-display font-bold text-base text-bimo-text">{{ $t['label'] }}</div>
+                    <div class="font-body text-xs text-bimo-text/40 mt-0.5">{{ $t['mois_label'] }}</div>
                 </div>
                 @if($statut === 'avenir')
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/[5%] text-bimo-navy/30">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/[5%] text-bimo-text/30">
                     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     À venir
                 </span>
                 @elseif($statut === 'en_cours')
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">
                     <span class="w-1.5 h-1.5 rounded-full bg-bimo-navy/50"></span>En cours
                 </span>
                 @elseif($statut === 'a_deposer')
@@ -65,7 +65,7 @@
                     En retard
                 </span>
                 @else
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">
                     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                     Téléchargé
                 </span>
@@ -79,12 +79,12 @@
                         <div class="font-display font-bold text-lg text-bimo-red leading-none">{{ $t['total_brs'] > 0 ? number_format($t['total_brs'],0,',','').' F' : '—' }}</div>
                     </div>
                     <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[9px] p-3">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-navy/40 mb-1">Bailleurs concernés</div>
-                        <div class="font-display font-bold text-lg text-bimo-navy leading-none">{{ $t['nb_bailleurs'] }}</div>
+                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Bailleurs concernés</div>
+                        <div class="font-display font-bold text-lg text-bimo-text leading-none">{{ $t['nb_bailleurs'] }}</div>
                     </div>
                 </div>
 
-                <div class="font-body text-xs {{ $statut === 'en_retard' ? 'text-bimo-red font-semibold' : 'text-bimo-navy/40' }}">
+                <div class="font-body text-xs {{ $statut === 'en_retard' ? 'text-bimo-red font-semibold' : 'text-bimo-text/40' }}">
                     📅 Date limite : {{ $t['date_limite']->translatedFormat('d F Y') }}
                     @if($statut === 'en_retard') — <strong>Dépassée</strong>
                     @elseif($statut === 'a_deposer') @php $j = now()->diffInDays($t['date_limite'], false); @endphp — J-{{ $j }} restant(s)
@@ -101,7 +101,7 @@
             <div class="px-5 py-3.5 border-t border-bimo-navy/[5%] flex items-center gap-2">
                 @if($t['total_brs'] > 0 || $t['nb_bailleurs'] > 0)
                 <a href="{{ route('admin.etats-trimestriels.show', [$annee, $t['numero']]) }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-gold hover:text-bimo-navy transition-all duration-150">
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-text/60 hover:border-bimo-gold hover:text-bimo-text transition-all duration-150">
                     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     Voir le détail
                 </a>
@@ -111,12 +111,12 @@
                     PDF
                 </a>
                 <a href="{{ route('admin.etats-trimestriels.csv', [$annee, $t['numero']]) }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-gold hover:text-bimo-navy transition-all duration-150">
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-text/60 hover:border-bimo-gold hover:text-bimo-text transition-all duration-150">
                     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     CSV
                 </a>
                 @else
-                <span class="font-body text-xs text-bimo-navy/30 italic">Aucun paiement BRS sur ce trimestre</span>
+                <span class="font-body text-xs text-bimo-text/30 italic">Aucun paiement BRS sur ce trimestre</span>
                 @endif
             </div>
         </div>

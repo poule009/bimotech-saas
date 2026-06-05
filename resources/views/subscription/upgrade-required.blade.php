@@ -39,9 +39,9 @@
         Plan {{ $labelRequis }}
     </div>
 
-    <h1 class="font-display font-extrabold text-2xl text-bimo-navy tracking-tight mb-3">Fonctionnalité réservée au Plan {{ $labelRequis }}</h1>
-    <p class="font-body text-sm text-bimo-navy/60 leading-relaxed mb-8">
-        Votre abonnement actuel (<strong class="text-bimo-navy">{{ $labelActuel }}</strong>) ne donne pas accès à cette section.
+    <h1 class="font-display font-extrabold text-2xl text-bimo-text tracking-tight mb-3">Fonctionnalité réservée au Plan {{ $labelRequis }}</h1>
+    <p class="font-body text-sm text-bimo-text/60 leading-relaxed mb-8">
+        Votre abonnement actuel (<strong class="text-bimo-text">{{ $labelActuel }}</strong>) ne donne pas accès à cette section.
         Passez au Plan {{ $labelRequis }} pour en profiter.
     </p>
 
@@ -53,7 +53,7 @@
             @foreach($avantages as $avantage)
             <li class="flex items-center gap-3">
                 <svg class="w-4 h-4 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span class="font-body text-sm text-bimo-navy/80">{{ $avantage }}</span>
+                <span class="font-body text-sm text-bimo-text/80">{{ $avantage }}</span>
             </li>
             @endforeach
         </ul>
@@ -65,15 +65,15 @@
     <div class="flex items-center justify-center gap-8 mb-8">
         @if($mensuel)
         <div class="text-center">
-            <div class="font-display font-extrabold text-2xl text-bimo-navy">{{ number_format($mensuel,0,',','') }}<span class="font-body text-sm text-bimo-navy/40 ml-1">FCFA</span></div>
-            <div class="font-body text-xs text-bimo-navy/40 mt-1">/ mois</div>
+            <div class="font-display font-extrabold text-2xl text-bimo-text">{{ number_format($mensuel,0,',','') }}<span class="font-body text-sm text-bimo-text/40 ml-1">FCFA</span></div>
+            <div class="font-body text-xs text-bimo-text/40 mt-1">/ mois</div>
         </div>
         @endif
         @if($mensuel && $annuel)<div class="w-px h-10 bg-bimo-navy/10"></div>@endif
         @if($annuel)
         <div class="text-center">
-            <div class="font-display font-extrabold text-2xl text-bimo-navy">{{ number_format($annuel,0,',','') }}<span class="font-body text-sm text-bimo-navy/40 ml-1">FCFA</span></div>
-            <div class="font-body text-xs text-bimo-navy/40 mt-1">/ an <span class="text-bimo-gold text-[10px]">— 2 mois offerts</span></div>
+            <div class="font-display font-extrabold text-2xl text-bimo-text">{{ number_format($annuel,0,',','') }}<span class="font-body text-sm text-bimo-text/40 ml-1">FCFA</span></div>
+            <div class="font-body text-xs text-bimo-text/40 mt-1">/ an <span class="text-bimo-gold text-[10px]">— 2 mois offerts</span></div>
         </div>
         @endif
     </div>
@@ -87,7 +87,7 @@
     </a>
 
     <a href="{{ url()->previous(route('admin.dashboard')) }}"
-       class="flex items-center justify-center gap-2 w-full px-6 py-3 font-body text-sm text-bimo-navy/50 hover:text-bimo-navy transition-colors duration-150">
+       class="flex items-center justify-center gap-2 w-full px-6 py-3 font-body text-sm text-bimo-text/50 hover:text-bimo-text transition-colors duration-150">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Retour
     </a>

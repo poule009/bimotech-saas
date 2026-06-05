@@ -8,11 +8,11 @@
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
             <div class="w-9 h-9 rounded-[10px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                <svg class="w-4 h-4 text-bimo-navy/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                <svg class="w-4 h-4 text-bimo-text/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
             </div>
             <div>
-                <div class="font-display font-bold text-sm text-bimo-navy">Configurer l'authentification à deux facteurs</div>
-                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Protégez votre compte superadmin avec Google Authenticator ou Authy</div>
+                <div class="font-display font-bold text-sm text-bimo-text">Configurer l'authentification à deux facteurs</div>
+                <div class="font-body text-xs text-bimo-text/40 mt-0.5">Protégez votre compte superadmin avec Google Authenticator ou Authy</div>
             </div>
         </div>
         <div class="px-5 py-6 space-y-5">
@@ -27,13 +27,13 @@
             {{-- Étape 1 --}}
             <div class="flex items-start gap-3">
                 <div class="w-6 h-6 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-[11px] text-white flex-shrink-0 mt-0.5">1</div>
-                <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">Installez <strong class="text-bimo-navy">Google Authenticator</strong>, <strong class="text-bimo-navy">Authy</strong> ou toute app TOTP compatible sur votre téléphone.</p>
+                <p class="font-body text-sm text-bimo-text/70 leading-relaxed">Installez <strong class="text-bimo-text">Google Authenticator</strong>, <strong class="text-bimo-text">Authy</strong> ou toute app TOTP compatible sur votre téléphone.</p>
             </div>
 
             {{-- Étape 2 --}}
             <div class="flex items-start gap-3">
                 <div class="w-6 h-6 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-[11px] text-white flex-shrink-0 mt-0.5">2</div>
-                <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">Scannez ce QR code avec l'application, ou saisissez la clé manuellement.</p>
+                <p class="font-body text-sm text-bimo-text/70 leading-relaxed">Scannez ce QR code avec l'application, ou saisissez la clé manuellement.</p>
             </div>
 
             {{-- QR Code --}}
@@ -42,14 +42,14 @@
             </div>
 
             <div>
-                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 text-center mb-2">Clé de configuration manuelle</div>
-                <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[8px] px-4 py-3 text-center font-body font-bold text-base text-bimo-navy tracking-[3px]" style="font-family:'Courier New',monospace">{{ $secret }}</div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 text-center mb-2">Clé de configuration manuelle</div>
+                <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[8px] px-4 py-3 text-center font-body font-bold text-base text-bimo-text tracking-[3px]" style="font-family:'Courier New',monospace">{{ $secret }}</div>
             </div>
 
             {{-- Étape 3 --}}
             <div class="flex items-start gap-3">
                 <div class="w-6 h-6 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-[11px] text-white flex-shrink-0 mt-0.5">3</div>
-                <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">Saisissez le code à 6 chiffres affiché dans l'application pour confirmer la configuration.</p>
+                <p class="font-body text-sm text-bimo-text/70 leading-relaxed">Saisissez le code à 6 chiffres affiché dans l'application pour confirmer la configuration.</p>
             </div>
 
             <form method="POST" action="{{ route('superadmin.2fa.confirm') }}" class="space-y-4">

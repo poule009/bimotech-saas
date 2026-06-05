@@ -3,8 +3,8 @@
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-6 space-y-5">
 
         <div>
-            <h2 class="font-display font-bold text-base text-bimo-navy mb-1">Vérifiez votre email</h2>
-            <p class="font-body text-sm text-bimo-navy/50 leading-relaxed">
+            <h2 class="font-display font-bold text-base text-bimo-text mb-1">Vérifiez votre email</h2>
+            <p class="font-body text-sm text-bimo-text/50 leading-relaxed">
                 Bienvenue ! Avant de commencer, cliquez sur le lien de vérification que nous venons de vous envoyer.
                 Si vous n'avez pas reçu l'email, nous pouvons vous en envoyer un autre.
             </p>
@@ -35,7 +35,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
-                        class="font-body text-sm text-bimo-navy/50 hover:text-bimo-navy transition-colors duration-150">
+                        class="font-body text-sm text-bimo-text/50 hover:text-bimo-text transition-colors duration-150">
                     Se déconnecter
                 </button>
             </form>

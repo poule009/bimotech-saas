@@ -27,18 +27,18 @@
                 <div class="w-12 h-12 rounded-[12px] bg-bimo-navy flex items-center justify-center">
                     <span class="font-display font-extrabold text-bimo-gold text-lg">B</span>
                 </div>
-                <span class="font-display font-bold text-bimo-navy text-lg">
+                <span class="font-display font-bold text-bimo-text text-lg">
                     Bimothèque <span class="text-bimo-gold">Immo</span>
                 </span>
             </a>
-            <p class="font-body text-sm text-bimo-navy/40 mt-1">Gestion immobilière professionnelle</p>
+            <p class="font-body text-sm text-bimo-text/40 mt-1">Gestion immobilière professionnelle</p>
         </div>
 
         {{-- Contenu --}}
         {{ $slot }}
 
         {{-- Footer --}}
-        <p class="text-center font-body text-xs text-bimo-navy/30 mt-8">
+        <p class="text-center font-body text-xs text-bimo-text/30 mt-8">
             © {{ date('Y') }} Bimothèque — Conçu au Sénégal 🇸🇳
         </p>
 

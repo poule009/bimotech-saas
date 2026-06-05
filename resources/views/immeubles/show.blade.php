@@ -5,10 +5,10 @@
 <div class="space-y-4 md:space-y-5">
 
     {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
-        <a href="{{ route('admin.immeubles.index') }}" class="hover:text-bimo-navy transition-colors duration-150">Immeubles</a>
+    <div class="flex items-center gap-2 font-body text-sm text-bimo-text/40">
+        <a href="{{ route('admin.immeubles.index') }}" class="hover:text-bimo-text transition-colors duration-150">Immeubles</a>
         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span class="text-bimo-navy font-medium">{{ $immeuble->nom }}</span>
+        <span class="text-bimo-text font-medium">{{ $immeuble->nom }}</span>
     </div>
 
     {{-- Actions --}}
@@ -26,8 +26,8 @@
             Ajouter une unité
         </a>
         <a href="{{ route('admin.immeubles.index') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60
+                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             Retour
         </a>
@@ -82,9 +82,9 @@
                 <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-bimo-navy/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                         </div>
-                        <span class="font-display font-bold text-sm text-bimo-navy">Unités ({{ $immeuble->biens->count() }})</span>
+                        <span class="font-display font-bold text-sm text-bimo-text">Unités ({{ $immeuble->biens->count() }})</span>
                     </div>
                     <a href="{{ route('admin.biens.create', ['immeuble_id' => $immeuble->id]) }}"
                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px]
@@ -94,7 +94,7 @@
                 </div>
 
                 @if($immeuble->biens->isEmpty())
-                <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">
+                <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
                     Aucune unité enregistrée pour cet immeuble.
                 </div>
                 @else
@@ -103,16 +103,16 @@
                     @foreach($immeuble->biens as $bien)
                     @php
                         $bs = match($bien->statut) {
-                            'loue'       => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70',
+                            'loue'       => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/70',
                             'disponible' => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
-                            'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-navy/40',
-                            default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-navy/30',
+                            'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/40',
+                            default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/30',
                         };
                     @endphp
                     <div class="px-5 py-3.5 flex items-center justify-between gap-3">
                         <div>
-                            <div class="font-body font-semibold text-sm text-bimo-navy">{{ $bien->titre ?? $bien->type_label }}</div>
-                            <div class="font-body text-xs text-bimo-navy/50">{{ $bien->reference }}</div>
+                            <div class="font-body font-semibold text-sm text-bimo-text">{{ $bien->titre ?? $bien->type_label }}</div>
+                            <div class="font-body text-xs text-bimo-text/50">{{ $bien->reference }}</div>
                         </div>
                         <div class="text-right flex-shrink-0">
                             <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
@@ -126,12 +126,12 @@
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Référence</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Unité / Type</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Surface</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer</th>
-                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Statut</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Locataire</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Référence</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Unité / Type</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Surface</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Loyer</th>
+                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Statut</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Locataire</th>
                                 <th class="px-5 py-3"></th>
                             </tr>
                         </thead>
@@ -139,32 +139,32 @@
                             @foreach($immeuble->biens as $bien)
                             @php
                                 $bs = match($bien->statut) {
-                                    'loue'       => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70',
+                                    'loue'       => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/70',
                                     'disponible' => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
-                                    'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-navy/40',
-                                    default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-navy/30',
+                                    'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/40',
+                                    default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/30',
                                 };
                             @endphp
                             <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                                <td class="px-5 py-3.5 font-body text-[11px] text-bimo-navy/40 uppercase tracking-widest">{{ $bien->reference }}</td>
+                                <td class="px-5 py-3.5 font-body text-[11px] text-bimo-text/40 uppercase tracking-widest">{{ $bien->reference }}</td>
                                 <td class="px-5 py-3.5">
                                     @if($bien->titre)
-                                    <div class="font-body font-semibold text-sm text-bimo-navy">{{ $bien->titre }}</div>
-                                    <div class="font-body text-xs text-bimo-navy/50">{{ $bien->type_label }}</div>
+                                    <div class="font-body font-semibold text-sm text-bimo-text">{{ $bien->titre }}</div>
+                                    <div class="font-body text-xs text-bimo-text/50">{{ $bien->type_label }}</div>
                                     @else
-                                    <div class="font-body text-sm text-bimo-navy">{{ $bien->type_label }}</div>
+                                    <div class="font-body text-sm text-bimo-text">{{ $bien->type_label }}</div>
                                     @endif
                                 </td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $bien->surface_m2 ? $bien->surface_m2.' m²' : '—' }}</td>
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $bien->surface_m2 ? $bien->surface_m2.' m²' : '—' }}</td>
                                 <td class="px-5 py-3.5 font-display font-bold text-sm text-bimo-gold">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</td>
                                 <td class="px-5 py-3.5 text-center">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-[11px] font-body font-medium {{ $bs }}">{{ $bien->statut_label }}</span>
                                 </td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $bien->contratActif?->locataire?->name ?? '—' }}</td>
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $bien->contratActif?->locataire?->name ?? '—' }}</td>
                                 <td class="px-5 py-3.5">
                                     <a href="{{ route('admin.biens.show', $bien) }}"
                                        class="inline-flex items-center gap-1 px-3 py-1.5 border border-bimo-navy/10 rounded-[6px]
-                                              font-body text-xs text-bimo-navy/60 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                              font-body text-xs text-bimo-text/60 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                         Voir <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                                     </a>
                                 </td>
@@ -181,12 +181,12 @@
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                     </div>
-                    <span class="font-display font-bold text-sm text-bimo-navy">Description</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">Description</span>
                 </div>
                 <div class="px-5 py-5">
-                    <p class="font-body text-sm text-bimo-navy/70 leading-relaxed">{{ $immeuble->description }}</p>
+                    <p class="font-body text-sm text-bimo-text/70 leading-relaxed">{{ $immeuble->description }}</p>
                 </div>
             </div>
             @endif

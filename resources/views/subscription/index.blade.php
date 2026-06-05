@@ -25,10 +25,10 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
 <div class="max-w-3xl mx-auto space-y-6 pb-16">
 
     {{-- Breadcrumb --}}
-    <nav class="flex items-center gap-2 font-body text-sm text-bimo-navy/40">
-        <a href="{{ route('admin.dashboard') }}" class="hover:text-bimo-navy transition-colors duration-150">Tableau de bord</a>
+    <nav class="flex items-center gap-2 font-body text-sm text-bimo-text/40">
+        <a href="{{ route('admin.dashboard') }}" class="hover:text-bimo-text transition-colors duration-150">Tableau de bord</a>
         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span class="text-bimo-navy font-medium">Abonnement</span>
+        <span class="text-bimo-text font-medium">Abonnement</span>
     </nav>
 
     {{-- Statut actuel --}}
@@ -41,23 +41,23 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
                 @elseif($estEssai)
                 <svg class="w-5 h-5 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 @else
-                <svg class="w-5 h-5 text-bimo-navy/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <svg class="w-5 h-5 text-bimo-text/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 @endif
             </div>
             <div>
-                <div class="font-display font-bold text-sm {{ $estEssai ? 'text-bimo-gold' : ($estActif ? 'text-bimo-navy' : 'text-bimo-red') }}">
+                <div class="font-display font-bold text-sm {{ $estEssai ? 'text-bimo-gold' : ($estActif ? 'text-bimo-text' : 'text-bimo-red') }}">
                     @if($estEssai) Période d'essai en cours
                     @elseif($estActif) Abonnement actif — {{ \App\Models\Subscription::LABELS[$subscription->plan] ?? '' }}
                     @else Accès expiré @endif
                 </div>
-                <div class="font-body text-xs {{ $estEssai ? 'text-bimo-gold/60' : ($estActif ? 'text-bimo-navy/50' : 'text-bimo-red/60') }} mt-0.5">
+                <div class="font-body text-xs {{ $estEssai ? 'text-bimo-gold/60' : ($estActif ? 'text-bimo-text/50' : 'text-bimo-red/60') }} mt-0.5">
                     @if($estEssai) Expire le {{ $subscription->date_fin_essai->format('d/m/Y') }} · {{ $subscription->joursRestantsEssai() }} jours restants · Accès Pro complet inclus
                     @elseif($estActif) Expire le {{ $subscription->date_fin_abonnement->format('d/m/Y') }} · {{ $subscription->joursRestantsAbonnement() }} jours restants
                     @else Votre essai ou abonnement a expiré. Choisissez un plan. @endif
                 </div>
             </div>
         </div>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] font-display font-bold text-xs {{ $estEssai ? 'bg-bimo-gold/15 text-bimo-gold' : ($estActif ? 'bg-bimo-navy/10 text-bimo-navy' : 'bg-bimo-red/10 text-bimo-red') }}">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] font-display font-bold text-xs {{ $estEssai ? 'bg-bimo-gold/15 text-bimo-gold' : ($estActif ? 'bg-bimo-navy/10 text-bimo-text' : 'bg-bimo-red/10 text-bimo-red') }}">
             @if(!$estExpire)<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>@endif
             @if($estEssai) Essai gratuit 30 jours @elseif($estActif) Actif @else Expiré @endif
         </span>
@@ -66,21 +66,21 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
 
     {{-- Titre --}}
     <div>
-        <h1 class="font-display font-extrabold text-xl text-bimo-navy tracking-tight">Choisissez votre abonnement</h1>
-        <p class="font-body text-sm text-bimo-navy/50 mt-1">Aucune carte bancaire. Essai gratuit 30 jours inclus.</p>
+        <h1 class="font-display font-extrabold text-xl text-bimo-text tracking-tight">Choisissez votre abonnement</h1>
+        <p class="font-body text-sm text-bimo-text/50 mt-1">Aucune carte bancaire. Essai gratuit 30 jours inclus.</p>
     </div>
 
     {{-- Toggle mensuel / annuel --}}
     <div id="billing-toggle"
          class="inline-flex bg-bimo-bg2 border border-bimo-navy/10 rounded-[10px] p-1 gap-1">
         <button id="btn-mensuel" onclick="setBilling('mensuel')"
-                class="px-4 py-2 rounded-[8px] font-display font-bold text-sm bg-white text-bimo-navy shadow-sm transition-all duration-150">
+                class="px-4 py-2 rounded-[8px] font-display font-bold text-sm bg-white text-bimo-text shadow-sm transition-all duration-150">
             Mensuel
         </button>
         <button id="btn-annuel" onclick="setBilling('annuel')"
-                class="px-4 py-2 rounded-[8px] font-display font-bold text-sm text-bimo-navy/50 hover:text-bimo-navy transition-all duration-150 flex items-center gap-2">
+                class="px-4 py-2 rounded-[8px] font-display font-bold text-sm text-bimo-text/50 hover:text-bimo-text transition-all duration-150 flex items-center gap-2">
             Annuel
-            <span class="bg-bimo-navy/10 text-bimo-navy/60 text-[9px] font-body font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">2 mois offerts</span>
+            <span class="bg-bimo-navy/10 text-bimo-text/60 text-[9px] font-body font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">2 mois offerts</span>
         </button>
     </div>
 
@@ -90,7 +90,7 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
         @php $pM = $tarifsNiveau[$niveauKey]['mensuel']; $pA = $tarifsNiveau[$niveauKey]['annuel']; @endphp
         <div class="bg-bimo-navy rounded-[14px] border {{ $n['popular'] ? 'border-bimo-gold' : 'border-white/[7%]' }} p-5 flex flex-col relative {{ $n['popular'] ? 'bg-gradient-to-b from-bimo-navy to-bimo-navy-dk' : '' }}">
             @if($n['popular'])
-            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-bimo-gold text-bimo-navy text-[10px] font-display font-extrabold px-4 py-0.5 rounded-full whitespace-nowrap shadow-lg">
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-bimo-gold text-bimo-text text-[10px] font-display font-extrabold px-4 py-0.5 rounded-full whitespace-nowrap shadow-lg">
                 Le plus populaire
             </div>
             @endif
@@ -117,7 +117,7 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
                 <input type="hidden" name="plan_niveau" value="{{ $niveauKey }}">
                 <input type="hidden" name="plan" class="plan-billing-input" value="mensuel">
                 <button type="submit"
-                        class="w-full py-2.5 rounded-[9px] font-display font-bold text-sm text-center transition-all duration-150 {{ $n['popular'] ? 'bg-bimo-gold text-bimo-navy hover:opacity-90 shadow-lg' : 'bg-white/10 text-white hover:bg-white/15' }} cursor-pointer">
+                        class="w-full py-2.5 rounded-[9px] font-display font-bold text-sm text-center transition-all duration-150 {{ $n['popular'] ? 'bg-bimo-gold text-bimo-text hover:opacity-90 shadow-lg' : 'bg-white/10 text-white hover:bg-white/15' }} cursor-pointer">
                     Choisir {{ $n['label'] }}
                 </button>
             </form>
@@ -266,13 +266,13 @@ function setBilling(mode) {
     var isMensuel = (mode === 'mensuel');
     var btnM = document.getElementById('btn-mensuel'), btnA = document.getElementById('btn-annuel');
     btnM.classList.toggle('bg-white', isMensuel);
-    btnM.classList.toggle('text-bimo-navy', isMensuel);
+    btnM.classList.toggle('text-bimo-text', isMensuel);
     btnM.classList.toggle('shadow-sm', isMensuel);
-    btnM.classList.toggle('text-bimo-navy/50', !isMensuel);
+    btnM.classList.toggle('text-bimo-text/50', !isMensuel);
     btnA.classList.toggle('bg-white', !isMensuel);
-    btnA.classList.toggle('text-bimo-navy', !isMensuel);
+    btnA.classList.toggle('text-bimo-text', !isMensuel);
     btnA.classList.toggle('shadow-sm', !isMensuel);
-    btnA.classList.toggle('text-bimo-navy/50', isMensuel);
+    btnA.classList.toggle('text-bimo-text/50', isMensuel);
     ['starter','pro','agence'].forEach(function(n){
         var price = isMensuel ? tarifsNiveau[n].mensuel : tarifsNiveau[n].annuel;
         var period = isMensuel ? '/ mois' : '/ an';

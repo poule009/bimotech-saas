@@ -21,7 +21,7 @@
             <div class="w-12 h-12 rounded-[12px] bg-bimo-navy flex items-center justify-center">
                 <span class="font-display font-extrabold text-bimo-gold text-lg">B</span>
             </div>
-            <span class="font-display font-bold text-bimo-navy text-lg">
+            <span class="font-display font-bold text-bimo-text text-lg">
                 Bimothèque <span class="text-bimo-gold">Immo</span>
             </span>
         </a>
@@ -39,9 +39,9 @@
                     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                 </svg>
             </div>
-            <h1 class="font-display font-extrabold text-xl text-bimo-navy tracking-tight mb-2">Une dernière étape</h1>
-            <p class="font-body text-sm text-bimo-navy/50 leading-relaxed">
-                Connecté en tant que <strong class="text-bimo-navy">{{ $googleName }}</strong><br>
+            <h1 class="font-display font-extrabold text-xl text-bimo-text tracking-tight mb-2">Une dernière étape</h1>
+            <p class="font-body text-sm text-bimo-text/50 leading-relaxed">
+                Connecté en tant que <strong class="text-bimo-text">{{ $googleName }}</strong><br>
                 Donnez un nom à votre agence pour finir.
             </p>
         </div>
@@ -57,20 +57,20 @@
             @csrf
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_name">
+                <label class="block font-body font-medium text-sm text-bimo-text" for="agency_name">
                     Nom de l'agence <span class="text-bimo-red">*</span>
                 </label>
                 <input type="text" id="agency_name" name="agency_name" value="{{ old('agency_name') }}"
                        placeholder="Ex : Immobilier Prestige Dakar"
                        required autofocus autocomplete="organization"
-                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('agency_name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('agency_name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                 @error('agency_name')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
             <div class="flex items-start gap-2.5 py-1">
                 <input type="checkbox" id="cgu" name="cgu" value="1"
                        class="w-4 h-4 mt-0.5 rounded cursor-pointer accent-bimo-gold flex-shrink-0">
-                <label for="cgu" class="font-body text-sm text-bimo-navy/60 leading-relaxed cursor-pointer">
+                <label for="cgu" class="font-body text-sm text-bimo-text/60 leading-relaxed cursor-pointer">
                     J'accepte les <a href="#" class="text-bimo-gold hover:underline font-medium">conditions générales d'utilisation</a>
                 </label>
             </div>
@@ -85,12 +85,12 @@
     </div>
 
     <div class="text-center mt-5">
-        <a href="{{ route('agency.register') }}" class="font-body text-sm text-bimo-navy/40 hover:text-bimo-navy transition-colors duration-150">
+        <a href="{{ route('agency.register') }}" class="font-body text-sm text-bimo-text/40 hover:text-bimo-text transition-colors duration-150">
             ← Revenir à l'inscription
         </a>
     </div>
 
-    <p class="text-center font-body text-xs text-bimo-navy/30 mt-6">
+    <p class="text-center font-body text-xs text-bimo-text/30 mt-6">
         © {{ date('Y') }} Bimothèque — Conçu au Sénégal 🇸🇳
     </p>
 </div>

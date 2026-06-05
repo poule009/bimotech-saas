@@ -36,7 +36,7 @@
         {{-- Logo --}}
         <a href="{{ url('/') }}" class="relative z-10 inline-flex items-center gap-3">
             <div class="w-10 h-10 rounded-[10px] bg-bimo-gold flex items-center justify-center flex-shrink-0">
-                <span class="font-display font-extrabold text-bimo-navy text-base">B</span>
+                <span class="font-display font-extrabold text-bimo-text text-base">B</span>
             </div>
             <span class="font-display font-bold text-white text-base">
                 Bimothèque <span class="text-bimo-gold">Immo</span>
@@ -85,20 +85,20 @@
                     <div class="w-10 h-10 rounded-[10px] bg-bimo-navy flex items-center justify-center">
                         <span class="font-display font-extrabold text-bimo-gold text-base">B</span>
                     </div>
-                    <span class="font-display font-bold text-bimo-navy text-base">
+                    <span class="font-display font-bold text-bimo-text text-base">
                         Bimothèque <span class="text-bimo-gold">Immo</span>
                     </span>
                 </div>
             </div>
 
             {{-- Titre --}}
-            <h2 class="font-display font-extrabold text-bimo-navy text-2xl tracking-tight mb-1">
+            <h2 class="font-display font-extrabold text-bimo-text text-2xl tracking-tight mb-1">
                 Connexion
             </h2>
-            <p class="font-body text-sm text-bimo-navy/50 mb-8">
+            <p class="font-body text-sm text-bimo-text/50 mb-8">
                 Pas encore de compte ?
                 <a href="{{ route('register') }}"
-                   class="text-bimo-gold font-medium hover:text-bimo-navy transition-colors duration-150">
+                   class="text-bimo-gold font-medium hover:text-bimo-text transition-colors duration-150">
                     Créer une agence gratuitement
                 </a>
             </p>
@@ -136,7 +136,7 @@
 
                 {{-- Email --}}
                 <div class="mb-4">
-                    <label for="email" class="block font-body font-medium text-sm text-bimo-navy mb-1.5">
+                    <label for="email" class="block font-body font-medium text-sm text-bimo-text mb-1.5">
                         Adresse email
                     </label>
                     <input type="email" id="email" name="email"
@@ -144,8 +144,8 @@
                            placeholder="votre@agence.sn"
                            autocomplete="email" autofocus
                            aria-required="true"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                  placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                  placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                   @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('email')
@@ -155,7 +155,7 @@
 
                 {{-- Mot de passe --}}
                 <div class="mb-5" x-data="{ show: false }">
-                    <label for="password" class="block font-body font-medium text-sm text-bimo-navy mb-1.5">
+                    <label for="password" class="block font-body font-medium text-sm text-bimo-text mb-1.5">
                         Mot de passe
                     </label>
                     <div class="relative">
@@ -164,14 +164,14 @@
                                placeholder="••••••••"
                                autocomplete="current-password"
                                aria-required="true"
-                               class="w-full pl-4 pr-11 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                               class="w-full pl-4 pr-11 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         <button type="button"
                                 @click="show = !show"
                                 :aria-label="show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors duration-150">
+                                class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-bimo-text/30 hover:text-bimo-text/60 transition-colors duration-150">
                             <svg x-show="!show" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                             </svg>
@@ -193,11 +193,11 @@
                                {{ old('remember') ? 'checked' : '' }}
                                class="w-4 h-4 rounded border-bimo-navy/20 text-bimo-gold cursor-pointer
                                       focus:ring-bimo-gold/20 focus:ring-2">
-                        <span class="font-body text-sm text-bimo-navy/60">Se souvenir de moi</span>
+                        <span class="font-body text-sm text-bimo-text/60">Se souvenir de moi</span>
                     </label>
                     @if(Route::has('password.request'))
                     <a href="{{ route('password.request') }}"
-                       class="font-body text-sm text-bimo-gold hover:text-bimo-navy transition-colors duration-150">
+                       class="font-body text-sm text-bimo-gold hover:text-bimo-text transition-colors duration-150">
                         Mot de passe oublié ?
                     </a>
                     @endif
@@ -221,7 +221,7 @@
             {{-- Divider --}}
             <div class="flex items-center gap-3 my-6">
                 <div class="flex-1 h-px bg-bimo-navy/10"></div>
-                <span class="font-body text-xs text-bimo-navy/30">ou</span>
+                <span class="font-body text-xs text-bimo-text/30">ou</span>
                 <div class="flex-1 h-px bg-bimo-navy/10"></div>
             </div>
 
@@ -229,7 +229,7 @@
             <a href="{{ route('auth.google') }}"
                class="flex items-center justify-center gap-3 w-full px-5 py-3 rounded-[10px]
                       border border-bimo-navy/15 hover:border-bimo-navy/30 hover:bg-bimo-bg
-                      font-body font-medium text-sm text-bimo-navy
+                      font-body font-medium text-sm text-bimo-text
                       transition-all duration-150 mb-6">
                 <svg class="w-[18px] h-[18px] flex-shrink-0" viewBox="0 0 48 48">
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -241,10 +241,10 @@
             </a>
 
             {{-- Lien inscription --}}
-            <p class="text-center font-body text-sm text-bimo-navy/50">
+            <p class="text-center font-body text-sm text-bimo-text/50">
                 Nouvelle agence ?
                 <a href="{{ route('register') }}"
-                   class="text-bimo-gold font-medium hover:text-bimo-navy transition-colors duration-150">
+                   class="text-bimo-gold font-medium hover:text-bimo-text transition-colors duration-150">
                     Créer un compte gratuit →
                 </a>
             </p>

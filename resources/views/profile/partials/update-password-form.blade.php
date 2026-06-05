@@ -2,9 +2,9 @@
     @csrf @method('put')
 
     <div class="space-y-1.5">
-        <label class="block font-body font-medium text-sm text-bimo-navy" for="update_password_current_password">Mot de passe actuel</label>
+        <label class="block font-body font-medium text-sm text-bimo-text" for="update_password_current_password">Mot de passe actuel</label>
         <input type="password" id="update_password_current_password" name="current_password" autocomplete="current-password"
-               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
         @if($errors->updatePassword->get('current_password'))
         <p class="font-body text-xs text-bimo-red mt-1">{{ $errors->updatePassword->first('current_password') }}</p>
@@ -12,9 +12,9 @@
     </div>
 
     <div class="space-y-1.5">
-        <label class="block font-body font-medium text-sm text-bimo-navy" for="update_password_password">Nouveau mot de passe</label>
+        <label class="block font-body font-medium text-sm text-bimo-text" for="update_password_password">Nouveau mot de passe</label>
         <input type="password" id="update_password_password" name="password" autocomplete="new-password"
-               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
         @if($errors->updatePassword->get('password'))
         <p class="font-body text-xs text-bimo-red mt-1">{{ $errors->updatePassword->first('password') }}</p>
@@ -22,9 +22,9 @@
     </div>
 
     <div class="space-y-1.5">
-        <label class="block font-body font-medium text-sm text-bimo-navy" for="update_password_password_confirmation">Confirmer le nouveau mot de passe</label>
+        <label class="block font-body font-medium text-sm text-bimo-text" for="update_password_password_confirmation">Confirmer le nouveau mot de passe</label>
         <input type="password" id="update_password_password_confirmation" name="password_confirmation" autocomplete="new-password"
-               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
         @if($errors->updatePassword->get('password_confirmation'))
         <p class="font-body text-xs text-bimo-red mt-1">{{ $errors->updatePassword->first('password_confirmation') }}</p>

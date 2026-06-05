@@ -14,10 +14,10 @@ $tauxOccupation = $stats['nb_biens'] > 0
     {{-- Greeting --}}
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">
                 Bonjour, {{ explode(' ', auth()->user()->name)[0] }} 👋
             </h1>
-            <p class="font-body text-sm text-bimo-navy/50 mt-1">{{ now()->translatedFormat('l d F Y') }} · Aperçu de votre patrimoine</p>
+            <p class="font-body text-sm text-bimo-text/50 mt-1">{{ now()->translatedFormat('l d F Y') }} · Aperçu de votre patrimoine</p>
         </div>
         <div class="flex flex-wrap gap-2">
             <a href="{{ route('proprietaire.releve-pdf') }}" target="_blank"
@@ -26,7 +26,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
                 Mon relevé PDF
             </a>
             <a href="{{ route('admin.biens.index') }}"
-               class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-navy/60 font-body text-sm rounded-[10px] hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+               class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60 font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
                 Mes biens
             </a>
@@ -41,19 +41,19 @@ $tauxOccupation = $stats['nb_biens'] > 0
             <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">{{ $stats['nb_paiements'] }} paiements validés</div>
         </div>
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Net reversé</div>
-            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ number_format($stats['total_net'],0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
-            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">Votre revenu net total</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1.5">Net reversé</div>
+            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ number_format($stats['total_net'],0,',','') }}<span class="font-body text-xs text-bimo-text/40 ml-1">F</span></div>
+            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">Votre revenu net total</div>
         </div>
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Biens loués</div>
-            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ $stats['nb_biens_loues'] }}<span class="font-body text-sm text-bimo-navy/30 ml-1">/ {{ $stats['nb_biens'] }}</span></div>
-            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">{{ $tauxOccupation }}% d'occupation</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1.5">Biens loués</div>
+            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ $stats['nb_biens_loues'] }}<span class="font-body text-sm text-bimo-text/30 ml-1">/ {{ $stats['nb_biens'] }}</span></div>
+            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">{{ $tauxOccupation }}% d'occupation</div>
         </div>
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1.5">Caution totale</div>
-            <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ number_format($stats['caution'],0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
-            <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1.5">Dépôts de garantie</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1.5">Caution totale</div>
+            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ number_format($stats['caution'],0,',','') }}<span class="font-body text-xs text-bimo-text/40 ml-1">F</span></div>
+            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">Dépôts de garantie</div>
         </div>
     </div>
 
@@ -82,19 +82,19 @@ $tauxOccupation = $stats['nb_biens'] > 0
             {{-- Mes biens --}}
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <span class="font-display font-bold text-sm text-bimo-navy">Mes biens ({{ $biens->total() }})</span>
-                    <a href="{{ route('admin.biens.index') }}" class="flex items-center gap-1 font-body text-xs text-bimo-navy/40 hover:text-bimo-gold transition-colors duration-150">
+                    <span class="font-display font-bold text-sm text-bimo-text">Mes biens ({{ $biens->total() }})</span>
+                    <a href="{{ route('admin.biens.index') }}" class="flex items-center gap-1 font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
                         Voir tout <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </a>
                 </div>
 
                 @if($biens->isEmpty())
-                <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucun bien associé à votre compte.</div>
+                <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">Aucun bien associé à votre compte.</div>
                 @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4">
                     @foreach($biens as $bien)
                     @php
-                        $sp = match($bien->statut) { 'loue'=>['bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold','Loué'], 'disponible'=>['bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/70','Disponible'], default=>['bg-bimo-navy/10 border-bimo-navy/15 text-bimo-navy/50','En travaux'] };
+                        $sp = match($bien->statut) { 'loue'=>['bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold','Loué'], 'disponible'=>['bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/70','Disponible'], default=>['bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/50','En travaux'] };
                         $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first();
                     @endphp
                     <a href="{{ route('admin.biens.show', $bien) }}" class="block border border-bimo-navy/10 rounded-[10px] overflow-hidden hover:shadow-md transition-shadow duration-150">
@@ -109,8 +109,8 @@ $tauxOccupation = $stats['nb_biens'] > 0
                             <span class="absolute top-2 left-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold border {{ $sp[0] }}">{{ $sp[1] }}</span>
                         </div>
                         <div class="px-3 py-2.5">
-                            <div class="font-display font-bold text-xs text-bimo-navy">{{ $bien->reference }}</div>
-                            <div class="font-body text-[11px] text-bimo-navy/50 truncate mt-0.5">{{ $bien->adresse }}, {{ $bien->ville }}</div>
+                            <div class="font-display font-bold text-xs text-bimo-text">{{ $bien->reference }}</div>
+                            <div class="font-body text-[11px] text-bimo-text/50 truncate mt-0.5">{{ $bien->adresse }}, {{ $bien->ville }}</div>
                             <div class="font-display font-bold text-sm text-bimo-gold mt-1.5">{{ number_format($bien->loyer_mensuel,0,',','') }} F/mois</div>
                         </div>
                     </a>
@@ -119,12 +119,12 @@ $tauxOccupation = $stats['nb_biens'] > 0
 
                 @if($biens->hasPages())
                 <div class="flex items-center justify-between px-5 py-3 border-t border-bimo-navy/[5%]">
-                    <span class="font-body text-xs text-bimo-navy/40">{{ $biens->firstItem() }}–{{ $biens->lastItem() }} sur {{ $biens->total() }}</span>
+                    <span class="font-body text-xs text-bimo-text/40">{{ $biens->firstItem() }}–{{ $biens->lastItem() }} sur {{ $biens->total() }}</span>
                     <div class="flex items-center gap-1">
-                        <a href="{{ $biens->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $biens->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $biens->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $biens->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                         </a>
-                        <a href="{{ $biens->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$biens->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $biens->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$biens->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                         </a>
                     </div>
@@ -137,8 +137,8 @@ $tauxOccupation = $stats['nb_biens'] > 0
             @if($loyersParMois->isNotEmpty())
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <span class="font-display font-bold text-sm text-bimo-navy">Net reversé par mois</span>
-                    <span class="font-body text-xs text-bimo-navy/40">12 derniers mois · après commission</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">Net reversé par mois</span>
+                    <span class="font-body text-xs text-bimo-text/40">12 derniers mois · après commission</span>
                 </div>
                 <div class="px-5 py-5" style="height:200px;position:relative">
                     <canvas id="chartNetMensuel"></canvas>
@@ -198,23 +198,23 @@ $tauxOccupation = $stats['nb_biens'] > 0
             {{-- Derniers versements --}}
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <span class="font-display font-bold text-sm text-bimo-navy">Derniers versements</span>
-                    <span class="font-body text-xs text-bimo-navy/40">Net reversé après commission</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">Derniers versements</span>
+                    <span class="font-body text-xs text-bimo-text/40">Net reversé après commission</span>
                 </div>
                 @if($paiements->isEmpty())
-                <div class="px-5 py-10 text-center font-body text-sm text-bimo-navy/30">Aucun paiement enregistré pour l'instant.</div>
+                <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">Aucun paiement enregistré pour l'instant.</div>
                 @else
                 {{-- Mobile --}}
                 <div class="md:hidden divide-y divide-bimo-navy/[5%]">
                     @foreach($paiements as $p)
                     <div class="px-4 py-3.5">
                         <div class="flex items-center justify-between gap-3 mb-1">
-                            <span class="font-display font-bold text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</span>
+                            <span class="font-display font-bold text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</span>
                             <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} F</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
-                            <span class="font-body text-[11px] text-bimo-navy/40">{{ $p->contrat?->locataire?->name }}</span>
+                            <span class="font-body text-[11px] text-bimo-text/40">{{ $p->contrat?->locataire?->name }}</span>
                         </div>
                     </div>
                     @endforeach
@@ -224,29 +224,29 @@ $tauxOccupation = $stats['nb_biens'] > 0
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Bien</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Locataire</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Période</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Date</th>
-                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Loyer brut</th>
-                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Net reversé</th>
-                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40">Doc</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Bien</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Locataire</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Période</th>
+                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Date</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Loyer brut</th>
+                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Net reversé</th>
+                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Doc</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-bimo-navy/[5%]">
                             @foreach($paiements as $p)
                             <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                                <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-navy">{{ $p->contrat?->bien?->reference ?? '—' }}</td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
+                                <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</td>
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
                                 <td class="px-5 py-3.5">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
                                 </td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-navy/60">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</td>
-                                <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ number_format($p->montant_encaisse,0,',','') }} F</td>
+                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</td>
+                                <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($p->montant_encaisse,0,',','') }} F</td>
                                 <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} F</td>
                                 <td class="px-5 py-3.5 text-center">
                                     <a href="{{ route('proprietaire.paiements.pdf', $p) }}" target="_blank"
-                                       class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-navy/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                       class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </a>
                                 </td>
@@ -257,15 +257,15 @@ $tauxOccupation = $stats['nb_biens'] > 0
                 </div>
                 @if($paiements->hasPages())
                 <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%]">
-                    <span class="font-body text-xs text-bimo-navy/40">Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</span>
+                    <span class="font-body text-xs text-bimo-text/40">Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</span>
                     <div class="flex items-center gap-1">
-                        <a href="{{ $paiements->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $paiements->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $paiements->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $paiements->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                         </a>
                         @foreach($paiements->getUrlRange(max(1,$paiements->currentPage()-1),min($paiements->lastPage(),$paiements->currentPage()+1)) as $pg => $url)
-                        <a href="{{ $url }}" class="w-7 h-7 inline-flex items-center justify-center border rounded-[6px] font-body text-xs transition-all duration-150 {{ $pg === $paiements->currentPage() ? 'bg-[var(--ac)] border-[var(--ac)] text-white font-bold' : 'border-bimo-navy/15 text-bimo-navy/50 hover:border-bimo-gold hover:text-bimo-gold' }}">{{ $pg }}</a>
+                        <a href="{{ $url }}" class="w-7 h-7 inline-flex items-center justify-center border rounded-[6px] font-body text-xs transition-all duration-150 {{ $pg === $paiements->currentPage() ? 'bg-[var(--ac)] border-[var(--ac)] text-white font-bold' : 'border-bimo-navy/15 text-bimo-text/50 hover:border-bimo-gold hover:text-bimo-gold' }}">{{ $pg }}</a>
                         @endforeach
-                        <a href="{{ $paiements->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-navy/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$paiements->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $paiements->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$paiements->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                         </a>
                     </div>
@@ -282,7 +282,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
             {{-- Occupation ring --}}
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <span class="font-display font-bold text-sm text-bimo-navy">Taux d'occupation</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">Taux d'occupation</span>
                 </div>
                 @php
                     $circumference = 2 * M_PI * 32;
@@ -299,11 +299,11 @@ $tauxOccupation = $stats['nb_biens'] > 0
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             <span class="font-display font-extrabold text-base leading-none" style="color:{{ $ringColor }}">{{ $tauxOccupation }}%</span>
-                            <span class="font-body text-[9px] text-bimo-navy/40 mt-0.5">occupé</span>
+                            <span class="font-body text-[9px] text-bimo-text/40 mt-0.5">occupé</span>
                         </div>
                     </div>
-                    <div class="font-body font-medium text-sm text-bimo-navy text-center">{{ $stats['nb_biens_loues'] }} loué(s) sur {{ $stats['nb_biens'] }} bien(s)</div>
-                    <div class="font-body text-xs text-bimo-navy/40 text-center">
+                    <div class="font-body font-medium text-sm text-bimo-text text-center">{{ $stats['nb_biens_loues'] }} loué(s) sur {{ $stats['nb_biens'] }} bien(s)</div>
+                    <div class="font-body text-xs text-bimo-text/40 text-center">
                         @if($stats['nb_biens'] - $stats['nb_biens_loues'] > 0)
                             {{ $stats['nb_biens'] - $stats['nb_biens_loues'] }} bien(s) disponible(s)
                         @else
@@ -315,8 +315,8 @@ $tauxOccupation = $stats['nb_biens'] > 0
 
             {{-- KPI minis --}}
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Net reversé (all time)</div>
-                <div class="font-display font-extrabold text-xl text-bimo-navy leading-none">{{ number_format($stats['total_net'],0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Net reversé (all time)</div>
+                <div class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ number_format($stats['total_net'],0,',','') }}<span class="font-body text-xs text-bimo-text/40 ml-1">F</span></div>
             </div>
 
             <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
@@ -327,9 +327,9 @@ $tauxOccupation = $stats['nb_biens'] > 0
 
             @if($stats['dernier_paiement'])
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-navy/50 mb-1">Dernier versement</div>
-                <div class="font-display font-extrabold text-lg text-bimo-navy leading-none">{{ number_format($stats['dernier_paiement']->net_proprietaire,0,',','') }}<span class="font-body text-xs text-bimo-navy/40 ml-1">F</span></div>
-                <div class="font-body text-[10.5px] text-bimo-navy/40 mt-1">{{ \Carbon\Carbon::parse($stats['dernier_paiement']->date_paiement)->format('d/m/Y') }}</div>
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Dernier versement</div>
+                <div class="font-display font-extrabold text-lg text-bimo-text leading-none">{{ number_format($stats['dernier_paiement']->net_proprietaire,0,',','') }}<span class="font-body text-xs text-bimo-text/40 ml-1">F</span></div>
+                <div class="font-body text-[10.5px] text-bimo-text/40 mt-1">{{ \Carbon\Carbon::parse($stats['dernier_paiement']->date_paiement)->format('d/m/Y') }}</div>
             </div>
             @endif
 

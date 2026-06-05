@@ -1,4 +1,4 @@
-<p class="font-body text-sm text-bimo-navy/70 mb-4 leading-relaxed">
+<p class="font-body text-sm text-bimo-text/70 mb-4 leading-relaxed">
     Une fois votre compte supprimé, toutes les données seront définitivement perdues.
     Téléchargez vos données avant de procéder.
 </p>
@@ -14,11 +14,11 @@
     {{-- Le mot de passe est demandé via la modale de confirmation globale --}}
     {{-- Pour la suppression de compte, on utilise un champ caché activé par la modale --}}
     <div id="delete-password-wrap" class="mb-4" style="display:none">
-        <label class="block font-body font-medium text-sm text-bimo-navy mb-1.5">Mot de passe de confirmation</label>
+        <label class="block font-body font-medium text-sm text-bimo-text mb-1.5">Mot de passe de confirmation</label>
         <input type="password" id="delete_password" name="password" autocomplete="current-password"
                placeholder="Votre mot de passe actuel"
-               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-red/30 font-body text-sm text-bimo-navy
-                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-red focus:ring-2 focus:ring-bimo-red/15 transition-all duration-150">
+               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-red/30 font-body text-sm text-bimo-text
+                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-red focus:ring-2 focus:ring-bimo-red/15 transition-all duration-150">
         @if($errors->userDeletion->get('password'))
         <p class="font-body text-xs text-bimo-red mt-1">{{ $errors->userDeletion->first('password') }}</p>
         @endif

@@ -8,12 +8,12 @@
     {{-- En-tête --}}
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">Déclarations TVA mensuelles</h1>
-            <p class="font-body text-sm text-bimo-navy/50 mt-1">TVA agence — Art. 369-370 CGI Sénégal — Année {{ $annee }}</p>
+            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">Déclarations TVA mensuelles</h1>
+            <p class="font-body text-sm text-bimo-text/50 mt-1">TVA agence — Art. 369-370 CGI Sénégal — Année {{ $annee }}</p>
         </div>
         <div class="flex-shrink-0 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[10px] px-4 py-3 text-right">
-            <div class="font-body font-medium text-xs text-bimo-navy/50">📋 Déclaration mensuelle obligatoire</div>
-            <div class="font-body text-xs text-bimo-navy/40 mt-0.5">À déposer avant le <strong>15 du mois M+1</strong></div>
+            <div class="font-body font-medium text-xs text-bimo-text/50">📋 Déclaration mensuelle obligatoire</div>
+            <div class="font-body text-xs text-bimo-text/40 mt-0.5">À déposer avant le <strong>15 du mois M+1</strong></div>
         </div>
     </div>
 
@@ -27,9 +27,9 @@
 
     {{-- Filtre année --}}
     <form method="GET" class="flex items-center gap-3 bg-white rounded-[12px] border border-bimo-navy/10 px-5 py-3.5">
-        <span class="font-body font-medium text-xs text-bimo-navy/50 whitespace-nowrap">Année fiscale :</span>
+        <span class="font-body font-medium text-xs text-bimo-text/50 whitespace-nowrap">Année fiscale :</span>
         <select name="annee"
-                class="px-3 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-navy bg-bimo-bg focus:outline-none focus:border-bimo-gold cursor-pointer transition-all duration-150">
+                class="px-3 py-2 border border-bimo-navy/15 rounded-[8px] font-body text-sm text-bimo-text bg-bimo-bg focus:outline-none focus:border-bimo-gold cursor-pointer transition-all duration-150">
             @foreach($anneesDisponibles as $a)
             <option value="{{ $a }}" {{ $annee == $a ? 'selected' : '' }}>{{ $a }}</option>
             @endforeach
@@ -53,18 +53,18 @@
             @endphp
             <div class="px-4 py-3.5 {{ $rowOp }}">
                 <div class="flex items-center justify-between gap-2 mb-1.5">
-                    <span class="font-body font-semibold text-sm text-bimo-navy">{{ $m['label'] }}</span>
-                    @if($m['statut'] === 'futur') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/30">À venir</span>
-                    @elseif($m['statut'] === 'non_calcule') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/40">Non calculé</span>
-                    @elseif($m['statut'] === 'brouillon') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">Brouillon</span>
+                    <span class="font-body font-semibold text-sm text-bimo-text">{{ $m['label'] }}</span>
+                    @if($m['statut'] === 'futur') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-text/30">À venir</span>
+                    @elseif($m['statut'] === 'non_calcule') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-text/40">Non calculé</span>
+                    @elseif($m['statut'] === 'brouillon') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">Brouillon</span>
                     @elseif($m['statut'] === 'validee') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validée</span>
-                    @elseif($m['statut'] === 'deposee') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">✓ Déposée</span>
+                    @elseif($m['statut'] === 'deposee') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">✓ Déposée</span>
                     @elseif($m['statut'] === 'en_retard') <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">⚠ En retard</span>
                     @endif
                 </div>
                 @if($d)
                 <div class="flex items-center gap-3 text-xs">
-                    <span class="font-body text-bimo-navy/50">Col. : <strong>{{ number_format($d->total_tva_collectee,0,',','') }} F</strong></span>
+                    <span class="font-body text-bimo-text/50">Col. : <strong>{{ number_format($d->total_tva_collectee,0,',','') }} F</strong></span>
                     @if($d->tva_nette_due > 0)<span class="font-body text-bimo-red">Due : {{ number_format($d->tva_nette_due,0,',','') }} F</span>@endif
                 </div>
                 @endif
@@ -72,7 +72,7 @@
                 <div class="flex items-center gap-2 mt-2">
                     <a href="{{ route('admin.tva-agence.show', [$annee, $m['numero']]) }}"
                        class="inline-flex items-center gap-1 px-3 py-1 bg-bimo-navy text-white rounded-[7px] font-body text-xs">Voir</a>
-                    <button type="button" class="inline-flex items-center gap-1 px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer"
+                    <button type="button" class="inline-flex items-center gap-1 px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-text/60 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer"
                             data-annee="{{ $annee }}" data-mois="{{ $m['numero'] }}" onclick="recalculer(this)">Recalculer</button>
                 </div>
                 @endif
@@ -102,35 +102,35 @@
                         $rowCls = $m['statut'] === 'futur' ? 'opacity-40' : ($m['statut'] === 'en_retard' ? 'bg-bimo-red/[3%]' : 'hover:bg-bimo-bg');
                     @endphp
                     <tr class="{{ $rowCls }} transition-colors duration-100">
-                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-navy">{{ $m['label'] }}</td>
-                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-navy/70">
+                        <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-text">{{ $m['label'] }}</td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">
                             @if($d && $d->total_tva_collectee > 0) {{ number_format($d->total_tva_collectee,0,',','') }} F
-                            @elseif($m['statut'] !== 'futur') <span class="text-bimo-navy/20">—</span>
-                            @else <span class="text-bimo-navy/10">—</span> @endif
+                            @elseif($m['statut'] !== 'futur') <span class="text-bimo-text/20">—</span>
+                            @else <span class="text-bimo-text/10">—</span> @endif
                         </td>
                         <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-gold">
                             @if($d && $d->total_tva_deductible > 0) {{ number_format($d->total_tva_deductible,0,',','') }} F
-                            @elseif($m['statut'] !== 'futur') <span class="text-bimo-navy/20">—</span>
-                            @else <span class="text-bimo-navy/10">—</span> @endif
+                            @elseif($m['statut'] !== 'futur') <span class="text-bimo-text/20">—</span>
+                            @else <span class="text-bimo-text/10">—</span> @endif
                         </td>
                         <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-gold">
                             @if($d && $d->credit_reporte_entrant > 0) {{ number_format($d->credit_reporte_entrant,0,',','') }} F
-                            @else <span class="text-bimo-navy/10">—</span> @endif
+                            @else <span class="text-bimo-text/10">—</span> @endif
                         </td>
                         <td class="px-5 py-3.5 text-right">
                             @if($d)
                                 @if($d->tva_nette_due > 0) <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($d->tva_nette_due,0,',','') }} F</span>
                                 @elseif($d->credit_reporte_sortant > 0) <span class="font-body text-xs text-bimo-gold">Crédit {{ number_format($d->credit_reporte_sortant,0,',','') }} F</span>
-                                @else <span class="font-display font-semibold text-sm text-bimo-navy/40">0 F</span>
+                                @else <span class="font-display font-semibold text-sm text-bimo-text/40">0 F</span>
                                 @endif
-                            @else <span class="text-bimo-navy/10">—</span> @endif
+                            @else <span class="text-bimo-text/10">—</span> @endif
                         </td>
                         <td class="px-5 py-3.5 text-center">
-                            @if($m['statut'] === 'futur') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/30">À venir</span>
-                            @elseif($m['statut'] === 'non_calcule') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/[5%] text-bimo-navy/40">Non calculé</span>
-                            @elseif($m['statut'] === 'brouillon') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">Brouillon</span>
+                            @if($m['statut'] === 'futur') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/[5%] text-bimo-text/30">À venir</span>
+                            @elseif($m['statut'] === 'non_calcule') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/[5%] text-bimo-text/40">Non calculé</span>
+                            @elseif($m['statut'] === 'brouillon') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">Brouillon</span>
                             @elseif($m['statut'] === 'validee') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validée</span>
-                            @elseif($m['statut'] === 'deposee') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">✓ Déposée</span>
+                            @elseif($m['statut'] === 'deposee') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">✓ Déposée</span>
                             @elseif($m['statut'] === 'en_retard') <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">⚠ En retard</span>
                             @endif
                         </td>
@@ -143,7 +143,7 @@
                                     Voir
                                 </a>
                                 <button type="button"
-                                        class="inline-flex items-center gap-1 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-navy/60 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer"
+                                        class="inline-flex items-center gap-1 px-3 py-1.5 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-text/60 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer"
                                         data-annee="{{ $annee }}" data-mois="{{ $m['numero'] }}" onclick="recalculer(this)">
                                     <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                                     Recalculer
@@ -156,10 +156,10 @@
                 </tbody>
                 <tfoot>
                     <tr class="bg-bimo-gold/[8%] border-t-2 border-bimo-gold/30">
-                        <td class="px-5 py-3 font-display font-bold text-sm text-bimo-navy/70">Total {{ $annee }}</td>
-                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-navy/70">{{ number_format($totalCollectee,0,',','') }} F</td>
+                        <td class="px-5 py-3 font-display font-bold text-sm text-bimo-text/70">Total {{ $annee }}</td>
+                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-text/70">{{ number_format($totalCollectee,0,',','') }} F</td>
                         <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($totalDeductible,0,',','') }} F</td>
-                        <td class="px-5 py-3 text-right font-body text-sm text-bimo-navy/30">—</td>
+                        <td class="px-5 py-3 text-right font-body text-sm text-bimo-text/30">—</td>
                         <td class="px-5 py-3 text-right font-display font-extrabold text-sm text-bimo-red">{{ number_format($totalNette,0,',','') }} F</td>
                         <td colspan="2"></td>
                     </tr>

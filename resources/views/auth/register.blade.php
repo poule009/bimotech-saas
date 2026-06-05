@@ -45,8 +45,8 @@
 {{-- Panneau droit formulaire --}}
 <main class="flex items-center justify-center p-8 bg-white overflow-y-auto">
     <div class="w-full max-w-[420px]">
-        <h1 class="font-display font-extrabold text-2xl text-bimo-navy tracking-tight mb-2">Créer mon agence</h1>
-        <p class="font-body text-sm text-bimo-navy/50 mb-6">Déjà inscrit ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-navy transition-colors duration-150 font-medium">Se connecter</a></p>
+        <h1 class="font-display font-extrabold text-2xl text-bimo-text tracking-tight mb-2">Créer mon agence</h1>
+        <p class="font-body text-sm text-bimo-text/50 mb-6">Déjà inscrit ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-text transition-colors duration-150 font-medium">Se connecter</a></p>
 
         @if($errors->any())
         <div class="border-l-[3px] border-bimo-red bg-bimo-red/[5%] border border-bimo-red/20 rounded-[8px] px-4 py-2.5 mb-5">
@@ -58,60 +58,60 @@
             @csrf
 
             {{-- Section Agence --}}
-            <div class="font-body font-medium text-[11px] uppercase tracking-[1.5px] text-bimo-navy/30 pb-2 border-b border-bimo-navy/[8%] mt-5 mb-1">Votre agence</div>
+            <div class="font-body font-medium text-[11px] uppercase tracking-[1.5px] text-bimo-text/30 pb-2 border-b border-bimo-navy/[8%] mt-5 mb-1">Votre agence</div>
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_nom">Nom de l'agence <span class="text-bimo-red">*</span></label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="agency_nom">Nom de l'agence <span class="text-bimo-red">*</span></label>
                 <input type="text" id="agency_nom" name="agency_nom" value="{{ old('agency_nom') }}" placeholder="Agence Immobilière Diallo"
-                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('agency_nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('agency_nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                 @error('agency_nom')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_ninea">NINEA</label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="agency_ninea">NINEA</label>
                     <input type="text" id="agency_ninea" name="agency_ninea" value="{{ old('agency_ninea') }}" placeholder="1234567A"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     @error('agency_ninea')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="agency_telephone">Téléphone</label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="agency_telephone">Téléphone</label>
                     <input type="tel" id="agency_telephone" name="agency_telephone" value="{{ old('agency_telephone') }}" placeholder="+221 77 000 00 00" autocomplete="tel"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                 </div>
             </div>
 
             {{-- Section Admin --}}
-            <div class="font-body font-medium text-[11px] uppercase tracking-[1.5px] text-bimo-navy/30 pb-2 border-b border-bimo-navy/[8%] mt-6 mb-1">Votre compte administrateur</div>
+            <div class="font-body font-medium text-[11px] uppercase tracking-[1.5px] text-bimo-text/30 pb-2 border-b border-bimo-navy/[8%] mt-6 mb-1">Votre compte administrateur</div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="prenom">Prénom <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="prenom">Prénom <span class="text-bimo-red">*</span></label>
                     <input type="text" id="prenom" name="prenom" value="{{ old('prenom') }}" placeholder="Amadou" autocomplete="given-name"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('prenom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('prenom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('prenom')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="nom">Nom <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="nom">Nom <span class="text-bimo-red">*</span></label>
                     <input type="text" id="nom" name="nom" value="{{ old('nom') }}" placeholder="Diallo" autocomplete="family-name"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('nom')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                 </div>
             </div>
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="email">Adresse email <span class="text-bimo-red">*</span></label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="email">Adresse email <span class="text-bimo-red">*</span></label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="amadou@agence.sn" autocomplete="email"
-                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                       class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                 @error('email')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
             </div>
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="password">Mot de passe <span class="text-bimo-red">*</span></label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="password">Mot de passe <span class="text-bimo-red">*</span></label>
                 <div class="relative">
                     <input type="password" id="password" name="password" placeholder="8 caractères minimum" autocomplete="new-password" oninput="checkStrength(this.value)"
-                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
-                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors cursor-pointer" onclick="togglePw('password','eye1')">
+                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150 @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15 @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-text/30 hover:text-bimo-text/60 transition-colors cursor-pointer" onclick="togglePw('password','eye1')">
                         <svg id="eye1" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
@@ -122,25 +122,25 @@
                     <div class="pw-bar flex-1 h-1 rounded-full bg-bimo-navy/10 transition-colors duration-300"></div>
                     <div class="pw-bar flex-1 h-1 rounded-full bg-bimo-navy/10 transition-colors duration-300"></div>
                 </div>
-                <div id="pw-label" class="font-body text-xs text-bimo-navy/30 mt-0.5 transition-colors duration-300"></div>
+                <div id="pw-label" class="font-body text-xs text-bimo-text/30 mt-0.5 transition-colors duration-300"></div>
             </div>
 
             <div class="space-y-1.5">
-                <label class="block font-body font-medium text-sm text-bimo-navy" for="password_confirmation">Confirmer le mot de passe <span class="text-bimo-red">*</span></label>
+                <label class="block font-body font-medium text-sm text-bimo-text" for="password_confirmation">Confirmer le mot de passe <span class="text-bimo-red">*</span></label>
                 <div class="relative">
                     <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Répéter le mot de passe" autocomplete="new-password" oninput="checkMatch()"
-                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-navy/30 hover:text-bimo-navy/60 transition-colors cursor-pointer" onclick="togglePw('password_confirmation','eye2')">
+                           class="w-full pr-11 px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-text/30 hover:text-bimo-text/60 transition-colors cursor-pointer" onclick="togglePw('password_confirmation','eye2')">
                         <svg id="eye2" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </button>
                 </div>
-                <div id="match-hint" class="font-body text-xs text-bimo-navy/30 transition-colors duration-300"></div>
+                <div id="match-hint" class="font-body text-xs text-bimo-text/30 transition-colors duration-300"></div>
             </div>
 
             <div class="flex items-start gap-2.5 my-4">
                 <input type="checkbox" id="cgu" name="cgu" value="1" {{ old('cgu') ? 'checked' : '' }}
                        class="w-4 h-4 mt-0.5 rounded cursor-pointer accent-bimo-gold flex-shrink-0">
-                <label for="cgu" class="font-body text-sm text-bimo-navy/60 leading-relaxed cursor-pointer">
+                <label for="cgu" class="font-body text-sm text-bimo-text/60 leading-relaxed cursor-pointer">
                     J'accepte les <a href="{{ route('mentions-legales') }}" target="_blank" class="text-bimo-gold hover:underline">conditions d'utilisation</a>
                     et la <a href="{{ route('confidentialite') }}" target="_blank" class="text-bimo-gold hover:underline">politique de confidentialité</a>.
                 </label>
@@ -154,7 +154,7 @@
             </button>
         </form>
 
-        <p class="text-center font-body text-sm text-bimo-navy/40 mt-4">Déjà un compte ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-navy font-medium transition-colors duration-150">Se connecter</a></p>
+        <p class="text-center font-body text-sm text-bimo-text/40 mt-4">Déjà un compte ? <a href="{{ route('login') }}" class="text-bimo-gold hover:text-bimo-text font-medium transition-colors duration-150">Se connecter</a></p>
     </div>
 </main>
 

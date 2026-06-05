@@ -5,10 +5,10 @@
 
 {{-- Breadcrumb + titre --}}
 <div class="mb-5">
-    <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-navy tracking-tight">
+    <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">
         Nouveau {{ $role === 'proprietaire' ? 'propriétaire' : 'locataire' }}
     </h1>
-    <p class="font-body text-sm text-bimo-navy/50 mt-1">
+    <p class="font-body text-sm text-bimo-text/50 mt-1">
         {{ $role === 'proprietaire'
             ? 'Renseignez les informations du propriétaire.'
             : 'Renseignez les informations du locataire.' }}
@@ -80,49 +80,49 @@
             {{-- ── SECTION 1 : IDENTITÉ ── --}}
             <div id="sec-identite" class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-7 h-7 rounded-full bg-bimo-gold flex items-center justify-center font-display font-bold text-xs text-bimo-navy flex-shrink-0">1</div>
+                    <div class="w-7 h-7 rounded-full bg-bimo-gold flex items-center justify-center font-display font-bold text-xs text-bimo-text flex-shrink-0">1</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">Identité personnelle</div>
-                        <div class="font-body text-xs text-bimo-navy/40">Informations de contact principales</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">Identité personnelle</div>
+                        <div class="font-body text-xs text-bimo-text/40">Informations de contact principales</div>
                     </div>
                 </div>
                 <div class="px-5 py-5 space-y-4">
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Nom complet <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Nom complet <span class="text-bimo-red">*</span></label>
                         <input type="text" name="name" value="{{ old('name') }}" placeholder="Ex: Moussa Diallo" autofocus
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         @error('name')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Téléphone</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
                         <input type="text" name="telephone" value="{{ old('telephone') }}" placeholder="+221 77 000 00 00"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
-                            Adresse <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            Adresse <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
                         <input type="text" name="adresse" value="{{ old('adresse') }}" placeholder="Rue, quartier..."
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
 
                     {{-- Genre pills --}}
                     <div class="space-y-2">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Genre</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Genre</label>
                         <div class="grid grid-cols-2 gap-2">
                             @foreach(['M' => ['👨', 'Homme'], 'F' => ['👩', 'Femme']] as $val => [$emoji, $lbl])
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="genre" value="{{ $val }}" {{ old('genre') === $val ? 'checked':'' }}
                                        class="sr-only peer">
-                                <div class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-bimo-navy/10 rounded-[10px] font-body font-medium text-sm text-bimo-navy/60
+                                <div class="flex items-center justify-center gap-2 px-4 py-3 border-2 border-bimo-navy/10 rounded-[10px] font-body font-medium text-sm text-bimo-text/60
                                             peer-checked:border-bimo-gold peer-checked:bg-bimo-gold/10 peer-checked:text-bimo-gold
                                             hover:border-bimo-gold/40 transition-all duration-150 cursor-pointer">
                                     <span>{{ $emoji }}</span> {{ $lbl }}
@@ -134,21 +134,21 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Date de naissance</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Date de naissance</label>
                             <input type="date" name="date_naissance" value="{{ old('date_naissance') }}"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Nationalité</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Nationalité</label>
                             <input type="text" name="nationalite" value="{{ old('nationalite', 'Sénégalaise') }}"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Ville</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Ville</label>
                             <select name="ville"
-                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy cursor-pointer
+                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
                                            focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 @foreach(['Dakar','Thiès','Saint-Louis','Ziguinchor','Kaolack','Mbour','Rufisque','Touba','Diourbel','Tambacounda'] as $v)
                                 <option value="{{ $v }}" {{ old('ville','Dakar') === $v ? 'selected':'' }}>{{ $v }}</option>
@@ -158,12 +158,12 @@
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
-                            CNI / Passeport <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            CNI / Passeport <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
                         <input type="text" name="cni" value="{{ old('cni') }}" placeholder="1 234 567 890 12"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
 
                 </div>
@@ -174,8 +174,8 @@
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">2</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">Accès à l'espace personnel</div>
-                        <div class="font-body text-xs text-bimo-navy/40">
+                        <div class="font-display font-bold text-sm text-bimo-text">Accès à l'espace personnel</div>
+                        <div class="font-body text-xs text-bimo-text/40">
                             @if($role === 'proprietaire') Optionnel — si renseigné, le propriétaire pourra se connecter
                             @else Identifiants de connexion au portail locataire
                             @endif
@@ -185,17 +185,17 @@
                 <div class="px-5 py-5 space-y-4">
 
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
                             Email
                             @if($role === 'proprietaire')
-                                <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                                <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                             @else
                                 <span class="text-bimo-red">*</span>
                             @endif
                         </label>
                         <input type="email" name="email" value="{{ old('email') }}" placeholder="email@exemple.com"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         @error('email')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
@@ -203,39 +203,39 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">
+                            <label class="block font-body font-medium text-sm text-bimo-text">
                                 Mot de passe
                                 @if($role === 'proprietaire')
-                                    <span class="font-normal text-bimo-navy/40 text-xs ml-1">(requis si email renseigné)</span>
+                                    <span class="font-normal text-bimo-text/40 text-xs ml-1">(requis si email renseigné)</span>
                                 @else
                                     <span class="text-bimo-red">*</span>
                                 @endif
                             </label>
                             <input type="password" name="password" id="pwd" placeholder="Min. 8 caractères"
                                    oninput="checkPwd(this.value)"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                           @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                           @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                             <div class="h-1 rounded-full bg-bimo-navy/10 mt-2 overflow-hidden">
                                 <div id="pwd-bar" class="h-full rounded-full transition-all duration-300" style="width:0%;background:#EF4444"></div>
                             </div>
-                            <p id="pwd-hint" class="font-body text-[11px] text-bimo-navy/40">Entrez un mot de passe</p>
+                            <p id="pwd-hint" class="font-body text-[11px] text-bimo-text/40">Entrez un mot de passe</p>
                             @error('password')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">
+                            <label class="block font-body font-medium text-sm text-bimo-text">
                                 Confirmer le mot de passe
                                 @if($role === 'proprietaire')
-                                    <span class="font-normal text-bimo-navy/40 text-xs ml-1">(requis si email renseigné)</span>
+                                    <span class="font-normal text-bimo-text/40 text-xs ml-1">(requis si email renseigné)</span>
                                 @else
                                     <span class="text-bimo-red">*</span>
                                 @endif
                             </label>
                             <input type="password" name="password_confirmation" id="pwd2" placeholder="Répétez le mot de passe"
                                    oninput="checkConfirm()"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             <p id="pwd2-hint" class="font-body text-[11px] mt-1" style="color:transparent">—</p>
                         </div>
                     </div>
@@ -248,7 +248,7 @@
                     @else
                     <div class="flex items-center gap-3 bg-bimo-navy/[5%] border border-bimo-navy/10 rounded-[10px] px-4 py-3">
                         <span class="text-base">✉️</span>
-                        <p class="font-body text-xs text-bimo-navy/70">Le locataire pourra se connecter avec son email sur <strong>{{ config('app.url') }}</strong></p>
+                        <p class="font-body text-xs text-bimo-text/70">Le locataire pourra se connecter avec son email sur <strong>{{ config('app.url') }}</strong></p>
                     </div>
                     @endif
 
@@ -263,8 +263,8 @@
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">3</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">Mode de paiement préféré</div>
-                        <div class="font-body text-xs text-bimo-navy/40">Comment reverser les loyers nets au propriétaire</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">Mode de paiement préféré</div>
+                        <div class="font-body text-xs text-bimo-text/40">Comment reverser les loyers nets au propriétaire</div>
                     </div>
                 </div>
                 <div class="px-5 py-5 space-y-4">
@@ -286,7 +286,7 @@
                                         peer-checked:border-bimo-gold peer-checked:bg-bimo-gold/10
                                         hover:border-bimo-gold/40 transition-all duration-150 cursor-pointer">
                                 <span class="text-xl">{{ $emoji }}</span>
-                                <span class="font-body font-medium text-[11px] text-bimo-navy/60 peer-checked:text-bimo-gold">{{ $lbl }}</span>
+                                <span class="font-body font-medium text-[11px] text-bimo-text/60 peer-checked:text-bimo-gold">{{ $lbl }}</span>
                             </div>
                         </label>
                         @endforeach
@@ -294,35 +294,35 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Numéro Wave</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Numéro Wave</label>
                             <input type="text" name="numero_wave" value="{{ old('numero_wave') }}" placeholder="+221 77 XXX XX XX"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Numéro Orange Money</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Numéro Orange Money</label>
                             <input type="text" name="numero_om" value="{{ old('numero_om') }}" placeholder="+221 77 XXX XX XX"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">
-                                Banque <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                            <label class="block font-body font-medium text-sm text-bimo-text">
+                                Banque <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                             </label>
                             <input type="text" name="banque" value="{{ old('banque') }}" placeholder="CBAO, Ecobank, BIS..."
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">
-                                Numéro de compte <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                            <label class="block font-body font-medium text-sm text-bimo-text">
+                                Numéro de compte <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                             </label>
                             <input type="text" name="numero_compte" value="{{ old('numero_compte') }}" placeholder="RIB / IBAN"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
                 </div>
@@ -333,19 +333,19 @@
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">4</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">Informations fiscales</div>
-                        <div class="font-body text-xs text-bimo-navy/40">NINEA et statut TVA du propriétaire</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">Informations fiscales</div>
+                        <div class="font-body text-xs text-bimo-text/40">NINEA et statut TVA du propriétaire</div>
                     </div>
                 </div>
                 <div class="px-5 py-5">
                     <div class="max-w-xs space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">
-                            NINEA <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            NINEA <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
                         <input type="text" name="ninea" value="{{ old('ninea') }}" placeholder="Ex: 00123456789"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        <p class="font-body text-[11px] text-bimo-navy/30">Numéro d'Identification National des Entreprises</p>
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        <p class="font-body text-[11px] text-bimo-text/30">Numéro d'Identification National des Entreprises</p>
                     </div>
                 </div>
             </div>
@@ -360,14 +360,14 @@
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">3</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">Type de locataire & Statut fiscal</div>
-                        <div class="font-body text-xs text-bimo-navy/40">Détermine si la Retenue à la Source (BRS) s'applique</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">Type de locataire & Statut fiscal</div>
+                        <div class="font-body text-xs text-bimo-text/40">Détermine si la Retenue à la Source (BRS) s'applique</div>
                     </div>
                 </div>
                 <div class="px-5 py-5 space-y-4">
 
                     <div class="space-y-2">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Type de locataire</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Type de locataire</label>
                         <div class="grid grid-cols-3 md:grid-cols-5 gap-2">
                             @foreach([
                                 'particulier' => ['Particulier', '👤', false],
@@ -385,7 +385,7 @@
                                             peer-checked:border-bimo-gold peer-checked:bg-bimo-gold/10
                                             hover:border-bimo-gold/40 transition-all duration-150">
                                     <span class="text-lg">{{ $ico }}</span>
-                                    <span class="font-body font-medium text-[10px] text-bimo-navy/60">{{ $lbl }}</span>
+                                    <span class="font-body font-medium text-[10px] text-bimo-text/60">{{ $lbl }}</span>
                                     @if($brs)<span class="font-body font-bold text-[9px] text-bimo-red">BRS 5%</span>@endif
                                 </div>
                             </label>
@@ -404,31 +404,31 @@
                             BRS 5% — Retenue à la source automatique sur les paiements futurs (Art. 201 CGI SN)
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Raison sociale</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Raison sociale</label>
                             <input type="text" name="nom_entreprise" value="{{ old('nom_entreprise') }}" placeholder="Nom officiel de la société"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1.5">
-                                <label class="block font-body font-medium text-sm text-bimo-navy">NINEA</label>
+                                <label class="block font-body font-medium text-sm text-bimo-text">NINEA</label>
                                 <input type="text" name="ninea_locataire" value="{{ old('ninea_locataire') }}" placeholder="00123456789"
-                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                              placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                              placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             </div>
                             <div class="space-y-1.5">
-                                <label class="block font-body font-medium text-sm text-bimo-navy">RCCM</label>
+                                <label class="block font-body font-medium text-sm text-bimo-text">RCCM</label>
                                 <input type="text" name="rccm_locataire" value="{{ old('rccm_locataire') }}" placeholder="SN-DKR-2024-B-XXXXX"
-                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                              placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                       class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                              placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             </div>
                         </div>
                         <div class="max-w-[180px] space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Taux BRS personnalisé (%)</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Taux BRS personnalisé (%)</label>
                             <input type="number" name="taux_brs_override" value="{{ old('taux_brs_override') }}" placeholder="5" min="0" max="20" step="0.5"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                            <p class="font-body text-[11px] text-bimo-navy/30">Vide = 5% légal (Art. 201 CGI SN)</p>
+                            <p class="font-body text-[11px] text-bimo-text/30">Vide = 5% légal (Art. 201 CGI SN)</p>
                         </div>
                     </div>
 
@@ -440,29 +440,29 @@
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">4</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">Situation professionnelle</div>
-                        <div class="font-body text-xs text-bimo-navy/40">Permet de calculer le taux d'effort locatif</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">Situation professionnelle</div>
+                        <div class="font-body text-xs text-bimo-text/40">Permet de calculer le taux d'effort locatif</div>
                     </div>
                 </div>
                 <div class="px-5 py-5">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Profession</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Profession</label>
                             <input type="text" name="profession" value="{{ old('profession') }}" placeholder="Ex: Ingénieur"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Employeur</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Employeur</label>
                             <input type="text" name="employeur" value="{{ old('employeur') }}" placeholder="Nom de l'employeur"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Revenu mensuel (F)</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Revenu mensuel (F)</label>
                             <input type="number" name="revenu_mensuel" value="{{ old('revenu_mensuel') }}" placeholder="350000" min="0"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
                 </div>
@@ -473,31 +473,31 @@
                 <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                     <div class="w-7 h-7 rounded-full bg-bimo-navy flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">5</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">
-                            Contact d'urgence <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                        <div class="font-display font-bold text-sm text-bimo-text">
+                            Contact d'urgence <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </div>
-                        <div class="font-body text-xs text-bimo-navy/40">Personne à contacter en cas d'urgence</div>
+                        <div class="font-body text-xs text-bimo-text/40">Personne à contacter en cas d'urgence</div>
                     </div>
                 </div>
                 <div class="px-5 py-5">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Nom</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Nom</label>
                             <input type="text" name="contact_urgence_nom" value="{{ old('contact_urgence_nom') }}" placeholder="Prénom NOM"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Téléphone</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
                             <input type="text" name="contact_urgence_tel" value="{{ old('contact_urgence_tel') }}" placeholder="+221 7X XXX XX XX"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-navy">Lien</label>
+                            <label class="block font-body font-medium text-sm text-bimo-text">Lien</label>
                             <input type="text" name="contact_urgence_lien" value="{{ old('contact_urgence_lien') }}" placeholder="Père, Conjoint..."
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                          placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
                 </div>
@@ -510,7 +510,7 @@
                         bg-bimo-bg/95 backdrop-blur-sm border-t border-bimo-navy/10">
                 <a href="{{ $role === 'proprietaire' ? route('admin.users.proprietaires') : route('admin.users.locataires') }}"
                    class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
-                          font-body text-sm text-bimo-navy/60 hover:text-bimo-navy hover:border-bimo-navy/30 transition-all duration-150">
+                          font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                     Annuler
                 </a>
                 <button type="submit"

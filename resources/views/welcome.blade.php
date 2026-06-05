@@ -32,7 +32,7 @@
 .pulse{animation:pulse-ring 2s infinite}
 </style>
 </head>
-<body class="font-body bg-bimo-bg text-bimo-navy antialiased overflow-x-hidden">
+<body class="font-body bg-bimo-bg text-bimo-text antialiased overflow-x-hidden">
 
 @include('partials.public-nav', ['active' => ''])
 
@@ -45,25 +45,25 @@
             🇸🇳 Conçu pour le marché sénégalais
         </div>
 
-        <h1 class="font-display font-extrabold text-[clamp(38px,6.5vw,76px)] leading-[1.04] tracking-[-2.5px] text-bimo-navy mb-6 fade-up" style="animation-delay:.08s">
+        <h1 class="font-display font-extrabold text-[clamp(38px,6.5vw,76px)] leading-[1.04] tracking-[-2.5px] text-bimo-text mb-6 fade-up" style="animation-delay:.08s">
             Gérez votre agence<br>immobilière, <em class="not-italic text-bimo-gold">l'esprit<br>tranquille</em>
         </h1>
 
-        <p class="font-body text-[clamp(15px,2vw,18px)] text-bimo-navy/50 max-w-[540px] mx-auto mb-10 leading-[1.75] fade-up" style="animation-delay:.16s">
+        <p class="font-body text-[clamp(15px,2vw,18px)] text-bimo-text/50 max-w-[540px] mx-auto mb-10 leading-[1.75] fade-up" style="animation-delay:.16s">
             Biens, contrats, loyers, quittances et conformité fiscale — tout en un seul outil. Conforme TVA 18%, NINEA, loi 81-18 et CGI article 357.
         </p>
 
         <div class="flex items-center justify-center gap-3 flex-wrap mb-6 fade-up" style="animation-delay:.24s">
-            <a href="{{ route('agency.register') }}" class="inline-flex items-center gap-1.5 font-body font-bold text-sm text-bimo-navy no-underline px-7 py-3.5 rounded-[10px] bg-bimo-gold hover:opacity-90 hover:-translate-y-0.5 transition-all duration-150 shadow-md">
+            <a href="{{ route('agency.register') }}" class="inline-flex items-center gap-1.5 font-body font-bold text-sm text-bimo-text no-underline px-7 py-3.5 rounded-[10px] bg-bimo-gold hover:opacity-90 hover:-translate-y-0.5 transition-all duration-150 shadow-md">
                 Créer mon agence gratuitement
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
-            <a href="{{ route('demo') }}" class="inline-flex items-center gap-1.5 font-body font-medium text-sm text-bimo-navy no-underline px-7 py-3.5 rounded-[10px] bg-white border border-bimo-navy/15 hover:border-bimo-gold hover:text-bimo-gold hover:-translate-y-0.5 transition-all duration-150 shadow-sm">
+            <a href="{{ route('demo') }}" class="inline-flex items-center gap-1.5 font-body font-medium text-sm text-bimo-text no-underline px-7 py-3.5 rounded-[10px] bg-white border border-bimo-navy/15 hover:border-bimo-gold hover:text-bimo-gold hover:-translate-y-0.5 transition-all duration-150 shadow-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 Demander une démo
             </a>
         </div>
-        <p class="font-body text-xs text-bimo-navy/40 fade-up" style="animation-delay:.32s">30 jours d'essai gratuit · <span class="text-bimo-gold">Aucune carte bancaire requise</span> · Accès immédiat</p>
+        <p class="font-body text-xs text-bimo-text/40 fade-up" style="animation-delay:.32s">30 jours d'essai gratuit · <span class="text-bimo-gold">Aucune carte bancaire requise</span> · Accès immédiat</p>
 
         {{-- Mockup navigateur --}}
         <div class="mt-16 relative max-w-[960px] w-full mx-auto fade-up" style="animation-delay:.4s">
@@ -129,13 +129,13 @@
 {{-- ─── TRUST BAR ─── --}}
 <div class="px-[5%] py-10 border-t border-b border-bimo-navy/10 bg-bimo-bg2">
     <div class="max-w-[1000px] mx-auto flex flex-wrap items-center justify-center gap-10">
-        <div class="font-body font-semibold text-[11px] text-bimo-navy/40 uppercase tracking-[1.5px] whitespace-nowrap">Pourquoi BimoTech</div>
+        <div class="font-body font-semibold text-[11px] text-bimo-text/40 uppercase tracking-[1.5px] whitespace-nowrap">Pourquoi BimoTech</div>
         <div class="w-px h-7 bg-bimo-navy/15 flex-shrink-0 hidden md:block"></div>
         <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             @foreach([['Dakar · Thiès · Régions','Agences partout au Sénégal',15],['Wave · Orange Money · Virement','Tous modes de paiement inclus',13],['98%','Taux de recouvrement',22],['TVA · BRS · TOM · DGID','Conformité fiscale CGI SN',13]] as [$n,$d,$fs])
             <div class="text-center">
                 <div class="font-display font-extrabold text-bimo-gold leading-none" style="font-size:{{ $fs }}px;letter-spacing:-.3px">{{ $n }}</div>
-                <div class="font-body text-[11px] text-bimo-navy/40 mt-1">{{ $d }}</div>
+                <div class="font-body text-[11px] text-bimo-text/40 mt-1">{{ $d }}</div>
             </div>
             @endforeach
         </div>
@@ -149,8 +149,8 @@
             <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Démonstration
             </div>
-            <h2 class="font-display font-extrabold text-[clamp(1.6rem,3vw,2.2rem)] tracking-tight text-bimo-navy mb-3">La gestion locative <em class="not-italic text-bimo-gold">automatisée</em></h2>
-            <p class="font-body text-base text-bimo-navy/50 max-w-[520px] mx-auto leading-relaxed">Découvrez comment les agences modernes automatisent leur gestion — loyers, quittances, relances — en quelques clics.</p>
+            <h2 class="font-display font-extrabold text-[clamp(1.6rem,3vw,2.2rem)] tracking-tight text-bimo-text mb-3">La gestion locative <em class="not-italic text-bimo-gold">automatisée</em></h2>
+            <p class="font-body text-base text-bimo-text/50 max-w-[520px] mx-auto leading-relaxed">Découvrez comment les agences modernes automatisent leur gestion — loyers, quittances, relances — en quelques clics.</p>
         </div>
         @php $videoUrl = 'https://www.youtube.com/embed/1CqDVBCsT78'; @endphp
         <div class="rounded-[18px] overflow-hidden border border-bimo-navy/10 shadow-xl bg-bimo-navy mt-10">
@@ -183,8 +183,8 @@
             <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Fonctionnalités
             </div>
-            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy mb-4">Tout ce dont votre agence<br>a besoin, <em class="not-italic text-bimo-gold">rien de superflu</em></h2>
-            <p class="font-body text-base text-bimo-navy/50 max-w-[540px] leading-relaxed">BimoTech n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-text mb-4">Tout ce dont votre agence<br>a besoin, <em class="not-italic text-bimo-gold">rien de superflu</em></h2>
+            <p class="font-body text-base text-bimo-text/50 max-w-[540px] leading-relaxed">BimoTech n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach([
@@ -199,8 +199,8 @@
                 <div class="w-11 h-11 bg-bimo-gold/10 border border-bimo-navy/10 rounded-[12px] flex items-center justify-center mb-5">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8">{!! $icon !!}</svg>
                 </div>
-                <h3 class="font-display font-bold text-[15px] text-bimo-navy mb-2">{{ $title }}</h3>
-                <p class="font-body text-sm text-bimo-navy/50 leading-[1.7]">{{ $desc }}</p>
+                <h3 class="font-display font-bold text-[15px] text-bimo-text mb-2">{{ $title }}</h3>
+                <p class="font-body text-sm text-bimo-text/50 leading-[1.7]">{{ $desc }}</p>
             </div>
             @endforeach
         </div>
@@ -214,7 +214,7 @@
             <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Témoignages
             </div>
-            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy">Ce que disent les agences<br>qui utilisent <em class="not-italic text-bimo-gold">BimoTech</em></h2>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-text">Ce que disent les agences<br>qui utilisent <em class="not-italic text-bimo-gold">BimoTech</em></h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             @foreach([
@@ -224,12 +224,12 @@
             ] as [$initials,$name,$role,$text])
             <div class="bg-white border border-bimo-navy/10 rounded-[14px] p-7 hover:border-bimo-navy/20 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                 <div class="font-[Georgia,serif] text-[32px] text-bimo-gold opacity-40 leading-none mb-4">"</div>
-                <p class="font-body text-sm text-bimo-navy/60 leading-[1.75] mb-6 italic">{{ $text }}</p>
+                <p class="font-body text-sm text-bimo-text/60 leading-[1.75] mb-6 italic">{{ $text }}</p>
                 <div class="flex items-center gap-2.5">
                     <div class="w-[38px] h-[38px] rounded-full bg-bimo-gold flex items-center justify-center font-display font-bold text-sm text-white flex-shrink-0">{{ $initials }}</div>
                     <div>
-                        <div class="font-display font-bold text-sm text-bimo-navy">{{ $name }}</div>
-                        <div class="font-body text-xs text-bimo-navy/40">{{ $role }}</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">{{ $name }}</div>
+                        <div class="font-body text-xs text-bimo-text/40">{{ $role }}</div>
                     </div>
                 </div>
                 <div class="text-bimo-gold text-xs mt-3">★★★★★</div>
@@ -246,8 +246,8 @@
             <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Conformité fiscale
             </div>
-            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy mb-4">Le seul SaaS immobilier<br><em class="not-italic text-bimo-gold">conforme au droit sénégalais</em></h2>
-            <p class="font-body text-base text-bimo-navy/50 max-w-[540px] leading-relaxed">BimoTech intègre nativement les obligations fiscales et légales du Sénégal. Pas de modules à activer, pas de configuration complexe.</p>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-text mb-4">Le seul SaaS immobilier<br><em class="not-italic text-bimo-gold">conforme au droit sénégalais</em></h2>
+            <p class="font-body text-base text-bimo-text/50 max-w-[540px] leading-relaxed">BimoTech intègre nativement les obligations fiscales et légales du Sénégal. Pas de modules à activer, pas de configuration complexe.</p>
         </div>
         <div class="bg-bimo-bg border border-bimo-navy/10 rounded-[20px] p-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
@@ -264,8 +264,8 @@
                         <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="#C9A84C" stroke-width="2.5"><polyline points="2,6 5,9 10,3"/></svg>
                     </div>
                     <div>
-                        <div class="font-body font-semibold text-sm text-bimo-navy mb-1">{{ $title }}</div>
-                        <div class="font-body text-sm text-bimo-navy/50 leading-relaxed">{{ $desc }}</div>
+                        <div class="font-body font-semibold text-sm text-bimo-text mb-1">{{ $title }}</div>
+                        <div class="font-body text-sm text-bimo-text/50 leading-relaxed">{{ $desc }}</div>
                     </div>
                 </div>
                 @endforeach
@@ -287,7 +287,7 @@
             <div class="hidden md:block absolute top-[27px] left-[calc(16.7%+12px)] right-[calc(16.7%+12px)] h-px bg-bimo-gold/30 z-0"></div>
             @foreach([['1','Créez votre agence','Renseignez nom, NINEA et coordonnées. Votre espace est immédiatement actif, sécurisé et isolé.'],['2','Ajoutez vos biens','Importez votre portefeuille avec photos, loyers et propriétaires. Créez vos premiers contrats de bail.'],['3','Gérez en temps réel','Paiements, quittances PDF, rapports fiscaux — tout se génère automatiquement depuis votre tableau de bord.']] as [$num,$title,$desc])
             <div class="text-center relative z-10">
-                <div class="w-[54px] h-[54px] bg-bimo-gold rounded-full flex items-center justify-center font-display font-extrabold text-lg text-bimo-navy mx-auto mb-5 shadow-lg">{{ $num }}</div>
+                <div class="w-[54px] h-[54px] bg-bimo-gold rounded-full flex items-center justify-center font-display font-extrabold text-lg text-bimo-text mx-auto mb-5 shadow-lg">{{ $num }}</div>
                 <div class="font-display font-bold text-[15px] text-white mb-2">{{ $title }}</div>
                 <div class="font-body text-sm text-white/50 leading-relaxed">{{ $desc }}</div>
             </div>
@@ -303,8 +303,8 @@
             <div class="inline-flex items-center justify-center gap-1.5 font-body font-semibold text-[11px] text-bimo-gold uppercase tracking-[2px] mb-4">
                 <span class="w-4 h-px bg-bimo-gold inline-block"></span>Tarifs
             </div>
-            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-navy mb-3">Starter, Pro ou Agence —<br><em class="not-italic text-bimo-gold">30 jours d'essai gratuit</em></h2>
-            <p class="font-body text-base text-bimo-navy/50 mx-auto">Aucune carte bancaire. Choisissez votre plan après l'essai.</p>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-text mb-3">Starter, Pro ou Agence —<br><em class="not-italic text-bimo-gold">30 jours d'essai gratuit</em></h2>
+            <p class="font-body text-base text-bimo-text/50 mx-auto">Aucune carte bancaire. Choisissez votre plan après l'essai.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[840px] mx-auto mb-8">
             @foreach([
@@ -314,22 +314,22 @@
             ] as [$featured,$name,$price,$desc])
             <div class="rounded-[14px] p-8 flex flex-col relative transition-all duration-200 hover:-translate-y-1 {{ $featured ? 'bg-bimo-navy border border-bimo-navy shadow-xl pt-11' : 'bg-white border border-bimo-navy/10 hover:shadow-md hover:border-bimo-navy/20' }}">
                 @if($featured)
-                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-bimo-gold text-bimo-navy font-display font-extrabold text-[11px] px-4 py-1 rounded-full whitespace-nowrap">⭐ Recommandé</div>
+                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-bimo-gold text-bimo-text font-display font-extrabold text-[11px] px-4 py-1 rounded-full whitespace-nowrap">⭐ Recommandé</div>
                 @endif
-                <div class="font-body font-bold text-[11px] uppercase tracking-[1.5px] mb-3 {{ $featured ? 'text-white/40' : 'text-bimo-navy/40' }}">{{ $name }}</div>
-                <div class="font-display font-extrabold text-[36px] leading-none mb-3 flex items-baseline gap-1.5 {{ $featured ? 'text-white' : 'text-bimo-navy' }}">
-                    {{ $price }} <span class="font-body text-sm font-normal {{ $featured ? 'text-white/40' : 'text-bimo-navy/40' }}">FCFA</span><span class="font-body text-sm font-normal {{ $featured ? 'text-white/40' : 'text-bimo-navy/40' }}">/ mois</span>
+                <div class="font-body font-bold text-[11px] uppercase tracking-[1.5px] mb-3 {{ $featured ? 'text-white/40' : 'text-bimo-text/40' }}">{{ $name }}</div>
+                <div class="font-display font-extrabold text-[36px] leading-none mb-3 flex items-baseline gap-1.5 {{ $featured ? 'text-white' : 'text-bimo-text' }}">
+                    {{ $price }} <span class="font-body text-sm font-normal {{ $featured ? 'text-white/40' : 'text-bimo-text/40' }}">FCFA</span><span class="font-body text-sm font-normal {{ $featured ? 'text-white/40' : 'text-bimo-text/40' }}">/ mois</span>
                 </div>
-                <p class="font-body text-sm leading-relaxed flex-1 mb-6 {{ $featured ? 'text-white/50' : 'text-bimo-navy/50' }}">{{ $desc }}</p>
+                <p class="font-body text-sm leading-relaxed flex-1 mb-6 {{ $featured ? 'text-white/50' : 'text-bimo-text/50' }}">{{ $desc }}</p>
                 <a href="{{ route('agency.register') }}"
-                   class="block text-center py-3 rounded-[10px] font-display font-bold text-sm no-underline transition-all duration-150 {{ $featured ? 'bg-bimo-gold text-bimo-navy hover:opacity-90' : 'border border-bimo-navy/15 text-bimo-navy hover:border-bimo-gold hover:text-bimo-gold' }}">
+                   class="block text-center py-3 rounded-[10px] font-display font-bold text-sm no-underline transition-all duration-150 {{ $featured ? 'bg-bimo-gold text-bimo-text hover:opacity-90' : 'border border-bimo-navy/15 text-bimo-text hover:border-bimo-gold hover:text-bimo-gold' }}">
                     {{ $featured ? 'Démarrer — 30 jours gratuits' : 'Démarrer gratuitement' }}
                 </a>
             </div>
             @endforeach
         </div>
         <div class="text-center">
-            <a href="{{ route('pricing') }}" class="inline-flex items-center gap-1.5 font-body text-sm text-bimo-navy/40 no-underline border-b border-bimo-navy/15 pb-0.5 hover:text-bimo-navy hover:border-bimo-navy/30 transition-colors duration-150">
+            <a href="{{ route('pricing') }}" class="inline-flex items-center gap-1.5 font-body text-sm text-bimo-text/40 no-underline border-b border-bimo-navy/15 pb-0.5 hover:text-bimo-text hover:border-bimo-navy/30 transition-colors duration-150">
                 Comparer tous les plans en détail
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
@@ -346,7 +346,7 @@
         <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-white mb-4">Rejoignez les agences qui<br>gèrent mieux avec <em class="not-italic text-bimo-gold">BimoTech</em></h2>
         <p class="font-body font-light text-base text-white/50 max-w-[460px] mx-auto mb-10 leading-[1.75]">Votre agence est en ligne en moins de 10 minutes. Aucune installation, aucun engagement.</p>
         <div class="flex items-center justify-center gap-3 flex-wrap mb-6">
-            <a href="{{ route('agency.register') }}" class="inline-flex items-center gap-1.5 font-display font-bold text-sm text-bimo-navy no-underline px-7 py-3.5 rounded-[10px] bg-bimo-gold hover:opacity-90 hover:-translate-y-0.5 transition-all duration-150">
+            <a href="{{ route('agency.register') }}" class="inline-flex items-center gap-1.5 font-display font-bold text-sm text-bimo-text no-underline px-7 py-3.5 rounded-[10px] bg-bimo-gold hover:opacity-90 hover:-translate-y-0.5 transition-all duration-150">
                 Créer mon agence gratuitement →
             </a>
             <a href="{{ route('demo') }}" class="inline-flex items-center gap-1.5 font-body font-medium text-sm text-white no-underline px-7 py-3.5 rounded-[10px] bg-transparent border border-white/15 hover:border-white/30 transition-all duration-150">

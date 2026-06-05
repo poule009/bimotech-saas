@@ -8,23 +8,23 @@
     {{-- Header + actions --}}
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-3 flex-wrap">
-            <a href="{{ route('admin.tva-agence.index') }}" class="font-body text-sm text-bimo-navy/40 hover:text-bimo-navy transition-colors duration-150">← Toutes les déclarations</a>
-            <span class="text-bimo-navy/20">|</span>
-            <h1 class="font-display font-extrabold text-lg text-bimo-navy">Déclaration TVA — {{ $declaration->periode_label }}</h1>
+            <a href="{{ route('admin.tva-agence.index') }}" class="font-body text-sm text-bimo-text/40 hover:text-bimo-text transition-colors duration-150">← Toutes les déclarations</a>
+            <span class="text-bimo-text/20">|</span>
+            <h1 class="font-display font-extrabold text-lg text-bimo-text">Déclaration TVA — {{ $declaration->periode_label }}</h1>
             @if($declaration->statut === 'brouillon' && $declaration->est_en_retard)
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">⚠ En retard</span>
             @elseif($declaration->statut === 'brouillon')
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">Brouillon</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">Brouillon</span>
             @elseif($declaration->statut === 'validee')
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validée</span>
             @elseif($declaration->statut === 'deposee')
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-navy/70">✓ Déposée à la DGI</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-semibold bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">✓ Déposée à la DGI</span>
             @endif
         </div>
         <div class="flex items-center gap-2 flex-wrap flex-shrink-0">
             @if($declaration->statut !== 'deposee')
             <button type="button" id="btn-recalc" data-annee="{{ $annee }}" data-mois="{{ $mois }}" onclick="recalculer(this)"
-                    class="inline-flex items-center gap-2 px-4 py-2 border border-bimo-navy/15 rounded-[9px] font-body text-sm text-bimo-navy/60 hover:border-bimo-gold hover:text-bimo-navy transition-all duration-150 cursor-pointer bg-white">
+                    class="inline-flex items-center gap-2 px-4 py-2 border border-bimo-navy/15 rounded-[9px] font-body text-sm text-bimo-text/60 hover:border-bimo-gold hover:text-bimo-text transition-all duration-150 cursor-pointer bg-white">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
                 Recalculer
             </button>
@@ -48,7 +48,7 @@
             </form>
             @endif
             @else
-            <span class="font-body text-xs text-bimo-navy/40">Déposée le {{ $declaration->deposee_le->format('d/m/Y à H:i') }}</span>
+            <span class="font-body text-xs text-bimo-text/40">Déposée le {{ $declaration->deposee_le->format('d/m/Y à H:i') }}</span>
             @endif
             <a href="{{ route('admin.tva-agence.pdf', [$annee, $mois]) }}" target="_blank"
                class="inline-flex items-center gap-2 px-4 py-2 bg-bimo-gold/[8%] border border-bimo-gold/25 text-bimo-gold font-display font-bold text-sm rounded-[9px] hover:bg-bimo-gold/15 transition-all duration-150">
@@ -62,10 +62,10 @@
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
             <div>
-                <span class="font-display font-bold text-sm text-bimo-navy">TVA collectée — auto-calculée depuis les paiements</span>
-                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Taux 18% — Art. 369 CGI SN · {{ $tvaData['nombre_paiements'] }} paiement(s)</div>
+                <span class="font-display font-bold text-sm text-bimo-text">TVA collectée — auto-calculée depuis les paiements</span>
+                <div class="font-body text-xs text-bimo-text/40 mt-0.5">Taux 18% — Art. 369 CGI SN · {{ $tvaData['nombre_paiements'] }} paiement(s)</div>
             </div>
-            <span class="font-display font-extrabold text-xl text-bimo-navy">{{ number_format($tvaData['total_tva_collectee'],0,',','') }}<span class="font-body text-sm text-bimo-navy/40 ml-1">FCFA</span></span>
+            <span class="font-display font-extrabold text-xl text-bimo-text">{{ number_format($tvaData['total_tva_collectee'],0,',','') }}<span class="font-body text-sm text-bimo-text/40 ml-1">FCFA</span></span>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -86,24 +86,24 @@
                 <tbody class="divide-y divide-bimo-navy/[5%]">
                     @forelse($tvaData['detail_par_contrat'] as $p)
                     <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                        <td class="px-4 py-3 font-body text-[11px] text-bimo-navy/40 uppercase" style="font-family:monospace">{{ $p['reference'] }}</td>
-                        <td class="px-4 py-3 font-body text-sm text-bimo-navy/70">{{ $p['locataire'] }}</td>
-                        <td class="px-4 py-3 font-body text-xs text-bimo-navy/60 max-w-[120px] truncate">{{ $p['bien'] }}</td>
-                        <td class="px-4 py-3 font-body text-xs text-bimo-navy/60">{{ ucfirst($p['type_bail']) }}</td>
-                        <td class="px-4 py-3 font-body text-xs text-bimo-navy/50">@if($p['periode']){{ \Carbon\Carbon::parse($p['periode'])->translatedFormat('M Y') }}@else—@endif</td>
-                        <td class="px-4 py-3 text-right font-display font-semibold text-sm text-bimo-navy/70">{{ $p['loyer_ht'] > 0 ? number_format($p['loyer_ht'],0,',','').' F' : '—' }}</td>
+                        <td class="px-4 py-3 font-body text-[11px] text-bimo-text/40 uppercase" style="font-family:monospace">{{ $p['reference'] }}</td>
+                        <td class="px-4 py-3 font-body text-sm text-bimo-text/70">{{ $p['locataire'] }}</td>
+                        <td class="px-4 py-3 font-body text-xs text-bimo-text/60 max-w-[120px] truncate">{{ $p['bien'] }}</td>
+                        <td class="px-4 py-3 font-body text-xs text-bimo-text/60">{{ ucfirst($p['type_bail']) }}</td>
+                        <td class="px-4 py-3 font-body text-xs text-bimo-text/50">@if($p['periode']){{ \Carbon\Carbon::parse($p['periode'])->translatedFormat('M Y') }}@else—@endif</td>
+                        <td class="px-4 py-3 text-right font-display font-semibold text-sm text-bimo-text/70">{{ $p['loyer_ht'] > 0 ? number_format($p['loyer_ht'],0,',','').' F' : '—' }}</td>
                         <td class="px-4 py-3 text-right font-body text-sm text-bimo-gold">{{ $p['tva_commission'] > 0 ? number_format($p['tva_commission'],0,',','').' F' : '—' }}</td>
                         <td class="px-4 py-3 text-right font-body text-sm text-bimo-gold">{{ $p['tva_loyer'] > 0 ? number_format($p['tva_loyer'],0,',','').' F' : '—' }}</td>
                         <td class="px-4 py-3 text-right font-body text-sm text-bimo-gold">{{ $p['tva_charges'] > 0 ? number_format($p['tva_charges'],0,',','').' F' : '—' }}</td>
                         <td class="px-4 py-3 text-right font-body text-sm text-bimo-gold">{{ $p['tva_frais'] > 0 ? number_format($p['tva_frais'],0,',','').' F' : '—' }}</td>
                     </tr>
                     @empty
-                    <tr><td colspan="10" class="px-4 py-8 text-center font-body text-sm text-bimo-navy/30 italic">Aucun paiement enregistré pour ce mois</td></tr>
+                    <tr><td colspan="10" class="px-4 py-8 text-center font-body text-sm text-bimo-text/30 italic">Aucun paiement enregistré pour ce mois</td></tr>
                     @endforelse
                 </tbody>
                 <tfoot>
                     <tr class="bg-bimo-gold/[8%] border-t-2 border-bimo-gold/30">
-                        <td colspan="6" class="px-4 py-3 font-display font-bold text-sm text-bimo-navy/70">Sous-totaux TVA collectée</td>
+                        <td colspan="6" class="px-4 py-3 font-display font-bold text-sm text-bimo-text/70">Sous-totaux TVA collectée</td>
                         <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_commissions'],0,',','') }} F</td>
                         <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_loyers_commerciaux'],0,',','') }} F</td>
                         <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_charges_forfait'],0,',','') }} F</td>
@@ -116,7 +116,7 @@
         <div class="grid grid-cols-4 border-t border-bimo-navy/[5%]">
             @foreach([['Commissions',$tvaData['tva_commissions']],['Loyers commerciaux',$tvaData['tva_loyers_commerciaux']],['Charges forfait',$tvaData['tva_charges_forfait']],['Honoraires',$tvaData['tva_honoraires']]] as [$lbl,$val])
             <div class="p-4 text-center border-r last:border-r-0 border-bimo-navy/[5%]">
-                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/30 mb-1">{{ $lbl }}</div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/30 mb-1">{{ $lbl }}</div>
                 <div class="font-display font-bold text-lg text-bimo-gold">{{ number_format($val,0,',','') }} F</div>
             </div>
             @endforeach
@@ -127,10 +127,10 @@
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
             <div>
-                <span class="font-display font-bold text-sm text-bimo-navy">TVA déductible — saisie manuelle</span>
-                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Saisir uniquement la TVA figurant sur des factures au nom de l'agence avec NINEA du fournisseur</div>
+                <span class="font-display font-bold text-sm text-bimo-text">TVA déductible — saisie manuelle</span>
+                <div class="font-body text-xs text-bimo-text/40 mt-0.5">Saisir uniquement la TVA figurant sur des factures au nom de l'agence avec NINEA du fournisseur</div>
             </div>
-            <span class="font-display font-extrabold text-xl text-bimo-navy">{{ number_format($declaration->total_tva_deductible,0,',','') }}<span class="font-body text-sm text-bimo-navy/40 ml-1">FCFA</span></span>
+            <span class="font-display font-extrabold text-xl text-bimo-text">{{ number_format($declaration->total_tva_deductible,0,',','') }}<span class="font-body text-sm text-bimo-text/40 ml-1">FCFA</span></span>
         </div>
         <div class="px-5 py-5">
             @if($declaration->statut !== 'deposee')
@@ -142,27 +142,27 @@
                 @csrf @method('PUT')
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">TVA sur achats / fournitures</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">TVA sur achats / fournitures</label>
                         <input type="number" name="tva_achats_fournitures" value="{{ old('tva_achats_fournitures',$declaration->tva_achats_fournitures) }}" min="0" step="1" placeholder="0"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        <p class="font-body text-xs text-bimo-navy/40">Matériel, papeterie, logiciels…</p>
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        <p class="font-body text-xs text-bimo-text/40">Matériel, papeterie, logiciels…</p>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">TVA sur loyer du bureau de l'agence</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">TVA sur loyer du bureau de l'agence</label>
                         <input type="number" name="tva_loyer_bureau" value="{{ old('tva_loyer_bureau',$declaration->tva_loyer_bureau) }}" min="0" step="1" placeholder="0"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        <p class="font-body text-xs text-bimo-navy/40">Local commercial loué par l'agence</p>
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        <p class="font-body text-xs text-bimo-text/40">Local commercial loué par l'agence</p>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">TVA déductible — autres</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">TVA déductible — autres</label>
                         <input type="number" name="tva_autres_deductible" value="{{ old('tva_autres_deductible',$declaration->tva_autres_deductible) }}" min="0" step="1" placeholder="0"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        <p class="font-body text-xs text-bimo-navy/40">Prestataires, conseil, autres achats sur facture NINEA</p>
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                        <p class="font-body text-xs text-bimo-text/40">Prestataires, conseil, autres achats sur facture NINEA</p>
                     </div>
                     <div class="space-y-1.5 sm:col-span-2">
-                        <label class="block font-body font-medium text-sm text-bimo-navy">Notes internes <span class="font-light text-bimo-navy/40">(facultatif)</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text">Notes internes <span class="font-light text-bimo-text/40">(facultatif)</span></label>
                         <textarea name="notes" rows="2" placeholder="Détail des achats, références factures…"
-                                  class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 resize-none">{{ old('notes',$declaration->notes) }}</textarea>
+                                  class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 resize-none">{{ old('notes',$declaration->notes) }}</textarea>
                     </div>
                 </div>
                 <div class="flex justify-end">
@@ -177,13 +177,13 @@
             <div class="grid grid-cols-3 gap-3 mb-4">
                 @foreach([['Achats / fournitures',$declaration->tva_achats_fournitures],['Loyer bureau agence',$declaration->tva_loyer_bureau],['Autres déductibles',$declaration->tva_autres_deductible]] as [$lbl,$val])
                 <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[9px] p-4">
-                    <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-1.5">{{ $lbl }}</div>
-                    <div class="font-display font-bold text-xl text-bimo-navy">{{ number_format($val,0,',','') }} F</div>
+                    <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1.5">{{ $lbl }}</div>
+                    <div class="font-display font-bold text-xl text-bimo-text">{{ number_format($val,0,',','') }} F</div>
                 </div>
                 @endforeach
             </div>
             @if($declaration->notes)
-            <div class="px-4 py-3 bg-bimo-bg border border-bimo-navy/[8%] rounded-[9px] font-body text-sm text-bimo-navy/60">
+            <div class="px-4 py-3 bg-bimo-bg border border-bimo-navy/[8%] rounded-[9px] font-body text-sm text-bimo-text/60">
                 <strong>Notes :</strong> {{ $declaration->notes }}
             </div>
             @endif
@@ -195,15 +195,15 @@
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
             <div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Résultat — TVA nette à reverser</span>
-                <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Art. 370 CGI SN · Échéance : {{ $declaration->date_echeance->translatedFormat('d F Y') }}</div>
+                <span class="font-display font-bold text-sm text-bimo-text">Résultat — TVA nette à reverser</span>
+                <div class="font-body text-xs text-bimo-text/40 mt-0.5">Art. 370 CGI SN · Échéance : {{ $declaration->date_echeance->translatedFormat('d F Y') }}</div>
             </div>
         </div>
         <div class="px-5 py-5 max-w-lg">
             <div class="space-y-0 divide-y divide-bimo-navy/[5%]">
                 <div class="flex items-center justify-between py-3">
-                    <span class="font-body text-sm text-bimo-navy/70">TVA collectée</span>
-                    <span class="font-display font-bold text-sm text-bimo-navy">{{ number_format($declaration->total_tva_collectee,0,',','') }} FCFA</span>
+                    <span class="font-body text-sm text-bimo-text/70">TVA collectée</span>
+                    <span class="font-display font-bold text-sm text-bimo-text">{{ number_format($declaration->total_tva_collectee,0,',','') }} FCFA</span>
                 </div>
                 <div class="flex items-center justify-between py-3">
                     <span class="font-body text-sm text-bimo-gold">− TVA déductible</span>

@@ -13,16 +13,16 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden mb-4">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-navy/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Identité visuelle</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Identité visuelle</span>
             </div>
             <div class="px-5 py-5 space-y-6">
 
                 {{-- Logo principal --}}
                 <div class="space-y-2">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">
-                        Logo <span class="font-normal text-bimo-navy/40 text-xs ml-1">PNG, JPG · max 2 Mo</span>
+                    <label class="block font-body font-medium text-sm text-bimo-text">
+                        Logo <span class="font-normal text-bimo-text/40 text-xs ml-1">PNG, JPG · max 2 Mo</span>
                     </label>
                     <div id="logo-zone" onclick="document.getElementById('logo-input').click()"
                          class="flex items-center gap-4 p-4 bg-bimo-bg border-2 border-dashed border-bimo-navy/15 rounded-[10px] cursor-pointer
@@ -37,8 +37,8 @@
                             @endif
                         </div>
                         <div>
-                            <div class="font-body font-medium text-sm text-bimo-navy">Cliquer pour changer le logo</div>
-                            <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Recommandé : 200×200 px · fond transparent</div>
+                            <div class="font-body font-medium text-sm text-bimo-text">Cliquer pour changer le logo</div>
+                            <div class="font-body text-xs text-bimo-text/40 mt-0.5">Recommandé : 200×200 px · fond transparent</div>
                         </div>
                         <input type="file" name="logo" id="logo-input" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="previewLogo(this)">
                     </div>
@@ -54,12 +54,12 @@
 
                 {{-- Logo fond sombre --}}
                 <div class="space-y-2">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">
-                        Logo fond sombre <span class="font-normal text-bimo-navy/40 text-xs ml-1">Version claire/blanche pour les PDF à en-tête noir</span>
+                    <label class="block font-body font-medium text-sm text-bimo-text">
+                        Logo fond sombre <span class="font-normal text-bimo-text/40 text-xs ml-1">Version claire/blanche pour les PDF à en-tête noir</span>
                     </label>
                     <div class="flex items-start gap-2 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[8px] px-3 py-2.5 mb-2">
                         <svg class="w-3.5 h-3.5 text-bimo-gold flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                        <p class="font-body text-[11px] text-bimo-navy/50 leading-relaxed">Utilisé dans les en-têtes sombres des quittances, baux et relevés. Logo blanc sur fond transparent (PNG) recommandé.</p>
+                        <p class="font-body text-[11px] text-bimo-text/50 leading-relaxed">Utilisé dans les en-têtes sombres des quittances, baux et relevés. Logo blanc sur fond transparent (PNG) recommandé.</p>
                     </div>
                     <div id="logo-dark-zone" onclick="document.getElementById('logo-dark-input').click()"
                          class="flex items-center gap-4 p-4 bg-bimo-navy border-2 border-dashed border-white/10 rounded-[10px] cursor-pointer
@@ -89,8 +89,8 @@
 
                 {{-- Signature --}}
                 <div class="space-y-2">
-                    <label class="block font-body font-medium text-sm text-bimo-navy">
-                        Signature / Tampon <span class="font-normal text-bimo-navy/40 text-xs ml-1">PNG fond transparent · max 1 Mo</span>
+                    <label class="block font-body font-medium text-sm text-bimo-text">
+                        Signature / Tampon <span class="font-normal text-bimo-text/40 text-xs ml-1">PNG fond transparent · max 1 Mo</span>
                     </label>
                     <div id="sig-zone" onclick="document.getElementById('sig-input').click()"
                          class="flex items-center gap-4 p-4 bg-bimo-bg border-2 border-dashed border-bimo-navy/15 rounded-[10px] cursor-pointer
@@ -99,12 +99,12 @@
                             @if($agency->signature_path && Storage::disk('public')->exists($agency->signature_path))
                                 <img src="{{ Storage::url($agency->signature_path) }}" alt="Signature" id="sig-preview-img" class="max-h-14 object-contain">
                             @else
-                                <span class="font-body text-[10px] text-bimo-navy/30 text-center px-1">Aucune signature</span>
+                                <span class="font-body text-[10px] text-bimo-text/30 text-center px-1">Aucune signature</span>
                             @endif
                         </div>
                         <div>
-                            <div class="font-body font-medium text-sm text-bimo-navy">Ajouter la signature</div>
-                            <div class="font-body text-xs text-bimo-navy/40 mt-0.5">Signature ou tampon officiel · fond transparent</div>
+                            <div class="font-body font-medium text-sm text-bimo-text">Ajouter la signature</div>
+                            <div class="font-body text-xs text-bimo-text/40 mt-0.5">Signature ou tampon officiel · fond transparent</div>
                         </div>
                         <input type="file" name="signature" id="sig-input" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="previewSignature(this)">
                     </div>
@@ -120,7 +120,7 @@
 
                 {{-- Couleur --}}
                 <div class="space-y-2">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="couleur_primaire">Couleur principale</label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="couleur_primaire">Couleur principale</label>
                     <div class="flex items-center gap-3 mb-3">
                         <input type="color" id="color-native"
                                value="{{ old('couleur_primaire', $agency->couleur_primaire ?? '#c9a84c') }}"
@@ -130,7 +130,7 @@
                                value="{{ old('couleur_primaire', $agency->couleur_primaire ?? '#c9a84c') }}"
                                placeholder="#c9a84c" maxlength="7"
                                oninput="syncColorFromHex(this.value)"
-                               class="flex-1 px-4 py-2.5 rounded-[9px] bg-white border border-bimo-navy/20 font-mono text-sm text-bimo-navy
+                               class="flex-1 px-4 py-2.5 rounded-[9px] bg-white border border-bimo-navy/20 font-mono text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150
                                       @error('couleur_primaire') border-bimo-red @enderror">
                     </div>
@@ -143,7 +143,7 @@
                         @endforeach
                     </div>
                     @error('couleur_primaire')<p class="font-body text-xs text-bimo-red mt-1">{{ $message }}</p>@enderror
-                    <p class="font-body text-[11px] text-bimo-navy/40">Utilisée pour la sidebar, les badges et les accents.</p>
+                    <p class="font-body text-[11px] text-bimo-text/40">Utilisée pour la sidebar, les badges et les accents.</p>
                 </div>
 
             </div>
@@ -153,59 +153,59 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden mb-4">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-navy/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
+                    <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Informations de l'agence</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Informations de l'agence</span>
             </div>
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="name">Nom de l'agence <span class="text-bimo-red">*</span></label>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="name">Nom de l'agence <span class="text-bimo-red">*</span></label>
                     <input type="text" name="name" id="name" value="{{ old('name', $agency->name) }}" placeholder="Ex : Immobilière Dakar"
                            oninput="updatePreview()"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                  placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                  placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                   @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('name')<p class="font-body text-xs text-bimo-red mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy" for="email">Email <span class="text-bimo-red">*</span></label>
+                        <label class="block font-body font-medium text-sm text-bimo-text" for="email">Email <span class="text-bimo-red">*</span></label>
                         <input type="email" name="email" id="email" value="{{ old('email', $agency->email) }}" placeholder="contact@agence.sn"
                                oninput="updatePreview()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         @error('email')<p class="font-body text-xs text-bimo-red mt-1">{{ $message }}</p>@enderror
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy" for="telephone">Téléphone</label>
+                        <label class="block font-body font-medium text-sm text-bimo-text" for="telephone">Téléphone</label>
                         <input type="text" name="telephone" id="telephone" value="{{ old('telephone', $agency->telephone) }}" placeholder="+221 77 XXX XX XX"
                                oninput="updatePreview()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="whatsapp">
-                        WhatsApp portail <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="whatsapp">
+                        WhatsApp portail <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                     </label>
                     <input type="text" name="whatsapp" id="whatsapp" value="{{ old('whatsapp', $agency->whatsapp) }}" placeholder="+221771234567"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                  placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                  placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('whatsapp') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                   @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                     @error('whatsapp')<p class="font-body text-xs text-bimo-red mt-1">{{ $message }}</p>@enderror
-                    <p class="font-body text-[11px] text-bimo-navy/40">Numéro utilisé pour le bouton WhatsApp sur le portail public. Format : +221771234567 sans espaces.</p>
+                    <p class="font-body text-[11px] text-bimo-text/40">Numéro utilisé pour le bouton WhatsApp sur le portail public. Format : +221771234567 sans espaces.</p>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-navy" for="adresse">
-                        Adresse <span class="font-normal text-bimo-navy/40 text-xs ml-1">(optionnel)</span>
+                    <label class="block font-body font-medium text-sm text-bimo-text" for="adresse">
+                        Adresse <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                     </label>
                     <input type="text" name="adresse" id="adresse" value="{{ old('adresse', $agency->adresse) }}" placeholder="Ex : 12 Avenue Cheikh Anta Diop, Dakar"
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                  placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                  placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                 </div>
             </div>
         </div>
@@ -216,18 +216,18 @@
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Informations légales</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Informations légales</span>
             </div>
             <div class="px-5 py-5 space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy" for="ninea">
-                            NINEA <span class="font-normal text-bimo-navy/40 text-xs ml-1">Numéro fiscal</span>
+                        <label class="block font-body font-medium text-sm text-bimo-text" for="ninea">
+                            NINEA <span class="font-normal text-bimo-text/40 text-xs ml-1">Numéro fiscal</span>
                         </label>
                         <input type="text" name="ninea" id="ninea" value="{{ old('ninea', $agency->ninea) }}" placeholder="00123456789" maxlength="30"
                                oninput="updatePreview()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:ring-2 transition-all duration-150
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('ninea') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         @error('ninea')<p class="font-body text-xs text-bimo-red mt-1">{{ $message }}</p>@enderror
@@ -236,30 +236,30 @@
                         @endif
                     </div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy" for="rccm">
-                            RCCM <span class="font-normal text-bimo-navy/40 text-xs ml-1">Registre de commerce</span>
+                        <label class="block font-body font-medium text-sm text-bimo-text" for="rccm">
+                            RCCM <span class="font-normal text-bimo-text/40 text-xs ml-1">Registre de commerce</span>
                         </label>
                         <input type="text" name="rccm" id="rccm" value="{{ old('rccm', $agency->rccm ?? '') }}" placeholder="SN-DKR-2024-XXX" maxlength="50"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                      placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                 </div>
-                <p class="font-body text-[11px] text-bimo-navy/40">Ces informations apparaissent sur toutes les quittances PDF.</p>
+                <p class="font-body text-[11px] text-bimo-text/40">Ces informations apparaissent sur toutes les quittances PDF.</p>
 
                 {{-- Modèle de bail --}}
                 <div class="pt-4 border-t border-bimo-navy/[5%]">
-                    <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-navy/40 mb-3">Modèle de contrat de bail</div>
+                    <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-3">Modèle de contrat de bail</div>
                     <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-navy" for="modele_contrat">
+                        <label class="block font-body font-medium text-sm text-bimo-text" for="modele_contrat">
                             Clauses générales de l'agence
-                            <span class="font-normal text-bimo-navy/40 text-xs ml-1">Insérées automatiquement dans tous vos baux PDF</span>
+                            <span class="font-normal text-bimo-text/40 text-xs ml-1">Insérées automatiquement dans tous vos baux PDF</span>
                         </label>
                         <textarea name="modele_contrat" id="modele_contrat" rows="8" maxlength="10000"
                                   placeholder="Ex : Le locataire s'interdit tout dépôt d'ordures dans les parties communes...&#10;Le bailleur se réserve le droit de visite avec préavis de 48h..."
-                                  class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-navy
-                                         placeholder:text-bimo-navy/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                                  class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
+                                         placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                          transition-all duration-150 resize-y">{{ old('modele_contrat', $agency->modele_contrat) }}</textarea>
-                        <p class="font-body text-[11px] text-bimo-navy/40 leading-relaxed">
+                        <p class="font-body text-[11px] text-bimo-text/40 leading-relaxed">
                             Écrivez vos clauses habituelles ici une seule fois. Pour les conditions spécifiques à un bail, utilisez le champ "Clauses particulières" sur la fiche du contrat.
                         </p>
                     </div>
@@ -363,13 +363,13 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-navy/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-navy">Configuration</span>
+                <span class="font-display font-bold text-sm text-bimo-text">Configuration</span>
             </div>
             <div class="px-5 py-5">
                 <div class="flex items-center justify-between mb-3">
-                    <span class="font-body font-medium text-sm text-bimo-navy">{{ $nbDone }}/{{ count($checks) }} complété{{ $nbDone > 1 ? 's':'' }}</span>
+                    <span class="font-body font-medium text-sm text-bimo-text">{{ $nbDone }}/{{ count($checks) }} complété{{ $nbDone > 1 ? 's':'' }}</span>
                     <span class="font-display font-bold text-sm {{ $pct === 100 ? 'text-bimo-gold' : 'text-amber-500' }}">{{ $pct }}%</span>
                 </div>
                 <div class="h-1.5 bg-bimo-navy/10 rounded-full mb-4 overflow-hidden">

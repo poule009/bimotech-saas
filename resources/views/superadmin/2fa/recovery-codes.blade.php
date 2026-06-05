@@ -12,7 +12,7 @@
                 <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </div>
             <div>
-                <div class="font-display font-bold text-sm text-bimo-navy">
+                <div class="font-display font-bold text-sm text-bimo-text">
                     @if(!empty($regenerated)) Nouveaux codes de récupération @else 2FA activé — Codes de récupération @endif
                 </div>
                 <div class="font-body text-xs text-bimo-gold/70 mt-0.5">
@@ -31,13 +31,13 @@
         <div class="px-5 py-6">
             <div class="grid grid-cols-2 gap-2 mb-6" id="codes-container">
                 @foreach($codes as $code)
-                <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[8px] px-4 py-3 text-center font-bold text-[15px] text-bimo-navy tracking-[2px]" style="font-family:'Courier New',monospace">{{ $code }}</div>
+                <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[8px] px-4 py-3 text-center font-bold text-[15px] text-bimo-text tracking-[2px]" style="font-family:'Courier New',monospace">{{ $code }}</div>
                 @endforeach
             </div>
 
             <div class="flex flex-wrap gap-3">
                 <button type="button" onclick="downloadCodes()"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-bg border border-bimo-navy/15 rounded-[9px] font-body font-medium text-sm text-bimo-navy/60 hover:border-bimo-navy/30 hover:text-bimo-navy transition-all duration-150 cursor-pointer">
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-bg border border-bimo-navy/15 rounded-[9px] font-body font-medium text-sm text-bimo-text/60 hover:border-bimo-navy/30 hover:text-bimo-text transition-all duration-150 cursor-pointer">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Télécharger (.txt)
                 </button>
