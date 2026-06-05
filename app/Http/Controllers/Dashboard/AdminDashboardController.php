@@ -245,6 +245,40 @@ class AdminDashboardController extends Controller
             LIMIT 8
         ", [$agencyId, now()->subMonths(11)->startOfMonth()->toDateString()]);
 
+        // ── Delta vs mois précédent (uniquement pour période 'mois') ─────
+        $delta = ['loyers' => null, 'impayes' => null, 'commissions' => null];
+        if ($periode === 'mois') {
+            $debutPrev = now()->copy()->subMonth()->startOfMonth()->startOfDay();
+            $finPrev   = now()->copy()->subMonth()->endOfMonth()->endOfDay();
+
+            $rawPrev = Paiement::where('agency_id', $agencyId)
+                ->where('statut', 'valide')
+                ->whereBetween('periode', [$debutPrev->toDateString(), $finPrev->toDateString()])
+                ->selectRaw('
+                    COALESCE(SUM(montant_encaisse), 0) AS loyers,
+                    COALESCE(SUM(commission_ttc), 0)   AS commissions
+                ')
+                ->first();
+
+            $prevLoyers = (float) ($rawPrev->loyers      ?? 0);
+            $prevComm   = (float) ($rawPrev->commissions ?? 0);
+
+            if ($prevLoyers > 0) {
+                $delta['loyers'] = round((($statsMois['loyers'] - $prevLoyers) / $prevLoyers) * 100, 1);
+            }
+            if ($prevComm > 0) {
+                $delta['commissions'] = round((($statsMois['commissions'] - $prevComm) / $prevComm) * 100, 1);
+            }
+
+            $payesPrev = Paiement::where('agency_id', $agencyId)
+                ->where('statut', 'valide')
+                ->whereBetween('periode', [$debutPrev->toDateString(), $finPrev->toDateString()])
+                ->whereIn('contrat_id', $contratIds)
+                ->pluck('contrat_id')->toArray();
+
+            $delta['impayes'] = $nb_impayes_mois - max(0, $contratIds->count() - count(array_unique($payesPrev)));
+        }
+
         // ── Bilan du mois ─────────────────────────────────────────────────
         $bilanMois = [
             'loyers'      => $statsMois['loyers'],
@@ -302,6 +336,7 @@ class AdminDashboardController extends Controller
             'derniersPaiements',
             'loyersParMois',
             'bilanMois',
+            'delta',
             'onboarding',
             'periode',
             'periodeLabel',

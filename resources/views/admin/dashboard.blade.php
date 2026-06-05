@@ -3,16 +3,16 @@
 
 @section('content')
 
-<div class="space-y-4 md:space-y-6">
+<div class="space-y-4 md:space-y-5">
 
     {{-- ═══ EN-TÊTE ═══ --}}
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
             <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight leading-tight">
-                Tableau de bord
+                Bonjour, {{ Str::before(auth()->user()->name, ' ') ?: auth()->user()->name }} 👋
             </h1>
             <p class="font-body text-sm text-bimo-text/50 mt-1">
-                Bilan de {{ now()->translatedFormat('F Y') }} · {{ $currentAgency->name ?? 'Votre agence' }}
+                {{ now()->translatedFormat('l d F Y') }} · {{ $currentAgency->name ?? 'Votre agence' }}
             </p>
         </div>
 
@@ -34,9 +34,7 @@
                 @foreach(['mois' => 'Ce mois', 'trimestre' => 'Trimestre', 'annee' => 'Année'] as $val => $lbl)
                 <a href="{{ route('admin.dashboard', ['periode' => $val]) }}"
                    class="px-3 py-1.5 rounded-[8px] font-body font-medium text-xs transition-all duration-150
-                          {{ $periode === $val
-                             ? 'bg-white text-bimo-text shadow-sm'
-                             : 'text-bimo-text/50 hover:text-bimo-text' }}">
+                          {{ $periode === $val ? 'bg-white text-bimo-text shadow-sm' : 'text-bimo-text/50 hover:text-bimo-text' }}">
                     {{ $lbl }}
                 </a>
                 @endforeach
@@ -57,13 +55,11 @@
 
     {{-- ═══ ALERTES ═══ --}}
 
-    {{-- Biens invisibles portail --}}
     @if(($nbBiensInvisibles ?? 0) > 0)
     <div class="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-[12px] px-4 py-3 flex-wrap">
         <div class="flex items-center gap-3">
             <svg class="w-4 h-4 text-amber-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
             <span class="font-body text-sm text-amber-800">
                 <strong>{{ $nbBiensInvisibles }} bien{{ $nbBiensInvisibles > 1 ? 's' : '' }}</strong>
@@ -77,7 +73,6 @@
     </div>
     @endif
 
-    {{-- Limite unités --}}
     @if($pourcentageUnites !== null && $pourcentageUnites >= 80)
     <div class="flex items-center justify-between gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[12px] px-4 py-3 flex-wrap">
         <div class="flex items-center gap-3">
@@ -110,14 +105,10 @@
         $allDone = $done === $total;
     @endphp
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-        {{-- Barre de progression colorée --}}
         <div class="h-1 bg-bimo-bg2">
-            <div class="h-full bg-bimo-gold transition-all duration-500 rounded-full"
-                 style="width: {{ $pct }}%"></div>
+            <div class="h-full bg-bimo-gold transition-all duration-500 rounded-full" style="width: {{ $pct }}%"></div>
         </div>
-
         <div class="p-5">
-            {{-- Header --}}
             <div class="flex items-start justify-between gap-3 mb-4">
                 <div>
                     <div class="font-display font-bold text-sm text-bimo-text">
@@ -126,7 +117,7 @@
                         @endif
                     </div>
                     <div class="font-body text-xs text-bimo-text/50 mt-0.5">
-                        @if($allDone) Toutes les étapes sont complètes. Votre agence est opérationnelle.
+                        @if($allDone) Toutes les étapes sont complètes.
                         @else {{ $done }}/{{ $total }} étapes complètes · {{ $pct }}% de configuration
                         @endif
                     </div>
@@ -140,8 +131,6 @@
                     </button>
                 </form>
             </div>
-
-            {{-- Étapes --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 @foreach($steps as $step)
                 <div class="flex items-start gap-3 p-3.5 rounded-[10px] border transition-colors duration-150
@@ -149,11 +138,11 @@
                     <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5
                                 {{ $step['done'] ? 'bg-bimo-gold' : 'bg-bimo-navy/10' }}">
                         @if($step['done'])
-                            <svg class="w-3.5 h-3.5 text-bimo-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <polyline points="20 6 9 17 4 12"/>
-                            </svg>
+                        <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
                         @else
-                            <span class="font-display font-bold text-xs text-bimo-text/30">{{ $loop->iteration }}</span>
+                        <span class="font-display font-bold text-xs text-bimo-text/30">{{ $loop->iteration }}</span>
                         @endif
                     </div>
                     <div class="flex-1 min-w-0">
@@ -175,84 +164,226 @@
     </div>
     @endif
 
-    {{-- ═══ KPI GRID ═══ --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+    {{-- ═══ 5 KPIs ═══ --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
 
-        {{-- Loyers encaissés — highlighted --}}
+        {{-- 1. Loyers encaissés — highlighted --}}
         <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="w-9 h-9 rounded-[9px] bg-bimo-gold/20 flex items-center justify-center mb-3">
-                <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                </svg>
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-9 h-9 rounded-[9px] bg-bimo-gold/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                </div>
+                @if($delta['loyers'] !== null)
+                <span class="inline-flex items-center gap-0.5 font-body font-semibold text-[11px]
+                             {{ $delta['loyers'] >= 0 ? 'text-bimo-gold' : 'text-bimo-red' }}">
+                    @if($delta['loyers'] >= 0)
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    @else
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    @endif
+                    {{ abs($delta['loyers']) }}%
+                </span>
+                @endif
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Loyers encaissés</div>
             <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
                 {{ number_format($statsMois['loyers'], 0, ',', ' ') }}
                 <span class="font-body font-normal text-sm text-bimo-gold/60">F</span>
             </div>
-            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">{{ $statsMois['nb_payes'] }} paiements {{ $periodeLabel }}</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mt-1.5">Loyers encaissés</div>
+            <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">
+                @if($delta['loyers'] !== null) vs mois dernier
+                @else {{ $statsMois['nb_payes'] }} paiements
+                @endif
+            </div>
         </div>
 
-        {{-- Taux d'occupation --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center mb-3">
-                <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-                </svg>
+        {{-- 2. Impayés ce mois --}}
+        <a href="{{ route('admin.impayes.index') }}"
+           class="block rounded-[14px] border p-4 transition-all duration-150
+                  {{ $nb_impayes_mois > 0
+                     ? 'bg-bimo-red/[5%] border-bimo-red/25 hover:border-bimo-red/40'
+                     : 'bg-white border-bimo-navy/10 hover:border-bimo-navy/25' }}">
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-9 h-9 rounded-[9px] flex items-center justify-center
+                            {{ $nb_impayes_mois > 0 ? 'bg-bimo-red/10' : 'bg-bimo-navy/5' }}">
+                    <svg class="w-4 h-4 {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text/30' }}"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                @if($delta['impayes'] !== null)
+                <span class="inline-flex items-center gap-0.5 font-body font-semibold text-[11px]
+                             {{ $delta['impayes'] <= 0 ? 'text-bimo-gold' : 'text-bimo-red' }}">
+                    @if($delta['impayes'] > 0)
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    +{{ $delta['impayes'] }}
+                    @elseif($delta['impayes'] < 0)
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    {{ $delta['impayes'] }}
+                    @else
+                    — stable
+                    @endif
+                </span>
+                @endif
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Taux d'occupation</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ $stats['taux_occupation'] }}
-                <span class="font-body font-normal text-sm text-bimo-text/40">%</span>
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">{{ $stats['nb_biens_loues'] }} / {{ $stats['nb_biens'] }} biens loués</div>
-        </div>
-
-        {{-- Impayés ce mois --}}
-        <a href="{{ route('admin.impayes.index') }}" class="block bg-white rounded-[14px] border {{ $nb_impayes_mois > 0 ? 'border-bimo-red/30 hover:border-bimo-red/50' : 'border-bimo-navy/10 hover:border-bimo-navy/25' }} p-4 transition-all duration-150">
-            <div class="w-9 h-9 rounded-[9px] {{ $nb_impayes_mois > 0 ? 'bg-bimo-red/10' : 'bg-bimo-navy/5' }} flex items-center justify-center mb-3">
-                <svg class="w-4 h-4 {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text/30' }}"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-            </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Impayés ce mois</div>
-            <div class="font-display font-extrabold text-xl {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text' }} leading-none">
+            <div class="font-display font-extrabold text-xl leading-none
+                        {{ $nb_impayes_mois > 0 ? 'text-bimo-red' : 'text-bimo-text' }}">
                 {{ $nb_impayes_mois }}
                 <span class="font-body font-normal text-sm text-bimo-text/40">contrats</span>
             </div>
-            <div class="font-body text-[10.5px] mt-1.5 {{ $nb_impayes_mois > 0 ? 'text-bimo-red/70' : 'text-bimo-text/40' }}">
-                {{ number_format($montant_du_mois, 0, ',', ' ') }} F à recouvrer
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Impayés ce mois</div>
+            <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">
+                @if($delta['impayes'] !== null) vs mois dernier
+                @else Cliquer pour relancer
+                @endif
             </div>
         </a>
 
-        {{-- Commission agence --}}
+        {{-- 3. Taux d'occupation --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center mb-3">
-                <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                </svg>
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                </div>
             </div>
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Commission agence</div>
+            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
+                {{ $stats['taux_occupation'] }}<span class="font-body font-normal text-sm text-bimo-text/40">%</span>
+            </div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Occupation</div>
+            <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">{{ $stats['nb_biens_loues'] }} / {{ $stats['nb_biens'] }} biens loués</div>
+        </div>
+
+        {{-- 4. Contrats actifs --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
+                {{ $stats['nb_contrats'] }}
+                <span class="font-body font-normal text-sm text-bimo-text/40">baux</span>
+            </div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Contrats actifs</div>
+            <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">{{ $stats['nb_locataires'] }} locataires · {{ $stats['nb_proprietaires'] }} propriétaires</div>
+        </div>
+
+        {{-- 5. Commission agence --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 col-span-2 sm:col-span-1">
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-9 h-9 rounded-[9px] bg-bimo-navy/5 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                @if($delta['commissions'] !== null)
+                <span class="inline-flex items-center gap-0.5 font-body font-semibold text-[11px]
+                             {{ $delta['commissions'] >= 0 ? 'text-bimo-gold' : 'text-bimo-red' }}">
+                    @if($delta['commissions'] >= 0)
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    @else
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    @endif
+                    {{ abs($delta['commissions']) }}%
+                </span>
+                @endif
+            </div>
             <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
                 {{ number_format($statsMois['commissions'], 0, ',', ' ') }}
                 <span class="font-body font-normal text-sm text-bimo-text/40">F</span>
             </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">TTC · {{ $stats['nb_contrats'] }} contrats actifs</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mt-1.5">Commission TTC</div>
+            <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">
+                @if($delta['commissions'] !== null) vs mois dernier
+                @else {{ $periodeLabel }}
+                @endif
+            </div>
         </div>
+
+    </div>
+
+    {{-- ═══ BOUTONS D'ACTION ═══ --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+        {{-- Enregistrer un paiement — action principale --}}
+        <a href="{{ route('admin.paiements.create') }}"
+           class="flex items-center gap-3 p-4 bg-[var(--ac)] text-white rounded-[12px]
+                  hover:opacity-90 active:opacity-95 transition-all duration-150 group min-h-[64px]">
+            <div class="w-10 h-10 rounded-[10px] bg-white/15 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="font-display font-bold text-sm">Enregistrer un paiement</div>
+                <div class="font-body text-xs opacity-70 mt-0.5 truncate">Saisir le loyer d'un locataire</div>
+            </div>
+            <svg class="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-150 flex-shrink-0"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </a>
+
+        {{-- Nouveau contrat --}}
+        <a href="{{ route('admin.contrats.create') }}"
+           class="flex items-center gap-3 p-4 bg-white rounded-[12px] border border-bimo-navy/10
+                  hover:border-bimo-navy/25 hover:shadow-sm transition-all duration-150 group min-h-[64px]">
+            <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/[6%] flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="font-display font-bold text-sm text-bimo-text">Nouveau contrat</div>
+                <div class="font-body text-xs text-bimo-text/40 mt-0.5 truncate">Créer un bail locatif</div>
+            </div>
+            <svg class="w-4 h-4 text-bimo-text/20 group-hover:text-bimo-text/50 transition-colors duration-150 flex-shrink-0"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </a>
+
+        {{-- Ajouter un bien --}}
+        <a href="{{ route('admin.biens.create') }}"
+           class="flex items-center gap-3 p-4 bg-white rounded-[12px] border border-bimo-navy/10
+                  hover:border-bimo-navy/25 hover:shadow-sm transition-all duration-150 group min-h-[64px]">
+            <div class="w-10 h-10 rounded-[10px] bg-bimo-navy/[6%] flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="font-display font-bold text-sm text-bimo-text">Ajouter un bien</div>
+                <div class="font-body text-xs text-bimo-text/40 mt-0.5 truncate">Appartement, villa, bureau…</div>
+            </div>
+            <svg class="w-4 h-4 text-bimo-text/20 group-hover:text-bimo-text/50 transition-colors duration-150 flex-shrink-0"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+        </a>
+
     </div>
 
     {{-- ═══ BILAN DU MOIS (carte sombre) ═══ --}}
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 relative overflow-hidden">
-        {{-- Halo décoratif --}}
         <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-[0.06]"
              style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)">
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-0 relative z-10">
             <div class="md:pr-7 md:border-r md:border-white/10">
-                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/40 mb-2">Attendu ce mois</div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/40 mb-2">Attendu {{ $periodeLabel }}</div>
                 <div class="font-display font-extrabold text-2xl md:text-3xl text-white leading-none">
                     {{ number_format($bilanMois['attendu'], 0, ',', ' ') }}
                     <span class="font-body font-light text-sm text-white/30">F</span>
@@ -295,41 +426,26 @@
         </div>
     </div>
 
-    {{-- ═══ GRAPHIQUES LIGNE 1 ═══ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    {{-- ═══ GRAPHIQUE + IMPAYÉS ═══ --}}
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-4">
 
-        {{-- Évolution loyers --}}
+        {{-- Graphique évolution loyers --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
                 <div>
-                    <div class="font-display font-bold text-sm text-bimo-text">Évolution des loyers</div>
-                    <div class="font-body text-[11px] text-bimo-text/40 mt-0.5">6 derniers mois</div>
+                    <div class="font-display font-bold text-sm text-bimo-text">Encaissements</div>
+                    <div class="font-body text-[11px] text-bimo-text/40 mt-0.5">12 derniers mois</div>
                 </div>
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-1.5 font-body text-[11px] text-bimo-text/40">
-                        <div class="w-2.5 h-2.5 rounded-sm bg-bimo-gold"></div> Loyers
-                    </div>
-                    <div class="flex items-center gap-1.5 font-body text-[11px] text-bimo-text/40">
-                        <div class="w-2.5 h-2.5 rounded-sm bg-bimo-navy/20"></div> Commission
-                    </div>
+                <div class="font-display font-bold text-sm text-bimo-gold">
+                    {{ number_format($statsMois['loyers'], 0, ',', ' ') }} F
+                    <span class="font-body font-normal text-xs text-bimo-text/40">ce mois</span>
                 </div>
             </div>
-            <div class="px-5 pt-4 pb-2 flex items-baseline justify-between">
-                <div>
-                    <div class="font-display font-extrabold text-xl text-bimo-text">
-                        {{ number_format($statsMois['loyers'], 0, ',', ' ') }} F
-                    </div>
-                    <div class="font-body text-[11px] text-bimo-text/40 mt-0.5">Encaissés ce mois</div>
-                </div>
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-bimo-gold"></span>Ce mois
-                </span>
-            </div>
-            <div class="relative h-48 px-5 pb-5">
+            <div class="relative h-52 px-5 py-4">
                 @if($loyersParMois->isEmpty())
                 <div class="flex flex-col items-center justify-center h-full text-bimo-text/30 gap-2">
                     <svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
                     </svg>
                     <span class="font-body text-sm">Aucune donnée disponible</span>
                 </div>
@@ -339,163 +455,7 @@
             </div>
         </div>
 
-        {{-- Répartition biens --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
-                <div class="font-display font-bold text-sm text-bimo-text">Répartition des biens</div>
-                <span class="font-body text-[11px] text-bimo-text/40">{{ $stats['nb_biens'] }} biens au total</span>
-            </div>
-            <div class="relative h-44 flex items-center justify-center px-5 pt-5">
-                @if($repartitionBiens->isEmpty())
-                <div class="flex flex-col items-center justify-center h-full text-bimo-text/30 gap-2">
-                    <svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-                    </svg>
-                    <span class="font-body text-sm">Aucun bien enregistré</span>
-                </div>
-                @else
-                <canvas id="chartTypes"></canvas>
-                @endif
-            </div>
-            @php
-                $typeColors = ['appartement'=>'#C9A84C','villa'=>'#1B4F6B','studio'=>'#163F56','bureau'=>'#8B7A3D','commerce'=>'#E8C99A','terrain'=>'#D4C5A9'];
-                $typeLabels = ['appartement'=>'Appartements','villa'=>'Villas','studio'=>'Studios','bureau'=>'Bureaux','commerce'=>'Commerces','terrain'=>'Terrains'];
-            @endphp
-            <div class="flex flex-wrap gap-x-4 gap-y-2 px-5 pb-4 mt-2">
-                @foreach($repartitionBiens as $type => $count)
-                <div class="flex items-center gap-1.5 font-body text-xs text-bimo-text/50">
-                    <div class="w-2 h-2 rounded-sm flex-shrink-0" style="background: {{ $typeColors[$type] ?? '#9ca3af' }}"></div>
-                    {{ $typeLabels[$type] ?? ucfirst($type) }}
-                    <span class="font-semibold text-bimo-text">{{ $count }}</span>
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-
-    {{-- ═══ NET PROPRIÉTAIRES ═══ --}}
-    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
-            <div class="font-display font-bold text-sm text-bimo-text">Loyers reversés par propriétaire</div>
-            <a href="{{ route('admin.rapports.financier') }}"
-               class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
-                Rapport détaillé →
-            </a>
-        </div>
-        <div class="font-body text-[11px] text-bimo-text/40 px-5 pt-3">Net après commission · 12 derniers mois</div>
-        <div class="relative h-52 px-5 pb-5 pt-2">
-            @if(count($netParProprietaire) === 0)
-            <div class="flex flex-col items-center justify-center h-full text-bimo-text/30 gap-2">
-                <svg class="w-8 h-8 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-                </svg>
-                <span class="font-body text-sm">Aucun paiement enregistré</span>
-            </div>
-            @else
-            <canvas id="chartProprio"></canvas>
-            @endif
-        </div>
-    </div>
-
-    {{-- ═══ TABLE + IMPAYÉS ═══ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
-
-        {{-- Derniers paiements --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
-                <div class="font-display font-bold text-sm text-bimo-text">Derniers paiements</div>
-                <a href="{{ route('admin.paiements.index') }}"
-                   class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
-                    Voir tout →
-                </a>
-            </div>
-
-            {{-- Mobile : cards --}}
-            <div class="md:hidden divide-y divide-bimo-navy/[5%]">
-                @forelse($derniersPaiements as $p)
-                <div class="px-5 py-3.5">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="font-body text-[11px] text-bimo-text/40 uppercase tracking-widest">
-                            {{ $p->reference_paiement }}
-                        </span>
-                        <span class="font-display font-bold text-sm text-bimo-gold">
-                            {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="font-body font-medium text-xs text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                            <div class="font-body text-[11px] text-bimo-text/40">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
-                        </div>
-                        @if($p->statut === 'valide')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validé</span>
-                        @elseif($p->statut === 'annule')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">Annulé</span>
-                        @else
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60">Attente</span>
-                        @endif
-                    </div>
-                </div>
-                @empty
-                <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
-                    Aucun paiement enregistré ce mois
-                </div>
-                @endforelse
-            </div>
-
-            {{-- Desktop : table --}}
-            <div class="hidden md:block overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead>
-                        <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                            <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Référence</th>
-                            <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Bien / Locataire</th>
-                            <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Mode</th>
-                            <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Montant</th>
-                            <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-bimo-navy/[5%]">
-                        @forelse($derniersPaiements as $p)
-                        <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                            <td class="px-5 py-3.5 font-body text-[11px] text-bimo-text/40 uppercase tracking-widest">
-                                {{ $p->reference_paiement }}
-                            </td>
-                            <td class="px-5 py-3.5">
-                                <div class="font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                                <div class="font-body text-xs text-bimo-text/40">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
-                            </td>
-                            <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">
-                                {{ \App\Models\Paiement::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}
-                            </td>
-                            <td class="px-5 py-3.5 text-right">
-                                <span class="font-display font-bold text-sm text-bimo-gold">
-                                    {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
-                                </span>
-                            </td>
-                            <td class="px-5 py-3.5">
-                                @if($p->statut === 'valide')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validé</span>
-                                @elseif($p->statut === 'annule')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">Annulé</span>
-                                @else
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60">Attente</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
-                                Aucun paiement enregistré ce mois
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {{-- Colonne droite --}}
+        {{-- Colonne droite : impayés + renouvellements --}}
         <div class="flex flex-col gap-4">
 
             {{-- Impayés urgents --}}
@@ -531,19 +491,14 @@
                 @endforelse
 
                 {{-- Taux de recouvrement --}}
+                @php $taux = $bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0; @endphp
                 <div class="px-5 py-4 border-t border-bimo-navy/[5%] bg-bimo-bg">
-                    @php $taux = $bilanMois['attendu'] > 0 ? round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100) : 0; @endphp
                     <div class="flex items-center justify-between mb-2">
                         <span class="font-body font-medium text-xs text-bimo-text/50">Taux de recouvrement</span>
                         <span class="font-display font-bold text-sm text-bimo-gold">{{ $taux }}%</span>
                     </div>
                     <div class="h-1.5 bg-bimo-navy/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-bimo-gold rounded-full transition-all duration-700"
-                             style="width: {{ $taux }}%"></div>
-                    </div>
-                    <div class="flex justify-between mt-1.5">
-                        <span class="font-body text-[10px] text-bimo-text/30">{{ number_format($bilanMois['encaisse'], 0, ',', ' ') }} F encaissés</span>
-                        <span class="font-body text-[10px] text-bimo-text/30">{{ number_format($bilanMois['attendu'], 0, ',', ' ') }} F attendus</span>
+                        <div class="h-full bg-bimo-gold rounded-full transition-all duration-700" style="width: {{ $taux }}%"></div>
                     </div>
                 </div>
             </div>
@@ -577,22 +532,110 @@
         </div>{{-- fin colonne droite --}}
     </div>
 
+    {{-- ═══ DERNIERS PAIEMENTS ═══ --}}
+    <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
+            <div class="font-display font-bold text-sm text-bimo-text">Derniers paiements</div>
+            <a href="{{ route('admin.paiements.index') }}"
+               class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
+                Voir tout →
+            </a>
+        </div>
+
+        {{-- Mobile : cards --}}
+        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+            @forelse($derniersPaiements as $p)
+            <div class="px-5 py-3.5">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="font-body text-[11px] text-bimo-text/40 uppercase tracking-widest">{{ $p->reference_paiement }}</span>
+                    <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="font-body font-medium text-xs text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                        <div class="font-body text-[11px] text-bimo-text/40">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
+                    </div>
+                    @if($p->statut === 'valide')
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validé</span>
+                    @elseif($p->statut === 'annule')
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">Annulé</span>
+                    @else
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60">Attente</span>
+                    @endif
+                </div>
+            </div>
+            @empty
+            <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
+                Aucun paiement enregistré ce mois
+            </div>
+            @endforelse
+        </div>
+
+        {{-- Desktop : table --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Référence</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Bien / Locataire</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Mode</th>
+                        <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Montant</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Statut</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-bimo-navy/[5%]">
+                    @forelse($derniersPaiements as $p)
+                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                        <td class="px-5 py-3.5 font-body text-[11px] text-bimo-text/40 uppercase tracking-widest">
+                            {{ $p->reference_paiement }}
+                        </td>
+                        <td class="px-5 py-3.5">
+                            <div class="font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-text/40">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
+                        </td>
+                        <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">
+                            {{ \App\Models\Paiement::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}
+                        </td>
+                        <td class="px-5 py-3.5 text-right">
+                            <span class="font-display font-bold text-sm text-bimo-gold">
+                                {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
+                            </span>
+                        </td>
+                        <td class="px-5 py-3.5">
+                            @if($p->statut === 'valide')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validé</span>
+                            @elseif($p->statut === 'annule')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-red/10 border border-bimo-red/20 text-bimo-red">Annulé</span>
+                            @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60">Attente</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
+                            Aucun paiement enregistré ce mois
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 {{-- WhatsApp support --}}
 <a href="https://wa.me/+221781318176?text={{ urlencode('Bonjour, j\'ai besoin d\'aide avec Bimothèque Immo 👋') }}"
    target="_blank" rel="noopener noreferrer"
-   class="fixed right-4 z-50 group
-          bottom-[84px] lg:bottom-7 lg:right-7"
+   class="fixed right-4 z-50 group bottom-[84px] lg:bottom-7 lg:right-7"
    title="Contacter le support">
     <div class="relative flex items-center">
-        {{-- Label hover --}}
         <div class="absolute right-full mr-3 bg-bimo-navy text-white font-body text-xs font-medium px-3 py-1.5 rounded-[8px]
                     whitespace-nowrap opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0
                     transition-all duration-150 pointer-events-none border border-white/10">
             Contacter le support
         </div>
-        {{-- Bouton --}}
         <div class="w-12 h-12 rounded-full flex items-center justify-center
                     shadow-[0_4px_16px_rgba(37,211,102,0.4)]
                     group-hover:shadow-[0_6px_22px_rgba(37,211,102,0.55)]
@@ -610,17 +653,18 @@
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-Chart.defaults.font.family = "'DM Sans', sans-serif";
-Chart.defaults.color = 'rgba(27,79,107,0.4)';
+Chart.defaults.font.family = "'Poppins', sans-serif";
+Chart.defaults.color = 'rgba(17,17,17,0.4)';
 
-const GOLD   = '#C9A84C';
-const NAVY   = '#1B4F6B';
+const GOLD   = '#6B7280';
+const NAVY   = '#7B1E3A';
 const RED    = '#EF4444';
-const GOLD20 = 'rgba(201,168,76,0.2)';
 
 const loyersData = @json($loyersParMois->pluck('total'));
-const commData   = @json($loyersParMois->pluck('commission'));
 const moisLabels = @json($loyersParMois->pluck('mois'));
+
+const moisNoms = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const labels = moisLabels.map(m => moisNoms[parseInt(m.split('-')[1]) - 1]);
 
 const tip = {
     backgroundColor: NAVY,
@@ -632,72 +676,50 @@ const tip = {
     cornerRadius: 8,
 };
 
-// ── 1. Évolution loyers ────────────────────────────────────────────
+// ── Graphique encaissements (bar chart) ────────────────────────────
 const elLoyers = document.getElementById('chartLoyers');
 if (elLoyers) {
-    const ctx = elLoyers.getContext('2d');
-    const gradGold = ctx.createLinearGradient(0, 0, 0, 180);
-    gradGold.addColorStop(0, 'rgba(201,168,76,0.2)');
-    gradGold.addColorStop(1, 'rgba(201,168,76,0)');
-    const gradNavy = ctx.createLinearGradient(0, 0, 0, 180);
-    gradNavy.addColorStop(0, 'rgba(27,79,107,0.1)');
-    gradNavy.addColorStop(1, 'rgba(27,79,107,0)');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: moisLabels,
-            datasets: [
-                { label: 'Loyers', data: loyersData, borderColor: GOLD, backgroundColor: gradGold, borderWidth: 2.5, pointBackgroundColor: GOLD, pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6, fill: true, tension: 0.4 },
-                { label: 'Commission', data: commData, borderColor: 'rgba(27,79,107,0.3)', backgroundColor: gradNavy, borderWidth: 2, pointBackgroundColor: 'rgba(27,79,107,0.3)', pointBorderColor: '#fff', pointBorderWidth: 2, pointRadius: 3, pointHoverRadius: 5, fill: true, tension: 0.4 }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: c => ' ' + Number(c.parsed.y).toLocaleString('fr-FR') + ' F' } } },
-            scales: {
-                x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
-                y: { grid: { color: 'rgba(27,79,107,0.05)', drawTicks: false }, border: { display: false }, ticks: { font: { size: 10 }, callback: v => v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000) + 'k' } }
-            }
-        }
-    });
-}
-
-// ── 2. Répartition biens ───────────────────────────────────────────
-@php
-    $tcJs = []; $tlJs = []; $tnJs = [];
-    foreach ($repartitionBiens as $t => $n) {
-        $tlJs[] = $typeLabels[$t] ?? ucfirst($t);
-        $tnJs[] = (int) $n;
-        $tcJs[] = $typeColors[$t] ?? '#9ca3af';
-    }
-@endphp
-const elTypes = document.getElementById('chartTypes');
-if (elTypes) {
-    new Chart(elTypes, {
-        type: 'doughnut',
-        data: { labels: @json($tlJs), datasets: [{ data: @json($tnJs), backgroundColor: @json($tcJs), borderColor: '#fff', borderWidth: 3, hoverOffset: 6 }] },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: c => ' ' + c.label + ' : ' + c.parsed } } } }
-    });
-}
-
-// ── 3. Net par propriétaire ────────────────────────────────────────
-const npl = @json(collect($netParProprietaire)->pluck('proprietaire'));
-const npd = @json(collect($netParProprietaire)->pluck('net_total'));
-const elProprio = document.getElementById('chartProprio');
-if (elProprio) {
-    new Chart(elProprio, {
+    const lastIdx = loyersData.length - 1;
+    new Chart(elLoyers, {
         type: 'bar',
         data: {
-            labels: npl,
-            datasets: [{ label: 'Net reversé (F)', data: npd, backgroundColor: npl.map((_, i) => `rgba(27,79,107,${Math.max(0.9 - i * 0.12, 0.25)})`), borderRadius: 6, borderSkipped: false }]
+            labels: labels,
+            datasets: [{
+                label: 'Loyers',
+                data: loyersData,
+                backgroundColor: loyersData.map((_, i) =>
+                    i === lastIdx ? GOLD : 'rgba(107,114,128,0.25)'
+                ),
+                borderRadius: 5,
+                borderSkipped: false,
+            }]
         },
         options: {
-            indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: c => ' Net : ' + Number(c.parsed.x).toLocaleString('fr-FR') + ' F' } } },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    ...tip,
+                    callbacks: { label: c => ' ' + Number(c.parsed.y).toLocaleString('fr-FR') + ' F' }
+                }
+            },
             scales: {
-                x: { grid: { color: 'rgba(27,79,107,0.05)', drawTicks: false }, border: { display: false }, ticks: { font: { size: 10 }, callback: v => v >= 1000000 ? (v/1000000).toFixed(1) + 'M' : (v/1000) + 'k' } },
-                y: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: NAVY, callback: (_, i) => npl[i]?.split(' ')[0] ?? '' } }
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: { font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: 'rgba(17,17,17,0.05)', drawTicks: false },
+                    border: { display: false },
+                    ticks: {
+                        font: { size: 10 },
+                        callback: v => v >= 1000000
+                            ? (v / 1000000).toFixed(1) + 'M'
+                            : (v >= 1000 ? Math.round(v / 1000) + 'k' : v)
+                    }
+                }
             }
         }
     });
