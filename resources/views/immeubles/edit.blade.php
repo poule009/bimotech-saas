@@ -111,8 +111,7 @@
             </div>
         </div>
 
-        {{-- Mise à jour des appartements en masse --}}
-        @if($immeuble->biens()->exists())
+        {{-- Appartements --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
@@ -120,8 +119,13 @@
                 </div>
                 <div>
                     <span class="font-display font-bold text-sm text-bimo-text">Appartements</span>
+                    @php $nbBiens = $immeuble->biens()->count(); @endphp
                     <p class="font-body text-xs text-bimo-text/40 mt-0.5">
-                        {{ $immeuble->biens()->count() }} unité(s) — laisser vide pour ne pas modifier
+                        @if($nbBiens > 0)
+                            {{ $nbBiens }} unité(s) — laisser vide pour ne pas modifier
+                        @else
+                            Aucune unité — les valeurs seront appliquées aux futurs appartements
+                        @endif
                     </p>
                 </div>
             </div>
@@ -178,13 +182,14 @@
                                       border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15">
                     </div>
                 </div>
+                @if($nbBiens > 0)
                 <p class="font-body text-xs text-bimo-text/40 flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    Les champs renseignés s'appliquent à tous les {{ $immeuble->biens()->count() }} appartements. Laisser vide = pas de changement.
+                    Les champs renseignés s'appliquent à tous les {{ $nbBiens }} appartements. Laisser vide = pas de changement.
                 </p>
+                @endif
             </div>
         </div>
-        @endif
 
         {{-- Description + submit --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
