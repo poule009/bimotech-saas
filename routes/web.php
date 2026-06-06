@@ -216,12 +216,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('proprietaires',  [UserController::class, 'proprietaires'])->name('proprietaires');
             Route::get('locataires',     [UserController::class, 'locataires'])->name('locataires');
-            Route::get('create/{role}',  [UserController::class, 'create'])->name('create');
-            Route::post('store',         [UserController::class, 'store'])->name('store');
+            Route::get('create/{role}',  [UserController::class, 'create'])->name('create')->middleware('agency.can:locataires.creer,proprietaires.creer');
+            Route::post('store',         [UserController::class, 'store'])->name('store')->middleware('agency.can:locataires.creer,proprietaires.creer');
             Route::get('{user}',         [UserController::class, 'show'])->name('show');
-            Route::get('{user}/edit',    [UserController::class, 'edit'])->name('edit');
-            Route::patch('{user}',       [UserController::class, 'update'])->name('update');
-            Route::delete('{user}',      [UserController::class, 'destroy'])->name('destroy');
+            Route::get('{user}/edit',    [UserController::class, 'edit'])->name('edit')->middleware('agency.can:locataires.modifier,proprietaires.modifier');
+            Route::patch('{user}',       [UserController::class, 'update'])->name('update')->middleware('agency.can:locataires.modifier,proprietaires.modifier');
+            Route::delete('{user}',      [UserController::class, 'destroy'])->name('destroy')->middleware('agency.can:locataires.modifier,proprietaires.modifier');
         });
 
         // Gestion équipe (collaborateurs) — directeur uniquement
@@ -334,7 +334,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('biens',              [BienController::class, 'store'])->name('biens.store')->middleware('agency.can:biens.creer');
         Route::get('biens/{bien}/edit',   [BienController::class, 'edit'])->name('biens.edit')->middleware('agency.can:biens.modifier');
         Route::put('biens/{bien}',        [BienController::class, 'update'])->name('biens.update')->middleware('agency.can:biens.modifier');
-        Route::patch('biens/{bien}',      [BienController::class, 'update'])->middleware('agency.can:biens.modifier');
+        Route::patch('biens/{bien}',      [BienController::class, 'update'])->name('biens.update.patch')->middleware('agency.can:biens.modifier');
         Route::delete('biens/{bien}',     [BienController::class, 'destroy'])->name('biens.destroy')->middleware('agency.can:biens.supprimer');
         Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store')->middleware('agency.can:biens.modifier');
         Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy')->middleware('agency.can:biens.modifier');
@@ -346,7 +346,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('immeubles',               [\App\Http\Controllers\ImmeubleController::class, 'store'])->name('immeubles.store')->middleware(['check.feature:immeubles', 'agency.can:immeubles.creer']);
         Route::get('immeubles/{immeuble}/edit',[\App\Http\Controllers\ImmeubleController::class, 'edit'])->name('immeubles.edit')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
         Route::put('immeubles/{immeuble}',     [\App\Http\Controllers\ImmeubleController::class, 'update'])->name('immeubles.update')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
-        Route::patch('immeubles/{immeuble}',   [\App\Http\Controllers\ImmeubleController::class, 'update'])->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
+        Route::patch('immeubles/{immeuble}',   [\App\Http\Controllers\ImmeubleController::class, 'update'])->name('immeubles.update.patch')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
         Route::delete('immeubles/{immeuble}',  [\App\Http\Controllers\ImmeubleController::class, 'destroy'])->name('immeubles.destroy')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
 
         // Contrats — lecture
