@@ -9,7 +9,7 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
             <h1 class="font-display font-extrabold text-2xl md:text-3xl text-bimo-text tracking-tight leading-tight">
-                Bonjour, {{ Str::before(auth()->user()->name, ' ') ?: auth()->user()->name }} 👋
+                Bonjour, {{ Str::before(auth()->user()->name, ' ') ?: auth()->user()->name }} 
             </h1>
             <p class="font-body text-sm text-bimo-text/50 mt-1">
                 {{ now()->translatedFormat('l d F Y') }} · {{ $currentAgency->name ?? 'Votre agence' }}
