@@ -276,12 +276,17 @@ class ImmeubleController extends Controller
         $this->authorize('isStaff');
 
         $validated = $request->validate([
-            'proprietaire_id' => ['required', 'exists:users,id'],
-            'nom'             => ['required', 'string', 'max:255'],
-            'adresse'         => ['required', 'string', 'max:255'],
-            'ville'           => ['required', 'string', 'max:100'],
-            'nombre_niveaux'  => ['nullable', 'integer', 'min:1', 'max:99'],
-            'description'     => ['nullable', 'string'],
+            'proprietaire_id'  => ['required', 'exists:users,id'],
+            'nom'              => ['required', 'string', 'max:255'],
+            'adresse'          => ['required', 'string', 'max:255'],
+            'ville'            => ['required', 'string', 'max:100'],
+            'nombre_niveaux'   => ['nullable', 'integer', 'min:1', 'max:99'],
+            'description'      => ['nullable', 'string'],
+            // Champs optionnels de mise à jour en masse des appartements
+            'loyer_par_unite'  => ['nullable', 'numeric', 'min:0'],
+            'charges_par_unite'=> ['nullable', 'numeric', 'min:0'],
+            'caution_par_unite'=> ['nullable', 'numeric', 'min:0'],
+            'taux_commission'  => ['nullable', 'numeric', 'min:0', 'max:30'],
         ], [
             'nom.required'     => "Le nom de l'immeuble est obligatoire.",
             'adresse.required' => "L'adresse est obligatoire.",
@@ -299,11 +304,33 @@ class ImmeubleController extends Controller
                 ->withInput();
         }
 
-        $immeuble->update($validated);
+        $immeuble->update([
+            'proprietaire_id' => $validated['proprietaire_id'],
+            'nom'             => $validated['nom'],
+            'adresse'         => $validated['adresse'],
+            'ville'           => $validated['ville'],
+            'nombre_niveaux'  => $validated['nombre_niveaux'],
+            'description'     => $validated['description'] ?? null,
+        ]);
+
+        // Mise à jour en masse des biens si des champs optionnels sont renseignés
+        $bienUpdates = [];
+        if (isset($validated['loyer_par_unite'])   && $validated['loyer_par_unite']   !== null) $bienUpdates['loyer_mensuel']   = $validated['loyer_par_unite'];
+        if (isset($validated['charges_par_unite']) && $validated['charges_par_unite'] !== null) $bienUpdates['charges']          = $validated['charges_par_unite'];
+        if (isset($validated['caution_par_unite']) && $validated['caution_par_unite'] !== null) $bienUpdates['caution']          = $validated['caution_par_unite'] ?: null;
+        if (isset($validated['taux_commission'])   && $validated['taux_commission']   !== null) $bienUpdates['taux_commission']  = $validated['taux_commission'];
+
+        if (! empty($bienUpdates)) {
+            $immeuble->biens()->update($bienUpdates);
+        }
+
+        $msg = ! empty($bienUpdates)
+            ? 'Immeuble et ses appartements mis à jour avec succès.'
+            : 'Immeuble mis à jour avec succès.';
 
         return redirect()
             ->route('admin.immeubles.show', $immeuble)
-            ->with('success', 'Immeuble mis à jour avec succès.');
+            ->with('success', $msg);
     }
 
     public function destroy(Immeuble $immeuble): RedirectResponse

@@ -111,6 +111,81 @@
             </div>
         </div>
 
+        {{-- Mise à jour des appartements en masse --}}
+        @if($immeuble->biens()->exists())
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div>
+                    <span class="font-display font-bold text-sm text-bimo-text">Appartements</span>
+                    <p class="font-body text-xs text-bimo-text/40 mt-0.5">
+                        {{ $immeuble->biens()->count() }} unité(s) — laisser vide pour ne pas modifier
+                    </p>
+                </div>
+            </div>
+            <div class="px-5 py-5 space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            Loyer (FCFA) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
+                        </label>
+                        <input type="number" name="loyer_par_unite"
+                               value="{{ old('loyer_par_unite') }}" min="0" step="500"
+                               placeholder="Ex : 150 000"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('loyer_par_unite') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        @error('loyer_par_unite')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            Commission agence (%) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
+                        </label>
+                        <input type="number" name="taux_commission"
+                               value="{{ old('taux_commission') }}" min="0" max="30" step="0.5"
+                               placeholder="Ex : 10"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                      @error('taux_commission') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
+                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
+                        @error('taux_commission')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            Charges (FCFA/mois) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
+                        </label>
+                        <input type="number" name="charges_par_unite"
+                               value="{{ old('charges_par_unite') }}" min="0" step="500"
+                               placeholder="Ex : 10 000"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                      border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="block font-body font-medium text-sm text-bimo-text">
+                            Caution (FCFA) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
+                        </label>
+                        <input type="number" name="caution_par_unite"
+                               value="{{ old('caution_par_unite') }}" min="0" step="500"
+                               placeholder="Ex : 300 000"
+                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
+                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
+                                      border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15">
+                    </div>
+                </div>
+                <p class="font-body text-xs text-bimo-text/40 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Les champs renseignés s'appliquent à tous les {{ $immeuble->biens()->count() }} appartements. Laisser vide = pas de changement.
+                </p>
+            </div>
+        </div>
+        @endif
+
         {{-- Description + submit --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
