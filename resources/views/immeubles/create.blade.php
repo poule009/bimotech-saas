@@ -41,7 +41,8 @@
     <p class="font-body text-sm text-bimo-text/50 mt-1">Un immeuble regroupe plusieurs appartements, studios ou bureaux sous une même adresse.</p>
 </div>
 
-<form method="POST" action="{{ route('admin.immeubles.store') }}" id="form-immeuble">
+<form method="POST" action="{{ route('admin.immeubles.store') }}" id="form-immeuble"
+      onsubmit="document.getElementById('input-avec-unites').value = _avecUnites ? '1' : '0'">
 @csrf
 
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
@@ -133,7 +134,9 @@
         {{-- Création des appartements --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden"
              x-data="{ avecUnites: {{ old('avec_unites') === '1' ? 'true' : 'false' }} }">
-            <input type="hidden" name="avec_unites" x-bind:value="avecUnites ? '1' : '0'">
+            <input type="hidden" id="input-avec-unites" name="avec_unites"
+                   value="{{ old('avec_unites', '0') }}"
+                   x-bind:value="avecUnites ? '1' : '0'">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
@@ -144,7 +147,8 @@
                         <p class="font-body text-xs text-bimo-text/40 mt-0.5">Optionnel — vous pouvez les ajouter depuis la fiche immeuble</p>
                     </div>
                 </div>
-                <button type="button" @click="avecUnites = !avecUnites; _avecUnites = avecUnites; updatePreview()"
+                <button type="button"
+                        @click="avecUnites = !avecUnites; _avecUnites = avecUnites; document.getElementById('input-avec-unites').value = avecUnites ? '1' : '0'; updatePreview()"
                         :class="avecUnites ? 'bg-[var(--ac)]' : 'bg-bimo-navy/20'"
                         class="relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0">
                     <span :class="avecUnites ? 'translate-x-5' : 'translate-x-1'"
