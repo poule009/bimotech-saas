@@ -41,8 +41,7 @@
     <p class="font-body text-sm text-bimo-text/50 mt-1">Un immeuble regroupe plusieurs appartements, studios ou bureaux sous une même adresse.</p>
 </div>
 
-<form method="POST" action="{{ route('admin.immeubles.store') }}" id="form-immeuble"
-      onsubmit="document.getElementById('input-avec-unites').value = _avecUnites ? '1' : '0'">
+<form method="POST" action="{{ route('admin.immeubles.store') }}" id="form-immeuble">
 @csrf
 
 <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
@@ -132,11 +131,9 @@
         </div>
 
         {{-- Création des appartements --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden"
-             x-data="{ avecUnites: {{ old('avec_unites') === '1' ? 'true' : 'false' }} }">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <input type="hidden" id="input-avec-unites" name="avec_unites"
-                   value="{{ old('avec_unites', '0') }}"
-                   x-bind:value="avecUnites ? '1' : '0'">
+                   value="{{ old('avec_unites', '0') }}">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
@@ -147,20 +144,16 @@
                         <p class="font-body text-xs text-bimo-text/40 mt-0.5">Optionnel — vous pouvez les ajouter depuis la fiche immeuble</p>
                     </div>
                 </div>
-                <button type="button"
-                        @click="avecUnites = !avecUnites; _avecUnites = avecUnites; document.getElementById('input-avec-unites').value = avecUnites ? '1' : '0'; updatePreview()"
-                        :class="avecUnites ? 'bg-[var(--ac)]' : 'bg-bimo-navy/20'"
-                        class="relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0">
-                    <span :class="avecUnites ? 'translate-x-5' : 'translate-x-1'"
-                          class="absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"></span>
+                <button type="button" id="toggle-apparts" onclick="toggleApparts()"
+                        class="relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 bg-bimo-navy/20">
+                    <span id="toggle-apparts-dot"
+                          class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"></span>
                 </button>
             </div>
 
-            <div x-show="avecUnites"
-                 x-transition:enter="transition duration-150"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 class="px-5 py-5 space-y-5">
+            <div id="section-apparts"
+                 class="px-5 py-5 space-y-5"
+                 style="{{ old('avec_unites') === '1' ? '' : 'display:none' }}">
 
                 {{-- Mode --}}
                 <div class="space-y-2">
@@ -517,6 +510,37 @@
 <script>
 let currentMode = '{{ old('mode_numerotation', 'simple') }}';
 let _avecUnites = {{ old('avec_unites') === '1' ? 'true' : 'false' }};
+
+// ── Toggle appartements (JS pur — pas d'Alpine pour cette partie critique) ---
+
+function toggleApparts() {
+    _avecUnites = !_avecUnites;
+    const section = document.getElementById('section-apparts');
+    const btn     = document.getElementById('toggle-apparts');
+    const dot     = document.getElementById('toggle-apparts-dot');
+    const hidden  = document.getElementById('input-avec-unites');
+
+    hidden.value   = _avecUnites ? '1' : '0';
+    section.style.display = _avecUnites ? '' : 'none';
+    btn.style.backgroundColor = _avecUnites ? 'var(--ac)' : '';
+    btn.classList.toggle('bg-bimo-navy/20', !_avecUnites);
+    dot.style.transform = _avecUnites ? 'translateX(20px)' : '';
+
+    updatePreview();
+}
+
+// Init visuel du toggle selon l'état old()
+(function initToggle() {
+    const hidden = document.getElementById('input-avec-unites');
+    const btn    = document.getElementById('toggle-apparts');
+    const dot    = document.getElementById('toggle-apparts-dot');
+    if (_avecUnites) {
+        hidden.value = '1';
+        btn.style.backgroundColor = 'var(--ac)';
+        btn.classList.remove('bg-bimo-navy/20');
+        dot.style.transform = 'translateX(20px)';
+    }
+})();
 
 // ── Mode ------------------------------------------------------------------
 
