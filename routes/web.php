@@ -340,14 +340,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy')->middleware('agency.can:biens.modifier');
         Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale')->middleware('agency.can:biens.modifier');
 
-        // Immeubles
-        Route::resource('immeubles', ImmeubleController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])->middleware('check.feature:immeubles');
+        // Immeubles — routes statiques avant la resource pour éviter que {immeuble} capture "create"
         Route::get('immeubles/create',         [\App\Http\Controllers\ImmeubleController::class, 'create'])->name('immeubles.create')->middleware(['check.feature:immeubles', 'agency.can:immeubles.creer']);
         Route::post('immeubles',               [\App\Http\Controllers\ImmeubleController::class, 'store'])->name('immeubles.store')->middleware(['check.feature:immeubles', 'agency.can:immeubles.creer']);
         Route::get('immeubles/{immeuble}/edit',[\App\Http\Controllers\ImmeubleController::class, 'edit'])->name('immeubles.edit')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
         Route::put('immeubles/{immeuble}',     [\App\Http\Controllers\ImmeubleController::class, 'update'])->name('immeubles.update')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
         Route::patch('immeubles/{immeuble}',   [\App\Http\Controllers\ImmeubleController::class, 'update'])->name('immeubles.update.patch')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
         Route::delete('immeubles/{immeuble}',  [\App\Http\Controllers\ImmeubleController::class, 'destroy'])->name('immeubles.destroy')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
+        Route::resource('immeubles', ImmeubleController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])->middleware('check.feature:immeubles');
 
         // Contrats — lecture
         Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index');
