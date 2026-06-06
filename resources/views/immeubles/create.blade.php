@@ -132,8 +132,10 @@
 
         {{-- Création des appartements --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <input type="hidden" id="input-avec-unites" name="avec_unites"
-                   value="{{ old('avec_unites', '0') }}">
+            {{-- Checkbox réelle (sr-only) — plus fiable qu'un hidden input pour les soumissions --}}
+            <input type="checkbox" id="avec-unites-cb" name="avec_unites" value="1"
+                   {{ old('avec_unites') === '1' ? 'checked' : '' }}
+                   class="sr-only">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
@@ -152,7 +154,7 @@
             </div>
 
             <div id="section-apparts"
-                 class="px-5 py-5 space-y-5"
+                 class="px-5 py-5 space-y-5 transition-opacity duration-150"
                  style="{{ old('avec_unites') === '1' ? '' : 'display:none' }}">
 
                 {{-- Mode --}}
@@ -511,16 +513,17 @@
 let currentMode = '{{ old('mode_numerotation', 'simple') }}';
 let _avecUnites = {{ old('avec_unites') === '1' ? 'true' : 'false' }};
 
-// ── Toggle appartements (JS pur — pas d'Alpine pour cette partie critique) ---
+// ── Toggle appartements ──────────────────────────────────────────────────
 
 function toggleApparts() {
-    _avecUnites = !_avecUnites;
+    const cb  = document.getElementById('avec-unites-cb');
+    cb.checked = !cb.checked;           // le navigateur soumet toujours les cases cochées
+    _avecUnites = cb.checked;
+
     const section = document.getElementById('section-apparts');
     const btn     = document.getElementById('toggle-apparts');
     const dot     = document.getElementById('toggle-apparts-dot');
-    const hidden  = document.getElementById('input-avec-unites');
 
-    hidden.value   = _avecUnites ? '1' : '0';
     section.style.display = _avecUnites ? '' : 'none';
     btn.style.backgroundColor = _avecUnites ? 'var(--ac)' : '';
     btn.classList.toggle('bg-bimo-navy/20', !_avecUnites);
@@ -529,13 +532,13 @@ function toggleApparts() {
     updatePreview();
 }
 
-// Init visuel du toggle selon l'état old()
+// Init visuel : lit l'état de la checkbox (pré-cochée si old('avec_unites')='1')
 (function initToggle() {
-    const hidden = document.getElementById('input-avec-unites');
-    const btn    = document.getElementById('toggle-apparts');
-    const dot    = document.getElementById('toggle-apparts-dot');
+    const cb  = document.getElementById('avec-unites-cb');
+    const btn = document.getElementById('toggle-apparts');
+    const dot = document.getElementById('toggle-apparts-dot');
+    _avecUnites = cb.checked;
     if (_avecUnites) {
-        hidden.value = '1';
         btn.style.backgroundColor = 'var(--ac)';
         btn.classList.remove('bg-bimo-navy/20');
         dot.style.transform = 'translateX(20px)';
