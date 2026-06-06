@@ -94,8 +94,22 @@
                 </div>
 
                 @if($immeuble->biens->isEmpty())
-                <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
-                    Aucune unité enregistrée pour cet immeuble.
+                <div class="px-5 py-12 flex flex-col items-center text-center">
+                    <div class="w-14 h-14 rounded-[14px] bg-bimo-gold/10 border border-bimo-gold/20 flex items-center justify-center mb-4">
+                        <svg class="w-7 h-7 text-bimo-gold/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                    </div>
+                    <p class="font-display font-bold text-sm text-bimo-text mb-1">Aucun appartement dans cet immeuble</p>
+                    <p class="font-body text-xs text-bimo-text/40 mb-5 max-w-xs leading-relaxed">
+                        Ajoutez les appartements, studios ou bureaux un par un, ou plusieurs en une fois.
+                    </p>
+                    <a href="{{ route('admin.biens.create', ['immeuble_id' => $immeuble->id]) }}"
+                       class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--ac)] text-white
+                              font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Ajouter le premier bien
+                    </a>
                 </div>
                 @else
                 {{-- Mobile --}}

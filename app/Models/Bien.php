@@ -69,6 +69,8 @@ class Bien extends Model
         'nombre_pieces',
         'meuble',
         'loyer_mensuel',    // ← prix de référence du bien (snapshot annonce) — NE PAS confondre avec Contrat.loyer_nu
+        'charges',
+        'caution',
         'taux_commission',
         'statut',
         'description',
@@ -85,6 +87,8 @@ class Bien extends Model
 
     protected $casts = [
         'loyer_mensuel'   => 'decimal:2',
+        'charges'         => 'decimal:2',
+        'caution'         => 'decimal:2',
         'surface_m2'      => 'decimal:2',
         'taux_commission' => 'decimal:2',
         'meuble'          => 'boolean',

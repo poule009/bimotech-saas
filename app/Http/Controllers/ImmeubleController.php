@@ -57,39 +57,52 @@ class ImmeubleController extends Controller
     {
         $this->authorize('isStaff');
 
-        $hasUnites = $request->filled('nombre_unites');
+        $hasUnites    = $request->input('avec_unites') === '1';
+        $mode         = $request->input('mode_numerotation', 'simple');
+        $avecRdc      = $request->boolean('avec_rdc');
+        $rdcDifferent = $hasUnites && $mode === 'etage' && $avecRdc && $request->boolean('rdc_different');
 
         $rules = [
             'proprietaire_id' => ['required', 'exists:users,id'],
             'nom'             => ['required', 'string', 'max:255'],
             'adresse'         => ['required', 'string', 'max:255'],
             'ville'           => ['required', 'string', 'max:100'],
-            'nombre_niveaux'  => ['nullable', 'integer', 'min:1', 'max:99'],
             'description'     => ['nullable', 'string'],
         ];
 
         if ($hasUnites) {
             $rules['type_unite']        = ['required', Rule::in(array_keys(Bien::TYPES))];
-            $rules['loyer_par_unite']   = ['required', 'numeric', 'min:1000'];
+            $rules['loyer_par_unite']   = ['required', 'numeric', 'min:0'];
             $rules['taux_commission']   = ['nullable', 'numeric', 'min:0', 'max:30'];
             $rules['mode_numerotation'] = ['nullable', Rule::in(['simple', 'etage'])];
+            $rules['charges_par_unite'] = ['nullable', 'numeric', 'min:0'];
+            $rules['caution_par_unite'] = ['nullable', 'numeric', 'min:0'];
 
-            if ($request->input('mode_numerotation') === 'etage') {
-                $rules['nombre_niveaux']    = ['required', 'integer', 'min:1', 'max:99'];
-                $rules['unites_par_niveau'] = ['required', 'integer', 'min:1', 'max:99'];
+            if ($mode === 'etage') {
+                $rules['nombre_etages']     = ['required', 'integer', 'min:0', 'max:99'];
+                $rules['unites_par_niveau'] = ['required', 'integer', 'min:1', 'max:26'];
+
+                if ($rdcDifferent) {
+                    $rules['rdc_type']  = ['required', Rule::in(array_keys(Bien::TYPES))];
+                    $rules['rdc_loyer'] = ['required', 'numeric', 'min:0'];
+                }
             } else {
                 $rules['nombre_unites'] = ['required', 'integer', 'min:1', 'max:999'];
             }
         }
 
         $validated = $request->validate($rules, [
-            'proprietaire_id.required' => 'Veuillez sélectionner un propriétaire.',
-            'nom.required'             => "Le nom de l'immeuble est obligatoire.",
-            'adresse.required'         => "L'adresse est obligatoire.",
-            'ville.required'           => 'La ville est obligatoire.',
-            'nombre_unites.required'   => "Le nombre d'unités est obligatoire.",
-            'type_unite.required'      => 'Le type des unités est obligatoire.',
-            'loyer_par_unite.required' => 'Le loyer par unité est obligatoire.',
+            'proprietaire_id.required'   => 'Veuillez sélectionner un propriétaire.',
+            'nom.required'               => "Le nom de l'immeuble est obligatoire.",
+            'adresse.required'           => "L'adresse est obligatoire.",
+            'ville.required'             => 'La ville est obligatoire.',
+            'nombre_unites.required'     => "Le nombre d'appartements est obligatoire.",
+            'nombre_etages.required'     => "Le nombre d'étages est obligatoire.",
+            'unites_par_niveau.required' => "Le nombre d'appartements par étage est obligatoire.",
+            'type_unite.required'        => 'Le type des appartements est obligatoire.',
+            'loyer_par_unite.required'   => 'Le loyer par appartement est obligatoire.',
+            'rdc_type.required'          => 'Le type du RDC est obligatoire.',
+            'rdc_loyer.required'         => 'Le loyer du RDC est obligatoire.',
         ]);
 
         $agencyId = Auth::user()->agency_id;
@@ -105,18 +118,18 @@ class ImmeubleController extends Controller
                 ->withInput();
         }
 
-        // ── Nombre d'unités demandées selon le mode de numérotation ────────
+        // ── Nombre d'unités demandées ───────────────────────────────────────
         $nombreDemandeUnites = 0;
         if ($hasUnites) {
-            if ($request->input('mode_numerotation') === 'etage') {
-                $nombreDemandeUnites = (int) ($validated['nombre_niveaux']    ?? 1)
-                                     * (int) ($validated['unites_par_niveau'] ?? 1);
+            if ($mode === 'etage') {
+                $totalNiveaux        = (int) ($validated['nombre_etages'] ?? 0) + ($avecRdc ? 1 : 0);
+                $nombreDemandeUnites = $totalNiveaux * (int) ($validated['unites_par_niveau'] ?? 1);
             } else {
                 $nombreDemandeUnites = (int) ($validated['nombre_unites'] ?? 0);
             }
         }
 
-        // ── Vérification limite d'unités selon plan_niveau ─────────────────
+        // ── Vérification limite selon plan ──────────────────────────────────
         if ($nombreDemandeUnites > 0) {
             $agency     = Auth::user()->agency;
             $planNiveau = $agency?->subscription?->plan_niveau ?? 'legacy';
@@ -151,14 +164,21 @@ class ImmeubleController extends Controller
             }
         }
 
-        [$immeuble, $nbCreees] = DB::transaction(function () use ($validated, $agencyId, $hasUnites, $request) {
+        [$immeuble, $nbCreees] = DB::transaction(function () use ($validated, $agencyId, $hasUnites, $mode, $avecRdc, $rdcDifferent) {
+            $nombreNiveaux = null;
+            if ($hasUnites && $mode === 'etage') {
+                $nombreNiveaux = (int) ($validated['nombre_etages'] ?? 0) + ($avecRdc ? 1 : 0);
+            } elseif ($hasUnites) {
+                $nombreNiveaux = 1;
+            }
+
             $immeuble = Immeuble::create([
                 'agency_id'       => $agencyId,
                 'proprietaire_id' => $validated['proprietaire_id'],
                 'nom'             => $validated['nom'],
                 'adresse'         => $validated['adresse'],
                 'ville'           => $validated['ville'],
-                'nombre_niveaux'  => $validated['nombre_niveaux'] ?? null,
+                'nombre_niveaux'  => $nombreNiveaux,
                 'description'     => $validated['description'] ?? null,
             ]);
 
@@ -166,51 +186,76 @@ class ImmeubleController extends Controller
                 return [$immeuble, 0];
             }
 
-            $taux = $validated['taux_commission'] ?? 10;
-            $nom  = $validated['nom'];
-            $mode = $request->input('mode_numerotation', 'simple');
+            $nom     = $validated['nom'];
+            $taux    = (float) ($validated['taux_commission'] ?? 10);
+            $charges = (float) ($validated['charges_par_unite'] ?? 0);
+            $caution = ($validated['caution_par_unite'] ?? null) ?: null;
 
-            $titres = [];
+            // Construction des unités : [{titre, type, loyer}]
+            $biens = [];
 
             if ($mode === 'etage') {
-                $niveaux         = (int) ($validated['nombre_niveaux'] ?? 1);
+                $nbEtages        = (int) ($validated['nombre_etages'] ?? 0);
                 $unitesParNiveau = (int) ($validated['unites_par_niveau'] ?? 1);
-                for ($etage = 0; $etage < $niveaux; $etage++) {
-                    $prefixe = $etage === 0 ? '0' : (string) $etage;
-                    for ($porte = 1; $porte <= $unitesParNiveau; $porte++) {
-                        $titres[] = $nom . ' — Appt ' . $prefixe . str_pad($porte, 2, '0', STR_PAD_LEFT);
+
+                $niveaux = [];
+                if ($avecRdc) $niveaux[] = ['label' => 'RDC', 'rdc' => true];
+                for ($i = 1; $i <= $nbEtages; $i++) {
+                    $niveaux[] = ['label' => $i === 1 ? '1er étage' : "{$i}ème étage", 'rdc' => false];
+                }
+
+                foreach ($niveaux as $niv) {
+                    $bType  = ($niv['rdc'] && $rdcDifferent) ? $validated['rdc_type']  : $validated['type_unite'];
+                    $bLoyer = ($niv['rdc'] && $rdcDifferent) ? $validated['rdc_loyer'] : $validated['loyer_par_unite'];
+
+                    if ($unitesParNiveau === 1) {
+                        $biens[] = ['titre' => $nom . ' — ' . $niv['label'], 'type' => $bType, 'loyer' => $bLoyer];
+                    } else {
+                        for ($j = 0; $j < $unitesParNiveau; $j++) {
+                            $biens[] = [
+                                'titre' => $nom . ' — ' . $niv['label'] . ' ' . chr(65 + $j),
+                                'type'  => $bType,
+                                'loyer' => $bLoyer,
+                            ];
+                        }
                     }
                 }
             } else {
-                $nb = (int) $validated['nombre_unites'];
+                $nb = (int) ($validated['nombre_unites'] ?? 0);
                 for ($i = 1; $i <= $nb; $i++) {
-                    $titres[] = $nom . ' — Appt ' . str_pad($i, 2, '0', STR_PAD_LEFT);
+                    $biens[] = [
+                        'titre' => $nom . ' — Appt ' . $i,
+                        'type'  => $validated['type_unite'],
+                        'loyer' => $validated['loyer_par_unite'],
+                    ];
                 }
             }
 
-            foreach ($titres as $titre) {
+            foreach ($biens as $b) {
                 Bien::create([
                     'agency_id'       => $agencyId,
                     'immeuble_id'     => $immeuble->id,
                     'proprietaire_id' => $validated['proprietaire_id'],
                     'reference'       => Bien::generateReference($agencyId),
-                    'titre'           => $titre,
-                    'type'            => $validated['type_unite'],
+                    'titre'           => $b['titre'],
+                    'type'            => $b['type'],
                     'adresse'         => $validated['adresse'],
                     'ville'           => $validated['ville'],
-                    'loyer_mensuel'   => $validated['loyer_par_unite'],
+                    'loyer_mensuel'   => $b['loyer'],
+                    'charges'         => $charges,
+                    'caution'         => $caution,
                     'taux_commission' => $taux,
                     'statut'          => 'disponible',
                 ]);
             }
 
-            return [$immeuble, count($titres)];
+            return [$immeuble, count($biens)];
         });
 
         return redirect()
             ->route('admin.immeubles.show', $immeuble)
             ->with('success', $nbCreees > 0
-                ? "Immeuble créé avec {$nbCreees} unité(s) liées."
+                ? "Immeuble créé avec {$nbCreees} appartement(s)."
                 : 'Immeuble créé avec succès.');
     }
 

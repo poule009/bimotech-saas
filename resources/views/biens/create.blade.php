@@ -120,7 +120,7 @@
                 {{-- Type --}}
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Type <span class="text-bimo-red">*</span></label>
-                    <select name="type" id="select-type" onchange="onTypeChange(this.value)"
+                    <select name="type"
                             class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                    focus:outline-none focus:ring-2 transition-all duration-150 cursor-pointer
                                    @error('type') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -129,116 +129,13 @@
                         @foreach(\App\Models\Bien::TYPES as $val => $label)
                         <option value="{{ $val }}" {{ old('type') === $val ? 'selected':'' }}>{{ $label }}</option>
                         @endforeach
-                        <option value="immeuble" {{ old('type') === 'immeuble' ? 'selected':'' }}>🏢 Immeuble (multi-unités)</option>
                     </select>
                     @error('type')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
+                    <p class="font-body text-xs text-bimo-text/40">Pour un bâtiment avec plusieurs appartements, utilisez la section <a href="{{ route('admin.immeubles.create') }}" class="text-bimo-gold hover:underline">Immeubles</a>.</p>
                 </div>
 
-                {{-- SECTION IMMEUBLE --}}
-                <div id="section-immeuble" style="display:none" class="space-y-4">
-                    <div class="bg-bimo-navy/[5%] border border-bimo-navy/10 rounded-[10px] px-4 py-3">
-                        <div class="font-body font-semibold text-xs text-bimo-text mb-1">Immeuble multi-unités</div>
-                        <div class="font-body text-xs text-bimo-text/50">
-                            L'immeuble sera créé automatiquement avec toutes ses unités liées au même propriétaire.
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Nom de l'immeuble <span class="text-bimo-red">*</span></label>
-                        <input type="text" name="nom" id="nom"
-                               value="{{ old('nom') }}" placeholder="Ex: Immeuble Fann Résidence"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
-                                      placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
-                                      @error('nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
-                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
-                        @error('nom')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
-                    </div>
-
-                    {{-- Mode de numérotation --}}
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Mode de numérotation <span class="text-bimo-red">*</span></label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label id="lbl-simple"
-                                   class="flex items-center gap-3 cursor-pointer p-3.5 border rounded-[10px] transition-all duration-150"
-                                   style="border-color: #C9A84C">
-                                <input type="radio" name="mode_numerotation" value="simple"
-                                       {{ old('mode_numerotation', 'simple') === 'simple' ? 'checked' : '' }}
-                                       onchange="onModeChange('simple')"
-                                       class="accent-bimo-gold">
-                                <div>
-                                    <div class="font-body font-semibold text-sm text-bimo-text">Simple</div>
-                                    <div class="font-body text-xs text-bimo-text/40">Appt 01, Appt 02…</div>
-                                </div>
-                            </label>
-                            <label id="lbl-etage"
-                                   class="flex items-center gap-3 cursor-pointer p-3.5 border border-bimo-navy/15 rounded-[10px] transition-all duration-150">
-                                <input type="radio" name="mode_numerotation" value="etage"
-                                       {{ old('mode_numerotation') === 'etage' ? 'checked' : '' }}
-                                       onchange="onModeChange('etage')"
-                                       class="accent-bimo-gold">
-                                <div>
-                                    <div class="font-body font-semibold text-sm text-bimo-text">Par étage</div>
-                                    <div class="font-body text-xs text-bimo-text/40">Appt 101, Appt 102…</div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div id="bloc-simple" class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Nombre d'unités <span class="text-bimo-red">*</span></label>
-                        <input type="number" name="nombre_unites" id="nombre_unites"
-                               value="{{ old('nombre_unites', 1) }}" min="1" max="999" placeholder="Ex: 10"
-                               oninput="calcRecap()"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        @error('nombre_unites')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
-                    </div>
-
-                    <div id="bloc-etage" style="display:none" class="grid grid-cols-2 gap-3">
-                        <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-text">Niveaux <span class="text-bimo-red">*</span></label>
-                            <input type="number" name="nombre_niveaux" id="nombre_niveaux"
-                                   value="{{ old('nombre_niveaux', 1) }}" min="1" max="99" placeholder="Ex: 3"
-                                   oninput="calcRecap()"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-text">Unités/niveau <span class="text-bimo-red">*</span></label>
-                            <input type="number" name="unites_par_niveau" id="unites_par_niveau"
-                                   value="{{ old('unites_par_niveau', 2) }}" min="1" max="99" placeholder="Ex: 4"
-                                   oninput="calcRecap()"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-text">Type des unités <span class="text-bimo-red">*</span></label>
-                            <select name="type_unite"
-                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
-                                           transition-all duration-150 cursor-pointer">
-                                <option value="">— Choisir —</option>
-                                @foreach(\App\Models\Bien::TYPES as $val => $label)
-                                <option value="{{ $val }}" {{ old('type_unite') === $val ? 'selected':'' }}>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block font-body font-medium text-sm text-bimo-text">Loyer/unité (FCFA) <span class="text-bimo-red">*</span></label>
-                            <input type="number" name="loyer_par_unite" id="loyer_par_unite"
-                                   value="{{ old('loyer_par_unite') }}" min="0" step="500"
-                                   oninput="calcRecap()"
-                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- SECTION BIEN STANDALONE --}}
-                <div id="section-bien" class="space-y-4">
+                {{-- SECTION BIEN --}}
+                <div class="space-y-4">
 
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">
@@ -537,73 +434,21 @@
 <script>
 function fmt(n) { return Math.round(n).toLocaleString('fr-FR') + ' F'; }
 
-const ROUTE_IMMEUBLES = '{{ route('admin.immeubles.store') }}';
-const ROUTE_BIENS     = '{{ route('admin.biens.store') }}';
-
-function onModeChange(mode) {
-    document.getElementById('bloc-simple').style.display = mode === 'simple' ? 'block' : 'none';
-    document.getElementById('bloc-etage').style.display  = mode === 'etage'  ? 'block' : 'none';
-    document.getElementById('lbl-simple').style.borderColor = mode === 'simple' ? '#C9A84C' : 'rgba(27,79,107,0.15)';
-    document.getElementById('lbl-etage').style.borderColor  = mode === 'etage'  ? '#C9A84C' : 'rgba(27,79,107,0.15)';
-    calcRecap();
-}
-
-function getNbUnites() {
-    const mode = document.querySelector('input[name="mode_numerotation"]:checked')?.value ?? 'simple';
-    if (mode === 'etage') {
-        return (parseInt(document.getElementById('nombre_niveaux')?.value) || 1) *
-               (parseInt(document.getElementById('unites_par_niveau')?.value) || 1);
-    }
-    return parseInt(document.getElementById('nombre_unites')?.value) || 1;
-}
-
-function onTypeChange(val) {
-    const isImmeuble = val === 'immeuble';
-    document.getElementById('section-immeuble').style.display = isImmeuble ? 'block' : 'none';
-    document.getElementById('section-bien').style.display     = isImmeuble ? 'none'  : 'block';
-    document.getElementById('card-financier').style.display   = isImmeuble ? 'none'  : 'block';
-    document.getElementById('btn-submit-label').textContent   = isImmeuble ? 'Créer l\'immeuble et ses unités' : 'Créer le bien';
-    document.getElementById('form-bien').action = isImmeuble ? ROUTE_IMMEUBLES : ROUTE_BIENS;
-    calcRecap();
-}
-
 function calcRecap() {
-    const isImmeuble = document.getElementById('select-type').value === 'immeuble';
-    let loyer, taux;
-    if (isImmeuble) {
-        loyer = parseFloat(document.getElementById('loyer_par_unite')?.value) || 0;
-        taux  = parseFloat(document.getElementById('taux_commission')?.value) || 0;
-        const nb = getNbUnites();
-        const commHt = Math.round(loyer * taux / 100);
-        const tva    = Math.round(commHt * 0.18);
-        const ttc    = commHt + tva;
-        const net    = loyer - ttc;
-        document.getElementById('rp-loyer').textContent    = fmt(loyer) + ' × ' + nb + ' unités';
-        document.getElementById('rp-comm').textContent     = fmt(commHt) + ' / unité';
-        document.getElementById('rp-tva').textContent      = fmt(tva) + ' / unité';
-        document.getElementById('rp-comm-ttc').textContent = fmt(ttc) + ' / unité';
-        document.getElementById('rp-net').textContent      = fmt(net * nb) + ' FCFA total';
-    } else {
-        loyer = parseFloat(document.getElementById('loyer_mensuel')?.value) || 0;
-        taux  = parseFloat(document.getElementById('taux_commission')?.value) || 0;
-        const commHt = Math.round(loyer * taux / 100);
-        const tva    = Math.round(commHt * 0.18);
-        const ttc    = commHt + tva;
-        const net    = loyer - ttc;
-        document.getElementById('rp-loyer').textContent    = fmt(loyer);
-        document.getElementById('rp-comm').textContent     = fmt(commHt);
-        document.getElementById('rp-tva').textContent      = fmt(tva);
-        document.getElementById('rp-comm-ttc').textContent = fmt(ttc);
-        document.getElementById('rp-net').textContent      = fmt(net) + ' FCFA';
-    }
+    const loyer = parseFloat(document.getElementById('loyer_mensuel')?.value) || 0;
+    const taux  = parseFloat(document.getElementById('taux_commission')?.value) || 0;
+    const commHt = Math.round(loyer * taux / 100);
+    const tva    = Math.round(commHt * 0.18);
+    const ttc    = commHt + tva;
+    const net    = loyer - ttc;
+    document.getElementById('rp-loyer').textContent    = fmt(loyer);
+    document.getElementById('rp-comm').textContent     = fmt(commHt);
+    document.getElementById('rp-tva').textContent      = fmt(tva);
+    document.getElementById('rp-comm-ttc').textContent = fmt(ttc);
+    document.getElementById('rp-net').textContent      = fmt(net) + ' FCFA';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    const type = document.getElementById('select-type').value;
-    if (type) onTypeChange(type);
-    const mode = document.querySelector('input[name="mode_numerotation"]:checked')?.value ?? 'simple';
-    onModeChange(mode);
-});
 
 function previewPhotos(files) {
     const grid = document.getElementById('preview-grid');
