@@ -328,8 +328,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // les routes spécifiques (create, store…) déclarées ci-dessus.
     Route::middleware('can:isStaff')->prefix('admin')->name('admin.')->group(function () {
 
-        // Biens
-        Route::resource('biens', BienController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
+        // Biens — routes statiques avant la resource pour éviter que {bien} capture "create"
         Route::get('biens/create',        [BienController::class, 'create'])->name('biens.create')->middleware('agency.can:biens.creer');
         Route::post('biens',              [BienController::class, 'store'])->name('biens.store')->middleware('agency.can:biens.creer');
         Route::get('biens/{bien}/edit',   [BienController::class, 'edit'])->name('biens.edit')->middleware('agency.can:biens.modifier');
@@ -339,6 +338,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store')->middleware('agency.can:biens.modifier');
         Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy')->middleware('agency.can:biens.modifier');
         Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale')->middleware('agency.can:biens.modifier');
+        Route::resource('biens', BienController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
 
         // Immeubles — routes statiques avant la resource pour éviter que {immeuble} capture "create"
         Route::get('immeubles/create',         [\App\Http\Controllers\ImmeubleController::class, 'create'])->name('immeubles.create')->middleware(['check.feature:immeubles', 'agency.can:immeubles.creer']);
