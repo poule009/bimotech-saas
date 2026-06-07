@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -17,7 +18,7 @@ use Illuminate\Notifications\Notification;
  *
  * Envoyé aux utilisateurs admin de l'agence à J-7 et J-3 avant chaque échéance.
  */
-class BrsTrimestrielReminderNotification extends Notification
+class BrsTrimestrielReminderNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

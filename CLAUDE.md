@@ -80,13 +80,16 @@ Injectée dans `layouts/app.blade.php` (déjà en place, ne pas modifier) :
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `bimo-bg` | `#F7F5F0` | Fond général des pages |
-| `bimo-bg2` | `#F0EDE6` | Headers de cards, zones secondaires |
+| `bimo-bg` | `#F4F4F5` | Fond général des pages |
+| `bimo-bg2` | `#E9E9EA` | Headers de cards, zones secondaires |
 | `bimo-surface` | `#FFFFFF` | Cards, modals, inputs |
-| `bimo-navy` | `#1B4F6B` | Navbar, sidebar, boutons primaires, textes forts |
-| `bimo-navy-dk` | `#163F56` | Hover états navy |
-| `bimo-gold` | `#C9A84C` | CTA, valeurs positives, highlights |
+| `bimo-navy` | `#7B1E3A` | Navbar, sidebar, boutons primaires, textes forts (bordeaux) |
+| `bimo-navy-dk` | `#641630` | Hover états navy |
+| `bimo-text` | `#111111` | Texte principal sur fond clair |
+| `bimo-gold` | `#6B7280` | CTA, valeurs positives, highlights (gris ardoise) |
 | `bimo-red` | `#EF4444` | Impayés uniquement |
+
+> ⚠️ **Rebrand appliqué.** `bimo-navy` est désormais un **bordeaux** (`#7B1E3A`) et `bimo-gold` un **gris ardoise** (`#6B7280`). Les noms de tokens (« navy », « gold ») sont **historiques** et conservés pour ne pas casser les vues existantes. Source de vérité = `tailwind.config.js`.
 
 ### Opacités en Tailwind — valeurs autorisées
 

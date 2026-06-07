@@ -6,11 +6,12 @@ use App\Models\Paiement;
 use App\Services\NombreEnLettres;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 
-class QuittanceLocataireNotification extends Notification
+class QuittanceLocataireNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

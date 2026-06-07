@@ -255,13 +255,9 @@ class SuperAdminController extends Controller
             ]);
         }
 
-        $planNiveau   = $request->input('plan_niveau', 'pro');
-        $limiteNouveau = match ($planNiveau) {
-            'starter' => 15,
-            'pro'     => 50,
-            'agence'  => null,
-            default   => 50,
-        };
+        $planNiveau     = $request->input('plan_niveau', 'pro');
+        $limitesParPlan = config('plans.nb_unites_max');
+        $limiteNouveau  = $limitesParPlan[$planNiveau] ?? $limitesParPlan['pro'];
 
         $nbUnites = $agency->nbUnitesActives();
         if ($limiteNouveau !== null && $nbUnites > $limiteNouveau) {
@@ -386,6 +382,18 @@ class SuperAdminController extends Controller
     public function impersonate(User $user): RedirectResponse
     {
         abort_if($user->isSuperAdmin(), 403, "Impossible d'impersonner un super-admin.");
+
+        // Audit : tracer le démarrage de l'impersonation.
+        // Auth::id() est encore le superadmin réel avant le Auth::login ci-dessous.
+        \App\Models\ActivityLog::create([
+            'user_id'     => Auth::id(),
+            'agency_id'   => $user->agency_id,
+            'action'      => 'impersonate',
+            'description' => "Impersonation démarrée : {$user->name} (#{$user->id}, {$user->role})",
+            'model_type'  => User::class,
+            'model_id'    => $user->id,
+            'ip_address'  => request()?->ip(),
+        ]);
 
         session(['impersonating_id' => Auth::id()]);
         Auth::login($user);

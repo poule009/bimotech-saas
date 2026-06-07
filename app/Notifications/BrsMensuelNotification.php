@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -13,7 +14,7 @@ use Illuminate\Notifications\Notification;
  * Envoyée à l'admin de l'agence dans la fenêtre J-7 avant le 15 du mois.
  * Référence légale : CGI SN art. 200 §4.
  */
-class BrsMensuelNotification extends Notification
+class BrsMensuelNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

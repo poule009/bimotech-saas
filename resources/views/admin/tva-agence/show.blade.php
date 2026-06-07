@@ -31,7 +31,7 @@
             @if($declaration->statut === 'brouillon')
             <form method="POST" action="{{ route('admin.tva-agence.valider', [$annee, $mois]) }}" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-bimo-navy text-white font-display font-bold text-sm rounded-[9px] hover:bg-bimo-navy-dk transition-colors duration-150 cursor-pointer">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[9px] hover:opacity-90 transition-opacity duration-150 cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                     Valider
                 </button>
@@ -41,7 +41,7 @@
             <form method="POST" action="{{ route('admin.tva-agence.deposee', [$annee, $mois]) }}" class="inline"
                   onsubmit="return confirm('Confirmer le dépôt à la DGI ? Cette action est irréversible.')">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-bimo-navy text-white font-display font-bold text-sm rounded-[9px] hover:bg-bimo-navy-dk transition-colors duration-150 cursor-pointer">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[9px] hover:opacity-90 transition-opacity duration-150 cursor-pointer">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     Marquer comme déposée
                 </button>
@@ -167,7 +167,7 @@
                 </div>
                 <div class="flex justify-end">
                     <button type="submit"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-bimo-navy text-white font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150 cursor-pointer">
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150 cursor-pointer">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
                         Enregistrer la TVA déductible
                     </button>

@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Agency;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -12,7 +13,7 @@ use Illuminate\Notifications\Notification;
  *
  * @param int $step  1 | 7 | 25
  */
-class OnboardingNotification extends Notification
+class OnboardingNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

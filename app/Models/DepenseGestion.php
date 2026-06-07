@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasAgencyScope;
+use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -30,7 +31,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class DepenseGestion extends Model
 {
-    use HasFactory, HasAgencyScope;
+    use HasFactory, HasAgencyScope, LogsActivity;
 
     protected $table = 'depenses_gestion';
 
@@ -63,6 +64,13 @@ class DepenseGestion extends Model
         'frais_notaire'=> 'Frais notaire',
         'autre'        => 'Autre',
     ];
+
+    // ── Audit ActivityLog ────────────────────────────────────────────────────
+
+    public function getActivityLogTitle(): string
+    {
+        return 'Dépense de gestion « ' . ($this->libelle ?? '#' . $this->getKey()) . ' »';
+    }
 
     // ── Auto-injection agency_id ─────────────────────────────────────────────
 
