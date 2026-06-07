@@ -9,11 +9,20 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
-class EtatTrimestrielController extends Controller
+class EtatTrimestrielController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:fiscalite'),
+        ];
+    }
+
     // ── Helpers statiques (publics pour les tests) ────────────────────────────
 
     public static function trimestreFromMois(int $mois): int

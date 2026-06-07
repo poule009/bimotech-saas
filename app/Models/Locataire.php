@@ -83,7 +83,8 @@ class Locataire extends Model
      */
     public function getTauxEffortAttribute(): ?string
     {
-        if (! $this->revenu_mensuel || ! $this->contratActif) return null;
+        if (! $this->revenu_mensuel) return null;
+        if (! $this->relationLoaded('contratActif') || ! $this->contratActif) return null;
         $taux = ($this->contratActif->loyer_contractuel / $this->revenu_mensuel) * 100;
         return round($taux, 1) . '%';
     }

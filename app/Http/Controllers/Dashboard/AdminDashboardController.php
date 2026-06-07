@@ -133,16 +133,19 @@ class AdminDashboardController extends Controller
         });
 
         // ── Impayés de la période (pas de cache — données critiques) ──────
-        $contratIds = Contrat::where('agency_id', $agencyId)->where('statut', 'actif')->pluck('id');
+        // Sous-requête SQL plutôt que pluck() : évite de charger tous les IDs
+        // de contrats actifs en mémoire PHP pour les agences à fort volume.
+        $contratsActifsQuery = fn () => Contrat::where('agency_id', $agencyId)->where('statut', 'actif');
+        $nbContratsActifs    = $contratsActifsQuery()->count();
 
         $payes = Paiement::where('agency_id', $agencyId)
             ->where('statut', 'valide')
             ->whereBetween('periode', [$debut->toDateString(), $fin->toDateString()])
-            ->whereIn('contrat_id', $contratIds)
+            ->whereIn('contrat_id', $contratsActifsQuery()->select('id'))
             ->pluck('contrat_id')
             ->toArray();
 
-        $nb_impayes_mois = max(0, $contratIds->count() - count(array_unique($payes)));
+        $nb_impayes_mois = max(0, $nbContratsActifs - count(array_unique($payes)));
 
         $periodeMultiplier = match($periode) {
             'trimestre' => 3,
@@ -273,10 +276,10 @@ class AdminDashboardController extends Controller
             $payesPrev = Paiement::where('agency_id', $agencyId)
                 ->where('statut', 'valide')
                 ->whereBetween('periode', [$debutPrev->toDateString(), $finPrev->toDateString()])
-                ->whereIn('contrat_id', $contratIds)
+                ->whereIn('contrat_id', $contratsActifsQuery()->select('id'))
                 ->pluck('contrat_id')->toArray();
 
-            $delta['impayes'] = $nb_impayes_mois - max(0, $contratIds->count() - count(array_unique($payesPrev)));
+            $delta['impayes'] = $nb_impayes_mois - max(0, $nbContratsActifs - count(array_unique($payesPrev)));
         }
 
         // ── Bilan du mois ─────────────────────────────────────────────────

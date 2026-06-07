@@ -7,12 +7,22 @@ use App\Models\ChargeAgence;
 use App\Models\ReversementProprietaire;
 use App\Services\ComptabiliteService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class ComptabiliteController extends Controller
+class ComptabiliteController extends Controller implements HasMiddleware
 {
     public function __construct(private ComptabiliteService $comptabiliteService) {}
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:comptabilite', only: ['dashboard', 'compteResultat']),
+            new Middleware('check.feature:tresorerie', only: ['tresorerie']),
+        ];
+    }
 
     public function dashboard(Request $request): View
     {

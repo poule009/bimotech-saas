@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ContratStatut;
-use App\Models\Scopes\AgencyScope;
+use App\Models\Concerns\HasAgencyScope;
 use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Contrat extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasAgencyScope, HasFactory, LogsActivity, SoftDeletes;
 
     // ── Constantes ────────────────────────────────────────────────────────────
 
@@ -133,8 +133,6 @@ class Contrat extends Model
 
     protected static function booted(): void
     {
-        static::addGlobalScope(new AgencyScope());
-
         static::creating(function (Contrat $contrat) {
             // Auto-injection agency_id
             if (empty($contrat->agency_id) && Auth::check()) {

@@ -62,12 +62,8 @@ class SubscriptionController extends Controller
         $planNiveau = $request->plan_niveau;
 
         // ── Vérification quota avant tout paiement ────────────────────────
-        $limiteNouveau = match ($planNiveau) {
-            'starter' => 15,
-            'pro'     => 50,
-            'agence'  => null,
-            default   => 50,
-        };
+        $limitesParPlan = config('plans.nb_unites_max');
+        $limiteNouveau  = $limitesParPlan[$planNiveau] ?? $limitesParPlan['pro'];
 
         if ($limiteNouveau !== null) {
             $nbUnites = $agency->nbUnitesActives();

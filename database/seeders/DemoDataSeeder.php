@@ -17,6 +17,11 @@ class DemoDataSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command->error('🚫 DemoDataSeeder ne doit jamais être exécuté en production (comptes de démo avec mot de passe connu).');
+            return;
+        }
+
         // ── Récupère l'agence existante ───────────────────────────────────
         $agency = Agency::where('slug', 'bimo-tech')->first();
 

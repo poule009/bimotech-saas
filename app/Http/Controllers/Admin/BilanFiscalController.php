@@ -9,6 +9,8 @@ use App\Services\FiscalService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,9 +23,16 @@ use Illuminate\Support\Facades\Auth;
  *  3. Afficher le détail d'un bilan avec abattement 30%, IRPP, CFPB
  *  4. Exporter le bilan en PDF pour transmission DGI
  */
-class BilanFiscalController extends Controller
+class BilanFiscalController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:bilans_fiscaux'),
+        ];
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // LISTE — Bilans de tous les propriétaires pour une année

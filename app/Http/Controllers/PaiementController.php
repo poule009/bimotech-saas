@@ -12,15 +12,26 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Http\Requests\StorePaiementRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-class PaiementController extends Controller
+class PaiementController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:fiscalite', only: ['fiscalPreview']),
+            new Middleware('check.feature:export_csv', only: ['exportCsv']),
+        ];
+    }
 
     const MODES_PAIEMENT = [
         'especes'         => 'Espèces',
@@ -193,27 +204,31 @@ class PaiementController extends Controller
         // Référence paiement unique
         $reference = 'PAY-' . strtoupper(Str::random(8));
 
-        $paiement = Paiement::create(array_merge(
-            $result->toPaiementFields(),
-            [
-                'agency_id'               => $agencyId,
-                'contrat_id'              => $contrat->id,
-                'periode'                 => Carbon::parse($validated['periode'])->startOfMonth(),
-                'date_paiement'           => $validated['date_paiement'],
-                'montant_encaisse'        => $result->montantEncaisse,
-                'mode_paiement'           => $validated['mode_paiement'],
-                'taux_commission_applique'=> $ctx->tauxCommission,
-                'caution_percue'          => $validated['caution_percue'] ?? 0,
-                'est_premier_paiement'    => $estPremier,
-                'statut'                  => 'valide',
-                'reference_paiement'      => $reference,
-                'reference_bail'          => $contrat->reference_bail,
-                'notes'                   => $validated['notes'] ?? null,
-            ]
-        ));
+        $paiement = DB::transaction(function () use ($result, $agencyId, $contrat, $validated, $ctx, $estPremier, $reference) {
+            $p = Paiement::create(array_merge(
+                $result->toPaiementFields(),
+                [
+                    'agency_id'               => $agencyId,
+                    'contrat_id'              => $contrat->id,
+                    'periode'                 => Carbon::parse($validated['periode'])->startOfMonth(),
+                    'date_paiement'           => $validated['date_paiement'],
+                    'montant_encaisse'        => $result->montantEncaisse,
+                    'mode_paiement'           => $validated['mode_paiement'],
+                    'taux_commission_applique'=> $ctx->tauxCommission,
+                    'caution_percue'          => $validated['caution_percue'] ?? 0,
+                    'est_premier_paiement'    => $estPremier,
+                    'statut'                  => 'valide',
+                    'reference_paiement'      => $reference,
+                    'reference_bail'          => $contrat->reference_bail,
+                    'notes'                   => $validated['notes'] ?? null,
+                ]
+            ));
 
-        // Invalider le cache du dashboard locataire pour qu'il voie le nouveau paiement immédiatement
-        Cache::forget("locataire_dashboard_{$contrat->locataire_id}");
+            // Invalider le cache du dashboard locataire pour qu'il voie le nouveau paiement immédiatement
+            Cache::forget("locataire_dashboard_{$contrat->locataire_id}");
+
+            return $p;
+        });
 
         // Notifier le propriétaire par email
         try {

@@ -23,7 +23,8 @@ class SuperAdminSeeder extends Seeder
     public function run(): void
     {
         $email    = env('SUPER_ADMIN_EMAIL', 'superadmin@bimo-tech.sn');
-        $password = env('SUPER_ADMIN_PASSWORD', 'oui');
+        $password = env('SUPER_ADMIN_PASSWORD')
+            ?? throw new \RuntimeException('SUPER_ADMIN_PASSWORD must be set in .env');
 
         $user = User::updateOrCreate(
             // ── Critère de recherche (clé unique) ──

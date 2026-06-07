@@ -28,6 +28,7 @@ export default {
             },
             borderRadius: {
                 'card':  '14px',
+     
                 'btn':   '10px',
                 'badge': '9999px',
             },

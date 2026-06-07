@@ -7,10 +7,19 @@ use App\Models\Contrat;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 
-class SearchController extends Controller
+class SearchController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:recherche_globale'),
+        ];
+    }
+
     public function __invoke(Request $request): JsonResponse
     {
         $q = trim($request->input('q', ''));

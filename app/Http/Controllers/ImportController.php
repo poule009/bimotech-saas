@@ -7,6 +7,8 @@ use App\Imports\LocatairesImport;
 use App\Imports\ProprietairesImport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,8 +16,15 @@ use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
-class ImportController extends Controller
+class ImportController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:import_excel'),
+        ];
+    }
+
     /**
      * Configuration centralisée des trois imports supportés.
      * Évite la duplication de code entre proprietaires / locataires / biens.

@@ -74,16 +74,6 @@ class Proprietaire extends Model
     }
 
     /**
-     * Contrats actifs (résultat en collection, usage hors Eloquent).
-     */
-    public function contratsActifs()
-    {
-        return Contrat::whereIn('bien_id', $this->biens()->pluck('id'))
-            ->where('statut', 'actif')
-            ->get();
-    }
-
-    /**
      * Builder de paiements isolé par agence — point d'entrée du BailleurController.
      *
      * Sécurité : double filtre agency_id + proprietaire_id.

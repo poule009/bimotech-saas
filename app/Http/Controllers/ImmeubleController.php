@@ -8,14 +8,23 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
-class ImmeubleController extends Controller
+class ImmeubleController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:immeubles'),
+        ];
+    }
 
     public function index(): View
     {

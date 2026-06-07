@@ -10,13 +10,22 @@ use App\Services\BailleurPortfolioService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class BailleurController extends Controller
+class BailleurController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:releve_bailleur_pdf', only: ['exportPdf', 'relevePdf']),
+        ];
+    }
 
     public function __construct(private readonly BailleurPortfolioService $portfolioService)
     {

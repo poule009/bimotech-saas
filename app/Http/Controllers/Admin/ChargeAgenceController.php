@@ -7,10 +7,19 @@ use App\Http\Requests\StoreChargeAgenceRequest;
 use App\Models\ChargeAgence;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class ChargeAgenceController extends Controller
+class ChargeAgenceController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:comptabilite'),
+        ];
+    }
+
     public function index(Request $request): View
     {
         $mois   = $request->get('mois', now()->format('Y-m'));

@@ -40,9 +40,7 @@ class CheckSubscriptions extends Command
                 DB::transaction(function () use ($subscription, &$updated) {
                     $agency = $subscription->agency;
 
-                    $subscription->update([
-                        'statut' => 'expiré',
-                    ]);
+                    $subscription->marquerExpire();
 
                     if ($agency instanceof Agency) {
                         // `actif` est intentionnellement absent de Agency::$fillable

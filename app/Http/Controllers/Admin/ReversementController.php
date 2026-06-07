@@ -10,12 +10,21 @@ use App\Services\ComptabiliteService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class ReversementController extends Controller
+class ReversementController extends Controller implements HasMiddleware
 {
     public function __construct(private ComptabiliteService $comptabiliteService) {}
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:comptabilite'),
+        ];
+    }
 
     public function index(Request $request): View
     {

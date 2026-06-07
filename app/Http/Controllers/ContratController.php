@@ -14,14 +14,24 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 
-class ContratController extends Controller
+class ContratController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:contrat_formel_pdf', only: ['bailFormelPdf']),
+        ];
+    }
 
     // ─────────────────────────────────────────────────────────────────────
     // LISTE
@@ -136,10 +146,6 @@ class ContratController extends Controller
         // authorize() et rules() sont gérés par StoreContratRequest.
         $validated = $request->validated();
 
-        if (Contrat::where('bien_id', $validated['bien_id'])->where('statut', 'actif')->exists()) {
-            return back()->withInput()->withErrors(['bien_id' => 'Ce bien a déjà un contrat actif.']);
-        }
-
         $loyerNu           = (float) $validated['loyer_nu'];
         $chargesMensuelles = (float) ($validated['charges_mensuelles'] ?? 0);
         $tomAmount         = (float) ($validated['tom_amount'] ?? 0);
@@ -152,6 +158,17 @@ class ContratController extends Controller
         $agencyId = Auth::user()->agency_id;
 
         $contrat = DB::transaction(function () use ($validated, $loyerNu, $chargesMensuelles, $tomAmount, $loyerContractuel, $referenceBail, $request, $agencyId) {
+            $bien = Bien::withoutGlobalScopes()
+                ->where('agency_id', $agencyId)
+                ->lockForUpdate()
+                ->findOrFail($validated['bien_id']);
+
+            if (Contrat::where('bien_id', $bien->id)->where('statut', 'actif')->exists()) {
+                throw ValidationException::withMessages([
+                    'bien_id' => 'Ce bien a déjà un contrat actif.',
+                ]);
+            }
+
             $contrat = Contrat::create([
                 'bien_id'             => $validated['bien_id'],
                 'locataire_id'        => $validated['locataire_id'],
@@ -193,10 +210,7 @@ class ContratController extends Controller
                 ]);
             }
 
-            Bien::withoutGlobalScopes()
-                ->where('id', $contrat->bien_id)
-                ->where('agency_id', $agencyId)
-                ->update(['statut' => 'loue']);
+            $bien->update(['statut' => 'loue']);
 
             return $contrat;
         });

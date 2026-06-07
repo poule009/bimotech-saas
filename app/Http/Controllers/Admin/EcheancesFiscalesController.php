@@ -4,10 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 
-class EcheancesFiscalesController extends Controller
+class EcheancesFiscalesController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:fiscalite'),
+        ];
+    }
+
     public function index(): View
     {
         $today          = Carbon::now()->timezone('Africa/Dakar')->startOfDay();

@@ -10,12 +10,21 @@ use App\Models\User;
 use App\Services\FiscalService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
-class FiscalDashboardController extends Controller
+class FiscalDashboardController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('check.feature:fiscalite'),
+        ];
+    }
 
     public function dashboard(): View
     {

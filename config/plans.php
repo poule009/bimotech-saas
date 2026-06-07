@@ -37,6 +37,14 @@ return [
         'legacy'  => 5,
     ],
 
+    // Nombre max d'unités (biens actifs) par agence selon le plan
+    'nb_unites_max' => [
+        'starter' => 15,
+        'pro'     => 50,
+        'agence'  => null, // illimité
+        'legacy'  => 50,
+    ],
+
     // Labels affichés dans les messages utilisateur
     'labels' => [
         'starter' => 'Starter',
