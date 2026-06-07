@@ -93,7 +93,7 @@
             <div class="font-body font-medium text-[9.5px] uppercase tracking-widests text-bimo-text/50 mb-1">Taux recouvrement</div>
             @php $taux = $stats['taux_recouvrement']; @endphp
             <div class="font-display font-extrabold text-2xl leading-none
-                        {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-amber-500' : 'text-bimo-red') }}">
+                        {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-bimo-navy' : 'text-bimo-red') }}">
                 {{ $taux }}%
             </div>
             <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">Ce mois</div>
@@ -105,13 +105,13 @@
         <div class="flex items-center justify-between mb-2">
             <span class="font-body font-medium text-sm text-bimo-text">Taux de recouvrement</span>
             <span class="font-display font-bold text-sm
-                         {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-amber-500' : 'text-bimo-red') }}">
+                         {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-bimo-navy' : 'text-bimo-red') }}">
                 {{ $taux }}%
             </span>
         </div>
         <div class="h-2.5 bg-bimo-navy/10 rounded-full overflow-hidden">
-            <div class="h-full rounded-full transition-all duration-500"
-                 style="width:{{ $taux }}%; background: {{ $taux >= 80 ? 'linear-gradient(90deg,#C9A84C,#e8c99a)' : ($taux >= 50 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'linear-gradient(90deg,#EF4444,#f87171)') }}">
+            <div class="h-full rounded-full transition-all duration-500 {{ $taux >= 80 ? 'bg-bimo-gold' : ($taux >= 50 ? 'bg-bimo-navy' : 'bg-bimo-red') }}"
+                 style="width:{{ $taux }}%">
             </div>
         </div>
         <div class="flex items-center justify-between mt-1.5">

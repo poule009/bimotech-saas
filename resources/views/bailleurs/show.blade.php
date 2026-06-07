@@ -41,7 +41,7 @@
     {{-- Hero --}}
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative overflow-hidden border border-white/[6%]">
         <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
-             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)"></div>
+             style="background: radial-gradient(circle, var(--ac) 0%, transparent 70%); transform: translate(30%, -30%)"></div>
         <div class="flex items-center gap-4 relative z-10">
             <div class="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 font-display font-extrabold text-2xl text-bimo-gold bg-bimo-gold/12 border-2 border-bimo-gold/35">
                 {{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}
@@ -222,7 +222,7 @@
                         <div class="flex justify-between py-2.5"><span class="font-body text-xs text-bimo-red/70">BRS retenu</span><span class="font-display font-semibold text-xs text-bimo-red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} F</span></div>
                         @endif
                         @if($dashboard['total_dgid'] > 0)
-                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">DGID enreg.</span><span class="font-display font-semibold text-xs text-purple-300">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span></div>
+                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">DGID enreg.</span><span class="font-display font-semibold text-xs text-white/70">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span></div>
                         @endif
                     </div>
                     <div class="px-5 pb-4">
@@ -430,16 +430,16 @@
             @if($dashboard['total_dgid'] > 0)
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5">
                 <div class="flex items-center gap-3 mb-4">
-                    <div class="w-8 h-8 rounded-[8px] bg-purple-50 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
+                        <svg class="w-4 h-4 text-bimo-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </div>
                     <span class="font-display font-bold text-sm text-bimo-text">DGID — Droits d'enregistrement</span>
                 </div>
                 <div class="space-y-2.5">
-                    <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Total DGID</span><span class="font-display font-bold text-sm text-purple-600">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span></div>
+                    <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Total DGID</span><span class="font-display font-bold text-sm text-bimo-navy">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span></div>
                     <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Exercice</span><span class="font-body text-xs text-bimo-text">{{ $annee }}</span></div>
                 </div>
-                <div class="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-[8px] font-body text-[11px] text-bimo-text/50 leading-relaxed">
+                <div class="mt-4 p-3 bg-bimo-navy/[6%] border border-bimo-navy/15 rounded-[8px] font-body text-[11px] text-bimo-text/50 leading-relaxed">
                     Droits d'enregistrement des contrats de bail auprès de la DGID — Direction Générale des Impôts et Domaines.
                 </div>
             </div>

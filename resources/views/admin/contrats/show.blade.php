@@ -79,7 +79,7 @@
     @endphp
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
-             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)">
+             style="background: radial-gradient(circle, var(--ac) 0%, transparent 70%); transform: translate(30%, -30%)">
         </div>
         <div class="relative z-10">
             <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/30 mb-2">

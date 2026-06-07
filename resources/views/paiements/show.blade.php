@@ -68,7 +68,7 @@
     @endphp
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
-             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)"></div>
+             style="background: radial-gradient(circle, var(--ac) 0%, transparent 70%); transform: translate(30%, -30%)"></div>
         <div class="relative z-10">
             <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/30 mb-2">{{ $paiement->reference_paiement }}</div>
             <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
@@ -364,13 +364,13 @@
                     @if(($paiement->frais_agence_ttc ?? 0) > 0)
                     <div class="flex items-center justify-between py-2.5">
                         <span class="font-body text-xs text-white/40">Honoraires TTC</span>
-                        <span class="font-body text-xs text-blue-300">{{ number_format($paiement->frais_agence_ttc, 0, ',', ' ') }} F</span>
+                        <span class="font-body text-xs text-white/70">{{ number_format($paiement->frais_agence_ttc, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
                     @if(($paiement->caution_montant ?? 0) > 0)
                     <div class="flex items-center justify-between py-2.5">
                         <span class="font-body text-xs text-white/40">Caution</span>
-                        <span class="font-body text-xs text-purple-300">{{ number_format($paiement->caution_montant, 0, ',', ' ') }} F</span>
+                        <span class="font-body text-xs text-white/70">{{ number_format($paiement->caution_montant, 0, ',', ' ') }} F</span>
                     </div>
                     @endif
                     @if(config('features.fiscalite') && ($paiement->brs_amount ?? 0) > 0)

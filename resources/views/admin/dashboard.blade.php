@@ -378,7 +378,7 @@
     {{-- ═══ BILAN DU MOIS (carte sombre) ═══ --}}
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-[0.06]"
-             style="background: radial-gradient(circle, #C9A84C 0%, transparent 70%); transform: translate(30%, -30%)">
+             style="background: radial-gradient(circle, var(--ac) 0%, transparent 70%); transform: translate(30%, -30%)">
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-0 relative z-10">

@@ -93,10 +93,10 @@
             @endphp
             <div class="flex-1 flex flex-col items-center gap-1" title="{{ number_format($e->total_loyers, 0, ',', ' ') }} F">
                 <div class="w-full flex items-end gap-0.5" style="height:112px">
-                    <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80"
-                         style="height:{{ $hLoyer }}px; background: {{ $isCur ? '#1B4F6B' : '#C9A84C' }}"></div>
-                    <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80"
-                         style="height:{{ $hComm }}px; background: {{ $isCur ? '#C9A84C' : 'rgba(27,79,107,0.15)' }}"></div>
+                    <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80 {{ $isCur ? 'bg-bimo-navy' : 'bg-bimo-gold' }}"
+                         style="height:{{ $hLoyer }}px"></div>
+                    <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80 {{ $isCur ? 'bg-bimo-gold' : 'bg-bimo-navy/15' }}"
+                         style="height:{{ $hComm }}px"></div>
                 </div>
                 <div class="font-body text-[9px] text-center {{ $isCur ? 'text-bimo-text font-bold' : 'text-bimo-text/40' }}">{{ $label }}</div>
             </div>
@@ -144,9 +144,9 @@
         @php $taux = $statsGenerales['taux_occupation']; @endphp
         <div class="bg-bimo-bg rounded-[10px] border border-bimo-navy/10 p-3">
             <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Taux d'occupation</div>
-            <div class="font-display font-bold text-lg leading-none {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-amber-500' : 'text-bimo-red') }}">{{ $taux }}%</div>
+            <div class="font-display font-bold text-lg leading-none {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-bimo-navy' : 'text-bimo-red') }}">{{ $taux }}%</div>
             <div class="h-1.5 bg-bimo-navy/10 rounded-full overflow-hidden mt-2">
-                <div class="h-full rounded-full" style="width:{{ $taux }}%; background: {{ $taux >= 80 ? '#C9A84C' : ($taux >= 50 ? '#f59e0b' : '#EF4444') }}"></div>
+                <div class="h-full rounded-full {{ $taux >= 80 ? 'bg-bimo-gold' : ($taux >= 50 ? 'bg-bimo-navy' : 'bg-bimo-red') }}" style="width:{{ $taux }}%"></div>
             </div>
         </div>
     </div>
