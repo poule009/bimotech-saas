@@ -366,7 +366,7 @@
     <div class="max-w-[1040px] mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 pb-12 border-b border-white/[8%]">
             <div>
-                <a href="{{ url('/') }}" class="block mb-3"><img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-9 w-auto"></a>
+                <a href="{{ url('/') }}" class="block mb-3"><x-bee-logo variant="white" size="md" /></a>
                 <p class="font-body text-sm text-white/40 leading-relaxed max-w-[220px] mb-6">La plateforme de gestion immobilière professionnelle pour les agences sénégalaises.</p>
                 <div class="inline-flex items-center gap-1.5 bg-white/[6%] border border-white/10 rounded-[6px] px-2.5 py-1.5 font-body text-[11px] text-white/40">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>

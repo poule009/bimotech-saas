@@ -16,14 +16,9 @@
 <div class="w-full max-w-md">
 
     {{-- Logo --}}
-    <div class="text-center mb-8">
-        <a href="{{ url('/') }}" class="inline-flex flex-col items-center gap-2">
-            <div class="w-12 h-12 rounded-[12px] bg-bimo-navy flex items-center justify-center">
-                <span class="font-display font-extrabold text-bimo-gold text-lg">B</span>
-            </div>
-            <span class="font-display font-bold text-bimo-text text-lg">
-                Bimothèque <span class="text-bimo-gold">Immo</span>
-            </span>
+    <div class="flex justify-center mb-8">
+        <a href="{{ url('/') }}" class="inline-flex">
+            <x-bee-logo variant="navy" size="lg" />
         </a>
     </div>
 
@@ -91,7 +86,7 @@
     </div>
 
     <p class="text-center font-body text-xs text-bimo-text/30 mt-6">
-        © {{ date('Y') }} Bimothèque — Conçu au Sénégal 🇸🇳
+        © {{ date('Y') }} bee — Conçu au Sénégal 🇸🇳
     </p>
 </div>
 

@@ -63,8 +63,7 @@ p{
 .btn-outline:focus-visible{outline:2px solid #c9a84c;outline-offset:3px}
 
 /* Logo en haut */
-.logo{position:absolute;top:2rem;left:50%;transform:translateX(-50%);font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#c9a84c;text-decoration:none;white-space:nowrap}
-.logo span{color:#e6edf3}
+.logo{position:absolute;top:2rem;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
 .logo:focus-visible{outline:2px solid #c9a84c;outline-offset:3px;border-radius:4px}
 
 /* Liens rapides */
@@ -78,7 +77,15 @@ p{
 </head>
 <body>
 
-<a href="{{ url('/') }}" class="logo" aria-label="BimoTech Immo — Retour à l'accueil">Bimo<span>Tech</span></a>
+<a href="{{ url('/') }}" class="logo" aria-label="bee — Retour à l'accueil">
+    <svg style="width:26px;height:26px;color:white;flex-shrink:0;" viewBox="0 0 120 110" fill="currentColor">
+        <path d="M52 50 C56 28 84 18 90 34 C96 50 78 62 54 56 Z"/><path d="M52 56 C58 36 86 28 90 46 C94 64 74 72 54 64 Z"/><path d="M50 62 C56 46 78 44 80 58 C82 72 66 76 52 70 Z"/>
+        <ellipse cx="38" cy="60" rx="14" ry="18" transform="rotate(-8 38 60)"/><circle cx="24" cy="57" r="12"/><circle cx="21" cy="54" r="4" fill="#0d1117"/>
+        <line x1="18" y1="47" x2="8" y2="32" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><line x1="22" y1="46" x2="14" y2="28" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        <line x1="28" y1="72" x2="16" y2="84" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="34" y1="76" x2="24" y2="90" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="40" y1="78" x2="32" y2="92" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+    <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:white;">bee</span>
+</a>
 
 <div class="content">
     <div class="num-404" aria-hidden="true">404</div>

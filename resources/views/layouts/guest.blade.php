@@ -24,12 +24,7 @@
         {{-- Logo --}}
         <div class="text-center mb-8">
             <a href="{{ url('/') }}" class="inline-flex flex-col items-center gap-2">
-                <div class="w-12 h-12 rounded-[12px] bg-bimo-navy flex items-center justify-center">
-                    <span class="font-display font-extrabold text-bimo-gold text-lg">B</span>
-                </div>
-                <span class="font-display font-bold text-bimo-text text-lg">
-                    Bimothèque <span class="text-bimo-gold">Immo</span>
-                </span>
+                <x-bee-logo variant="navy" size="lg" />
             </a>
             <p class="font-body text-sm text-bimo-text/40 mt-1">Gestion immobilière professionnelle</p>
         </div>
@@ -39,7 +34,7 @@
 
         {{-- Footer --}}
         <p class="text-center font-body text-xs text-bimo-text/30 mt-8">
-            © {{ date('Y') }} Bimothèque — Conçu au Sénégal 🇸🇳
+            © {{ date('Y') }} bee — Conçu au Sénégal 🇸🇳
         </p>
 
     </div>

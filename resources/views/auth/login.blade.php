@@ -34,13 +34,8 @@
         </div>
 
         {{-- Logo --}}
-        <a href="{{ url('/') }}" class="relative z-10 inline-flex items-center gap-3">
-            <div class="w-10 h-10 rounded-[10px] bg-bimo-gold flex items-center justify-center flex-shrink-0">
-                <span class="font-display font-extrabold text-bimo-text text-base">B</span>
-            </div>
-            <span class="font-display font-bold text-white text-base">
-                Bimothèque <span class="text-bimo-gold">Immo</span>
-            </span>
+        <a href="{{ url('/') }}" class="relative z-10 inline-flex">
+            <x-bee-logo variant="white" size="md" />
         </a>
 
         {{-- Accroche centrale --}}
@@ -81,14 +76,7 @@
 
             {{-- Logo mobile uniquement --}}
             <div class="flex justify-center mb-8 lg:hidden">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-[10px] bg-bimo-navy flex items-center justify-center">
-                        <span class="font-display font-extrabold text-bimo-gold text-base">B</span>
-                    </div>
-                    <span class="font-display font-bold text-bimo-text text-base">
-                        Bimothèque <span class="text-bimo-gold">Immo</span>
-                    </span>
-                </div>
+                <x-bee-logo variant="navy" size="md" />
             </div>
 
             {{-- Titre --}}

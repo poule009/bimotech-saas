@@ -5,8 +5,8 @@
 @php $active = $active ?? ''; @endphp
 
 <nav class="fixed top-0 left-0 right-0 z-[200] px-[5%] h-16 flex items-center justify-between bg-white/95 backdrop-blur-md border-b border-bimo-navy/10 shadow-[0_1px_8px_rgba(27,79,107,.06)]" role="navigation" aria-label="Navigation principale">
-    <a href="{{ url('/') }}" class="no-underline flex items-center flex-shrink-0" aria-label="BiMO-tech Immo — Accueil">
-        <img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-9 w-auto">
+    <a href="{{ url('/') }}" class="no-underline flex items-center flex-shrink-0" aria-label="bee — Accueil">
+        <x-bee-logo variant="navy" size="md" />
     </a>
 
     {{-- Desktop links --}}

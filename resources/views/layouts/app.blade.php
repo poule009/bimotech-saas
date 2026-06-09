@@ -69,15 +69,25 @@
 
     {{-- Logo + bouton fermer mobile --}}
     <div class="flex items-center gap-3 h-16 px-5 border-b border-white/10 flex-shrink-0">
-        <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0"
-             style="background: var(--ac)">
-            <span class="font-display font-extrabold text-bimo-text text-sm">B</span>
-        </div>
-        <div class="min-w-0 flex-1">
-            <div class="font-display font-bold text-white text-sm leading-tight truncate">
-                {{ auth()->user()?->agency?->name ?? 'Bimothèque' }}
+        <div class="flex items-center gap-2.5 flex-1 min-w-0">
+            {{-- Icône bee --}}
+            <svg class="w-8 h-8 text-white flex-shrink-0" viewBox="0 0 120 110" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M52 50 C56 28 84 18 90 34 C96 50 78 62 54 56 Z"/>
+                <path d="M52 56 C58 36 86 28 90 46 C94 64 74 72 54 64 Z"/>
+                <path d="M50 62 C56 46 78 44 80 58 C82 72 66 76 52 70 Z"/>
+                <ellipse cx="38" cy="60" rx="14" ry="18" transform="rotate(-8 38 60)"/>
+                <circle cx="24" cy="57" r="12"/>
+                <circle cx="21" cy="54" r="4" fill="white"/>
+                <line x1="18" y1="47" x2="8" y2="32" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                <line x1="22" y1="46" x2="14" y2="28" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                <line x1="28" y1="72" x2="16" y2="84" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                <line x1="34" y1="76" x2="24" y2="90" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                <line x1="40" y1="78" x2="32" y2="92" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+            </svg>
+            <div class="min-w-0">
+                <div class="font-display font-extrabold text-white text-lg leading-none">bee</div>
+                <div class="font-body text-[10px] text-white/40 truncate mt-0.5">{{ auth()->user()?->agency?->name ?? 'Votre agence' }}</div>
             </div>
-            <div class="font-body text-[10px] text-white/40 uppercase tracking-widest">Immo</div>
         </div>
         {{-- Bouton fermer — visible uniquement sur mobile --}}
         <button onclick="closeSidebar()"
@@ -474,9 +484,7 @@
     {{-- TOPBAR MOBILE --}}
     <header class="sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-bimo-navy lg:hidden">
         {{-- Logo --}}
-        <span class="font-display font-extrabold text-white text-base">
-            Bimothèque <span style="color: var(--ac)">Immo</span>
-        </span>
+        <x-bee-logo variant="white" size="sm" />
 
         {{-- Avatar --}}
         <div class="w-9 h-9 rounded-[9px] flex items-center justify-center font-display font-bold text-sm flex-shrink-0"
@@ -646,6 +654,17 @@
         @yield('content')
 
     </main>
+
+    {{-- FOOTER — desktop uniquement --}}
+    <footer class="hidden lg:block border-t border-bimo-navy/10 bg-white px-8 py-4">
+        <div class="flex items-center justify-between gap-4">
+            <span class="font-body text-xs text-bimo-text/40">© {{ date('Y') }} bee. Tous droits réservés.</span>
+            <a href="{{ route('admin.dashboard') }}" class="hover:opacity-70 transition-opacity duration-150">
+                <x-bee-logo variant="navy" size="sm" />
+            </a>
+            <span class="font-body text-xs text-bimo-text/40 text-right">Conçu pour simplifier la gestion locative en Afrique.</span>
+        </div>
+    </footer>
 
     {{-- BOTTOM NAV MOBILE --}}
     @php $routeNow = request()->route()?->getName() ?? ''; @endphp

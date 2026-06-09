@@ -14,8 +14,8 @@
 <body class="font-body bg-bimo-bg min-h-screen flex items-center justify-center p-6">
 
 <div class="bg-white border border-bimo-navy/10 rounded-[16px] p-9 w-full max-w-[400px] shadow-lg">
-    <div class="font-display font-extrabold text-lg text-bimo-text text-center mb-7">
-        BIMO<span class="text-bimo-gold">tech</span>
+    <div class="flex justify-center mb-7">
+        <x-bee-logo variant="navy" size="md" />
     </div>
 
     <div class="w-[52px] h-[52px] bg-bimo-navy/10 rounded-[14px] flex items-center justify-center mx-auto mb-5">

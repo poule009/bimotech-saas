@@ -18,7 +18,7 @@
     <div class="absolute inset-0 opacity-[0.03]"
          style="background-image:linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px);background-size:48px 48px;pointer-events:none"></div>
     <a href="{{ url('/') }}" class="relative z-10 flex-shrink-0">
-        <img src="/images/logo.jpeg" alt="BiMO-tech Immo" class="h-10 w-auto">
+        <x-bee-logo variant="white" size="md" />
     </a>
     <div class="relative z-10">
         <h2 class="font-display font-extrabold text-[clamp(26px,3vw,36px)] text-white tracking-tight leading-tight mb-5">

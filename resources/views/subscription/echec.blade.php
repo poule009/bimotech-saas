@@ -95,13 +95,15 @@ h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#e6edf3;ma
     display:flex;flex-direction:column;gap:4px;
 }
 .support-contact{color:#8b949e;font-size:12.5px}
-.logo{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#c9a84c;margin-bottom:28px;}
-.logo span{color:#8b949e}
+.logo{display:inline-flex;align-items:center;gap:8px;margin-bottom:28px;justify-content:center;}
 </style>
 </head>
 <body>
 <div class="card">
-    <div class="logo">Bimo<span>Tech</span> Immo</div>
+    <div class="logo">
+        <svg style="width:24px;height:24px;color:white;flex-shrink:0;" viewBox="0 0 120 110" fill="currentColor"><path d="M52 50 C56 28 84 18 90 34 C96 50 78 62 54 56 Z"/><path d="M52 56 C58 36 86 28 90 46 C94 64 74 72 54 64 Z"/><path d="M50 62 C56 46 78 44 80 58 C82 72 66 76 52 70 Z"/><ellipse cx="38" cy="60" rx="14" ry="18" transform="rotate(-8 38 60)"/><circle cx="24" cy="57" r="12"/><circle cx="21" cy="54" r="4" fill="#080c12"/><line x1="18" y1="47" x2="8" y2="32" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><line x1="22" y1="46" x2="14" y2="28" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><line x1="28" y1="72" x2="16" y2="84" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="34" y1="76" x2="24" y2="90" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="40" y1="78" x2="32" y2="92" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>
+        <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:white;">bee</span>
+    </div>
 
     <div class="error-ring">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
