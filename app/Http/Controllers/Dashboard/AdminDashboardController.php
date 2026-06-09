@@ -219,6 +219,14 @@ class AdminDashboardController extends Controller
             ->groupBy('type')
             ->pluck('total', 'type');
 
+        // ── Répartition des biens par statut (donut occupation) ──────────
+        $biensParStatut = Bien::where('agency_id', $agencyId)
+            ->whereNull('deleted_at')
+            ->whereIn('statut', ['disponible', 'loue', 'en_travaux'])
+            ->selectRaw('statut, COUNT(*) AS total')
+            ->groupBy('statut')
+            ->pluck('total', 'statut');
+
         // ── Biens disponibles invisibles sur le portail ───────────────────
         $nbBiensInvisibles = Bien::where('agency_id', $agencyId)
             ->where('statut', 'disponible')
@@ -344,6 +352,7 @@ class AdminDashboardController extends Controller
             'periode',
             'periodeLabel',
             'repartitionBiens',
+            'biensParStatut',
             'netParProprietaire',
             'limiteUnites',
             'nbUnites',

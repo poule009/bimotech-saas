@@ -433,14 +433,14 @@
         </div>
     </div>
 
-    {{-- ═══ GRAPHIQUE + IMPAYÉS ═══ --}}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-4">
+    {{-- ═══ GRAPHIQUES : encaissements + occupation ═══ --}}
+    <div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4">
 
         {{-- Graphique évolution loyers --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             <div class="flex items-center justify-between px-6 py-5 border-b border-bimo-navy/[5%]">
                 <div>
-                    <div class="font-display font-bold text-sm text-bimo-text">Encaissements</div>
+                    <div class="font-display font-bold text-sm text-bimo-text">Encaissements mensuels</div>
                     <div class="font-body text-[11px] text-bimo-text/40 mt-0.5">12 derniers mois</div>
                 </div>
                 <div class="font-display font-bold text-sm text-bimo-gold">
@@ -462,81 +462,133 @@
             </div>
         </div>
 
-        {{-- Colonne droite : impayés + renouvellements --}}
-        <div class="flex flex-col gap-4">
-
-            {{-- Impayés urgents --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
-                    <div class="font-display font-bold text-base text-bimo-text">Impayés urgents</div>
-                    <a href="{{ route('admin.impayes.index') }}"
-                       class="font-body text-xs text-bimo-red/70 hover:text-bimo-red transition-colors duration-150">
-                        Relancer →
-                    </a>
-                </div>
-
-                @forelse($impayes_urgents as $c)
-                <div class="flex items-center gap-3 px-5 py-3.5 border-b border-bimo-navy/[5%] last:border-0 hover:bg-bimo-bg transition-colors duration-100">
-                    <div class="w-9 h-9 rounded-[8px] bg-bimo-red/10 flex items-center justify-center flex-shrink-0 font-display font-bold text-xs text-bimo-red">
-                        {{ mb_strtoupper(mb_substr($c->locataire?->name ?? 'X', 0, 2)) }}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-body font-medium text-sm text-bimo-text truncate">{{ $c->bien?->reference ?? '—' }}</div>
-                        <div class="font-body text-xs text-bimo-text/40 truncate">{{ $c->locataire?->name ?? '—' }}</div>
-                    </div>
-                    <div class="font-display font-bold text-sm text-bimo-red whitespace-nowrap">
-                        {{ number_format($c->loyer_contractuel, 0, ',', ' ') }} F
-                    </div>
-                </div>
-                @empty
-                <div class="px-5 py-6 text-center">
-                    <svg class="w-6 h-6 text-bimo-gold mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    <p class="font-body text-sm text-bimo-gold">Aucun impayé ce mois</p>
-                </div>
-                @endforelse
-
-                {{-- Taux de recouvrement --}}
-                @php $taux = $bilanMois['attendu'] > 0 ? min(100, round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100)) : 0; @endphp
-                <div class="px-5 py-4 border-t border-bimo-navy/[5%] bg-bimo-bg">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="font-body font-medium text-xs text-bimo-text/50">Taux de recouvrement</span>
-                        <span class="font-display font-bold text-sm text-bimo-gold">{{ $taux }}%</span>
-                    </div>
-                    <div class="h-1.5 bg-bimo-navy/10 rounded-full overflow-hidden">
-                        <div class="h-full bg-bimo-gold rounded-full transition-all duration-700" style="width: {{ $taux }}%"></div>
-                    </div>
-                </div>
+        {{-- Donut : occupation par statut --}}
+        @php
+            $nbLoue    = (int) ($biensParStatut['loue']       ?? 0);
+            $nbDispo   = (int) ($biensParStatut['disponible'] ?? 0);
+            $nbTravaux = (int) ($biensParStatut['en_travaux'] ?? 0);
+            $nbTotalBiens = $nbLoue + $nbDispo + $nbTravaux;
+        @endphp
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden flex flex-col">
+            <div class="px-6 py-5 border-b border-bimo-navy/[5%]">
+                <div class="font-display font-bold text-sm text-bimo-text">Occupation par statut</div>
             </div>
 
-            {{-- Contrats à renouveler --}}
-            @if($contrats_a_renouveler->isNotEmpty())
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="px-5 py-4 border-b border-bimo-navy/[5%]">
-                    <div class="font-display font-bold text-sm text-bimo-text">À renouveler bientôt</div>
+            {{-- Canvas avec total centré --}}
+            <div class="flex-1 flex items-center justify-center px-6 py-4">
+                @if($nbTotalBiens === 0)
+                <div class="text-center text-bimo-text/30">
+                    <span class="font-body text-sm">Aucun bien</span>
                 </div>
-                @foreach($contrats_a_renouveler as $c)
-                <div class="flex items-center gap-3 px-5 py-3.5 border-b border-bimo-navy/[5%] last:border-0 hover:bg-bimo-bg transition-colors duration-100">
-                    <div class="w-10 h-10 rounded-[9px] bg-bimo-gold/[8%] border border-bimo-gold/20 flex flex-col items-center justify-center flex-shrink-0">
-                        <div class="font-display font-extrabold text-sm text-bimo-gold leading-none">
-                            {{ \Carbon\Carbon::parse($c->date_fin)->diffInDays(now()) }}
-                        </div>
-                        <div class="font-body text-[8px] text-bimo-gold/60 uppercase tracking-wider">jours</div>
+                @else
+                <div class="relative w-full" style="height:180px">
+                    <canvas id="chartOccupation"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <div class="font-display font-extrabold text-2xl text-bimo-text leading-none">{{ $nbTotalBiens }}</div>
+                        <div class="font-body text-[10px] text-bimo-text/40 uppercase tracking-widest mt-1 text-center leading-tight">Unités<br>gérées</div>
                     </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-body font-medium text-sm text-bimo-text truncate">{{ $c->bien?->reference ?? '—' }}</div>
-                        <div class="font-body text-xs text-bimo-text/40 truncate">{{ $c->locataire?->name ?? '—' }}</div>
+                </div>
+                @endif
+            </div>
+
+            {{-- Légende --}}
+            <div class="px-6 py-4 space-y-2.5 border-t border-bimo-navy/[5%]">
+                @foreach([
+                    ['label' => 'Occupés',    'count' => $nbLoue,    'dot' => 'bg-bimo-navy'],
+                    ['label' => 'Vacants',    'count' => $nbDispo,   'dot' => 'bg-bimo-gold'],
+                    ['label' => 'En travaux', 'count' => $nbTravaux, 'dot' => 'bg-bimo-navy/30'],
+                ] as $item)
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 {{ $item['dot'] }}"></span>
+                        <span class="font-body text-sm text-bimo-text">{{ $item['label'] }}</span>
                     </div>
-                    <div class="font-body text-xs text-bimo-text/40 whitespace-nowrap">
-                        {{ \Carbon\Carbon::parse($c->date_fin)->format('d/m/Y') }}
+                    <div class="flex items-center gap-2.5">
+                        <span class="font-display font-bold text-sm text-bimo-text">{{ $item['count'] }}</span>
+                        <span class="font-body text-xs text-bimo-text/40 w-10 text-right">
+                            ({{ $nbTotalBiens > 0 ? round($item['count'] / $nbTotalBiens * 100) : 0 }}%)
+                        </span>
                     </div>
                 </div>
                 @endforeach
             </div>
-            @endif
+        </div>
 
-        </div>{{-- fin colonne droite --}}
+    </div>
+
+    {{-- ═══ IMPAYÉS URGENTS + RENOUVELLEMENTS ═══ --}}
+    <div class="grid grid-cols-1 {{ $contrats_a_renouveler->isNotEmpty() ? 'lg:grid-cols-2' : '' }} gap-4">
+
+        {{-- Impayés urgents --}}
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
+                <div class="font-display font-bold text-base text-bimo-text">Impayés urgents</div>
+                <a href="{{ route('admin.impayes.index') }}"
+                   class="font-body text-xs text-bimo-red/70 hover:text-bimo-red transition-colors duration-150">
+                    Relancer →
+                </a>
+            </div>
+
+            @forelse($impayes_urgents as $c)
+            <div class="flex items-center gap-3 px-5 py-3.5 border-b border-bimo-navy/[5%] last:border-0 hover:bg-bimo-bg transition-colors duration-100">
+                <div class="w-9 h-9 rounded-[8px] bg-bimo-red/10 flex items-center justify-center flex-shrink-0 font-display font-bold text-xs text-bimo-red">
+                    {{ mb_strtoupper(mb_substr($c->locataire?->name ?? 'X', 0, 2)) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-body font-medium text-sm text-bimo-text truncate">{{ $c->bien?->reference ?? '—' }}</div>
+                    <div class="font-body text-xs text-bimo-text/40 truncate">{{ $c->locataire?->name ?? '—' }}</div>
+                </div>
+                <div class="font-display font-bold text-sm text-bimo-red whitespace-nowrap">
+                    {{ number_format($c->loyer_contractuel, 0, ',', ' ') }} F
+                </div>
+            </div>
+            @empty
+            <div class="px-5 py-6 text-center">
+                <svg class="w-6 h-6 text-bimo-gold mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <p class="font-body text-sm text-bimo-gold">Aucun impayé ce mois</p>
+            </div>
+            @endforelse
+
+            @php $taux = $bilanMois['attendu'] > 0 ? min(100, round(($bilanMois['encaisse'] / $bilanMois['attendu']) * 100)) : 0; @endphp
+            <div class="px-5 py-4 border-t border-bimo-navy/[5%] bg-bimo-bg">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="font-body font-medium text-xs text-bimo-text/50">Taux de recouvrement</span>
+                    <span class="font-display font-bold text-sm text-bimo-gold">{{ $taux }}%</span>
+                </div>
+                <div class="h-1.5 bg-bimo-navy/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-bimo-gold rounded-full transition-all duration-700" style="width: {{ $taux }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Contrats à renouveler --}}
+        @if($contrats_a_renouveler->isNotEmpty())
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-bimo-navy/[5%]">
+                <div class="font-display font-bold text-sm text-bimo-text">À renouveler bientôt</div>
+            </div>
+            @foreach($contrats_a_renouveler as $c)
+            <div class="flex items-center gap-3 px-5 py-3.5 border-b border-bimo-navy/[5%] last:border-0 hover:bg-bimo-bg transition-colors duration-100">
+                <div class="w-10 h-10 rounded-[9px] bg-bimo-gold/[8%] border border-bimo-gold/20 flex flex-col items-center justify-center flex-shrink-0">
+                    <div class="font-display font-extrabold text-sm text-bimo-gold leading-none">
+                        {{ \Carbon\Carbon::parse($c->date_fin)->diffInDays(now()) }}
+                    </div>
+                    <div class="font-body text-[8px] text-bimo-gold/60 uppercase tracking-wider">jours</div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-body font-medium text-sm text-bimo-text truncate">{{ $c->bien?->reference ?? '—' }}</div>
+                    <div class="font-body text-xs text-bimo-text/40 truncate">{{ $c->locataire?->name ?? '—' }}</div>
+                </div>
+                <div class="font-body text-xs text-bimo-text/40 whitespace-nowrap">
+                    {{ \Carbon\Carbon::parse($c->date_fin)->format('d/m/Y') }}
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @endif
+
     </div>
 
     {{-- ═══ DERNIERS PAIEMENTS ═══ --}}
@@ -558,9 +610,21 @@
                     <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</span>
                 </div>
                 <div class="flex items-center justify-between">
-                    <div>
-                        <div class="font-body font-medium text-xs text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                        <div class="font-body text-[11px] text-bimo-text/40">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
+                    @php
+                        $locNameM = $p->contrat?->locataire?->name ?? '';
+                        $partsM = explode(' ', trim($locNameM));
+                        $initialsM = strtoupper(mb_substr($partsM[0] ?? '', 0, 1)) . strtoupper(mb_substr($partsM[1] ?? '', 0, 1));
+                        $palM = ['bg-bimo-navy/15 text-bimo-navy','bg-bimo-gold/15 text-bimo-gold','bg-bimo-red/10 text-bimo-red','bg-bimo-navy/25 text-bimo-navy'];
+                        $classM = $palM[abs(crc32($locNameM)) % 4];
+                    @endphp
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full {{ $classM }} flex items-center justify-center font-display font-bold text-[10px] flex-shrink-0">
+                            {{ $initialsM ?: '??' }}
+                        </div>
+                        <div>
+                            <div class="font-body font-medium text-xs text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                            <div class="font-body text-[11px] text-bimo-text/40">{{ $locNameM ?: '—' }}</div>
+                        </div>
                     </div>
                     @if($p->statut === 'valide')
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">Validé</span>
@@ -597,8 +661,22 @@
                             {{ $p->reference_paiement }}
                         </td>
                         <td class="px-5 py-3.5">
-                            <div class="font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                            <div class="font-body text-xs text-bimo-text/40">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
+                            @php
+                                $locName = $p->contrat?->locataire?->name ?? '';
+                                $parts = explode(' ', trim($locName));
+                                $initials = strtoupper(mb_substr($parts[0] ?? '', 0, 1)) . strtoupper(mb_substr($parts[1] ?? '', 0, 1));
+                                $avatarPalette = ['bg-bimo-navy/15 text-bimo-navy','bg-bimo-gold/15 text-bimo-gold','bg-bimo-red/10 text-bimo-red','bg-bimo-navy/25 text-bimo-navy'];
+                                $avatarClass = $avatarPalette[abs(crc32($locName)) % 4];
+                            @endphp
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full {{ $avatarClass }} flex items-center justify-center font-display font-bold text-xs flex-shrink-0">
+                                    {{ $initials ?: '??' }}
+                                </div>
+                                <div>
+                                    <div class="font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
+                                    <div class="font-body text-xs text-bimo-text/40">{{ $locName ?: '—' }}</div>
+                                </div>
+                            </div>
                         </td>
                         <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">
                             {{ \App\Models\Paiement::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}
@@ -726,6 +804,39 @@ if (elLoyers) {
                             ? (v / 1000000).toFixed(1) + 'M'
                             : (v >= 1000 ? Math.round(v / 1000) + 'k' : v)
                     }
+                }
+            }
+        }
+    });
+}
+
+// ── Donut occupation par statut ───────────────────────────────────
+const elOccupation = document.getElementById('chartOccupation');
+if (elOccupation) {
+    new Chart(elOccupation, {
+        type: 'doughnut',
+        data: {
+            labels: ['Occupés', 'Vacants', 'En travaux'],
+            datasets: [{
+                data: [
+                    {{ (int) ($biensParStatut['loue'] ?? 0) }},
+                    {{ (int) ($biensParStatut['disponible'] ?? 0) }},
+                    {{ (int) ($biensParStatut['en_travaux'] ?? 0) }}
+                ],
+                backgroundColor: [NAVY, GOLD, 'rgba(123,30,58,0.25)'],
+                borderWidth: 0,
+                hoverOffset: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    ...tip,
+                    callbacks: { label: c => ' ' + c.label + ' : ' + c.parsed + ' biens' }
                 }
             }
         }
