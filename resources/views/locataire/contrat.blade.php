@@ -19,7 +19,7 @@ $modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave
     {{-- Hero --}}
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.05]"
-             style="background:radial-gradient(circle,#C9A84C 0%,transparent 70%);transform:translate(30%,-30%)"></div>
+             style="background:radial-gradient(circle,var(--ac) 0%,transparent 70%);transform:translate(30%,-30%)"></div>
         <div class="relative z-10">
             <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-gold/60 mb-2">
                 {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}
@@ -88,23 +88,23 @@ $modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave
             </div>
             <div>
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Loyer nu</div>
-                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->loyer_nu, 0, ',', ' ') }} F</div>
+                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->loyer_nu, 0, ',', ' ') }} FCFA</div>
             </div>
             @if($contrat->charges_mensuelles)
             <div>
-                <div class="font-body font-medium text-[10px] uppercase tracking-widests text-bimo-text/40 mb-1">Charges mensuelles</div>
-                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->charges_mensuelles, 0, ',', ' ') }} F</div>
+                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Charges mensuelles</div>
+                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->charges_mensuelles, 0, ',', ' ') }} FCFA</div>
             </div>
             @endif
             @if($contrat->tom_amount)
             <div>
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">TOM</div>
-                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->tom_amount, 0, ',', ' ') }} F</div>
+                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->tom_amount, 0, ',', ' ') }} FCFA</div>
             </div>
             @endif
             <div>
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Caution versée</div>
-                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->caution, 0, ',', ' ') }} F</div>
+                <div class="font-body font-medium text-sm text-bimo-text">{{ number_format($contrat->caution, 0, ',', ' ') }} FCFA</div>
             </div>
         </div>
     </div>
@@ -176,9 +176,9 @@ $modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave
                     <div class="font-body text-xs text-bimo-text/40 mt-1">{{ $p->date_paiement?->format('d/m/Y') ?? '—' }}</div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse,0,',','') }} F</span>
+                    <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse,0,',','') }} FCFA</span>
                     <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
-                       class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                       class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     </a>
                 </div>
@@ -209,10 +209,10 @@ $modes = ['especes'=>'Espèces','virement'=>'Virement','cheque'=>'Chèque','wave
                         <td class="px-5 py-3.5">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">{{ $modes[$p->mode_paiement] ?? $p->mode_paiement }}</span>
                         </td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</td>
                         <td class="px-5 py-3.5 text-center">
                             <a href="{{ route('locataire.paiements.pdf', $p) }}" target="_blank"
-                               class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                               class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             </a>
                         </td>

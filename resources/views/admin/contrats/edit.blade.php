@@ -362,14 +362,14 @@
                 ] as [$id, $lbl, $cls])
                 <div class="flex items-center justify-between py-2.5">
                     <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                    <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— F</span>
+                    <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— FCFA</span>
                 </div>
                 @endforeach
             </div>
             <div class="px-5 pb-4">
                 <div class="mt-2 p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Commission HT</div>
-                    <div class="font-display font-extrabold text-lg text-bimo-gold" id="rp-comm">— F</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Commission HT</div>
+                    <div class="font-display font-extrabold text-lg text-bimo-gold" id="rp-comm">— FCFA</div>
                 </div>
             </div>
         </div>

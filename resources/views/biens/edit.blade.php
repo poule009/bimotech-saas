@@ -325,7 +325,7 @@
                         <img src="{{ asset('storage/'.$photo->chemin) }}"
                              alt="" class="w-full h-24 object-cover">
                         @if($photo->est_principale)
-                        <span class="absolute top-1.5 left-1.5 bg-bimo-gold text-bimo-text font-body font-bold text-[9px] px-1.5 py-0.5 rounded-[3px]">
+                        <span class="absolute top-1.5 left-1.5 bg-bimo-gold text-bimo-text font-body font-bold text-[9.5px] px-1.5 py-0.5 rounded-[3px]">
                             Principale
                         </span>
                         @endif
@@ -338,7 +338,7 @@
                                   class="flex-1">
                                 @csrf @method('PATCH')
                                 <button type="submit"
-                                        class="w-full py-1 rounded-[3px] font-body font-bold text-[9px]
+                                        class="w-full py-1 rounded-[3px] font-body font-bold text-[9.5px]
                                                bg-bimo-gold/90 text-bimo-text cursor-pointer">
                                     ★ Principale
                                 </button>
@@ -354,7 +354,7 @@
                                   data-confirm-icon-bg="rgba(239,68,68,0.1)">
                                 @csrf @method('DELETE')
                                 <button type="submit"
-                                        class="w-full py-1 rounded-[3px] font-body font-bold text-[9px]
+                                        class="w-full py-1 rounded-[3px] font-body font-bold text-[9.5px]
                                                bg-bimo-red/90 text-white cursor-pointer">
                                     ✕ Sup.
                                 </button>
@@ -375,7 +375,7 @@
                          class="border-2 border-dashed border-bimo-navy/15 rounded-[10px] p-6 text-center cursor-pointer
                                 transition-all duration-150 bg-bimo-bg"
                          onclick="document.getElementById('photos-edit-input').click()"
-                         ondragover="event.preventDefault();this.style.borderColor='#C9A84C';this.style.background='#fffbeb'"
+                         ondragover="event.preventDefault();this.style.borderColor='var(--ac)';this.style.background='#fffbeb'"
                          ondragleave="this.style.borderColor='';this.style.background=''"
                          ondrop="handleDropEdit(event)">
                         <svg class="w-7 h-7 text-bimo-text/20 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -442,7 +442,7 @@
 
             @if($bien->contratActif)
             <div class="px-5 py-4 border-t border-white/[7%]">
-                <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 mb-3">Contrat actif</div>
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-3">Contrat actif</div>
                 <div class="font-body text-sm text-white/80 mb-1">
                     {{ $bien->contratActif->locataire?->name ?? '—' }}
                 </div>
@@ -479,7 +479,7 @@ function previewEdit(files) {
         };
         reader.readAsDataURL(file);
     });
-    document.getElementById('drop-zone-edit').style.borderColor = '#C9A84C';
+    document.getElementById('drop-zone-edit').style.borderColor = 'var(--ac)';
     document.getElementById('drop-zone-edit').style.background  = '#fffbeb';
 }
 

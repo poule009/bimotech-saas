@@ -76,7 +76,7 @@ h1{
 
 .btn-primary{
     display:flex;align-items:center;justify-content:center;gap:8px;
-    background:linear-gradient(135deg,#c9a84c,#e8c96a);
+    background:linear-gradient(135deg,var(--ac),#e8c96a);
     color:#080c12;font-family:'DM Sans',sans-serif;
     font-weight:700;font-size:14px;
     padding:13px 24px;border-radius:10px;

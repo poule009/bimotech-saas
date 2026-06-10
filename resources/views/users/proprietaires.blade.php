@@ -112,15 +112,15 @@
             {{-- Activité biens --}}
             <div class="grid grid-cols-3 border-b border-bimo-navy/[5%]">
                 <div class="px-4 py-3 text-center border-r border-bimo-navy/[5%]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Biens</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Biens</div>
                     <div class="font-display font-bold text-sm text-bimo-text">{{ $item['nb_biens'] }}</div>
                 </div>
                 <div class="px-4 py-3 text-center border-r border-bimo-navy/[5%]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Loués</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Loués</div>
                     <div class="font-display font-bold text-sm {{ $item['nb_biens_loues'] > 0 ? 'text-bimo-gold' : 'text-bimo-text/30' }}">{{ $item['nb_biens_loues'] }}</div>
                 </div>
                 <div class="px-4 py-3 text-center">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Paiements</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Paiements</div>
                     <div class="font-display font-bold text-sm text-bimo-text">{{ $item['nb_paiements'] }}</div>
                 </div>
             </div>
@@ -129,16 +129,16 @@
             <div class="px-5 py-3.5 flex-1 space-y-1.5">
                 <div class="flex items-center justify-between">
                     <span class="font-body text-xs text-bimo-text/50">Loyers encaissés</span>
-                    <span class="font-display font-semibold text-sm text-bimo-gold">{{ number_format($item['total_loyers'], 0, ',', ' ') }} F</span>
+                    <span class="font-display font-semibold text-sm text-bimo-gold">{{ number_format($item['total_loyers'], 0, ',', ' ') }} FCFA</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="font-body text-xs text-bimo-text/50">− Commissions TTC</span>
-                    <span class="font-body text-xs text-bimo-text/60">{{ number_format($item['total_commissions'], 0, ',', ' ') }} F</span>
+                    <span class="font-body text-xs text-bimo-text/60">{{ number_format($item['total_commissions'], 0, ',', ' ') }} FCFA</span>
                 </div>
                 @if($item['total_depenses'] > 0)
                 <div class="flex items-center justify-between">
                     <span class="font-body text-xs text-bimo-text/50">− Dépenses gestion</span>
-                    <span class="font-body text-xs text-bimo-red">{{ number_format($item['total_depenses'], 0, ',', ' ') }} F</span>
+                    <span class="font-body text-xs text-bimo-red">{{ number_format($item['total_depenses'], 0, ',', ' ') }} FCFA</span>
                 </div>
                 @endif
             </div>
@@ -146,7 +146,7 @@
             {{-- Net + actions --}}
             <div class="mx-4 mb-4 px-4 py-3 bg-bimo-navy rounded-[10px] flex items-center justify-between gap-3">
                 <div>
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/40 mb-0.5">Net à reverser</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/40 mb-0.5">Net à reverser</div>
                     <div class="font-display font-extrabold text-lg text-white">{{ number_format($item['net_final'], 0, ',', ' ') }} <span class="font-body font-normal text-sm text-white/40">F</span></div>
                 </div>
                 <div class="flex items-center gap-1.5 flex-shrink-0">

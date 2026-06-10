@@ -18,7 +18,7 @@
                 <p class="font-body font-medium text-sm text-bimo-text">Solde dû à {{ $proprietaireSelectionne?->name }}</p>
                 <p class="font-body text-xs text-bimo-text/50 mt-0.5">Net à reverser calculé</p>
             </div>
-            <p class="font-display font-extrabold text-xl text-bimo-gold">{{ number_format($soldeMandant, 0, ',', ' ') }} F</p>
+            <p class="font-display font-extrabold text-xl text-bimo-gold">{{ number_format($soldeMandant, 0, ',', ' ') }} FCFA</p>
         </div>
         @endif
 

@@ -34,21 +34,21 @@
                     <p class="font-body font-medium text-sm text-bimo-text">Encaissé des locataires</p>
                     <p class="font-body text-xs text-bimo-text/40 mt-0.5">Loyers + charges reçus</p>
                 </div>
-                <p class="font-display font-bold text-base text-bimo-gold">+{{ number_format($tresorerie['encaisse_locataires'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-base text-bimo-gold">+{{ number_format($tresorerie['encaisse_locataires'], 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="px-5 py-4 flex items-center justify-between">
                 <div>
                     <p class="font-body font-medium text-sm text-bimo-text">Reversé aux propriétaires</p>
                     <p class="font-body text-xs text-bimo-text/40 mt-0.5">Nets reversés ce mois</p>
                 </div>
-                <p class="font-display font-bold text-base text-bimo-text/70">-{{ number_format($tresorerie['reverse_proprietaires'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-base text-bimo-text/70">-{{ number_format($tresorerie['reverse_proprietaires'], 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="px-5 py-4 flex items-center justify-between">
                 <div>
                     <p class="font-body font-medium text-sm text-bimo-text">Charges agence payées</p>
                     <p class="font-body text-xs text-bimo-text/40 mt-0.5">Salaires, loyer, etc.</p>
                 </div>
-                <p class="font-display font-bold text-base text-bimo-text/70">-{{ number_format($tresorerie['charges_agence'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-base text-bimo-text/70">-{{ number_format($tresorerie['charges_agence'], 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="px-5 py-4 flex items-center justify-between bg-bimo-gold/[5%]">
                 <div>
@@ -69,7 +69,7 @@
                 <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Solde total dû aux propriétaires</p>
                 <p class="font-body text-xs text-bimo-text/30">Cumul de tous les nets non encore reversés</p>
             </div>
-            <p class="font-display font-extrabold text-2xl text-bimo-text">{{ number_format($tresorerie['solde_mandant_total'], 0, ',', ' ') }} F</p>
+            <p class="font-display font-extrabold text-2xl text-bimo-text">{{ number_format($tresorerie['solde_mandant_total'], 0, ',', ' ') }} FCFA</p>
         </div>
     </div>
 

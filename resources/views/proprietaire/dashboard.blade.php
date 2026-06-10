@@ -60,7 +60,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
     {{-- Bilan dark --}}
     <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 grid grid-cols-1 md:grid-cols-3 gap-5 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
-             style="background:radial-gradient(circle,#C9A84C 0%,transparent 70%);transform:translate(30%,-30%)"></div>
+             style="background:radial-gradient(circle,var(--ac) 0%,transparent 70%);transform:translate(30%,-30%)"></div>
         @foreach([
             ['Total encaissé brut', number_format($stats['total_loyers'],0,',',''), 'Depuis le début', 'text-bimo-gold'],
             ['Commission agence (TTC)', number_format($stats['total_commission'],0,',',''), 'Déduites automatiquement', 'text-white'],
@@ -121,10 +121,10 @@ $tauxOccupation = $stats['nb_biens'] > 0
                 <div class="flex items-center justify-between px-5 py-3 border-t border-bimo-navy/[5%]">
                     <span class="font-body text-xs text-bimo-text/40">{{ $biens->firstItem() }}–{{ $biens->lastItem() }} sur {{ $biens->total() }}</span>
                     <div class="flex items-center gap-1">
-                        <a href="{{ $biens->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $biens->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $biens->previousPageUrl() ?? '#' }}" class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $biens->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                         </a>
-                        <a href="{{ $biens->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$biens->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $biens->nextPageUrl() ?? '#' }}" class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$biens->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                         </a>
                     </div>
@@ -159,10 +159,10 @@ $tauxOccupation = $stats['nb_biens'] > 0
                         datasets:[{
                             label:'Net reversé',
                             data:@json($loyersParMois->pluck('net')),
-                            borderColor:'#C9A84C',
+                            borderColor:'var(--ac)',
                             backgroundColor:grad,
                             borderWidth:2.5,
-                            pointBackgroundColor:'#C9A84C',
+                            pointBackgroundColor:'var(--ac)',
                             pointBorderColor:'#fff',
                             pointBorderWidth:2,
                             pointRadius:4,
@@ -210,7 +210,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
                     <div class="px-4 py-3.5">
                         <div class="flex items-center justify-between gap-3 mb-1">
                             <span class="font-display font-bold text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</span>
-                            <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} F</span>
+                            <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} FCFA</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
@@ -242,11 +242,11 @@ $tauxOccupation = $stats['nb_biens'] > 0
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">{{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}</span>
                                 </td>
                                 <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') }}</td>
-                                <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($p->montant_encaisse,0,',','') }} F</td>
-                                <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} F</td>
+                                <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($p->montant_encaisse,0,',','') }} FCFA</td>
+                                <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_proprietaire,0,',','') }} FCFA</td>
                                 <td class="px-5 py-3.5 text-center">
                                     <a href="{{ route('proprietaire.paiements.pdf', $p) }}" target="_blank"
-                                       class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                       class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </a>
                                 </td>
@@ -259,13 +259,13 @@ $tauxOccupation = $stats['nb_biens'] > 0
                 <div class="flex items-center justify-between px-5 py-3.5 border-t border-bimo-navy/[5%]">
                     <span class="font-body text-xs text-bimo-text/40">Page {{ $paiements->currentPage() }} / {{ $paiements->lastPage() }}</span>
                     <div class="flex items-center gap-1">
-                        <a href="{{ $paiements->previousPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $paiements->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $paiements->previousPageUrl() ?? '#' }}" class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ $paiements->onFirstPage() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                         </a>
                         @foreach($paiements->getUrlRange(max(1,$paiements->currentPage()-1),min($paiements->lastPage(),$paiements->currentPage()+1)) as $pg => $url)
-                        <a href="{{ $url }}" class="w-7 h-7 inline-flex items-center justify-center border rounded-[6px] font-body text-xs transition-all duration-150 {{ $pg === $paiements->currentPage() ? 'bg-[var(--ac)] border-[var(--ac)] text-white font-bold' : 'border-bimo-navy/15 text-bimo-text/50 hover:border-bimo-gold hover:text-bimo-gold' }}">{{ $pg }}</a>
+                        <a href="{{ $url }}" class="w-9 h-9 inline-flex items-center justify-center border rounded-[6px] font-body text-xs transition-all duration-150 {{ $pg === $paiements->currentPage() ? 'bg-[var(--ac)] border-[var(--ac)] text-white font-bold' : 'border-bimo-navy/15 text-bimo-text/50 hover:border-bimo-gold hover:text-bimo-gold' }}">{{ $pg }}</a>
                         @endforeach
-                        <a href="{{ $paiements->nextPageUrl() ?? '#' }}" class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$paiements->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
+                        <a href="{{ $paiements->nextPageUrl() ?? '#' }}" class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 {{ !$paiements->hasMorePages() ? 'opacity-40 pointer-events-none' : '' }}">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                         </a>
                     </div>
@@ -287,7 +287,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
                 @php
                     $circumference = 2 * M_PI * 32;
                     $dash = ($tauxOccupation / 100) * $circumference;
-                    $ringColor = $tauxOccupation >= 80 ? '#C9A84C' : ($tauxOccupation >= 50 ? '#C9A84C' : '#EF4444');
+                    $ringColor = $tauxOccupation >= 80 ? 'var(--ac)' : ($tauxOccupation >= 50 ? 'var(--ac)' : '#EF4444');
                 @endphp
                 <div class="flex flex-col items-center py-5 gap-2">
                     <div class="relative" style="width:80px;height:80px">
@@ -299,7 +299,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             <span class="font-display font-extrabold text-base leading-none" style="color:{{ $ringColor }}">{{ $tauxOccupation }}%</span>
-                            <span class="font-body text-[9px] text-bimo-text/40 mt-0.5">occupé</span>
+                            <span class="font-body text-[9.5px] text-bimo-text/40 mt-0.5">occupé</span>
                         </div>
                     </div>
                     <div class="font-body font-medium text-sm text-bimo-text text-center">{{ $stats['nb_biens_loues'] }} loué(s) sur {{ $stats['nb_biens'] }} bien(s)</div>

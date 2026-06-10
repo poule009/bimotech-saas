@@ -193,7 +193,7 @@ function renderImportPanel($id, $title, $icon, $iconColor, $templateRoute, $uplo
                     <thead><tr class="border-b border-white/[7%]">
                         <th class="px-2.5 py-2 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/25">Colonne</th>
                         <th class="px-2.5 py-2 text-center font-body font-medium text-[10px] uppercase tracking-widest text-white/25">Requis</th>
-                        <th class="px-2.5 py-2 text-left font-body font-medium text-[10px] uppercase tracking-widests text-white/25 hidden md:table-cell">Format</th>
+                        <th class="px-2.5 py-2 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/25 hidden md:table-cell">Format</th>
                         <th class="px-2.5 py-2 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/25 hidden lg:table-cell">Exemple</th>
                     </tr></thead>
                     <tbody class="divide-y divide-white/[4%]">

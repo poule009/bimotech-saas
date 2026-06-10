@@ -39,7 +39,7 @@
             $statut = $t['statut'];
             $borderColor = match($statut) { 'telecharge'=>'border-t-bimo-gold', 'en_cours'=>'border-t-bimo-navy', 'a_deposer','en_retard'=>'border-t-bimo-red', default=>'' };
         @endphp
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden flex flex-col" style="border-top: 3px solid {{ match($statut) { 'telecharge'=>'#C9A84C', 'en_cours'=>'#1B4F6B', 'a_deposer','en_retard'=>'#EF4444', default=>'rgba(27,79,107,.1)' } }}">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden flex flex-col" style="border-top: 3px solid {{ match($statut) { 'telecharge'=>'var(--ac)', 'en_cours'=>'#1B4F6B', 'a_deposer','en_retard'=>'#EF4444', default=>'rgba(27,79,107,.1)' } }}">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div>
                     <div class="font-display font-bold text-base text-bimo-text">{{ $t['label'] }}</div>
@@ -75,11 +75,11 @@
             <div class="px-5 py-4 flex-1">
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <div class="bg-bimo-red/[5%] border border-bimo-red/15 rounded-[9px] p-3">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-red/70 mb-1">BRS total retenu</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-red/70 mb-1">BRS total retenu</div>
                         <div class="font-display font-bold text-lg text-bimo-red leading-none">{{ $t['total_brs'] > 0 ? number_format($t['total_brs'],0,',','').' F' : '—' }}</div>
                     </div>
                     <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[9px] p-3">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Bailleurs concernés</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Bailleurs concernés</div>
                         <div class="font-display font-bold text-lg text-bimo-text leading-none">{{ $t['nb_bailleurs'] }}</div>
                     </div>
                 </div>

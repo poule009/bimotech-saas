@@ -61,14 +61,14 @@
         .btn-home {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 10px 20px; border-radius: 9px;
-            border: none; background: #c9a84c;
+            border: none; background: var(--ac);
             color: #0d1117; font-size: 13px; font-weight: 600;
             font-family: 'DM Sans', sans-serif;
             text-decoration: none; transition: opacity .15s;
         }
         .btn-home:hover { opacity: .85; }
         .brand { margin-top: 32px; font-size: 12px; color: #9ca3af; }
-        .brand strong { color: #c9a84c; }
+        .brand strong { color: var(--ac); }
     </style>
 </head>
 <body>

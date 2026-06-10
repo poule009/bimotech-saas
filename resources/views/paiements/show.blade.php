@@ -89,7 +89,7 @@
             </div>
         </div>
         <div class="relative z-10 text-right flex-shrink-0">
-            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-1">Montant encaissé</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/50 mb-1">Montant encaissé</div>
             <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
                 {{ number_format($paiement->montant_encaisse, 0, ',', ' ') }}
                 <span class="font-body font-normal text-base text-bimo-gold/40">FCFA</span>
@@ -214,7 +214,7 @@
                             @endif
                         </div>
                         <div class="flex items-center gap-2 flex-shrink-0">
-                            <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($dep->montant, 0, ',', ' ') }} F</span>
+                            <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($dep->montant, 0, ',', ' ') }} FCFA</span>
                             @if($canEditDep)
                             <form method="POST"
                                   action="{{ route('admin.paiements.depenses.destroy', [$paiement, $dep]) }}"
@@ -237,17 +237,17 @@
                     @if($depenses->count() > 1)
                     <div class="flex items-center justify-between py-3 border-t border-bimo-navy/[5%] mt-1">
                         <span class="font-body text-xs text-bimo-text/50">Total dépenses ({{ $depenses->count() }})</span>
-                        <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($totalDep, 0, ',', ' ') }} F</span>
+                        <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($totalDep, 0, ',', ' ') }} FCFA</span>
                     </div>
                     @endif
 
                     @if($totalDep > 0)
                     <div class="flex items-center justify-between mt-3 p-3.5 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[9px]">
                         <div>
-                            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-0.5">Net à reverser au bailleur</div>
+                            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-0.5">Net à reverser au bailleur</div>
                             <div class="font-body text-[10px] text-bimo-text/30">Après déduction des dépenses</div>
                         </div>
-                        <div class="font-display font-bold text-lg text-bimo-text">{{ number_format($netFinalAff, 0, ',', ' ') }} F</div>
+                        <div class="font-display font-bold text-lg text-bimo-text">{{ number_format($netFinalAff, 0, ',', ' ') }} FCFA</div>
                     </div>
                     @endif
 
@@ -359,24 +359,24 @@
 
                     <div class="flex items-center justify-between py-2.5">
                         <span class="font-body text-xs text-white/40">Loyer encaissé</span>
-                        <span class="font-display font-semibold text-sm text-bimo-gold">{{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} F</span>
+                        <span class="font-display font-semibold text-sm text-bimo-gold">{{ number_format($paiement->montant_encaisse, 0, ',', ' ') }} FCFA</span>
                     </div>
                     @if(($paiement->frais_agence_ttc ?? 0) > 0)
                     <div class="flex items-center justify-between py-2.5">
                         <span class="font-body text-xs text-white/40">Honoraires TTC</span>
-                        <span class="font-body text-xs text-white/70">{{ number_format($paiement->frais_agence_ttc, 0, ',', ' ') }} F</span>
+                        <span class="font-body text-xs text-white/70">{{ number_format($paiement->frais_agence_ttc, 0, ',', ' ') }} FCFA</span>
                     </div>
                     @endif
                     @if(($paiement->caution_montant ?? 0) > 0)
                     <div class="flex items-center justify-between py-2.5">
                         <span class="font-body text-xs text-white/40">Caution</span>
-                        <span class="font-body text-xs text-white/70">{{ number_format($paiement->caution_montant, 0, ',', ' ') }} F</span>
+                        <span class="font-body text-xs text-white/70">{{ number_format($paiement->caution_montant, 0, ',', ' ') }} FCFA</span>
                     </div>
                     @endif
                     @if(config('features.fiscalite') && ($paiement->brs_amount ?? 0) > 0)
                     <div class="flex items-center justify-between py-2.5">
                         <span class="font-body text-xs text-bimo-red/70">BRS retenu</span>
-                        <span class="font-body text-xs text-bimo-red">− {{ number_format($paiement->brs_amount, 0, ',', ' ') }} F</span>
+                        <span class="font-body text-xs text-bimo-red">− {{ number_format($paiement->brs_amount, 0, ',', ' ') }} FCFA</span>
                     </div>
                     @endif
                 </div>
@@ -384,7 +384,7 @@
                 {{-- Net locataire --}}
                 <div class="px-5 pb-3">
                     <div class="p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px] mb-3">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net à payer — Locataire</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net à payer — Locataire</div>
                         <div class="font-display font-extrabold text-lg text-bimo-gold">
                             {{ number_format($paiement->montant_net_locataire ?? ($paiement->total_encaissement_initial ?? $paiement->montant_encaisse), 0, ',', ' ') }} F
                         </div>
@@ -395,25 +395,25 @@
                     @if($totalDep > 0)
                     <div class="flex items-center justify-between p-3 bg-bimo-red/10 border border-bimo-red/20 rounded-[8px] mb-2">
                         <span class="font-body text-xs text-bimo-red/70">Dépenses déduites</span>
-                        <span class="font-display font-bold text-sm text-bimo-red">− {{ number_format($totalDep, 0, ',', ' ') }} F</span>
+                        <span class="font-display font-bold text-sm text-bimo-red">− {{ number_format($totalDep, 0, ',', ' ') }} FCFA</span>
                     </div>
                     @endif
                     <div class="p-3.5 rounded-[9px] border {{ $totalDep > 0 ? 'bg-bimo-navy-dk/30 border-white/10' : 'bg-white/[4%] border-white/10' }}">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/30 mb-1">
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/30 mb-1">
                             Net à reverser — Bailleur{{ $totalDep > 0 ? ' (après dépenses)' : '' }}
                         </div>
                         <div class="font-display font-extrabold text-lg text-white">
                             {{ number_format($totalDep > 0 ? $netFinalAff : $netBrut, 0, ',', ' ') }} F
                         </div>
                         @if($totalDep > 0)
-                        <div class="font-body text-[10px] text-white/25 mt-0.5">Brut : {{ number_format($netBrut, 0, ',', ' ') }} F</div>
+                        <div class="font-body text-[10px] text-white/25 mt-0.5">Brut : {{ number_format($netBrut, 0, ',', ' ') }} FCFA</div>
                         @endif
                     </div>
 
                     @if($paiement->caution_percue > 0)
                     <div class="mt-3 p-3.5 bg-bimo-navy-dk/50 border border-white/10 rounded-[9px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/30 mb-1">Caution perçue (saisie manuelle)</div>
-                        <div class="font-display font-bold text-base text-white">{{ number_format($paiement->caution_percue, 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/30 mb-1">Caution perçue (saisie manuelle)</div>
+                        <div class="font-display font-bold text-base text-white">{{ number_format($paiement->caution_percue, 0, ',', ' ') }} FCFA</div>
                     </div>
                     @endif
 

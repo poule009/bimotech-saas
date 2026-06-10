@@ -34,7 +34,7 @@
                     <p class="font-body font-medium text-sm text-bimo-text">{{ $prop->name }}</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <p class="font-display font-bold text-sm text-bimo-red">{{ number_format($solde['solde'], 0, ',', ' ') }} F</p>
+                    <p class="font-display font-bold text-sm text-bimo-red">{{ number_format($solde['solde'], 0, ',', ' ') }} FCFA</p>
                     <a href="{{ route('admin.reversements.compte-mandant', $prop) }}" class="inline-flex items-center px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-text/60 hover:border-bimo-navy/30 hover:text-bimo-text transition-all duration-150">Compte</a>
                     <a href="{{ route('admin.reversements.create', ['proprietaire_id' => $prop->id]) }}" class="inline-flex items-center px-3 py-1 bg-[var(--ac)] rounded-[7px] font-body text-xs text-white hover:opacity-90 transition-opacity duration-150">Reverser</a>
                 </div>
@@ -57,7 +57,7 @@
             <div class="px-5 py-4">
                 <div class="flex items-center justify-between gap-2 mb-1.5">
                     <p class="font-body font-medium text-sm text-bimo-text">{{ $rev->proprietaire?->name ?? '—' }}</p>
-                    <p class="font-display font-bold text-sm text-bimo-gold">{{ number_format($rev->montant, 0, ',', ' ') }} F</p>
+                    <p class="font-display font-bold text-sm text-bimo-gold">{{ number_format($rev->montant, 0, ',', ' ') }} FCFA</p>
                 </div>
                 <div class="flex items-center gap-3 flex-wrap">
                     <span class="font-body text-xs text-bimo-text/40">{{ $rev->date_reversement->format('d/m/Y') }}</span>
@@ -89,7 +89,7 @@
                         <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-text">{{ $rev->proprietaire?->name ?? '—' }}</td>
                         <td class="px-5 py-3.5"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">{{ $rev->mode_paiement_libelle }}</span></td>
                         <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">{{ $rev->periode_debut && $rev->periode_fin ? $rev->periode_debut.' → '.$rev->periode_fin : '—' }}</td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($rev->montant, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($rev->montant, 0, ',', ' ') }} FCFA</td>
                     </tr>
                     @empty
                     <tr><td colspan="5" class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">Aucun reversement enregistré.</td></tr>

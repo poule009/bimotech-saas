@@ -114,8 +114,8 @@
                         <div class="font-body text-xs text-bimo-red leading-relaxed">
                             <strong>BRS applicable — Locataire entreprise (Art. 201 CGI SN)</strong><br>
                             Taux : <strong id="brs-taux-display">5%</strong> —
-                            BRS estimé : <strong id="brs-montant-display">— F</strong> —
-                            Net proprio : <strong id="brs-net-display">— F</strong>
+                            BRS estimé : <strong id="brs-montant-display">— FCFA</strong> —
+                            Net proprio : <strong id="brs-net-display">— FCFA</strong>
                             <br><a href="#" id="brs-profil-link" class="font-semibold underline mt-1 inline-block">
                                 → Modifier le profil du locataire
                             </a>
@@ -226,20 +226,27 @@
                     La commission, TVA et net propriétaire sont calculés automatiquement à partir du taux de commission du bien.
                 </p>
             </div>
-            <div class="sticky bottom-0 flex items-center justify-end gap-3 px-5 py-4
+            <div class="sticky bottom-0 flex items-center justify-between gap-3 px-5 py-4
                         bg-white/95 backdrop-blur-sm border-t border-bimo-navy/[5%]">
-                <a href="{{ route('admin.paiements.index') }}"
-                   class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
-                          font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-                    Annuler
-                </a>
-                <button type="submit"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
-                               font-display font-bold text-sm rounded-[10px]
-                               hover:opacity-90 transition-opacity duration-150">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    Enregistrer le paiement
-                </button>
+                {{-- Net à verser condensé — visible sur mobile (le décompte complet est hors écran) --}}
+                <div id="net-mobile" class="lg:hidden min-w-0" style="display:none">
+                    <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 leading-none mb-0.5">Net à verser</div>
+                    <div class="font-display font-extrabold text-base text-bimo-text leading-none" id="net-mobile-val">— FCFA</div>
+                </div>
+                <div class="flex items-center gap-3 ml-auto">
+                    <a href="{{ route('admin.paiements.index') }}"
+                       class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
+                              font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
+                        Annuler
+                    </a>
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
+                                   font-display font-bold text-sm rounded-[10px]
+                                   hover:opacity-90 transition-opacity duration-150">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        Enregistrer le paiement
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -259,7 +266,7 @@
 
                 <div id="recap-content" style="display:none" class="space-y-0">
 
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 mb-2">Loyer</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-2">Loyer</div>
                     @foreach([
                         ['rp-loyer-nu',    'Loyer nu',    'text-white'],
                         ['rp-charges',     'Charges',     'text-white'],
@@ -268,12 +275,12 @@
                     ] as [$id, $lbl, $cls])
                     <div class="flex items-center justify-between py-2 border-b border-white/[6%]">
                         <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— F</span>
+                        <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— FCFA</span>
                     </div>
                     @endforeach
 
                     <div class="my-3 border-t border-white/[7%]"></div>
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 mb-2">Commission agence</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-2">Commission agence</div>
                     @foreach([
                         ['rp-taux',     'Taux',           'text-white'],
                         ['rp-comm-ht',  'Commission HT',  'text-bimo-gold'],
@@ -287,14 +294,14 @@
                     @endforeach
 
                     <div class="mt-3 p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net propriétaire</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net propriétaire</div>
                         <div class="font-display font-extrabold text-lg text-bimo-gold" id="rp-net">— FCFA</div>
                     </div>
 
                     {{-- Section BRS --}}
                     <div id="rp-brs-section" style="display:none"
                          class="mt-3 p-3.5 bg-bimo-red/10 border border-bimo-red/20 rounded-[9px] space-y-1.5">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-red/60">BRS — Retenue à la source (Art. 201)</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-red/60">BRS — Retenue à la source (Art. 201)</div>
                         @foreach([
                             ['rp-brs-taux',    'Taux BRS'],
                             ['rp-brs-base',    'Assiette'],
@@ -309,8 +316,8 @@
 
                     {{-- Net à verser final --}}
                     <div class="mt-3 p-3.5 bg-white/[4%] border border-white/10 rounded-[9px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/30 mb-1" id="rp-net-label">Net à verser</div>
-                        <div class="font-display font-extrabold text-xl text-white" id="rp-net-verser">— F</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/30 mb-1" id="rp-net-label">Net à verser</div>
+                        <div class="font-display font-extrabold text-xl text-white" id="rp-net-verser">— FCFA</div>
                         <div class="font-body text-[10px] text-white/25 mt-0.5" id="rp-net-sublabel">Après commission TTC</div>
                     </div>
 
@@ -400,6 +407,13 @@ function chargerContrat(id) {
         document.getElementById('rp-net-sublabel').textContent = 'Après commission TTC';
     }
     document.getElementById('rp-net-verser').textContent = fmt(netAVerser) + ' CFA';
+
+    // Résumé mobile (le décompte complet est sous la ligne de flottaison)
+    const netMobile = document.getElementById('net-mobile');
+    if (netMobile) {
+        document.getElementById('net-mobile-val').textContent = Math.round(netAVerser).toLocaleString('fr-FR') + ' FCFA';
+        netMobile.style.display = 'block';
+    }
 
     document.getElementById('recap-vide').style.display    = 'none';
     document.getElementById('recap-content').style.display = 'block';

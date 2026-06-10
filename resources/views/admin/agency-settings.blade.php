@@ -123,22 +123,22 @@
                     <label class="block font-body font-medium text-sm text-bimo-text" for="couleur_primaire">Couleur principale</label>
                     <div class="flex items-center gap-3 mb-3">
                         <input type="color" id="color-native"
-                               value="{{ old('couleur_primaire', $agency->couleur_primaire ?? '#c9a84c') }}"
+                               value="{{ old('couleur_primaire', $agency->couleur_primaire ?? 'var(--ac)') }}"
                                oninput="syncColor(this.value)"
                                class="w-10 h-10 rounded-[8px] border border-bimo-navy/20 cursor-pointer p-1 bg-white">
                         <input type="text" name="couleur_primaire" id="couleur_primaire"
-                               value="{{ old('couleur_primaire', $agency->couleur_primaire ?? '#c9a84c') }}"
-                               placeholder="#c9a84c" maxlength="7"
+                               value="{{ old('couleur_primaire', $agency->couleur_primaire ?? 'var(--ac)') }}"
+                               placeholder="var(--ac)" maxlength="7"
                                oninput="syncColorFromHex(this.value)"
                                class="flex-1 px-4 py-2.5 rounded-[9px] bg-white border border-bimo-navy/20 font-mono text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150
                                       @error('couleur_primaire') border-bimo-red @enderror">
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        @foreach(['#c9a84c','#3b82f6','#22c55e','#ef4444','#8b5cf6','#0d1117','#06b6d4','#f59e0b','#1a3c5e','#ec4899'] as $color)
+                        @foreach(['var(--ac)','#3b82f6','#22c55e','#ef4444','#8b5cf6','#0d1117','#06b6d4','#f59e0b','#1a3c5e','#ec4899'] as $color)
                         <div onclick="syncColor('{{ $color }}')" title="{{ $color }}"
                              class="w-7 h-7 rounded-[6px] cursor-pointer transition-all duration-150 hover:scale-110 border-2 border-transparent
-                                    {{ ($agency->couleur_primaire ?? '#c9a84c') === $color ? 'border-white shadow-md scale-110' : '' }} color-swatch"
+                                    {{ ($agency->couleur_primaire ?? 'var(--ac)') === $color ? 'border-white shadow-md scale-110' : '' }} color-swatch"
                              style="background:{{ $color }}"></div>
                         @endforeach
                     </div>
@@ -285,7 +285,7 @@
         {{-- Aperçu sidebar --}}
         <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
             <div class="flex items-center justify-between px-4 py-3.5 border-b border-white/[7%]">
-                <span class="font-body font-medium text-[9px] uppercase tracking-widest text-white/30">Aperçu sidebar</span>
+                <span class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/30">Aperçu sidebar</span>
                 <div class="w-1.5 h-1.5 rounded-full bg-bimo-gold" style="animation:pulse-dot 2s ease-in-out infinite" title="Aperçu en direct"></div>
             </div>
 
@@ -294,7 +294,7 @@
                 <div class="bg-bimo-navy-dk rounded-[10px] overflow-hidden">
                     <div class="flex items-center gap-2 px-3 py-3 border-b border-white/[7%]">
                         <div id="preview-logo-box" class="w-7 h-7 rounded-[6px] flex items-center justify-center font-display font-extrabold text-[10px] text-white flex-shrink-0"
-                             style="background: {{ $agency->couleur_primaire ?? '#c9a84c' }}">
+                             style="background: {{ $agency->couleur_primaire ?? 'var(--ac)' }}">
                             @if($agency->logo_path && Storage::disk('public')->exists($agency->logo_path))
                                 <img src="{{ Storage::url($agency->logo_path) }}" class="w-full h-full object-contain rounded" id="preview-logo-img" alt="">
                             @else
@@ -303,14 +303,14 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <div id="preview-name" class="font-display font-bold text-[11px] text-white truncate">{{ $agency->name }}</div>
-                            <div class="font-body text-[8px] text-white/25 uppercase tracking-wider">Admin</div>
+                            <div class="font-body text-[9.5px] text-white/25 uppercase tracking-wider">Admin</div>
                         </div>
                     </div>
                     <div class="px-2 py-2 space-y-0.5">
                         <div id="preview-active-item" class="flex items-center gap-2 px-2 py-2 rounded-[6px]"
                              style="background: rgba(201,168,76,0.13)">
-                            <div id="preview-active-dot" class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.2)"></div>
-                            <div class="h-1.5 flex-1 rounded-sm" style="background:#c9a84c;opacity:.5"></div>
+                            <div id="preview-active-dot" class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:var(--ac);box-shadow:0 0 0 3px rgba(201,168,76,.2)"></div>
+                            <div class="h-1.5 flex-1 rounded-sm" style="background:var(--ac);opacity:.5"></div>
                         </div>
                         @foreach([0,1,2,3] as $i)
                         <div class="flex items-center gap-2 px-2 py-2 rounded-[6px]">
@@ -338,8 +338,8 @@
                 <div class="flex items-center justify-between px-3.5 py-2.5">
                     <span class="font-body text-[11px] text-white/30">Couleur</span>
                     <div class="flex items-center gap-2">
-                        <div id="info-color-dot" class="w-3 h-3 rounded-[3px]" style="background:{{ $agency->couleur_primaire ?? '#c9a84c' }}"></div>
-                        <span id="info-color" class="font-body text-[11px] text-white/75">{{ $agency->couleur_primaire ?? '#c9a84c' }}</span>
+                        <div id="info-color-dot" class="w-3 h-3 rounded-[3px]" style="background:{{ $agency->couleur_primaire ?? 'var(--ac)' }}"></div>
+                        <span id="info-color" class="font-body text-[11px] text-white/75">{{ $agency->couleur_primaire ?? 'var(--ac)' }}</span>
                     </div>
                 </div>
             </div>

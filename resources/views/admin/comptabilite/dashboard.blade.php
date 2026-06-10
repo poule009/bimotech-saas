@@ -69,7 +69,7 @@
                     <div class="flex-1 rounded-t-[3px] bg-bimo-navy/20 transition-all duration-300"
                          style="height: {{ max(4, round($m['charges'] / $max * 100)) }}%"></div>
                 </div>
-                <span class="font-body text-[9px] uppercase tracking-widest text-bimo-text/30">{{ $m['mois'] }}</span>
+                <span class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/30">{{ $m['mois'] }}</span>
             </div>
             @endforeach
         </div>
@@ -126,7 +126,7 @@
                     <p class="font-body font-medium text-sm text-bimo-text">{{ $prop->name }}</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <p class="font-display font-bold text-sm text-bimo-red">{{ number_format($prop->solde, 0, ',', ' ') }} F</p>
+                    <p class="font-display font-bold text-sm text-bimo-red">{{ number_format($prop->solde, 0, ',', ' ') }} FCFA</p>
                     <a href="{{ route('admin.reversements.compte-mandant', $prop) }}"
                        class="inline-flex items-center px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-text/60 hover:border-bimo-navy/30 hover:text-bimo-text transition-all duration-150">
                         Voir

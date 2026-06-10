@@ -64,8 +64,8 @@
                 </div>
                 @if($d)
                 <div class="flex items-center gap-3 text-xs">
-                    <span class="font-body text-bimo-text/50">Col. : <strong>{{ number_format($d->total_tva_collectee,0,',','') }} F</strong></span>
-                    @if($d->tva_nette_due > 0)<span class="font-body text-bimo-red">Due : {{ number_format($d->tva_nette_due,0,',','') }} F</span>@endif
+                    <span class="font-body text-bimo-text/50">Col. : <strong>{{ number_format($d->total_tva_collectee,0,',','') }} FCFA</strong></span>
+                    @if($d->tva_nette_due > 0)<span class="font-body text-bimo-red">Due : {{ number_format($d->tva_nette_due,0,',','') }} FCFA</span>@endif
                 </div>
                 @endif
                 @if($m['statut'] !== 'futur')
@@ -119,9 +119,9 @@
                         </td>
                         <td class="px-5 py-3.5 text-right">
                             @if($d)
-                                @if($d->tva_nette_due > 0) <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($d->tva_nette_due,0,',','') }} F</span>
-                                @elseif($d->credit_reporte_sortant > 0) <span class="font-body text-xs text-bimo-gold">Crédit {{ number_format($d->credit_reporte_sortant,0,',','') }} F</span>
-                                @else <span class="font-display font-semibold text-sm text-bimo-text/40">0 F</span>
+                                @if($d->tva_nette_due > 0) <span class="font-display font-bold text-sm text-bimo-red">{{ number_format($d->tva_nette_due,0,',','') }} FCFA</span>
+                                @elseif($d->credit_reporte_sortant > 0) <span class="font-body text-xs text-bimo-gold">Crédit {{ number_format($d->credit_reporte_sortant,0,',','') }} FCFA</span>
+                                @else <span class="font-display font-semibold text-sm text-bimo-text/40">0 FCFA</span>
                                 @endif
                             @else <span class="text-bimo-text/10">—</span> @endif
                         </td>
@@ -157,10 +157,10 @@
                 <tfoot>
                     <tr class="bg-bimo-gold/[8%] border-t-2 border-bimo-gold/30">
                         <td class="px-5 py-3 font-display font-bold text-sm text-bimo-text/70">Total {{ $annee }}</td>
-                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-text/70">{{ number_format($totalCollectee,0,',','') }} F</td>
-                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($totalDeductible,0,',','') }} F</td>
+                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-text/70">{{ number_format($totalCollectee,0,',','') }} FCFA</td>
+                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($totalDeductible,0,',','') }} FCFA</td>
                         <td class="px-5 py-3 text-right font-body text-sm text-bimo-text/30">—</td>
-                        <td class="px-5 py-3 text-right font-display font-extrabold text-sm text-bimo-red">{{ number_format($totalNette,0,',','') }} F</td>
+                        <td class="px-5 py-3 text-right font-display font-extrabold text-sm text-bimo-red">{{ number_format($totalNette,0,',','') }} FCFA</td>
                         <td colspan="2"></td>
                     </tr>
                 </tfoot>

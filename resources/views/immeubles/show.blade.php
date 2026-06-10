@@ -61,7 +61,7 @@
             </div>
         </div>
         <div class="relative z-10 text-right flex-shrink-0">
-            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-1">Unités</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/50 mb-1">Unités</div>
             <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">{{ $immeuble->biens->count() }}</div>
             <div class="font-body text-[11px] text-white/30 mt-1">{{ $immeuble->biens->where('statut','loue')->count() }} louée(s)</div>
             @if($loyerTotal > 0)
@@ -129,7 +129,7 @@
                             <div class="font-body text-xs text-bimo-text/50">{{ $bien->reference }}</div>
                         </div>
                         <div class="text-right flex-shrink-0">
-                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
+                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} FCFA</div>
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-body font-medium {{ $bs }}">{{ $bien->statut_label }}</span>
                         </div>
                     </div>
@@ -170,7 +170,7 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $bien->surface_m2 ? $bien->surface_m2.' m²' : '—' }}</td>
-                                <td class="px-5 py-3.5 font-display font-bold text-sm text-bimo-gold">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</td>
+                                <td class="px-5 py-3.5 font-display font-bold text-sm text-bimo-gold">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} FCFA</td>
                                 <td class="px-5 py-3.5 text-center">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-[11px] font-body font-medium {{ $bs }}">{{ $bien->statut_label }}</span>
                                 </td>

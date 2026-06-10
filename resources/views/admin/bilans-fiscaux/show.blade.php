@@ -95,21 +95,21 @@
                     <div class="bg-bimo-bg rounded-[10px] border border-bimo-navy/[8%] p-4 space-y-0 divide-y divide-bimo-navy/[5%]">
                         <div class="flex items-center justify-between py-2.5">
                             <span class="font-body text-sm text-bimo-text/70">Loyers HT perçus</span>
-                            <span class="font-display font-bold text-sm text-bimo-text">{{ number_format($bilan->revenus_bruts_loyers,0,',','') }} F</span>
+                            <span class="font-display font-bold text-sm text-bimo-text">{{ number_format($bilan->revenus_bruts_loyers,0,',','') }} FCFA</span>
                         </div>
                         @if($bilan->revenus_bruts_charges > 0)
                         <div class="flex items-center justify-between py-2 pl-4">
                             <span class="font-body text-xs text-bimo-text/50">+ Charges refacturées <span class="text-bimo-text/30">(Art. 56 CGI SN)</span></span>
-                            <span class="font-display font-semibold text-sm text-bimo-text/70">{{ number_format($bilan->revenus_bruts_charges,0,',','') }} F</span>
+                            <span class="font-display font-semibold text-sm text-bimo-text/70">{{ number_format($bilan->revenus_bruts_charges,0,',','') }} FCFA</span>
                         </div>
                         @endif
                         <div class="flex items-center justify-between py-2.5">
                             <span class="font-body text-sm text-bimo-text/70">Abattement forfaitaire 30% <span class="text-xs text-bimo-text/30">(Art. 58 CGI SN)</span></span>
-                            <span class="font-display font-bold text-sm text-bimo-gold">− {{ number_format($bilan->abattement_forfaitaire_30,0,',','') }} F</span>
+                            <span class="font-display font-bold text-sm text-bimo-gold">− {{ number_format($bilan->abattement_forfaitaire_30,0,',','') }} FCFA</span>
                         </div>
                         <div class="flex items-center justify-between py-3 mt-1">
                             <span class="font-display font-bold text-sm text-bimo-text">= Base imposable (70%)</span>
-                            <span class="font-display font-extrabold text-base text-bimo-gold">{{ number_format($bilan->base_imposable,0,',','') }} F</span>
+                            <span class="font-display font-extrabold text-base text-bimo-gold">{{ number_format($bilan->base_imposable,0,',','') }} FCFA</span>
                         </div>
                     </div>
 
@@ -159,7 +159,7 @@
 
                     <div class="mt-4 flex items-center justify-between py-3 px-4 bg-bimo-red/[5%] border border-bimo-red/15 rounded-[9px]">
                         <span class="font-display font-bold text-sm text-bimo-red">= IRPP estimé à déclarer</span>
-                        <span class="font-display font-extrabold text-base text-bimo-red">{{ number_format($bilan->irpp_estime,0,',','') }} F</span>
+                        <span class="font-display font-extrabold text-base text-bimo-red">{{ number_format($bilan->irpp_estime,0,',','') }} FCFA</span>
                     </div>
 
                     <div class="mt-3 flex items-start justify-between py-2.5 border-t border-bimo-navy/[5%]">
@@ -167,7 +167,7 @@
                             <span class="font-body text-sm text-bimo-text/70">CFPB estimée</span>
                             <div class="font-body text-[10px] text-bimo-text/30 mt-0.5">Estimation indicative — assiette réelle = valeur locative cadastrale (Art. 290-291 CGI SN)</div>
                         </div>
-                        <span class="font-display font-bold text-sm text-bimo-gold ml-4 flex-shrink-0">{{ number_format($bilan->cfpb_estimee,0,',','') }} F</span>
+                        <span class="font-display font-bold text-sm text-bimo-gold ml-4 flex-shrink-0">{{ number_format($bilan->cfpb_estimee,0,',','') }} FCFA</span>
                     </div>
                 </div>
             </div>
@@ -185,7 +185,7 @@
                     </div>
                     <div class="bg-bimo-red/[5%] border border-bimo-red/15 rounded-[12px] p-5 text-center">
                         <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-red/70 mb-2">IRPP estimé (Art. 65 CGI SN)</div>
-                        <div class="font-display font-extrabold text-3xl text-bimo-red">{{ number_format($bilan->irpp_estime,0,',','') }} F</div>
+                        <div class="font-display font-extrabold text-3xl text-bimo-red">{{ number_format($bilan->irpp_estime,0,',','') }} FCFA</div>
                         <div class="font-body text-xs text-bimo-red/60 mt-2">Base imposable {{ number_format($bilan->base_imposable,0,',','') }} F (70% des revenus)</div>
                     </div>
                     @else
@@ -196,7 +196,7 @@
                             <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-bimo-gold text-bimo-text text-[10px] font-display font-bold px-3 py-0.5 rounded-full whitespace-nowrap">✓ RECOMMANDÉ</div>
                             @endif
                             <div class="font-body font-medium text-[10px] uppercase tracking-widest {{ $cgfRecommande ? 'text-bimo-gold/70' : 'text-bimo-text/40' }} mb-2">Régime CGF (Art. 80 CGI SN)</div>
-                            <div class="font-display font-extrabold text-2xl {{ $cgfRecommande ? 'text-bimo-gold' : 'text-bimo-text' }}">{{ number_format($cgfData['montant'],0,',','') }} F</div>
+                            <div class="font-display font-extrabold text-2xl {{ $cgfRecommande ? 'text-bimo-gold' : 'text-bimo-text' }}">{{ number_format($cgfData['montant'],0,',','') }} FCFA</div>
                             <div class="font-body text-xs text-bimo-text/50 mt-2 leading-relaxed">
                                 Taux : <strong>{{ $cgfData['taux_applique'] }}%</strong><br>
                                 Tranche : {{ $cgfData['tranche_label'] }}<br>
@@ -208,9 +208,9 @@
                             <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-bimo-gold text-bimo-text text-[10px] font-display font-bold px-3 py-0.5 rounded-full whitespace-nowrap">✓ RECOMMANDÉ</div>
                             @endif
                             <div class="font-body font-medium text-[10px] uppercase tracking-widest {{ $irppRecommande ? 'text-bimo-gold/70' : 'text-bimo-text/40' }} mb-2">Régime IRPP (Art. 65 CGI SN)</div>
-                            <div class="font-display font-extrabold text-2xl {{ $irppRecommande ? 'text-bimo-gold' : 'text-bimo-text' }}">{{ number_format($bilan->irpp_estime,0,',','') }} F</div>
+                            <div class="font-display font-extrabold text-2xl {{ $irppRecommande ? 'text-bimo-gold' : 'text-bimo-text' }}">{{ number_format($bilan->irpp_estime,0,',','') }} FCFA</div>
                             <div class="font-body text-xs text-bimo-text/50 mt-2 leading-relaxed">
-                                Base imposable : <strong>{{ number_format($bilan->base_imposable,0,',','') }} F</strong><br>
+                                Base imposable : <strong>{{ number_format($bilan->base_imposable,0,',','') }} FCFA</strong><br>
                                 Après abattement 30% (Art. 68 §c)<br>
                                 <span class="text-bimo-text/30">Calcul sur 70% des revenus bruts</span>
                             </div>
@@ -242,21 +242,21 @@
                     @if($bilan->tva_loyer_collectee > 0)
                     <div class="bg-bimo-gold/[6%] border border-bimo-gold/20 rounded-[10px] p-4">
                         <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-gold/70 mb-2">TVA loyer collectée</div>
-                        <div class="font-display font-extrabold text-2xl text-bimo-gold">{{ number_format($bilan->tva_loyer_collectee,0,',','') }} F</div>
+                        <div class="font-display font-extrabold text-2xl text-bimo-gold">{{ number_format($bilan->tva_loyer_collectee,0,',','') }} FCFA</div>
                         <div class="font-body text-xs text-bimo-gold/60 mt-2 leading-relaxed">TVA 18% sur loyers commerciaux/meublés.<br><strong>À reverser à la DGI</strong> par le propriétaire.</div>
                     </div>
                     @endif
                     @if(($bilan->tva_charges_total ?? 0) > 0)
                     <div class="bg-bimo-gold/[6%] border border-bimo-gold/20 rounded-[10px] p-4">
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widests text-bimo-gold/70 mb-2">TVA charges forfaitaires (Art. 357)</div>
-                        <div class="font-display font-extrabold text-2xl text-bimo-gold">{{ number_format($bilan->tva_charges_total,0,',','') }} F</div>
+                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-gold/70 mb-2">TVA charges forfaitaires (Art. 357)</div>
+                        <div class="font-display font-extrabold text-2xl text-bimo-gold">{{ number_format($bilan->tva_charges_total,0,',','') }} FCFA</div>
                         <div class="font-body text-xs text-bimo-gold/60 mt-2 leading-relaxed">TVA 18% sur charges forfait bail commercial.<br><strong>À reverser à la DGI.</strong></div>
                     </div>
                     @endif
                     @if($bilan->brs_retenu_total > 0)
                     <div class="bg-bimo-red/[5%] border border-bimo-red/15 rounded-[10px] p-4">
                         <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-red/70 mb-2">BRS retenu</div>
-                        <div class="font-display font-extrabold text-2xl text-bimo-red">{{ number_format($bilan->brs_retenu_total,0,',','') }} F</div>
+                        <div class="font-display font-extrabold text-2xl text-bimo-red">{{ number_format($bilan->brs_retenu_total,0,',','') }} FCFA</div>
                         <div class="font-body text-xs text-bimo-red/60 mt-2 leading-relaxed">Retenu par les locataires entreprises.<br><strong>Déjà versé à la DGI</strong> par les locataires.</div>
                     </div>
                     @endif
@@ -272,15 +272,15 @@
                 <div class="px-5 py-5 grid grid-cols-3 gap-3">
                     <div class="text-center p-4 bg-bimo-gold/[6%] border border-bimo-gold/20 rounded-[10px]">
                         <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-gold/70 mb-2">Commission HT</div>
-                        <div class="font-display font-extrabold text-xl text-bimo-gold">{{ number_format($bilan->commissions_agence_ht,0,',','') }} F</div>
+                        <div class="font-display font-extrabold text-xl text-bimo-gold">{{ number_format($bilan->commissions_agence_ht,0,',','') }} FCFA</div>
                     </div>
                     <div class="text-center p-4 bg-bimo-bg border border-bimo-navy/[8%] rounded-[10px]">
                         <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-2">TVA commissions</div>
-                        <div class="font-display font-extrabold text-xl text-bimo-text/60">{{ number_format($bilan->tva_commissions,0,',','') }} F</div>
+                        <div class="font-display font-extrabold text-xl text-bimo-text/60">{{ number_format($bilan->tva_commissions,0,',','') }} FCFA</div>
                     </div>
                     <div class="text-center p-4 bg-bimo-navy/[4%] border border-bimo-navy/10 rounded-[10px]">
                         <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/50 mb-2">Net versé propriétaire{{ ($bilan->brs_retenu_total ?? 0) > 0 ? ' (après BRS)' : '' }}</div>
-                        <div class="font-display font-extrabold text-xl text-bimo-text">{{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total,0,',','') }} F</div>
+                        <div class="font-display font-extrabold text-xl text-bimo-text">{{ number_format($bilan->net_a_verser_total ?? $bilan->net_proprietaire_total,0,',','') }} FCFA</div>
                     </div>
                 </div>
             </div>
@@ -320,10 +320,10 @@
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/[5%] text-bimo-text/40">Exonéré</span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($p->loyer_ht ?? $p->loyer_nu ?? 0,0,',','') }} F</td>
+                                <td class="px-4 py-3 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($p->loyer_ht ?? $p->loyer_nu ?? 0,0,',','') }} FCFA</td>
                                 <td class="px-4 py-3 text-right font-display font-semibold text-sm {{ ($p->tva_loyer ?? 0) > 0 ? 'text-bimo-gold' : 'text-bimo-text/20' }}">{{ ($p->tva_loyer ?? 0) > 0 ? number_format($p->tva_loyer,0,',','').' F' : '—' }}</td>
                                 <td class="px-4 py-3 text-right font-display font-semibold text-sm {{ ($p->brs_amount ?? 0) > 0 ? 'text-bimo-red' : 'text-bimo-text/20' }}">{{ ($p->brs_amount ?? 0) > 0 ? number_format($p->brs_amount,0,',','').' F' : '—' }}</td>
-                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0,0,',','') }} F</td>
+                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0,0,',','') }} FCFA</td>
                             </tr>
                             @empty
                             <tr><td colspan="8" class="px-4 py-8 text-center font-body text-sm text-bimo-text/30">Aucun paiement enregistré pour {{ $annee }}</td></tr>
@@ -333,10 +333,10 @@
                         <tfoot>
                             <tr class="bg-bimo-gold/[6%] border-t-2 border-bimo-gold/30">
                                 <td colspan="4" class="px-4 py-3 font-display font-bold text-xs text-bimo-text/70">TOTAL {{ $annee }}</td>
-                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-text/70">{{ number_format($paiements->sum(fn($p) => $p->loyer_ht ?? $p->loyer_nu ?? 0),0,',','') }} F</td>
-                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($paiements->sum('tva_loyer'),0,',','') }} F</td>
-                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-red">{{ number_format($paiements->sum('brs_amount'),0,',','') }} F</td>
-                                <td class="px-4 py-3 text-right font-display font-extrabold text-sm text-bimo-gold">{{ number_format($paiements->sum(fn($p) => $p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0),0,',','') }} F</td>
+                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-text/70">{{ number_format($paiements->sum(fn($p) => $p->loyer_ht ?? $p->loyer_nu ?? 0),0,',','') }} FCFA</td>
+                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($paiements->sum('tva_loyer'),0,',','') }} FCFA</td>
+                                <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-red">{{ number_format($paiements->sum('brs_amount'),0,',','') }} FCFA</td>
+                                <td class="px-4 py-3 text-right font-display font-extrabold text-sm text-bimo-gold">{{ number_format($paiements->sum(fn($p) => $p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0),0,',','') }} FCFA</td>
                             </tr>
                         </tfoot>
                         @endif
@@ -391,7 +391,7 @@
                     @foreach($rows as [$lbl,$val,$cls])
                     <div class="flex items-center justify-between py-2.5">
                         <span class="font-body text-xs text-bimo-text/50">{{ $lbl }}</span>
-                        <span class="font-display font-bold text-xs {{ $cls }}">{{ ($val < 0 ? '−' : '') }}{{ number_format(abs($val),0,',','') }} F</span>
+                        <span class="font-display font-bold text-xs {{ $cls }}">{{ ($val < 0 ? '−' : '') }}{{ number_format(abs($val),0,',','') }} FCFA</span>
                     </div>
                     @endforeach
                 </div>

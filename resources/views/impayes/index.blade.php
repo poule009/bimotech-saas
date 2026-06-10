@@ -90,7 +90,7 @@
             <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">FCFA à recouvrer</div>
         </div>
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widests text-bimo-text/50 mb-1">Taux recouvrement</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Taux recouvrement</div>
             @php $taux = $stats['taux_recouvrement']; @endphp
             <div class="font-display font-extrabold text-2xl leading-none
                         {{ $taux >= 80 ? 'text-bimo-gold' : ($taux >= 50 ? 'text-bimo-navy' : 'text-bimo-red') }}">
@@ -150,7 +150,7 @@
                         <div class="font-body text-xs text-bimo-text/50">{{ $loc?->name ?? '—' }}</div>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <div class="font-display font-bold text-base text-bimo-red">{{ number_format($item['montant_du'], 0, ',', ' ') }} F</div>
+                        <div class="font-display font-bold text-base text-bimo-red">{{ number_format($item['montant_du'], 0, ',', ' ') }} FCFA</div>
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-body font-medium {{ $urgClass }}">
                             {{ $jr > 15 ? '🔴 Haute' : ($jr > 7 ? '🟡 Moyenne' : '⚪ Faible') }}
                         </span>
@@ -240,7 +240,7 @@
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                 <button type="button"
                                         onclick="ouvrirPaiementRapide({{ $item['contrat']->id }}, '{{ addslashes($loc?->name ?? '—') }}', '{{ addslashes($item['contrat']->bien?->reference ?? '—') }}', {{ $item['montant_du'] }}, '{{ $mois }}/{{ $annee }}')"
-                                        class="w-7 h-7 flex items-center justify-center border border-bimo-gold/30 rounded-[6px] text-bimo-gold/60 hover:text-bimo-gold hover:border-bimo-gold/60 hover:bg-bimo-gold/5 transition-all duration-150"
+                                        class="w-9 h-9 flex items-center justify-center border border-bimo-gold/30 rounded-[6px] text-bimo-gold/60 hover:text-bimo-gold hover:border-bimo-gold/60 hover:bg-bimo-gold/5 transition-all duration-150"
                                         title="Saisir le paiement rapidement">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 </button>
@@ -253,7 +253,7 @@
                                 </a>
                                 @endif
                                 <a href="{{ route('admin.contrats.show', $item['contrat']) }}"
-                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
+                                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                                    title="Voir le contrat">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
@@ -308,7 +308,7 @@
                     <div class="font-body text-xs text-bimo-text/50">{{ $item['contrat']->locataire?->name ?? '—' }}</div>
                 </div>
                 <div class="text-right">
-                    <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($item['paiement']->montant_encaisse, 0, ',', ' ') }} F</div>
+                    <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($item['paiement']->montant_encaisse, 0, ',', ' ') }} FCFA</div>
                     <div class="font-body text-[10px] text-bimo-text/40">{{ $item['paiement']->date_paiement ? \Carbon\Carbon::parse($item['paiement']->date_paiement)->format('d/m/Y') : '—' }}</div>
                 </div>
             </div>
@@ -351,12 +351,12 @@
                         <td class="px-5 py-3.5">
                             <div class="flex items-center justify-center gap-1.5">
                                 <a href="{{ route('admin.paiements.show', $item['paiement']) }}"
-                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
+                                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                                    title="Voir">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
                                 <a href="{{ route('admin.paiements.pdf', $item['paiement']) }}" target="_blank"
-                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150"
+                                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150"
                                    title="PDF">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                 </a>

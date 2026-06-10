@@ -44,29 +44,29 @@
         <div class="divide-y divide-bimo-navy/[5%]">
             <div class="px-5 py-4 flex items-center justify-between">
                 <p class="font-body text-sm text-bimo-text/70">Loyers encaissés</p>
-                <p class="font-display font-bold text-sm text-bimo-gold">+{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-sm text-bimo-gold">+{{ number_format($compte['loyers_encaisses'], 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="px-5 py-4 flex items-center justify-between">
                 <p class="font-body text-sm text-bimo-text/70">Commission agence déduite</p>
-                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['commissions_deduites'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['commissions_deduites'], 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="px-5 py-4 flex items-center justify-between">
                 <p class="font-body text-sm text-bimo-text/70">BRS retenu (5%)</p>
-                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['brs_retenu'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['brs_retenu'], 0, ',', ' ') }} FCFA</p>
             </div>
             @if($compte['depenses_avancees'] > 0)
             <div class="px-5 py-4 flex items-center justify-between">
                 <p class="font-body text-sm text-bimo-text/70">Dépenses avancées (réparations...)</p>
-                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['depenses_avancees'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['depenses_avancees'], 0, ',', ' ') }} FCFA</p>
             </div>
             @endif
             <div class="px-5 py-4 flex items-center justify-between bg-bimo-navy/[3%]">
                 <p class="font-display font-bold text-sm text-bimo-text">Net dû</p>
-                <p class="font-display font-extrabold text-base text-bimo-text">{{ number_format($compte['net_du'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-extrabold text-base text-bimo-text">{{ number_format($compte['net_du'], 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="px-5 py-4 flex items-center justify-between">
                 <p class="font-body text-sm text-bimo-text/70">Reversements effectués</p>
-                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['reversements_effectues'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-sm text-bimo-text/60">-{{ number_format($compte['reversements_effectues'], 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="px-5 py-4 flex items-center justify-between {{ $compte['solde_restant'] > 0 ? 'bg-bimo-red/[5%]' : 'bg-bimo-gold/[5%]' }}">
                 <p class="font-display font-bold text-sm {{ $compte['solde_restant'] > 0 ? 'text-bimo-red' : 'text-bimo-text' }}">Solde restant dû</p>
@@ -94,7 +94,7 @@
                         @if($rev->periode_debut)<span class="font-body text-[10px] text-bimo-text/30">{{ $rev->periode_debut }}{{ $rev->periode_fin && $rev->periode_fin !== $rev->periode_debut ? ' → '.$rev->periode_fin : '' }}</span>@endif
                     </div>
                 </div>
-                <p class="font-display font-bold text-sm text-bimo-gold flex-shrink-0">{{ number_format($rev->montant, 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-sm text-bimo-gold flex-shrink-0">{{ number_format($rev->montant, 0, ',', ' ') }} FCFA</p>
             </div>
             @endforeach
         </div>
@@ -124,10 +124,10 @@
                     <tr class="hover:bg-bimo-bg transition-colors duration-100">
                         <td class="px-4 py-3 font-body text-xs text-bimo-text/60">{{ $p->periode?->format('m/Y') ?? '—' }}</td>
                         <td class="px-4 py-3 font-body text-xs text-bimo-text/70">{{ $p->contrat?->bien?->titre_fallback ?? '—' }}</td>
-                        <td class="px-4 py-3 text-right font-display font-semibold text-xs text-bimo-text">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
-                        <td class="px-4 py-3 text-right font-body text-xs text-bimo-text/50">{{ number_format($p->commission_ttc, 0, ',', ' ') }} F</td>
-                        <td class="px-4 py-3 text-right font-body text-xs text-bimo-text/50">{{ number_format($p->total_depenses, 0, ',', ' ') }} F</td>
-                        <td class="px-4 py-3 text-right font-display font-bold text-xs text-bimo-gold">{{ number_format($p->net_final_bailleur, 0, ',', ' ') }} F</td>
+                        <td class="px-4 py-3 text-right font-display font-semibold text-xs text-bimo-text">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</td>
+                        <td class="px-4 py-3 text-right font-body text-xs text-bimo-text/50">{{ number_format($p->commission_ttc, 0, ',', ' ') }} FCFA</td>
+                        <td class="px-4 py-3 text-right font-body text-xs text-bimo-text/50">{{ number_format($p->total_depenses, 0, ',', ' ') }} FCFA</td>
+                        <td class="px-4 py-3 text-right font-display font-bold text-xs text-bimo-gold">{{ number_format($p->net_final_bailleur, 0, ',', ' ') }} FCFA</td>
                     </tr>
                     @endforeach
                 </tbody>

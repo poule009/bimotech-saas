@@ -26,7 +26,7 @@
                     {{ $role === 'proprietaire' ? '🏢' : '👤' }}
                 </div>
                 <div>
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60">Création</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60">Création</div>
                     <div class="font-display font-bold text-sm text-white">
                         {{ $role === 'proprietaire' ? 'Propriétaire' : 'Locataire' }}
                     </div>
@@ -35,7 +35,7 @@
 
             {{-- Liens sections --}}
             <nav class="px-3 py-3 space-y-0.5">
-                <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 px-3 pt-1 pb-2">Sections</div>
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 px-3 pt-1 pb-2">Sections</div>
                 @php
                     $sections = [
                         ['sec-identite', 'Identité'],
@@ -386,7 +386,7 @@
                                             hover:border-bimo-gold/40 transition-all duration-150">
                                     <span class="text-lg">{{ $ico }}</span>
                                     <span class="font-body font-medium text-[10px] text-bimo-text/60">{{ $lbl }}</span>
-                                    @if($brs)<span class="font-body font-bold text-[9px] text-bimo-red">BRS 5%</span>@endif
+                                    @if($brs)<span class="font-body font-bold text-[9.5px] text-bimo-red">BRS 5%</span>@endif
                                 </div>
                             </label>
                             @endforeach
@@ -551,7 +551,7 @@ function checkPwd(v) {
         { pct:'25%', color:'#EF4444', label:'Trop faible' },
         { pct:'50%', color:'#f59e0b', label:'Faible' },
         { pct:'75%', color:'#3b82f6', label:'Correct' },
-        { pct:'100%',color:'#C9A84C', label:'Fort ✓' },
+        { pct:'100%',color:'var(--ac)', label:'Fort ✓' },
     ];
     if (v.length === 0) { bar.style.width='0%'; hint.textContent='Entrez un mot de passe'; hint.style.color=''; return; }
     const l = levels[Math.max(0, score - 1)] ?? levels[0];
@@ -567,7 +567,7 @@ function checkConfirm() {
     const pwd2 = document.getElementById('pwd2').value;
     const hint = document.getElementById('pwd2-hint');
     if (!pwd2) { hint.style.color='transparent'; return; }
-    if (pwd === pwd2) { hint.textContent='✓ Correspondent'; hint.style.color='#C9A84C'; }
+    if (pwd === pwd2) { hint.textContent='✓ Correspondent'; hint.style.color='var(--ac)'; }
     else { hint.textContent='✗ Ne correspondent pas'; hint.style.color='#EF4444'; }
 }
 

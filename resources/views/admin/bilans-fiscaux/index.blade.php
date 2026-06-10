@@ -82,8 +82,8 @@ $totalBrs    = $bilans->sum('brs_retenu_total');
                 </div>
                 @if($bilan)
                 <div class="flex items-center gap-3 mt-1.5">
-                    <span class="font-body text-xs text-bimo-text/50">Brut : <strong class="text-bimo-gold">{{ number_format($bilan->revenus_bruts_loyers,0,',','') }} F</strong></span>
-                    <span class="font-body text-xs text-bimo-red/70">IRPP : {{ number_format($bilan->irpp_estime,0,',','') }} F</span>
+                    <span class="font-body text-xs text-bimo-text/50">Brut : <strong class="text-bimo-gold">{{ number_format($bilan->revenus_bruts_loyers,0,',','') }} FCFA</strong></span>
+                    <span class="font-body text-xs text-bimo-red/70">IRPP : {{ number_format($bilan->irpp_estime,0,',','') }} FCFA</span>
                 </div>
                 @endif
                 <div class="flex items-center gap-2 mt-2">
@@ -133,7 +133,7 @@ $totalBrs    = $bilans->sum('brs_retenu_total');
                         </td>
                         <td class="px-5 py-3.5 text-right">
                             @if($bilan)
-                            <div class="font-display font-semibold text-sm text-bimo-text/70">{{ number_format($bilan->base_imposable,0,',','') }} F</div>
+                            <div class="font-display font-semibold text-sm text-bimo-text/70">{{ number_format($bilan->base_imposable,0,',','') }} FCFA</div>
                             <div class="font-body text-[10px] text-bimo-text/30">après abattement 30%</div>
                             @else <span class="text-bimo-text/20">—</span> @endif
                         </td>
@@ -180,17 +180,17 @@ $totalBrs    = $bilans->sum('brs_retenu_total');
                                     @csrf
                                     <input type="hidden" name="annee" value="{{ $annee }}">
                                     <button type="submit" title="{{ $bilan ? 'Recalculer' : 'Calculer' }}"
-                                            class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer">
+                                            class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150 cursor-pointer">
                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
                                     </button>
                                 </form>
                                 @if($bilan)
                                 <a href="{{ route('admin.bilans-fiscaux.show', [$proprio, 'annee' => $annee]) }}"
-                                   class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150">
+                                   class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
                                 <a href="{{ route('admin.bilans-fiscaux.pdf', [$proprio, 'annee' => $annee]) }}" target="_blank"
-                                   class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150">
+                                   class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/15 rounded-[6px] text-bimo-text/40 hover:border-bimo-gold hover:text-bimo-gold transition-all duration-150">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                 </a>
                                 @endif

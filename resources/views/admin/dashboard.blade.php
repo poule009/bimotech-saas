@@ -575,7 +575,7 @@
                     <div class="font-display font-extrabold text-sm text-bimo-gold leading-none">
                         {{ \Carbon\Carbon::parse($c->date_fin)->diffInDays(now()) }}
                     </div>
-                    <div class="font-body text-[8px] text-bimo-gold/60 uppercase tracking-wider">jours</div>
+                    <div class="font-body text-[9.5px] text-bimo-gold/60 uppercase tracking-wider">jours</div>
                 </div>
                 <div class="flex-1 min-w-0">
                     <div class="font-body font-medium text-sm text-bimo-text truncate">{{ $c->bien?->reference ?? '—' }}</div>
@@ -607,7 +607,7 @@
             <div class="px-5 py-3.5">
                 <div class="flex items-center justify-between mb-1">
                     <span class="font-body text-[11px] text-bimo-text/40 uppercase tracking-widest">{{ $p->reference_paiement }}</span>
-                    <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</span>
+                    <span class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</span>
                 </div>
                 <div class="flex items-center justify-between">
                     @php

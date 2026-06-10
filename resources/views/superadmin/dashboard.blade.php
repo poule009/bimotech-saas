@@ -237,7 +237,7 @@ $expirantBientot = $agences->filter(function($a) {
         data:{
             labels:@json($chartLabels),
             datasets:[
-                {type:'line',label:'Revenus (F)',data:@json($chartRevenus),borderColor:'#C9A84C',backgroundColor:'rgba(201,168,76,.08)',borderWidth:2,pointRadius:3,fill:true,tension:.35,yAxisID:'yRev'},
+                {type:'line',label:'Revenus (F)',data:@json($chartRevenus),borderColor:'var(--ac)',backgroundColor:'rgba(201,168,76,.08)',borderWidth:2,pointRadius:3,fill:true,tension:.35,yAxisID:'yRev'},
                 {type:'bar',label:'Nouvelles agences',data:@json($chartAgences),backgroundColor:'rgba(201,168,76,.12)',borderColor:'rgba(201,168,76,.3)',borderWidth:1,borderRadius:4,yAxisID:'yAgc'}
             ]
         },

@@ -104,10 +104,10 @@
                 <tfoot>
                     <tr class="bg-bimo-gold/[8%] border-t-2 border-bimo-gold/30">
                         <td colspan="6" class="px-4 py-3 font-display font-bold text-sm text-bimo-text/70">Sous-totaux TVA collectée</td>
-                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_commissions'],0,',','') }} F</td>
-                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_loyers_commerciaux'],0,',','') }} F</td>
-                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_charges_forfait'],0,',','') }} F</td>
-                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_honoraires'],0,',','') }} F</td>
+                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_commissions'],0,',','') }} FCFA</td>
+                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_loyers_commerciaux'],0,',','') }} FCFA</td>
+                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_charges_forfait'],0,',','') }} FCFA</td>
+                        <td class="px-4 py-3 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($tvaData['tva_honoraires'],0,',','') }} FCFA</td>
                     </tr>
                 </tfoot>
             </table>
@@ -117,7 +117,7 @@
             @foreach([['Commissions',$tvaData['tva_commissions']],['Loyers commerciaux',$tvaData['tva_loyers_commerciaux']],['Charges forfait',$tvaData['tva_charges_forfait']],['Honoraires',$tvaData['tva_honoraires']]] as [$lbl,$val])
             <div class="p-4 text-center border-r last:border-r-0 border-bimo-navy/[5%]">
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/30 mb-1">{{ $lbl }}</div>
-                <div class="font-display font-bold text-lg text-bimo-gold">{{ number_format($val,0,',','') }} F</div>
+                <div class="font-display font-bold text-lg text-bimo-gold">{{ number_format($val,0,',','') }} FCFA</div>
             </div>
             @endforeach
         </div>
@@ -178,7 +178,7 @@
                 @foreach([['Achats / fournitures',$declaration->tva_achats_fournitures],['Loyer bureau agence',$declaration->tva_loyer_bureau],['Autres déductibles',$declaration->tva_autres_deductible]] as [$lbl,$val])
                 <div class="bg-bimo-bg border border-bimo-navy/[8%] rounded-[9px] p-4">
                     <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1.5">{{ $lbl }}</div>
-                    <div class="font-display font-bold text-xl text-bimo-text">{{ number_format($val,0,',','') }} F</div>
+                    <div class="font-display font-bold text-xl text-bimo-text">{{ number_format($val,0,',','') }} FCFA</div>
                 </div>
                 @endforeach
             </div>

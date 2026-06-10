@@ -38,17 +38,17 @@
                 <div class="divide-y divide-bimo-navy/[5%]">
                     <div class="px-5 py-3.5 flex items-center justify-between">
                         <p class="font-body text-sm text-bimo-text/70">Commissions de gestion (HT)</p>
-                        <p class="font-display font-bold text-sm text-bimo-gold">+{{ number_format($resultat['commissions_ht'], 0, ',', ' ') }} F</p>
+                        <p class="font-display font-bold text-sm text-bimo-gold">+{{ number_format($resultat['commissions_ht'], 0, ',', ' ') }} FCFA</p>
                     </div>
                     @if($resultat['frais_entree_ht'] > 0)
                     <div class="px-5 py-3.5 flex items-center justify-between">
                         <p class="font-body text-sm text-bimo-text/70">Frais d'entrée dossiers (HT)</p>
-                        <p class="font-display font-bold text-sm text-bimo-gold">+{{ number_format($resultat['frais_entree_ht'], 0, ',', ' ') }} F</p>
+                        <p class="font-display font-bold text-sm text-bimo-gold">+{{ number_format($resultat['frais_entree_ht'], 0, ',', ' ') }} FCFA</p>
                     </div>
                     @endif
                     <div class="px-5 py-3.5 flex items-center justify-between bg-bimo-gold/[5%]">
                         <p class="font-display font-bold text-sm text-bimo-text">Total revenus HT</p>
-                        <p class="font-display font-extrabold text-base text-bimo-gold">+{{ number_format($resultat['revenus_total_ht'], 0, ',', ' ') }} F</p>
+                        <p class="font-display font-extrabold text-base text-bimo-gold">+{{ number_format($resultat['revenus_total_ht'], 0, ',', ' ') }} FCFA</p>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     @foreach($resultat['charges_par_categorie'] as $cat => $montant)
                     <div class="px-5 py-3.5 flex items-center justify-between">
                         <p class="font-body text-sm text-bimo-text/70">{{ \App\Models\ChargeAgence::CATEGORIES[$cat] ?? ucfirst($cat) }}</p>
-                        <p class="font-display font-bold text-sm text-bimo-text/70">-{{ number_format($montant, 0, ',', ' ') }} F</p>
+                        <p class="font-display font-bold text-sm text-bimo-text/70">-{{ number_format($montant, 0, ',', ' ') }} FCFA</p>
                     </div>
                     @endforeach
                     @if($resultat['tva_nette_due'] > 0)
@@ -78,12 +78,12 @@
                             <p class="font-body text-sm text-bimo-text/70">TVA nette due (DGI)</p>
                             <p class="font-body text-[10px] text-bimo-text/30 mt-0.5">Depuis module Fiscalité — TVA collectée − TVA déductible</p>
                         </div>
-                        <p class="font-display font-bold text-sm text-bimo-text/70">-{{ number_format($resultat['tva_nette_due'], 0, ',', ' ') }} F</p>
+                        <p class="font-display font-bold text-sm text-bimo-text/70">-{{ number_format($resultat['tva_nette_due'], 0, ',', ' ') }} FCFA</p>
                     </div>
                     @endif
                     <div class="px-5 py-3.5 flex items-center justify-between bg-bimo-navy/[3%]">
                         <p class="font-display font-bold text-sm text-bimo-text">Total charges</p>
-                        <p class="font-display font-extrabold text-base text-bimo-text">-{{ number_format($resultat['charges_total'], 0, ',', ' ') }} F</p>
+                        <p class="font-display font-extrabold text-base text-bimo-text">-{{ number_format($resultat['charges_total'], 0, ',', ' ') }} FCFA</p>
                     </div>
                 </div>
                 @endif
@@ -120,8 +120,8 @@
                             @if($data['revenus'] > 0 || $data['charges'] > 0)
                             <tr class="hover:bg-bimo-bg transition-colors duration-100">
                                 <td class="px-5 py-3 font-body text-sm text-bimo-text">{{ \Carbon\Carbon::createFromFormat('Y-m', $periode)->locale('fr')->translatedFormat('F Y') }}</td>
-                                <td class="px-5 py-3 text-right font-display font-semibold text-sm text-bimo-gold">{{ number_format($data['revenus'], 0, ',', ' ') }} F</td>
-                                <td class="px-5 py-3 text-right font-display font-semibold text-sm text-bimo-text/60">{{ number_format($data['charges'], 0, ',', ' ') }} F</td>
+                                <td class="px-5 py-3 text-right font-display font-semibold text-sm text-bimo-gold">{{ number_format($data['revenus'], 0, ',', ' ') }} FCFA</td>
+                                <td class="px-5 py-3 text-right font-display font-semibold text-sm text-bimo-text/60">{{ number_format($data['charges'], 0, ',', ' ') }} FCFA</td>
                                 <td class="px-5 py-3 text-right font-display font-bold text-sm {{ $data['resultat'] >= 0 ? 'text-bimo-gold' : 'text-bimo-red' }}">
                                     {{ ($data['resultat'] >= 0 ? '+' : '') . number_format($data['resultat'], 0, ',', ' ') }} F
                                 </td>
@@ -142,11 +142,11 @@
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
                         <p class="font-body text-sm text-bimo-text/60">Revenus HT</p>
-                        <p class="font-display font-bold text-sm text-bimo-gold">{{ number_format($resultat['revenus_total_ht'], 0, ',', ' ') }} F</p>
+                        <p class="font-display font-bold text-sm text-bimo-gold">{{ number_format($resultat['revenus_total_ht'], 0, ',', ' ') }} FCFA</p>
                     </div>
                     <div class="flex justify-between items-center">
                         <p class="font-body text-sm text-bimo-text/60">Charges</p>
-                        <p class="font-display font-bold text-sm text-bimo-text">{{ number_format($resultat['charges_total'], 0, ',', ' ') }} F</p>
+                        <p class="font-display font-bold text-sm text-bimo-text">{{ number_format($resultat['charges_total'], 0, ',', ' ') }} FCFA</p>
                     </div>
                     <div class="border-t border-bimo-navy/10 pt-3 flex justify-between items-center">
                         <p class="font-display font-bold text-sm text-bimo-text">Résultat net</p>
@@ -158,7 +158,7 @@
             </div>
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5">
                 <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-3">TVA collectée</p>
-                <p class="font-display font-bold text-lg text-bimo-text">{{ number_format($resultat['tva_commissions'] + $resultat['tva_frais_entree'], 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-lg text-bimo-text">{{ number_format($resultat['tva_commissions'] + $resultat['tva_frais_entree'], 0, ',', ' ') }} FCFA</p>
                 <p class="font-body text-xs text-bimo-text/40 mt-1">À déclarer à la DGI</p>
             </div>
             <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-5">

@@ -115,15 +115,15 @@
             {{-- KPIs biens --}}
             <div class="grid grid-cols-3 border-b border-bimo-navy/[5%]">
                 <div class="px-4 py-3 text-center border-r border-bimo-navy/[5%]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Biens</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Biens</div>
                     <div class="font-display font-bold text-sm text-bimo-text">{{ $b['nb_biens'] }}</div>
                 </div>
                 <div class="px-4 py-3 text-center border-r border-bimo-navy/[5%]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Loués</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Loués</div>
                     <div class="font-display font-bold text-sm text-bimo-gold">{{ $b['nb_biens_loues'] }}</div>
                 </div>
                 <div class="px-4 py-3 text-center">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Paiements</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Paiements</div>
                     <div class="font-display font-bold text-sm text-bimo-text">{{ $b['nb_paiements'] }}</div>
                 </div>
             </div>
@@ -156,7 +156,7 @@
             <div class="mx-4 mb-4 px-4 py-3 bg-bimo-navy rounded-[10px] border border-bimo-gold/20
                         flex items-center justify-between">
                 <div>
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-0.5">
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/50 mb-0.5">
                         Net à reverser
                     </div>
                     <div class="font-body text-[10px] text-white/25">{{ now()->year }} — tous mois</div>

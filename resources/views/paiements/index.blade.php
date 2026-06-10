@@ -172,7 +172,7 @@
                         @endif
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <div class="font-display font-bold text-base text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</div>
+                        <div class="font-display font-bold text-base text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</div>
                         <div class="font-body text-[10px] text-bimo-text/40 mt-0.5">
                             {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
                         </div>
@@ -183,11 +183,11 @@
                 <div class="grid grid-cols-3 gap-2 pt-2 border-t border-bimo-navy/[5%]">
                     <div>
                         <div class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-0.5">Commission</div>
-                        <div class="font-body font-medium text-xs text-bimo-text/70">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-xs text-bimo-text/70">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} FCFA</div>
                     </div>
                     <div>
                         <div class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-0.5">Net proprio</div>
-                        <div class="font-body font-medium text-xs text-bimo-text">{{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-xs text-bimo-text">{{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} FCFA</div>
                     </div>
                     <div>
                         <div class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-0.5">Mode</div>
@@ -331,13 +331,13 @@
                         <td class="px-5 py-3.5">
                             <div class="flex items-center justify-center gap-1.5">
                                 <a href="{{ route('admin.paiements.show', $p) }}"
-                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
+                                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
                                           text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                                    title="Voir">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
                                 <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
+                                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
                                           text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                                    title="PDF">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -351,7 +351,7 @@
                                       data-confirm-icon-bg="rgba(217,119,6,0.1)">
                                     @csrf @method('PATCH')
                                     <button type="submit"
-                                            class="w-7 h-7 flex items-center justify-center border border-bimo-red/20 rounded-[6px]
+                                            class="w-9 h-9 flex items-center justify-center border border-bimo-red/20 rounded-[6px]
                                                    text-bimo-red/60 hover:text-bimo-red hover:border-bimo-red/40 hover:bg-bimo-red/5
                                                    transition-all duration-150"
                                             title="Annuler">
@@ -376,14 +376,14 @@
             <div class="flex items-center gap-1">
                 @if(!$paiements->onFirstPage())
                 <a href="{{ $paiements->previousPageUrl() }}"
-                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
+                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
                           text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
                 </a>
                 @endif
                 @foreach($paiements->getUrlRange(max(1,$paiements->currentPage()-2), min($paiements->lastPage(),$paiements->currentPage()+2)) as $page => $url)
                 <a href="{{ $url }}"
-                   class="w-7 h-7 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150
+                   class="w-9 h-9 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150
                           {{ $page === $paiements->currentPage()
                              ? 'bg-bimo-navy text-white border border-bimo-navy'
                              : 'border border-bimo-navy/10 text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30' }}">
@@ -392,7 +392,7 @@
                 @endforeach
                 @if($paiements->hasMorePages())
                 <a href="{{ $paiements->nextPageUrl() }}"
-                   class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
+                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
                           text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>

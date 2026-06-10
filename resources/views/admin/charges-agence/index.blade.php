@@ -37,7 +37,7 @@
         @foreach($parCategorie->take(2) as $cat)
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
             <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-2">{{ \App\Models\ChargeAgence::CATEGORIES[$cat->categorie] ?? $cat->categorie }}</p>
-            <p class="font-display font-bold text-lg text-bimo-text">{{ number_format($cat->total, 0, ',', ' ') }} F</p>
+            <p class="font-display font-bold text-lg text-bimo-text">{{ number_format($cat->total, 0, ',', ' ') }} FCFA</p>
         </div>
         @endforeach
     </div>
@@ -48,7 +48,7 @@
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
             <div class="flex items-start justify-between gap-2 mb-2">
                 <p class="font-body font-medium text-sm text-bimo-text">{{ $charge->libelle }}</p>
-                <p class="font-display font-bold text-sm text-bimo-text flex-shrink-0">{{ number_format($charge->montant, 0, ',', ' ') }} F</p>
+                <p class="font-display font-bold text-sm text-bimo-text flex-shrink-0">{{ number_format($charge->montant, 0, ',', ' ') }} FCFA</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/60">{{ $charge->categorie_libelle }}</span>
@@ -90,7 +90,7 @@
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium bg-bimo-navy/10 border border-bimo-navy/15 text-bimo-text/70">{{ $charge->categorie_libelle }}</span>
                         </td>
                         <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">{{ $charge->prestataire ?: '—' }}</td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-text">{{ number_format($charge->montant, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-text">{{ number_format($charge->montant, 0, ',', ' ') }} FCFA</td>
                         <td class="px-5 py-3.5 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 <a href="{{ route('admin.charges-agence.edit', $charge) }}" class="inline-flex items-center px-3 py-1 border border-bimo-navy/15 rounded-[7px] font-body text-xs text-bimo-text/60 hover:border-bimo-navy/30 hover:text-bimo-text transition-all duration-150">Modifier</a>

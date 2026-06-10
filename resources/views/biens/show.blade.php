@@ -132,7 +132,7 @@
             </div>
         </div>
         <div class="relative z-10 text-right flex-shrink-0">
-            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/50 mb-1">Loyer mensuel</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/50 mb-1">Loyer mensuel</div>
             <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
                 {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}
                 <span class="font-body font-normal text-base text-bimo-gold/40">F</span>
@@ -326,7 +326,7 @@
                     </div>
                     <div>
                         <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Caution</div>
-                        <div class="font-body text-sm text-bimo-text">{{ number_format($bien->contratActif->caution, 0, ',', ' ') }} F</div>
+                        <div class="font-body text-sm text-bimo-text">{{ number_format($bien->contratActif->caution, 0, ',', ' ') }} FCFA</div>
                     </div>
                 </div>
             </div>
@@ -370,8 +370,8 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</div>
-                            <div class="font-body text-xs text-bimo-text/40 mt-0.5">Net: {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F</div>
+                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</div>
+                            <div class="font-body text-xs text-bimo-text/40 mt-0.5">Net: {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} FCFA</div>
                         </div>
                     </div>
                     @endforeach
@@ -412,7 +412,7 @@
                                 </td>
                                 <td class="px-5 py-3.5 text-center">
                                     <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                                       class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
+                                       class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
                                               text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </a>

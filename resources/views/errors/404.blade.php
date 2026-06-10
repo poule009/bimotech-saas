@@ -27,7 +27,7 @@ body::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-5
     font-weight:800;
     line-height:1;
     letter-spacing:-6px;
-    background:linear-gradient(180deg,#c9a84c 0%,rgba(201,168,76,.2) 100%);
+    background:linear-gradient(180deg,var(--ac) 0%,rgba(201,168,76,.2) 100%);
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
     background-clip:text;
@@ -55,22 +55,22 @@ p{
     display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
     animation:fadeUp .6s .3s ease both;
 }
-.btn-gold{background:#c9a84c;color:#0d1117;font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;text-decoration:none;transition:opacity .2s}
+.btn-gold{background:var(--ac);color:#0d1117;font-family:'DM Sans',sans-serif;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;text-decoration:none;transition:opacity .2s}
 .btn-gold:hover{opacity:.9}
-.btn-gold:focus-visible{outline:2px solid #c9a84c;outline-offset:3px}
+.btn-gold:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
 .btn-outline{background:transparent;color:#e6edf3;font-family:'DM Sans',sans-serif;font-weight:500;font-size:14px;padding:12px 24px;border-radius:10px;text-decoration:none;border:1px solid rgba(255,255,255,.1);transition:all .2s}
 .btn-outline:hover{border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04)}
-.btn-outline:focus-visible{outline:2px solid #c9a84c;outline-offset:3px}
+.btn-outline:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
 
 /* Logo en haut */
 .logo{position:absolute;top:2rem;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap}
-.logo:focus-visible{outline:2px solid #c9a84c;outline-offset:3px;border-radius:4px}
+.logo:focus-visible{outline:2px solid var(--ac);outline-offset:3px;border-radius:4px}
 
 /* Liens rapides */
 .quick-links{margin-top:3rem;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;animation:fadeUp .6s .4s ease both}
 .quick-link{font-size:13px;color:#484f58;text-decoration:none;padding:6px 14px;border:1px solid rgba(255,255,255,.06);border-radius:99px;transition:all .2s}
 .quick-link:hover{color:#8b949e;border-color:rgba(255,255,255,.12)}
-.quick-link:focus-visible{outline:2px solid #c9a84c;outline-offset:2px}
+.quick-link:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>

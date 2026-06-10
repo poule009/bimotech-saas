@@ -322,7 +322,7 @@
                 <div id="drop-zone"
                      class="border-2 border-dashed border-bimo-navy/15 rounded-[10px] p-7 text-center cursor-pointer transition-all duration-150 bg-bimo-bg"
                      onclick="document.getElementById('photos-input').click()"
-                     ondragover="event.preventDefault();this.style.borderColor='#C9A84C';this.style.background='#fffbeb'"
+                     ondragover="event.preventDefault();this.style.borderColor='var(--ac)';this.style.background='#fffbeb'"
                      ondragleave="this.style.borderColor='';this.style.background=''"
                      ondrop="handleDrop(event)">
                     <svg class="w-8 h-8 text-bimo-text/20 mx-auto mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -395,19 +395,19 @@
             <div class="px-5 py-4 space-y-0">
                 <div class="flex items-center justify-between py-2.5 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/45">Loyer mensuel</span>
-                    <span class="font-display font-semibold text-xs text-white" id="rp-loyer">— F</span>
+                    <span class="font-display font-semibold text-xs text-white" id="rp-loyer">— FCFA</span>
                 </div>
                 <div class="flex items-center justify-between py-2.5 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/45">Commission HT</span>
-                    <span class="font-display font-semibold text-xs text-bimo-gold" id="rp-comm">— F</span>
+                    <span class="font-display font-semibold text-xs text-bimo-gold" id="rp-comm">— FCFA</span>
                 </div>
                 <div class="flex items-center justify-between py-2.5 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/45">TVA commission (18%)</span>
-                    <span class="font-display font-semibold text-xs text-white" id="rp-tva">— F</span>
+                    <span class="font-display font-semibold text-xs text-white" id="rp-tva">— FCFA</span>
                 </div>
                 <div class="flex items-center justify-between py-2.5">
                     <span class="font-body text-xs text-white/45">Commission TTC</span>
-                    <span class="font-display font-semibold text-xs text-bimo-gold" id="rp-comm-ttc">— F</span>
+                    <span class="font-display font-semibold text-xs text-bimo-gold" id="rp-comm-ttc">— FCFA</span>
                 </div>
 
                 <div class="mt-3 p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
@@ -416,7 +416,7 @@
                 </div>
 
                 <div class="mt-4 pt-4 border-t border-white/[7%]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 mb-2.5">Rappel fiscal</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-2.5">Rappel fiscal</div>
                     <div class="font-body text-[11px] text-white/35 leading-relaxed">
                         Commission HT × 18% = TVA (Art. 357 CGI SN)<br>
                         TVA loyer 18% si bail commercial/meublé<br>
@@ -461,12 +461,12 @@ function previewPhotos(files) {
             const div = document.createElement('div');
             div.style.cssText = 'position:relative;border-radius:8px;overflow:hidden;height:90px;border:1px solid rgba(27,79,107,0.1)';
             div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">
-                ${i === 0 ? '<span style="position:absolute;top:4px;left:4px;background:#C9A84C;color:#1B4F6B;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:Syne,sans-serif">Principale</span>' : ''}`;
+                ${i === 0 ? '<span style="position:absolute;top:4px;left:4px;background:var(--ac);color:#1B4F6B;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:Syne,sans-serif">Principale</span>' : ''}`;
             grid.appendChild(div);
         };
         reader.readAsDataURL(file);
     });
-    document.getElementById('drop-zone').style.borderColor = '#C9A84C';
+    document.getElementById('drop-zone').style.borderColor = 'var(--ac)';
     document.getElementById('drop-zone').style.background  = '#fffbeb';
 }
 

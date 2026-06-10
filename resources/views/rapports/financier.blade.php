@@ -98,11 +98,11 @@
                     <div class="flex-1 rounded-t-[3px] min-h-[2px] transition-opacity duration-150 hover:opacity-80 {{ $isCur ? 'bg-bimo-gold' : 'bg-bimo-navy/15' }}"
                          style="height:{{ $hComm }}px"></div>
                 </div>
-                <div class="font-body text-[9px] text-center {{ $isCur ? 'text-bimo-text font-bold' : 'text-bimo-text/40' }}">{{ $label }}</div>
+                <div class="font-body text-[9.5px] text-center {{ $isCur ? 'text-bimo-text font-bold' : 'text-bimo-text/40' }}">{{ $label }}</div>
             </div>
             @endforeach
         </div>
-        <div class="font-body text-[10px] text-bimo-text/30 text-right mt-1">Max : {{ number_format($maxLoyer, 0, ',', ' ') }} F</div>
+        <div class="font-body text-[10px] text-bimo-text/30 text-right mt-1">Max : {{ number_format($maxLoyer, 0, ',', ' ') }} FCFA</div>
     </div>
     @endif
 
@@ -185,9 +185,9 @@
                         <td class="px-5 py-3.5 text-center">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-bimo-navy/10 border border-bimo-navy/15 font-body text-[11px] text-bimo-text/60">{{ $data['nb_paiements'] }}</span>
                         </td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($data['total_encaisse'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/60">{{ number_format($data['total_commission'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">{{ number_format($data['total_net'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($data['total_encaisse'], 0, ',', ' ') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/60">{{ number_format($data['total_commission'], 0, ',', ' ') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">{{ number_format($data['total_net'], 0, ',', ' ') }} FCFA</td>
                         <td class="px-5 py-3.5 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <span class="font-body text-[11px] text-bimo-text/40">{{ $part }}%</span>
@@ -203,9 +203,9 @@
                     <tr class="bg-bimo-bg2 font-semibold border-t border-bimo-navy/10">
                         <td class="px-5 py-3.5 font-body font-semibold text-sm text-bimo-text">Total</td>
                         <td class="px-5 py-3.5 text-center font-body text-sm text-bimo-text">{{ $kpiMois['nb_paiements'] }}</td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/60">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($kpiMois['total_loyers'], 0, ',', ' ') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/60">{{ number_format($kpiMois['total_ttc'], 0, ',', ' ') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">{{ number_format($kpiMois['total_net_proprio'], 0, ',', ' ') }} FCFA</td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -244,7 +244,7 @@
                     <div class="font-body text-xs text-bimo-text/50">{{ $p->contrat?->locataire?->name ?? '—' }}</div>
                 </div>
                 <div class="text-right">
-                    <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse ?? 0, 0, ',', ' ') }} F</div>
+                    <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse ?? 0, 0, ',', ' ') }} FCFA</div>
                     <div class="font-body text-xs text-bimo-text/40">{{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}</div>
                 </div>
             </div>
@@ -280,7 +280,7 @@
                         <td class="px-5 py-3.5">
                             @if($proprio)
                             <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 rounded-[5px] bg-bimo-gold/15 flex items-center justify-center font-body font-bold text-[9px] text-bimo-gold flex-shrink-0">{{ mb_strtoupper(mb_substr($proprio->name,0,2)) }}</div>
+                                <div class="w-6 h-6 rounded-[5px] bg-bimo-gold/15 flex items-center justify-center font-body font-bold text-[9.5px] text-bimo-gold flex-shrink-0">{{ mb_strtoupper(mb_substr($proprio->name,0,2)) }}</div>
                                 <span class="font-body text-xs text-bimo-text/60">{{ $proprio->name }}</span>
                             </div>
                             @else
@@ -295,12 +295,12 @@
                                 {{ $modeLabels[$p->mode_paiement] ?? $p->mode_paiement }}
                             </span>
                         </td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text whitespace-nowrap">{{ number_format($p->loyer_nu ?? 0, 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/50 whitespace-nowrap">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text whitespace-nowrap">{{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text whitespace-nowrap">{{ number_format($p->loyer_nu ?? 0, 0, ',', ' ') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/50 whitespace-nowrap">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text whitespace-nowrap">{{ number_format($p->net_proprietaire ?? 0, 0, ',', ' ') }} FCFA</td>
                         <td class="px-5 py-3.5 text-center">
                             <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                               class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                               class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                             </a>
                         </td>
@@ -316,17 +316,17 @@
             <span class="font-body text-xs text-bimo-text/40">{{ $paiementsMois->firstItem() }}–{{ $paiementsMois->lastItem() }} sur {{ $paiementsMois->total() }}</span>
             <div class="flex items-center gap-1">
                 @if($paiementsMois->onFirstPage())
-                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <span class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></span>
                 @else
-                <a href="{{ $paiementsMois->previousPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
+                <a href="{{ $paiementsMois->previousPageUrl() }}" class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></a>
                 @endif
                 @foreach($paiementsMois->getUrlRange(max(1,$paiementsMois->currentPage()-2), min($paiementsMois->lastPage(),$paiementsMois->currentPage()+2)) as $page => $url)
-                <a href="{{ $url }}" class="w-7 h-7 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150 {{ $page == $paiementsMois->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30' }}">{{ $page }}</a>
+                <a href="{{ $url }}" class="w-9 h-9 flex items-center justify-center rounded-[6px] font-body text-xs transition-all duration-150 {{ $page == $paiementsMois->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30' }}">{{ $page }}</a>
                 @endforeach
                 @if($paiementsMois->hasMorePages())
-                <a href="{{ $paiementsMois->nextPageUrl() }}" class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+                <a href="{{ $paiementsMois->nextPageUrl() }}" class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
                 @else
-                <span class="w-7 h-7 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
+                <span class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/20 cursor-not-allowed"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
                 @endif
             </div>
         </div>
@@ -344,7 +344,7 @@
             </div>
             <div>
                 <div class="font-display font-bold text-sm text-bimo-red">{{ $biensImpayes->count() }} impayé(s) ce mois</div>
-                <div class="font-body text-xs text-bimo-text/50 mt-0.5">{{ number_format($biensImpayes->sum('loyer_contractuel'), 0, ',', ' ') }} F non encaissés</div>
+                <div class="font-body text-xs text-bimo-text/50 mt-0.5">{{ number_format($biensImpayes->sum('loyer_contractuel'), 0, ',', ' ') }} FCFA non encaissés</div>
             </div>
         </div>
         <div class="flex items-center gap-1.5 font-body font-semibold text-sm text-bimo-red flex-shrink-0">

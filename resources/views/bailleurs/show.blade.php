@@ -57,12 +57,12 @@
         </div>
         <div class="flex gap-3 flex-wrap relative z-10">
             @foreach([
-                ['Loyers encaissés', number_format($dashboard['total_loyers'], 0, ',', ' '), 'F CFA — '.$annee, 'text-bimo-gold'],
-                ['Net à reverser',   number_format($dashboard['net_final'], 0, ',', ' '),   'F CFA net', 'text-white'],
+                ['Loyers encaissés', number_format($dashboard['total_loyers'], 0, ',', ' '), 'FCFA — '.$annee, 'text-bimo-gold'],
+                ['Net à reverser',   number_format($dashboard['net_final'], 0, ',', ' '),   'FCFA net', 'text-white'],
                 ['Biens loués',      $dashboard['nb_biens_loues'].'/'.$dashboard['nb_biens'], $dashboard['nb_paiements'].' paiement(s)', 'text-white'],
             ] as [$lbl, $val, $sub, $cls])
             <div class="bg-white/[4%] border border-white/[8%] rounded-[12px] px-4 py-3 text-center min-w-[110px]">
-                <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/30 mb-1.5">{{ $lbl }}</div>
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/30 mb-1.5">{{ $lbl }}</div>
                 <div class="font-display font-bold text-lg leading-none {{ $cls }}">{{ $val }}</div>
                 <div class="font-body text-[10px] text-white/25 mt-1">{{ $sub }}</div>
             </div>
@@ -134,32 +134,32 @@
                 {{-- Équation financière --}}
                 <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 flex flex-wrap items-center gap-3">
                     <div class="text-center px-4 py-3 rounded-[10px] bg-bimo-gold/10 border border-bimo-gold/20 min-w-[110px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widests text-bimo-gold/60 mb-1">Loyers encaissés</div>
-                        <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Loyers encaissés</div>
+                        <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} FCFA</div>
                     </div>
                     <span class="font-display font-bold text-xl text-bimo-text/30">−</span>
                     <div class="text-center px-4 py-3 rounded-[10px] bg-bimo-navy/5 border border-bimo-navy/10 min-w-[110px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-text/40 mb-1">Commissions TTC</div>
-                        <div class="font-display font-bold text-sm text-bimo-text">{{ number_format($dashboard['total_commissions'], 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-1">Commissions TTC</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">{{ number_format($dashboard['total_commissions'], 0, ',', ' ') }} FCFA</div>
                     </div>
                     @if(($dashboard['total_brs'] ?? 0) > 0)
                     <span class="font-display font-bold text-xl text-bimo-text/30">−</span>
                     <div class="text-center px-4 py-3 rounded-[10px] bg-bimo-red/10 border border-bimo-red/20 min-w-[110px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-red/60 mb-1">BRS retenu</div>
-                        <div class="font-display font-bold text-sm text-bimo-red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-red/60 mb-1">BRS retenu</div>
+                        <div class="font-display font-bold text-sm text-bimo-red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} FCFA</div>
                     </div>
                     @endif
                     @if($dashboard['total_depenses'] > 0)
                     <span class="font-display font-bold text-xl text-bimo-text/30">−</span>
                     <div class="text-center px-4 py-3 rounded-[10px] bg-bimo-red/10 border border-bimo-red/20 min-w-[110px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-red/60 mb-1">Dépenses</div>
-                        <div class="font-display font-bold text-sm text-bimo-red">{{ number_format($dashboard['total_depenses'], 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-red/60 mb-1">Dépenses</div>
+                        <div class="font-display font-bold text-sm text-bimo-red">{{ number_format($dashboard['total_depenses'], 0, ',', ' ') }} FCFA</div>
                     </div>
                     @endif
                     <span class="font-display font-bold text-xl text-bimo-text">=</span>
                     <div class="text-center px-5 py-3.5 rounded-[10px] bg-bimo-navy min-w-[120px]">
-                        <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net à verser</div>
-                        <div class="font-display font-bold text-lg text-bimo-gold">{{ number_format($dashboard['net_final'], 0, ',', ' ') }} F</div>
+                        <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net à verser</div>
+                        <div class="font-display font-bold text-lg text-bimo-gold">{{ number_format($dashboard['net_final'], 0, ',', ' ') }} FCFA</div>
                     </div>
                 </div>
 
@@ -188,7 +188,7 @@
                         </span>
                         @if($bien->contratActif)
                         <div class="text-right flex-shrink-0">
-                            <div class="font-display font-bold text-sm text-bimo-text">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
+                            <div class="font-display font-bold text-sm text-bimo-text">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} FCFA</div>
                             <div class="font-body text-[10px] text-bimo-text/40">/mois</div>
                         </div>
                         @endif
@@ -213,22 +213,22 @@
                     <div class="px-5 py-2 divide-y divide-white/[5%]">
                         <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Paiements</span><span class="font-body text-xs text-white/70">{{ $dashboard['nb_paiements'] }}</span></div>
                         <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Biens loués</span><span class="font-body text-xs text-white/70">{{ $dashboard['nb_biens_loues'] }} / {{ $dashboard['nb_biens'] }}</span></div>
-                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Loyers encaissés</span><span class="font-display font-semibold text-xs text-bimo-gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} F</span></div>
-                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Commissions TTC</span><span class="font-display font-semibold text-xs text-bimo-red">− {{ number_format($dashboard['total_commissions'], 0, ',', ' ') }} F</span></div>
+                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Loyers encaissés</span><span class="font-display font-semibold text-xs text-bimo-gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} FCFA</span></div>
+                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Commissions TTC</span><span class="font-display font-semibold text-xs text-bimo-red">− {{ number_format($dashboard['total_commissions'], 0, ',', ' ') }} FCFA</span></div>
                         @if($dashboard['total_depenses'] > 0)
-                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Dépenses gestion</span><span class="font-display font-semibold text-xs text-bimo-red">− {{ number_format($dashboard['total_depenses'], 0, ',', ' ') }} F</span></div>
+                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">Dépenses gestion</span><span class="font-display font-semibold text-xs text-bimo-red">− {{ number_format($dashboard['total_depenses'], 0, ',', ' ') }} FCFA</span></div>
                         @endif
                         @if($dashboard['total_brs'] > 0)
-                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-bimo-red/70">BRS retenu</span><span class="font-display font-semibold text-xs text-bimo-red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} F</span></div>
+                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-bimo-red/70">BRS retenu</span><span class="font-display font-semibold text-xs text-bimo-red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} FCFA</span></div>
                         @endif
                         @if($dashboard['total_dgid'] > 0)
-                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">DGID enreg.</span><span class="font-display font-semibold text-xs text-white/70">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span></div>
+                        <div class="flex justify-between py-2.5"><span class="font-body text-xs text-white/35">DGID enreg.</span><span class="font-display font-semibold text-xs text-white/70">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} FCFA</span></div>
                         @endif
                     </div>
                     <div class="px-5 pb-4">
                         <div class="p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px] mb-3">
-                            <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Montant final à verser</div>
-                            <div class="font-display font-extrabold text-xl text-bimo-gold">{{ number_format($dashboard['net_final'], 0, ',', ' ') }} F</div>
+                            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Montant final à verser</div>
+                            <div class="font-display font-extrabold text-xl text-bimo-gold">{{ number_format($dashboard['net_final'], 0, ',', ' ') }} FCFA</div>
                         </div>
                         <a href="{{ route('admin.bailleurs.export-pdf', [$user->id, 'annee' => $annee, 'mois' => $moisPdf]) }}" target="_blank"
                            class="flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 rounded-[9px] font-body text-xs text-bimo-gold hover:text-white hover:border-white/20 transition-all duration-150 mb-2">
@@ -278,7 +278,7 @@
                     </span>
                     @if($bien->contratActif)
                     <div class="text-right flex-shrink-0">
-                        <div class="font-display font-bold text-sm text-bimo-text">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} F</div>
+                        <div class="font-display font-bold text-sm text-bimo-text">{{ number_format($bien->loyer_mensuel, 0, ',', ' ') }} FCFA</div>
                         <div class="font-body text-[10px] text-bimo-text/40">/mois</div>
                     </div>
                     @endif
@@ -334,7 +334,7 @@
                 </div>
                 @if($paiements->count() > 0)
                 <div class="font-body text-xs text-bimo-text/50">
-                    Total : <span class="font-display font-bold text-bimo-gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} F</span>
+                    Total : <span class="font-display font-bold text-bimo-gold">{{ number_format($dashboard['total_loyers'], 0, ',', ' ') }} FCFA</span>
                 </div>
                 @endif
             </div>
@@ -356,8 +356,8 @@
                         <div class="font-body text-xs text-bimo-text/50 mt-1">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
                     </div>
                     <div class="text-right">
-                        <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</div>
-                        <div class="font-body text-xs text-bimo-text/40">Net: {{ number_format($netFinalLigne, 0, ',', ' ') }} F</div>
+                        <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</div>
+                        <div class="font-body text-xs text-bimo-text/40">Net: {{ number_format($netFinalLigne, 0, ',', ' ') }} FCFA</div>
                     </div>
                 </div>
                 @endforeach
@@ -388,12 +388,12 @@
                             </td>
                             <td class="px-5 py-3.5 font-body font-medium text-sm text-bimo-text">{{ $p->contrat?->bien?->reference ?? '—' }}</td>
                             <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $p->contrat?->locataire?->name ?? '—' }}</td>
-                            <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</td>
-                            <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/50">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F</td>
-                            <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-text">{{ number_format($netFinalLigne, 0, ',', ' ') }} F</td>
+                            <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</td>
+                            <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/50">{{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} FCFA</td>
+                            <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-text">{{ number_format($netFinalLigne, 0, ',', ' ') }} FCFA</td>
                             <td class="px-5 py-3.5 text-center">
                                 <a href="{{ route('admin.paiements.show', $p) }}"
-                                   class="w-7 h-7 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
+                                   class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
                             </td>
@@ -419,7 +419,7 @@
                     <span class="font-display font-bold text-sm text-bimo-text">BRS — Retenue à la source</span>
                 </div>
                 <div class="space-y-2.5">
-                    <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Total BRS retenu</span><span class="font-display font-bold text-sm text-bimo-red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} F</span></div>
+                    <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Total BRS retenu</span><span class="font-display font-bold text-sm text-bimo-red">{{ number_format($dashboard['total_brs'], 0, ',', ' ') }} FCFA</span></div>
                     <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Exercice</span><span class="font-body text-xs text-bimo-text">{{ $annee }}</span></div>
                 </div>
                 <div class="mt-4 p-3 bg-bimo-red/[4%] border border-bimo-red/15 rounded-[8px] font-body text-[11px] text-bimo-text/50 leading-relaxed">
@@ -436,7 +436,7 @@
                     <span class="font-display font-bold text-sm text-bimo-text">DGID — Droits d'enregistrement</span>
                 </div>
                 <div class="space-y-2.5">
-                    <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Total DGID</span><span class="font-display font-bold text-sm text-bimo-navy">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} F</span></div>
+                    <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Total DGID</span><span class="font-display font-bold text-sm text-bimo-navy">{{ number_format($dashboard['total_dgid'], 0, ',', ' ') }} FCFA</span></div>
                     <div class="flex justify-between"><span class="font-body text-xs text-bimo-text/50">Exercice</span><span class="font-body text-xs text-bimo-text">{{ $annee }}</span></div>
                 </div>
                 <div class="mt-4 p-3 bg-bimo-navy/[6%] border border-bimo-navy/15 rounded-[8px] font-body text-[11px] text-bimo-text/50 leading-relaxed">

@@ -379,7 +379,7 @@
                         <td class="px-5 py-3.5 font-body text-sm text-bimo-text/70">{{ $bien->type }}</td>
                         <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">{{ $bien->adresse }}, {{ $bien->ville }}</td>
                         <td class="px-5 py-3.5 text-center font-body text-sm text-bimo-text/60">{{ $bien->proprietaire?->name ?? '—' }}</td>
-                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($bien->loyer_mensuel,0,',','') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($bien->loyer_mensuel,0,',','') }} FCFA</td>
                         <td class="px-5 py-3.5 text-center">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium border {{ $bstatut[1] }}">{{ $bstatut[0] }}</span>
                         </td>

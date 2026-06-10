@@ -63,7 +63,7 @@
                         @if($ligne['ninea'])<div class="font-body text-xs text-bimo-text/40" style="font-family:monospace">{{ $ligne['ninea'] }}</div>
                         @else<span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded text-[10px] font-body font-semibold text-bimo-gold">⚠ NINEA manquant</span>@endif
                     </div>
-                    <span class="font-display font-bold text-sm text-bimo-red flex-shrink-0">{{ number_format($ligne['brs_retenu'],0,',','') }} F</span>
+                    <span class="font-display font-bold text-sm text-bimo-red flex-shrink-0">{{ number_format($ligne['brs_retenu'],0,',','') }} FCFA</span>
                 </div>
                 <div class="font-body text-xs text-bimo-text/40">{{ $ligne['periode_label'] }} · {{ $ligne['nb_paiements'] }} paiement(s)</div>
             </div>
@@ -109,16 +109,16 @@
                             <div class="font-body text-sm text-bimo-text/70">{{ $ligne['periode_label'] }}</div>
                             <div class="font-body text-xs text-bimo-text/30">{{ $ligne['nb_paiements'] }} paiement(s)</div>
                         </td>
-                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($ligne['loyers_verses'],0,',','') }} F</td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-red">{{ number_format($ligne['brs_retenu'],0,',','') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-semibold text-sm text-bimo-text/70">{{ number_format($ligne['loyers_verses'],0,',','') }} FCFA</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-red">{{ number_format($ligne['brs_retenu'],0,',','') }} FCFA</td>
                     </tr>
                     @endforeach
                 </tbody>
                 <tfoot>
                     <tr class="bg-bimo-gold/[8%] border-t-2 border-bimo-gold/30">
                         <td colspan="4" class="px-5 py-3 font-display font-bold text-sm text-bimo-text/70">TOTAL T{{ $trimestre }} {{ $annee }} — {{ $lignes->count() }} bailleur(s)</td>
-                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-text/70">{{ number_format($totalNet,0,',','') }} F</td>
-                        <td class="px-5 py-3 text-right font-display font-extrabold text-sm text-bimo-red">{{ number_format($totalBrs,0,',','') }} F</td>
+                        <td class="px-5 py-3 text-right font-display font-bold text-sm text-bimo-text/70">{{ number_format($totalNet,0,',','') }} FCFA</td>
+                        <td class="px-5 py-3 text-right font-display font-extrabold text-sm text-bimo-red">{{ number_format($totalBrs,0,',','') }} FCFA</td>
                     </tr>
                 </tfoot>
             </table>

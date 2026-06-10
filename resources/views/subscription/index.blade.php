@@ -80,7 +80,7 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
         <button id="btn-annuel" onclick="setBilling('annuel')"
                 class="px-4 py-2 rounded-[8px] font-display font-bold text-sm text-bimo-text/50 hover:text-bimo-text transition-all duration-150 flex items-center gap-2">
             Annuel
-            <span class="bg-bimo-navy/10 text-bimo-text/60 text-[9px] font-body font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">2 mois offerts</span>
+            <span class="bg-bimo-navy/10 text-bimo-text/60 text-[9.5px] font-body font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">2 mois offerts</span>
         </button>
     </div>
 
@@ -133,7 +133,7 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
                     <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Plan</th>
                     <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Mensuel</th>
                     <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Annuel</th>
-                    <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widests text-white/30">Économie / an</th>
+                    <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Économie / an</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-white/[4%]">
@@ -198,7 +198,7 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
                     <tr class="border-b border-white/[5%]">
                         <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Date</th>
                         <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Plan</th>
-                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widests text-white/30">Méthode</th>
+                        <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Méthode</th>
                         <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Période</th>
                         <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Montant</th>
                         <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-white/30">Statut</th>
@@ -218,7 +218,7 @@ $featuresList = ['Gestion biens, contrats & locataires'=>'starter',"Gestion d'im
                                 {{ $paiement->periode_debut->format('d/m/Y') }} → {{ $paiement->periode_fin->format('d/m/Y') }}
                             @else — @endif
                         </td>
-                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-white">{{ number_format($paiement->montant,0,',','') }} F</td>
+                        <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-white">{{ number_format($paiement->montant,0,',','') }} FCFA</td>
                         <td class="px-5 py-3.5 text-center">
                             @php $sc = ['payé'=>'bg-bimo-navy/30 text-white/70','en_attente'=>'bg-bimo-gold/15 text-bimo-gold','échoué'=>'bg-bimo-red/15 text-bimo-red']; @endphp
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium {{ $sc[$paiement->statut] ?? $sc['en_attente'] }}">

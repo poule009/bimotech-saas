@@ -50,7 +50,7 @@
                 <div class="font-body text-[11px] {{ $actif ? 'font-semibold' : 'font-medium' }}"
                      style="color:{{ $actif ? 'var(--ac)' : '#6b7280' }}">{{ $info['label'] }}</div>
                 @if($info['brs'])
-                <div class="text-[9px] text-bimo-red mt-0.5 font-semibold">BRS 5%</div>
+                <div class="text-[9.5px] text-bimo-red mt-0.5 font-semibold">BRS 5%</div>
                 @endif
             </div>
         </label>

@@ -14,7 +14,7 @@ $icons = [
 ];
 
 $path = $icons[$name] ?? $icons['grid'];
-$color = $active ? '#c9a84c' : '#8b949e';
+$color = $active ? 'var(--ac)' : '#8b949e';
 @endphp
 
 <svg

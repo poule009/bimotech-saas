@@ -99,15 +99,15 @@
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
                     <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1.5">Revenus annuels</p>
-                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['revenus'], 0, ',', ' ') }} F</p>
+                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['revenus'], 0, ',', ' ') }} FCFA</p>
                 </div>
                 <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
                     <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1.5">Base imposable (70%)</p>
-                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['base_imposable'], 0, ',', ' ') }} F</p>
+                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['base_imposable'], 0, ',', ' ') }} FCFA</p>
                 </div>
                 <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
                     <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1.5">IRPP estimé</p>
-                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['irpp'], 0, ',', ' ') }} F</p>
+                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['irpp'], 0, ',', ' ') }} FCFA</p>
                 </div>
                 <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
                     <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1.5">CGF {{ $resultat['cgf']['applicable'] ? '' : '(> 30M)' }}</p>
@@ -115,7 +115,7 @@
                 </div>
                 <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
                     <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1.5">BRS à retenir</p>
-                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['brs_annuel'], 0, ',', ' ') }} F</p>
+                    <p class="font-display font-extrabold text-lg text-bimo-text">{{ number_format($resultat['brs_annuel'], 0, ',', ' ') }} FCFA</p>
                     <p class="font-body text-[10px] text-bimo-text/40 mt-1">5% × net proprio</p>
                 </div>
                 <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
@@ -143,15 +143,15 @@
                             @foreach($resultat['irpp_detail'] as $tranche)
                             @if($tranche['assiette'] > 0)
                             <tr>
-                                <td class="px-4 py-2 font-body text-xs text-bimo-text/60">{{ number_format($tranche['min'], 0, ',', ' ') }} → {{ $tranche['max'] ? number_format($tranche['max'], 0, ',', ' ') : '∞' }} F</td>
+                                <td class="px-4 py-2 font-body text-xs text-bimo-text/60">{{ number_format($tranche['min'], 0, ',', ' ') }} → {{ $tranche['max'] ? number_format($tranche['max'], 0, ',', ' ') : '∞' }} FCFA</td>
                                 <td class="px-4 py-2 text-center font-body font-medium text-xs text-bimo-text">{{ $tranche['taux'] }}%</td>
-                                <td class="px-4 py-2 text-right font-display font-semibold text-xs text-bimo-text">{{ number_format($tranche['impot'], 0, ',', ' ') }} F</td>
+                                <td class="px-4 py-2 text-right font-display font-semibold text-xs text-bimo-text">{{ number_format($tranche['impot'], 0, ',', ' ') }} FCFA</td>
                             </tr>
                             @endif
                             @endforeach
                             <tr class="bg-bimo-navy/[3%]">
                                 <td colspan="2" class="px-4 py-2 font-display font-bold text-sm text-bimo-text">Total IRPP</td>
-                                <td class="px-4 py-2 text-right font-display font-extrabold text-sm text-bimo-text">{{ number_format($resultat['irpp'], 0, ',', ' ') }} F</td>
+                                <td class="px-4 py-2 text-right font-display font-extrabold text-sm text-bimo-text">{{ number_format($resultat['irpp'], 0, ',', ' ') }} FCFA</td>
                             </tr>
                         </tbody>
                     </table>

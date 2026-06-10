@@ -402,7 +402,7 @@
             </div>
             <div class="px-5 py-4 space-y-0">
 
-                <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 mb-2">Loyer</div>
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-2">Loyer</div>
                 @foreach([
                     ['rp-loyer-nu',    'Loyer nu',        'text-white'],
                     ['rp-charges',     '+ Charges HT',    'text-white'],
@@ -411,22 +411,22 @@
                 ] as [$id, $lbl, $cls])
                 <div class="flex items-center justify-between py-2 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                    <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— F</span>
+                    <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— FCFA</span>
                 </div>
                 @endforeach
 
                 {{-- TVA loyer (conditionnel) --}}
                 <div id="row-tva-loyer" style="display:none" class="flex items-center justify-between py-2 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/40">+ TVA loyer 18% <span class="opacity-60">(Art.354)</span></span>
-                    <span class="font-display font-semibold text-xs text-amber-400" id="rp-tva-loyer">— F</span>
+                    <span class="font-display font-semibold text-xs text-amber-400" id="rp-tva-loyer">— FCFA</span>
                 </div>
                 <div id="row-tva-charges" style="display:none" class="flex items-center justify-between py-2 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/40">+ TVA charges 18%</span>
-                    <span class="font-display font-semibold text-xs text-amber-400" id="rp-tva-charges">— F</span>
+                    <span class="font-display font-semibold text-xs text-amber-400" id="rp-tva-charges">— FCFA</span>
                 </div>
 
                 <div class="my-3 border-t border-white/[7%]"></div>
-                <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 mb-2">Commission</div>
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-2">Commission</div>
                 @foreach([
                     ['rp-comm-ht',  'Commission HT',    'text-bimo-gold'],
                     ['rp-tva-comm', 'TVA 18% (Art.357)', 'text-white'],
@@ -434,28 +434,28 @@
                 ] as [$id, $lbl, $cls])
                 <div class="flex items-center justify-between py-2 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                    <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— F</span>
+                    <span class="font-display font-semibold text-xs {{ $cls }}" id="{{ $id }}">— FCFA</span>
                 </div>
                 @endforeach
 
                 {{-- BRS (conditionnel) --}}
                 <div id="row-brs" style="display:none" class="flex items-center justify-between py-2 border-b border-white/[6%]">
                     <span class="font-body text-xs text-white/40">− BRS 5% <span class="opacity-60">(Art. 201)</span></span>
-                    <span class="font-display font-semibold text-xs text-bimo-red" id="rp-brs">— F</span>
+                    <span class="font-display font-semibold text-xs text-bimo-red" id="rp-brs">— FCFA</span>
                 </div>
 
                 {{-- Net total --}}
                 <div class="mt-3 p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net à verser propriétaire</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net à verser propriétaire</div>
                     <div class="font-display font-extrabold text-xl text-bimo-gold" id="rp-net">— FCFA</div>
                 </div>
 
                 {{-- Signature --}}
                 <div class="mt-4 pt-4 border-t border-white/[7%]">
-                    <div class="font-body font-medium text-[9px] uppercase tracking-widest text-white/25 mb-2">À la signature</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-2">À la signature</div>
                     <div class="flex items-center justify-between py-1.5">
                         <span class="font-body text-xs text-white/40">Caution</span>
-                        <span class="font-display font-semibold text-xs text-white" id="rp-caution">— F</span>
+                        <span class="font-display font-semibold text-xs text-white" id="rp-caution">— FCFA</span>
                     </div>
                     <div class="flex items-center justify-between py-1.5">
                         <span class="font-body text-xs text-white/40">Taux commission</span>
