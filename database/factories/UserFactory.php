@@ -35,6 +35,25 @@ class UserFactory extends Factory
     }
 
     /**
+     * Un utilisateur `admin` créé via la factory représente le directeur d'agence,
+     * qui est `is_owner = true` en production (cf. AgencyRegistrationController,
+     * GoogleAuthController, SuperAdminController). Sans ça, l'admin de test serait
+     * traité comme un collaborateur sans permission et toute route `agency.can:`
+     * lui renverrait un 403.
+     *
+     * Contournable explicitement : passer `is_owner => false` pour simuler un
+     * collaborateur.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking(function (\App\Models\User $user) {
+            if ($user->role === 'admin' && $user->is_owner === null) {
+                $user->is_owner = true;
+            }
+        });
+    }
+
+    /**
      * Indicate that the model's email address should be unverified.
      */
     public function unverified(): static
