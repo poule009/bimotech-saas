@@ -114,7 +114,10 @@ class PaymentServiceTest extends TestCase
         Config::set('services.paytech.mode', 'simulation');
         $service = new PaymentService();
 
-        foreach (array_keys(Subscription::TARIFS) as $plan) {
+        // $plan = cycle de facturation (mensuel/annuel) ; le tier passe en 3e arg.
+        // Subscription::TARIFS est désormais nesté par tier, donc on itère les cycles
+        // via DUREES_MOIS (source de vérité des cycles valides).
+        foreach (array_keys(Subscription::DUREES_MOIS) as $plan) {
             $agency = $this->agenceAvecAbonnementEssai();
             $result = $service->initierPaiement($agency, $plan);
             $this->assertTrue($result['success'], "Le plan '{$plan}' devrait être accepté");

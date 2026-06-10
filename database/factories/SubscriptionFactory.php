@@ -14,6 +14,12 @@ class SubscriptionFactory extends Factory
             'statut'              => 'essai',
             'date_debut_essai'    => now(),
             'date_fin_essai'      => now()->addDays(30),
+            // Tier par défaut = 'agence' (accès complet) : la majorité des tests
+            // exercent une feature et veulent y accéder. La colonne plan_niveau a été
+            // introduite le 20/05/2026 ; les fixtures antérieures ne la fixaient pas,
+            // d'où un fallback 'legacy'→pro qui bloquait les features tier 'agence'
+            // (fiscalité, bilans, logs). Les tests de gating peuvent l'override.
+            'plan_niveau'         => 'agence',
             'plan'                => null,
             'montant_paye'        => null,
             'date_debut_abonnement' => null,

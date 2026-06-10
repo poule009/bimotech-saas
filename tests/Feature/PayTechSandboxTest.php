@@ -82,7 +82,7 @@ class PayTechSandboxTest extends TestCase
         config(['services.paytech.mode' => 'simulation']);
 
         $this->actingAs($this->admin)
-            ->post(route('subscription.initier'), ['plan' => 'mensuel'])
+            ->post(route('subscription.initier'), ['plan' => 'mensuel', 'plan_niveau' => 'pro'])
             ->assertRedirect(route('admin.dashboard'))
             ->assertSessionHas('success');
 
@@ -105,7 +105,8 @@ class PayTechSandboxTest extends TestCase
         Http::preventStrayRequests();
         config(['services.paytech.mode' => 'simulation']);
 
-        foreach (['mensuel', 'trimestriel', 'semestriel', 'annuel'] as $plan) {
+        // Cycles de facturation valides actuels (cf. Subscription::DUREES_MOIS).
+        foreach (['mensuel', 'annuel'] as $plan) {
             $this->subscription->update([
                 'statut'              => 'essai',
                 'plan'                => null,
@@ -113,7 +114,7 @@ class PayTechSandboxTest extends TestCase
             ]);
 
             $this->actingAs($this->admin)
-                ->post(route('subscription.initier'), ['plan' => $plan])
+                ->post(route('subscription.initier'), ['plan' => $plan, 'plan_niveau' => 'pro'])
                 ->assertRedirect(route('admin.dashboard'));
 
             $this->assertDatabaseHas('subscriptions', [
@@ -142,7 +143,7 @@ class PayTechSandboxTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->admin)
-            ->post(route('subscription.initier'), ['plan' => 'mensuel']);
+            ->post(route('subscription.initier'), ['plan' => 'mensuel', 'plan_niveau' => 'pro']);
 
         $response->assertRedirect('https://paytech.sn/payment/checkout/FAKE-TOKEN-123');
 
@@ -166,7 +167,7 @@ class PayTechSandboxTest extends TestCase
         ]);
 
         $this->actingAs($this->admin)
-            ->post(route('subscription.initier'), ['plan' => 'mensuel'])
+            ->post(route('subscription.initier'), ['plan' => 'mensuel', 'plan_niveau' => 'pro'])
             ->assertRedirect()
             ->assertSessionHasErrors('general');
     }
@@ -181,7 +182,7 @@ class PayTechSandboxTest extends TestCase
         ]);
 
         $this->actingAs($this->admin)
-            ->post(route('subscription.initier'), ['plan' => 'mensuel'])
+            ->post(route('subscription.initier'), ['plan' => 'mensuel', 'plan_niveau' => 'pro'])
             ->assertRedirect()
             ->assertSessionHasErrors('general');
     }

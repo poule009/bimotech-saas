@@ -56,7 +56,7 @@ class SubscriptionPaymentTest extends TestCase
     public function admin_peut_initier_un_paiement_mensuel(): void
     {
         $this->actingAs($this->admin)
-             ->post(route('subscription.initier'), ['plan' => 'mensuel'])
+             ->post(route('subscription.initier'), ['plan' => 'mensuel', 'plan_niveau' => 'pro'])
              ->assertRedirect(route('admin.dashboard'));
 
         $this->assertDatabaseHas('subscriptions', [
@@ -70,7 +70,7 @@ class SubscriptionPaymentTest extends TestCase
     public function admin_peut_initier_un_paiement_annuel(): void
     {
         $this->actingAs($this->admin)
-             ->post(route('subscription.initier'), ['plan' => 'annuel'])
+             ->post(route('subscription.initier'), ['plan' => 'annuel', 'plan_niveau' => 'pro'])
              ->assertRedirect(route('admin.dashboard'));
 
         $this->assertDatabaseHas('subscriptions', [
@@ -84,7 +84,7 @@ class SubscriptionPaymentTest extends TestCase
     public function abonnement_actif_apres_paiement_simulation(): void
     {
         $this->actingAs($this->admin)
-             ->post(route('subscription.initier'), ['plan' => 'mensuel']);
+             ->post(route('subscription.initier'), ['plan' => 'mensuel', 'plan_niveau' => 'pro']);
 
         $subscription = $this->agency->fresh()->subscription;
 
