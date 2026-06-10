@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,26 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        // Garde-fou : un superadmin (compte unique critique) ne peut pas s'auto-supprimer.
+        if ($user->isSuperAdmin()) {
+            return Redirect::route('profile.edit')
+                ->with('error', 'Le compte superadmin ne peut pas être supprimé.');
+        }
+
+        // Garde-fou : le dernier directeur (is_owner) d'une agence ne peut pas s'auto-supprimer
+        // sous peine de laisser l'agence orpheline (plus aucun responsable).
+        if ($user->isOwner()) {
+            $autresOwners = User::where('agency_id', $user->agency_id)
+                ->where('is_owner', true)
+                ->where('id', '!=', $user->id)
+                ->exists();
+
+            if (! $autresOwners) {
+                return Redirect::route('profile.edit')
+                    ->with('error', 'Vous êtes le dernier directeur de l\'agence : transférez d\'abord la direction à un collaborateur avant de supprimer votre compte.');
+            }
+        }
 
         Auth::logout();
 

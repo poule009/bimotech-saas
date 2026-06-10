@@ -108,4 +108,35 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    // ── Garde-fou auto-suppression (audit I3) ──────────────────────────────
+
+    public function test_last_owner_cannot_delete_their_account(): void
+    {
+        $owner = User::factory()->create(['role' => 'admin']); // is_owner=true via factory
+
+        $this->actingAs($owner)
+            ->from('/profile')
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/profile')
+            ->assertSessionHas('error');
+
+        // Toujours connecté, compte intact.
+        $this->assertAuthenticated();
+        $this->assertNull($owner->fresh()->deleted_at);
+    }
+
+    public function test_owner_can_delete_when_another_owner_exists(): void
+    {
+        $owner  = User::factory()->create(['role' => 'admin']);
+        // Un second directeur dans la même agence.
+        User::factory()->create(['role' => 'admin', 'agency_id' => $owner->agency_id]);
+
+        $this->actingAs($owner)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/');
+
+        $this->assertGuest();
+        $this->assertNotNull($owner->fresh()->deleted_at);
+    }
 }
