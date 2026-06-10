@@ -3,11 +3,9 @@
 namespace App\Services;
 
 use App\Models\ChargeAgence;
-use App\Models\DepenseGestion;
 use App\Models\Paiement;
 use App\Models\ReversementProprietaire;
 use App\Models\TvaDeclaration;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class ComptabiliteService
@@ -146,9 +144,16 @@ class ComptabiliteService
             ->where('proprietaire_id', $proprietaireId);
 
         if ($periode) {
+            // Inclure les reversements dont la période couvre le mois filtré,
+            // ET les reversements sans période (ils apurent le solde global).
             $reversementsQuery->where(function ($q) use ($periode) {
-                $q->where('periode_debut', '<=', $periode)
-                  ->where('periode_fin', '>=', $periode);
+                $q->where(function ($q2) use ($periode) {
+                    $q2->where('periode_debut', '<=', $periode)
+                       ->where('periode_fin', '>=', $periode);
+                })->orWhere(function ($q2) {
+                    $q2->whereNull('periode_debut')
+                       ->whereNull('periode_fin');
+                });
             });
         }
 
@@ -218,7 +223,7 @@ class ComptabiliteService
         $rows = DB::select("
             SELECT
                 b.proprietaire_id,
-                COALESCE(SUM(p.net_a_verser_proprietaire), 0)
+                COALESCE(SUM(p.montant_net_bailleur), 0)
                     - COALESCE(MAX(dep.total_depenses), 0)   AS net_du,
                 COALESCE(MAX(rev.total_reverse), 0)           AS reverse_effectue
             FROM paiements p

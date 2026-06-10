@@ -34,8 +34,15 @@ class StoreReversementRequest extends FormRequest
             'date_reversement' => ['required', 'date'],
             'mode_paiement'    => ['required', 'in:' . implode(',', array_keys(ReversementProprietaire::MODES_PAIEMENT))],
             'reference'        => ['nullable', 'string', 'max:255'],
-            'periode_debut'    => ['nullable', 'string', 'regex:/^\d{4}-\d{2}$/'],
-            'periode_fin'      => ['nullable', 'string', 'regex:/^\d{4}-\d{2}$/'],
+            'periode_debut'    => ['nullable', 'string', 'regex:/^\d{4}-\d{2}$/', 'required_with:periode_fin'],
+            'periode_fin'      => [
+                'nullable', 'string', 'regex:/^\d{4}-\d{2}$/', 'required_with:periode_debut',
+                function ($attr, $value, $fail) {
+                    if ($value && $this->input('periode_debut') && $value < $this->input('periode_debut')) {
+                        $fail('La période de fin doit être postérieure ou égale à la période de début.');
+                    }
+                },
+            ],
             'notes'            => ['nullable', 'string', 'max:1000'],
         ];
     }

@@ -121,8 +121,13 @@ class ReversementController extends Controller implements HasMiddleware
             ->where('agency_id', $agencyId)
             ->when($periode, function ($q) use ($periode) {
                 $q->where(function ($q2) use ($periode) {
-                    $q2->where('periode_debut', '<=', $periode)
-                       ->where('periode_fin', '>=', $periode);
+                    $q2->where(function ($q3) use ($periode) {
+                        $q3->where('periode_debut', '<=', $periode)
+                           ->where('periode_fin', '>=', $periode);
+                    })->orWhere(function ($q3) {
+                        $q3->whereNull('periode_debut')
+                           ->whereNull('periode_fin');
+                    });
                 });
             })
             ->orderByDesc('date_reversement')
