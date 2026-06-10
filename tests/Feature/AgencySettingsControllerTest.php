@@ -205,9 +205,11 @@ class AgencySettingsControllerTest extends TestCase
         // Aucun logo configuré
         $this->assertNull($this->agency->logo_path);
 
+        // deleteLogo retourne un redirect propre sans flash quand il n'y a rien à
+        // supprimer (cf. AgencySettingsController::deleteLogo) — l'essentiel est que
+        // ça ne plante pas (pas de 500).
         $this->actingAs($this->admin)
             ->delete(route('admin.agency.logo.delete'))
-            ->assertRedirect(route('admin.agency.settings'))
-            ->assertSessionHas('success');
+            ->assertRedirect(route('admin.agency.settings'));
     }
 }

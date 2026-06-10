@@ -186,9 +186,11 @@ class QuittancePdfTest extends TestCase
 
         $paiement = $this->creerPaiementValide();
 
+        // PaiementPolicy renvoie 404 (denyAsNotFound) pour une ressource d'autrui :
+        // ne pas révéler son existence (cf. CLAUDE.md multi-tenant).
         $this->actingAs($autreLocataire)
             ->get(route('locataire.paiements.pdf', $paiement))
-            ->assertForbidden();
+            ->assertNotFound();
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -220,9 +222,10 @@ class QuittancePdfTest extends TestCase
 
         $paiement = $this->creerPaiementValide();
 
+        // Idem : 404 (denyAsNotFound) plutôt que 403 pour la ressource d'un autre bailleur.
         $this->actingAs($autrePropio)
             ->get(route('proprietaire.paiements.pdf', $paiement))
-            ->assertForbidden();
+            ->assertNotFound();
     }
 
     // ════════════════════════════════════════════════════════════════════════

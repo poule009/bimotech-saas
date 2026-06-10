@@ -56,9 +56,10 @@ class BailleurControllerTest extends TestCase
     {
         $admin = $this->adminAvecAgence();
 
+        // bailleurs.index redirige vers la page fusionnée Propriétaires (cf. BailleurController::index).
         $this->actingAs($admin)
              ->get(route('admin.bailleurs.index'))
-             ->assertOk();
+             ->assertRedirect(route('admin.users.proprietaires'));
     }
 
     #[Test]
