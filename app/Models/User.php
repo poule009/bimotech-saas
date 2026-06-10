@@ -126,7 +126,10 @@ class User extends Authenticatable
     {
         if ($this->isSuperAdmin() || $this->isOwner()) return true;
         if ($this->role !== UserRole::Admin->value) return false;
-        return $this->hasPermissionTo($permission);
+        // checkPermissionTo() = alias fail-closed de hasPermissionTo() : renvoie false
+        // (au lieu de lever PermissionDoesNotExist → 500) si la permission n'est pas
+        // enregistrée. Garantit un 403 propre même si le seeder n'a pas été rejoué.
+        return $this->checkPermissionTo($permission);
     }
 
     // ── Helpers rôles ─────────────────────────────────────────────────────
