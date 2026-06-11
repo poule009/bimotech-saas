@@ -742,9 +742,9 @@ Chart.defaults.font.family = "'Poppins', sans-serif";
 Chart.defaults.color = 'rgba(17,17,17,0.4)';
 
 const GOLD   = '#6B7280';
-const NAVY   = '#C81224';
-const RED    = '#C81224';
-const BRAND_RED = '#C81224'; // rouge vif du graphique encaissements (ajustable)
+const NAVY   = '#A60F1C';
+const RED    = '#A60F1C';
+const BRAND_RED = '#A60F1C'; // rouge vif du graphique encaissements (ajustable)
 
 const loyersData = @json($loyersParMois->pluck('total'));
 const moisLabels = @json($loyersParMois->pluck('mois'));

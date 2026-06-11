@@ -218,7 +218,7 @@
                                           @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                           @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                             <div class="h-1 rounded-full bg-bimo-navy/10 mt-2 overflow-hidden">
-                                <div id="pwd-bar" class="h-full rounded-full transition-all duration-300" style="width:0%;background:#C81224"></div>
+                                <div id="pwd-bar" class="h-full rounded-full transition-all duration-300" style="width:0%;background:#A60F1C"></div>
                             </div>
                             <p id="pwd-hint" class="font-body text-[11px] text-bimo-text/40">Entrez un mot de passe</p>
                             @error('password')<p class="font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
@@ -548,7 +548,7 @@ function checkPwd(v) {
     if (/[0-9]/.test(v)) score++;
     if (/[^A-Za-z0-9]/.test(v)) score++;
     const levels = [
-        { pct:'25%', color:'#C81224', label:'Trop faible' },
+        { pct:'25%', color:'#A60F1C', label:'Trop faible' },
         { pct:'50%', color:'#f59e0b', label:'Faible' },
         { pct:'75%', color:'#3b82f6', label:'Correct' },
         { pct:'100%',color:'var(--ac)', label:'Fort ✓' },
@@ -568,7 +568,7 @@ function checkConfirm() {
     const hint = document.getElementById('pwd2-hint');
     if (!pwd2) { hint.style.color='transparent'; return; }
     if (pwd === pwd2) { hint.textContent='✓ Correspondent'; hint.style.color='var(--ac)'; }
-    else { hint.textContent='✗ Ne correspondent pas'; hint.style.color='#C81224'; }
+    else { hint.textContent='✗ Ne correspondent pas'; hint.style.color='#A60F1C'; }
 }
 
 function onTypeChange(type, isBrs) {

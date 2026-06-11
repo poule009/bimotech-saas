@@ -287,7 +287,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
                 @php
                     $circumference = 2 * M_PI * 32;
                     $dash = ($tauxOccupation / 100) * $circumference;
-                    $ringColor = $tauxOccupation >= 80 ? 'var(--ac)' : ($tauxOccupation >= 50 ? 'var(--ac)' : '#C81224');
+                    $ringColor = $tauxOccupation >= 80 ? 'var(--ac)' : ($tauxOccupation >= 50 ? 'var(--ac)' : '#A60F1C');
                 @endphp
                 <div class="flex flex-col items-center py-5 gap-2">
                     <div class="relative" style="width:80px;height:80px">

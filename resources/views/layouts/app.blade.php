@@ -9,7 +9,7 @@
 
     {{-- PWA --}}
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#C81224">
+    <meta name="theme-color" content="#A60F1C">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -68,7 +68,7 @@
        class="fixed left-0 top-0 h-full w-64 bg-bimo-navy flex flex-col z-40
               -translate-x-full transition-transform duration-[250ms] ease-out
               lg:translate-x-0 bg-cover bg-center"
-       style="background-image: linear-gradient(180deg, #C81224 0%, #C81224 30%, rgba(200,18,36,0.92) 55%, rgba(200,18,36,0.80) 78%, rgba(200,18,36,0.62) 100%), url('/images/sidebar-monument.jpg');">
+       style="background-image: linear-gradient(180deg, #A60F1C 0%, #A60F1C 30%, rgba(166,15,28,0.92) 55%, rgba(166,15,28,0.80) 78%, rgba(166,15,28,0.62) 100%), url('/images/sidebar-monument.jpg');">
 
     {{-- Logo + bouton fermer mobile --}}
     <div class="flex items-center gap-3 h-16 px-5 border-b border-white/10 flex-shrink-0">
@@ -921,9 +921,9 @@
         titleEl.textContent       = title   || 'Confirmer l\'action';
         msgEl.textContent         = msg     || 'Cette action est irréversible.';
         okBtn.textContent         = okLabel || 'Confirmer';
-        okBtn.style.background    = okColor || '#C81224';
+        okBtn.style.background    = okColor || '#A60F1C';
         iconWrap.style.background = iconBg  || 'rgba(239,68,68,0.1)';
-        iconWrap.querySelector('svg').style.color = okColor || '#C81224';
+        iconWrap.querySelector('svg').style.color = okColor || '#A60F1C';
         overlay.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         okBtn.focus();

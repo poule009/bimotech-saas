@@ -7,7 +7,7 @@
       data-confirm="Confirmez votre mot de passe pour supprimer définitivement votre compte. Cette action est irréversible."
       data-confirm-title="Supprimer votre compte ?"
       data-confirm-ok="Supprimer mon compte"
-      data-confirm-color="#C81224"
+      data-confirm-color="#A60F1C"
       data-confirm-icon-bg="rgba(239,68,68,0.1)">
     @csrf @method('delete')
 
