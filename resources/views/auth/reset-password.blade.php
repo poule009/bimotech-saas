@@ -113,7 +113,7 @@ function checkStrength(val) {
     if (/[A-Z]/.test(val)) score++;
     if (/[0-9]/.test(val)) score++;
     if (/[^A-Za-z0-9]/.test(val)) score++;
-    var levels = [{w:'25%',bg:'#E11428',txt:'Trop court'},{w:'50%',bg:'#f97316',txt:'Faible'},{w:'75%',bg:'#C9A84C',txt:'Moyen'},{w:'100%',bg:'#1B4F6B',txt:'Fort'}];
+    var levels = [{w:'25%',bg:'#C81224',txt:'Trop court'},{w:'50%',bg:'#f97316',txt:'Faible'},{w:'75%',bg:'#C9A84C',txt:'Moyen'},{w:'100%',bg:'#1B4F6B',txt:'Fort'}];
     var lvl = levels[Math.max(0, score-1)];
     fill.style.width = lvl.w; fill.style.background = lvl.bg;
     label.textContent = lvl.txt; label.style.color = lvl.bg;
