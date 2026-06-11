@@ -53,4 +53,11 @@ return [
         'api_secret' => env('PAYTECH_API_SECRET', ''),
     ],
 
+    // ── Contact commercial BimoTech (pages publiques) ─────────────────────
+    // Numéro WhatsApp au format international sans '+' (ex: 221770000000).
+    // ⚠️ Renseigner BIMOTECH_WHATSAPP en prod — défaut = placeholder.
+    'bimotech' => [
+        'whatsapp' => env('BIMOTECH_WHATSAPP', '221XXXXXXXXX'),
+    ],
+
 ];

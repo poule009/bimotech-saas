@@ -124,6 +124,39 @@
 
     </div>
 
+    {{-- Sur mesure — composez votre offre (bande dédiée, hors grille self-service) --}}
+    @php
+        $waMesure = preg_replace('/[^0-9]/', '', config('services.bimotech.whatsapp', '221XXXXXXXXX'));
+        $waMsgMesure = rawurlencode("Bonjour BimoTech, je gère une agence et je souhaite un plan sur mesure (activer certains modules sans changer de plan). Pouvez-vous me rappeler ?");
+    @endphp
+    <div class="bg-bimo-navy rounded-[16px] px-6 py-7 md:px-9 md:py-8 mb-14 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-56 h-56 rounded-full opacity-[0.07]"
+             style="background: radial-gradient(circle, var(--ac, #C9A84C) 0%, transparent 70%); transform: translate(30%, -35%)"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+            <div class="flex-1">
+                <div class="font-body font-bold text-[11px] uppercase tracking-[1.5px] text-bimo-gold mb-2">Sur mesure</div>
+                <h3 class="font-display font-extrabold text-xl md:text-2xl text-white tracking-tight leading-tight mb-2">
+                    Un module précis sans changer de plan ?
+                </h3>
+                <p class="font-body text-sm text-white/55 leading-relaxed max-w-xl">
+                    Restez sur votre plan et activez seulement les modules dont vous avez besoin
+                    (fiscalité, comptabilité, trésorerie, immeubles…). Tarif adapté à votre usage, sans engagement de palier.
+                </p>
+            </div>
+            <div class="flex flex-col gap-2 flex-shrink-0 w-full md:w-auto">
+                <a href="https://wa.me/{{ $waMesure }}?text={{ $waMsgMesure }}" target="_blank" rel="noopener"
+                   class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[10px] bg-[#25D366] text-white font-display font-bold text-sm no-underline hover:opacity-90 transition-opacity duration-150 min-h-[48px]">
+                    <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.532 5.847L.057 23.492a.5.5 0 00.614.65l5.82-1.527A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.944 9.944 0 01-5.091-1.396l-.361-.216-3.754.984.999-3.648-.237-.374A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                    Discuter sur WhatsApp
+                </a>
+                <a href="{{ route('contact') }}"
+                   class="font-body text-xs text-center text-white/45 hover:text-white transition-colors duration-150">
+                    ou nous écrire par email →
+                </a>
+            </div>
+        </div>
+    </div>
+
     {{-- Méthodes de paiement --}}
     <div class="text-center mb-14">
         <p class="font-body font-medium text-sm text-bimo-text/40 mb-4">Paiement sécurisé via PayTech — accepté en</p>
