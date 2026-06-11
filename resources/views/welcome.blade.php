@@ -207,32 +207,27 @@
     </div>
 </section>
 
-{{-- ─── TÉMOIGNAGES ─── --}}
+{{-- ─── BÉNÉFICES ─── --}}
 <div class="px-[5%] py-24 bg-bimo-bg2 border-t border-b border-bimo-navy/10">
     <div class="max-w-[1040px] mx-auto">
         <div class="mb-14">
             <div class="inline-flex items-center gap-1.5 font-body font-semibold text-[11px] text-marketing-gold uppercase tracking-[2px] mb-4">
-                <span class="w-4 h-px bg-marketing-gold inline-block"></span>Témoignages
+                <span class="w-4 h-px bg-marketing-gold inline-block"></span>Au quotidien
             </div>
-            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-text">Ce que disent les agences<br>qui utilisent <em class="not-italic text-marketing-gold">BimoTech</em></h2>
+            <h2 class="font-display font-extrabold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.08] text-bimo-text">Ce que BimoTech change<br>pour votre <em class="not-italic text-marketing-gold">agence</em></h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             @foreach([
-                ['AD','Aminata Dieng','Directrice — Agence Fann Immo, Dakar','Avant BimoTech, je passais mes lundis à relancer les locataires par téléphone. Maintenant les quittances partent automatiquement et mes propriétaires consultent leurs revenus eux-mêmes. Je récupère deux heures par semaine.'],
-                ['MF','Moustapha Fall','Gérant — Cabinet Thioro Patrimoine, Thiès','La conformité TVA et TOM est ce qui m\'a convaincu. Mon comptable a validé les calculs du premier coup. Je n\'avais rien à paramétrer, tout était déjà dans la loi sénégalaise. Aucun autre logiciel ne fait ça.'],
-                ['SC','Sokhna Cissé','Associée — Immo Almadies, Dakar','On gère 34 appartements à Almadies avec 2 personnes. BimoTech nous a permis de doubler notre portefeuille sans embaucher. Le tableau de bord suffit pour voir en 30 secondes ce qui est payé et ce qui ne l\'est pas.'],
-            ] as [$initials,$name,$role,$text])
+                ['<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>','Reprenez vos lundis','Quittances et relances envoyées automatiquement. Vos propriétaires consultent leurs revenus en autonomie — moins d\'appels, plus de temps pour développer votre activité.'],
+                ['<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>','Une conformité que votre comptable valide','TVA 18%, TOM, BRS et plafonds de la loi 81-18 calculés selon le droit sénégalais. Rien à paramétrer : tout est déjà dans la loi, sur chaque quittance.'],
+                ['<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>','Gérez plus, sans embaucher','Le tableau de bord montre en 30 secondes ce qui est payé et ce qui ne l\'est pas. Suivez un portefeuille qui grandit sans alourdir votre équipe.'],
+            ] as [$icon,$title,$desc])
             <div class="bg-white border border-bimo-navy/10 rounded-[14px] p-7 hover:border-bimo-navy/20 hover:-translate-y-1 hover:shadow-md transition-all duration-200">
-                <div class="font-[Georgia,serif] text-[32px] text-marketing-gold opacity-40 leading-none mb-4">"</div>
-                <p class="font-body text-sm text-bimo-text/60 leading-[1.75] mb-6 italic">{{ $text }}</p>
-                <div class="flex items-center gap-2.5">
-                    <div class="w-[38px] h-[38px] rounded-full bg-marketing-gold flex items-center justify-center font-display font-bold text-sm text-white flex-shrink-0">{{ $initials }}</div>
-                    <div>
-                        <div class="font-display font-bold text-sm text-bimo-text">{{ $name }}</div>
-                        <div class="font-body text-xs text-bimo-text/40">{{ $role }}</div>
-                    </div>
+                <div class="w-11 h-11 bg-marketing-gold/10 border border-bimo-navy/10 rounded-[12px] flex items-center justify-center mb-5">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="text-marketing-gold">{!! $icon !!}</svg>
                 </div>
-                <div class="text-marketing-gold text-xs mt-3">★★★★★</div>
+                <h3 class="font-display font-bold text-[15px] text-bimo-text mb-2">{{ $title }}</h3>
+                <p class="font-body text-sm text-bimo-text/50 leading-[1.7]">{{ $desc }}</p>
             </div>
             @endforeach
         </div>
@@ -409,7 +404,7 @@
 </footer>
 
 @php
-$schemaOrg = json_encode(['@context'=>'https://schema.org','@graph'=>[['@type'=>'SoftwareApplication','name'=>'BimoTech Immo','url'=>'https://immo.bimotechsn.com','description'=>'Logiciel de gestion immobilière pour agences au Sénégal. Conforme TVA 18%, BRS et CGI SN.','applicationCategory'=>'BusinessApplication','operatingSystem'=>'Web','offers'=>['@type'=>'Offer','price'=>'0','priceCurrency'=>'XOF'],'aggregateRating'=>['@type'=>'AggregateRating','ratingValue'=>'4.9','reviewCount'=>'12']],['@type'=>'Organization','name'=>'BimoTech','url'=>'https://immo.bimotechsn.com','address'=>['@type'=>'PostalAddress','addressLocality'=>'Dakar','addressCountry'=>'SN']]]], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+$schemaOrg = json_encode(['@context'=>'https://schema.org','@graph'=>[['@type'=>'SoftwareApplication','name'=>'BimoTech Immo','url'=>'https://immo.bimotechsn.com','description'=>'Logiciel de gestion immobilière pour agences au Sénégal. Conforme TVA 18%, BRS et CGI SN.','applicationCategory'=>'BusinessApplication','operatingSystem'=>'Web','offers'=>['@type'=>'Offer','price'=>'0','priceCurrency'=>'XOF']],['@type'=>'Organization','name'=>'BimoTech','url'=>'https://immo.bimotechsn.com','address'=>['@type'=>'PostalAddress','addressLocality'=>'Dakar','addressCountry'=>'SN']]]], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
 @endphp
 <script type="application/ld+json">{!! $schemaOrg !!}</script>
 
