@@ -16,7 +16,7 @@
 
 <div class="max-w-[720px] mx-auto px-[5%] pt-[120px] pb-24">
 
-    <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold mb-4">Légal</div>
+    <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-marketing-gold mb-4">Légal</div>
     <h1 class="font-display font-extrabold text-[clamp(26px,4vw,40px)] tracking-tight text-bimo-text mb-2">Mentions légales</h1>
     <p class="font-body text-sm text-bimo-text/40 mb-12">Dernière mise à jour : {{ date('d/m/Y') }}</p>
 
@@ -26,7 +26,7 @@
             ['Forme juridique', '[Forme juridique — ex : SARL, SAS]'],
             ['NINEA', '[Votre NINEA]'],
             ['Siège social', 'Dakar, Sénégal'],
-            ['Email', '<a href="mailto:contact@bimotech.sn" class="text-bimo-gold no-underline hover:underline">contact@bimotech.sn</a>'],
+            ['Email', '<a href="mailto:contact@bimotech.sn" class="text-marketing-gold no-underline hover:underline">contact@bimotech.sn</a>'],
             ['Directeur de la publication', '[Nom du responsable légal]'],
         ]],
         ['2. Hébergement', null, [
@@ -53,8 +53,8 @@
     <h2 class="font-display font-bold text-[17px] text-bimo-text mt-10 mb-3 pb-2 border-b border-bimo-navy/10">4. Données personnelles</h2>
     <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">Les données personnelles collectées via la plateforme (nom, email, informations d'agence) sont utilisées exclusivement dans le cadre de la fourniture du service BimoTech Immo.</p>
     <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">Conformément à la loi sénégalaise n°2008-12 du 25 janvier 2008 sur la protection des données à caractère personnel et au règlement de la Commission de Protection des Données Personnelles (CDP), vous disposez d'un droit d'accès, de rectification et de suppression de vos données.</p>
-    <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@bimotech.sn" class="text-bimo-gold no-underline hover:underline">contact@bimotech.sn</a></p>
-    <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">Pour en savoir plus, consultez notre <a href="{{ route('confidentialite') }}" class="text-bimo-gold no-underline hover:underline">politique de confidentialité</a>.</p>
+    <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@bimotech.sn" class="text-marketing-gold no-underline hover:underline">contact@bimotech.sn</a></p>
+    <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">Pour en savoir plus, consultez notre <a href="{{ route('confidentialite') }}" class="text-marketing-gold no-underline hover:underline">politique de confidentialité</a>.</p>
 
     <h2 class="font-display font-bold text-[17px] text-bimo-text mt-10 mb-3 pb-2 border-b border-bimo-navy/10">5. Cookies</h2>
     <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">La plateforme BimoTech utilise des cookies strictement nécessaires au fonctionnement du service (session, sécurité CSRF). Aucun cookie publicitaire ou de tracking tiers n'est utilisé.</p>
@@ -67,7 +67,7 @@
     <p class="font-body text-sm text-bimo-text/60 leading-[1.8] mb-3">Les présentes mentions légales sont soumises au droit sénégalais. Tout litige relatif à l'utilisation de la plateforme BimoTech relève de la compétence exclusive des tribunaux de Dakar, Sénégal.</p>
 
     <h2 class="font-display font-bold text-[17px] text-bimo-text mt-10 mb-3 pb-2 border-b border-bimo-navy/10">8. Contact</h2>
-    <p class="font-body text-sm text-bimo-text/60 leading-[1.8]">Pour toute question relative aux présentes mentions légales : <a href="mailto:contact@bimotech.sn" class="text-bimo-gold no-underline hover:underline">contact@bimotech.sn</a></p>
+    <p class="font-body text-sm text-bimo-text/60 leading-[1.8]">Pour toute question relative aux présentes mentions légales : <a href="mailto:contact@bimotech.sn" class="text-marketing-gold no-underline hover:underline">contact@bimotech.sn</a></p>
 
 </div>
 

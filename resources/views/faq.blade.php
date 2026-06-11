@@ -18,8 +18,8 @@
 
 {{-- Hero --}}
 <div class="pt-[120px] pb-16 px-[5%] text-center bg-bimo-bg">
-    <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold mb-4">FAQ</div>
-    <h1 class="font-display font-extrabold text-[clamp(28px,5vw,50px)] tracking-tight leading-tight text-bimo-text mb-4">Les réponses à vos <em class="not-italic text-bimo-gold">questions</em></h1>
+    <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-marketing-gold mb-4">FAQ</div>
+    <h1 class="font-display font-extrabold text-[clamp(28px,5vw,50px)] tracking-tight leading-tight text-bimo-text mb-4">Les réponses à vos <em class="not-italic text-marketing-gold">questions</em></h1>
     <p class="font-body font-light text-base text-bimo-text/50 max-w-[440px] mx-auto leading-relaxed">Tout ce que vous voulez savoir avant de démarrer avec BimoTech.</p>
 </div>
 
@@ -47,7 +47,7 @@
     @endphp
 
     @foreach($faqs as $categorie => $questions)
-    <div class="flex items-center gap-3 mt-12 mb-4 font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold">
+    <div class="flex items-center gap-3 mt-12 mb-4 font-body font-semibold text-[11px] uppercase tracking-[2px] text-marketing-gold">
         {{ $categorie }}
         <div class="flex-1 h-px bg-bimo-navy/10"></div>
     </div>
@@ -56,7 +56,7 @@
         <button class="w-full bg-transparent border-none px-5 py-4 flex items-center justify-between cursor-pointer text-left font-body font-medium text-sm text-bimo-text gap-3 hover:bg-bimo-bg transition-colors duration-150"
                 onclick="toggleFaq(this)">
             {{ $faq['q'] }}
-            <div class="faq-icon w-[22px] h-[22px] bg-bimo-gold rounded-[6px] flex items-center justify-center flex-shrink-0 transition-transform duration-250">
+            <div class="faq-icon w-[22px] h-[22px] bg-marketing-gold rounded-[6px] flex items-center justify-center flex-shrink-0 transition-transform duration-250">
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg>
             </div>
         </button>
@@ -72,7 +72,7 @@
         <h2 class="font-display font-extrabold text-xl text-white mb-3">Vous avez une autre question ?</h2>
         <p class="font-body text-sm text-white/50 mb-6 leading-relaxed">Notre équipe vous répond dans la journée, sur WhatsApp ou par email.</p>
         <div class="flex items-center justify-center gap-3 flex-wrap">
-            <a href="{{ route('demo') }}" class="font-body font-bold text-sm text-bimo-text no-underline px-6 py-3 rounded-[10px] bg-bimo-gold hover:opacity-90 transition-opacity duration-150">Réserver une démo →</a>
+            <a href="{{ route('demo') }}" class="font-body font-bold text-sm text-bimo-text no-underline px-6 py-3 rounded-[10px] bg-marketing-gold hover:opacity-90 transition-opacity duration-150">Réserver une démo →</a>
             <a href="{{ route('contact') }}" class="font-body font-medium text-sm text-white no-underline px-6 py-3 rounded-[10px] border border-white/15 hover:border-white/30 transition-all duration-150">Nous contacter</a>
         </div>
     </div>

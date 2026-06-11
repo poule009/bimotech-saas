@@ -21,6 +21,9 @@ export default {
                 'bimo-text':      '#111111',
                 'bimo-gold':      '#6B7280',
                 'bimo-red':       '#EF4444',
+                // Or chaud — identité des pages publiques (marketing) uniquement.
+                // L'app utilise bimo-gold (gris ardoise) ; le marketing garde l'or.
+                'marketing-gold': '#C9A84C',
             },
             fontFamily: {
                 'display': ['Poppins', ...defaultTheme.fontFamily.sans],

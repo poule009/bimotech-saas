@@ -19,7 +19,7 @@
             ['contact',         route('contact'),              'Contact'],
         ] as [$key, $href, $label])
         <a href="{{ $href }}" role="menuitem"
-           class="font-body text-sm no-underline transition-colors duration-150 whitespace-nowrap {{ $active === $key ? 'text-bimo-gold font-semibold' : 'text-bimo-text/50 hover:text-bimo-text' }}">
+           class="font-body text-sm no-underline transition-colors duration-150 whitespace-nowrap {{ $active === $key ? 'text-marketing-gold font-semibold' : 'text-bimo-text/50 hover:text-bimo-text' }}">
             {{ $label }}
         </a>
         @endforeach
@@ -27,7 +27,7 @@
 
     <div class="flex items-center gap-2 flex-shrink-0">
         <a href="{{ route('login') }}" class="hidden md:block font-body text-sm text-bimo-text/50 no-underline px-3.5 py-2 rounded-[8px] hover:text-bimo-text transition-colors duration-150 whitespace-nowrap">Connexion</a>
-        <a href="{{ route('agency.register') }}" class="hidden sm:inline-flex items-center font-body font-bold text-sm text-bimo-text no-underline px-4 py-2 rounded-[8px] bg-bimo-gold hover:opacity-90 transition-opacity duration-150 whitespace-nowrap">Démarrer gratuitement</a>
+        <a href="{{ route('agency.register') }}" class="hidden sm:inline-flex items-center font-body font-bold text-sm text-bimo-text no-underline px-4 py-2 rounded-[8px] bg-marketing-gold hover:opacity-90 transition-opacity duration-150 whitespace-nowrap">Démarrer gratuitement</a>
         <button id="hamburger" class="md:hidden flex flex-col gap-[5px] bg-transparent border-none cursor-pointer p-2 rounded-[8px] hover:bg-bimo-navy/[5%] transition-colors" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-drawer">
             <span id="ham-1" class="block w-5 h-[2px] bg-bimo-navy/40 rounded-[2px] transition-transform duration-250"></span>
             <span id="ham-2" class="block w-5 h-[2px] bg-bimo-navy/40 rounded-[2px] transition-opacity duration-250"></span>
@@ -46,12 +46,12 @@
         ['contact',         route('contact'),              'Contact'],
     ] as [$key, $href, $label])
     <a href="{{ $href }}" onclick="closeDrawer()"
-       class="block py-3.5 font-body text-base no-underline border-b border-bimo-navy/[5%] transition-colors duration-150 {{ $active === $key ? 'text-bimo-gold font-semibold' : 'text-bimo-text/60 hover:text-bimo-gold' }}">
+       class="block py-3.5 font-body text-base no-underline border-b border-bimo-navy/[5%] transition-colors duration-150 {{ $active === $key ? 'text-marketing-gold font-semibold' : 'text-bimo-text/60 hover:text-marketing-gold' }}">
         {{ $label }}
     </a>
     @endforeach
     <div class="mt-6 flex flex-col gap-2.5">
-        <a href="{{ route('agency.register') }}" class="block text-center font-body font-bold text-[15px] text-bimo-text no-underline py-3.5 px-4 rounded-[10px] bg-bimo-gold hover:opacity-90 transition-opacity duration-150">Créer mon agence gratuitement →</a>
+        <a href="{{ route('agency.register') }}" class="block text-center font-body font-bold text-[15px] text-bimo-text no-underline py-3.5 px-4 rounded-[10px] bg-marketing-gold hover:opacity-90 transition-opacity duration-150">Créer mon agence gratuitement →</a>
         <a href="{{ route('login') }}" class="block text-center font-body text-[15px] text-bimo-text/60 no-underline py-3.5 px-4 rounded-[10px] border border-bimo-navy/15 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">Se connecter</a>
     </div>
 </div>

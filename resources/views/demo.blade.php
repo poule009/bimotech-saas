@@ -18,9 +18,9 @@
 
 {{-- Hero --}}
 <div class="pt-[120px] pb-16 px-[5%] text-center">
-    <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-bimo-gold mb-4">Démo gratuite</div>
+    <div class="font-body font-semibold text-[11px] uppercase tracking-[2px] text-marketing-gold mb-4">Démo gratuite</div>
     <h1 class="font-display font-extrabold text-[clamp(28px,5vw,50px)] tracking-tight leading-tight mb-4">
-        Voyez BimoTech en action<br>pour votre <em class="not-italic text-bimo-gold">agence</em>
+        Voyez BimoTech en action<br>pour votre <em class="not-italic text-marketing-gold">agence</em>
     </h1>
     <p class="font-body font-light text-[15px] text-[#8b949e] max-w-[460px] mx-auto leading-relaxed">30 minutes de démonstration personnalisée. On configure ensemble votre espace avec vos vrais biens.</p>
 </div>
@@ -38,7 +38,7 @@
                 ['Zéro engagement','La démo est gratuite. Aucune carte bancaire, aucun engagement de souscription.','<polyline points="20,6 9,17 4,12"/>'],
             ] as [$title, $desc, $icon])
             <div class="flex gap-3.5 bg-[#161b22] border border-[rgba(255,255,255,.08)] rounded-[14px] p-6">
-                <div class="w-11 h-11 bg-bimo-gold rounded-[10px] flex items-center justify-center flex-shrink-0">
+                <div class="w-11 h-11 bg-marketing-gold rounded-[10px] flex items-center justify-center flex-shrink-0">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d1117" stroke-width="2">{!! $icon !!}</svg>
                 </div>
                 <div>
@@ -54,7 +54,7 @@
         <div class="bg-[#161b22] border border-[rgba(255,255,255,.1)] rounded-[14px] p-6">
             <p class="font-body font-light text-sm text-[#8b949e] leading-[1.8] italic mb-4">"Avant BimoTech, je gérais tout sur Excel. Maintenant mes quittances sont générées automatiquement et mes propriétaires voient leurs revenus en temps réel. La démo m'a convaincu en 20 minutes."</p>
             <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 bg-[rgba(201,168,76,.15)] rounded-full flex items-center justify-center font-body font-semibold text-[13px] text-bimo-gold">AD</div>
+                <div class="w-9 h-9 bg-[rgba(201,168,76,.15)] rounded-full flex items-center justify-center font-body font-semibold text-[13px] text-marketing-gold">AD</div>
                 <div>
                     <div class="font-body font-medium text-[13px] text-[#e6edf3]">Amadou D.</div>
                     <div class="font-body text-xs text-[#484f58]">Directeur, Agence Diallo Immobilier — Dakar</div>
@@ -86,13 +86,13 @@
                 <div>
                     <label class="block font-body font-medium text-xs text-[#8b949e] mb-1.5">Prénom *</label>
                     <input type="text" name="prenom" value="{{ old('prenom') }}" placeholder="Amadou"
-                           class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-bimo-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
+                           class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-marketing-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
                     @error('prenom')<p class="font-body text-xs text-[#f0a0a0] mt-1">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block font-body font-medium text-xs text-[#8b949e] mb-1.5">Nom *</label>
                     <input type="text" name="nom" value="{{ old('nom') }}" placeholder="Diallo"
-                           class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-bimo-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
+                           class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-marketing-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
                     @error('nom')<p class="font-body text-xs text-[#f0a0a0] mt-1">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -100,28 +100,28 @@
             <div>
                 <label class="block font-body font-medium text-xs text-[#8b949e] mb-1.5">Nom de votre agence *</label>
                 <input type="text" name="agence" value="{{ old('agence') }}" placeholder="Agence Immobilière Diallo"
-                       class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-bimo-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
+                       class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-marketing-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
                 @error('agence')<p class="font-body text-xs text-[#f0a0a0] mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label class="block font-body font-medium text-xs text-[#8b949e] mb-1.5">Téléphone (WhatsApp) *</label>
                 <input type="tel" name="telephone" value="{{ old('telephone') }}" placeholder="+221 77 000 00 00"
-                       class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-bimo-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
+                       class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-marketing-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
                 @error('telephone')<p class="font-body text-xs text-[#f0a0a0] mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label class="block font-body font-medium text-xs text-[#8b949e] mb-1.5">Email *</label>
                 <input type="email" name="email" value="{{ old('email') }}" placeholder="amadou@agence.sn"
-                       class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-bimo-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
+                       class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] placeholder-[#484f58] outline-none focus:border-marketing-gold focus:bg-[#1c2128] transition-colors duration-200 appearance-none">
                 @error('email')<p class="font-body text-xs text-[#f0a0a0] mt-1">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid grid-cols-2 gap-2.5">
                 <div>
                     <label class="block font-body font-medium text-xs text-[#8b949e] mb-1.5">Nombre de biens</label>
-                    <select name="nb_biens" class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] outline-none focus:border-bimo-gold cursor-pointer appearance-none transition-colors duration-200">
+                    <select name="nb_biens" class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] outline-none focus:border-marketing-gold cursor-pointer appearance-none transition-colors duration-200">
                         <option value="" {{ old('nb_biens') ? '' : 'selected' }} disabled>Choisir</option>
                         @foreach(['1-10'=>'1 à 10 biens','10-30'=>'10 à 30 biens','30-100'=>'30 à 100 biens','100+'=>'Plus de 100'] as $v => $l)
                         <option value="{{ $v }}" {{ old('nb_biens') === $v ? 'selected' : '' }}>{{ $l }}</option>
@@ -130,7 +130,7 @@
                 </div>
                 <div>
                     <label class="block font-body font-medium text-xs text-[#8b949e] mb-1.5">Ville</label>
-                    <select name="ville" class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] outline-none focus:border-bimo-gold cursor-pointer appearance-none transition-colors duration-200">
+                    <select name="ville" class="w-full bg-[#0d1117] border border-[rgba(255,255,255,.1)] rounded-[10px] px-3.5 py-2.5 font-body text-sm text-[#e6edf3] outline-none focus:border-marketing-gold cursor-pointer appearance-none transition-colors duration-200">
                         <option value="" {{ old('ville') ? '' : 'selected' }} disabled>Choisir</option>
                         @foreach(['dakar'=>'Dakar','thies'=>'Thiès','saint-louis'=>'Saint-Louis','ziguinchor'=>'Ziguinchor','autre'=>'Autre'] as $v => $l)
                         <option value="{{ $v }}" {{ old('ville') === $v ? 'selected' : '' }}>{{ $l }}</option>
@@ -140,7 +140,7 @@
             </div>
 
             <button type="submit"
-                    class="w-full bg-bimo-gold text-[#0d1117] font-body font-bold text-sm py-3.5 rounded-[10px] border-none cursor-pointer hover:opacity-90 transition-opacity duration-200">
+                    class="w-full bg-marketing-gold text-[#0d1117] font-body font-bold text-sm py-3.5 rounded-[10px] border-none cursor-pointer hover:opacity-90 transition-opacity duration-200">
                 Réserver ma démo gratuite →
             </button>
         </form>
@@ -163,7 +163,7 @@
 
 {{-- Footer --}}
 <footer class="px-[5%] py-8 border-t border-[rgba(255,255,255,.08)] flex flex-col md:flex-row items-center justify-between gap-4 flex-wrap">
-    <div class="font-display font-extrabold text-[15px] text-bimo-gold">BimoTech Immo</div>
+    <div class="font-display font-extrabold text-[15px] text-marketing-gold">BimoTech Immo</div>
     <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6">
         @foreach([[url('/'),'Accueil'],[route('contact'),'Contact'],[route('mentions-legales'),'Mentions légales']] as [$href,$lbl])
         <a href="{{ $href }}" class="font-body text-xs text-[#8b949e] no-underline hover:text-[#e6edf3] transition-colors duration-200">{{ $lbl }}</a>

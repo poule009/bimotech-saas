@@ -57,7 +57,7 @@ return [
     // Numéro WhatsApp au format international sans '+' (ex: 221770000000).
     // ⚠️ Renseigner BIMOTECH_WHATSAPP en prod — défaut = placeholder.
     'bimotech' => [
-        'whatsapp' => env('BIMOTECH_WHATSAPP', '221XXXXXXXXX'),
+        'whatsapp' => env('BIMOTECH_WHATSAPP', '221781318176'),
     ],
 
 ];
