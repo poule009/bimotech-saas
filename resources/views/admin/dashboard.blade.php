@@ -742,7 +742,7 @@ Chart.defaults.font.family = "'Poppins', sans-serif";
 Chart.defaults.color = 'rgba(17,17,17,0.4)';
 
 const GOLD   = '#6B7280';
-const NAVY   = '#7B1E3A';
+const NAVY   = '#E11428';
 const RED    = '#EF4444';
 const BRAND_RED = '#E11428'; // rouge vif du graphique encaissements (ajustable)
 
