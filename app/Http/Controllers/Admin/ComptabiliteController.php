@@ -42,9 +42,26 @@ class ComptabiliteController extends Controller implements HasMiddleware
                 return $u;
             });
 
+        // ── Compteurs pour la « routine du mois » (langage simple, non-comptables) ──
+        $nbContratsActifs = \App\Models\Contrat::where('agency_id', $agencyId)
+            ->where('statut', 'actif')->count();
+
+        $nbLoyersPayes = \App\Models\Paiement::where('agency_id', $agencyId)
+            ->where('statut', 'valide')
+            ->whereYear('periode', $annee)->whereMonth('periode', $mois)
+            ->distinct('contrat_id')->count('contrat_id');
+
+        $nbDepensesMois = \App\Models\ChargeAgence::where('agency_id', $agencyId)
+            ->whereYear('date_charge', $annee)->whereMonth('date_charge', $mois)->count();
+
+        $nbProprietairesAPayer = $proprietairesEnAttente->count();
+        $totalAPayer           = (float) $soldesMandants->where('solde', '>', 0)->sum('solde');
+
         return view('admin.comptabilite.dashboard', compact(
             'resultat', 'soldesMandants', 'sixMois',
-            'proprietairesEnAttente', 'annee', 'mois'
+            'proprietairesEnAttente', 'annee', 'mois',
+            'nbContratsActifs', 'nbLoyersPayes', 'nbDepensesMois',
+            'nbProprietairesAPayer', 'totalAPayer'
         ));
     }
 
