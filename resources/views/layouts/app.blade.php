@@ -61,11 +61,14 @@
      style="display:none">
 </div>
 
-{{-- Sidebar panel --}}
+{{-- Sidebar panel — photo de fond (Monument de la Renaissance, CC0) sous un
+     dégradé rouge : le haut reste opaque pour la lisibilité du menu, le bas
+     laisse transparaître le monument derrière le profil. --}}
 <aside id="sidebar"
        class="fixed left-0 top-0 h-full w-64 bg-bimo-navy flex flex-col z-40
               -translate-x-full transition-transform duration-[250ms] ease-out
-              lg:translate-x-0">
+              lg:translate-x-0 bg-cover bg-center"
+       style="background-image: linear-gradient(180deg, #E11428 0%, #E11428 30%, rgba(225,20,40,0.92) 55%, rgba(225,20,40,0.80) 78%, rgba(225,20,40,0.62) 100%), url('/images/sidebar-monument.jpg');">
 
     {{-- Logo + bouton fermer mobile --}}
     <div class="flex items-center gap-3 h-16 px-5 border-b border-white/10 flex-shrink-0">
