@@ -918,9 +918,9 @@
         titleEl.textContent       = title   || 'Confirmer l\'action';
         msgEl.textContent         = msg     || 'Cette action est irréversible.';
         okBtn.textContent         = okLabel || 'Confirmer';
-        okBtn.style.background    = okColor || '#EF4444';
+        okBtn.style.background    = okColor || '#E11428';
         iconWrap.style.background = iconBg  || 'rgba(239,68,68,0.1)';
-        iconWrap.querySelector('svg').style.color = okColor || '#EF4444';
+        iconWrap.querySelector('svg').style.color = okColor || '#E11428';
         overlay.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         okBtn.focus();

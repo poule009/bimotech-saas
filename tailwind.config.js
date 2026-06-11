@@ -20,7 +20,7 @@ export default {
                 'bimo-navy-dk':   '#B81021',
                 'bimo-text':      '#111111',
                 'bimo-gold':      '#6B7280',
-                'bimo-red':       '#EF4444',
+                'bimo-red':       '#E11428',
                 // Or chaud — identité des pages publiques (marketing) uniquement.
                 // L'app utilise bimo-gold (gris ardoise) ; le marketing garde l'or.
                 'marketing-gold': '#C9A84C',

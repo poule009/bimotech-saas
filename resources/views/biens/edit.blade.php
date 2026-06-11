@@ -350,7 +350,7 @@
                                   data-confirm="Supprimer cette photo définitivement ?"
                                   data-confirm-title="Supprimer la photo ?"
                                   data-confirm-ok="Supprimer"
-                                  data-confirm-color="#EF4444"
+                                  data-confirm-color="#E11428"
                                   data-confirm-icon-bg="rgba(239,68,68,0.1)">
                                 @csrf @method('DELETE')
                                 <button type="submit"
