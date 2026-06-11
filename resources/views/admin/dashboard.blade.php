@@ -744,6 +744,7 @@ Chart.defaults.color = 'rgba(17,17,17,0.4)';
 const GOLD   = '#6B7280';
 const NAVY   = '#7B1E3A';
 const RED    = '#EF4444';
+const BRAND_RED = '#E11428'; // rouge vif du graphique encaissements (ajustable)
 
 const loyersData = @json($loyersParMois->pluck('total'));
 const moisLabels = @json($loyersParMois->pluck('mois'));
@@ -764,7 +765,6 @@ const tip = {
 // ── Graphique encaissements (bar chart) ────────────────────────────
 const elLoyers = document.getElementById('chartLoyers');
 if (elLoyers) {
-    const lastIdx = loyersData.length - 1;
     new Chart(elLoyers, {
         type: 'bar',
         data: {
@@ -772,9 +772,7 @@ if (elLoyers) {
             datasets: [{
                 label: 'Loyers',
                 data: loyersData,
-                backgroundColor: loyersData.map((_, i) =>
-                    i === lastIdx ? GOLD : 'rgba(107,114,128,0.25)'
-                ),
+                backgroundColor: BRAND_RED,
                 borderRadius: 5,
                 borderSkipped: false,
             }]
@@ -786,7 +784,7 @@ if (elLoyers) {
                 legend: { display: false },
                 tooltip: {
                     ...tip,
-                    callbacks: { label: c => ' ' + Number(c.parsed.y).toLocaleString('fr-FR') + ' F' }
+                    callbacks: { label: c => ' ' + Number(c.parsed.y).toLocaleString('fr-FR') + ' FCFA' }
                 }
             },
             scales: {
