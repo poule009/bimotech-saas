@@ -277,6 +277,8 @@
             'recherche_globale'   => 'Recherche globale',
             'import_excel'        => 'Import Excel',
             'contrat_formel_pdf'  => 'Contrat PDF',
+            'comptabilite'        => 'Comptabilité',
+            'tresorerie'          => 'Trésorerie',
             'fiscalite'           => 'Fiscalité',
             'bilans_fiscaux'      => 'Bilans fiscaux',
             'logs_activite'       => 'Logs d\'activité',
