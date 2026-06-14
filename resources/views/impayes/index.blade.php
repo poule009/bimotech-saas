@@ -132,7 +132,7 @@
         </div>
 
         {{-- Mobile cards --}}
-        <div class="md:hidden divide-y divide-bimo-navy/[5%]">
+        <div class="md:hidden bg-bimo-bg p-3 space-y-3">
             @foreach($impayes as $item)
             @php
                 $jr = $item['jours_retard'];
@@ -143,7 +143,7 @@
                 $waMsg = rawurlencode("Bonjour " . ($loc?->name ?? '') . ", votre loyer de " . number_format($item['montant_du'], 0, ',', ' ') . " FCFA pour " . $periode->translatedFormat('F Y') . " n'a pas encore été reçu. Merci de régulariser.");
                 $urgClass = $jr > 15 ? 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red' : ($jr > 7 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/60');
             @endphp
-            <div class="px-5 py-4 {{ $jr > 15 ? 'bg-bimo-red/[2%]' : '' }}">
+            <div class="rounded-[12px] border p-4 {{ $jr > 15 ? 'bg-bimo-red/[3%] border-bimo-red/25' : 'bg-white border-bimo-navy/10' }}">
                 <div class="flex items-start justify-between gap-3 mb-3">
                     <div>
                         <div class="font-body font-semibold text-sm text-bimo-text">{{ $item['contrat']->bien?->reference ?? '—' }}</div>
@@ -197,7 +197,7 @@
                         if ($telClean && strlen($telClean) === 9) $telClean = '221' . $telClean;
                         $waMsg = rawurlencode("Bonjour " . ($loc?->name ?? '') . ", votre loyer de " . number_format($item['montant_du'], 0, ',', ' ') . " FCFA pour " . $periode->translatedFormat('F Y') . " n'a pas encore été reçu. Merci de régulariser.");
                     @endphp
-                    <tr class="transition-colors duration-100 {{ $jr > 15 ? 'bg-bimo-red/[2%] hover:bg-bimo-red/[3%]' : 'hover:bg-bimo-bg' }}">
+                    <tr class="transition-colors duration-100 {{ $jr > 15 ? 'bg-bimo-red/[2%] hover:bg-bimo-red/[3%]' : 'hover:bg-bimo-bg2' }}">
                         <td class="px-5 py-3.5">
                             <div class="font-body font-medium text-sm text-bimo-text">{{ $item['contrat']->bien?->reference ?? '—' }}</div>
                             <div class="font-body text-xs text-bimo-text/50">{{ $item['contrat']->bien?->adresse }}, {{ $item['contrat']->bien?->ville }}</div>

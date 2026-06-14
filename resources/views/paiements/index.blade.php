@@ -252,7 +252,7 @@
                 </thead>
                 <tbody class="divide-y divide-bimo-navy/[5%]">
                     @foreach($paiements as $p)
-                    <tr class="hover:bg-bimo-bg transition-colors duration-100">
+                    <tr class="hover:bg-bimo-bg2 transition-colors duration-100">
 
                         {{-- Référence --}}
                         <td class="px-5 py-3.5 whitespace-nowrap">

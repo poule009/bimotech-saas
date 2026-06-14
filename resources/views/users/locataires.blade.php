@@ -176,7 +176,7 @@
                         $waLink = $telDigits ? "https://wa.me/{$telDigits}?text={$waMsg}" : null;
                         $estEntreprise = (bool) ($profil?->est_entreprise ?? false);
                     @endphp
-                    <tr class="hover:bg-bimo-bg transition-colors duration-100" data-status="{{ $aContrat ? 'actif' : 'sans' }}">
+                    <tr class="hover:bg-bimo-bg2 transition-colors duration-100" data-status="{{ $aContrat ? 'actif' : 'sans' }}">
                         <td class="px-5 py-3.5">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-[9px] flex items-center justify-center font-display font-bold text-sm text-white flex-shrink-0 bg-bimo-navy">
