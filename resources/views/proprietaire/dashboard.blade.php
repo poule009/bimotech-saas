@@ -176,7 +176,7 @@ $tauxOccupation = $stats['nb_biens'] > 0
                         plugins:{
                             legend:{display:false},
                             tooltip:{
-                                backgroundColor:'#1B4F6B',
+                                backgroundColor:'#A60F1C',
                                 titleColor:'#fff',
                                 bodyColor:'rgba(255,255,255,.6)',
                                 padding:10,

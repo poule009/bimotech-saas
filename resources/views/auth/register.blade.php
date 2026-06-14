@@ -178,7 +178,7 @@ function checkStrength(pw) {
     if (/[0-9]/.test(pw)) score++;
     if (/[^A-Za-z0-9]/.test(pw)) score++;
     score = Math.min(score, 4);
-    var colors = ['#A60F1C','#A60F1C','#f97316','#C9A84C','#1B4F6B'];
+    var colors = ['#A60F1C','#A60F1C','#C9A84C','#C9A84C','#4B5563'];
     var labels = ['','Trop faible','Faible','Bon','Excellent'];
     bars.forEach(function(b, i){ b.style.background = i < score ? colors[score] : ''; });
     label.textContent = labels[score];
@@ -190,7 +190,7 @@ function checkMatch() {
     var pw2 = document.getElementById('password_confirmation').value;
     var hint = document.getElementById('match-hint');
     if (!pw2) { hint.textContent=''; return; }
-    if (pw1 === pw2) { hint.textContent='✓ Les mots de passe correspondent'; hint.style.color='#1B4F6B'; }
+    if (pw1 === pw2) { hint.textContent='✓ Les mots de passe correspondent'; hint.style.color='#4B5563'; }
     else { hint.textContent='Les mots de passe ne correspondent pas'; hint.style.color='#A60F1C'; }
 }
 document.getElementById('register-form').addEventListener('submit', function() {

@@ -230,12 +230,12 @@
                 <div class="flex items-center gap-1 bg-bimo-bg2 border border-bimo-navy/10 rounded-[8px] p-1">
                     <button type="button" id="btn-avec-caution" onclick="toggleCaution(true)"
                             class="px-3 py-1.5 rounded-[6px] font-body font-semibold text-xs transition-all duration-150"
-                            style="background: {{ $avecCaution ? '#1B4F6B' : 'transparent' }}; color: {{ $avecCaution ? '#fff' : '#8E9BAA' }}">
+                            style="background: {{ $avecCaution ? '#A60F1C' : 'transparent' }}; color: {{ $avecCaution ? '#fff' : '#8E9BAA' }}">
                         Avec caution
                     </button>
                     <button type="button" id="btn-sans-caution" onclick="toggleCaution(false)"
                             class="px-3 py-1.5 rounded-[6px] font-body font-semibold text-xs transition-all duration-150"
-                            style="background: {{ !$avecCaution ? '#1B4F6B' : 'transparent' }}; color: {{ !$avecCaution ? '#fff' : '#8E9BAA' }}">
+                            style="background: {{ !$avecCaution ? '#A60F1C' : 'transparent' }}; color: {{ !$avecCaution ? '#fff' : '#8E9BAA' }}">
                         Sans caution
                     </button>
                 </div>
@@ -521,7 +521,7 @@
 
 @push('scripts')
 <script>
-const NAVY = '#1B4F6B';
+const NAVY = '#A60F1C';
 const MUTED = '#8E9BAA';
 
 function toggleCaution(avec) {

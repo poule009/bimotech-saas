@@ -39,7 +39,7 @@
             $statut = $t['statut'];
             $borderColor = match($statut) { 'telecharge'=>'border-t-bimo-gold', 'en_cours'=>'border-t-bimo-navy', 'a_deposer','en_retard'=>'border-t-bimo-red', default=>'' };
         @endphp
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden flex flex-col" style="border-top: 3px solid {{ match($statut) { 'telecharge'=>'var(--ac)', 'en_cours'=>'#1B4F6B', 'a_deposer','en_retard'=>'#A60F1C', default=>'rgba(27,79,107,.1)' } }}">
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden flex flex-col" style="border-top: 3px solid {{ match($statut) { 'telecharge'=>'var(--ac)', 'en_cours'=>'#6B7280', 'a_deposer','en_retard'=>'#A60F1C', default=>'rgba(0,0,0,.1)' } }}">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
                 <div>
                     <div class="font-display font-bold text-base text-bimo-text">{{ $t['label'] }}</div>
