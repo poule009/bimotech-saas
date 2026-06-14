@@ -273,70 +273,39 @@
                         {{-- Actions --}}
                         <td class="px-5 py-3.5">
                             <div class="flex items-center justify-center gap-1.5">
-                                {{-- Voir (toujours visible) --}}
                                 <a href="{{ route('admin.contrats.show', $contrat) }}"
                                    class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                                    title="Voir">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </a>
-
-                                {{-- + Paiement (action du quotidien, si actif) --}}
+                                <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" target="_blank"
+                                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150"
+                                   title="Bail formel PDF">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                </a>
                                 @if($contrat->statut === 'actif')
                                 <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}"
-                                   class="w-9 h-9 flex items-center justify-center bg-bimo-navy border border-bimo-navy rounded-[6px] text-white hover:bg-bimo-navy-dk transition-all duration-150"
+                                   class="w-7 h-7 flex items-center justify-center bg-bimo-navy border border-bimo-navy rounded-[6px] text-white hover:bg-bimo-navy-dk transition-all duration-150"
                                    title="Enregistrer un paiement">
                                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 </a>
-                                @endif
-
-                                {{-- Menu ⋮ — actions secondaires (positionné en fixed pour échapper à l'overflow de la table) --}}
-                                <div x-data="{ open: false, mx: 0, my: 0 }" @click.outside="open = false" class="relative">
-                                    <button type="button"
-                                            @click="open = !open; if (open) { const r = $el.getBoundingClientRect(); mx = r.right - 184; my = (r.bottom + 160 > window.innerHeight) ? r.top - 160 : r.bottom + 6 }"
-                                            @keydown.escape.window="open = false"
-                                            @scroll.window="open = false"
-                                            class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
-                                            title="Plus d'actions" aria-label="Plus d'actions">
-                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+                                <a href="{{ route('admin.contrats.edit', $contrat) }}"
+                                   class="w-9 h-9 flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
+                                   title="Modifier">
+                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </a>
+                                <form method="POST" action="{{ route('admin.contrats.destroy', $contrat) }}"
+                                      data-confirm="Le contrat {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }} sera résilié et le bien repassera en Disponible."
+                                      data-confirm-title="Résilier ce contrat ?"
+                                      data-confirm-ok="Oui, résilier">
+                                    @csrf @method('DELETE')
+                                    <button type="submit"
+                                            class="w-9 h-9 flex items-center justify-center border border-bimo-red/20 rounded-[6px] text-bimo-red/60 hover:text-bimo-red hover:border-bimo-red/40 hover:bg-bimo-red/5 transition-all duration-150"
+                                            title="Résilier">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                                     </button>
-
-                                    <div x-show="open" style="display:none"
-                                         :style="`top:${my}px; left:${mx}px`"
-                                         x-transition:enter="transition ease-out duration-150"
-                                         x-transition:enter-start="opacity-0 translate-y-1"
-                                         x-transition:enter-end="opacity-100 translate-y-0"
-                                         class="fixed z-50 w-[184px] bg-white border border-bimo-navy/10 rounded-[12px] shadow-lg overflow-hidden py-1">
-
-                                        {{-- Bail formel PDF (toujours) --}}
-                                        <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" target="_blank"
-                                           class="flex items-center gap-2.5 px-3.5 py-2.5 font-body text-sm text-bimo-text/70 hover:bg-bimo-bg2 hover:text-bimo-text transition-colors duration-150">
-                                            <svg class="w-4 h-4 flex-shrink-0 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                                            Bail formel PDF
-                                        </a>
-
-                                        @if($contrat->statut === 'actif')
-                                        {{-- Modifier --}}
-                                        <a href="{{ route('admin.contrats.edit', $contrat) }}"
-                                           class="flex items-center gap-2.5 px-3.5 py-2.5 font-body text-sm text-bimo-text/70 hover:bg-bimo-bg2 hover:text-bimo-text transition-colors duration-150">
-                                            <svg class="w-4 h-4 flex-shrink-0 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                            Modifier
-                                        </a>
-
-                                        {{-- Résilier --}}
-                                        <form method="POST" action="{{ route('admin.contrats.destroy', $contrat) }}"
-                                              data-confirm="Le contrat {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }} sera résilié et le bien repassera en Disponible."
-                                              data-confirm-title="Résilier ce contrat ?"
-                                              data-confirm-ok="Oui, résilier">
-                                            @csrf @method('DELETE')
-                                            <button type="submit"
-                                                    class="w-full flex items-center gap-2.5 px-3.5 py-2.5 font-body text-sm text-bimo-red hover:bg-bimo-red/5 transition-colors duration-150 border-t border-bimo-navy/[5%]">
-                                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                                                Résilier
-                                            </button>
-                                        </form>
-                                        @endif
-                                    </div>
-                                </div>
+                                </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

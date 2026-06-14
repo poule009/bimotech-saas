@@ -491,7 +491,7 @@
 <div class="lg:ml-64 flex flex-col min-h-full">
 
     {{-- TOPBAR MOBILE --}}
-    <header x-data="{ searchOpen: false, q: '', results: [], loading: false, timer: null }"
+    <header x-data="mobileSearch" data-search-url="{{ route('admin.search') }}"
             class="sticky top-0 z-20 flex items-center justify-between h-14 px-4 bg-bimo-navy lg:hidden">
         {{-- Logo --}}
         <x-bee-logo variant="white" size="sm" />
@@ -500,7 +500,7 @@
             @auth
             @if(in_array(auth()->user()->role, ['admin', 'superadmin']))
             {{-- Déclencheur recherche --}}
-            <button type="button" @click="searchOpen = true; $nextTick(() => $refs.mSearch.focus())"
+            <button type="button" @click="openPanel"
                     aria-label="Rechercher"
                     class="w-10 h-10 rounded-[9px] flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors duration-150">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -516,15 +516,15 @@
         </div>
 
         {{-- Overlay recherche plein écran (mobile) --}}
-        <div x-show="searchOpen" @keydown.escape.window="searchOpen = false"
+        <div x-show="searchOpen" @keydown.escape.window="close"
              class="fixed inset-0 z-50 bg-bimo-bg flex flex-col" style="display:none">
             <div class="flex items-center gap-2 h-14 px-3 bg-bimo-navy flex-shrink-0">
-                <button type="button" @click="searchOpen=false; q=''; results=[]" aria-label="Fermer la recherche"
+                <button type="button" @click="close" aria-label="Fermer la recherche"
                         class="w-10 h-10 rounded-[9px] flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 flex-shrink-0">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 </button>
                 <input type="text" x-ref="mSearch" x-model="q"
-                       @input="clearTimeout(timer); if(q.length>1){loading=true; timer=setTimeout(()=>{fetch('{{ route('admin.search') }}?q='+encodeURIComponent(q),{headers:{'X-Requested-With':'XMLHttpRequest'}}).then(r=>r.json()).then(d=>{results=d.results||[];loading=false}).catch(()=>{loading=false})},250)}else{results=[];loading=false}"
+                       @input="search"
                        placeholder="Rechercher un bien, locataire, contrat…"
                        class="flex-1 min-w-0 bg-white/10 text-white placeholder:text-white/40 rounded-[9px] px-4 h-11 font-body text-sm focus:outline-none focus:bg-white/15">
             </div>
@@ -539,7 +539,7 @@
                         <svg class="w-4 h-4 text-bimo-text/30 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </a>
                 </template>
-                <div x-show="!loading && q.length > 1 && results.length === 0" class="px-4 py-10 text-center font-body text-sm text-bimo-text/40">
+                <div x-show="noResults" class="px-4 py-10 text-center font-body text-sm text-bimo-text/40">
                     Aucun résultat pour « <span x-text="q"></span> ».
                 </div>
             </div>
@@ -564,20 +564,20 @@
             {{-- Recherche globale (admin uniquement) --}}
             @auth
             @if(in_array(auth()->user()->role, ['admin', 'superadmin']))
-            <div class="relative" x-data="{ q: '', results: [], show: false, timer: null }"
-                 @click.outside="show = false">
+            <div class="relative" x-data="desktopSearch" data-search-url="{{ route('admin.search') }}"
+                 @click.outside="hideKeepQuery">
                 <div class="relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-text/30 pointer-events-none"
                          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
                     <input type="text" x-model="q"
-                           @input="clearTimeout(timer); if(q.length > 1) { timer = setTimeout(() => { fetch('{{ route('admin.search') }}?q='+encodeURIComponent(q), {headers:{'X-Requested-With':'XMLHttpRequest'}}).then(r=>r.json()).then(d=>{results=d.results;show=true}) }, 250) } else { show=false }"
-                           @keydown.escape="show=false; q=''"
+                           @input="search"
+                           @keydown.escape="hide"
                            placeholder="Rechercher…"
                            class="w-48 pl-8 pr-3 py-1.5 bg-bimo-bg border border-bimo-navy/10 rounded-[8px] font-body text-sm text-bimo-text placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:w-64 focus:bg-white transition-all duration-150">
                 </div>
-                <div x-show="show && results.length > 0"
+                <div x-show="hasResults"
                      class="absolute right-0 top-full mt-1 w-80 bg-white border border-bimo-navy/10 rounded-[12px] shadow-lg overflow-hidden z-50"
                      style="display:none">
                     <template x-for="item in results" :key="item.url">
@@ -636,15 +636,14 @@
 
         {{-- Flash success --}}
         @if(session('success'))
-        <div x-data="{ show: true }" x-show="show"
-             x-init="setTimeout(() => show = false, 5000)"
+        <div x-data="flashMessage" data-timeout="5000" x-show="show"
              x-transition:leave="transition duration-300"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 -translate-y-2"
              class="flex items-center gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[12px] px-4 py-3 mb-4">
             <svg class="w-4 h-4 text-bimo-gold flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
             <p class="font-body text-sm text-bimo-gold flex-1">{{ session('success') }}</p>
-            <button @click="show = false" aria-label="Fermer le message" class="text-bimo-gold/50 hover:text-bimo-gold transition-colors duration-150">
+            <button @click="dismiss" aria-label="Fermer le message" class="text-bimo-gold/50 hover:text-bimo-gold transition-colors duration-150">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -652,15 +651,14 @@
 
         {{-- Flash warning --}}
         @if(session('warning'))
-        <div x-data="{ show: true }" x-show="show"
-             x-init="setTimeout(() => show = false, 7000)"
+        <div x-data="flashMessage" data-timeout="7000" x-show="show"
              x-transition:leave="transition duration-300"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
              class="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-[12px] px-4 py-3 mb-4">
             <svg class="w-4 h-4 text-amber-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
             <p class="font-body text-sm text-amber-800 flex-1">{{ session('warning') }}</p>
-            <button @click="show = false" aria-label="Fermer le message" class="text-amber-400 hover:text-amber-600 transition-colors duration-150">
+            <button @click="dismiss" aria-label="Fermer le message" class="text-amber-400 hover:text-amber-600 transition-colors duration-150">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -668,15 +666,14 @@
 
         {{-- Flash error --}}
         @if(session('error'))
-        <div x-data="{ show: true }" x-show="show"
-             x-init="setTimeout(() => show = false, 12000)"
+        <div x-data="flashMessage" data-timeout="12000" x-show="show"
              x-transition:leave="transition duration-300"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
              class="flex items-center gap-3 bg-bimo-red/[5%] border border-bimo-red/20 rounded-[12px] px-4 py-3 mb-4">
             <svg class="w-4 h-4 text-bimo-red flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             <p class="font-body text-sm text-bimo-red flex-1">{{ session('error') }}</p>
-            <button @click="show = false" aria-label="Fermer le message" class="text-bimo-red/50 hover:text-bimo-red transition-colors duration-150">
+            <button @click="dismiss" aria-label="Fermer le message" class="text-bimo-red/50 hover:text-bimo-red transition-colors duration-150">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -684,7 +681,7 @@
 
         {{-- Flash errors validation --}}
         @if($errors->any())
-        <div x-data="{ show: true }" x-show="show"
+        <div x-data="flashMessage" x-show="show"
              x-transition:leave="transition duration-300"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
@@ -696,7 +693,7 @@
                 <p class="font-body text-xs text-bimo-red/80">• {{ $error }}</p>
                 @endforeach
             </div>
-            <button @click="show = false" aria-label="Fermer le message" class="text-bimo-red/50 hover:text-bimo-red transition-colors duration-150 flex-shrink-0">
+            <button @click="dismiss" aria-label="Fermer le message" class="text-bimo-red/50 hover:text-bimo-red transition-colors duration-150 flex-shrink-0">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
@@ -873,7 +870,7 @@
 
 {{-- Modale de confirmation globale --}}
 <div id="g-confirm-overlay"
-     x-data="{}"
+     x-data
      style="display:none"
      class="fixed inset-0 bg-bimo-navy/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
      role="dialog" aria-modal="true">

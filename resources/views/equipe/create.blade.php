@@ -62,23 +62,23 @@
                               transition-all duration-150">
             </div>
 
-            <div class="grid grid-cols-2 gap-3" x-data="{ show: false }">
+            <div class="grid grid-cols-2 gap-3" x-data="passwordToggle">
                 <div class="space-y-1.5">
                     <label for="password" class="block font-body font-medium text-sm text-bimo-text">
                         Mot de passe <span class="text-bimo-red">*</span>
                     </label>
                     <div class="relative">
                         <input id="password" name="password"
-                               :type="show ? 'text' : 'password'"
+                               :type="type"
                                placeholder="Min. 8 caractères"
                                autocomplete="new-password"
                                class="w-full px-4 pr-10 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
-                        <button type="button" @click="show = !show"
+                        <button type="button" @click="toggle"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-bimo-text/30 hover:text-bimo-text/60 transition-colors duration-150">
-                            <svg x-show="!show" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg x-show="hidden" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                             </svg>
                             <svg x-show="show" style="display:none" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -96,7 +96,7 @@
                         Confirmer <span class="text-bimo-red">*</span>
                     </label>
                     <input id="password_confirmation" name="password_confirmation"
-                           :type="show ? 'text' : 'password'"
+                           :type="type"
                            placeholder="Répétez"
                            autocomplete="new-password"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text

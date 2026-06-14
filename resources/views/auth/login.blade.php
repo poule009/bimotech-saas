@@ -119,7 +119,7 @@
 
             {{-- Formulaire --}}
             <form method="POST" action="{{ route('login') }}" id="login-form" novalidate
-                  x-data="{ loading: false }" @submit="loading = true">
+                  x-data="loginForm" @submit="start">
                 @csrf
 
                 {{-- Email --}}
@@ -142,12 +142,12 @@
                 </div>
 
                 {{-- Mot de passe --}}
-                <div class="mb-5" x-data="{ show: false }">
+                <div class="mb-5" x-data="passwordToggle">
                     <label for="password" class="block font-body font-medium text-sm text-bimo-text mb-1.5">
                         Mot de passe
                     </label>
                     <div class="relative">
-                        <input :type="show ? 'text' : 'password'"
+                        <input :type="type"
                                id="password" name="password"
                                placeholder="••••••••"
                                autocomplete="current-password"
@@ -157,10 +157,10 @@
                                       @error('password') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
                                       @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
                         <button type="button"
-                                @click="show = !show"
-                                :aria-label="show ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                                @click="toggle"
+                                :aria-label="label"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-bimo-text/30 hover:text-bimo-text/60 transition-colors duration-150">
-                            <svg x-show="!show" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg x-show="hidden" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                             </svg>
                             <svg x-show="show" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
@@ -202,7 +202,7 @@
                     <svg x-show="loading" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
                         <path d="M21 12a9 9 0 11-6.219-8.56"/>
                     </svg>
-                    <span x-text="loading ? 'Connexion en cours…' : 'Se connecter'">Se connecter</span>
+                    <span x-text="label">Se connecter</span>
                 </button>
             </form>
 
