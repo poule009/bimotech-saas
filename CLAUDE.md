@@ -25,7 +25,8 @@
 
 - **Produit :** Bimothèque Immo — SaaS B2B gestion immobilière
 - **Marché :** Agences immobilières au Sénégal
-- **Utilisateur principal :** Directeur/gestionnaire d'agence — mobile Android 375px
+- **Utilisateur principal :** Directeur/gestionnaire d'agence. Travaille **majoritairement sur ordinateur (desktop)**, et aussi sur mobile Android 375px.
+- **Priorité d'interface :** Le **desktop est aussi important, voire plus, que le mobile.** Le code reste mobile-first (cf. Breakpoints) mais le rendu `lg:` ne doit jamais être négligé : tables denses lisibles, survol nettement visible, actions claires à la souris.
 - **Fonctionnalités :** Baux, quittances, paiements, locataires, bailleurs, fiscalité (TVA 18%, BRS 5%, CFPB, loi 81-18)
 
 ---
@@ -167,6 +168,8 @@ bg-bimo-gold/7       ❌  →  invalide sans []
 ## Breakpoints — 3 interfaces distinctes
 
 **Mobile-first : écrire d'abord sans préfixe (mobile), puis `md:` (tablette), puis `lg:` (desktop).**
+
+> ⚠️ **Mobile-first ≠ desktop secondaire.** Les patrons d'agence sont **majoritairement sur ordinateur** : le rendu `lg:` est au moins aussi important que le mobile. « Mobile-first » décrit l'ordre d'écriture du CSS, **pas** la priorité d'expérience. Soigner les tables desktop autant que les cards mobile (survol visible, densité maîtrisée, menu `⋮` quand >4 actions par ligne).
 
 | Breakpoint | Tailwind | Écran | Interface |
 |-----------|----------|-------|-----------|
