@@ -67,7 +67,7 @@
             </span>
         </div>
         <a href="{{ route('admin.biens.index', ['statut' => 'disponible']) }}"
-           class="font-body font-semibold text-sm text-amber-600 hover:text-amber-800 transition-colors duration-150 whitespace-nowrap">
+           class="font-body font-semibold text-sm text-amber-700 hover:text-amber-900 transition-colors duration-150 whitespace-nowrap">
             Voir les biens →
         </a>
     </div>
@@ -401,12 +401,12 @@
 
             <div class="md:px-7 md:border-r md:border-white/10">
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/40 mb-2">Encaissé</div>
-                <div class="font-display font-extrabold text-2xl md:text-3xl text-bimo-gold leading-none">
+                <div class="font-display font-extrabold text-2xl md:text-3xl text-white leading-none">
                     {{ number_format($bilanMois['encaisse'], 0, ',', ' ') }}
-                    <span class="font-body font-light text-sm text-bimo-gold/50">F</span>
+                    <span class="font-body font-light text-sm text-white/50">F</span>
                 </div>
-                <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-bimo-gold/10 border border-bimo-gold/20">
-                    <span class="font-body text-[11px] text-bimo-gold">
+                <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20">
+                    <span class="font-body font-medium text-[11px] text-white/90">
                         ✓ {{ $tauxRecouvrement }}% de recouvrement
                     </span>
                 </div>
@@ -415,18 +415,17 @@
             <div class="md:pl-7">
                 @php $reliquat = max(0, $bilanMois['attendu'] - $bilanMois['encaisse']); @endphp
                 <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/40 mb-2">Reliquat</div>
-                <div class="font-display font-extrabold text-2xl md:text-3xl leading-none
-                            {{ $reliquat > 0 ? 'text-bimo-red' : 'text-white' }}">
+                <div class="font-display font-extrabold text-2xl md:text-3xl leading-none text-white">
                     {{ number_format($reliquat, 0, ',', ' ') }}
                     <span class="font-body font-light text-sm opacity-50">F</span>
                 </div>
                 @if($reliquat > 0)
-                <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-bimo-red/10 border border-bimo-red/20">
-                    <span class="font-body text-[11px] text-bimo-red">⚠ {{ $nb_impayes_mois }} contrats en défaut</span>
+                <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-white/15 border border-white/25">
+                    <span class="font-body font-medium text-[11px] text-white">⚠ {{ $nb_impayes_mois }} contrats en défaut</span>
                 </div>
                 @else
-                <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-bimo-gold/10 border border-bimo-gold/20">
-                    <span class="font-body text-[11px] text-bimo-gold">✓ Tout encaissé</span>
+                <div class="inline-flex items-center gap-1.5 mt-2.5 px-2.5 py-1 rounded-full bg-white/10 border border-white/20">
+                    <span class="font-body font-medium text-[11px] text-white/90">✓ Tout encaissé</span>
                 </div>
                 @endif
             </div>

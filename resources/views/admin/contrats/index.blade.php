@@ -47,14 +47,16 @@
 
     {{-- ═══ FILTRES ═══ --}}
     <form method="GET" class="flex flex-wrap gap-2 items-center">
-        <input type="text" name="q" value="{{ request('q') }}"
+        <label for="contrat-q" class="sr-only">Rechercher un contrat (référence, locataire, bien)</label>
+        <input type="text" name="q" id="contrat-q" value="{{ request('q') }}"
                placeholder="Référence, locataire, bien…"
                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                       font-body text-sm text-bimo-text placeholder:text-bimo-text/30
                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                       transition-all duration-150 w-52">
 
-        <select name="statut" onchange="this.form.submit()"
+        <label for="contrat-statut" class="sr-only">Filtrer par statut</label>
+        <select name="statut" id="contrat-statut" onchange="this.form.submit()"
                 class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                        font-body text-sm text-bimo-text cursor-pointer
                        focus:outline-none focus:border-bimo-gold transition-all duration-150">
@@ -64,7 +66,8 @@
             @endforeach
         </select>
 
-        <select name="type_bail" onchange="this.form.submit()"
+        <label for="contrat-type" class="sr-only">Filtrer par type de bail</label>
+        <select name="type_bail" id="contrat-type" onchange="this.form.submit()"
                 class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                        font-body text-sm text-bimo-text cursor-pointer
                        focus:outline-none focus:border-bimo-gold transition-all duration-150">
@@ -91,6 +94,7 @@
     </form>
 
     {{-- ═══ CONTENU ═══ --}}
+    <h2 class="sr-only">Liste des contrats</h2>
     @if($contrats->isEmpty())
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
         <div class="w-12 h-12 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[12px] flex items-center justify-center mx-auto mb-4">
