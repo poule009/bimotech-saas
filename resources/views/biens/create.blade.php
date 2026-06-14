@@ -461,7 +461,7 @@ function previewPhotos(files) {
             const div = document.createElement('div');
             div.style.cssText = 'position:relative;border-radius:8px;overflow:hidden;height:90px;border:1px solid rgba(27,79,107,0.1)';
             div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">
-                ${i === 0 ? '<span style="position:absolute;top:4px;left:4px;background:var(--ac);color:#1B4F6B;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:Syne,sans-serif">Principale</span>' : ''}`;
+                ${i === 0 ? '<span style="position:absolute;top:4px;left:4px;background:var(--ac);color:var(--ac-text);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:Poppins,sans-serif">Principale</span>' : ''}`;
             grid.appendChild(div);
         };
         reader.readAsDataURL(file);

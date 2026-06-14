@@ -42,6 +42,8 @@
             --ac-r: {{ $cr }};
             --ac-g: {{ $cg }};
             --ac-b: {{ $cb }};
+            /* Texte lisible sur --ac : noir ou blanc selon la luminance de la couleur agence */
+            --ac-text: {{ (0.299 * $cr + 0.587 * $cg + 0.114 * $cb) > 140 ? '#111111' : '#FFFFFF' }};
         }
     </style>
 
@@ -443,7 +445,7 @@
             <button onclick="toggleProfileDrop()"
                     class="flex items-center gap-3 w-full px-3 py-2.5 rounded-[10px] hover:bg-white/5 transition-colors duration-150">
                 <div class="w-8 h-8 rounded-[8px] flex items-center justify-center flex-shrink-0 font-display font-bold text-sm"
-                     style="background: var(--ac); color: #1B4F6B">
+                     style="background: var(--ac); color: var(--ac-text)">
                     {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
                 </div>
                 <div class="flex-1 text-left min-w-0">
@@ -510,7 +512,7 @@
 
             {{-- Avatar --}}
             <div class="w-9 h-9 rounded-[9px] flex items-center justify-center font-display font-bold text-sm flex-shrink-0"
-                 style="background: var(--ac); color: #1B4F6B">
+                 style="background: var(--ac); color: var(--ac-text)">
                 {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
             </div>
         </div>
