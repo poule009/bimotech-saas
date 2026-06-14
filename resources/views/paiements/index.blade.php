@@ -80,12 +80,13 @@
     {{-- ═══ FILTRES ═══ --}}
     <form method="GET" class="flex flex-wrap gap-2 items-center">
         <input type="month" name="mois" value="{{ request('mois') }}"
+               aria-label="Filtrer par mois"
                onchange="this.form.submit()"
                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                       font-body text-sm text-bimo-text focus:outline-none focus:border-bimo-gold
                       focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
 
-        <select name="statut" onchange="this.form.submit()"
+        <select name="statut" onchange="this.form.submit()" aria-label="Filtrer par statut"
                 class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                        font-body text-sm text-bimo-text cursor-pointer
                        focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
@@ -106,6 +107,7 @@
     </form>
 
     {{-- ═══ CONTENU ═══ --}}
+    <h2 class="sr-only">Liste des paiements</h2>
     @if($paiements->isEmpty())
     {{-- Empty state --}}
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">

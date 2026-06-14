@@ -50,7 +50,7 @@
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
         <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
             <div class="flex flex-wrap items-center gap-2">
-                <span class="font-display font-bold text-sm text-bimo-text">Liste des locataires</span>
+                <h2 class="font-display font-bold text-sm text-bimo-text">Liste des locataires</h2>
                 {{-- Filtre tabs --}}
                 <div class="flex gap-1 bg-bimo-bg border border-bimo-navy/10 p-1 rounded-[8px]">
                     <button onclick="filterStatus('all', this)" data-tab="all"

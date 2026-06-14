@@ -63,6 +63,7 @@
     </div>
 
     {{-- ═══ CARDS BAILLEURS ═══ --}}
+    <h2 class="sr-only">Liste des bailleurs</h2>
     @if($bailleurs->isEmpty())
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
         <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">

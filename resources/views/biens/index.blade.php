@@ -65,6 +65,7 @@
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <input type="text" name="q" value="{{ request('q') }}"
+                   aria-label="Rechercher un bien (référence, adresse, ville, propriétaire)"
                    placeholder="Référence, adresse, ville, propriétaire…"
                    class="w-full pl-9 pr-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                           font-body text-sm text-bimo-text placeholder:text-bimo-text/30
@@ -72,7 +73,7 @@
                           transition-all duration-150">
         </div>
 
-        <select name="statut" onchange="this.form.submit()"
+        <select name="statut" onchange="this.form.submit()" aria-label="Filtrer par statut"
                 class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                        font-body text-sm text-bimo-text cursor-pointer
                        focus:outline-none focus:border-bimo-gold transition-all duration-150">
@@ -83,7 +84,7 @@
             <option value="archive"    @selected(request('statut')==='archive')>Archivé</option>
         </select>
 
-        <select name="type" onchange="this.form.submit()"
+        <select name="type" onchange="this.form.submit()" aria-label="Filtrer par type de bien"
                 class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
                        font-body text-sm text-bimo-text cursor-pointer
                        focus:outline-none focus:border-bimo-gold transition-all duration-150">
@@ -110,6 +111,7 @@
     </form>
 
     {{-- ═══ CONTENU ═══ --}}
+    <h2 class="sr-only">Liste des biens</h2>
     @if($biens->isEmpty())
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
         <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">
