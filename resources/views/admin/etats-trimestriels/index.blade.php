@@ -87,7 +87,7 @@
                 <div class="font-body text-xs {{ $statut === 'en_retard' ? 'text-bimo-red font-semibold' : 'text-bimo-text/40' }}">
                     📅 Date limite : {{ $t['date_limite']->translatedFormat('d F Y') }}
                     @if($statut === 'en_retard') — <strong>Dépassée</strong>
-                    @elseif($statut === 'a_deposer') @php $j = now()->diffInDays($t['date_limite'], false); @endphp — J-{{ $j }} restant(s)
+                    @elseif($statut === 'a_deposer') @php $j = (int) now()->diffInDays($t['date_limite'], false); @endphp — J-{{ $j }} restant(s)
                     @endif
                 </div>
 

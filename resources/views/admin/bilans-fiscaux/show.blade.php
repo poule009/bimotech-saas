@@ -346,7 +346,7 @@
 
             <div class="flex items-start gap-2 bg-bimo-gold/[6%] border border-bimo-gold/20 rounded-[10px] px-4 py-3">
                 <svg class="w-4 h-4 text-bimo-gold flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                <p class="font-body text-xs text-bimo-gold/80 leading-relaxed">⚠ <strong>Estimation fiscale</strong> — Ce bilan est calculé sur la base des paiements enregistrés dans BimoTech. L'IRPP est une estimation selon le barème Art. 65 CGI SN. La CFPB est une estimation indicative — assiette réelle = valeur locative cadastrale fixée par la DGID (Art. 290-291 CGI SN). <strong>Consultez un comptable agréé ou la DGI avant toute déclaration officielle.</strong></p>
+                <p class="font-body text-xs text-bimo-gold/80 leading-relaxed">⚠ <strong>Estimation fiscale</strong> — Ce bilan est calculé sur la base des paiements enregistrés dans bee. L'IRPP est une estimation selon le barème Art. 65 CGI SN. La CFPB est une estimation indicative — assiette réelle = valeur locative cadastrale fixée par la DGID (Art. 290-291 CGI SN). <strong>Consultez un comptable agréé ou la DGI avant toute déclaration officielle.</strong></p>
             </div>
 
         </div>

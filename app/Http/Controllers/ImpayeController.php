@@ -168,7 +168,7 @@ class ImpayeController extends Controller
                 : 0,
         ];
 
-        $agencyName = auth()->user()->agency?->name ?? config('app.name', 'BimoTech');
+        $agencyName = auth()->user()->agency?->name ?? config('app.name', 'bee');
         $filename   = 'impayes_' . $periode->format('Y-m') . '_' . now()->format('Ymd') . '.xlsx';
 
         return Excel::download(

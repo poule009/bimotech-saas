@@ -159,7 +159,7 @@
                         {{ $contrat->date_debut?->format('d/m/Y') }} →
                         {{ $contrat->date_fin?->format('d/m/Y') ?? 'Ouvert' }}
                         @if($contrat->date_fin && $contrat->statut === 'actif')
-                            @php $jr = now()->diffInDays($contrat->date_fin, false); @endphp
+                            @php $jr = (int) now()->diffInDays($contrat->date_fin, false); @endphp
                             @if($jr <= 30 && $jr >= 0)
                                 <span class="text-bimo-gold font-semibold ml-1">⚠ {{ $jr }}j</span>
                             @endif
@@ -250,7 +250,7 @@
                         <td class="px-5 py-3.5 font-body text-xs text-bimo-text/60">
                             {{ $contrat->date_fin?->format('d/m/Y') ?? 'Ouvert' }}
                             @if($contrat->date_fin && $contrat->statut === 'actif')
-                                @php $jr = now()->diffInDays($contrat->date_fin, false); @endphp
+                                @php $jr = (int) now()->diffInDays($contrat->date_fin, false); @endphp
                                 @if($jr <= 30 && $jr >= 0)
                                     <div class="font-body text-[10px] text-bimo-gold font-semibold mt-0.5">⚠ {{ $jr }}j restants</div>
                                 @endif

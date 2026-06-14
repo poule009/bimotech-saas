@@ -83,7 +83,7 @@
             $total         = max(1, $debut->diffInDays($fin));
             $ecoule        = min($total, $debut->diffInDays(now()));
             $dureeProgress = round(($ecoule / $total) * 100);
-            $joursRestants = now()->diffInDays($fin, false);
+            $joursRestants = (int) now()->diffInDays($fin, false);
         }
     @endphp
 

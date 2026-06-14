@@ -1,4 +1,4 @@
-# CLAUDE.md — Bimothèque Immo
+# CLAUDE.md — bee
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Contexte produit
 
-- **Produit :** Bimothèque Immo — SaaS B2B gestion immobilière
+- **Produit :** bee — SaaS B2B gestion immobilière (marque unique : « bee »)
 - **Marché :** Agences immobilières au Sénégal
 - **Utilisateur principal :** Directeur/gestionnaire d'agence. Travaille **majoritairement sur ordinateur (desktop)**, et aussi sur mobile Android 375px.
 - **Priorité d'interface :** Le **desktop est aussi important, voire plus, que le mobile.** Le code reste mobile-first (cf. Breakpoints) mais le rendu `lg:` ne doit jamais être négligé : tables denses lisibles, survol nettement visible, actions claires à la souris.
@@ -165,17 +165,19 @@ bg-bimo-gold/7       ❌  →  invalide sans []
 
 ---
 
-## Breakpoints — 3 interfaces distinctes
+## Breakpoints — 2 paliers d'interface
 
-**Mobile-first : écrire d'abord sans préfixe (mobile), puis `md:` (tablette), puis `lg:` (desktop).**
+**Mobile-first : écrire d'abord sans préfixe (mobile), puis `md:` (mise en page), puis `lg:` (desktop).**
 
 > ⚠️ **Mobile-first ≠ desktop secondaire.** Les patrons d'agence sont **majoritairement sur ordinateur** : le rendu `lg:` est au moins aussi important que le mobile. « Mobile-first » décrit l'ordre d'écriture du CSS, **pas** la priorité d'expérience. Soigner les tables desktop autant que les cards mobile (survol visible, densité maîtrisée, menu `⋮` quand >4 actions par ligne).
 
-| Breakpoint | Tailwind | Écran | Interface |
-|-----------|----------|-------|-----------|
-| Default | — | ≤ 767px | App mobile native |
-| `md:` | 768px+ | Tablette | Mini sidebar + contenu |
-| `lg:` | 1024px+ | Desktop | Interface pro complète |
+> ✅ **Décision juin 2026 — 2 paliers de navigation seulement.** Mobile (< 1024px, bottom-nav) et Desktop (≥ 1024px, sidebar). **Pas de chrome tablette dédié** : entre 768 et 1023px, on sert le chrome mobile. `md:` ne sert qu'à la **mise en page** (grilles/espacement), jamais à une mini-sidebar.
+
+| Breakpoint | Tailwind | Écran | Chrome |
+|-----------|----------|-------|--------|
+| Default | — | < 1024px | App mobile (bottom-nav, cards, FAB) |
+| `md:` | 768px+ | Tablette | **Mise en page seule** (grilles 2 col, espacement) — chrome mobile conservé |
+| `lg:` | 1024px+ | Desktop | Interface pro complète (sidebar) |
 
 ### Mobile — App native
 - Bottom nav fixe `fixed bottom-0` (pas de sidebar)
@@ -185,12 +187,12 @@ bg-bimo-gold/7       ❌  →  invalide sans []
 - Tap targets `min-h-[48px]`
 - Espacement `p-4`
 
-### Tablette (md:)
-- Mini sidebar icônes `md:fixed md:left-0 md:w-16`
-- Contenu décalé `md:ml-16`
-- Grilles 2 colonnes `md:grid-cols-2`
-- Tableaux simplifiés (quelques colonnes)
-- Espacement `md:p-6`
+### Tablette (768–1023px) — pas de chrome dédié
+- **Chrome mobile conservé** (bottom-nav, pas de sidebar) — décision juin 2026, 2 paliers.
+- `md:` sert uniquement à la **mise en page** :
+  - Grilles 2 colonnes `md:grid-cols-2`
+  - Espacement `md:p-6`
+- ❌ Ne pas créer de mini-sidebar `md:w-16` (non implémentée, retirée du périmètre).
 
 ### Desktop (lg:)
 - Sidebar complète `lg:w-64`
@@ -217,7 +219,7 @@ Desktop : sidebar fixed left w-64 + contenu ml-64
 ```html
 <header class="sticky top-0 z-40 flex items-center justify-between h-14 px-4 bg-bimo-navy lg:hidden">
   <!-- Logo -->
-  <span class="font-display font-extrabold text-white">Bimothèque <span class="text-bimo-gold">Immo</span></span>
+  <span class="font-display font-extrabold text-white">bee</span>
   <!-- Avatar -->
   <div class="w-[34px] h-[34px] rounded-[9px] bg-[var(--ac)] flex items-center justify-center font-display font-bold text-white text-sm">
     {{ initiales }}

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Créer votre agence — BimoTech Immo</title>
+<title>Créer votre agence — bee</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
@@ -24,7 +24,7 @@
         <h2 class="font-display font-extrabold text-[clamp(22px,2.5vw,32px)] text-white tracking-tight leading-tight mb-5">
             Votre agence en ligne<br>en <em class="not-italic text-bimo-gold">moins de 10 min</em>
         </h2>
-        <p class="font-body font-light text-sm text-white/50 leading-relaxed max-w-xs mb-7">Rejoignez les agences sénégalaises qui gèrent leur activité avec BimoTech.</p>
+        <p class="font-body font-light text-sm text-white/50 leading-relaxed max-w-xs mb-7">Rejoignez les agences sénégalaises qui gèrent leur activité avec bee.</p>
         <div class="flex flex-col gap-3">
             @foreach([['Conformité fiscale incluse','TVA 18%, NINEA, loi 81-18, TOM — automatiquement.'],['Quittances PDF légales','Générées et archivées automatiquement.'],['Essai gratuit 30 jours','Aucune carte bancaire requise.']] as [$t,$d])
             <div class="flex items-start gap-3">
