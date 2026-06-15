@@ -35,7 +35,7 @@
             <div class="px-5 py-5">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Propriétaire <span class="text-bimo-red">*</span></label>
-                    <select name="proprietaire_id"
+                    <select name="proprietaire_id" aria-label="Propriétaire"
                             class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text cursor-pointer
                                    focus:outline-none focus:ring-2 transition-all duration-150
                                    @error('proprietaire_id') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -63,7 +63,7 @@
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Nom de l'immeuble <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="nom" value="{{ old('nom', $immeuble->nom) }}"
+                    <input type="text" name="nom" value="{{ old('nom', $immeuble->nom) }}" aria-label="Nom de l'immeuble"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('nom') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -74,7 +74,7 @@
                     <label class="block font-body font-medium text-sm text-bimo-text">
                         Nombre de niveaux <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                     </label>
-                    <input type="number" name="nombre_niveaux" value="{{ old('nombre_niveaux', $immeuble->nombre_niveaux) }}" min="1" max="99"
+                    <input type="number" name="nombre_niveaux" value="{{ old('nombre_niveaux', $immeuble->nombre_niveaux) }}" min="1" max="99" aria-label="Nombre de niveaux"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                   focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                 </div>
@@ -92,7 +92,7 @@
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Adresse <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="adresse" value="{{ old('adresse', $immeuble->adresse) }}"
+                    <input type="text" name="adresse" value="{{ old('adresse', $immeuble->adresse) }}" aria-label="Adresse"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('adresse') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -101,7 +101,7 @@
                 </div>
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Ville <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="ville" value="{{ old('ville', $immeuble->ville) }}"
+                    <input type="text" name="ville" value="{{ old('ville', $immeuble->ville) }}" aria-label="Ville"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('ville') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -135,7 +135,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Loyer (FCFA) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                         </label>
-                        <input type="number" name="loyer_par_unite"
+                        <input type="number" name="loyer_par_unite" aria-label="Loyer par appartement (FCFA)"
                                value="{{ old('loyer_par_unite') }}" min="0" step="500"
                                placeholder="Ex : 150 000"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
@@ -148,7 +148,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Commission agence (%) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                         </label>
-                        <input type="number" name="taux_commission"
+                        <input type="number" name="taux_commission" aria-label="Commission agence (%)"
                                value="{{ old('taux_commission') }}" min="0" max="30" step="0.5"
                                placeholder="Ex : 10"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
@@ -163,7 +163,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Charges (FCFA/mois) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                         </label>
-                        <input type="number" name="charges_par_unite"
+                        <input type="number" name="charges_par_unite" aria-label="Charges par appartement (FCFA/mois)"
                                value="{{ old('charges_par_unite') }}" min="0" step="500"
                                placeholder="Ex : 10 000"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
@@ -174,7 +174,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Caution (FCFA) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                         </label>
-                        <input type="number" name="caution_par_unite"
+                        <input type="number" name="caution_par_unite" aria-label="Caution par appartement (FCFA)"
                                value="{{ old('caution_par_unite') }}" min="0" step="500"
                                placeholder="Ex : 300 000"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
@@ -202,7 +202,7 @@
                 </span>
             </div>
             <div class="px-5 py-5">
-                <textarea name="description" rows="4"
+                <textarea name="description" rows="4" aria-label="Description de l'immeuble"
                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                  focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                  transition-all duration-150 resize-y">{{ old('description', $immeuble->description) }}</textarea>
@@ -225,19 +225,19 @@
 
     {{-- Colonne droite --}}
     <div class="lg:sticky lg:top-6">
-        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-            <div class="px-5 py-4 border-b border-white/[7%]">
-                <div class="font-display font-bold text-sm text-white">Récapitulatif</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="font-display font-bold text-sm text-bimo-text">Récapitulatif</div>
             </div>
-            <div class="px-5 py-2 divide-y divide-white/[6%]">
+            <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                 @foreach([
-                    ['Créé le',           $immeuble->created_at?->format('d/m/Y') ?? '—', ''],
-                    ['Unités',            (string) $immeuble->biens()->count(), ''],
+                    ['Créé le',           $immeuble->created_at?->format('d/m/Y') ?? '—', 'text-bimo-text/70'],
+                    ['Unités',            (string) $immeuble->biens()->count(), 'text-bimo-text/70'],
                     ['Sous contrat',      (string) $immeuble->biens()->whereHas('contratActif')->count(), 'text-bimo-gold font-semibold'],
                 ] as [$lbl, $val, $cls])
                 <div class="flex items-center justify-between py-2.5">
-                    <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                    <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
+                    <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
+                    <span class="font-body text-xs {{ $cls }}">{{ $val }}</span>
                 </div>
                 @endforeach
             </div>

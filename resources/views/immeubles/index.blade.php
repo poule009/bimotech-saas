@@ -22,6 +22,38 @@
         @endcan
     </div>
 
+    {{-- Recherche --}}
+    @if($immeubles->isNotEmpty() || request()->filled('q'))
+    <form method="GET" class="flex flex-wrap gap-2 items-center">
+        <div class="relative flex-1 min-w-[200px] max-w-xs">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-text/30 pointer-events-none"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" name="q" value="{{ request('q') }}"
+                   aria-label="Rechercher un immeuble (nom, adresse, ville, propriétaire)"
+                   placeholder="Nom, adresse, ville, propriétaire…"
+                   class="w-full pl-9 pr-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
+                          font-body text-sm text-bimo-text placeholder:text-bimo-text/30
+                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                          transition-all duration-150">
+        </div>
+        <button type="submit"
+                class="px-4 py-2 min-h-[48px] md:min-h-0 bg-[var(--ac)] text-white font-display font-bold text-sm
+                       rounded-[9px] hover:opacity-90 transition-opacity duration-150">
+            Rechercher
+        </button>
+        @if(request()->filled('q'))
+        <a href="{{ route('admin.immeubles.index') }}"
+           class="inline-flex items-center px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
+                  font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30
+                  transition-all duration-150">
+            Effacer
+        </a>
+        @endif
+    </form>
+    @endif
+
     {{-- Contenu --}}
     @if($immeubles->isEmpty())
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
@@ -31,6 +63,15 @@
                 <line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="12" y2="21"/>
             </svg>
         </div>
+        @if(request()->filled('q'))
+        <div class="font-display font-bold text-base text-bimo-text mb-2">Aucun résultat</div>
+        <p class="font-body text-sm text-bimo-text/50 mb-5">Aucun immeuble ne correspond à « {{ request('q') }} ».</p>
+        <a href="{{ route('admin.immeubles.index') }}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/70
+                  font-display font-bold text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
+            Effacer la recherche
+        </a>
+        @else
         <div class="font-display font-bold text-base text-bimo-text mb-2">Aucun immeuble enregistré</div>
         <p class="font-body text-sm text-bimo-text/50 mb-5">Commencez par ajouter votre premier immeuble.</p>
         <a href="{{ route('admin.immeubles.create') }}"
@@ -38,6 +79,7 @@
                   font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
             + Ajouter un immeuble
         </a>
+        @endif
     </div>
 
     @else
@@ -79,16 +121,25 @@
                 </div>
 
                 {{-- Pied --}}
-                <div class="flex items-center justify-between pt-3 border-t border-bimo-navy/[5%] mt-auto">
-                    <span class="font-body text-xs text-bimo-text/50">{{ $immeuble->proprietaire?->name ?? '—' }}</span>
-                    <a href="{{ route('admin.immeubles.show', $immeuble) }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/10 rounded-[8px]
-                              font-body font-medium text-xs text-bimo-text/60
-                              hover:text-bimo-text hover:border-bimo-gold hover:text-bimo-gold
-                              transition-all duration-150">
-                        Voir
-                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                    </a>
+                <div class="flex items-center justify-between gap-2 pt-3 border-t border-bimo-navy/[5%] mt-auto">
+                    <span class="font-body text-xs text-bimo-text/50 truncate">{{ $immeuble->proprietaire?->name ?? '—' }}</span>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <a href="{{ route('admin.immeubles.edit', $immeuble) }}"
+                           aria-label="Modifier {{ $immeuble->nom }}"
+                           class="inline-flex items-center justify-center w-11 h-11 md:w-9 md:h-9 border border-bimo-navy/10 rounded-[8px]
+                                  text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30
+                                  transition-all duration-150">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg>
+                        </a>
+                        <a href="{{ route('admin.immeubles.show', $immeuble) }}"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] md:min-h-0 border border-bimo-navy/10 rounded-[8px]
+                                  font-body font-medium text-xs text-bimo-text/60
+                                  hover:text-bimo-gold hover:border-bimo-gold
+                                  transition-all duration-150">
+                            Voir
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -100,20 +151,20 @@
     <div class="flex items-center justify-center gap-1.5">
         @if(!$immeubles->onFirstPage())
         <a href="{{ $immeubles->previousPageUrl() }}"
-           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
+           class="w-11 h-11 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
         </a>
         @endif
         @foreach($immeubles->getUrlRange(max(1,$immeubles->currentPage()-2), min($immeubles->lastPage(),$immeubles->currentPage()+2)) as $page => $url)
         <a href="{{ $url }}"
-           class="w-8 h-8 flex items-center justify-center rounded-[7px] font-body text-sm transition-all duration-150
+           class="w-11 h-11 flex items-center justify-center rounded-[7px] font-body text-sm transition-all duration-150
                   {{ $page === $immeubles->currentPage() ? 'bg-bimo-navy text-white border border-bimo-navy' : 'border border-bimo-navy/10 text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30' }}">
             {{ $page }}
         </a>
         @endforeach
         @if($immeubles->hasMorePages())
         <a href="{{ $immeubles->nextPageUrl() }}"
-           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
+           class="w-11 h-11 flex items-center justify-center border border-bimo-navy/10 rounded-[7px] text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </a>
         @endif

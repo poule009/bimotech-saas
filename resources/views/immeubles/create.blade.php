@@ -60,7 +60,7 @@
             <div class="px-5 py-5">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Propriétaire <span class="text-bimo-red">*</span></label>
-                    <select name="proprietaire_id"
+                    <select name="proprietaire_id" aria-label="Propriétaire"
                             class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text cursor-pointer
                                    focus:outline-none focus:ring-2 transition-all duration-150
                                    @error('proprietaire_id') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -88,7 +88,7 @@
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Nom de l'immeuble <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="nom" id="nom-immeuble" value="{{ old('nom') }}"
+                    <input type="text" name="nom" id="nom-immeuble" value="{{ old('nom') }}" aria-label="Nom de l'immeuble"
                            placeholder="Ex: Résidence Fann, Immeuble Plateau…"
                            oninput="updatePreview()"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
@@ -111,7 +111,7 @@
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Adresse <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="adresse" value="{{ old('adresse') }}" placeholder="Rue, numéro"
+                    <input type="text" name="adresse" value="{{ old('adresse') }}" placeholder="Rue, numéro" aria-label="Adresse"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('adresse') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -120,7 +120,7 @@
                 </div>
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Ville <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="ville" value="{{ old('ville', 'Dakar') }}" placeholder="Ex: Dakar"
+                    <input type="text" name="ville" value="{{ old('ville', 'Dakar') }}" placeholder="Ex: Dakar" aria-label="Ville"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('ville') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -133,7 +133,7 @@
         {{-- Création des appartements --}}
         <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
             {{-- Checkbox réelle (sr-only) — plus fiable qu'un hidden input pour les soumissions --}}
-            <input type="checkbox" id="avec-unites-cb" name="avec_unites" value="1"
+            <input type="checkbox" id="avec-unites-cb" name="avec_unites" value="1" aria-label="Créer les appartements maintenant"
                    {{ old('avec_unites') === '1' ? 'checked' : '' }}
                    class="sr-only">
             <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
@@ -146,7 +146,7 @@
                         <p class="font-body text-xs text-bimo-text/40 mt-0.5">Optionnel — vous pouvez les ajouter depuis la fiche immeuble</p>
                     </div>
                 </div>
-                <button type="button" id="toggle-apparts" onclick="toggleApparts()"
+                <button type="button" id="toggle-apparts" onclick="toggleApparts()" aria-label="Activer la création des appartements"
                         class="relative w-11 h-6 rounded-full transition-colors duration-200 flex-shrink-0 bg-bimo-navy/20">
                     <span id="toggle-apparts-dot"
                           class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200"></span>
@@ -190,7 +190,7 @@
                 <div id="bloc-simple" class="{{ old('mode_numerotation') === 'etage' ? 'hidden' : '' }} space-y-4">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Nombre d'appartements <span class="text-bimo-red">*</span></label>
-                        <input type="number" name="nombre_unites" id="nombre_unites"
+                        <input type="number" name="nombre_unites" id="nombre_unites" aria-label="Nombre d'appartements"
                                value="{{ old('nombre_unites', 1) }}" min="1" max="999"
                                oninput="updatePreview()"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -201,7 +201,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Type <span class="text-bimo-red">*</span></label>
-                            <select name="type_unite"
+                            <select name="type_unite" aria-label="Type d'appartement"
                                     class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                            focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 cursor-pointer">
                                 <option value="">— Choisir —</option>
@@ -213,7 +213,7 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Loyer (FCFA) <span class="text-bimo-red">*</span></label>
-                            <input type="number" name="loyer_par_unite" id="loyer_par_unite"
+                            <input type="number" name="loyer_par_unite" id="loyer_par_unite" aria-label="Loyer par appartement (FCFA)"
                                    value="{{ old('loyer_par_unite') }}" min="0" step="500"
                                    oninput="updatePreview()"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -227,7 +227,7 @@
                             <label class="block font-body font-medium text-sm text-bimo-text">
                                 Charges (FCFA/mois) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                             </label>
-                            <input type="number" name="charges_par_unite" id="charges_par_unite"
+                            <input type="number" name="charges_par_unite" id="charges_par_unite" aria-label="Charges par appartement (FCFA/mois)"
                                    value="{{ old('charges_par_unite', 0) }}" min="0" step="500"
                                    oninput="updatePreview()"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -237,7 +237,7 @@
                             <label class="block font-body font-medium text-sm text-bimo-text">
                                 Caution (FCFA) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                             </label>
-                            <input type="number" name="caution_par_unite"
+                            <input type="number" name="caution_par_unite" aria-label="Caution par appartement (FCFA)"
                                    value="{{ old('caution_par_unite') }}" min="0" step="500"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
@@ -264,7 +264,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Étages au-dessus du RDC <span class="text-bimo-red">*</span></label>
-                            <input type="number" name="nombre_etages" id="nombre_etages"
+                            <input type="number" name="nombre_etages" id="nombre_etages" aria-label="Étages au-dessus du RDC"
                                    value="{{ old('nombre_etages', 2) }}" min="0" max="99"
                                    oninput="updatePreview()"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -274,7 +274,7 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Appartements par étage <span class="text-bimo-red">*</span></label>
-                            <input type="number" name="unites_par_niveau" id="unites_par_niveau"
+                            <input type="number" name="unites_par_niveau" id="unites_par_niveau" aria-label="Appartements par étage"
                                    value="{{ old('unites_par_niveau', 2) }}" min="1" max="26"
                                    oninput="updatePreview()"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -300,7 +300,7 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="space-y-1.5">
                                     <label class="block font-body font-medium text-sm text-bimo-text">Type RDC <span class="text-bimo-red">*</span></label>
-                                    <select name="rdc_type" id="rdc_type"
+                                    <select name="rdc_type" id="rdc_type" aria-label="Type du RDC"
                                             onchange="updatePreview()"
                                             class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                                    focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 cursor-pointer">
@@ -313,7 +313,7 @@
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="block font-body font-medium text-sm text-bimo-text">Loyer RDC (FCFA) <span class="text-bimo-red">*</span></label>
-                                    <input type="number" name="rdc_loyer" id="rdc_loyer"
+                                    <input type="number" name="rdc_loyer" id="rdc_loyer" aria-label="Loyer du RDC (FCFA)"
                                            value="{{ old('rdc_loyer') }}" min="0" step="500"
                                            oninput="updatePreview()"
                                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -332,7 +332,7 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1.5">
                                 <label class="block font-body font-medium text-sm text-bimo-text">Type <span class="text-bimo-red">*</span></label>
-                                <select name="type_unite" id="type_unite_etage"
+                                <select name="type_unite" id="type_unite_etage" aria-label="Type d'appartement (étages)"
                                         class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                                focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150 cursor-pointer">
                                     <option value="">— Choisir —</option>
@@ -344,7 +344,7 @@
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block font-body font-medium text-sm text-bimo-text">Loyer (FCFA) <span class="text-bimo-red">*</span></label>
-                                <input type="number" name="loyer_par_unite" id="loyer_par_unite_etage"
+                                <input type="number" name="loyer_par_unite" id="loyer_par_unite_etage" aria-label="Loyer par appartement (étages, FCFA)"
                                        value="{{ old('loyer_par_unite') }}" min="0" step="500"
                                        oninput="updatePreview()"
                                        class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -360,7 +360,7 @@
                             <label class="block font-body font-medium text-sm text-bimo-text">
                                 Charges (FCFA/mois) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                             </label>
-                            <input type="number" name="charges_par_unite" id="charges_par_unite_etage"
+                            <input type="number" name="charges_par_unite" id="charges_par_unite_etage" aria-label="Charges par appartement (étages, FCFA/mois)"
                                    value="{{ old('charges_par_unite', 0) }}" min="0" step="500"
                                    oninput="updatePreview()"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -370,7 +370,7 @@
                             <label class="block font-body font-medium text-sm text-bimo-text">
                                 Caution (FCFA) <span class="font-normal text-bimo-text/40 text-xs">(optionnel)</span>
                             </label>
-                            <input type="number" name="caution_par_unite" id="caution_par_unite_etage"
+                            <input type="number" name="caution_par_unite" id="caution_par_unite_etage" aria-label="Caution par appartement (étages, FCFA)"
                                    value="{{ old('caution_par_unite') }}" min="0" step="500"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
@@ -383,7 +383,7 @@
                     <label class="block font-body font-medium text-sm text-bimo-text">
                         Commission agence (%) <span class="font-normal text-bimo-text/40 text-xs ml-1">(défaut 10%)</span>
                     </label>
-                    <input type="number" name="taux_commission" id="taux_commission"
+                    <input type="number" name="taux_commission" id="taux_commission" aria-label="Commission agence (%)"
                            value="{{ old('taux_commission', 10) }}" min="0" max="30" step="0.5"
                            oninput="updatePreview()"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
@@ -425,7 +425,7 @@
                 </span>
             </div>
             <div class="px-5 py-5">
-                <textarea name="description" rows="3"
+                <textarea name="description" rows="3" aria-label="Description de l'immeuble"
                           placeholder="Équipements communs, gardien, ascenseur, parking collectif…"
                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                  placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
@@ -453,30 +453,30 @@
     <div class="lg:sticky lg:top-6 space-y-4">
 
         {{-- Guide contextuel --}}
-        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-            <div class="px-5 py-4 border-b border-white/[7%]">
-                <div class="font-display font-bold text-sm text-white">Immeuble ou bien seul ?</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="font-display font-bold text-sm text-bimo-text">Immeuble ou bien seul ?</div>
             </div>
             <div class="px-5 py-4 space-y-3">
-                <div class="flex items-start gap-3 p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[10px]">
-                    <svg class="w-4 h-4 text-bimo-gold flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                <div class="flex items-start gap-3 p-3.5 rounded-[10px]" style="background: rgba(var(--ac-r),var(--ac-g),var(--ac-b),0.08); border: 1px solid rgba(var(--ac-r),var(--ac-g),var(--ac-b),0.2)">
+                    <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-[var(--ac)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
                     <div>
-                        <div class="font-body font-semibold text-xs text-bimo-gold mb-1">Immeuble (ici)</div>
-                        <div class="font-body text-[11px] text-bimo-gold/70 leading-relaxed">Bâtiment avec plusieurs appartements ou bureaux.</div>
+                        <div class="font-body font-semibold text-xs text-bimo-text mb-1">Immeuble (ici)</div>
+                        <div class="font-body text-[11px] text-bimo-text/60 leading-relaxed">Bâtiment avec plusieurs appartements ou bureaux.</div>
                     </div>
                 </div>
-                <div class="flex items-start gap-3 p-3.5 bg-white/[5%] border border-white/10 rounded-[10px]">
-                    <svg class="w-4 h-4 text-white/50 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <div class="flex items-start gap-3 p-3.5 bg-bimo-bg2 border border-bimo-navy/[7%] rounded-[10px]">
+                    <svg class="w-4 h-4 text-bimo-navy/40 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                     <div>
-                        <div class="font-body font-semibold text-xs text-white/70 mb-1">Bien seul → section Biens</div>
-                        <div class="font-body text-[11px] text-white/40 leading-relaxed">Villa, studio isolé, terrain, local commercial seul.</div>
+                        <div class="font-body font-semibold text-xs text-bimo-text/70 mb-1">Bien seul → section Biens</div>
+                        <div class="font-body text-[11px] text-bimo-text/50 leading-relaxed">Villa, studio isolé, terrain, local commercial seul.</div>
                     </div>
                 </div>
-                <div class="flex items-start gap-3 p-3.5 bg-white/[5%] border border-white/10 rounded-[10px]">
-                    <svg class="w-4 h-4 text-white/50 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/><rect x="2" y="3" width="5" height="5"/></svg>
+                <div class="flex items-start gap-3 p-3.5 bg-bimo-bg2 border border-bimo-navy/[7%] rounded-[10px]">
+                    <svg class="w-4 h-4 text-bimo-navy/40 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/><rect x="2" y="3" width="5" height="5"/></svg>
                     <div>
-                        <div class="font-body font-semibold text-xs text-white/70 mb-1">Commerce + appartements</div>
-                        <div class="font-body text-[11px] text-white/40 leading-relaxed">Mode "Par étage" → cocher "Le RDC a un type différent".</div>
+                        <div class="font-body font-semibold text-xs text-bimo-text/70 mb-1">Commerce + appartements</div>
+                        <div class="font-body text-[11px] text-bimo-text/50 leading-relaxed">Mode "Par étage" → cocher "Le RDC a un type différent".</div>
                     </div>
                 </div>
             </div>

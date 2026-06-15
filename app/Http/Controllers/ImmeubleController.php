@@ -26,14 +26,24 @@ class ImmeubleController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('isStaff');
 
-        $immeubles = Immeuble::with(['proprietaire:id,name,email'])
-            ->withCount('biens')
-            ->latest()
-            ->paginate(12);
+        $query = Immeuble::with(['proprietaire:id,name,email'])
+            ->withCount('biens');
+
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nom', 'like', "%{$q}%")
+                    ->orWhere('adresse', 'like', "%{$q}%")
+                    ->orWhere('ville', 'like', "%{$q}%")
+                    ->orWhereHas('proprietaire', fn ($p) => $p->where('name', 'like', "%{$q}%"));
+            });
+        }
+
+        $immeubles = $query->latest()->paginate(12)->withQueryString();
 
         return view('immeubles.index', compact('immeubles'));
     }

@@ -61,12 +61,12 @@
             </div>
         </div>
         <div class="relative z-10 text-right flex-shrink-0">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/50 mb-1">Unités</div>
-            <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">{{ $immeuble->biens->count() }}</div>
-            <div class="font-body text-[11px] text-white/30 mt-1">{{ $immeuble->biens->where('statut','loue')->count() }} louée(s)</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/50 mb-1">Unités</div>
+            <div class="font-display font-extrabold text-3xl text-white leading-none">{{ $immeuble->biens->count() }}</div>
+            <div class="font-body text-[11px] text-white/40 mt-1">{{ $immeuble->biens->where('statut','loue')->count() }} louée(s)</div>
             @if($loyerTotal > 0)
-            <div class="font-display font-bold text-sm text-bimo-gold mt-2">{{ number_format($loyerTotal, 0, ',', ' ') }} F/mois</div>
-            <div class="font-body text-[10px] text-white/25">Loyer total mensuel</div>
+            <div class="font-display font-bold text-sm text-white mt-2">{{ number_format($loyerTotal, 0, ',', ' ') }} F/mois</div>
+            <div class="font-body text-[10px] text-white/40">Loyer total mensuel</div>
             @endif
         </div>
     </div>
@@ -208,53 +208,53 @@
 
         {{-- Colonne droite --}}
         <div class="lg:sticky lg:top-6 space-y-4">
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Propriétaire</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Propriétaire</div>
                 </div>
                 <div class="px-5 py-4">
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-display font-bold text-sm text-bimo-gold bg-bimo-gold/15 border border-bimo-gold/30">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-display font-bold text-sm" style="background: var(--ac); color: var(--ac-text)">
                             {{ mb_strtoupper(mb_substr($immeuble->proprietaire?->name ?? 'P', 0, 2)) }}
                         </div>
                         <div>
-                            <div class="font-body font-semibold text-sm text-white">{{ $immeuble->proprietaire?->name ?? '—' }}</div>
-                            <div class="font-body text-xs text-white/40">{{ $immeuble->proprietaire?->email ?? '' }}</div>
+                            <div class="font-body font-semibold text-sm text-bimo-text">{{ $immeuble->proprietaire?->name ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-text/50">{{ $immeuble->proprietaire?->email ?? '' }}</div>
                         </div>
                     </div>
                     @if($immeuble->proprietaire?->telephone)
-                    <div class="flex items-center justify-between py-2.5 border-t border-white/[6%]">
-                        <span class="font-body text-xs text-white/40">Téléphone</span>
-                        <span class="font-body text-xs text-white/70">{{ $immeuble->proprietaire->telephone }}</span>
+                    <div class="flex items-center justify-between py-2.5 border-t border-bimo-navy/[5%]">
+                        <span class="font-body text-xs text-bimo-text/40">Téléphone</span>
+                        <span class="font-body text-xs text-bimo-text/70">{{ $immeuble->proprietaire->telephone }}</span>
                     </div>
                     @endif
                     @if($immeuble->proprietaire)
                     <a href="{{ route('admin.users.show', $immeuble->proprietaire) }}"
-                       class="flex items-center justify-center gap-2 mt-3 px-4 py-2.5 border border-white/10 rounded-[9px]
-                              font-body text-xs text-bimo-gold hover:text-white hover:border-white/20 transition-all duration-150">
+                       class="flex items-center justify-center gap-2 mt-3 px-4 py-2.5 border border-bimo-navy/15 rounded-[9px]
+                              font-body text-xs text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                         Voir le profil →
                     </a>
                     @endif
                 </div>
             </div>
 
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Récapitulatif</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Récapitulatif</div>
                 </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                     @foreach([
-                        ['Total unités',  (string) $immeuble->biens->count(), ''],
+                        ['Total unités',  (string) $immeuble->biens->count(), 'text-bimo-text/70'],
                         ['Louées',        (string) $immeuble->biens->where('statut','loue')->count(), 'text-bimo-gold font-semibold'],
-                        ['Disponibles',   (string) $immeuble->biens->where('statut','disponible')->count(), ''],
-                        ['En travaux',    (string) $immeuble->biens->where('statut','en_travaux')->count(), ''],
-                        ['Niveaux',       (string) ($immeuble->nombre_niveaux ?? '—'), ''],
-                        ['Ville',         $immeuble->ville, ''],
-                        ['Créé le',       $immeuble->created_at?->format('d/m/Y') ?? '—', ''],
+                        ['Disponibles',   (string) $immeuble->biens->where('statut','disponible')->count(), 'text-bimo-text/70'],
+                        ['En travaux',    (string) $immeuble->biens->where('statut','en_travaux')->count(), 'text-bimo-text/70'],
+                        ['Niveaux',       (string) ($immeuble->nombre_niveaux ?? '—'), 'text-bimo-text/70'],
+                        ['Ville',         $immeuble->ville, 'text-bimo-text/70'],
+                        ['Créé le',       $immeuble->created_at?->format('d/m/Y') ?? '—', 'text-bimo-text/70'],
                     ] as [$lbl, $val, $cls])
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
+                        <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs {{ $cls }}">{{ $val }}</span>
                     </div>
                     @endforeach
                 </div>
