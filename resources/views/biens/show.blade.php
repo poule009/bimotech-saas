@@ -98,7 +98,7 @@
             <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
                 {{ $bien->titre ?? $bien->type_label }}
                 @if($bien->meuble)
-                <span class="font-body font-normal text-sm text-bimo-gold/70 ml-2">· Meublé</span>
+                <span class="font-body font-normal text-sm text-white/60 ml-2">· Meublé</span>
                 @endif
             </div>
             @if($bien->titre)
@@ -113,7 +113,7 @@
             <div class="flex items-center gap-3 flex-wrap">
                 @php
                     $badgeClass = match($bien->statut) {
-                        'disponible' => 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold',
+                        'disponible' => 'bg-white/15 border-white/25 text-white',
                         'loue'       => 'bg-bimo-navy-dk/50 border-white/10 text-white/70',
                         'en_travaux' => 'bg-white/5 border-white/10 text-white/50',
                         default      => 'bg-white/5 border-white/10 text-white/30',
@@ -132,10 +132,10 @@
             </div>
         </div>
         <div class="relative z-10 text-right flex-shrink-0">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/50 mb-1">Loyer mensuel</div>
-            <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/50 mb-1">Loyer mensuel</div>
+            <div class="font-display font-extrabold text-3xl text-white leading-none">
                 {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}
-                <span class="font-body font-normal text-base text-bimo-gold/40">F</span>
+                <span class="font-body font-normal text-base text-white/40">F</span>
             </div>
             <div class="font-body text-xs text-white/30 mt-1">Commission {{ $bien->taux_commission ?? 10 }}%</div>
         </div>
@@ -446,33 +446,32 @@
         <div class="lg:sticky lg:top-6 space-y-4">
 
             {{-- Propriétaire --}}
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Propriétaire</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Propriétaire</div>
                 </div>
                 <div class="px-5 py-4">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-                                    font-display font-bold text-sm text-bimo-gold
-                                    bg-bimo-gold/15 border border-bimo-gold/30">
+                                    font-display font-bold text-sm" style="background: var(--ac); color: var(--ac-text)">
                             {{ mb_strtoupper(mb_substr($bien->proprietaire?->name ?? 'P', 0, 2)) }}
                         </div>
                         <div>
-                            <div class="font-body font-semibold text-sm text-white">{{ $bien->proprietaire?->name ?? '—' }}</div>
-                            <div class="font-body text-xs text-white/35">{{ $bien->proprietaire?->email ?? '' }}</div>
+                            <div class="font-body font-semibold text-sm text-bimo-text">{{ $bien->proprietaire?->name ?? '—' }}</div>
+                            <div class="font-body text-xs text-bimo-text/50">{{ $bien->proprietaire?->email ?? '' }}</div>
                         </div>
                     </div>
                     @if($bien->proprietaire?->telephone)
-                    <div class="flex items-center justify-between py-2 border-t border-white/[6%]">
-                        <span class="font-body text-xs text-white/40">Téléphone</span>
-                        <span class="font-body text-xs text-white/70">{{ $bien->proprietaire->telephone }}</span>
+                    <div class="flex items-center justify-between py-2 border-t border-bimo-navy/[5%]">
+                        <span class="font-body text-xs text-bimo-text/40">Téléphone</span>
+                        <span class="font-body text-xs text-bimo-text/70">{{ $bien->proprietaire->telephone }}</span>
                     </div>
                     @endif
                     @if($bien->proprietaire)
                     <a href="{{ route('admin.users.show', $bien->proprietaire) }}"
                        class="flex items-center justify-center gap-2 mt-3 px-4 py-2.5
-                              border border-white/10 rounded-[9px]
-                              font-body text-xs text-bimo-gold hover:text-white hover:border-white/20
+                              border border-bimo-navy/15 rounded-[9px]
+                              font-body text-xs text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30
                               transition-all duration-150">
                         Voir le profil →
                     </a>
@@ -481,28 +480,28 @@
             </div>
 
             {{-- Récapitulatif --}}
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Récapitulatif</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Récapitulatif</div>
                 </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                     @php
                         $sideRows = [
-                            ['Référence',   $bien->reference, 'font-display font-semibold text-xs'],
+                            ['Référence',   $bien->reference, 'font-display font-semibold text-xs text-bimo-text'],
                             ['Loyer',        number_format($bien->loyer_mensuel, 0, ',', ' ') . ' F', 'text-bimo-gold font-semibold'],
-                            ['Commission',   ($bien->taux_commission ?? 10) . ' %', ''],
-                            ['Net proprio',  number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') . ' F', 'text-white font-semibold'],
-                            ['Statut',       $bien->statut_label, ''],
-                            ['Surface',      $bien->surface_m2 ? $bien->surface_m2.' m²' : '—', ''],
-                            ['Pièces',       $bien->nombre_pieces ?? '—', ''],
-                            ['Meublé',       $bien->meuble ? 'Oui' : 'Non', ''],
-                            ['Ajouté le',    $bien->created_at?->format('d/m/Y') ?? '—', ''],
+                            ['Commission',   ($bien->taux_commission ?? 10) . ' %', 'text-bimo-text/70'],
+                            ['Net proprio',  number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') . ' F', 'text-bimo-text font-semibold'],
+                            ['Statut',       $bien->statut_label, 'text-bimo-text/70'],
+                            ['Surface',      $bien->surface_m2 ? $bien->surface_m2.' m²' : '—', 'text-bimo-text/70'],
+                            ['Pièces',       $bien->nombre_pieces ?? '—', 'text-bimo-text/70'],
+                            ['Meublé',       $bien->meuble ? 'Oui' : 'Non', 'text-bimo-text/70'],
+                            ['Ajouté le',    $bien->created_at?->format('d/m/Y') ?? '—', 'text-bimo-text/70'],
                         ];
                     @endphp
                     @foreach($sideRows as [$lbl, $val, $valClass])
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-white/70 {{ $valClass }}">{{ $val }}</span>
+                        <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs {{ $valClass }}">{{ $val }}</span>
                     </div>
                     @endforeach
                 </div>
@@ -510,25 +509,25 @@
 
             {{-- Historique contrats --}}
             @if($bien->contrats->count() > 0)
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Historique contrats</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Historique contrats</div>
                 </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                     @foreach($bien->contrats->take(5) as $c)
                     <div class="py-3">
                         <div class="flex items-center justify-between mb-1">
-                            <span class="font-body font-medium text-sm text-white/80">{{ $c->locataire?->name ?? '—' }}</span>
+                            <span class="font-body font-medium text-sm text-bimo-text">{{ $c->locataire?->name ?? '—' }}</span>
                             <span class="font-body text-[10px] font-semibold
-                                         {{ $c->statut === 'actif' ? 'text-bimo-gold' : ($c->statut === 'resilié' ? 'text-bimo-red/70' : 'text-white/30') }}">
+                                         {{ $c->statut === 'actif' ? 'text-bimo-gold' : ($c->statut === 'resilié' ? 'text-bimo-red' : 'text-bimo-text/40') }}">
                                 {{ \App\Models\Contrat::STATUTS[$c->statut] ?? $c->statut }}
                             </span>
                         </div>
-                        <div class="font-body text-xs text-white/30 mb-1">
+                        <div class="font-body text-xs text-bimo-text/40 mb-1">
                             {{ $c->date_debut?->format('d/m/Y') }} → {{ $c->date_fin?->format('d/m/Y') ?? 'En cours' }}
                         </div>
                         <a href="{{ route('admin.contrats.show', $c) }}"
-                           class="font-body text-xs text-bimo-gold hover:text-white transition-colors duration-150">
+                           class="font-body text-xs text-bimo-gold hover:text-bimo-text transition-colors duration-150">
                             Voir →
                         </a>
                     </div>

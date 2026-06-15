@@ -10,7 +10,7 @@
             <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight leading-tight">
                 Biens immobiliers
             </h1>
-            <p class="font-body text-sm text-bimo-text/50 mt-1">
+            <p class="font-body text-sm text-bimo-text/60 mt-1">
                 {{ $biens->total() }} bien(s) enregistré(s)
             </p>
         </div>
@@ -36,7 +36,7 @@
     </div>
 
     {{-- ═══ FILTRES ═══ --}}
-    <form method="GET" class="flex flex-wrap gap-2 items-center">
+    <form method="GET" x-data="autoSubmit" class="flex flex-wrap gap-2 items-center">
         {{-- Recherche --}}
         <div class="relative flex-1 min-w-[200px] max-w-xs">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-text/30 pointer-events-none"
@@ -46,14 +46,14 @@
             <input type="text" name="q" value="{{ request('q') }}"
                    aria-label="Rechercher un bien (référence, adresse, ville, propriétaire)"
                    placeholder="Référence, adresse, ville, propriétaire…"
-                   class="w-full pl-9 pr-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+                   class="w-full pl-9 pr-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
                           font-body text-sm text-bimo-text placeholder:text-bimo-text/30
                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                           transition-all duration-150">
         </div>
 
-        <select name="statut" onchange="this.form.submit()" aria-label="Filtrer par statut"
-                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+        <select name="statut" @change="submit" aria-label="Filtrer par statut"
+                class="px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
                        font-body text-sm text-bimo-text cursor-pointer
                        focus:outline-none focus:border-bimo-gold transition-all duration-150">
             <option value="">Tous les statuts</option>
@@ -63,8 +63,8 @@
             <option value="archive"    @selected(request('statut')==='archive')>Archivé</option>
         </select>
 
-        <select name="type" onchange="this.form.submit()" aria-label="Filtrer par type de bien"
-                class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
+        <select name="type" @change="submit" aria-label="Filtrer par type de bien"
+                class="px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
                        font-body text-sm text-bimo-text cursor-pointer
                        focus:outline-none focus:border-bimo-gold transition-all duration-150">
             <option value="">Tous les types</option>
@@ -74,15 +74,15 @@
         </select>
 
         <button type="submit"
-                class="px-4 py-2 bg-[var(--ac)] text-white font-display font-bold text-sm
+                class="px-4 py-2 min-h-[48px] md:min-h-0 bg-[var(--ac)] text-white font-display font-bold text-sm
                        rounded-[9px] hover:opacity-90 transition-opacity duration-150">
             Rechercher
         </button>
 
         @if(request()->hasAny(['statut','type','q']))
         <a href="{{ route('admin.biens.index') }}"
-           class="px-3 py-2 bg-white border border-bimo-navy/15 rounded-[9px]
-                  font-body text-sm text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30
+           class="inline-flex items-center px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
+                  font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30
                   transition-all duration-150">
             Effacer
         </a>
@@ -100,7 +100,7 @@
             </svg>
         </div>
         <div class="font-display font-bold text-base text-bimo-text mb-2">Aucun bien enregistré</div>
-        <p class="font-body text-sm text-bimo-text/50 mb-5">
+        <p class="font-body text-sm text-bimo-text/60 mb-5">
             @if(request()->hasAny(['statut','type','q']))
                 Aucun résultat pour ces filtres.
             @else
@@ -124,8 +124,8 @@
             $badgeClass = match($bien->statut) {
                 'loue'       => 'bg-bimo-navy/10 border-bimo-navy/20 text-bimo-text',
                 'disponible' => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
-                'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/50',
-                default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/40',
+                'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/60',
+                default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/60',
             };
         @endphp
 
@@ -134,17 +134,20 @@
                     transition-all duration-150 overflow-hidden group">
 
             {{-- Photo --}}
-            <div class="h-44 bg-bimo-bg2 overflow-hidden flex items-center justify-center relative">
+            <div class="h-36 bg-bimo-bg2 overflow-hidden flex items-center justify-center relative">
                 @if($photo)
                     <img src="{{ asset('storage/'.$photo->chemin) }}"
                          alt="{{ $bien->titre_fallback }}"
                          class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
                 @else
-                    <svg class="w-10 h-10 text-bimo-text/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <polyline points="21 15 16 10 5 21"/>
-                    </svg>
+                    <div class="flex flex-col items-center gap-1 text-bimo-text/25">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                            <polyline points="21 15 16 10 5 21"/>
+                        </svg>
+                        <span class="font-body text-[10px]">Aucune photo</span>
+                    </div>
                 @endif
                 {{-- Badge statut sur la photo --}}
                 <div class="absolute top-3 right-3">
@@ -158,10 +161,10 @@
             <div class="p-4 flex flex-col flex-1">
                 {{-- Référence + type --}}
                 <div class="flex items-center justify-between mb-2">
-                    <span class="font-body text-[10px] text-bimo-text/40 uppercase tracking-widest">
+                    <span class="font-body text-[10px] text-bimo-text/50 uppercase tracking-widest">
                         {{ $bien->reference }}
                     </span>
-                    <span class="font-body text-[11px] font-medium text-bimo-text/50">
+                    <span class="font-body text-[11px] font-medium text-bimo-text/60">
                         {{ $bien->type_label }}
                     </span>
                 </div>
@@ -170,7 +173,7 @@
                 <h3 class="font-display font-bold text-sm text-bimo-text mb-1 leading-tight">
                     {{ $bien->titre ?? $bien->adresse }}
                 </h3>
-                <p class="font-body text-xs text-bimo-text/50 mb-3">
+                <p class="font-body text-xs text-bimo-text/60 mb-3">
                     @if($bien->quartier) {{ $bien->quartier }}, @endif{{ $bien->ville }}
                 </p>
 
@@ -179,18 +182,18 @@
                     <div>
                         <div class="font-display font-bold text-base text-[var(--ac)] leading-none">
                             {{ number_format($bien->loyer_hors_charges, 0, ',', ' ') }}
-                            <span class="font-body font-normal text-xs text-bimo-text/40">F/mois</span>
+                            <span class="font-body font-normal text-xs text-bimo-text/60">F/mois</span>
                         </div>
                         @if($bien->contratActif)
-                        <div class="font-body text-[11px] text-bimo-text/50 mt-0.5">
+                        <div class="font-body text-[11px] text-bimo-text/60 mt-0.5">
                             {{ $bien->contratActif->locataire?->name ?? '—' }}
                         </div>
                         @endif
                     </div>
                     <a href="{{ route('admin.biens.show', $bien) }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-bimo-navy/10
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] md:min-h-0 border border-bimo-navy/10
                               rounded-[8px] font-body font-medium text-xs text-bimo-text/60
-                              hover:text-bimo-text hover:border-bimo-gold hover:text-bimo-gold
+                              hover:border-bimo-gold hover:text-bimo-gold
                               transition-all duration-150">
                         Voir
                         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -208,8 +211,8 @@
     <div class="flex items-center justify-center gap-1.5 mt-2">
         @if(!$biens->onFirstPage())
         <a href="{{ $biens->previousPageUrl() }}"
-           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
-                  text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
+           class="w-10 h-10 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
+                  text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
         </a>
         @endif
@@ -226,8 +229,8 @@
 
         @if($biens->hasMorePages())
         <a href="{{ $biens->nextPageUrl() }}"
-           class="w-8 h-8 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
-                  text-bimo-text/40 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
+           class="w-10 h-10 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
+                  text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </a>
         @endif

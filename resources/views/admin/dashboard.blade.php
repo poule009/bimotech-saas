@@ -149,7 +149,7 @@
                         <div class="font-body font-semibold text-xs {{ $step['done'] ? 'text-bimo-gold' : 'text-bimo-text' }} mb-0.5">
                             {{ $step['label'] }}
                         </div>
-                        <div class="font-body text-[10px] text-bimo-text/40 mb-2">{{ $step['sub'] }}</div>
+                        <div class="font-body text-[10px] text-bimo-text/60 mb-2">{{ $step['sub'] }}</div>
                         @if(!$step['done'])
                         <a href="{{ $step['url'] }}"
                            class="font-body font-semibold text-[11px] text-bimo-gold hover:text-bimo-text transition-colors duration-150">
@@ -186,7 +186,7 @@
                 <div class="font-display font-extrabold text-4xl lg:text-[2.8rem] text-bimo-text leading-none mt-3">
                     {{ number_format($statsMois['loyers'], 0, ',', ' ') }}<span class="font-body font-normal text-lg text-bimo-text/40"> F</span>
                 </div>
-                <div class="font-body text-xs text-bimo-text/40 mt-2">{{ $statsMois['nb_payes'] }} paiement(s) encaissé(s) ce mois</div>
+                <div class="font-body text-xs text-bimo-text/60 mt-2">{{ $statsMois['nb_payes'] }} paiement(s) encaissé(s) ce mois</div>
             </div>
             {{-- Droite : recouvrement --}}
             <div class="p-6 lg:p-7 bg-bimo-bg/50">
@@ -199,11 +199,11 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3 mt-4">
                     <div>
-                        <div class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/40">Attendu</div>
+                        <div class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/50">Attendu</div>
                         <div class="font-display font-bold text-sm text-bimo-text">{{ number_format($bilanMois['attendu'], 0, ',', ' ') }} <span class="font-body font-normal text-[11px] text-bimo-text/40">F</span></div>
                     </div>
                     <div>
-                        <div class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/40">Reliquat</div>
+                        <div class="font-body text-[9.5px] uppercase tracking-widest text-bimo-text/50">Reliquat</div>
                         <div class="font-display font-bold text-sm {{ $reliquat > 0 ? 'text-bimo-red' : 'text-bimo-text' }}">{{ number_format($reliquat, 0, ',', ' ') }} <span class="font-body font-normal text-[11px] {{ $reliquat > 0 ? 'text-bimo-red/50' : 'text-bimo-text/40' }}">F</span></div>
                     </div>
                 </div>
@@ -267,7 +267,7 @@
             </div>
             <div class="flex-1 min-w-0">
                 <div class="font-display font-bold text-sm text-bimo-text">Nouveau contrat</div>
-                <div class="font-body text-xs text-bimo-text/40 mt-0.5 truncate">Créer un bail locatif</div>
+                <div class="font-body text-xs text-bimo-text/60 mt-0.5 truncate">Créer un bail locatif</div>
             </div>
             <svg class="w-4 h-4 text-bimo-text/20 group-hover:text-bimo-text/50 transition-colors duration-150 flex-shrink-0"
                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -286,7 +286,7 @@
             </div>
             <div class="flex-1 min-w-0">
                 <div class="font-display font-bold text-sm text-bimo-text">Ajouter un bien</div>
-                <div class="font-body text-xs text-bimo-text/40 mt-0.5 truncate">Appartement, villa, bureau…</div>
+                <div class="font-body text-xs text-bimo-text/60 mt-0.5 truncate">Appartement, villa, bureau…</div>
             </div>
             <svg class="w-4 h-4 text-bimo-text/20 group-hover:text-bimo-text/50 transition-colors duration-150 flex-shrink-0"
                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -303,7 +303,7 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%]">
             <div class="font-display font-bold text-base text-bimo-text">Derniers paiements</div>
             <a href="{{ route('admin.paiements.index') }}"
-               class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
+               class="font-body text-xs text-bimo-text/60 hover:text-bimo-gold transition-colors duration-150">
                 Voir tout →
             </a>
         </div>
@@ -319,12 +319,12 @@
             <div class="w-9 h-9 rounded-full {{ $avatarClass }} flex items-center justify-center font-display font-bold text-xs flex-shrink-0">{{ $initials ?: '??' }}</div>
             <div class="flex-1 min-w-0">
                 <div class="font-body font-medium text-sm text-bimo-text truncate">{{ $p->contrat?->bien?->reference ?? '—' }}</div>
-                <div class="font-body text-xs text-bimo-text/40 truncate">{{ $locName ?: '—' }}</div>
+                <div class="font-body text-xs text-bimo-text/60 truncate">{{ $locName ?: '—' }}</div>
             </div>
             <div class="font-display font-bold text-sm text-bimo-gold whitespace-nowrap">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} F</div>
         </div>
         @empty
-        <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">Aucun paiement enregistré ce mois</div>
+        <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/60">Aucun paiement enregistré ce mois</div>
         @endforelse
     </div>
 

@@ -13,7 +13,7 @@
 5. Vérifier tablette (768px) : mini sidebar visible, grilles 2 col
 6. Vérifier desktop (1024px) : sidebar complète, données denses
 7. Palette : zéro couleur hors palette (sauf exception documentée)
-8. Polices : uniquement `font-display` (Syne) et `font-body` (DM Sans)
+8. Polices : uniquement `font-display` et `font-body` (toutes deux = Poppins)
 9. `var(--ac)` utilisé partout où la couleur agence intervient
 10. Zéro `<style>` inline dans la vue migrée — tout en Tailwind
 
@@ -37,7 +37,7 @@
 - Blade templates (pas de Vue/React/Livewire)
 - **Tailwind CSS v3** + **Alpine.js v3**
 - Vite (`npm run dev` / `npm run build`)
-- Polices : Syne + DM Sans via Google Fonts
+- Polices : Poppins via Google Fonts
 - Icônes : SVG inline uniquement (pas de librairie d'icônes externe)
 - Pas de jQuery, pas d'autres CSS frameworks
 
@@ -117,9 +117,10 @@ bg-bimo-gold/7       ❌  →  invalide sans []
 | Composants UI (bordures, icônes) | **3:1** | — |
 
 **Règles pour ce projet :**
-- `text-bimo-navy/50` sur fond blanc → ratio ~3.2:1 — **sous le seuil AA** pour du texte normal. Utiliser `/70` minimum pour les labels importants, réserver `/50` aux métadonnées secondaires (caps uppercase < 11px uniquement).
-- `text-[9.5px]` labels KPI — accepté comme exception documentée (caps uppercase, contexte dense), mais ne jamais descendre en dessous.
-- `text-bimo-gold/70` sur fond blanc → ratio ~2.8:1 — **exception documentée** pour les labels caps de cards highlighted uniquement.
+- **Texte normal** (corps, liens, valeurs et métadonnées que l'utilisateur lit) : **jamais sous `/60`** sur fond blanc (~5:1, conforme AA). C'est le plancher dur — la lisibilité prime sur l'esthétique (cible : Android bas de gamme en plein soleil).
+- **`/50` toléré uniquement** pour les caps uppercase décoratifs (labels de section / KPI en `tracking-widest`, ≥ `text-[9.5px]`) → ~3.5:1, conforme au seuil 3:1 du texte large. Jamais pour une phrase ou une valeur lue.
+- **Plus aucune tolérance sous 3:1.** L'ancienne exception `text-bimo-gold/70` (~2.8:1) est supprimée : pour un label caps coloré sur card highlighted, utiliser `text-bimo-gold` plein.
+- `text-[9.5px]` reste la **taille minimale absolue** (caps uppercase, contexte dense) — jamais en dessous.
 
 ### Règle absolue
 

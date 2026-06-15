@@ -448,8 +448,6 @@ function calcRecap() {
     document.getElementById('rp-net').textContent      = fmt(net) + ' FCFA';
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-
 function previewPhotos(files) {
     const grid = document.getElementById('preview-grid');
     grid.innerHTML = '';

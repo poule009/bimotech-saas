@@ -70,4 +70,9 @@ export default function registerComponents(Alpine) {
             } else { this.show = false }
         },
     }));
+
+    // Formulaire de filtres — soumet le formulaire quand un select change (CSP-safe)
+    Alpine.data('autoSubmit', () => ({
+        submit() { this.$root.submit() },
+    }));
 }
