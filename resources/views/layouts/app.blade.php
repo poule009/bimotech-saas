@@ -177,16 +177,10 @@
             <span class="font-display font-semibold text-sm">Tableau de bord</span>
         </a>
 
-        {{-- ── PATRIMOINE ── --}}
+        {{-- ── PORTEFEUILLE ── --}}
         <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white px-3 pt-4 pb-1">
-            Patrimoine
+            Portefeuille
         </div>
-        <a href="{{ route('admin.users.proprietaires') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
-                  {{ str_starts_with($route, 'admin.users.proprietaires') || str_starts_with($route, 'admin.bailleurs') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
-            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span class="font-display font-semibold text-sm">Propriétaires</span>
-        </a>
         <a href="{{ route('admin.biens.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.biens') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
@@ -209,11 +203,12 @@
                 @endif
             @endif
         </a>
-
-        {{-- ── RELATIONS ── --}}
-        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white px-3 pt-4 pb-1">
-            Relations
-        </div>
+        <a href="{{ route('admin.users.proprietaires') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.users.proprietaires') || str_starts_with($route, 'admin.bailleurs') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="font-display font-semibold text-sm">Propriétaires</span>
+        </a>
         <a href="{{ route('admin.users.locataires') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.users.locataires') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
@@ -227,7 +222,7 @@
             <span class="font-display font-semibold text-sm">Contrats</span>
         </a>
 
-        {{-- ── CAISSE ── --}}
+        {{-- ── CAISSE (l'argent qui entre & sort) ── --}}
         <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white px-3 pt-4 pb-1">
             Caisse
         </div>
@@ -249,21 +244,24 @@
             </span>
             @endif
         </a>
-
-        {{-- ── ANALYTIQUE ── --}}
-        <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white px-3 pt-4 pb-1">
-            Analytique
-        </div>
-        <a href="{{ route('admin.rapports.financier') }}" onclick="closeSidebar()"
+        <a href="{{ route('admin.reversements.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
-                  {{ str_starts_with($route, 'admin.rapports') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
-            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            <span class="font-display font-semibold text-sm">Bilan mensuel</span>
+                  {{ str_starts_with($route, 'admin.reversements') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span class="font-display font-semibold text-sm flex-1">Reversements</span>
+            @if($badge = $planRequired('comptabilite'))
+                @if(!$canAccess('comptabilite'))
+                    <span class="font-body font-semibold text-[9.5px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-bimo-gold/20 text-bimo-gold flex items-center gap-1">
+                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        {{ $badge }}
+                    </span>
+                @endif
+            @endif
         </a>
 
-        {{-- ── COMPTABILITÉ ── --}}
+        {{-- ── ANALYSE (consultation, périodique) ── --}}
         <div class="font-body font-semibold text-[9.5px] uppercase tracking-[0.12em] text-white px-3 pt-4 pb-1">
-            Comptabilité
+            Analyse
         </div>
         <a href="{{ route('admin.comptabilite.dashboard') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
@@ -295,20 +293,6 @@
                 @endif
             @endif
         </a>
-        <a href="{{ route('admin.reversements.index') }}" onclick="closeSidebar()"
-           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
-                  {{ str_starts_with($route, 'admin.reversements') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
-            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-            <span class="font-display font-semibold text-sm flex-1">Reversements</span>
-            @if($badge = $planRequired('comptabilite'))
-                @if(!$canAccess('comptabilite'))
-                    <span class="font-body font-semibold text-[9.5px] uppercase tracking-widest px-1.5 py-0.5 rounded-[4px] bg-bimo-gold/20 text-bimo-gold flex items-center gap-1">
-                        <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                        {{ $badge }}
-                    </span>
-                @endif
-            @endif
-        </a>
         <a href="{{ route('admin.tresorerie.index') }}" onclick="closeSidebar()"
            class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
                   {{ str_starts_with($route, 'admin.tresorerie') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
@@ -324,6 +308,12 @@
                     </span>
                 @endif
             @endif
+        </a>
+        <a href="{{ route('admin.rapports.financier') }}" onclick="closeSidebar()"
+           class="flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all duration-150
+                  {{ str_starts_with($route, 'admin.rapports') ? 'bg-white/15 text-white' : 'text-white hover:bg-white/10' }}">
+            <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span class="font-display font-semibold text-sm">Bilan mensuel</span>
         </a>
 
         {{-- ── FISCALITÉ ── (masqué si FEATURE_FISCALITE=false) --}}
