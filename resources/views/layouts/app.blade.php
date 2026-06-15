@@ -547,7 +547,8 @@
                 {{ auth()->user()?->agency?->name ?? 'bee' }}
             </a>
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            <span class="text-bimo-text font-medium">{{ $header ?? 'Tableau de bord' }}</span>
+            @php $__pageHeader = trim($__env->yieldContent('header')); @endphp
+            <span class="text-bimo-text font-medium">{{ $header ?? ($__pageHeader !== '' ? $__pageHeader : 'Tableau de bord') }}</span>
         </div>
 
         {{-- Actions topbar droite --}}
