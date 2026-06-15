@@ -28,6 +28,38 @@
         <x-kpi compact :value="number_format($stats['total_net'], 0, ',', ' ')" label="Net à reverser" sub="FCFA total" />
     </div>
 
+    {{-- Recherche --}}
+    @if($stats['total'] > 0 || request()->filled('q'))
+    <form method="GET" class="flex flex-wrap gap-2 items-center">
+        <div class="relative flex-1 min-w-[200px] max-w-xs">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-text/30 pointer-events-none"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" name="q" value="{{ request('q') }}"
+                   aria-label="Rechercher un propriétaire (nom, email, téléphone, ville, NINEA)"
+                   placeholder="Nom, email, téléphone, ville, NINEA…"
+                   class="w-full pl-9 pr-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
+                          font-body text-sm text-bimo-text placeholder:text-bimo-text/30
+                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
+                          transition-all duration-150">
+        </div>
+        <button type="submit"
+                class="px-4 py-2 min-h-[48px] md:min-h-0 bg-[var(--ac)] text-white font-display font-bold text-sm
+                       rounded-[9px] hover:opacity-90 transition-opacity duration-150">
+            Rechercher
+        </button>
+        @if(request()->filled('q'))
+        <a href="{{ route('admin.users.proprietaires') }}"
+           class="inline-flex items-center px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
+                  font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30
+                  transition-all duration-150">
+            Effacer
+        </a>
+        @endif
+    </form>
+    @endif
+
     {{-- Liste --}}
     @if($proprietaires->isEmpty())
     <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
@@ -36,12 +68,21 @@
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
         </div>
+        @if(request()->filled('q'))
+        <div class="font-display font-bold text-base text-bimo-text mb-2">Aucun résultat</div>
+        <p class="font-body text-sm text-bimo-text/50 mb-5">Aucun propriétaire ne correspond à « {{ request('q') }} ».</p>
+        <a href="{{ route('admin.users.proprietaires') }}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/70 font-display font-bold text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
+            Effacer la recherche
+        </a>
+        @else
         <div class="font-display font-bold text-base text-bimo-text mb-2">Aucun propriétaire enregistré</div>
         <p class="font-body text-sm text-bimo-text/50 mb-5">Commencez par ajouter le premier propriétaire de votre agence.</p>
         <a href="{{ route('admin.users.create', 'proprietaire') }}"
            class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
             + Ajouter un propriétaire
         </a>
+        @endif
     </div>
 
     @else
@@ -134,18 +175,18 @@
                 </div>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
                     <a href="{{ route('admin.users.show', $u) }}"
-                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
-                       title="Fiche propriétaire">
+                       class="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
+                       aria-label="Fiche de {{ $u->name }}" title="Fiche propriétaire">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </a>
                     <a href="{{ route('admin.bailleurs.show', $u->id) }}"
-                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
-                       title="Portefeuille détaillé">
+                       class="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
+                       aria-label="Portefeuille de {{ $u->name }}" title="Portefeuille détaillé">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
                     </a>
                     <a href="{{ route('admin.users.edit', $u) }}"
-                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
-                       title="Modifier">
+                       class="w-11 h-11 md:w-9 md:h-9 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
+                       aria-label="Modifier {{ $u->name }}" title="Modifier">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
                 </div>

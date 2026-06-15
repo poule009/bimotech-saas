@@ -62,8 +62,8 @@
         <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
              style="background: radial-gradient(circle, var(--ac) 0%, transparent 70%); transform: translate(30%, -30%)">
         </div>
-        <div class="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 font-display font-bold text-2xl text-bimo-gold
-                    bg-bimo-gold/15 border-2 border-bimo-gold/30 relative z-10">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 font-display font-bold text-2xl text-white
+                    bg-white/15 border-2 border-white/25 relative z-10">
             {{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}
         </div>
         <div class="flex-1 relative z-10">
@@ -73,7 +73,7 @@
                 @if($user->telephone) · {{ $user->telephone }} @endif
             </div>
             <span class="inline-flex items-center px-2.5 py-1 rounded-full border text-xs font-body font-medium
-                         {{ $user->isProprietaire() ? 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold' : 'bg-bimo-navy-dk/50 border-white/10 text-white/70' }}">
+                         {{ $user->isProprietaire() ? 'bg-white/15 border-white/25 text-white' : 'bg-bimo-navy-dk/50 border-white/10 text-white/70' }}">
                 {{ $user->isProprietaire() ? 'Propriétaire' : 'Locataire' }}
             </span>
         </div>
@@ -88,7 +88,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Total loyers</div>
+            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold mb-1">Total loyers</div>
             <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
                 {{ number_format($stats['total_loyers'] ?? 0, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-gold/50"> FCFA</span>
             </div>
@@ -237,11 +237,11 @@
 
         {{-- Sidebar propriétaire --}}
         <div class="lg:sticky lg:top-6 space-y-4">
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Informations</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Informations</div>
                 </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                     @php
                         $rows = [['Nom', $user->name, ''], ['Email', $user->email, 'text-xs']];
                         if ($user->telephone) $rows[] = ['Téléphone', $user->telephone, ''];
@@ -254,23 +254,23 @@
                     @endphp
                     @foreach($rows as [$lbl, $val, $cls])
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
+                        <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs text-bimo-text/70 {{ $cls }}">{{ $val }}</span>
                     </div>
                     @endforeach
                 </div>
             </div>
 
             @if(isset($locatairesActifs) && $locatairesActifs->count() > 0)
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Locataires actifs</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Locataires actifs</div>
                 </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                     @foreach($locatairesActifs as $lc)
                     <div class="py-3">
-                        <div class="font-body font-medium text-sm text-white/80">{{ $lc->locataire?->name ?? '—' }}</div>
-                        <div class="font-body text-xs text-white/35 mt-0.5">{{ $lc->bien?->reference }}</div>
+                        <div class="font-body font-medium text-sm text-bimo-text">{{ $lc->locataire?->name ?? '—' }}</div>
+                        <div class="font-body text-xs text-bimo-text/50 mt-0.5">{{ $lc->bien?->reference }}</div>
                         <div class="font-body text-xs text-bimo-gold mt-0.5">{{ number_format($lc->loyer_contractuel, 0, ',', ' ') }} F/mois</div>
                     </div>
                     @endforeach
@@ -321,7 +321,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Total payé</div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold mb-1">Total payé</div>
                     <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
                         {{ number_format($stats['total_paye'] ?? 0, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-gold/50"> FCFA</span>
                     </div>
@@ -356,11 +356,11 @@
 
         {{-- Sidebar locataire --}}
         <div class="lg:sticky lg:top-6">
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Informations</div>
+            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                    <div class="font-display font-bold text-sm text-bimo-text">Informations</div>
                 </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
+                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                     @php
                         $locRows = [['Nom', $user->name, ''], ['Email', $user->email, 'text-xs']];
                         if ($user->telephone) $locRows[] = ['Téléphone', $user->telephone, ''];
@@ -372,13 +372,13 @@
                     @endphp
                     @foreach($locRows as [$lbl, $val, $cls])
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
+                        <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs text-bimo-text/70 {{ $cls }}">{{ $val }}</span>
                     </div>
                     @endforeach
                     @if($user->locataire?->taux_effort)
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">Taux d'effort</span>
+                        <span class="font-body text-xs text-bimo-text/40">Taux d'effort</span>
                         <span class="font-body text-xs font-semibold {{ (float)$user->locataire->taux_effort > 33 ? 'text-bimo-red' : 'text-bimo-gold' }}">
                             {{ $user->locataire->taux_effort }}
                         </span>

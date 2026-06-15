@@ -62,12 +62,23 @@ class UserController extends Controller
             ->keyBy(fn($p) => $p['user']->id);
 
         // Tous les propriétaires de l'agence (y compris ceux sans biens)
-        $users = User::where('role', 'proprietaire')
+        $usersQuery = User::where('role', 'proprietaire')
             ->where('agency_id', $agencyId)
             ->select(['id', 'agency_id', 'name', 'email', 'telephone', 'created_at'])
-            ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere'])
-            ->orderBy('name')
-            ->get();
+            ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere']);
+
+        if (($q = trim((string) request('q'))) !== '') {
+            $usersQuery->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('telephone', 'like', "%{$q}%")
+                    ->orWhereHas('proprietaire', fn ($p) => $p
+                        ->where('ville', 'like', "%{$q}%")
+                        ->orWhere('ninea', 'like', "%{$q}%"));
+            });
+        }
+
+        $users = $usersQuery->orderBy('name')->get();
 
         // Fusion identité + financier
         $proprietaires = $users->map(function (User $user) use ($portfolios) {
@@ -85,7 +96,7 @@ class UserController extends Controller
         });
 
         $stats = [
-            'total'            => $users->count(),
+            'total'            => User::where('role', 'proprietaire')->where('agency_id', $agencyId)->count(),
             'total_biens'      => $portfolios->sum('nb_biens'),
             'biens_loues'      => $portfolios->sum('nb_biens_loues'),
             'total_loyers'     => $portfolios->sum('total_loyers'),

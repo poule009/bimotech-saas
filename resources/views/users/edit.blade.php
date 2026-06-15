@@ -47,7 +47,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Nom complet <span class="text-bimo-red">*</span></label>
-                        <input type="text" name="name" value="{{ old('name', $user->name) }}" required
+                        <input type="text" name="name" aria-label="Nom complet" value="{{ old('name', $user->name) }}" required
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -56,7 +56,7 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Email <span class="text-bimo-red">*</span></label>
-                        <input type="email" name="email" value="{{ old('email', $user->email) }}" required
+                        <input type="email" name="email" aria-label="Email" value="{{ old('email', $user->email) }}" required
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -67,13 +67,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
-                        <input type="text" name="telephone" value="{{ old('telephone', $user->telephone) }}" placeholder="+221 7X XXX XX XX"
+                        <input type="text" name="telephone" aria-label="Téléphone" value="{{ old('telephone', $user->telephone) }}" placeholder="+221 7X XXX XX XX"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Adresse</label>
-                        <input type="text" name="adresse" value="{{ old('adresse', $user->adresse) }}" placeholder="Adresse complète"
+                        <input type="text" name="adresse" aria-label="Adresse" value="{{ old('adresse', $user->adresse) }}" placeholder="Adresse complète"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -95,13 +95,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">CNI / Passeport</label>
-                        <input type="text" name="cni" value="{{ old('cni', $user->proprietaire?->cni) }}"
+                        <input type="text" name="cni" aria-label="CNI / Passeport" value="{{ old('cni', $user->proprietaire?->cni) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">NINEA</label>
-                        <input type="text" name="ninea" value="{{ old('ninea', $user->proprietaire?->ninea) }}" placeholder="Ex: 123456789"
+                        <input type="text" name="ninea" aria-label="NINEA" value="{{ old('ninea', $user->proprietaire?->ninea) }}" placeholder="Ex: 123456789"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -109,13 +109,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Date de naissance</label>
-                        <input type="date" name="date_naissance" value="{{ old('date_naissance', $user->proprietaire?->date_naissance?->format('Y-m-d')) }}"
+                        <input type="date" name="date_naissance" aria-label="Date de naissance" value="{{ old('date_naissance', $user->proprietaire?->date_naissance?->format('Y-m-d')) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Genre</label>
-                        <select name="genre"
+                        <select name="genre" aria-label="Genre"
                                 class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
                                        focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             <option value="">— Choisir —</option>
@@ -127,13 +127,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Ville</label>
-                        <input type="text" name="ville" value="{{ old('ville', $user->proprietaire?->ville ?? 'Dakar') }}"
+                        <input type="text" name="ville" aria-label="Ville" value="{{ old('ville', $user->proprietaire?->ville ?? 'Dakar') }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Quartier</label>
-                        <input type="text" name="quartier" value="{{ old('quartier', $user->proprietaire?->quartier) }}"
+                        <input type="text" name="quartier" aria-label="Quartier" value="{{ old('quartier', $user->proprietaire?->quartier) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -151,7 +151,7 @@
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Mode de paiement préféré</label>
-                    <select name="mode_paiement_prefere"
+                    <select name="mode_paiement_prefere" aria-label="Mode de paiement préféré"
                             class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
                                    focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         @foreach(['especes'=>'Espèces','virement'=>'Virement bancaire','wave'=>'Wave','orange_money'=>'Orange Money','free_money'=>'Free Money','cheque'=>'Chèque'] as $val => $label)
@@ -162,20 +162,20 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Banque</label>
-                        <input type="text" name="banque" value="{{ old('banque', $user->proprietaire?->banque) }}" placeholder="CBAO, Ecobank..."
+                        <input type="text" name="banque" aria-label="Banque" value="{{ old('banque', $user->proprietaire?->banque) }}" placeholder="CBAO, Ecobank..."
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Numéro Wave</label>
-                        <input type="text" name="numero_wave" value="{{ old('numero_wave', $user->proprietaire?->numero_wave) }}" placeholder="+221 7X XXX XX XX"
+                        <input type="text" name="numero_wave" aria-label="Numéro Wave" value="{{ old('numero_wave', $user->proprietaire?->numero_wave) }}" placeholder="+221 7X XXX XX XX"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                 </div>
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Numéro Orange Money</label>
-                    <input type="text" name="numero_om" value="{{ old('numero_om', $user->proprietaire?->numero_om) }}" placeholder="+221 7X XXX XX XX"
+                    <input type="text" name="numero_om" aria-label="Numéro Orange Money" value="{{ old('numero_om', $user->proprietaire?->numero_om) }}" placeholder="+221 7X XXX XX XX"
                            class="w-full max-w-xs px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                   placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                 </div>
@@ -196,13 +196,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">CNI / Passeport</label>
-                        <input type="text" name="cni" value="{{ old('cni', $user->locataire?->cni) }}"
+                        <input type="text" name="cni" aria-label="CNI / Passeport" value="{{ old('cni', $user->locataire?->cni) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Date de naissance</label>
-                        <input type="date" name="date_naissance" value="{{ old('date_naissance', $user->locataire?->date_naissance?->format('Y-m-d')) }}"
+                        <input type="date" name="date_naissance" aria-label="Date de naissance" value="{{ old('date_naissance', $user->locataire?->date_naissance?->format('Y-m-d')) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -210,13 +210,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Profession</label>
-                        <input type="text" name="profession" value="{{ old('profession', $user->locataire?->profession) }}"
+                        <input type="text" name="profession" aria-label="Profession" value="{{ old('profession', $user->locataire?->profession) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Employeur</label>
-                        <input type="text" name="employeur" value="{{ old('employeur', $user->locataire?->employeur) }}"
+                        <input type="text" name="employeur" aria-label="Employeur" value="{{ old('employeur', $user->locataire?->employeur) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -224,13 +224,13 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Revenu mensuel (FCFA)</label>
-                        <input type="number" name="revenu_mensuel" value="{{ old('revenu_mensuel', $user->locataire?->revenu_mensuel) }}" min="0" step="500"
+                        <input type="number" name="revenu_mensuel" aria-label="Revenu mensuel (FCFA)" value="{{ old('revenu_mensuel', $user->locataire?->revenu_mensuel) }}" min="0" step="500"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Genre</label>
-                        <select name="genre"
+                        <select name="genre" aria-label="Genre"
                                 class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
                                        focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             <option value="">— Choisir —</option>
@@ -255,20 +255,20 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Nom</label>
-                        <input type="text" name="contact_urgence_nom" value="{{ old('contact_urgence_nom', $user->locataire?->contact_urgence_nom) }}"
+                        <input type="text" name="contact_urgence_nom" aria-label="Nom du contact d'urgence" value="{{ old('contact_urgence_nom', $user->locataire?->contact_urgence_nom) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
-                        <input type="text" name="contact_urgence_tel" value="{{ old('contact_urgence_tel', $user->locataire?->contact_urgence_tel) }}"
+                        <input type="text" name="contact_urgence_tel" aria-label="Téléphone du contact d'urgence" value="{{ old('contact_urgence_tel', $user->locataire?->contact_urgence_tel) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                 </div>
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Lien de parenté</label>
-                    <input type="text" name="contact_urgence_lien" value="{{ old('contact_urgence_lien', $user->locataire?->contact_urgence_lien) }}"
+                    <input type="text" name="contact_urgence_lien" aria-label="Lien du contact d'urgence" value="{{ old('contact_urgence_lien', $user->locataire?->contact_urgence_lien) }}"
                            placeholder="Ex: Père, Mère, Époux(se)..."
                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                   placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
@@ -313,22 +313,22 @@
 
     {{-- COLONNE DROITE --}}
     <div class="lg:sticky lg:top-6">
-        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-            <div class="px-5 py-4 border-b border-white/[7%]">
-                <div class="font-display font-bold text-sm text-white">Profil actuel</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="font-display font-bold text-sm text-bimo-text">Profil actuel</div>
             </div>
             <div class="px-5 py-5">
                 {{-- Avatar --}}
-                <div class="flex flex-col items-center pb-4 border-b border-white/10">
-                    <div class="w-14 h-14 rounded-full flex items-center justify-center mb-3 font-display font-bold text-xl text-bimo-gold
-                                bg-bimo-gold/15 border-2 border-bimo-gold/30">
+                <div class="flex flex-col items-center pb-4 border-b border-bimo-navy/[5%]">
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center mb-3 font-display font-bold text-xl"
+                         style="background: var(--ac); color: var(--ac-text)">
                         {{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}
                     </div>
-                    <div class="font-body font-semibold text-sm text-white">{{ $user->name }}</div>
-                    <div class="font-body text-xs text-white/40 mt-0.5">{{ $user->email }}</div>
+                    <div class="font-body font-semibold text-sm text-bimo-text">{{ $user->name }}</div>
+                    <div class="font-body text-xs text-bimo-text/50 mt-0.5">{{ $user->email }}</div>
                 </div>
                 {{-- Infos --}}
-                <div class="pt-3 divide-y divide-white/[6%]">
+                <div class="pt-3 divide-y divide-bimo-navy/[5%]">
                     @php
                         $sideRows = [
                             ['Rôle', $user->isProprietaire() ? 'Propriétaire' : 'Locataire'],
@@ -343,8 +343,8 @@
                     @endphp
                     @foreach($sideRows as [$lbl, $val])
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-white/70">{{ $val }}</span>
+                        <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
+                        <span class="font-body text-xs text-bimo-text/70">{{ $val }}</span>
                     </div>
                     @endforeach
                 </div>

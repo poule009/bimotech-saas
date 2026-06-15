@@ -90,7 +90,7 @@
 
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Nom complet <span class="text-bimo-red">*</span></label>
-                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Ex: Moussa Diallo" autofocus
+                        <input type="text" name="name" value="{{ old('name') }}" aria-label="Nom complet" placeholder="Ex: Moussa Diallo" autofocus
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -100,7 +100,7 @@
 
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
-                        <input type="text" name="telephone" value="{{ old('telephone') }}" placeholder="+221 77 000 00 00"
+                        <input type="text" name="telephone" value="{{ old('telephone') }}" aria-label="Téléphone" placeholder="+221 77 000 00 00"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -109,7 +109,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Adresse <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <input type="text" name="adresse" value="{{ old('adresse') }}" placeholder="Rue, quartier..."
+                        <input type="text" name="adresse" value="{{ old('adresse') }}" aria-label="Adresse" placeholder="Rue, quartier..."
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -135,19 +135,19 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Date de naissance</label>
-                            <input type="date" name="date_naissance" value="{{ old('date_naissance') }}"
+                            <input type="date" name="date_naissance" value="{{ old('date_naissance') }}" aria-label="Date de naissance"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Nationalité</label>
-                            <input type="text" name="nationalite" value="{{ old('nationalite', 'Sénégalaise') }}"
+                            <input type="text" name="nationalite" value="{{ old('nationalite', 'Sénégalaise') }}" aria-label="Nationalité"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Ville</label>
-                            <select name="ville"
+                            <select name="ville" aria-label="Ville"
                                     class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
                                            focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                                 @foreach(['Dakar','Thiès','Saint-Louis','Ziguinchor','Kaolack','Mbour','Rufisque','Touba','Diourbel','Tambacounda'] as $v)
@@ -161,7 +161,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             CNI / Passeport <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <input type="text" name="cni" value="{{ old('cni') }}" placeholder="1 234 567 890 12"
+                        <input type="text" name="cni" value="{{ old('cni') }}" aria-label="CNI / Passeport" placeholder="1 234 567 890 12"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -193,7 +193,7 @@
                                 <span class="text-bimo-red">*</span>
                             @endif
                         </label>
-                        <input type="email" name="email" value="{{ old('email') }}" placeholder="email@exemple.com"
+                        <input type="email" name="email" value="{{ old('email') }}" aria-label="Email" placeholder="email@exemple.com"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                       @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -211,7 +211,7 @@
                                     <span class="text-bimo-red">*</span>
                                 @endif
                             </label>
-                            <input type="password" name="password" id="pwd" placeholder="Min. 8 caractères"
+                            <input type="password" name="password" id="pwd" aria-label="Mot de passe" placeholder="Min. 8 caractères"
                                    oninput="checkPwd(this.value)"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
@@ -232,7 +232,7 @@
                                     <span class="text-bimo-red">*</span>
                                 @endif
                             </label>
-                            <input type="password" name="password_confirmation" id="pwd2" placeholder="Répétez le mot de passe"
+                            <input type="password" name="password_confirmation" id="pwd2" aria-label="Confirmer le mot de passe" placeholder="Répétez le mot de passe"
                                    oninput="checkConfirm()"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
@@ -295,13 +295,13 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Numéro Wave</label>
-                            <input type="text" name="numero_wave" value="{{ old('numero_wave') }}" placeholder="+221 77 XXX XX XX"
+                            <input type="text" name="numero_wave" value="{{ old('numero_wave') }}" aria-label="Numéro Wave" placeholder="+221 77 XXX XX XX"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Numéro Orange Money</label>
-                            <input type="text" name="numero_om" value="{{ old('numero_om') }}" placeholder="+221 77 XXX XX XX"
+                            <input type="text" name="numero_om" value="{{ old('numero_om') }}" aria-label="Numéro Orange Money" placeholder="+221 77 XXX XX XX"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -312,7 +312,7 @@
                             <label class="block font-body font-medium text-sm text-bimo-text">
                                 Banque <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                             </label>
-                            <input type="text" name="banque" value="{{ old('banque') }}" placeholder="CBAO, Ecobank, BIS..."
+                            <input type="text" name="banque" value="{{ old('banque') }}" aria-label="Banque" placeholder="CBAO, Ecobank, BIS..."
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -320,7 +320,7 @@
                             <label class="block font-body font-medium text-sm text-bimo-text">
                                 Numéro de compte <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                             </label>
-                            <input type="text" name="numero_compte" value="{{ old('numero_compte') }}" placeholder="RIB / IBAN"
+                            <input type="text" name="numero_compte" value="{{ old('numero_compte') }}" aria-label="Numéro de compte" placeholder="RIB / IBAN"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -342,7 +342,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             NINEA <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <input type="text" name="ninea" value="{{ old('ninea') }}" placeholder="Ex: 00123456789"
+                        <input type="text" name="ninea" value="{{ old('ninea') }}" aria-label="NINEA" placeholder="Ex: 00123456789"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         <p class="font-body text-[11px] text-bimo-text/30">Numéro d'Identification National des Entreprises</p>
@@ -405,27 +405,27 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Raison sociale</label>
-                            <input type="text" name="nom_entreprise" value="{{ old('nom_entreprise') }}" placeholder="Nom officiel de la société"
+                            <input type="text" name="nom_entreprise" value="{{ old('nom_entreprise') }}" aria-label="Raison sociale" placeholder="Nom officiel de la société"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1.5">
                                 <label class="block font-body font-medium text-sm text-bimo-text">NINEA</label>
-                                <input type="text" name="ninea_locataire" value="{{ old('ninea_locataire') }}" placeholder="00123456789"
+                                <input type="text" name="ninea_locataire" value="{{ old('ninea_locataire') }}" aria-label="NINEA entreprise" placeholder="00123456789"
                                        class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                               placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block font-body font-medium text-sm text-bimo-text">RCCM</label>
-                                <input type="text" name="rccm_locataire" value="{{ old('rccm_locataire') }}" placeholder="SN-DKR-2024-B-XXXXX"
+                                <input type="text" name="rccm_locataire" value="{{ old('rccm_locataire') }}" aria-label="RCCM" placeholder="SN-DKR-2024-B-XXXXX"
                                        class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                               placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             </div>
                         </div>
                         <div class="max-w-[180px] space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Taux BRS personnalisé (%)</label>
-                            <input type="number" name="taux_brs_override" value="{{ old('taux_brs_override') }}" placeholder="5" min="0" max="20" step="0.5"
+                            <input type="number" name="taux_brs_override" value="{{ old('taux_brs_override') }}" aria-label="Taux BRS personnalisé (%)" placeholder="5" min="0" max="20" step="0.5"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                             <p class="font-body text-[11px] text-bimo-text/30">Vide = 5% légal (Art. 201 CGI SN)</p>
@@ -448,19 +448,19 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Profession</label>
-                            <input type="text" name="profession" value="{{ old('profession') }}" placeholder="Ex: Ingénieur"
+                            <input type="text" name="profession" value="{{ old('profession') }}" aria-label="Profession" placeholder="Ex: Ingénieur"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Employeur</label>
-                            <input type="text" name="employeur" value="{{ old('employeur') }}" placeholder="Nom de l'employeur"
+                            <input type="text" name="employeur" value="{{ old('employeur') }}" aria-label="Employeur" placeholder="Nom de l'employeur"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Revenu mensuel (F)</label>
-                            <input type="number" name="revenu_mensuel" value="{{ old('revenu_mensuel') }}" placeholder="350000" min="0"
+                            <input type="number" name="revenu_mensuel" value="{{ old('revenu_mensuel') }}" aria-label="Revenu mensuel (FCFA)" placeholder="350000" min="0"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -483,19 +483,19 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Nom</label>
-                            <input type="text" name="contact_urgence_nom" value="{{ old('contact_urgence_nom') }}" placeholder="Prénom NOM"
+                            <input type="text" name="contact_urgence_nom" value="{{ old('contact_urgence_nom') }}" aria-label="Nom du contact d'urgence" placeholder="Prénom NOM"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
-                            <input type="text" name="contact_urgence_tel" value="{{ old('contact_urgence_tel') }}" placeholder="+221 7X XXX XX XX"
+                            <input type="text" name="contact_urgence_tel" value="{{ old('contact_urgence_tel') }}" aria-label="Téléphone du contact d'urgence" placeholder="+221 7X XXX XX XX"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Lien</label>
-                            <input type="text" name="contact_urgence_lien" value="{{ old('contact_urgence_lien') }}" placeholder="Père, Conjoint..."
+                            <input type="text" name="contact_urgence_lien" value="{{ old('contact_urgence_lien') }}" aria-label="Lien du contact d'urgence" placeholder="Père, Conjoint..."
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
