@@ -40,41 +40,10 @@
 
     {{-- ═══ KPIs ═══ --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-
-        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Loyers encaissés</div>
-            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
-                {{ number_format($stats['total_loyers'], 0, ',', ' ') }}
-                <span class="font-body font-normal text-sm text-bimo-gold/50">F</span>
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">FCFA ce mois</div>
-        </div>
-
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Net propriétaires</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ number_format($stats['total_net'], 0, ',', ' ') }}
-                <span class="font-body font-normal text-sm text-bimo-text/40">F</span>
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">FCFA à reverser</div>
-        </div>
-
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Commissions TTC</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ number_format($stats['total_commissions'], 0, ',', ' ') }}
-                <span class="font-body font-normal text-sm text-bimo-text/40">F</span>
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">FCFA agence</div>
-        </div>
-
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Paiements validés</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ $stats['nb_payes'] }}
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">Ce mois</div>
-        </div>
+        <x-kpi compact variant="primary" :value="number_format($stats['total_loyers'], 0, ',', ' ')" unit="F" label="Loyers encaissés" sub="FCFA ce mois" />
+        <x-kpi compact :value="number_format($stats['total_net'], 0, ',', ' ')" unit="F" label="Net propriétaires" sub="FCFA à reverser" />
+        <x-kpi compact :value="number_format($stats['total_commissions'], 0, ',', ' ')" unit="F" label="Commissions TTC" sub="FCFA agence" />
+        <x-kpi compact :value="$stats['nb_payes']" label="Paiements validés" sub="Ce mois" />
     </div>
 
     {{-- ═══ FILTRES ═══ --}}

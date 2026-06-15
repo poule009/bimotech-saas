@@ -27,22 +27,10 @@
 
     {{-- ═══ KPIs ═══ --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-navy">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Total</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-text leading-none">{{ $stats['total'] }}</div>
-        </div>
-        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Actifs</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-gold leading-none">{{ $stats['actifs'] }}</div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Résiliés</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-text/50 leading-none">{{ $stats['resilies'] }}</div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-red/20 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Expirés</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-red leading-none">{{ $stats['expires'] }}</div>
-        </div>
+        <x-kpi compact :value="$stats['total']" label="Total" />
+        <x-kpi compact variant="primary" :value="$stats['actifs']" label="Actifs" />
+        <x-kpi compact :value="$stats['resilies']" label="Résiliés" />
+        <x-kpi compact variant="danger" :value="$stats['expires']" label="Expirés" />
     </div>
 
     {{-- ═══ FILTRES ═══ --}}

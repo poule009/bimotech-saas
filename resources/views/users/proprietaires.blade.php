@@ -22,27 +22,10 @@
 
     {{-- KPIs globaux --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Propriétaires</p>
-            <p class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ $stats['total'] }}</p>
-            <p class="font-body text-[10.5px] text-bimo-text/40 mt-1">{{ $stats['biens_loues'] }}/{{ $stats['total_biens'] }} biens loués</p>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Biens gérés</p>
-            <p class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ $stats['total_biens'] }}</p>
-            @php $taux = $stats['total_biens'] > 0 ? round($stats['biens_loues'] / $stats['total_biens'] * 100) : 0; @endphp
-            <p class="font-body text-[10.5px] text-bimo-text/40 mt-1">{{ $taux }}% d'occupation</p>
-        </div>
-        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Loyers encaissés</p>
-            <p class="font-display font-extrabold text-xl text-bimo-gold leading-none">{{ number_format($stats['total_loyers'], 0, ',', ' ') }}</p>
-            <p class="font-body text-[10.5px] text-bimo-gold/60 mt-1">FCFA — {{ now()->year }}</p>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <p class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Net à reverser</p>
-            <p class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ number_format($stats['total_net'], 0, ',', ' ') }}</p>
-            <p class="font-body text-[10.5px] text-bimo-text/40 mt-1">FCFA total</p>
-        </div>
+        <x-kpi compact :value="$stats['total']" label="Propriétaires" :sub="$stats['biens_loues'].'/'.$stats['total_biens'].' biens loués'" />
+        <x-kpi compact :value="$stats['total_biens']" label="Biens gérés" :sub="($stats['total_biens'] > 0 ? round($stats['biens_loues'] / $stats['total_biens'] * 100) : 0).'% d\'occupation'" />
+        <x-kpi compact variant="primary" :value="number_format($stats['total_loyers'], 0, ',', ' ')" label="Loyers encaissés" :sub="'FCFA — '.now()->year" />
+        <x-kpi compact :value="number_format($stats['total_net'], 0, ',', ' ')" label="Net à reverser" sub="FCFA total" />
     </div>
 
     {{-- Liste --}}

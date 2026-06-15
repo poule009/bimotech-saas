@@ -29,31 +29,10 @@
 
     {{-- ═══ KPIs ═══ --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4
-                    border-t-2 border-t-[var(--ac)]">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Total biens</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-text leading-none">
-                {{ $biens->total() }}
-            </div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-gold">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Loués</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-gold leading-none">
-                {{ $biens->getCollection()->where('statut','loue')->count() }}
-            </div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-navy">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Disponibles</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-text leading-none">
-                {{ $biens->getCollection()->where('statut','disponible')->count() }}
-            </div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4 border-t-2 border-t-bimo-navy/30">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">En travaux</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-text/40 leading-none">
-                {{ $biens->getCollection()->where('statut','en_travaux')->count() }}
-            </div>
-        </div>
+        <x-kpi compact :value="$biens->total()" label="Total biens" />
+        <x-kpi compact variant="primary" :value="$biens->getCollection()->where('statut','loue')->count()" label="Loués" />
+        <x-kpi compact :value="$biens->getCollection()->where('statut','disponible')->count()" label="Disponibles" />
+        <x-kpi compact :value="$biens->getCollection()->where('statut','en_travaux')->count()" label="En travaux" />
     </div>
 
     {{-- ═══ FILTRES ═══ --}}

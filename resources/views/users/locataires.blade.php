@@ -22,28 +22,10 @@
 
     {{-- KPIs --}}
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Total locataires</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-gold leading-none">{{ $stats['total'] }}</div>
-            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">Enregistrés dans l'agence</div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Avec contrat actif</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-text leading-none">{{ $stats['actifs'] }}</div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">Loyer en cours</div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Taux d'occupation</div>
-            <div class="font-display font-extrabold text-2xl text-bimo-text leading-none">
-                {{ $stats['total'] > 0 ? round($stats['actifs']/$stats['total']*100) : 0 }}%
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">Locataires actifs</div>
-        </div>
-        <div class="bg-white rounded-[14px] border {{ $stats['sans_contrat'] > 0 ? 'border-bimo-red/20' : 'border-bimo-navy/10' }} p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Sans contrat</div>
-            <div class="font-display font-extrabold text-2xl {{ $stats['sans_contrat'] > 0 ? 'text-bimo-red' : 'text-bimo-text' }} leading-none">{{ $stats['sans_contrat'] }}</div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">À reloger ou archiver</div>
-        </div>
+        <x-kpi compact variant="primary" :value="$stats['total']" label="Total locataires" sub="Enregistrés dans l'agence" />
+        <x-kpi compact :value="$stats['actifs']" label="Avec contrat actif" sub="Loyer en cours" />
+        <x-kpi compact :value="$stats['total'] > 0 ? round($stats['actifs']/$stats['total']*100) : 0" unit="%" label="Taux d'occupation" sub="Locataires actifs" />
+        <x-kpi compact :variant="$stats['sans_contrat'] > 0 ? 'danger' : 'default'" :value="$stats['sans_contrat']" label="Sans contrat" sub="À reloger ou archiver" />
     </div>
 
     {{-- Table --}}
