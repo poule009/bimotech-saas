@@ -75,17 +75,17 @@
         <div class="flex flex-col bg-white rounded-[14px] border border-bimo-navy/10 hover:border-bimo-navy/25 transition-all duration-150 overflow-hidden">
 
             {{-- En-tête identité --}}
-            <div class="bg-bimo-navy px-5 py-4 flex items-center gap-3">
+            <div class="px-5 py-4 flex items-center gap-3 border-b border-bimo-navy/[5%]">
                 <div class="w-10 h-10 rounded-[9px] flex items-center justify-center flex-shrink-0
-                            font-display font-bold text-sm text-white bg-white/15">
+                            font-display font-bold text-sm" style="background: var(--ac); color: var(--ac-text)">
                     {{ mb_strtoupper(mb_substr($u->name, 0, 2)) }}
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="font-display font-bold text-sm text-white truncate leading-tight">{{ $u->name }}</div>
-                    <div class="font-body text-[11px] text-white/40 mt-0.5 truncate">{{ $u->email ?? $u->telephone ?? 'Aucun contact' }}</div>
+                    <div class="font-display font-bold text-sm text-bimo-text truncate leading-tight">{{ $u->name }}</div>
+                    <div class="font-body text-[11px] text-bimo-text/40 mt-0.5 truncate">{{ $u->email ?? $u->telephone ?? 'Aucun contact' }}</div>
                 </div>
                 @if($u->telephone && $u->email)
-                <div class="font-body text-[11px] text-white/30 text-right hidden sm:block flex-shrink-0">{{ $u->telephone }}</div>
+                <div class="font-body text-[11px] text-bimo-text/30 text-right hidden sm:block flex-shrink-0">{{ $u->telephone }}</div>
                 @endif
             </div>
 
@@ -144,24 +144,24 @@
             </div>
 
             {{-- Net + actions --}}
-            <div class="mx-4 mb-4 px-4 py-3 bg-bimo-navy rounded-[10px] flex items-center justify-between gap-3">
+            <div class="mx-4 mb-4 px-4 py-3 bg-bimo-gold/[8%] rounded-[10px] border border-bimo-gold/25 flex items-center justify-between gap-3">
                 <div>
-                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/40 mb-0.5">Net à reverser</div>
-                    <div class="font-display font-extrabold text-lg text-white">{{ number_format($item['net_final'], 0, ',', ' ') }} <span class="font-body font-normal text-sm text-white/40">F</span></div>
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-0.5">Net à reverser</div>
+                    <div class="font-display font-extrabold text-lg text-bimo-gold">{{ number_format($item['net_final'], 0, ',', ' ') }} <span class="font-body font-normal text-sm text-bimo-gold/50">F</span></div>
                 </div>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
                     <a href="{{ route('admin.users.show', $u) }}"
-                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white/10 hover:bg-white/20 text-white transition-all duration-150"
+                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                        title="Fiche propriétaire">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </a>
                     <a href="{{ route('admin.bailleurs.show', $u->id) }}"
-                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white/10 hover:bg-white/20 text-white transition-all duration-150"
+                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                        title="Portefeuille détaillé">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
                     </a>
                     <a href="{{ route('admin.users.edit', $u) }}"
-                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white/10 hover:bg-white/20 text-white transition-all duration-150"
+                       class="w-8 h-8 flex items-center justify-center rounded-[7px] bg-white border border-bimo-navy/10 text-bimo-text/50 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150"
                        title="Modifier">
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </a>
