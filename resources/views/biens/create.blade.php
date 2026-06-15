@@ -66,7 +66,7 @@
                     <label class="block font-body font-medium text-sm text-bimo-text">
                         Propriétaire <span class="text-bimo-red">*</span>
                     </label>
-                    <select name="proprietaire_id"
+                    <select name="proprietaire_id" aria-label="Propriétaire"
                             class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                    focus:outline-none focus:ring-2 transition-all duration-150 cursor-pointer
                                    @error('proprietaire_id') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -86,7 +86,7 @@
                         Immeuble
                         <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel — laisser vide pour un bien standalone)</span>
                     </label>
-                    <select name="immeuble_id"
+                    <select name="immeuble_id" aria-label="Immeuble (optionnel)"
                             class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                    focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                    transition-all duration-150 cursor-pointer">
@@ -120,7 +120,7 @@
                 {{-- Type --}}
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Type <span class="text-bimo-red">*</span></label>
-                    <select name="type"
+                    <select name="type" aria-label="Type de bien"
                             class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                    focus:outline-none focus:ring-2 transition-all duration-150 cursor-pointer
                                    @error('type') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -142,7 +142,7 @@
                             Titre
                             <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <input type="text" name="titre" value="{{ old('titre') }}"
+                        <input type="text" name="titre" aria-label="Titre du bien" value="{{ old('titre') }}"
                                placeholder="Ex: Villa F4 avec piscine — Almadies"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
@@ -152,13 +152,13 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Surface (m²)</label>
-                            <input type="number" name="surface_m2" value="{{ old('surface_m2') }}" min="1" step="0.5"
+                            <input type="number" name="surface_m2" aria-label="Surface en m²" value="{{ old('surface_m2') }}" min="1" step="0.5"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Nombre de pièces</label>
-                            <input type="number" name="nombre_pieces" value="{{ old('nombre_pieces') }}" min="1"
+                            <input type="number" name="nombre_pieces" aria-label="Nombre de pièces" value="{{ old('nombre_pieces') }}" min="1"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -167,13 +167,13 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Chambres</label>
-                            <input type="number" name="nombre_chambres" value="{{ old('nombre_chambres') }}" min="0"
+                            <input type="number" name="nombre_chambres" aria-label="Nombre de chambres" value="{{ old('nombre_chambres') }}" min="0"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Salles de bain</label>
-                            <input type="number" name="nombre_sdb" value="{{ old('nombre_sdb') }}" min="0"
+                            <input type="number" name="nombre_sdb" aria-label="Nombre de salles de bain" value="{{ old('nombre_sdb') }}" min="0"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -205,7 +205,7 @@
                             Étage
                             <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <input type="number" name="etage" value="{{ old('etage') }}" min="-1" max="50"
+                        <input type="number" name="etage" aria-label="Étage" value="{{ old('etage') }}" min="-1" max="50"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -215,7 +215,7 @@
                             Aménités
                             <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <textarea name="amenites" rows="2" placeholder="Vue mer, Gardiennage, Fibre optique…"
+                        <textarea name="amenites" aria-label="Aménités" rows="2" placeholder="Vue mer, Gardiennage, Fibre optique…"
                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                          transition-all duration-150 resize-y">{{ old('amenites') }}</textarea>
@@ -237,7 +237,7 @@
             <div class="px-5 py-5 space-y-4">
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Adresse <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="adresse" value="{{ old('adresse') }}" placeholder="Rue, numéro"
+                    <input type="text" name="adresse" aria-label="Adresse" value="{{ old('adresse') }}" placeholder="Rue, numéro"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('adresse') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -247,20 +247,20 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Quartier</label>
-                        <input type="text" name="quartier" value="{{ old('quartier') }}" placeholder="Ex: Almadies"
+                        <input type="text" name="quartier" aria-label="Quartier" value="{{ old('quartier') }}" placeholder="Ex: Almadies"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Commune</label>
-                        <input type="text" name="commune" value="{{ old('commune') }}" placeholder="Ex: Dakar Plateau"
+                        <input type="text" name="commune" aria-label="Commune" value="{{ old('commune') }}" placeholder="Ex: Dakar Plateau"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                 </div>
                 <div class="space-y-1.5">
                     <label class="block font-body font-medium text-sm text-bimo-text">Ville <span class="text-bimo-red">*</span></label>
-                    <input type="text" name="ville" value="{{ old('ville', 'Dakar') }}" placeholder="Ex: Dakar"
+                    <input type="text" name="ville" aria-label="Ville" value="{{ old('ville', 'Dakar') }}" placeholder="Ex: Dakar"
                            class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
                                   placeholder:text-bimo-text/30 focus:outline-none focus:ring-2 transition-all duration-150
                                   @error('ville') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
@@ -282,7 +282,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Loyer mensuel (FCFA) <span class="text-bimo-red">*</span></label>
-                        <input type="number" name="loyer_mensuel" id="loyer_mensuel"
+                        <input type="number" name="loyer_mensuel" id="loyer_mensuel" aria-label="Loyer mensuel (FCFA)"
                                value="{{ old('loyer_mensuel') }}" min="0" step="500"
                                oninput="calcRecap()"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
@@ -293,7 +293,7 @@
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Taux commission (%) <span class="text-bimo-red">*</span></label>
-                        <input type="number" name="taux_commission" id="taux_commission"
+                        <input type="number" name="taux_commission" id="taux_commission" aria-label="Taux de commission (%)"
                                value="{{ old('taux_commission', 10) }}" min="0" max="30" step="0.5"
                                oninput="calcRecap()"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
@@ -333,7 +333,7 @@
                     <p class="font-body text-xs text-bimo-text/30">JPG, PNG, WEBP — max 3 Mo par photo</p>
                 </div>
 
-                <input type="file" id="photos-input" name="photos[]"
+                <input type="file" id="photos-input" name="photos[]" aria-label="Photos du bien"
                        multiple accept="image/jpeg,image/png,image/webp"
                        style="display:none" onchange="previewPhotos(this.files)">
 
@@ -358,7 +358,7 @@
                 </span>
             </div>
             <div class="px-5 py-5">
-                <textarea name="description" rows="4"
+                <textarea name="description" aria-label="Description du bien" rows="4"
                           placeholder="Description du bien, équipements, état général…"
                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                  placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
@@ -388,36 +388,36 @@
 
     {{-- ═══ COLONNE DROITE : RÉCAPITULATIF FISCAL ═══ --}}
     <div class="lg:sticky lg:top-6">
-        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-            <div class="px-5 py-4 border-b border-white/[7%]">
-                <div class="font-display font-bold text-sm text-white">Récapitulatif fiscal</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="font-display font-bold text-sm text-bimo-text">Récapitulatif fiscal</div>
             </div>
             <div class="px-5 py-4 space-y-0">
-                <div class="flex items-center justify-between py-2.5 border-b border-white/[6%]">
-                    <span class="font-body text-xs text-white/45">Loyer mensuel</span>
-                    <span class="font-display font-semibold text-xs text-white" id="rp-loyer">— FCFA</span>
+                <div class="flex items-center justify-between py-2.5 border-b border-bimo-navy/[5%]">
+                    <span class="font-body text-xs text-bimo-text/50">Loyer mensuel</span>
+                    <span class="font-display font-semibold text-xs text-bimo-text" id="rp-loyer">— FCFA</span>
                 </div>
-                <div class="flex items-center justify-between py-2.5 border-b border-white/[6%]">
-                    <span class="font-body text-xs text-white/45">Commission HT</span>
+                <div class="flex items-center justify-between py-2.5 border-b border-bimo-navy/[5%]">
+                    <span class="font-body text-xs text-bimo-text/50">Commission HT</span>
                     <span class="font-display font-semibold text-xs text-bimo-gold" id="rp-comm">— FCFA</span>
                 </div>
-                <div class="flex items-center justify-between py-2.5 border-b border-white/[6%]">
-                    <span class="font-body text-xs text-white/45">TVA commission (18%)</span>
-                    <span class="font-display font-semibold text-xs text-white" id="rp-tva">— FCFA</span>
+                <div class="flex items-center justify-between py-2.5 border-b border-bimo-navy/[5%]">
+                    <span class="font-body text-xs text-bimo-text/50">TVA commission (18%)</span>
+                    <span class="font-display font-semibold text-xs text-bimo-text" id="rp-tva">— FCFA</span>
                 </div>
                 <div class="flex items-center justify-between py-2.5">
-                    <span class="font-body text-xs text-white/45">Commission TTC</span>
+                    <span class="font-body text-xs text-bimo-text/50">Commission TTC</span>
                     <span class="font-display font-semibold text-xs text-bimo-gold" id="rp-comm-ttc">— FCFA</span>
                 </div>
 
-                <div class="mt-3 p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
-                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Net propriétaire</div>
+                <div class="mt-3 p-3.5 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[9px]">
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Net propriétaire</div>
                     <div class="font-display font-extrabold text-xl text-bimo-gold" id="rp-net">— FCFA</div>
                 </div>
 
-                <div class="mt-4 pt-4 border-t border-white/[7%]">
-                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-2.5">Rappel fiscal</div>
-                    <div class="font-body text-[11px] text-white/35 leading-relaxed">
+                <div class="mt-4 pt-4 border-t border-bimo-navy/[5%]">
+                    <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-2.5">Rappel fiscal</div>
+                    <div class="font-body text-[11px] text-bimo-text/50 leading-relaxed">
                         Commission HT × 18% = TVA (Art. 357 CGI SN)<br>
                         TVA loyer 18% si bail commercial/meublé<br>
                         BRS 5% si locataire entreprise (Art. 201 CGI SN)

@@ -211,7 +211,7 @@
     <div class="flex items-center justify-center gap-1.5 mt-2">
         @if(!$biens->onFirstPage())
         <a href="{{ $biens->previousPageUrl() }}"
-           class="w-10 h-10 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
+           class="w-11 h-11 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
                   text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
         </a>
@@ -219,7 +219,7 @@
 
         @foreach($biens->getUrlRange(max(1,$biens->currentPage()-2), min($biens->lastPage(),$biens->currentPage()+2)) as $page => $url)
         <a href="{{ $url }}"
-           class="w-8 h-8 flex items-center justify-center rounded-[7px] font-body text-sm transition-all duration-150
+           class="w-11 h-11 flex items-center justify-center rounded-[7px] font-body text-sm transition-all duration-150
                   {{ $page === $biens->currentPage()
                      ? 'bg-bimo-navy text-white border border-bimo-navy'
                      : 'border border-bimo-navy/10 text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30' }}">
@@ -229,7 +229,7 @@
 
         @if($biens->hasMorePages())
         <a href="{{ $biens->nextPageUrl() }}"
-           class="w-10 h-10 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
+           class="w-11 h-11 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
                   text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </a>

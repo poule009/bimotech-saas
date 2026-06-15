@@ -47,7 +47,7 @@
                 <div class="px-5 py-5">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Propriétaire <span class="text-bimo-red">*</span></label>
-                        <select name="proprietaire_id"
+                        <select name="proprietaire_id" aria-label="Propriétaire"
                                 class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                        focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                        transition-all duration-150 cursor-pointer">
@@ -75,7 +75,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Type <span class="text-bimo-red">*</span></label>
-                            <select name="type"
+                            <select name="type" aria-label="Type de bien"
                                     class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                            focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                            transition-all duration-150 cursor-pointer">
@@ -86,7 +86,7 @@
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Statut <span class="text-bimo-red">*</span></label>
-                            <select name="statut"
+                            <select name="statut" aria-label="Statut du bien"
                                     class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                            focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                            transition-all duration-150 cursor-pointer">
@@ -104,7 +104,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Titre <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <input type="text" name="titre" value="{{ old('titre', $bien->titre) }}"
+                        <input type="text" name="titre" aria-label="Titre du bien" value="{{ old('titre', $bien->titre) }}"
                                placeholder="Ex: Villa F4 avec piscine — Almadies"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
@@ -115,13 +115,13 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Surface (m²)</label>
-                            <input type="number" name="surface_m2" value="{{ old('surface_m2', $bien->surface_m2) }}" min="1" step="0.5"
+                            <input type="number" name="surface_m2" aria-label="Surface en m²" value="{{ old('surface_m2', $bien->surface_m2) }}" min="1" step="0.5"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Nombre de pièces</label>
-                            <input type="number" name="nombre_pieces" value="{{ old('nombre_pieces', $bien->nombre_pieces) }}" min="1"
+                            <input type="number" name="nombre_pieces" aria-label="Nombre de pièces" value="{{ old('nombre_pieces', $bien->nombre_pieces) }}" min="1"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -131,13 +131,13 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Chambres</label>
-                            <input type="number" name="nombre_chambres" value="{{ old('nombre_chambres', $bien->nombre_chambres) }}" min="0"
+                            <input type="number" name="nombre_chambres" aria-label="Nombre de chambres" value="{{ old('nombre_chambres', $bien->nombre_chambres) }}" min="0"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Salles de bain</label>
-                            <input type="number" name="nombre_sdb" value="{{ old('nombre_sdb', $bien->nombre_sdb) }}" min="0"
+                            <input type="number" name="nombre_sdb" aria-label="Nombre de salles de bain" value="{{ old('nombre_sdb', $bien->nombre_sdb) }}" min="0"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
@@ -170,7 +170,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Étage <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <input type="number" name="etage" value="{{ old('etage', $bien->etage) }}" min="-1" max="50"
+                        <input type="number" name="etage" aria-label="Étage" value="{{ old('etage', $bien->etage) }}" min="-1" max="50"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -180,7 +180,7 @@
                         <label class="block font-body font-medium text-sm text-bimo-text">
                             Aménités <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
                         </label>
-                        <textarea name="amenites" rows="2" placeholder="Vue mer, Gardiennage, Fibre optique…"
+                        <textarea name="amenites" aria-label="Aménités" rows="2" placeholder="Vue mer, Gardiennage, Fibre optique…"
                                   class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                          placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                          transition-all duration-150 resize-y">{{ old('amenites', is_array($bien->amenites) ? implode(', ', $bien->amenites) : $bien->amenites) }}</textarea>
@@ -212,27 +212,27 @@
                 <div class="px-5 py-5 space-y-4">
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Adresse <span class="text-bimo-red">*</span></label>
-                        <input type="text" name="adresse" value="{{ old('adresse', $bien->adresse) }}"
+                        <input type="text" name="adresse" aria-label="Adresse" value="{{ old('adresse', $bien->adresse) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Quartier</label>
-                            <input type="text" name="quartier" value="{{ old('quartier', $bien->quartier) }}"
+                            <input type="text" name="quartier" aria-label="Quartier" value="{{ old('quartier', $bien->quartier) }}"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Commune</label>
-                            <input type="text" name="commune" value="{{ old('commune', $bien->commune) }}"
+                            <input type="text" name="commune" aria-label="Commune" value="{{ old('commune', $bien->commune) }}"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                     </div>
                     <div class="space-y-1.5">
                         <label class="block font-body font-medium text-sm text-bimo-text">Ville <span class="text-bimo-red">*</span></label>
-                        <input type="text" name="ville" value="{{ old('ville', $bien->ville) }}"
+                        <input type="text" name="ville" aria-label="Ville" value="{{ old('ville', $bien->ville) }}"
                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                     </div>
@@ -251,14 +251,14 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Loyer mensuel (FCFA) <span class="text-bimo-red">*</span></label>
-                            <input type="number" name="loyer_mensuel"
+                            <input type="number" name="loyer_mensuel" aria-label="Loyer mensuel (FCFA)"
                                    value="{{ old('loyer_mensuel', $bien->loyer_mensuel) }}" min="0" step="500"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
                         </div>
                         <div class="space-y-1.5">
                             <label class="block font-body font-medium text-sm text-bimo-text">Taux commission (%)</label>
-                            <input type="number" name="taux_commission"
+                            <input type="number" name="taux_commission" aria-label="Taux de commission (%)"
                                    value="{{ old('taux_commission', $bien->taux_commission ?? 10) }}" min="0" max="30" step="0.5"
                                    class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                           focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
@@ -276,7 +276,7 @@
                     <span class="font-display font-bold text-sm text-bimo-text">Description</span>
                 </div>
                 <div class="px-5 py-5">
-                    <textarea name="description" rows="4" placeholder="Description du bien, équipements…"
+                    <textarea name="description" aria-label="Description du bien" rows="4" placeholder="Description du bien, équipements…"
                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
                                      transition-all duration-150 resize-y">{{ old('description', $bien->description) }}</textarea>
@@ -386,7 +386,7 @@
                         <p class="font-body text-xs text-bimo-text/30">JPG, PNG, WEBP — max 3 Mo</p>
                     </div>
 
-                    <input type="file" id="photos-edit-input" name="photos[]"
+                    <input type="file" id="photos-edit-input" name="photos[]" aria-label="Ajouter des photos"
                            multiple accept="image/jpeg,image/png,image/webp"
                            style="display:none" onchange="previewEdit(this.files)">
 
@@ -414,43 +414,43 @@
 
     {{-- ═══ COLONNE DROITE — INFO SIDEBAR ═══ --}}
     <div class="lg:sticky lg:top-6">
-        <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-            <div class="px-5 py-4 border-b border-white/[7%]">
-                <div class="font-display font-bold text-sm text-white">Bien actuel</div>
+        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
+            <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
+                <div class="font-display font-bold text-sm text-bimo-text">Bien actuel</div>
             </div>
-            <div class="px-5 py-2 divide-y divide-white/[6%]">
+            <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
                 @php
                     $rows = [
-                        ['Référence',  $bien->reference, 'font-display font-semibold'],
-                        ['Type',       $bien->type_label, ''],
-                        ['Statut',     $bien->statut_label, ''],
+                        ['Référence',  $bien->reference, 'font-display font-semibold text-bimo-text'],
+                        ['Type',       $bien->type_label, 'text-bimo-text/70'],
+                        ['Statut',     $bien->statut_label, 'text-bimo-text/70'],
                         ['Loyer',      number_format($bien->loyer_mensuel, 0, ',', ' ') . ' F', 'text-bimo-gold font-semibold'],
-                        ['Commission', ($bien->taux_commission ?? 10) . ' %', ''],
-                        ['Surface',    $bien->surface_m2 ? $bien->surface_m2 . ' m²' : '—', ''],
-                        ['Pièces',     $bien->nombre_pieces ?? '—', ''],
-                        ['Meublé',     $bien->meuble ? 'Oui' : 'Non', ''],
-                        ['Créé le',    $bien->created_at?->format('d/m/Y') ?? '—', ''],
+                        ['Commission', ($bien->taux_commission ?? 10) . ' %', 'text-bimo-text/70'],
+                        ['Surface',    $bien->surface_m2 ? $bien->surface_m2 . ' m²' : '—', 'text-bimo-text/70'],
+                        ['Pièces',     $bien->nombre_pieces ?? '—', 'text-bimo-text/70'],
+                        ['Meublé',     $bien->meuble ? 'Oui' : 'Non', 'text-bimo-text/70'],
+                        ['Créé le',    $bien->created_at?->format('d/m/Y') ?? '—', 'text-bimo-text/70'],
                     ];
                 @endphp
                 @foreach($rows as [$lbl, $val, $valClass])
                 <div class="flex items-center justify-between py-2.5">
-                    <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                    <span class="font-body text-xs text-white/80 {{ $valClass }}">{{ $val }}</span>
+                    <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
+                    <span class="font-body text-xs {{ $valClass }}">{{ $val }}</span>
                 </div>
                 @endforeach
             </div>
 
             @if($bien->contratActif)
-            <div class="px-5 py-4 border-t border-white/[7%]">
-                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/25 mb-3">Contrat actif</div>
-                <div class="font-body text-sm text-white/80 mb-1">
+            <div class="px-5 py-4 border-t border-bimo-navy/[5%]">
+                <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/40 mb-3">Contrat actif</div>
+                <div class="font-body text-sm text-bimo-text mb-1">
                     {{ $bien->contratActif->locataire?->name ?? '—' }}
                 </div>
-                <div class="font-body text-xs text-white/35">
+                <div class="font-body text-xs text-bimo-text/50">
                     Depuis {{ $bien->contratActif->date_debut?->format('d/m/Y') }}
                 </div>
                 <a href="{{ route('admin.contrats.show', $bien->contratActif) }}"
-                   class="inline-flex items-center gap-1.5 mt-3 font-body text-xs text-bimo-gold hover:text-white transition-colors duration-150">
+                   class="inline-flex items-center gap-1.5 mt-3 font-body text-xs text-bimo-gold hover:text-bimo-text transition-colors duration-150">
                     Voir le contrat →
                 </a>
             </div>
