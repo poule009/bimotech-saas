@@ -110,7 +110,7 @@ class UserController extends Controller
     // LISTE LOCATAIRES
     // ─────────────────────────────────────────────────────────────────────
 
-    public function locataires()
+    public function locataires(Request $request)
     {
         $this->authorize('isAdmin');
 
@@ -125,7 +125,7 @@ class UserController extends Controller
          * Après : on charge uniquement les colonnes nécessaires à l'affichage,
          * avec withCount pour le nombre de contrats.
          */
-        $locataires = User::where('role', 'locataire')
+        $query = User::where('role', 'locataire')
             ->where('agency_id', $agencyId)
             ->select(['id', 'agency_id', 'name', 'email', 'telephone', 'created_at'])
             ->with([
@@ -138,9 +138,26 @@ class UserController extends Controller
             ->withCount([
                 'contrats',
                 'contrats as contrats_actifs_count' => fn($q) => $q->where('statut', 'actif'),
-            ])
-            ->orderBy('name')
-            ->paginate(15);
+            ]);
+
+        if (($q = trim((string) $request->input('q'))) !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('telephone', 'like', "%{$q}%")
+                    ->orWhereHas('locataire', fn ($l) => $l
+                        ->where('profession', 'like', "%{$q}%")
+                        ->orWhere('employeur', 'like', "%{$q}%"));
+            });
+        }
+
+        if ($request->input('statut') === 'actif') {
+            $query->whereHas('contrats', fn ($c) => $c->where('statut', 'actif'));
+        } elseif ($request->input('statut') === 'sans') {
+            $query->whereDoesntHave('contrats', fn ($c) => $c->where('statut', 'actif'));
+        }
+
+        $locataires = $query->orderBy('name')->paginate(15)->withQueryString();
 
         $stats = [
             'total'        => User::where('role', 'locataire')->where('agency_id', $agencyId)->count(),

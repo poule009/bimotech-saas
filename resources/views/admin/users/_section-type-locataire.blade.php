@@ -76,6 +76,7 @@
                     Raison sociale (nom officiel de l'entreprise)
                 </label>
                 <input type="text" name="nom_entreprise" id="nom_entreprise"
+                       aria-label="Raison sociale"
                        value="{{ old('nom_entreprise', $locataire?->nom_entreprise) }}"
                        placeholder="Ex: Société Immobilière Dakar SARL"
                        class="w-full px-3 py-2.5 rounded-[8px] bg-white border border-bimo-navy/15 font-body text-[13px] text-bimo-text placeholder:text-bimo-text/35 focus:outline-none focus:border-[var(--ac)] focus:ring-2 focus:ring-[var(--ac)]/15 transition-all duration-150">
@@ -87,6 +88,7 @@
                     NINEA <span class="font-normal text-bimo-text/40">(Numéro fiscal)</span>
                 </label>
                 <input type="text" name="ninea_locataire" id="ninea_locataire"
+                       aria-label="NINEA de l'entreprise"
                        value="{{ old('ninea_locataire', $locataire?->ninea_locataire) }}"
                        placeholder="Ex: 00123456789"
                        maxlength="30"
@@ -99,6 +101,7 @@
                     RCCM <span class="font-normal text-bimo-text/40">(Registre de commerce)</span>
                 </label>
                 <input type="text" name="rccm_locataire" id="rccm_locataire"
+                       aria-label="RCCM"
                        value="{{ old('rccm_locataire', $locataire?->rccm_locataire) }}"
                        placeholder="Ex: SN-DKR-2024-B-12345"
                        maxlength="60"
@@ -110,6 +113,7 @@
                     Taux BRS personnalisé <span class="font-normal text-bimo-text/40">(%)</span>
                 </label>
                 <input type="number" name="taux_brs_override" id="taux_brs_override"
+                       aria-label="Taux BRS personnalisé (%)"
                        value="{{ old('taux_brs_override', $locataire?->taux_brs_override) }}"
                        placeholder="15" min="0" max="20" step="0.5"
                        class="w-full px-3 py-2.5 rounded-[8px] bg-white border border-bimo-navy/15 font-body text-[13px] text-bimo-text placeholder:text-bimo-text/35 focus:outline-none focus:border-[var(--ac)] focus:ring-2 focus:ring-[var(--ac)]/15 transition-all duration-150">
