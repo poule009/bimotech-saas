@@ -75,4 +75,59 @@ export default function registerComponents(Alpine) {
     Alpine.data('autoSubmit', () => ({
         submit() { this.$root.submit() },
     }));
+
+    // Comptabilité — sous-nav à 3 onglets (Vue d'ensemble / Propriétaires / Agence).
+    // Les classes actives/inactives sont fournies via data-* (écrites en Blade,
+    // donc scannées par Tailwind) pour rester CSP-safe ET JIT-safe.
+    Alpine.data('comptaTabs', () => ({
+        tab: 'apercu',
+        activeCls: '',
+        inactiveCls: '',
+        init() {
+            this.activeCls   = this.$el.dataset.activeClass || '';
+            this.inactiveCls = this.$el.dataset.inactiveClass || '';
+            if (this.$el.dataset.default) this.tab = this.$el.dataset.default;
+        },
+        selectApercu()  { this.tab = 'apercu' },
+        selectProprio() { this.tab = 'proprietaires' },
+        selectAgence()  { this.tab = 'agence' },
+        get showApercu()  { return this.tab === 'apercu' },
+        get showProprio() { return this.tab === 'proprietaires' },
+        get showAgence()  { return this.tab === 'agence' },
+        get apercuClass()  { return this.tab === 'apercu' ? this.activeCls : this.inactiveCls },
+        get proprioClass() { return this.tab === 'proprietaires' ? this.activeCls : this.inactiveCls },
+        get agenceClass()  { return this.tab === 'agence' ? this.activeCls : this.inactiveCls },
+    }));
+
+    // Comptabilité — ligne propriétaire dépliable (détail par bien)
+    Alpine.data('detailToggle', () => ({
+        open: false,
+        toggle() { this.open = !this.open },
+    }));
+
+    // Comptabilité — formulaire « ajouter une dépense » (propriétaire ou agence)
+    Alpine.data('expenseForm', () => ({
+        open: false,
+        choice: 'owner',
+        paiementId: '',
+        ownerActionBase: '',
+        selCls: '',
+        unselCls: '',
+        init() {
+            this.ownerActionBase = this.$el.dataset.ownerActionBase || '';
+            this.selCls   = this.$el.dataset.selectedClass || '';
+            this.unselCls = this.$el.dataset.unselectedClass || '';
+            if (this.$el.dataset.openInit) this.open = true;
+        },
+        toggle() { this.open = !this.open },
+        hide()   { this.open = false },
+        chooseOwner()  { this.choice = 'owner' },
+        chooseAgency() { this.choice = 'agency' },
+        get isOwner()  { return this.choice === 'owner' },
+        get isAgency() { return this.choice === 'agency' },
+        get ownerCardClass()  { return this.choice === 'owner' ? this.selCls : this.unselCls },
+        get agencyCardClass() { return this.choice === 'agency' ? this.selCls : this.unselCls },
+        // URL de POST de la dépense propriétaire, calculée d'après le paiement choisi
+        get ownerFormAction() { return this.ownerActionBase.replace('__PID__', this.paiementId) },
+    }));
 }

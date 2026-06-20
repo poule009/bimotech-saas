@@ -6,7 +6,7 @@
 
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-3">
-            <a href="{{ route('admin.reversements.index') }}" class="text-bimo-text/40 hover:text-bimo-text transition-colors duration-150">
+            <a href="{{ route('admin.comptabilite.index') }}" class="text-bimo-text/40 hover:text-bimo-text transition-colors duration-150">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             </a>
             <div>

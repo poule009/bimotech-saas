@@ -29,14 +29,15 @@ class ComptabiliteDashboardTest extends TestCase
     }
 
     #[Test]
-    public function le_dashboard_comptabilite_se_charge_sans_erreur()
+    public function le_module_comptabilite_se_charge_sans_erreur()
     {
         $admin = $this->adminAgence();
 
         $this->actingAs($admin)
-            ->get(route('admin.comptabilite.dashboard'))
+            ->get(route('admin.comptabilite.index'))
             ->assertOk()
-            ->assertSee('Ce que vous avez à faire ce mois')
-            ->assertSee('Payer les propriétaires');
+            ->assertSee('Argent de l\'agence', false)
+            ->assertSee('Vue d\'ensemble', false)
+            ->assertSee('Propriétaires', false);
     }
 }

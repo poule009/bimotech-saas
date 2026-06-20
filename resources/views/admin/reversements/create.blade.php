@@ -6,7 +6,7 @@
     <form method="POST" action="{{ route('admin.reversements.store') }}" class="space-y-6">
         @csrf
         <div class="flex items-center gap-3 mb-2">
-            <a href="{{ route('admin.reversements.index') }}" class="text-bimo-text/40 hover:text-bimo-text transition-colors duration-150">
+            <a href="{{ route('admin.comptabilite.index') }}" class="text-bimo-text/40 hover:text-bimo-text transition-colors duration-150">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
             </a>
             <h1 class="font-display font-extrabold text-xl text-bimo-text tracking-tight">Nouveau reversement</h1>
@@ -89,7 +89,7 @@
         </div>
 
         <div class="sticky bottom-0 bg-white/95 backdrop-blur-sm border-t border-bimo-navy/10 px-0 py-3 flex justify-end gap-3">
-            <a href="{{ route('admin.reversements.index') }}"
+            <a href="{{ route('admin.comptabilite.index') }}"
                class="inline-flex items-center px-5 py-2.5 rounded-[10px] border border-bimo-navy/15 font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
                 Annuler
             </a>

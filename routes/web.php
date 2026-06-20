@@ -247,25 +247,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // ── Module Comptabilité ────────────────────────────────────────────────
         Route::prefix('comptabilite')->name('comptabilite.')->middleware('check.feature:comptabilite')->group(function () {
-            Route::get('/',               [ComptabiliteController::class, 'dashboard'])->name('dashboard');
-            Route::get('compte-resultat', [ComptabiliteController::class, 'compteResultat'])->name('compte-resultat');
+            Route::get('/', [ComptabiliteController::class, 'index'])->name('index');
         });
 
+        // Enregistrement d'une dépense agence (formulaire intégré au module Comptabilité)
         Route::resource('charges-agence', ChargeAgenceController::class)
             ->middleware('check.feature:comptabilite')
-            ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+            ->only(['store']);
 
         Route::prefix('reversements')->name('reversements.')->middleware('check.feature:comptabilite')->group(function () {
-            Route::get('/',                                       [ReversementController::class, 'index'])->name('index');
             Route::get('create',                                  [ReversementController::class, 'create'])->name('create');
             Route::post('/',                                      [ReversementController::class, 'store'])->name('store');
             Route::get('proprietaire/{proprietaire}',             [ReversementController::class, 'compteMandant'])->name('compte-mandant');
             Route::get('proprietaire/{proprietaire}/releve-pdf', [ReversementController::class, 'relevePdf'])->name('releve-pdf');
         });
-
-        Route::get('tresorerie', [ComptabiliteController::class, 'tresorerie'])
-            ->name('tresorerie.index')
-            ->middleware('check.feature:tresorerie');
 
         // Module fiscal (désactivé via FEATURE_FISCALITE=false dans .env)
         if (config('features.fiscalite')) {

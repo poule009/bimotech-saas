@@ -11,6 +11,9 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
+    /* Alpine — masque les éléments x-cloak tant que le composant n'est pas initialisé */
+    [x-cloak] { display: none !important; }
+
     * {
         scrollbar-width: thin;
         scrollbar-color: rgba(27, 79, 107, 0.15) transparent;

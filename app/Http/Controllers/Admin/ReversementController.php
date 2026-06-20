@@ -26,27 +26,6 @@ class ReversementController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index(Request $request): View
-    {
-        $agencyId = Auth::user()->agency_id;
-
-        $reversements = ReversementProprietaire::with('proprietaire')
-            ->orderByDesc('date_reversement')
-            ->paginate(30)
-            ->appends($request->query());
-
-        $soldesMandants = $this->comptabiliteService->soldesMandants($agencyId);
-
-        $proprietaires = User::where('agency_id', $agencyId)
-            ->where('role', 'proprietaire')
-            ->orderBy('name')
-            ->get();
-
-        return view('admin.reversements.index', compact(
-            'reversements', 'soldesMandants', 'proprietaires'
-        ));
-    }
-
     public function create(Request $request): View
     {
         $agencyId = Auth::user()->agency_id;
@@ -76,7 +55,7 @@ class ReversementController extends Controller implements HasMiddleware
         ReversementProprietaire::create($request->validated());
 
         return redirect()
-            ->route('reversements.index')
+            ->route('admin.comptabilite.index')
             ->with('success', 'Reversement enregistré avec succès.');
     }
 
