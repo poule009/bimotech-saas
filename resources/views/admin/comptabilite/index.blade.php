@@ -4,9 +4,6 @@
 @section('content')
 @php
     $fmt = fn($n) => number_format((float) $n, 0, ',', ' ');
-    $totalCaisse = $partProprietaires + $partAgence;
-    $pctProprio  = $totalCaisse > 0 ? round($partProprietaires / $totalCaisse * 100) : 0;
-    $pctAgence   = 100 - $pctProprio;
     $resultatNet = $resultat['resultat_net'];
 @endphp
 
@@ -168,32 +165,6 @@
 
         {{-- ───────────── VUE D'ENSEMBLE ───────────── --}}
         <div x-show="showApercu" x-cloak class="mt-5 space-y-4 md:space-y-6">
-
-            {{-- Hero : argent en caisse réparti --}}
-            <div class="bg-white rounded-[16px] border border-bimo-navy/10 p-5 md:p-6">
-                <p class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/50 mb-1">Argent en caisse</p>
-                <p class="font-display font-extrabold text-3xl md:text-[2.4rem] text-bimo-navy leading-none mb-5">{{ $fmt($totalCaisse) }} <span class="text-lg font-bold text-bimo-text/40">FCFA</span></p>
-                <div class="flex h-3.5 rounded-full overflow-hidden bg-bimo-navy/10 mb-4">
-                    <div class="bg-bimo-navy" style="width: {{ $pctProprio }}%"></div>
-                    <div class="bg-[var(--ac)]" style="width: {{ $pctAgence }}%"></div>
-                </div>
-                <div class="flex flex-wrap gap-x-8 gap-y-3">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-2.5 h-2.5 rounded-[3px] bg-bimo-navy flex-shrink-0"></span>
-                        <div>
-                            <p class="font-body text-xs text-bimo-text/50">À reverser aux propriétaires · {{ $pctProprio }}%</p>
-                            <p class="font-display font-bold text-base text-bimo-text">{{ $fmt($partProprietaires) }} FCFA</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-2.5 h-2.5 rounded-[3px] bg-[var(--ac)] flex-shrink-0"></span>
-                        <div>
-                            <p class="font-body text-xs text-bimo-text/50">Disponible pour l'agence · {{ $pctAgence }}%</p>
-                            <p class="font-display font-bold text-base text-bimo-text">{{ $fmt($partAgence) }} FCFA</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {{-- KPIs --}}
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">

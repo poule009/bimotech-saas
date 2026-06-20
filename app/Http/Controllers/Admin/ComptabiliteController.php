@@ -41,10 +41,6 @@ class ComptabiliteController extends Controller implements HasMiddleware
         $tresorerie = $this->comptabiliteService->tresorerie($agencyId, $annee, $mois);
         $resultat   = $this->comptabiliteService->compteResultat($agencyId, $annee, $mois);
 
-        // Répartition de l'argent en caisse : part propriétaires (à reverser) vs part agence (disponible)
-        $partProprietaires = (float) $tresorerie['solde_mandant_total'];
-        $partAgence        = (float) $tresorerie['disponible_agence'];
-
         // ── Onglet Propriétaires : une ligne par propriétaire actif ce mois ──
         $proprioActifsIds = Paiement::withoutGlobalScopes()
             ->where('agency_id', $agencyId)
@@ -134,7 +130,7 @@ class ComptabiliteController extends Controller implements HasMiddleware
 
         return view('admin.comptabilite.index', compact(
             'annee', 'mois', 'periode',
-            'tresorerie', 'resultat', 'partProprietaires', 'partAgence',
+            'tresorerie', 'resultat',
             'lignesProprietaires', 'proprietairesAPayer', 'totalAPayer',
             'chargesAgence', 'pourcentageGarde',
             'dernieresOperations',
