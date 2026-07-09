@@ -21,44 +21,94 @@ class BienController extends Controller
     {
         $this->authorize('isStaff');
 
-        // Les biens archivés sont soft-deleted — on utilise onlyTrashed() pour les afficher.
-        // Pour tous les autres statuts, le scope SoftDeletes exclut automatiquement les archivés.
-        $isArchive = $request->statut === 'archive';
+        // Liste unifiée : biens simples (standalone) + immeubles-conteneurs (avec occupation).
+        // Les unités d'un immeuble ne s'affichent PAS ici — elles sont visibles dans la fiche immeuble.
+        $filter = in_array($request->input('filter'), ['simples', 'immeubles'], true)
+            ? $request->input('filter')
+            : null;
+        $q = trim((string) $request->input('q', ''));
 
-        $colonnes = ['id', 'agency_id', 'proprietaire_id', 'immeuble_id', 'reference',
-                     'titre', 'type', 'adresse', 'quartier', 'ville', 'statut', 'loyer_mensuel'];
+        // ── Biens simples ──────────────────────────────────────────────────
+        $biensSimples = collect();
+        if ($filter !== 'immeubles') {
+            $bq = Bien::standalone()
+                ->select(['id', 'agency_id', 'proprietaire_id', 'immeuble_id', 'reference',
+                          'titre', 'type', 'adresse', 'quartier', 'ville', 'statut', 'loyer_mensuel'])
+                ->with('proprietaire:id,name');
 
-        $query = $isArchive
-            ? Bien::onlyTrashed()->select($colonnes)->with([
-                'proprietaire:id,name,email',
-                'contratActif.locataire:id,name,telephone',
-                'photos' => fn($q) => $q->where('est_principale', true)->select(['id', 'bien_id', 'chemin', 'est_principale']),
-            ])
-            : Bien::select($colonnes)->with([
-                'proprietaire:id,name,email',
-                'contratActif.locataire:id,name,telephone',
-                'photos' => fn($q) => $q->where('est_principale', true)->select(['id', 'bien_id', 'chemin', 'est_principale']),
-            ]);
-
-        if ($request->filled('q')) {
-            $q = $request->q;
-            $query->where(function ($sub) use ($q) {
-                $sub->where('reference', 'like', "%{$q}%")
-                    ->orWhere('adresse',   'like', "%{$q}%")
-                    ->orWhere('ville',     'like', "%{$q}%")
-                    ->orWhereHas('proprietaire', fn ($p) => $p->where('name', 'like', "%{$q}%"));
-            });
-        }
-        if ($request->filled('statut') && ! $isArchive) {
-            $query->where('statut', $request->statut);
-        }
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
+            if ($q !== '') {
+                $bq->where(function ($sub) use ($q) {
+                    $sub->where('reference', 'like', "%{$q}%")
+                        ->orWhere('titre', 'like', "%{$q}%")
+                        ->orWhere('adresse', 'like', "%{$q}%")
+                        ->orWhere('ville', 'like', "%{$q}%")
+                        ->orWhere('quartier', 'like', "%{$q}%")
+                        ->orWhereHas('proprietaire', fn ($p) => $p->where('name', 'like', "%{$q}%"));
+                });
+            }
+            $biensSimples = $bq->latest()->paginate(24)->withQueryString();
         }
 
-        $biens = $query->latest()->paginate(12)->withQueryString();
+        // ── Immeubles avec occupation ──────────────────────────────────────
+        $immeubles = collect();
+        if ($filter !== 'simples') {
+            $iq = Immeuble::select(['id', 'agency_id', 'proprietaire_id', 'nom', 'adresse', 'ville', 'nombre_niveaux'])
+                ->with('proprietaire:id,name')
+                ->withCount([
+                    'biens',
+                    'biens as loues_count' => fn ($x) => $x->where('statut', 'loue'),
+                ]);
 
-        return view('biens.index', compact('biens'));
+            if ($q !== '') {
+                $iq->where(function ($sub) use ($q) {
+                    $sub->where('nom', 'like', "%{$q}%")
+                        ->orWhere('adresse', 'like', "%{$q}%")
+                        ->orWhere('ville', 'like', "%{$q}%")
+                        ->orWhereHas('proprietaire', fn ($p) => $p->where('name', 'like', "%{$q}%"));
+                });
+            }
+            $immeubles = $iq->orderBy('nom')->get();
+        }
+
+        $counts = [
+            'simples'   => Bien::standalone()->count(),
+            'immeubles' => Immeuble::count(),
+        ];
+        $counts['total'] = $counts['simples'] + $counts['immeubles'];
+
+        return view('biens.index', compact('biensSimples', 'immeubles', 'filter', 'q', 'counts'));
+    }
+
+    /**
+     * Recherche JSON des biens disponibles — composant « Rechercher-ou-Créer »
+     * du formulaire Contrat. `fill` = loyer de référence pour pré-remplir le loyer.
+     */
+    public function searchDisponibles(Request $request)
+    {
+        $this->authorize('isStaff');
+
+        $agencyId = Auth::user()->agency_id;
+        $q = trim((string) $request->query('q'));
+
+        $biens = Bien::where('agency_id', $agencyId)
+            ->where('statut', 'disponible')
+            ->when($q !== '', fn ($query) => $query->where(fn ($s) => $s
+                ->where('reference', 'like', "%{$q}%")
+                ->orWhere('titre', 'like', "%{$q}%")
+                ->orWhere('adresse', 'like', "%{$q}%")
+                ->orWhere('ville', 'like', "%{$q}%")))
+            ->with('proprietaire:id,name')
+            ->orderBy('reference')
+            ->limit(8)
+            ->get();
+
+        return response()->json($biens->map(fn (Bien $b) => [
+            'id'       => $b->id,
+            'name'     => $b->titre ?: $b->reference,
+            'sub'      => 'Propriétaire : ' . ($b->proprietaire->name ?? '—'),
+            'initials' => mb_strtoupper(mb_substr($b->reference, 0, 2)),
+            'fill'     => (int) $b->loyer_mensuel,
+        ]));
     }
 
     public function show(Bien $bien): View

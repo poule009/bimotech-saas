@@ -64,6 +64,9 @@ class AgencySettingsController extends Controller
             'logo'             => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
             'logo_dark'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
             'signature'        => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024'],
+            'cachet'           => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:1024'],
+            'assujetti_tva'    => ['nullable', 'boolean'],
+            'taux_tva'         => ['nullable', 'numeric', 'min:0', 'max:100'],
             'modele_contrat'   => ['nullable', 'string', 'max:10000'],
         ], [
             'name.required'          => "Le nom de l'agence est obligatoire.",
@@ -85,6 +88,10 @@ class AgencySettingsController extends Controller
             'signature.image'        => "La signature doit être une image.",
             'signature.mimes'        => "Formats acceptés pour la signature : PNG, JPG, JPEG, WEBP.",
             'signature.max'          => "La signature ne doit pas dépasser 1 Mo.",
+            'cachet.image'           => "Le cachet doit être une image.",
+            'cachet.mimes'           => "Formats acceptés pour le cachet : PNG, JPG, JPEG, WEBP.",
+            'cachet.max'             => "Le cachet ne doit pas dépasser 1 Mo.",
+            'taux_tva.numeric'       => "Le taux de TVA doit être un nombre.",
             'modele_contrat.max'     => "Le modèle de contrat ne doit pas dépasser 10 000 caractères.",
         ]);
 
@@ -95,12 +102,15 @@ class AgencySettingsController extends Controller
         $logoPath             = $agency->logo_path;
         $logoDarkPath         = $agency->logo_dark_path;
         $signaturePath        = $agency->signature_path;
+        $cachetPath           = $agency->cachet_path;
         $newLogoUploaded      = null;
         $newLogoDarkUploaded  = null;
         $newSignatureUploaded = null;
+        $newCachetUploaded    = null;
         $oldLogoToDelete      = null;
         $oldLogoDarkToDelete  = null;
         $oldSignatureToDelete = null;
+        $oldCachetToDelete    = null;
 
         if ($request->hasFile('logo')) {
             $newLogoUploaded = $request->file('logo')->store('logos', self::DISK);
@@ -120,10 +130,18 @@ class AgencySettingsController extends Controller
             $signaturePath        = $newSignatureUploaded;
         }
 
+        if ($request->hasFile('cachet')) {
+            $newCachetUploaded = $request->file('cachet')->store('cachets', self::DISK);
+            $oldCachetToDelete = $cachetPath;
+            $cachetPath        = $newCachetUploaded;
+        }
+
         // ── Écriture DB sous transaction ──────────────────────────────────
 
+        $assujettiTva = $request->boolean('assujetti_tva');
+
         try {
-            DB::transaction(function () use ($agency, $validated, $logoPath, $logoDarkPath, $signaturePath) {
+            DB::transaction(function () use ($agency, $validated, $logoPath, $logoDarkPath, $signaturePath, $cachetPath, $assujettiTva) {
                 $agency->update([
                     'name'             => $validated['name'],
                     'email'            => $validated['email'],
@@ -136,6 +154,9 @@ class AgencySettingsController extends Controller
                     'logo_path'        => $logoPath,
                     'logo_dark_path'   => $logoDarkPath,
                     'signature_path'   => $signaturePath,
+                    'cachet_path'      => $cachetPath,
+                    'assujetti_tva'    => $assujettiTva,
+                    'taux_tva'         => $validated['taux_tva'] ?? $agency->taux_tva,
                     // array_key_exists (pas isset) car le champ peut valoir null (textarea vide
                     // converti par ConvertEmptyStringsToNull). isset(null) retournerait false
                     // et la valeur ne serait jamais mise à jour.
@@ -150,6 +171,7 @@ class AgencySettingsController extends Controller
             $this->safeDelete($newLogoUploaded);
             $this->safeDelete($newLogoDarkUploaded);
             $this->safeDelete($newSignatureUploaded);
+            $this->safeDelete($newCachetUploaded);
 
             Log::error('Mise à jour paramètres agence échouée', [
                 'agency_id' => $agency->id,
@@ -165,6 +187,7 @@ class AgencySettingsController extends Controller
         $this->safeDelete($oldLogoToDelete);
         $this->safeDelete($oldLogoDarkToDelete);
         $this->safeDelete($oldSignatureToDelete);
+        $this->safeDelete($oldCachetToDelete);
 
         $agency->refresh();
         $agency->checkOnboarding();
@@ -233,6 +256,35 @@ class AgencySettingsController extends Controller
         return redirect()
             ->route('admin.agency.settings')
             ->with('success', 'Signature supprimée ✓');
+    }
+
+    // ── Supprime le cachet ────────────────────────────────────────────────
+
+    public function deleteCachet(): RedirectResponse
+    {
+        $agency  = Auth::user()->agency;
+        $oldPath = $agency->cachet_path;
+
+        if (! $oldPath) {
+            return redirect()->route('admin.agency.settings');
+        }
+
+        try {
+            DB::transaction(fn () => $agency->update(['cachet_path' => null]));
+        } catch (Throwable $e) {
+            Log::error('Suppression cachet échouée', [
+                'agency_id' => $agency->id,
+                'message'   => $e->getMessage(),
+            ]);
+
+            return back()->with('error', "La suppression du cachet a échoué.");
+        }
+
+        $this->safeDelete($oldPath);
+
+        return redirect()
+            ->route('admin.agency.settings')
+            ->with('success', 'Cachet supprimé ✓');
     }
 
     // ── Supprime le logo fond sombre ─────────────────────────────────────

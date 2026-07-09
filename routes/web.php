@@ -178,6 +178,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function () {
 
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
+        Route::view('demo/rechercher-creer', 'demo-search-create')->name('demo.search-create'); // démo composant (temporaire)
         Route::post('onboarding/dismiss', [AgencySettingsController::class, 'dismissOnboarding'])->name('onboarding.dismiss');
         Route::get('search', \App\Http\Controllers\SearchController::class)->name('search')->middleware('check.feature:recherche_globale');
 
@@ -187,6 +188,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('agency/logo',      [AgencySettingsController::class, 'deleteLogo'])->name('agency.logo.delete');
         Route::delete('agency/logo-dark', [AgencySettingsController::class, 'deleteLogoDark'])->name('agency.logo-dark.delete');
         Route::delete('agency/signature', [AgencySettingsController::class, 'deleteSignature'])->name('agency.signature.delete');
+        Route::delete('agency/cachet',    [AgencySettingsController::class, 'deleteCachet'])->name('agency.cachet.delete');
 
         // Logs
         Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index')->middleware('check.feature:logs_activite');
@@ -199,6 +201,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('paiements/create',               [PaiementController::class, 'create'])->name('paiements.create')->middleware('agency.can:paiements.creer');
         Route::post('paiements',                     [PaiementController::class, 'store'])->name('paiements.store')->middleware('agency.can:paiements.creer');
         Route::patch('paiements/{paiement}/annuler', [PaiementController::class, 'annuler'])->name('paiements.annuler')->middleware('agency.can:paiements.annuler');
+        Route::patch('paiements/{paiement}/marquer-paye', [PaiementController::class, 'marquerPaye'])->name('paiements.marquer-paye')->middleware('agency.can:paiements.creer');
 
         // Contrats — écriture
         Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide')->middleware(['throttle:20,1', 'agency.can:locataires.creer']);
@@ -216,6 +219,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('proprietaires',  [UserController::class, 'proprietaires'])->name('proprietaires');
             Route::get('locataires',     [UserController::class, 'locataires'])->name('locataires');
+            // Composant « Rechercher-ou-Créer » — recherche + création rapide (JSON)
+            Route::get('proprietaires/search', [UserController::class, 'proprietaireSearch'])->name('proprietaires.search');
+            Route::post('proprietaires/quick', [UserController::class, 'proprietaireQuickStore'])->name('proprietaires.quick')->middleware('agency.can:proprietaires.creer');
+            Route::get('locataires/search',    [UserController::class, 'locataireSearch'])->name('locataires.search');
+            Route::post('locataires/quick',    [UserController::class, 'locataireQuickStore'])->name('locataires.quick')->middleware('agency.can:locataires.creer');
             Route::get('create/{role}',  [UserController::class, 'create'])->name('create')->middleware('agency.can:locataires.creer,proprietaires.creer');
             Route::post('store',         [UserController::class, 'store'])->name('store')->middleware('agency.can:locataires.creer,proprietaires.creer');
             Route::get('{user}',         [UserController::class, 'show'])->name('show');
@@ -324,6 +332,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('can:isStaff')->prefix('admin')->name('admin.')->group(function () {
 
         // Biens — routes statiques avant la resource pour éviter que {bien} capture "create"
+        Route::get('biens/search-disponibles', [BienController::class, 'searchDisponibles'])->name('biens.search-disponibles');
         Route::get('biens/create',        [BienController::class, 'create'])->name('biens.create')->middleware('agency.can:biens.creer');
         Route::post('biens',              [BienController::class, 'store'])->name('biens.store')->middleware('agency.can:biens.creer');
         Route::get('biens/{bien}/edit',   [BienController::class, 'edit'])->name('biens.edit')->middleware('agency.can:biens.modifier');

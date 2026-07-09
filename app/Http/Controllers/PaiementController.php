@@ -47,63 +47,122 @@ class PaiementController extends Controller implements HasMiddleware
     // LISTE
     // ─────────────────────────────────────────────────────────────────────
 
+    /**
+     * Vue « Quittances » : liste de travail groupée par gravité de retard.
+     * Même table que la fiche contrat — source unique (voir marquerPaye).
+     */
     public function index(Request $request): View
     {
         $this->authorize('isStaff');
 
         $agencyId = Auth::user()->agency_id;
+        $q        = trim((string) $request->input('q'));
+        $filter   = in_array($request->input('filter'), ['retard', 'payees'], true) ? $request->input('filter') : null;
+        $now      = now();
 
-        $query = Paiement::where('agency_id', $agencyId)
-            ->with([
-                'contrat:id,bien_id,locataire_id,reference_bail',
-                'contrat.bien:id,reference,adresse,ville,proprietaire_id',
-                'contrat.bien.proprietaire:id,name',
-                'contrat.locataire:id,name',
-            ])
-            ->select([
-                'id', 'agency_id', 'contrat_id', 'periode', 'date_paiement',
-                'montant_encaisse', 'net_proprietaire', 'net_a_verser_proprietaire',
-                'commission_ttc', 'mode_paiement', 'statut', 'reference_paiement',
-            ]);
+        $with = [
+            'contrat:id,bien_id,locataire_id',
+            'contrat.bien:id,reference,titre,adresse,ville',
+            'contrat.locataire:id,name,telephone',
+        ];
+        $cols = ['id', 'agency_id', 'contrat_id', 'periode', 'montant_encaisse', 'statut', 'date_paiement'];
 
-        if ($request->filled('statut')) {
-            $query->where('statut', $request->statut);
-        }
-        if ($request->filled('contrat_id')) {
-            $query->where('contrat_id', $request->contrat_id);
-        }
-        if ($request->filled('mois')) {
-            // Utiliser whereYear/whereMonth plutôt que whereRaw pour éviter
-            // tout risque d'injection si la liaison est un jour omise.
-            [$annee, $mois] = explode('-', $request->mois) + [null, null];
-            if ($annee && $mois) {
-                $query->whereYear('periode', $annee)->whereMonth('periode', $mois);
+        $applyQ = function ($query) use ($q) {
+            if ($q === '') {
+                return;
             }
+            $query->whereHas('contrat', function ($c) use ($q) {
+                $c->whereHas('locataire', fn ($l) => $l->where('name', 'like', "%{$q}%"))
+                  ->orWhereHas('bien', fn ($b) => $b->where('reference', 'like', "%{$q}%")
+                        ->orWhere('titre', 'like', "%{$q}%")->orWhere('adresse', 'like', "%{$q}%"));
+            });
+        };
+
+        // ── Impayés échus (statut ni validé ni annulé, période passée) ────
+        $iq = Paiement::where('agency_id', $agencyId)
+            ->whereNotIn('statut', ['valide', 'annule'])
+            ->whereDate('periode', '<=', $now->toDateString())
+            ->with($with)->select($cols);
+        $applyQ($iq);
+        $impayes = $iq->orderBy('periode')->get();
+
+        // ── Bucketing par jours de retard (grâce de 5 j, comme ImpayeController) ──
+        $buckets = [
+            'crit' => ['titre' => 'Critique — 30 jours et plus', 'items' => collect()],
+            'late' => ['titre' => 'Sérieux — 15 à 30 jours',     'items' => collect()],
+            'mid'  => ['titre' => 'À surveiller — 4 à 14 jours',  'items' => collect()],
+            'soon' => ['titre' => 'Léger — 1 à 3 jours',          'items' => collect()],
+        ];
+        $enRetardMontant  = 0.0;
+        $locatairesRetard = collect();
+        $critiques        = 0;
+
+        foreach ($impayes as $p) {
+            $jours = (int) \Carbon\Carbon::parse($p->periode)->addDays(5)->diffInDays($now, false);
+            if ($jours <= 0) {
+                continue; // encore dans le délai de grâce
+            }
+            $p->jours_retard = $jours;
+            $enRetardMontant += (float) $p->montant_encaisse;
+            $locatairesRetard->push($p->contrat?->locataire_id);
+
+            if ($jours >= 30)      { $buckets['crit']['items']->push($p); $critiques++; }
+            elseif ($jours >= 15)  { $buckets['late']['items']->push($p); }
+            elseif ($jours >= 4)   { $buckets['mid']['items']->push($p); }
+            else                   { $buckets['soon']['items']->push($p); }
         }
 
-        $paiements = $query->orderByDesc('date_paiement')->paginate(20)->withQueryString();
-
-        // Stats mois courant
-        $statsRaw = Paiement::where('agency_id', $agencyId)
+        // ── Payées (mois courant) ─────────────────────────────────────────
+        $pq = Paiement::where('agency_id', $agencyId)
             ->where('statut', 'valide')
-            ->whereYear('periode', now()->year)
-            ->whereMonth('periode', now()->month)
-            ->selectRaw('
-                COALESCE(SUM(montant_encaisse), 0)          AS total_loyers,
-                COALESCE(SUM(commission_ttc), 0)            AS total_commissions,
-                COALESCE(SUM(net_a_verser_proprietaire), 0) AS total_net,
-                COUNT(*)                                     AS nb_payes
-            ')
-            ->first();
+            ->whereYear('periode', $now->year)->whereMonth('periode', $now->month)
+            ->with($with)->select($cols);
+        $applyQ($pq);
+        $payes = $pq->orderByDesc('date_paiement')->get();
 
-        $stats = [
-            'total_loyers'      => (float) ($statsRaw->total_loyers      ?? 0),
-            'total_commissions' => (float) ($statsRaw->total_commissions  ?? 0),
-            'total_net'         => (float) ($statsRaw->total_net          ?? 0),
-            'nb_payes'          => (int)   ($statsRaw->nb_payes           ?? 0),
+        // ── KPIs (mois courant) ───────────────────────────────────────────
+        $moisRows = Paiement::where('agency_id', $agencyId)->where('statut', '!=', 'annule')
+            ->whereYear('periode', $now->year)->whereMonth('periode', $now->month)
+            ->get(['statut', 'montant_encaisse']);
+
+        $kpis = [
+            'attendu'   => (float) $moisRows->sum('montant_encaisse'),
+            'encaisse'  => (float) $moisRows->where('statut', 'valide')->sum('montant_encaisse'),
+            'nb_payes'  => $moisRows->where('statut', 'valide')->count(),
+            'nb_actifs' => Contrat::where('agency_id', $agencyId)->where('statut', 'actif')->count(),
+            'en_retard' => $enRetardMontant,
+            'nb_retard' => $locatairesRetard->filter()->unique()->count(),
+            'critiques' => $critiques,
         ];
 
-        return view('paiements.index', compact('paiements', 'stats'));
+        return view('paiements.index', compact('buckets', 'payes', 'kpis', 'q', 'filter'));
+    }
+
+    /**
+     * Marque une quittance générée comme payée : bascule statut → valide.
+     * Source UNIQUE partagée avec la fiche contrat (aucune duplication de logique).
+     * La fiscalité est déjà calculée à la génération (rent:generate).
+     */
+    public function marquerPaye(Paiement $paiement): RedirectResponse
+    {
+        $this->authorize('isStaff');
+
+        if ($paiement->agency_id !== Auth::user()->agency_id && ! Auth::user()->isSuperAdmin()) {
+            abort(403);
+        }
+        if ($paiement->statut === 'annule') {
+            return back()->withErrors(['general' => 'Cette quittance est annulée.']);
+        }
+        if ($paiement->statut === 'valide') {
+            return back()->with('info', 'Cette quittance est déjà payée.');
+        }
+
+        $paiement->update([
+            'statut'        => 'valide',
+            'date_paiement' => now()->toDateString(),
+        ]);
+
+        return back()->with('success', 'Quittance marquée payée ✓');
     }
 
     // ─────────────────────────────────────────────────────────────────────

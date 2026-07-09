@@ -1,440 +1,164 @@
 @extends('layouts.app')
-@section('header', 'Contrats › ' . ($contrat->reference_bail ?? 'Détail'))
+
+@php
+    $fmt  = fn ($n) => number_format((float) $n, 0, ',', ' ');
+    $bien = $contrat->bien;
+    $loc  = $contrat->locataire;
+    $proprio = $bien?->proprietaire;
+    $joursEcheance = $contrat->date_fin
+        ? (int) now()->startOfDay()->diffInDays(\Carbon\Carbon::parse($contrat->date_fin)->startOfDay(), false)
+        : null;
+    $bientot = $contrat->statut === 'actif' && $joursEcheance !== null && $joursEcheance >= 0 && $joursEcheance <= 30;
+    // WhatsApp locataire
+    $telDigits = preg_replace('/\D/', '', (string) $loc?->telephone);
+    if ($telDigits !== '' && ! str_starts_with($telDigits, '221')) $telDigits = '221' . ltrim($telDigits, '0');
+    $waLink = $telDigits !== '' ? 'https://wa.me/' . $telDigits : null;
+@endphp
+
+@section('title', 'Contrat ' . ($contrat->reference_bail ?? ''))
+@section('page-title', 'Fiche contrat')
+@section('page-subtitle')
+    <a href="{{ route('admin.contrats.index') }}" class="text-teal font-semibold hover:underline">Contrats</a>
+    <span class="text-muted"> / {{ $bien->reference ?? '' }} — {{ $loc->name ?? '' }}</span>
+@endsection
 
 @section('content')
-<div class="space-y-4 md:space-y-5">
+<div class="max-w-[1000px]">
 
-    {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 font-body text-sm text-bimo-text/40">
-        <a href="{{ route('admin.contrats.index') }}" class="hover:text-bimo-text transition-colors duration-150">Contrats</a>
-        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span class="text-bimo-text font-medium">{{ $contrat->reference_bail ?? 'Contrat #'.$contrat->id }}</span>
-    </div>
+    @if(session('success'))
+        <div class="mb-5 rounded-lg bg-green/10 border border-green/25 px-4 py-3 text-[13px] text-green">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error">{{ session('error') }}</div>
+    @endif
 
-    {{-- Actions --}}
-    <div class="flex flex-wrap gap-2">
-        @if($contrat->statut === 'actif')
-        <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/25 text-bimo-gold
-                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Enregistrer un paiement
-        </a>
-        <a href="{{ route('admin.contrats.edit', $contrat) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white
-                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Modifier
-        </a>
-        @endif
-        @if(in_array($contrat->statut, ['actif', 'expiré']))
-        <a href="{{ route('admin.contrats.create', ['from_contrat' => $contrat->id]) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy/5 border border-bimo-navy/15 text-bimo-text/70
-                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-            Renouveler
-        </a>
-        @endif
-        <a href="{{ route('admin.biens.show', $contrat->bien) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-            Voir le bien
-        </a>
-        <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" target="_blank"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold
-                  font-body text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Bail formel PDF
-        </a>
-        <a href="{{ route('admin.contrats.index') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            Retour
-        </a>
-        @if($contrat->statut === 'actif')
-        <form method="POST" action="{{ route('admin.contrats.destroy', $contrat) }}"
-              data-confirm="Le contrat {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }} sera résilié et le bien repassera en Disponible."
-              data-confirm-title="Résilier ce contrat ?"
-              data-confirm-ok="Oui, résilier">
-            @csrf @method('DELETE')
-            <button type="submit"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-red/10 border border-bimo-red/20 text-bimo-red
-                           font-body text-sm rounded-[10px] hover:bg-bimo-red/20 transition-all duration-150">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                Résilier
-            </button>
-        </form>
-        @endif
-    </div>
-
-    {{-- Hero --}}
-    @php
-        $badgeClass = match($contrat->statut) {
-            'actif'   => 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold',
-            'resilié' => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
-            default   => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/60',
-        };
-    @endphp
-    <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
-             style="background: radial-gradient(circle, var(--ac) 0%, transparent 70%); transform: translate(30%, -30%)">
-        </div>
-        <div class="relative z-10">
-            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/30 mb-2">
-                {{ $contrat->reference_bail ?? 'BAIL-'.$contrat->id }}
+    {{-- En-tête --}}
+    <div class="bg-white border border-line rounded-2xl overflow-hidden mb-5">
+        <div class="px-6 pt-6 flex items-center gap-4">
+            <div class="w-[52px] h-[52px] rounded-[13px] bg-teal text-paper flex items-center justify-center shrink-0">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
             </div>
-            <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
-                {{ \App\Models\Bien::TYPES[$contrat->bien?->type] ?? '' }}
-                — {{ $contrat->bien?->adresse }}
-            </div>
-            <div class="font-body text-sm text-white/50 mb-3">
-                {{ $contrat->bien?->quartier ? $contrat->bien->quartier.', ' : '' }}
-                {{ $contrat->bien?->ville }}
-                · Réf. {{ $contrat->bien?->reference }}
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-body font-medium {{ $badgeClass }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    {{ \App\Models\Contrat::STATUTS[$contrat->statut] ?? $contrat->statut }}
-                </span>
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full border border-bimo-gold/25 bg-bimo-gold/10 text-xs font-body font-medium text-bimo-gold">
-                    {{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail }}
-                </span>
+            <div class="min-w-0">
+                <h2 class="font-display font-semibold text-[24px]">{{ $bien->reference ?? 'Bien' }}</h2>
+                <div class="text-[13.5px] text-muted">Locataire : {{ $loc->name ?? '—' }} · Propriétaire : {{ $proprio->name ?? '—' }}</div>
             </div>
         </div>
-        <div class="relative z-10 text-right flex-shrink-0">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/50 mb-1">Loyer contractuel</div>
-            <div class="font-display font-extrabold text-3xl text-bimo-gold leading-none">
-                {{ number_format($contrat->loyer_contractuel, 0, ',', ' ') }}
-                <span class="font-body font-normal text-base text-bimo-gold/40">F</span>
-            </div>
-            <div class="font-body text-xs text-white/30 mt-1">
-                {{ $contrat->date_debut?->format('d/m/Y') }}
-                → {{ $contrat->date_fin?->format('d/m/Y') ?? 'Contrat ouvert' }}
+        <div class="px-6 py-4 mt-4 border-t border-paper-dim flex flex-wrap items-center gap-3">
+            @php
+                $stMap = ['actif'=>['Actif','bg-green/10 text-green'],'resilié'=>['Résilié','bg-paper-dim text-muted'],'expiré'=>['Expiré','bg-error/10 text-error']];
+                [$sl,$sc] = $bientot ? ['Échéance dans '.$joursEcheance.' j','bg-gold/15 text-gold'] : ($stMap[$contrat->statut] ?? [ucfirst($contrat->statut),'bg-paper-dim text-muted']);
+            @endphp
+            <span class="inline-flex items-center gap-1.5 text-[12.5px] font-bold px-3.5 py-1.5 rounded-full {{ $sc }}"><span class="w-[7px] h-[7px] rounded-full bg-current"></span> {{ $sl }}</span>
+            <span class="text-[12.5px] text-muted">Réf. {{ $contrat->reference_bail }}</span>
+            <div class="flex items-center gap-2.5 ml-auto">
+                @if($contrat->statut === 'actif')
+                    <a href="{{ route('admin.contrats.edit', $contrat) }}" class="px-4 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[13.5px] font-bold hover:border-teal transition-colors">Modifier</a>
+                @endif
+                @if(Route::has('admin.contrats.bail-formel-pdf'))
+                    <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] border-[1.5px] border-teal text-teal bg-white text-[13.5px] font-bold hover:bg-paper transition-colors">📄 Exporter (PDF)</a>
+                @endif
             </div>
         </div>
     </div>
 
-    {{-- KPIs --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Total encaissé</div>
-            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
-                {{ number_format($totalPaye, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-gold/50"> FCFA</span>
+    {{-- Bannière échéance (gold plein, sans dégradé) --}}
+    @if($bientot)
+        <div class="bg-gold text-teal-deep rounded-2xl p-5 md:px-7 flex flex-col sm:flex-row sm:items-center gap-4 mb-5">
+            <div class="w-[46px] h-[46px] rounded-[12px] bg-teal-deep/15 flex items-center justify-center text-[21px] shrink-0">⏱</div>
+            <div class="flex-1 min-w-0">
+                <div class="font-display font-semibold text-[15.5px]">Ce bail arrive à échéance le {{ \Carbon\Carbon::parse($contrat->date_fin)->locale('fr')->isoFormat('D MMMM Y') }}</div>
+                <div class="text-[12.5px] text-teal-deep/80 mt-0.5">Renouvelez en un clic pour reconduire les mêmes conditions avec de nouvelles dates.</div>
             </div>
+            <a href="{{ route('admin.contrats.create', ['from_contrat' => $contrat->id]) }}" class="bg-teal-deep text-paper px-5 py-2.5 rounded-[10px] text-[13.5px] font-bold hover:opacity-90 transition-opacity shrink-0 whitespace-nowrap">Renouveler</a>
         </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Net propriétaire</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ number_format($totalNet, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-text/40"> FCFA</span>
-            </div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Paiements</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">{{ $nbPaiements }}</div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Caution versée</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ number_format($contrat->caution, 0, ',', ' ') }}<span class="font-body font-normal text-sm text-bimo-text/40"> FCFA</span>
-            </div>
-        </div>
-    </div>
+    @endif
 
-    {{-- Grid principale --}}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
-
-        {{-- COLONNE GAUCHE --}}
-        <div class="space-y-4">
-
-            {{-- Parties --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">Parties au contrat</span>
+    <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-5 items-start">
+        <div class="space-y-5">
+            {{-- Conditions --}}
+            <div class="f-card">
+                <h3 class="f-card-title mb-4">Conditions du bail</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Début</div><div class="text-[15px] font-semibold">{{ optional($contrat->date_debut)->locale('fr')->isoFormat('D MMMM Y') }}</div></div>
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Fin</div><div class="text-[15px] font-semibold">{{ $contrat->date_fin ? \Carbon\Carbon::parse($contrat->date_fin)->locale('fr')->isoFormat('D MMMM Y') : 'Indéterminée' }}</div></div>
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Loyer mensuel</div><div class="text-[15px] font-semibold text-gold">{{ $fmt($contrat->loyer_contractuel) }} F</div></div>
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Dépôt de garantie</div><div class="text-[15px] font-semibold">{{ $fmt($contrat->caution) }} F</div></div>
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Type de bail</div><div class="text-[15px] font-semibold">{{ \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? ucfirst($contrat->type_bail) }}</div></div>
                 </div>
-                <div class="px-5 py-5 grid grid-cols-2 gap-4">
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Locataire</div>
-                        <div class="font-body font-medium text-sm text-bimo-text">{{ $contrat->locataire?->name ?? '—' }}</div>
-                        <div class="font-body text-xs text-bimo-text/50">{{ $contrat->locataire?->email }}</div>
-                        <div class="font-body text-xs text-bimo-text/50">{{ $contrat->locataire?->telephone ?? '' }}</div>
+                @if($contrat->clauses_particulieres)
+                    <div class="mt-5 pt-5 border-t border-paper-dim">
+                        <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Clauses particulières</div>
+                        <div class="text-[14px] text-ink/80 leading-relaxed">{{ $contrat->clauses_particulieres }}</div>
                     </div>
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Propriétaire</div>
-                        <div class="font-body font-medium text-sm text-bimo-text">{{ $contrat->bien?->proprietaire?->name ?? '—' }}</div>
-                        <div class="font-body text-xs text-bimo-text/50">{{ $contrat->bien?->proprietaire?->email }}</div>
-                        <div class="font-body text-xs text-bimo-text/50">{{ $contrat->bien?->proprietaire?->telephone ?? '' }}</div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Loyer --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">Ventilation du loyer</span>
-                </div>
-                <div class="px-5 py-5 grid grid-cols-2 md:grid-cols-3 gap-4">
-                    @php
-                        $loyerRows = [
-                            ['Loyer nu',           number_format($contrat->loyer_nu, 0, ',', ' ') . ' F', ''],
-                            ['Charges',            number_format($contrat->charges_mensuelles ?? 0, 0, ',', ' ') . ' F', ''],
-                            ['TOM',                number_format($contrat->tom_amount ?? 0, 0, ',', ' ') . ' F', ''],
-                            ['Loyer contractuel',  number_format($contrat->loyer_contractuel, 0, ',', ' ') . ' F', 'text-bimo-gold font-bold'],
-                            ['Caution',            number_format($contrat->caution, 0, ',', ' ') . ' F', ''],
-                            ['Frais agence',       number_format($contrat->frais_agence ?? 0, 0, ',', ' ') . ' F', ''],
-                        ];
-                    @endphp
-                    @foreach($loyerRows as [$lbl, $val, $cls])
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">{{ $lbl }}</div>
-                        <div class="font-body font-medium text-sm text-bimo-text {{ $cls }}">{{ $val }}</div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- Garant --}}
-            @if($contrat->garant_nom)
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">Garant</span>
-                </div>
-                <div class="px-5 py-5 grid grid-cols-2 gap-4">
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Nom</div>
-                        <div class="font-body font-medium text-sm text-bimo-text">{{ $contrat->garant_nom }}</div>
-                        <div class="font-body text-xs text-bimo-text/50">{{ $contrat->garant_telephone ?? '' }}</div>
-                        @if($contrat->garant_cni)
-                        <div class="font-body text-xs text-bimo-text/50 mt-1">CNI : {{ $contrat->garant_cni }}</div>
-                        @endif
-                    </div>
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Adresse</div>
-                        <div class="font-body text-sm text-bimo-text">{{ $contrat->garant_adresse ?? '—' }}</div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            {{-- Paiements --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                        </div>
-                        <span class="font-display font-bold text-sm text-bimo-text">Historique des paiements</span>
-                    </div>
-                    @if($contrat->statut === 'actif')
-                    <a href="{{ route('admin.paiements.create', ['contrat_id' => $contrat->id]) }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px]
-                              font-body font-medium text-xs text-bimo-gold hover:bg-bimo-gold/20 transition-all duration-150">
-                        + Ajouter
-                    </a>
-                    @endif
-                </div>
-
-                @if($paiements->isEmpty())
-                <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
-                    Aucun paiement enregistré pour ce contrat.
-                </div>
-                @else
-
-                {{-- Mobile --}}
-                <div class="md:hidden divide-y divide-bimo-navy/[5%]">
-                    @foreach($paiements as $p)
-                    <div class="px-5 py-3.5 flex items-center justify-between gap-3">
-                        <div>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
-                                {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
-                            </span>
-                            <div class="font-body text-xs text-bimo-text/40 mt-1">
-                                {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</div>
-                            <div class="font-body text-xs text-bimo-text/40">Net: {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} FCFA</div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-
-                {{-- Desktop --}}
-                <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Période</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Date</th>
-                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Montant</th>
-                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Net proprio</th>
-                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Commission</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Mode</th>
-                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Statut</th>
-                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">PDF</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-bimo-navy/[5%]">
-                            @foreach($paiements as $p)
-                            @php
-                                $pBadge = match($p->statut) {
-                                    'valide'  => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
-                                    'annulé'  => 'bg-bimo-red/10 border-bimo-red/20 text-bimo-red',
-                                    default   => 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/60',
-                                };
-                            @endphp
-                            <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                                <td class="px-5 py-3.5">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
-                                        {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">
-                                    {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
-                                </td>
-                                <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">
-                                    {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">
-                                    {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-5 py-3.5 text-right font-body text-xs text-bimo-text/50">
-                                    {{ number_format($p->commission_ttc ?? 0, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">{{ $p->mode_paiement ?? '—' }}</td>
-                                <td class="px-5 py-3.5 text-center">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border text-[11px] font-body font-medium {{ $pBadge }}">
-                                        {{ ucfirst($p->statut) }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-3.5 text-center">
-                                    <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                                       class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px] text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
-                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
                 @endif
             </div>
 
-            {{-- Observations --}}
-            @if($contrat->observations)
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">Observations</span>
-                </div>
-                <div class="px-5 py-5">
-                    <p class="font-body text-sm text-bimo-text/70 leading-relaxed">{{ $contrat->observations }}</p>
-                </div>
-            </div>
-            @endif
-
-            {{-- Clauses particulières --}}
-            @if($contrat->clauses_particulieres)
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">Clauses particulières</span>
-                </div>
-                <div class="px-5 py-5">
-                    <p class="font-body text-sm text-bimo-text/70 leading-relaxed whitespace-pre-wrap">{{ $contrat->clauses_particulieres }}</p>
-                </div>
-            </div>
-            @endif
-
-        </div>{{-- fin col gauche --}}
-
-        {{-- COLONNE DROITE --}}
-        <div class="lg:sticky lg:top-6 space-y-4">
-
-            {{-- Infos contrat --}}
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Informations</div>
-                </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
-                    @php
-                        $sideRows = [
-                            ['Référence',      $contrat->reference_bail ?? 'BAIL-'.$contrat->id, 'font-display text-xs'],
-                            ['Type bail',      \App\Models\Contrat::TYPES_BAIL[$contrat->type_bail] ?? $contrat->type_bail, ''],
-                            ['Début',          $contrat->date_debut?->format('d/m/Y') ?? '—', ''],
-                            ['Fin',            $contrat->date_fin?->format('d/m/Y') ?? 'Ouvert', ''],
-                            ['Caution',        ($contrat->nombre_mois_caution ?? 1) . ' mois', ''],
-                            ['Indexation',     ($contrat->indexation_annuelle ?? 0) . ' %/an', ''],
-                            ['Créé le',        $contrat->created_at?->format('d/m/Y') ?? '—', ''],
-                        ];
-                    @endphp
-                    @foreach($sideRows as [$lbl, $val, $cls])
-                    <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-white/70 {{ $cls }}">{{ $val }}</span>
-                    </div>
-                    @endforeach
-
-                    @if($contrat->statut === 'actif')
-                    <div class="py-3">
-                        <div class="p-3.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[9px]">
-                            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/60 mb-1">Prochaine période</div>
-                            <div class="font-display font-bold text-base text-bimo-gold">
-                                {{ $prochainePeriode?->translatedFormat('F Y') ?? '—' }}
+            {{-- Historique des quittances --}}
+            <div class="f-card">
+                <h3 class="f-card-title mb-1">Historique des quittances</h3>
+                <p class="f-card-sub">Générées automatiquement le 1er de chaque mois.</p>
+                @if($paiements->isEmpty())
+                    <div class="py-8 text-center text-[13.5px] text-muted">Aucune quittance pour l'instant.</div>
+                @else
+                    <div class="space-y-2.5">
+                        @foreach($paiements as $p)
+                            @php $paye = $p->statut === 'valide'; @endphp
+                            <div class="flex flex-wrap items-center gap-3 p-4 border border-line rounded-xl bg-white">
+                                <div class="font-bold text-[14px] w-[110px]">{{ \Carbon\Carbon::parse($p->periode)->locale('fr')->isoFormat('MMMM Y') }}</div>
+                                <div class="text-[14px] text-muted w-[100px]">{{ $fmt($p->montant_encaisse ?: $contrat->loyer_contractuel) }} F</div>
+                                @if($paye)
+                                    <span class="text-[11.5px] font-bold px-3 py-1.5 rounded-full bg-green/10 text-green">Payé{{ $p->date_paiement ? ' le '.\Carbon\Carbon::parse($p->date_paiement)->isoFormat('D/MM') : '' }}</span>
+                                @else
+                                    <span class="text-[11.5px] font-bold px-3 py-1.5 rounded-full bg-error/10 text-error">En attente</span>
+                                @endif
+                                <div class="ml-auto flex items-center gap-2">
+                                    @if($paye)
+                                        @if(Route::has('admin.paiements.pdf'))<a href="{{ route('admin.paiements.pdf', $p) }}" class="text-[12px] font-bold px-3 py-1.5 rounded-lg bg-white border border-line text-ink hover:border-teal transition-colors">PDF</a>@endif
+                                        @if($waLink)<a href="{{ $waLink }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1.5 rounded-lg bg-[#25D366] text-white hover:opacity-90 transition-opacity"><x-icon-whatsapp /> Envoyer</a>@endif
+                                    @else
+                                        <form method="POST" action="{{ route('admin.paiements.marquer-paye', $p) }}">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="text-[12px] font-bold px-3 py-1.5 rounded-lg bg-teal text-paper hover:bg-teal-deep transition-colors">Marquer payé</button>
+                                        </form>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
-                    @endif
-                </div>
+                @endif
             </div>
-
-            {{-- Le bien --}}
-            <div class="bg-bimo-navy rounded-[14px] overflow-hidden">
-                <div class="px-5 py-4 border-b border-white/[7%]">
-                    <div class="font-display font-bold text-sm text-white">Le bien</div>
-                </div>
-                <div class="px-5 py-2 divide-y divide-white/[6%]">
-                    @foreach([
-                        ['Référence', $contrat->bien?->reference ?? '—'],
-                        ['Type',      \App\Models\Bien::TYPES[$contrat->bien?->type] ?? '—'],
-                        ['Adresse',   $contrat->bien?->adresse ?? '—'],
-                        ['Ville',     $contrat->bien?->ville ?? '—'],
-                    ] as [$lbl, $val])
-                    <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-white/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-white/70">{{ $val }}</span>
-                    </div>
-                    @endforeach
-                    <div class="py-3">
-                        <a href="{{ route('admin.biens.show', $contrat->bien) }}"
-                           class="flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 rounded-[9px]
-                                  font-body text-xs text-bimo-gold hover:text-white hover:border-white/20 transition-all duration-150">
-                            Voir le bien →
-                        </a>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-    </div>
+        <div class="space-y-5">
+            {{-- Parties --}}
+            <div class="f-card">
+                <h3 class="f-card-title mb-4">Parties</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Propriétaire</div>
+                        @if($proprio)<a href="{{ route('admin.users.show', $proprio) }}" class="text-[15px] font-semibold text-teal hover:underline">{{ $proprio->name }}</a>@else<span class="text-[15px] font-semibold">—</span>@endif
+                    </div>
+                    <div>
+                        <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Locataire</div>
+                        @if($loc)<a href="{{ route('admin.users.show', $loc) }}" class="text-[15px] font-semibold text-teal hover:underline">{{ $loc->name }}</a>@else<span class="text-[15px] font-semibold">—</span>@endif
+                    </div>
+                </div>
+            </div>
 
+            {{-- Résiliation --}}
+            @if($contrat->statut === 'actif')
+                <div class="f-card">
+                    <h3 class="f-card-title mb-1">Résiliation</h3>
+                    <p class="f-card-sub">Le bien redeviendra disponible.</p>
+                    <form method="POST" action="{{ route('admin.contrats.destroy', $contrat) }}"
+                          x-data="confirmForm" x-on:submit="submit" data-confirm="Résilier ce contrat ? Le bien redeviendra disponible.">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full py-3 rounded-[10px] border-[1.5px] border-error/40 text-error bg-white text-[13.5px] font-bold hover:bg-error/5 transition-colors">Résilier le contrat</button>
+                    </form>
+                </div>
+            @endif
+        </div>
+    </div>
 </div>
 @endsection

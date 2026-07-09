@@ -307,11 +307,13 @@ class AdminDashboardController extends Controller
         $agency         = $user->agency;
         $currentAgency  = $agency;
         if ($agency && ! $agency->onboarding_completed) {
+            // Complétion du profil agence — basée sur les champs des Paramètres.
             $onboarding = [
-                'has_biens'     => Bien::where('agency_id', $agencyId)->exists(),
-                'has_contrats'  => Contrat::where('agency_id', $agencyId)->exists(),
-                'has_paiements' => Paiement::where('agency_id', $agencyId)->exists(),
-                'settings_ok'   => ! empty($agency->telephone) && ! empty($agency->adresse),
+                'identite'  => ! empty($agency->name) && ! empty($agency->adresse)
+                                && ! empty($agency->telephone) && ! empty($agency->ninea),
+                'logo'      => ! empty($agency->logo_path),
+                'signature' => ! empty($agency->signature_path),
+                'cachet'    => ! empty($agency->cachet_path),
             ];
         }
 

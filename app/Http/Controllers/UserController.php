@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use App\Support\PasswordPolicy;
 
 class UserController extends Controller
 {
@@ -65,7 +64,7 @@ class UserController extends Controller
         $usersQuery = User::where('role', 'proprietaire')
             ->where('agency_id', $agencyId)
             ->select(['id', 'agency_id', 'name', 'email', 'telephone', 'created_at'])
-            ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere']);
+            ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere,est_personne_morale_is']);
 
         if (($q = trim((string) request('q'))) !== '') {
             $usersQuery->where(function ($sub) use ($q) {
@@ -75,6 +74,16 @@ class UserController extends Controller
                     ->orWhereHas('proprietaire', fn ($p) => $p
                         ->where('ville', 'like', "%{$q}%")
                         ->orWhere('ninea', 'like', "%{$q}%"));
+            });
+        }
+
+        // Filtre par type (particulier / entreprise) — colonne est_personne_morale_is
+        if (in_array(request('type'), ['particulier', 'entreprise'], true)) {
+            $estMorale = request('type') === 'entreprise';
+            $usersQuery->whereHas('proprietaire', function ($p) use ($estMorale) {
+                $estMorale
+                    ? $p->where('est_personne_morale_is', true)
+                    : $p->where(fn ($x) => $x->where('est_personne_morale_is', false)->orWhereNull('est_personne_morale_is'));
             });
         }
 
@@ -151,24 +160,67 @@ class UserController extends Controller
             });
         }
 
+        $periode = now()->startOfMonth();
+
         if ($request->input('statut') === 'actif') {
             $query->whereHas('contrats', fn ($c) => $c->where('statut', 'actif'));
         } elseif ($request->input('statut') === 'sans') {
             $query->whereDoesntHave('contrats', fn ($c) => $c->where('statut', 'actif'));
         }
 
+        // Filtre par type (particulier / entreprise-bureau)
+        if (in_array($request->input('type'), ['particulier', 'entreprise'], true)) {
+            $estEnt = $request->input('type') === 'entreprise';
+            $query->whereHas('locataire', fn ($l) => $estEnt
+                ? $l->where('est_entreprise', true)
+                : $l->where(fn ($x) => $x->where('est_entreprise', false)->orWhereNull('est_entreprise')));
+        }
+
+        // Filtre « en retard » : contrat actif sans paiement validé pour la période courante.
+        if ($request->boolean('retard')) {
+            $query->whereHas('contrats', function ($c) use ($periode) {
+                $c->where('statut', 'actif')
+                  ->whereDoesntHave('paiements', fn ($p) => $p->where('statut', 'valide')
+                      ->whereYear('periode', $periode->year)->whereMonth('periode', $periode->month));
+            });
+        }
+
         $locataires = $query->orderBy('name')->paginate(15)->withQueryString();
 
+        // ── Statut de paiement CALCULÉ (jamais stocké) ────────────────────
+        // Même logique qu'ImpayeController : 5 jours de grâce après le début de période.
+        $grace       = $periode->copy()->addDays(5);
+        $joursRetard = (int) $grace->diffInDays(now(), false);
+        $contratIds  = $locataires->getCollection()->flatMap(fn ($u) => $u->contrats->pluck('id'))->unique()->values();
+        $paidIds     = $contratIds->isEmpty() ? collect() : Paiement::whereIn('contrat_id', $contratIds)
+            ->where('statut', 'valide')
+            ->whereYear('periode', $periode->year)
+            ->whereMonth('periode', $periode->month)
+            ->pluck('contrat_id')->unique();
+
+        foreach ($locataires->getCollection() as $u) {
+            $actif = $u->contrats->firstWhere('statut', 'actif');
+            if (! $actif) {
+                $u->pay_status = 'aucun'; $u->pay_jours = 0; $u->pay_bien = null;
+                continue;
+            }
+            $u->pay_bien = $actif->bien?->reference ?? $actif->bien?->ville;
+            if ($paidIds->contains($actif->id) || $joursRetard <= 0) {
+                $u->pay_status = 'ok'; $u->pay_jours = 0;
+            } else {
+                $u->pay_status = 'retard'; $u->pay_jours = $joursRetard;
+            }
+        }
+
+        $baseCount = fn () => User::where('role', 'locataire')->where('agency_id', $agencyId);
+
         $stats = [
-            'total'        => User::where('role', 'locataire')->where('agency_id', $agencyId)->count(),
-            'actifs'       => User::where('role', 'locataire')
-                                  ->where('agency_id', $agencyId)
-                                  ->whereHas('contrats', fn($q) => $q->where('statut', 'actif'))
-                                  ->count(),
-            'sans_contrat' => User::where('role', 'locataire')
-                                  ->where('agency_id', $agencyId)
-                                  ->whereDoesntHave('contrats', fn($q) => $q->where('statut', 'actif'))
-                                  ->count(),
+            'total'        => $baseCount()->count(),
+            'actifs'       => $baseCount()->whereHas('contrats', fn ($q) => $q->where('statut', 'actif'))->count(),
+            'sans_contrat' => $baseCount()->whereDoesntHave('contrats', fn ($q) => $q->where('statut', 'actif'))->count(),
+            'en_retard'    => $baseCount()->whereHas('contrats', fn ($c) => $c->where('statut', 'actif')
+                                  ->whereDoesntHave('paiements', fn ($p) => $p->where('statut', 'valide')
+                                      ->whereYear('periode', $periode->year)->whereMonth('periode', $periode->month)))->count(),
         ];
 
         return view('users.locataires', compact('locataires', 'stats'));
@@ -197,19 +249,13 @@ class UserController extends Controller
     {
         $this->authorize('isAdmin');
 
-        $role = $request->input('role');
-
         $validated = $request->validate([
             'role'      => ['required', 'in:proprietaire,locataire'],
             'name'      => ['required', 'string', 'max:255'],
-            'email'     => $role === 'proprietaire'
-                ? ['nullable', 'email', 'unique:users,email', 'max:255']
-                : ['required', 'email', 'unique:users,email', 'max:255'],
+            'email'     => ['nullable', 'email', 'unique:users,email', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:20'],
             'adresse'   => ['nullable', 'string', 'max:255'],
-            'password'  => $role === 'proprietaire'
-                ? ['nullable', 'required_with:email', 'confirmed', 'min:8']
-                : ['required', 'confirmed', PasswordPolicy::rules()],
+            'password'  => ['nullable', 'confirmed', 'min:8'],
             // ── Identité commune ──────────────────────────────────────────
             'cni'            => ['nullable', 'string', 'max:20'],
             'date_naissance' => ['nullable', 'date'],
@@ -224,6 +270,8 @@ class UserController extends Controller
             'numero_wave'           => ['nullable', 'string', 'max:20'],
             'numero_om'             => ['nullable', 'string', 'max:20'],
             'ninea'                 => ['nullable', 'string', 'max:20'],
+            'est_personne_morale_is'=> ['nullable', 'boolean'],
+            'assujetti_tva'         => ['nullable', 'boolean'],
             // ── Locataire ─────────────────────────────────────────────────
             'type_locataire'   => ['nullable', 'in:particulier,entreprise,association,ambassade,ong'],
             'est_entreprise'   => ['nullable', 'boolean'],
@@ -275,6 +323,8 @@ class UserController extends Controller
                     'numero_wave'           => $validated['numero_wave'] ?? null,
                     'numero_om'             => $validated['numero_om'] ?? null,
                     'ninea'                 => $validated['ninea'] ?? null,
+                    'est_personne_morale_is'=> filter_var($request->input('est_personne_morale_is'), FILTER_VALIDATE_BOOLEAN),
+                    'assujetti_tva'         => $request->boolean('assujetti_tva'),
                 ]);
             } else {
                 Locataire::create([
@@ -385,27 +435,45 @@ class UserController extends Controller
         }
 
         if ($user->isLocataire()) {
-            $contrat = Contrat::where('locataire_id', $user->id)
-                ->where('statut', 'actif')
-                ->select(['id', 'bien_id', 'locataire_id', 'statut', 'loyer_contractuel', 'date_debut', 'date_fin'])
-                ->with(['bien:id,reference,adresse,ville,type'])
-                ->first();
+            $user->load('locataire');
 
-            if ($contrat) {
-                $aggrLoc = Paiement::where('contrat_id', $contrat->id)
+            // Tous les contrats (actif + historique) — garant inclus (colonnes complètes).
+            $contrats = Contrat::where('locataire_id', $user->id)
+                ->with('bien:id,reference,adresse,ville,type')
+                ->orderByDesc('date_debut')
+                ->get();
+
+            $contratActif = $contrats->firstWhere('statut', 'actif');
+
+            // ── Statut de paiement CALCULÉ (jamais stocké) ────────────────
+            $periode = now()->startOfMonth();
+            $paie    = ['etat' => 'aucun', 'jours' => 0, 'periode' => $periode];
+
+            if ($contratActif) {
+                $paye = Paiement::where('contrat_id', $contratActif->id)
                     ->where('statut', 'valide')
-                    ->selectRaw('
-                        COALESCE(SUM(montant_encaisse), 0) AS total_paye,
-                        COUNT(*)                           AS nb_paiements
-                    ')
+                    ->whereYear('periode', $periode->year)
+                    ->whereMonth('periode', $periode->month)
+                    ->exists();
+
+                $joursRetard = (int) $periode->copy()->addDays(5)->diffInDays(now(), false);
+
+                $paie = ($paye || $joursRetard <= 0)
+                    ? ['etat' => 'ok', 'jours' => 0, 'periode' => $periode]
+                    : ['etat' => 'retard', 'jours' => $joursRetard, 'periode' => $periode];
+
+                $aggr = Paiement::where('contrat_id', $contratActif->id)
+                    ->where('statut', 'valide')
+                    ->selectRaw('COALESCE(SUM(montant_encaisse), 0) AS total_paye, COUNT(*) AS nb_paiements')
                     ->first();
 
                 $stats = [
-                    'contrat_actif' => $contrat,
-                    'nb_paiements'  => (int)   $aggrLoc->nb_paiements,
-                    'total_paye'    => (float) $aggrLoc->total_paye,
+                    'nb_paiements' => (int)   ($aggr->nb_paiements ?? 0),
+                    'total_paye'   => (float) ($aggr->total_paye ?? 0),
                 ];
             }
+
+            return view('users.show', compact('user', 'contrats', 'contratActif', 'paie', 'stats'));
         }
 
         return view('users.show', compact('user', 'stats'));
@@ -437,7 +505,7 @@ class UserController extends Controller
     // ── Champs User communs ───────────────────────────────────────────
     $validated = $request->validate([
         'name'      => ['required', 'string', 'max:255'],
-        'email'     => ['required', 'email', 'unique:users,email,' . $user->id],
+        'email'     => ['nullable', 'email', 'unique:users,email,' . $user->id],
         'telephone' => ['nullable', 'string', 'max:30'],
         'adresse'   => ['nullable', 'string', 'max:255'],
     ], [
@@ -466,9 +534,11 @@ class UserController extends Controller
             'numero_om'             => ['nullable', 'string', 'max:20'],
             'ninea'                 => ['nullable', 'string', 'max:20'],
             'assujetti_tva'         => ['nullable', 'boolean'],
+            'est_personne_morale_is'=> ['nullable', 'boolean'],
         ]);
 
-        $profilData['assujetti_tva'] = $request->boolean('assujetti_tva');
+        $profilData['assujetti_tva']          = $request->boolean('assujetti_tva');
+        $profilData['est_personne_morale_is'] = $request->boolean('est_personne_morale_is');
         $user->proprietaire->update($profilData);
     }
 
@@ -544,5 +614,180 @@ class UserController extends Controller
         $user->delete();
 
         return back()->with('success', 'Utilisateur supprimé ✓');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // COMPOSANT « RECHERCHER-OU-CRÉER » — recherche + création rapide (JSON)
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function proprietaireSearch(Request $request)
+    {
+        $this->authorize('isAdmin');
+
+        $agencyId = Auth::user()->agency_id;
+        $q = trim((string) $request->query('q'));
+
+        $users = User::where('role', 'proprietaire')
+            ->where('agency_id', $agencyId)
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(fn ($s) => $s
+                    ->where('name', 'like', "%{$q}%")
+                    ->orWhere('telephone', 'like', "%{$q}%"));
+            })
+            ->withCount('biens')
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+
+        return response()->json(
+            $users->map(fn (User $u) => [
+                'id'        => $u->id,
+                'name'      => $u->name,
+                'telephone' => $u->telephone,
+                'sub'       => trim(($u->telephone ? $u->telephone.' · ' : '').$u->biens_count.' bien'.($u->biens_count > 1 ? 's' : '')),
+                'initials'  => mb_strtoupper(mb_substr($u->name, 0, 2)),
+            ])
+        );
+    }
+
+    public function proprietaireQuickStore(Request $request)
+    {
+        $this->authorize('isAdmin');
+
+        $data = $request->validate([
+            'name'      => ['required', 'string', 'max:255'],
+            'telephone' => ['nullable', 'string', 'max:30'],
+        ], [
+            'name.required' => 'Le nom est obligatoire.',
+        ]);
+
+        $agencyId = Auth::user()->agency_id;
+
+        // Anti-doublon : nom identique (insensible casse/espaces) dans l'agence.
+        // Évite de créer deux fois le même propriétaire depuis le champ inline.
+        $existing = User::where('role', 'proprietaire')
+            ->where('agency_id', $agencyId)
+            ->whereRaw('LOWER(TRIM(name)) = ?', [mb_strtolower(trim($data['name']))])
+            ->withCount('biens')
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'id'        => $existing->id,
+                'name'      => $existing->name,
+                'telephone' => $existing->telephone,
+                'sub'       => 'Déjà existant · '.$existing->biens_count.' bien'.($existing->biens_count > 1 ? 's' : ''),
+                'initials'  => mb_strtoupper(mb_substr($existing->name, 0, 2)),
+                'duplicate' => true,
+            ]);
+        }
+
+        $user = DB::transaction(function () use ($data, $agencyId) {
+            $u            = new User();
+            $u->name      = $data['name'];
+            $u->telephone = $data['telephone'] ?? null;
+            $u->role      = 'proprietaire';
+            $u->agency_id = $agencyId;
+            $u->password  = Hash::make(\Illuminate\Support\Str::random(32));
+            $u->save();
+
+            Proprietaire::create([
+                'user_id'               => $u->id,
+                'nationalite'           => 'Sénégalaise',
+                'ville'                 => 'Dakar',
+                'mode_paiement_prefere' => 'virement',
+            ]);
+
+            return $u;
+        });
+
+        return response()->json([
+            'id'        => $user->id,
+            'name'      => $user->name,
+            'telephone' => $user->telephone,
+            'sub'       => "Créé à l'instant · 0 bien",
+            'initials'  => mb_strtoupper(mb_substr($user->name, 0, 2)),
+        ], 201);
+    }
+
+    public function locataireSearch(Request $request)
+    {
+        $this->authorize('isAdmin');
+
+        $agencyId = Auth::user()->agency_id;
+        $q = trim((string) $request->query('q'));
+
+        $users = User::where('role', 'locataire')
+            ->where('agency_id', $agencyId)
+            // Seulement les locataires « libres » (sans contrat actif) — la validation
+            // refuse de toute façon un locataire déjà engagé.
+            ->whereDoesntHave('contrats', fn ($c) => $c->where('statut', 'actif'))
+            ->when($q !== '', fn ($query) => $query->where(fn ($s) => $s
+                ->where('name', 'like', "%{$q}%")
+                ->orWhere('telephone', 'like', "%{$q}%")))
+            ->orderBy('name')
+            ->limit(8)
+            ->get();
+
+        return response()->json(
+            $users->map(fn (User $u) => [
+                'id'       => $u->id,
+                'name'     => $u->name,
+                'sub'      => $u->telephone ?? $u->email ?? '',
+                'initials' => mb_strtoupper(mb_substr($u->name, 0, 2)),
+            ])
+        );
+    }
+
+    public function locataireQuickStore(Request $request)
+    {
+        $this->authorize('isAdmin');
+
+        $data = $request->validate([
+            'name'      => ['required', 'string', 'max:255'],
+            'telephone' => ['nullable', 'string', 'max:30'],
+        ], ['name.required' => 'Le nom est obligatoire.']);
+
+        $agencyId = Auth::user()->agency_id;
+
+        $existing = User::where('role', 'locataire')
+            ->where('agency_id', $agencyId)
+            ->whereRaw('LOWER(TRIM(name)) = ?', [mb_strtolower(trim($data['name']))])
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'id'        => $existing->id,
+                'name'      => $existing->name,
+                'sub'       => $existing->telephone ?? 'Déjà existant',
+                'initials'  => mb_strtoupper(mb_substr($existing->name, 0, 2)),
+                'duplicate' => true,
+            ]);
+        }
+
+        $user = DB::transaction(function () use ($data, $agencyId) {
+            $u            = new User();
+            $u->name      = $data['name'];
+            $u->telephone = $data['telephone'] ?? null;
+            $u->role      = 'locataire';
+            $u->agency_id = $agencyId;
+            $u->password  = Hash::make(\Illuminate\Support\Str::random(32));
+            $u->save();
+
+            Locataire::create([
+                'user_id'        => $u->id,
+                'type_locataire' => 'particulier',
+                'est_entreprise' => false,
+            ]);
+
+            return $u;
+        });
+
+        return response()->json([
+            'id'        => $user->id,
+            'name'      => $user->name,
+            'sub'       => "Créé à l'instant",
+            'initials'  => mb_strtoupper(mb_substr($user->name, 0, 2)),
+        ], 201);
     }
 }

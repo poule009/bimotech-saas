@@ -37,46 +37,55 @@ class ContratController extends Controller implements HasMiddleware
     // LISTE
     // ─────────────────────────────────────────────────────────────────────
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Contrat::class);
 
-        $contrats = Contrat::select([
-            'id',
-            'agency_id',
-            'bien_id',
-            'locataire_id',
-            'date_debut',
-            'date_fin',
-            'loyer_contractuel',
-            'caution',
-            'statut',
-            'type_bail',
-            'reference_bail',
-            'brs_applicable',
-            'loyer_assujetti_tva',
-            'date_enregistrement_dgid',
-            'enregistrement_exonere',
-        ])
-            ->with([
-                'bien:id,agency_id,reference,adresse,ville',
-                'locataire:id,name,email',
-            ])
-            ->orderByDesc('created_at')
-            ->paginate(20);
+        $aujourdhui = now()->toDateString();
+        $limite30   = now()->addDays(30)->toDateString();
+
+        $query = Contrat::select([
+            'id', 'agency_id', 'bien_id', 'locataire_id', 'date_debut', 'date_fin',
+            'loyer_contractuel', 'caution', 'statut', 'type_bail', 'reference_bail',
+            'brs_applicable', 'loyer_assujetti_tva', 'date_enregistrement_dgid', 'enregistrement_exonere',
+        ])->with([
+            'bien:id,agency_id,reference,adresse,ville',
+            'locataire:id,name,email',
+        ]);
+
+        if ($q = trim((string) $request->input('q'))) {
+            $query->where(function ($sub) use ($q) {
+                $sub->whereHas('bien', fn ($b) => $b->where('reference', 'like', "%{$q}%")
+                        ->orWhere('adresse', 'like', "%{$q}%")->orWhere('ville', 'like', "%{$q}%"))
+                    ->orWhereHas('locataire', fn ($l) => $l->where('name', 'like', "%{$q}%"));
+            });
+        }
+        if ($request->input('filter') === 'actifs') {
+            $query->where('statut', 'actif');
+        }
+        if ($request->boolean('echeance')) {
+            $query->where('statut', 'actif')->whereNotNull('date_fin')
+                  ->whereBetween('date_fin', [$aujourdhui, $limite30]);
+        }
+
+        $contrats = $query->orderByDesc('created_at')->paginate(20)->withQueryString();
 
         $statsRaw = Contrat::selectRaw("
-        COUNT(*) AS total,
-        SUM(CASE WHEN statut = 'actif'   THEN 1 ELSE 0 END) AS actifs,
-        SUM(CASE WHEN statut = 'resilié' THEN 1 ELSE 0 END) AS resilies,
-        SUM(CASE WHEN statut = 'expiré'  THEN 1 ELSE 0 END) AS expires
-    ")->first();
+            COUNT(*) AS total,
+            SUM(CASE WHEN statut = 'actif'   THEN 1 ELSE 0 END) AS actifs,
+            SUM(CASE WHEN statut = 'resilié' THEN 1 ELSE 0 END) AS resilies,
+            SUM(CASE WHEN statut = 'expiré'  THEN 1 ELSE 0 END) AS expires
+        ")->first();
+
+        $bientot = Contrat::where('statut', 'actif')->whereNotNull('date_fin')
+            ->whereBetween('date_fin', [$aujourdhui, $limite30])->count();
 
         $stats = [
             'total'    => (int) $statsRaw->total,
             'actifs'   => (int) $statsRaw->actifs,
             'resilies' => (int) $statsRaw->resilies,
             'expires'  => (int) $statsRaw->expires,
+            'bientot'  => $bientot,
         ];
 
         return view('admin.contrats.index', compact('contrats', 'stats'));
@@ -300,15 +309,18 @@ class ContratController extends Controller implements HasMiddleware
     {
         $this->authorize('view', $contrat);
 
+        $agency = Auth::user()->agency;
+
+        // Pas de blocage : si l'agence n'a pas encore de signature, le PDF affiche
+        // un espace vide à signer à la main (voir la vue). L'usage n'est jamais bloqué.
+
         $contrat->load([
-            'bien:id,reference,type,adresse,ville,quartier,commune,surface_m2,nombre_pieces,meuble',
+            'bien:id,reference,titre,type,adresse,ville,quartier,commune,surface_m2,nombre_pieces,meuble',
             'bien.proprietaire:id,name,email,telephone,adresse',
             'bien.proprietaire.proprietaire',
             'locataire:id,name,email,telephone,adresse',
             'locataire.locataire',
         ]);
-
-        $agency = Auth::user()->agency;
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('contrats.pdf.bail-formel', compact(
             'contrat', 'agency'

@@ -1,358 +1,226 @@
 @extends('layouts.app')
-@section('header', ($user->isProprietaire() ? 'Propriétaires' : 'Locataires') . ' › Modifier')
+
+@php $estProprio = $user->isProprietaire(); @endphp
+
+@section('title', 'Modifier ' . $user->name)
+@section('page-title', $estProprio ? 'Modifier le propriétaire' : 'Modifier le locataire')
+@section('page-subtitle')
+    <a href="{{ route('admin.users.show', $user) }}" class="text-teal font-semibold hover:underline">{{ $user->name }}</a>
+    <span class="text-muted"> / Modifier</span>
+@endsection
 
 @section('content')
+@unless($estProprio)
+@php $profil = $user->locataire; @endphp
+<form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="tenantForm"
+      data-tenant-type="{{ old('type_locataire', $profil?->est_entreprise ? 'entreprise' : 'particulier') }}" class="max-w-[1000px]">
+    @csrf
+    @method('PATCH')
+    <input type="hidden" name="type_locataire" x-bind:value="typeValue">
 
-{{-- Breadcrumb --}}
-<div class="flex items-center gap-2 font-body text-sm text-bimo-text/40 mb-5">
-    @if($user->isProprietaire())
-        <a href="{{ route('admin.users.proprietaires') }}" class="hover:text-bimo-text transition-colors duration-150">Propriétaires</a>
-    @else
-        <a href="{{ route('admin.users.locataires') }}" class="hover:text-bimo-text transition-colors duration-150">Locataires</a>
+    @if($errors->any())
+        <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error">
+            <strong class="font-bold">Vérifiez le formulaire :</strong>
+            <ul class="list-disc pl-5 mt-1">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
+        </div>
     @endif
-    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    <a href="{{ route('admin.users.show', $user) }}" class="hover:text-bimo-text transition-colors duration-150">{{ $user->name }}</a>
-    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    <span class="text-bimo-text font-medium">Modifier</span>
-</div>
 
-<div class="flex items-center justify-between gap-3 flex-wrap mb-5">
-    <div>
-        <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight">Modifier le profil</h1>
-        <p class="font-body text-sm text-bimo-text/50 mt-1">{{ $user->name }} · {{ $user->email }}</p>
+    <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6 items-start">
+        <div class="space-y-5">
+            <div class="f-card">
+                <h3 class="f-card-title">Type de locataire</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
+                    <button type="button" x-on:click="setParticulier" x-bind:class="forkParticulierClass" class="text-left border-2 rounded-xl p-4 transition-all">
+                        <div class="flex items-center gap-2.5 mb-1"><span class="text-[22px]">🧍</span><span class="font-bold text-[15px]">Particulier</span></div>
+                        <div class="text-[12.5px] text-muted leading-snug">Une personne physique.</div>
+                    </button>
+                    <button type="button" x-on:click="setEntreprise" x-bind:class="forkEntrepriseClass" class="text-left border-2 rounded-xl p-4 transition-all">
+                        <div class="flex items-center gap-2.5 mb-1"><span class="text-[22px]">🏢</span><span class="font-bold text-[15px]">Bureau / Société</span></div>
+                        <div class="text-[12.5px] text-muted leading-snug">Entreprise, association…</div>
+                    </button>
+                </div>
+                <div class="mb-[18px]">
+                    <label for="name" class="f-label">
+                        <span x-show="isParticulier">Prénom et nom</span>
+                        <span x-show="isEntreprise" x-cloak>Nom du contact</span>
+                    </label>
+                    <input id="name" type="text" name="name" value="{{ old('name', $user->name) }}" required class="f-input @error('name') f-input-error @enderror">
+                    @error('name')<p class="field-error">{{ $message }}</p>@enderror
+                </div>
+                <div x-show="isEntreprise" x-cloak class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2"><label for="nom_entreprise" class="f-label">Raison sociale</label><input id="nom_entreprise" type="text" name="nom_entreprise" value="{{ old('nom_entreprise', $profil?->nom_entreprise) }}" class="f-input"></div>
+                    <div><label for="ninea_locataire" class="f-label">NINEA</label><input id="ninea_locataire" type="text" name="ninea_locataire" value="{{ old('ninea_locataire', $profil?->ninea_locataire) }}" class="f-input"></div>
+                    <div><label for="rccm_locataire" class="f-label">RCCM <span class="text-muted font-normal">(optionnel)</span></label><input id="rccm_locataire" type="text" name="rccm_locataire" value="{{ old('rccm_locataire', $profil?->rccm_locataire) }}" class="f-input"></div>
+                </div>
+            </div>
+
+            <div class="f-card">
+                <h3 class="f-card-title">Coordonnées</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label for="telephone" class="f-label">Téléphone (WhatsApp)</label><input id="telephone" type="text" name="telephone" value="{{ old('telephone', $user->telephone) }}" class="f-input"></div>
+                    <div>
+                        <label for="email" class="f-label">Email <span class="text-muted font-normal">(optionnel)</span></label>
+                        <input id="email" type="email" name="email" value="{{ old('email', $user->email) }}" class="f-input @error('email') f-input-error @enderror">
+                        @error('email')<p class="field-error">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-[18px]">
+                    <div><label for="profession" class="f-label">Profession <span class="text-muted font-normal">(optionnel)</span></label><input id="profession" type="text" name="profession" value="{{ old('profession', $profil?->profession) }}" class="f-input"></div>
+                    <div><label for="revenu_mensuel" class="f-label">Revenu mensuel <span class="text-muted font-normal">(optionnel)</span></label><input id="revenu_mensuel" type="number" name="revenu_mensuel" value="{{ old('revenu_mensuel', $profil?->revenu_mensuel ? (int) $profil->revenu_mensuel : '') }}" min="0" class="f-input"></div>
+                </div>
+                <div class="mt-[18px]"><label for="cni" class="f-label">N° CNI <span class="text-muted font-normal">(optionnel)</span></label><input id="cni" type="text" name="cni" value="{{ old('cni', $profil?->cni) }}" class="f-input"></div>
+            </div>
+        </div>
+
+        <div class="lg:sticky lg:top-6">
+            <div class="f-card">
+                <button type="submit" class="btn-primary mb-2.5">Enregistrer les modifications</button>
+                <a href="{{ route('admin.users.show', $user) }}" class="block w-full text-center py-[13px] rounded border-[1.5px] border-line bg-white text-ink text-sm font-semibold hover:border-teal transition-colors">Annuler</a>
+                <p class="text-[12.5px] text-muted leading-relaxed mt-4 pt-4 border-t border-paper-dim">Le garant et le loyer se gèrent sur le contrat.</p>
+            </div>
+        </div>
     </div>
-    <span class="inline-flex items-center px-3 py-1.5 rounded-[7px] border font-body font-semibold text-xs
-                 {{ $user->isProprietaire() ? 'bg-bimo-gold/10 border-bimo-gold/25 text-bimo-gold' : 'bg-bimo-navy/10 border-bimo-navy/15 text-bimo-text/70' }}">
-        {{ $user->isProprietaire() ? 'Propriétaire' : 'Locataire' }}
-    </span>
-</div>
+</form>
+@else
+@php
+    $profil = $user->proprietaire;
+    $isEnt  = old('est_personne_morale_is') !== null ? old('est_personne_morale_is') === '1' : (bool) $profil?->est_personne_morale_is;
+    $isTva  = old('assujetti_tva') !== null ? old('assujetti_tva') === '1' : (bool) $profil?->assujetti_tva;
+@endphp
+<form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="ownerForm"
+      data-owner-type="{{ $isEnt ? 'entreprise' : 'particulier' }}"
+      data-owner-tva="{{ $isTva ? '1' : '0' }}"
+      class="max-w-[1100px]">
+    @csrf
+    @method('PATCH')
+    <input type="hidden" name="est_personne_morale_is" x-bind:value="moraleValue">
+    <input type="hidden" name="assujetti_tva" x-bind:value="tvaValue">
 
-<form method="POST" action="{{ route('admin.users.update', $user) }}">
-@csrf @method('PATCH')
-
-<div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5 items-start">
-
-    {{-- COLONNE GAUCHE --}}
-    <div class="space-y-4">
-
-        {{-- Informations générales --}}
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <span class="font-display font-bold text-sm text-bimo-text">Informations générales</span>
-            </div>
-            <div class="px-5 py-5 space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Nom complet <span class="text-bimo-red">*</span></label>
-                        <input type="text" name="name" aria-label="Nom complet" value="{{ old('name', $user->name) }}" required
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
-                                      focus:outline-none focus:ring-2 transition-all duration-150
-                                      @error('name') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
-                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
-                        @error('name')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Email <span class="text-bimo-red">*</span></label>
-                        <input type="email" name="email" aria-label="Email" value="{{ old('email', $user->email) }}" required
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border font-body text-sm text-bimo-text
-                                      focus:outline-none focus:ring-2 transition-all duration-150
-                                      @error('email') border-bimo-red focus:border-bimo-red focus:ring-bimo-red/15
-                                      @else border-bimo-navy/20 focus:border-bimo-gold focus:ring-bimo-gold/15 @enderror">
-                        @error('email')<p class="mt-1 font-body text-xs text-bimo-red">{{ $message }}</p>@enderror
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
-                        <input type="text" name="telephone" aria-label="Téléphone" value="{{ old('telephone', $user->telephone) }}" placeholder="+221 7X XXX XX XX"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Adresse</label>
-                        <input type="text" name="adresse" aria-label="Adresse" value="{{ old('adresse', $user->adresse) }}" placeholder="Adresse complète"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                </div>
-            </div>
+    @if($errors->any())
+        <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error">
+            <strong class="font-bold">Vérifiez le formulaire :</strong>
+            <ul class="list-disc pl-5 mt-1">
+                @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+            </ul>
         </div>
+    @endif
 
-        {{-- PROFIL PROPRIÉTAIRE --}}
-        @if($user->isProprietaire())
+    <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6 items-start">
+        <div class="space-y-5">
 
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            {{-- Type --}}
+            <div class="f-card">
+                <h3 class="f-card-title">Type de propriétaire</h3>
+                <p class="f-card-sub">Modifier le type ajuste les cases fiscales des futures quittances.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
+                    <button type="button" x-on:click="setParticulier" x-bind:class="forkParticulierClass"
+                            class="text-left border-2 rounded-xl p-4 transition-all">
+                        <div class="flex items-center gap-2.5 mb-1.5"><span class="text-[22px]">🧍</span><span class="font-bold text-[15px]">Particulier</span></div>
+                        <div class="text-[12.5px] text-muted leading-snug">Une personne, propriétaire en son nom propre.</div>
+                    </button>
+                    <button type="button" x-on:click="setEntreprise" x-bind:class="forkEntrepriseClass"
+                            class="text-left border-2 rounded-xl p-4 transition-all">
+                        <div class="flex items-center gap-2.5 mb-1.5"><span class="text-[22px]">🏢</span><span class="font-bold text-[15px]">Entreprise</span></div>
+                        <div class="text-[12.5px] text-muted leading-snug">Société, SCI ou groupe propriétaire du bien.</div>
+                    </button>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-text">Profil propriétaire</span>
-            </div>
-            <div class="px-5 py-5 space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">CNI / Passeport</label>
-                        <input type="text" name="cni" aria-label="CNI / Passeport" value="{{ old('cni', $user->proprietaire?->cni) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">NINEA</label>
-                        <input type="text" name="ninea" aria-label="NINEA" value="{{ old('ninea', $user->proprietaire?->ninea) }}" placeholder="Ex: 123456789"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
+
+                <div class="mb-[18px]">
+                    <label for="name" class="f-label">
+                        <span x-show="isParticulier">Prénom et nom</span>
+                        <span x-show="isEntreprise" x-cloak>Raison sociale</span>
+                    </label>
+                    <input id="name" type="text" name="name" value="{{ old('name', $user->name) }}" required
+                           class="f-input @error('name') f-input-error @enderror">
+                    @error('name')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Date de naissance</label>
-                        <input type="date" name="date_naissance" aria-label="Date de naissance" value="{{ old('date_naissance', $user->proprietaire?->date_naissance?->format('Y-m-d')) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Genre</label>
-                        <select name="genre" aria-label="Genre"
-                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
-                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                            <option value="">— Choisir —</option>
-                            <option value="M" {{ old('genre', $user->proprietaire?->genre) === 'M' ? 'selected':'' }}>Homme</option>
-                            <option value="F" {{ old('genre', $user->proprietaire?->genre) === 'F' ? 'selected':'' }}>Femme</option>
-                        </select>
-                    </div>
+
+                <div class="mb-[18px]" x-show="isParticulier">
+                    <label for="cni" class="f-label">N° CNI ou passeport <span class="text-muted font-normal">(optionnel)</span></label>
+                    <input id="cni" type="text" name="cni" value="{{ old('cni', $profil?->cni) }}" class="f-input">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Ville</label>
-                        <input type="text" name="ville" aria-label="Ville" value="{{ old('ville', $user->proprietaire?->ville ?? 'Dakar') }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Quartier</label>
-                        <input type="text" name="quartier" aria-label="Quartier" value="{{ old('quartier', $user->proprietaire?->quartier) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
+
+                <div class="mb-[18px]" x-show="isEntreprise" x-cloak>
+                    <label for="ninea" class="f-label">NINEA</label>
+                    <input id="ninea" type="text" name="ninea" value="{{ old('ninea', $profil?->ninea) }}" class="f-input">
                 </div>
             </div>
-        </div>
 
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            {{-- Coordonnées --}}
+            <div class="f-card">
+                <h3 class="f-card-title">Coordonnées</h3>
+                <p class="f-card-sub">Utilisées pour les relances et l'envoi des documents.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="telephone" class="f-label">Téléphone</label>
+                        <input id="telephone" type="text" name="telephone" value="{{ old('telephone', $user->telephone) }}" class="f-input">
+                    </div>
+                    <div>
+                        <label for="email" class="f-label">Email <span class="text-muted font-normal">(optionnel)</span></label>
+                        <input id="email" type="email" name="email" value="{{ old('email', $user->email) }}" class="f-input @error('email') f-input-error @enderror">
+                        @error('email')<p class="field-error">{{ $message }}</p>@enderror
+                    </div>
                 </div>
-                <span class="font-display font-bold text-sm text-bimo-text">Coordonnées bancaires</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-[18px]">
+                    <div>
+                        <label for="ville" class="f-label">Ville</label>
+                        <input id="ville" type="text" name="ville" value="{{ old('ville', $profil?->ville) }}" class="f-input">
+                    </div>
+                    <div>
+                        <label for="adresse" class="f-label">Adresse <span class="text-muted font-normal">(optionnel)</span></label>
+                        <input id="adresse" type="text" name="adresse" value="{{ old('adresse', $user->adresse) }}" class="f-input">
+                    </div>
+                </div>
             </div>
-            <div class="px-5 py-5 space-y-4">
-                <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-text">Mode de paiement préféré</label>
-                    <select name="mode_paiement_prefere" aria-label="Mode de paiement préféré"
-                            class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
-                                   focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                        @foreach(['especes'=>'Espèces','virement'=>'Virement bancaire','wave'=>'Wave','orange_money'=>'Orange Money','free_money'=>'Free Money','cheque'=>'Chèque'] as $val => $label)
-                        <option value="{{ $val }}" {{ old('mode_paiement_prefere', $user->proprietaire?->mode_paiement_prefere) === $val ? 'selected':'' }}>{{ $label }}</option>
+
+            {{-- Versement --}}
+            <div class="f-card">
+                <h3 class="f-card-title">Versement des loyers</h3>
+                <div class="mb-[18px]">
+                    <label for="mode_paiement_prefere" class="f-label">Mode de versement préféré</label>
+                    <select id="mode_paiement_prefere" name="mode_paiement_prefere" class="f-select">
+                        @php $modes = ['wave'=>'Wave','orange_money'=>'Orange Money','virement'=>'Virement bancaire','especes'=>'Espèces','cheque'=>'Chèque']; @endphp
+                        @foreach($modes as $val => $lbl)
+                            <option value="{{ $val }}" @selected(old('mode_paiement_prefere', $profil?->mode_paiement_prefere) === $val)>{{ $lbl }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Banque</label>
-                        <input type="text" name="banque" aria-label="Banque" value="{{ old('banque', $user->proprietaire?->banque) }}" placeholder="CBAO, Ecobank..."
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="numero_compte" class="f-label">Numéro / RIB associé</label>
+                        <input id="numero_compte" type="text" name="numero_compte" value="{{ old('numero_compte', $profil?->numero_compte) }}" class="f-input">
                     </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Numéro Wave</label>
-                        <input type="text" name="numero_wave" aria-label="Numéro Wave" value="{{ old('numero_wave', $user->proprietaire?->numero_wave) }}" placeholder="+221 7X XXX XX XX"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+                    <div>
+                        <label for="banque" class="f-label">Banque <span class="text-muted font-normal">(si virement)</span></label>
+                        <input id="banque" type="text" name="banque" value="{{ old('banque', $profil?->banque) }}" class="f-input">
                     </div>
                 </div>
-                <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-text">Numéro Orange Money</label>
-                    <input type="text" name="numero_om" aria-label="Numéro Orange Money" value="{{ old('numero_om', $user->proprietaire?->numero_om) }}" placeholder="+221 7X XXX XX XX"
-                           class="w-full max-w-xs px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                  placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
+            </div>
+
+            {{-- Fiscalité --}}
+            <div class="f-card">
+                <h3 class="f-card-title">Fiscalité</h3>
+                <div class="flex items-center justify-between gap-5 pt-1">
+                    <div>
+                        <div class="text-[14.5px] font-bold">Assujetti à la TVA</div>
+                        <div class="text-[12.5px] text-muted mt-0.5 leading-snug">Active le calcul automatique de la TVA sur les quittances de ce propriétaire.</div>
+                    </div>
+                    <button type="button" x-on:click="toggleTva" x-bind:class="tvaSwitchClass"
+                            class="relative w-[42px] h-6 rounded-full shrink-0 transition-colors" aria-label="Assujetti à la TVA">
+                        <span x-bind:class="tvaKnobClass" class="absolute top-[2.5px] w-[19px] h-[19px] rounded-full bg-white shadow transition-all"></span>
+                    </button>
                 </div>
             </div>
         </div>
 
-        {{-- PROFIL LOCATAIRE --}}
-        @elseif($user->isLocataire())
-
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                </div>
-                <span class="font-display font-bold text-sm text-bimo-text">Profil locataire</span>
-            </div>
-            <div class="px-5 py-5 space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">CNI / Passeport</label>
-                        <input type="text" name="cni" aria-label="CNI / Passeport" value="{{ old('cni', $user->locataire?->cni) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Date de naissance</label>
-                        <input type="date" name="date_naissance" aria-label="Date de naissance" value="{{ old('date_naissance', $user->locataire?->date_naissance?->format('Y-m-d')) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Profession</label>
-                        <input type="text" name="profession" aria-label="Profession" value="{{ old('profession', $user->locataire?->profession) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Employeur</label>
-                        <input type="text" name="employeur" aria-label="Employeur" value="{{ old('employeur', $user->locataire?->employeur) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Revenu mensuel (FCFA)</label>
-                        <input type="number" name="revenu_mensuel" aria-label="Revenu mensuel (FCFA)" value="{{ old('revenu_mensuel', $user->locataire?->revenu_mensuel) }}" min="0" step="500"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Genre</label>
-                        <select name="genre" aria-label="Genre"
-                                class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text cursor-pointer
-                                       focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                            <option value="">— Choisir —</option>
-                            <option value="M" {{ old('genre', $user->locataire?->genre) === 'M' ? 'selected':'' }}>Homme</option>
-                            <option value="F" {{ old('genre', $user->locataire?->genre) === 'F' ? 'selected':'' }}>Femme</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-                </div>
-                <span class="font-display font-bold text-sm text-bimo-text">
-                    Contact d'urgence <span class="font-normal text-bimo-text/40 text-xs ml-1">(optionnel)</span>
-                </span>
-            </div>
-            <div class="px-5 py-5 space-y-4">
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Nom</label>
-                        <input type="text" name="contact_urgence_nom" aria-label="Nom du contact d'urgence" value="{{ old('contact_urgence_nom', $user->locataire?->contact_urgence_nom) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="block font-body font-medium text-sm text-bimo-text">Téléphone</label>
-                        <input type="text" name="contact_urgence_tel" aria-label="Téléphone du contact d'urgence" value="{{ old('contact_urgence_tel', $user->locataire?->contact_urgence_tel) }}"
-                               class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                      focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                    </div>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="block font-body font-medium text-sm text-bimo-text">Lien de parenté</label>
-                    <input type="text" name="contact_urgence_lien" aria-label="Lien du contact d'urgence" value="{{ old('contact_urgence_lien', $user->locataire?->contact_urgence_lien) }}"
-                           placeholder="Ex: Père, Mère, Époux(se)..."
-                           class="w-full px-4 py-3 rounded-[10px] bg-white border border-bimo-navy/20 font-body text-sm text-bimo-text
-                                  placeholder:text-bimo-text/30 focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15 transition-all duration-150">
-                </div>
-            </div>
-        </div>
-
-        @if(config('features.fiscalite'))
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                <div class="w-8 h-8 rounded-[8px] bg-amber-50 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                </div>
-                <span class="font-display font-bold text-sm text-bimo-text">Statut fiscal</span>
-            </div>
-            <div class="px-5 py-5">
-                @include('admin.users._section-type-locataire', ['user' => $user])
-            </div>
-        </div>
-        @endif
-
-        @endif
-
-        {{-- Submit --}}
-        <div class="sticky bottom-0 flex items-center justify-end gap-3 py-4
-                    bg-bimo-bg/95 backdrop-blur-sm border-t border-bimo-navy/10">
-            <a href="{{ route('admin.users.show', $user) }}"
-               class="px-5 py-2.5 border border-bimo-navy/15 rounded-[10px]
-                      font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-                Annuler
-            </a>
-            <button type="submit"
-                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
-                           font-display font-bold text-sm rounded-[10px]
-                           hover:opacity-90 transition-opacity duration-150">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                Enregistrer les modifications
-            </button>
-        </div>
-
-    </div>{{-- fin colonne gauche --}}
-
-    {{-- COLONNE DROITE --}}
-    <div class="lg:sticky lg:top-6">
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-            <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                <div class="font-display font-bold text-sm text-bimo-text">Profil actuel</div>
-            </div>
-            <div class="px-5 py-5">
-                {{-- Avatar --}}
-                <div class="flex flex-col items-center pb-4 border-b border-bimo-navy/[5%]">
-                    <div class="w-14 h-14 rounded-full flex items-center justify-center mb-3 font-display font-bold text-xl"
-                         style="background: var(--ac); color: var(--ac-text)">
-                        {{ mb_strtoupper(mb_substr($user->name, 0, 2)) }}
-                    </div>
-                    <div class="font-body font-semibold text-sm text-bimo-text">{{ $user->name }}</div>
-                    <div class="font-body text-xs text-bimo-text/50 mt-0.5">{{ $user->email }}</div>
-                </div>
-                {{-- Infos --}}
-                <div class="pt-3 divide-y divide-bimo-navy/[5%]">
-                    @php
-                        $sideRows = [
-                            ['Rôle', $user->isProprietaire() ? 'Propriétaire' : 'Locataire'],
-                        ];
-                        if ($user->telephone) $sideRows[] = ['Téléphone', $user->telephone];
-                        $sideRows[] = ['Membre depuis', $user->created_at?->format('d/m/Y') ?? '—'];
-                        if ($user->isProprietaire()) {
-                            $sideRows[] = ['Biens', (string) $user->biens()->count()];
-                        } else {
-                            $sideRows[] = ['Contrats', (string) $user->contrats()->count()];
-                        }
-                    @endphp
-                    @foreach($sideRows as [$lbl, $val])
-                    <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs text-bimo-text/70">{{ $val }}</span>
-                    </div>
-                    @endforeach
-                </div>
+        {{-- Colonne latérale --}}
+        <div class="lg:sticky lg:top-6">
+            <div class="f-card">
+                <button type="submit" class="btn-primary mb-2.5">Enregistrer les modifications</button>
+                <a href="{{ route('admin.users.show', $user) }}" class="block w-full text-center py-[13px] rounded border-[1.5px] border-line bg-white text-ink text-sm font-semibold hover:border-teal transition-colors">Annuler</a>
             </div>
         </div>
     </div>
-
-</div>
 </form>
-
+@endunless
 @endsection

@@ -49,6 +49,7 @@ class Agency extends Model
         'logo_path',
         'logo_dark_path',
         'signature_path',
+        'cachet_path',
         'modele_contrat',
         'couleur_primaire',
         'adresse',
@@ -56,6 +57,7 @@ class Agency extends Model
         'rccm',
         'onboarding_completed',
         'taux_tva',
+        'assujetti_tva',
         'whatsapp',
     ];
 
@@ -63,6 +65,7 @@ class Agency extends Model
         'actif'                => 'boolean',
         'onboarding_completed' => 'boolean',
         'taux_tva'             => 'decimal:2',
+        'assujetti_tva'        => 'boolean',
     ];
 
     // ── Relations ─────────────────────────────────────────────────────────

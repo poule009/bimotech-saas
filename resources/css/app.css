@@ -1,38 +1,117 @@
-/* bimotech.css conservé pendant la migration — supprimé en Phase 6 */
-@import './bimotech.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+   TOKENS — SOURCE UNIQUE DE VÉRITÉ POUR TOUT LE THÈME
+   ----------------------------------------------------------------------------
+   Pour changer une couleur PARTOUT dans l'app : modifie UNE seule ligne ici.
+   Format = canaux RGB « R G B » (et non #hex) afin que les opacités Tailwind
+   fonctionnent : bg-teal, bg-teal/12, text-gold/60, ring-teal/10…
+   Le code hex correspondant est indiqué en commentaire pour référence.
+   ============================================================================ */
 @layer base {
-    html {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
+    :root {
+        --ink:        21 37 36;    /* #152524 — texte principal            */
+        --teal:       27 58 63;    /* #1B3A3F — couleur de marque          */
+        --teal-deep:  15 34 37;    /* #0F2225 — hover / titres foncés      */
+        --paper:      247 243 234; /* #F7F3EA — fond clair (cartes)        */
+        --paper-dim:  238 231 216; /* #EEE7D8 — fond de page               */
+        --gold:       184 137 43;  /* #B8892B — accent or                  */
+        --gold-soft:  233 217 174; /* #E9D9AE — or clair                   */
+        --green:      45 95 76;    /* #2D5F4C — vert secondaire            */
+        --line:       216 207 184; /* #D8CFB8 — bordures / séparateurs     */
+        --muted:      107 98 85;   /* #6B6255 — texte secondaire           */
+        --error:      180 71 46;   /* #B4472E — erreurs / retard sérieux   */
+        --amber:      198 124 30;  /* #C67C1E — retard modéré (à surveiller)*/
+        --crit:       122 36 24;   /* #7A2418 — retard critique (30j+)     */
     }
 
-    /* Alpine — masque les éléments x-cloak tant que le composant n'est pas initialisé */
-    [x-cloak] { display: none !important; }
-
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(27, 79, 107, 0.15) transparent;
-    }
-    *::-webkit-scrollbar { width: 5px; height: 5px; }
-    *::-webkit-scrollbar-track { background: transparent; }
-    *::-webkit-scrollbar-thumb {
-        background: rgba(27, 79, 107, 0.15);
-        border-radius: 99px;
-    }
-
-    /* Accessibilité — focus clavier visible sur tout interactif (souris non impactée) */
-    a:focus-visible,
-    button:focus-visible,
-    [role="button"]:focus-visible,
-    [tabindex]:focus-visible,
-    summary:focus-visible {
-        outline: 2px solid var(--ac, #C9A84C);
-        outline-offset: 2px;
-        border-radius: 6px;
+    body {
+        @apply bg-paper-dim text-ink font-body antialiased;
     }
 }
+
+/* ============================================================================
+   COMPOSANTS RÉUTILISABLES
+   ----------------------------------------------------------------------------
+   Styles partagés par plusieurs écrans. Modifier ici = modifier partout.
+   ============================================================================ */
+@layer components {
+
+    /* Panneau de marque : fond teal + halos. En CSS (servi depuis 'self')
+       plutôt qu'en style="" inline, pour rester compatible CSP stricte. */
+    .brand-panel {
+        background-color: rgb(var(--teal));
+        background-image:
+            radial-gradient(circle at 85% 15%, rgb(var(--gold) / 0.18), transparent 45%),
+            radial-gradient(circle at 10% 90%, rgb(var(--green) / 0.35), transparent 50%);
+    }
+
+    .auth-field-label {
+        @apply block text-[12.5px] font-semibold text-teal-deep mb-[7px];
+    }
+
+    .auth-input {
+        @apply w-full px-[14px] py-3 border-[1.5px] border-line rounded bg-white text-ink text-sm
+               outline-none transition placeholder:text-[#B7AE9C]
+               focus:border-teal focus:ring-[3px] focus:ring-teal/[0.12];
+    }
+
+    .auth-input-error {
+        @apply border-error focus:border-error focus:ring-error/[0.12];
+    }
+
+    .btn-primary {
+        @apply w-full py-[13px] rounded bg-teal text-paper text-sm font-semibold
+               cursor-pointer transition hover:bg-teal-deep active:scale-[0.99]
+               focus:outline-none focus:ring-[3px] focus:ring-teal/[0.25];
+    }
+
+    .btn-google {
+        @apply w-full py-3 border-[1.5px] border-line rounded bg-white flex items-center justify-center gap-2.5
+               text-[13.5px] font-semibold text-ink cursor-pointer transition
+               hover:border-muted hover:bg-paper-dim;
+    }
+
+    .auth-link {
+        @apply text-teal font-semibold no-underline hover:underline;
+    }
+
+    .auth-tab {
+        @apply text-[13.5px] font-semibold px-[22px] py-[9px] rounded-full transition text-muted;
+    }
+
+    .auth-tab-active {
+        @apply bg-teal text-paper;
+    }
+
+    .field-error {
+        @apply mt-1.5 text-[12px] text-error;
+    }
+
+    /* Pages de contenu légal (mentions légales, confidentialité) */
+    .legal-prose h2      { @apply font-display font-semibold text-[20px] text-teal-deep mt-10 mb-3; }
+    .legal-prose h3      { @apply font-display font-semibold text-[15px] text-teal-deep mt-6 mb-2; }
+    .legal-prose p       { @apply text-[14.5px] leading-[1.7] text-ink/80 mb-3; }
+    .legal-prose ul      { @apply list-disc pl-5 mb-3 text-[14.5px] leading-[1.7] text-ink/80 space-y-1; }
+    .legal-prose a       { @apply text-teal font-semibold hover:underline; }
+    .legal-prose strong  { @apply text-ink font-semibold; }
+
+    /* Surligne les champs à compléter par l'agence. */
+    .legal-todo { @apply bg-gold/20 text-teal-deep font-semibold px-1 rounded-sm; }
+
+    /* Formulaires (création / édition) */
+    .f-card       { @apply bg-white border border-line rounded-xl p-6; }
+    .f-card-title { @apply font-display font-semibold text-[18px] mb-1; }
+    .f-card-sub   { @apply text-[13.5px] text-muted mb-5 leading-relaxed; }
+    .f-label      { @apply block text-[13px] font-bold text-teal-deep mb-1.5; }
+    .f-input, .f-select, .f-textarea {
+        @apply w-full px-3.5 py-3 border-[1.5px] border-line rounded-[9px] bg-white text-ink text-[14.5px]
+               outline-none transition placeholder:text-[#B7AE9C]
+               focus:border-teal focus:ring-[3px] focus:ring-teal/[0.10];
+    }
+    .f-input-error { @apply border-error focus:border-error focus:ring-error/[0.12]; }
+}
+
+[x-cloak] { display: none !important; }

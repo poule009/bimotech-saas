@@ -1,243 +1,195 @@
 @extends('layouts.app')
-@section('header', 'Biens immobiliers')
+
+@php
+    $statutPill = [
+        'loue'       => ['Loué', 'bg-green/10 text-green'],
+        'disponible' => ['Vacant', 'bg-gold/15 text-gold'],
+        'en_travaux' => ['En travaux', 'bg-error/10 text-error'],
+        'archive'    => ['Archivé', 'bg-paper-dim text-muted'],
+    ];
+    $occ = function ($loues, $total) {
+        if ($total === 0)        return ['Vide', 'bg-gold/15 text-gold'];
+        if ($loues === 0)        return ['Vacant', 'bg-gold/15 text-gold'];
+        if ($loues >= $total)    return ['Complet', 'bg-green/10 text-green'];
+        return [$loues.'/'.$total.' loués', 'bg-teal/10 text-teal'];
+    };
+@endphp
+
+@section('title', 'Biens')
+@section('page-title', 'Biens')
+@section('page-subtitle', $counts['total'] . ' bien' . ($counts['total'] > 1 ? 's' : '') . ' au total')
+
+@section('topbar-actions')
+    @if(config('features.immeubles', true))
+        <a href="{{ route('admin.immeubles.create') }}"
+           class="hidden sm:inline-flex items-center gap-1.5 bg-white border border-line text-ink px-4 py-2.5 rounded-[11px] text-[13.5px] font-bold hover:border-teal transition-colors">
+            🏢 Immeuble
+        </a>
+    @endif
+    <a href="{{ route('admin.biens.create') }}"
+       class="hidden sm:inline-flex items-center gap-1.5 bg-teal text-paper px-4 py-2.5 rounded-[11px] text-[13.5px] font-bold hover:bg-teal-deep transition-colors">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Nouveau bien
+    </a>
+@endsection
 
 @section('content')
-<div class="space-y-4 md:space-y-6">
+<div class="max-w-[1180px]" x-data="viewToggle">
 
-    {{-- ═══ EN-TÊTE ═══ --}}
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-            <h1 class="font-display font-extrabold text-xl md:text-2xl text-bimo-text tracking-tight leading-tight">
-                Biens immobiliers
-            </h1>
-            <p class="font-body text-sm text-bimo-text/60 mt-1">
-                {{ $biens->total() }} bien(s) enregistré(s)
-            </p>
-        </div>
-        @can('create', App\Models\Bien::class)
-        <a href="{{ route('admin.biens.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--ac)] text-white
-                  font-display font-bold text-sm rounded-[10px]
-                  hover:opacity-90 transition-opacity duration-150 self-start">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Nouveau bien
-        </a>
-        @endcan
-    </div>
+    @if(session('success'))
+        <div class="mb-5 rounded-lg bg-green/10 border border-green/25 px-4 py-3 text-[13px] text-green">{{ session('success') }}</div>
+    @endif
 
-    {{-- ═══ KPIs ═══ --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <x-kpi compact :value="$biens->total()" label="Total biens" />
-        <x-kpi compact variant="primary" :value="$biens->getCollection()->where('statut','loue')->count()" label="Loués" />
-        <x-kpi compact :value="$biens->getCollection()->where('statut','disponible')->count()" label="Disponibles" />
-        <x-kpi compact :value="$biens->getCollection()->where('statut','en_travaux')->count()" label="En travaux" />
-    </div>
+    {{-- Barre d'outils --}}
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+        <form method="GET" class="flex-1 min-w-[220px] max-w-[340px]">
+            @if($filter)<input type="hidden" name="filter" value="{{ $filter }}">@endif
+            <div class="flex items-center gap-2.5 bg-white border border-line rounded-[11px] px-4 py-2.5">
+                <svg class="w-4 h-4 text-muted shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input type="text" name="q" value="{{ $q }}" placeholder="Rechercher un bien, une adresse…"
+                       class="w-full bg-transparent outline-none text-[14px] text-ink placeholder:text-muted">
+            </div>
+        </form>
 
-    {{-- ═══ FILTRES ═══ --}}
-    <form method="GET" x-data="autoSubmit" class="flex flex-wrap gap-2 items-center">
-        {{-- Recherche --}}
-        <div class="relative flex-1 min-w-[200px] max-w-xs">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-bimo-text/30 pointer-events-none"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="text" name="q" value="{{ request('q') }}"
-                   aria-label="Rechercher un bien (référence, adresse, ville, propriétaire)"
-                   placeholder="Référence, adresse, ville, propriétaire…"
-                   class="w-full pl-9 pr-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
-                          font-body text-sm text-bimo-text placeholder:text-bimo-text/30
-                          focus:outline-none focus:border-bimo-gold focus:ring-2 focus:ring-bimo-gold/15
-                          transition-all duration-150">
-        </div>
-
-        <select name="statut" @change="submit" aria-label="Filtrer par statut"
-                class="px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
-                       font-body text-sm text-bimo-text cursor-pointer
-                       focus:outline-none focus:border-bimo-gold transition-all duration-150">
-            <option value="">Tous les statuts</option>
-            <option value="disponible" @selected(request('statut')==='disponible')>Disponible</option>
-            <option value="loue"       @selected(request('statut')==='loue')>Loué</option>
-            <option value="en_travaux" @selected(request('statut')==='en_travaux')>En travaux</option>
-            <option value="archive"    @selected(request('statut')==='archive')>Archivé</option>
-        </select>
-
-        <select name="type" @change="submit" aria-label="Filtrer par type de bien"
-                class="px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
-                       font-body text-sm text-bimo-text cursor-pointer
-                       focus:outline-none focus:border-bimo-gold transition-all duration-150">
-            <option value="">Tous les types</option>
-            @foreach(\App\Models\Bien::TYPES as $val => $lbl)
-            <option value="{{ $val }}" @selected(request('type')===$val)>{{ $lbl }}</option>
+        @php
+            $chips = ['Tous' => null, 'Biens simples' => 'simples', 'Immeubles' => 'immeubles'];
+            $chipCounts = ['Tous' => $counts['total'], 'Biens simples' => $counts['simples'], 'Immeubles' => $counts['immeubles']];
+        @endphp
+        <div class="flex items-center gap-2 flex-wrap">
+            @foreach($chips as $label => $val)
+                @php $isActive = $filter === $val || (is_null($val) && ! $filter); @endphp
+                <a href="{{ route('admin.biens.index', array_filter(['q' => $q, 'filter' => $val])) }}"
+                   @class([
+                       'text-[13px] font-bold rounded-full px-4 py-2 border flex items-center gap-1.5 transition-colors',
+                       'bg-teal text-paper border-teal' => $isActive,
+                       'bg-white text-muted border-line hover:border-teal' => ! $isActive,
+                   ])>{{ $label }} <span class="opacity-70 text-[11px]">{{ $chipCounts[$label] }}</span></a>
             @endforeach
-        </select>
-
-        <button type="submit"
-                class="px-4 py-2 min-h-[48px] md:min-h-0 bg-[var(--ac)] text-white font-display font-bold text-sm
-                       rounded-[9px] hover:opacity-90 transition-opacity duration-150">
-            Rechercher
-        </button>
-
-        @if(request()->hasAny(['statut','type','q']))
-        <a href="{{ route('admin.biens.index') }}"
-           class="inline-flex items-center px-3 py-2 min-h-[48px] md:min-h-0 bg-white border border-bimo-navy/15 rounded-[9px]
-                  font-body text-sm text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30
-                  transition-all duration-150">
-            Effacer
-        </a>
-        @endif
-    </form>
-
-    {{-- ═══ CONTENU ═══ --}}
-    <h2 class="sr-only">Liste des biens</h2>
-    @if($biens->isEmpty())
-    <div class="bg-white rounded-[14px] border border-bimo-navy/10 py-16 px-6 text-center">
-        <div class="w-12 h-12 bg-bimo-navy/5 rounded-[12px] flex items-center justify-center mx-auto mb-4">
-            <svg class="w-6 h-6 text-bimo-text/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
         </div>
-        <div class="font-display font-bold text-base text-bimo-text mb-2">Aucun bien enregistré</div>
-        <p class="font-body text-sm text-bimo-text/60 mb-5">
-            @if(request()->hasAny(['statut','type','q']))
-                Aucun résultat pour ces filtres.
-            @else
-                Commencez par ajouter votre premier bien immobilier.
-            @endif
-        </p>
-        <a href="{{ route('admin.biens.create') }}"
-           class="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--ac)] text-white
-                  font-display font-bold text-sm rounded-[10px] hover:opacity-90 transition-opacity duration-150">
-            + Ajouter un bien
-        </a>
+
+        {{-- Bascule grille / liste --}}
+        <div class="flex gap-0.5 bg-white border border-line rounded-[10px] p-[3px] ml-auto">
+            <button type="button" x-on:click="setGrid" x-bind:class="gridBtnClass" class="w-9 h-8 rounded-[7px] flex items-center justify-center transition-colors" aria-label="Vue grille">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </button>
+            <button type="button" x-on:click="setList" x-bind:class="listBtnClass" class="w-9 h-8 rounded-[7px] flex items-center justify-center transition-colors" aria-label="Vue liste">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </button>
+        </div>
     </div>
 
+    @if($biensSimples->isEmpty() && $immeubles->isEmpty())
+        <div class="bg-white border border-line rounded-2xl py-16 px-6 text-center">
+            <div class="w-12 h-12 bg-paper-dim rounded-xl flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+            </div>
+            @if($q || $filter)
+                <div class="font-display font-semibold text-[16px] mb-1.5">Aucun résultat</div>
+                <p class="text-[13.5px] text-muted mb-5">Aucun bien ne correspond à votre recherche.</p>
+                <a href="{{ route('admin.biens.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-line text-ink/70 font-bold text-[13px] rounded-[10px] hover:border-teal transition-colors">Effacer les filtres</a>
+            @else
+                <div class="font-display font-semibold text-[16px] mb-1.5">Aucun bien</div>
+                <p class="text-[13.5px] text-muted mb-5">Ajoutez le premier bien de votre agence.</p>
+                <a href="{{ route('admin.biens.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-teal text-paper font-bold text-[13px] rounded-[10px] hover:bg-teal-deep transition-colors">+ Nouveau bien</a>
+            @endif
+        </div>
     @else
 
-    {{-- Grille de cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-        @foreach($biens as $bien)
-        @php
-            $photo = $bien->photos?->firstWhere('est_principale', true) ?? $bien->photos?->first();
-            $badgeClass = match($bien->statut) {
-                'loue'       => 'bg-bimo-navy/10 border-bimo-navy/20 text-bimo-text',
-                'disponible' => 'bg-bimo-gold/10 border-bimo-gold/20 text-bimo-gold',
-                'en_travaux' => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/60',
-                default      => 'bg-bimo-navy/5 border-bimo-navy/10 text-bimo-text/60',
-            };
-        @endphp
-
-        <div class="flex flex-col bg-white rounded-[14px] border border-bimo-navy/10
-                    hover:border-bimo-gold/40 hover:shadow-gold-sm hover:-translate-y-0.5
-                    transition-all duration-150 overflow-hidden group">
-
-            {{-- Photo --}}
-            <div class="h-36 bg-bimo-bg2 overflow-hidden flex items-center justify-center relative">
-                @if($photo)
-                    <img src="{{ asset('storage/'.$photo->chemin) }}"
-                         alt="{{ $bien->titre_fallback }}"
-                         class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
-                @else
-                    <div class="flex flex-col items-center gap-1 text-bimo-text/25">
-                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/>
-                            <circle cx="8.5" cy="8.5" r="1.5"/>
-                            <polyline points="21 15 16 10 5 21"/>
-                        </svg>
-                        <span class="font-body text-[10px]">Aucune photo</span>
-                    </div>
-                @endif
-                {{-- Badge statut sur la photo --}}
-                <div class="absolute top-3 right-3">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-body font-medium border {{ $badgeClass }} backdrop-blur-sm bg-opacity-90">
-                        {{ $bien->statut_label }}
-                    </span>
+    {{-- ══════════ VUE GRILLE ══════════ --}}
+    <div x-show="isGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        {{-- Immeubles --}}
+        @foreach($immeubles as $im)
+            @php [$occLabel, $occClass] = $occ((int) $im->loues_count, (int) $im->biens_count); @endphp
+            <a href="{{ route('admin.immeubles.show', $im) }}" class="bg-white border border-line rounded-2xl overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all">
+                <div class="h-[120px] bg-teal-deep relative flex items-center justify-center">
+                    <svg class="w-9 h-9 text-paper/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M6 21V4a1 1 0 011-1h10a1 1 0 011 1v17M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/></svg>
+                    <span class="absolute top-3 left-3 bg-teal-deep/70 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">🏢 Immeuble · {{ $im->biens_count }} unité{{ $im->biens_count > 1 ? 's' : '' }}</span>
+                    <span class="absolute top-3 right-3 bg-gold text-teal-deep text-[11px] font-extrabold px-2.5 py-1 rounded-full">{{ $occLabel }}</span>
                 </div>
-            </div>
-
-            {{-- Corps --}}
-            <div class="p-4 flex flex-col flex-1">
-                {{-- Référence + type --}}
-                <div class="flex items-center justify-between mb-2">
-                    <span class="font-body text-[10px] text-bimo-text/50 uppercase tracking-widest">
-                        {{ $bien->reference }}
-                    </span>
-                    <span class="font-body text-[11px] font-medium text-bimo-text/60">
-                        {{ $bien->type_label }}
-                    </span>
-                </div>
-
-                {{-- Titre --}}
-                <h3 class="font-display font-bold text-sm text-bimo-text mb-1 leading-tight">
-                    {{ $bien->titre ?? $bien->adresse }}
-                </h3>
-                <p class="font-body text-xs text-bimo-text/60 mb-3">
-                    @if($bien->quartier) {{ $bien->quartier }}, @endif{{ $bien->ville }}
-                </p>
-
-                {{-- Pied de carte --}}
-                <div class="flex items-center justify-between pt-3 border-t border-bimo-navy/[5%] mt-auto">
-                    <div>
-                        <div class="font-display font-bold text-base text-[var(--ac)] leading-none">
-                            {{ number_format($bien->loyer_hors_charges, 0, ',', ' ') }}
-                            <span class="font-body font-normal text-xs text-bimo-text/60">F/mois</span>
+                <div class="p-[16px_18px_18px]">
+                    <div class="font-bold text-[15.5px] mb-0.5 truncate">{{ $im->nom }}</div>
+                    <div class="text-[12.5px] text-muted mb-3 truncate">{{ $im->ville }}</div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1.5 text-[12px] text-muted min-w-0">
+                            <span class="w-5 h-5 rounded bg-paper-dim text-teal flex items-center justify-center text-[9px] font-bold shrink-0">{{ mb_strtoupper(mb_substr($im->proprietaire->name ?? '—', 0, 2)) }}</span>
+                            <span class="truncate">{{ $im->proprietaire->name ?? '—' }}</span>
                         </div>
-                        @if($bien->contratActif)
-                        <div class="font-body text-[11px] text-bimo-text/60 mt-0.5">
-                            {{ $bien->contratActif->locataire?->name ?? '—' }}
-                        </div>
-                        @endif
                     </div>
-                    <a href="{{ route('admin.biens.show', $bien) }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] md:min-h-0 border border-bimo-navy/10
-                              rounded-[8px] font-body font-medium text-xs text-bimo-text/60
-                              hover:border-bimo-gold hover:text-bimo-gold
-                              transition-all duration-150">
-                        Voir
-                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                    </a>
                 </div>
-            </div>
+            </a>
+        @endforeach
+
+        {{-- Biens simples --}}
+        @foreach($biensSimples as $bien)
+            @php [$stLabel, $stClass] = $statutPill[$bien->statut] ?? [ucfirst($bien->statut), 'bg-paper-dim text-muted']; @endphp
+            <a href="{{ route('admin.biens.show', $bien) }}" class="bg-white border border-line rounded-2xl overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all">
+                <div class="h-[120px] bg-teal relative flex items-center justify-center">
+                    <svg class="w-9 h-9 text-paper/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
+                    <span class="absolute top-3 left-3 bg-teal-deep/60 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</span>
+                </div>
+                <div class="p-[16px_18px_18px]">
+                    <div class="font-bold text-[15.5px] mb-0.5 truncate">{{ $bien->titre ?: $bien->reference }}</div>
+                    <div class="text-[12.5px] text-muted mb-3 truncate">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }}</div>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5 text-[12px] text-muted min-w-0">
+                            <span class="w-5 h-5 rounded bg-paper-dim text-teal flex items-center justify-center text-[9px] font-bold shrink-0">{{ mb_strtoupper(mb_substr($bien->proprietaire->name ?? '—', 0, 2)) }}</span>
+                            <span class="truncate">{{ $bien->proprietaire->name ?? '—' }}</span>
+                        </div>
+                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 {{ $stClass }}">{{ $stLabel }}</span>
+                    </div>
+                </div>
+            </a>
+        @endforeach
+    </div>
+
+    {{-- ══════════ VUE LISTE ══════════ --}}
+    <div x-show="isList" x-cloak class="bg-white border border-line rounded-2xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-paper-dim border-b border-line text-left text-[12px] uppercase tracking-wide text-muted font-bold">
+                        <th class="px-5 py-4">Bien</th><th class="px-5 py-4">Type</th><th class="px-5 py-4">Propriétaire</th><th class="px-5 py-4 text-right">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($immeubles as $im)
+                        @php [$occLabel, $occClass] = $occ((int) $im->loues_count, (int) $im->biens_count); @endphp
+                        <tr class="border-b border-paper-dim last:border-0 hover:bg-[#FBF9F3] transition-colors">
+                            <td class="px-5 py-4">
+                                <a href="{{ route('admin.immeubles.show', $im) }}" class="flex items-center gap-3 group">
+                                    <span class="w-[42px] h-[42px] rounded-[10px] bg-teal-deep text-paper flex items-center justify-center shrink-0">🏢</span>
+                                    <span class="min-w-0"><span class="block font-bold text-[15px] truncate group-hover:text-teal">{{ $im->nom }}</span><span class="block text-[12.5px] text-muted truncate">{{ $im->ville }}</span></span>
+                                </a>
+                            </td>
+                            <td class="px-5 py-4"><span class="text-[12px] font-bold px-3 py-1.5 rounded-full bg-paper-dim text-teal">Immeuble · {{ $im->biens_count }} unité{{ $im->biens_count > 1 ? 's' : '' }}</span></td>
+                            <td class="px-5 py-4 text-[14px] text-ink/80">{{ $im->proprietaire->name ?? '—' }}</td>
+                            <td class="px-5 py-4 text-right"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $occClass }}">{{ $occLabel }}</span></td>
+                        </tr>
+                    @endforeach
+                    @foreach($biensSimples as $bien)
+                        @php [$stLabel, $stClass] = $statutPill[$bien->statut] ?? [ucfirst($bien->statut), 'bg-paper-dim text-muted']; @endphp
+                        <tr class="border-b border-paper-dim last:border-0 hover:bg-[#FBF9F3] transition-colors">
+                            <td class="px-5 py-4">
+                                <a href="{{ route('admin.biens.show', $bien) }}" class="flex items-center gap-3 group">
+                                    <span class="w-[42px] h-[42px] rounded-[10px] bg-teal text-paper flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
+                                    </span>
+                                    <span class="min-w-0"><span class="block font-bold text-[15px] truncate group-hover:text-teal">{{ $bien->titre ?: $bien->reference }}</span><span class="block text-[12.5px] text-muted truncate">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }}</span></span>
+                                </a>
+                            </td>
+                            <td class="px-5 py-4"><span class="text-[12px] font-bold px-3 py-1.5 rounded-full bg-paper-dim text-teal">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</span></td>
+                            <td class="px-5 py-4 text-[14px] text-ink/80">{{ $bien->proprietaire->name ?? '—' }}</td>
+                            <td class="px-5 py-4 text-right"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $stClass }}">{{ $stLabel }}</span></td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-        @endforeach
     </div>
 
-    {{-- Pagination --}}
-    @if($biens->hasPages())
-    <div class="flex items-center justify-center gap-1.5 mt-2">
-        @if(!$biens->onFirstPage())
-        <a href="{{ $biens->previousPageUrl() }}"
-           class="w-11 h-11 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
-                  text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        </a>
-        @endif
-
-        @foreach($biens->getUrlRange(max(1,$biens->currentPage()-2), min($biens->lastPage(),$biens->currentPage()+2)) as $page => $url)
-        <a href="{{ $url }}"
-           class="w-11 h-11 flex items-center justify-center rounded-[7px] font-body text-sm transition-all duration-150
-                  {{ $page === $biens->currentPage()
-                     ? 'bg-bimo-navy text-white border border-bimo-navy'
-                     : 'border border-bimo-navy/10 text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30' }}">
-            {{ $page }}
-        </a>
-        @endforeach
-
-        @if($biens->hasMorePages())
-        <a href="{{ $biens->nextPageUrl() }}"
-           class="w-11 h-11 flex items-center justify-center border border-bimo-navy/10 rounded-[7px]
-                  text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </a>
-        @endif
-    </div>
+    @if($biensSimples instanceof \Illuminate\Contracts\Pagination\Paginator && $biensSimples->hasPages())
+        <div class="mt-6">{{ $biensSimples->links() }}</div>
     @endif
-
     @endif
-
 </div>
 @endsection

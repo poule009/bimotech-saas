@@ -124,6 +124,7 @@ class StoreContratRequest extends FormRequest
             'caution.required'      => 'Le montant de la caution est obligatoire.',
             'type_bail.required'    => 'Veuillez choisir un type de bail.',
             'type_bail.in'          => 'Le type de bail sélectionné est invalide.',
+            'reference_bail.unique' => 'Cette référence de bail est déjà utilisée par un autre contrat de votre agence.',
         ];
     }
 }

@@ -1,557 +1,107 @@
 @extends('layouts.app')
-@section('header', $bien->reference . ' — ' . $bien->type_label)
+
+@php
+    $statutPill = [
+        'loue'       => ['Loué', 'bg-green/10 text-green'],
+        'disponible' => ['Vacant', 'bg-gold/15 text-gold'],
+        'en_travaux' => ['En travaux', 'bg-error/10 text-error'],
+        'archive'    => ['Archivé', 'bg-paper-dim text-muted'],
+    ];
+    [$stLabel, $stClass] = $statutPill[$bien->statut] ?? [ucfirst($bien->statut), 'bg-paper-dim text-muted'];
+    $fmt = fn ($n) => number_format((float) $n, 0, ',', ' ');
+    $titre = $bien->titre ?: $bien->reference;
+@endphp
+
+@section('title', $titre)
+@section('page-title', 'Fiche bien')
+@section('page-subtitle')
+    <a href="{{ route('admin.biens.index') }}" class="text-teal font-semibold hover:underline">Biens</a>
+    <span class="text-muted"> / {{ $titre }}</span>
+@endsection
 
 @section('content')
-<div class="space-y-4 md:space-y-5">
+<div class="max-w-[1000px]">
 
-    {{-- Breadcrumb --}}
-    <div class="flex items-center gap-2 font-body text-sm text-bimo-text/40">
-        <a href="{{ route('admin.biens.index') }}" class="hover:text-bimo-text transition-colors duration-150">Biens</a>
-        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        <span class="text-bimo-text font-medium">{{ $bien->reference }}</span>
-    </div>
-
-    {{-- Actions --}}
-    <div class="flex flex-wrap gap-2">
-        <a href="{{ route('admin.biens.edit', $bien) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-navy text-white
-                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-navy-dk transition-colors duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Modifier
-        </a>
-
-        @if(!$bien->contratActif)
-        <a href="{{ route('admin.contrats.create', ['bien_id' => $bien->id]) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/25 text-bimo-gold
-                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-            Créer un contrat
-        </a>
-        @endif
-
-        @if($bien->contratActif)
-        <a href="{{ route('admin.paiements.create', ['contrat_id' => $bien->contratActif->id]) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-gold/10 border border-bimo-gold/25 text-bimo-gold
-                  font-display font-bold text-sm rounded-[10px] hover:bg-bimo-gold/20 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-            Enregistrer un paiement
-        </a>
-        <a href="{{ route('admin.contrats.show', $bien->contratActif) }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Voir le contrat
-        </a>
-        @endif
-
-        <a href="{{ route('admin.biens.index') }}"
-           class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-bimo-navy/15 text-bimo-text/60
-                  font-body text-sm rounded-[10px] hover:text-bimo-text hover:border-bimo-navy/30 transition-all duration-150">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            Retour
-        </a>
-
-        @if(!$bien->contratActif)
-        <form method="POST" action="{{ route('admin.biens.destroy', $bien) }}"
-              data-confirm="Le bien {{ $bien->reference }} sera archivé. Cette action est irréversible."
-              data-confirm-title="Archiver ce bien ?"
-              data-confirm-ok="Oui, archiver">
-            @csrf @method('DELETE')
-            <button type="submit"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-bimo-red/10 border border-bimo-red/20 text-bimo-red
-                           font-body text-sm rounded-[10px] hover:bg-bimo-red/20 transition-all duration-150">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-                Archiver
-            </button>
-        </form>
-        @endif
-    </div>
-
-    {{-- Alerte portail incomplet --}}
-    @if(!empty($raisonsAbsence))
-    <div class="flex items-start gap-3 bg-bimo-gold/[8%] border border-bimo-gold/25 rounded-[12px] px-4 py-3">
-        <svg class="w-4 h-4 text-bimo-gold flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <div>
-            <div class="font-body font-semibold text-sm text-bimo-gold mb-0.5">Ce bien n'est pas affiché sur le portail public</div>
-            <div class="font-body text-xs text-bimo-gold/80">
-                Il manque : <strong>{{ implode(', ', $raisonsAbsence) }}</strong>.
-                <a href="{{ route('admin.biens.edit', $bien) }}"
-                   class="font-semibold ml-1 hover:text-bimo-text transition-colors duration-150">
-                    Compléter la fiche →
-                </a>
-            </div>
-        </div>
-    </div>
+    @if(session('success'))
+        <div class="mb-5 rounded-lg bg-green/10 border border-green/25 px-4 py-3 text-[13px] text-green">{{ session('success') }}</div>
     @endif
 
-    {{-- Hero card sombre --}}
-    <div class="bg-bimo-navy rounded-[14px] p-5 md:p-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-[0.06]"
-             style="background: radial-gradient(circle, var(--ac) 0%, transparent 70%); transform: translate(30%, -30%)">
-        </div>
-        <div class="relative z-10">
-            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-white/30 mb-2">
-                {{ $bien->reference }}
+    {{-- En-tête --}}
+    <div class="bg-white border border-line rounded-2xl overflow-hidden mb-5">
+        <div class="h-[150px] bg-teal flex items-end p-6">
+            <div class="text-paper">
+                <h2 class="font-display font-semibold text-[24px] mb-1">{{ $titre }}</h2>
+                <div class="text-[13.5px] text-paper/80">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }} · {{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</div>
             </div>
-            <div class="font-display font-extrabold text-xl text-white leading-tight mb-1">
-                {{ $bien->titre ?? $bien->type_label }}
-                @if($bien->meuble)
-                <span class="font-body font-normal text-sm text-white/60 ml-2">· Meublé</span>
+        </div>
+        <div class="px-6 py-4 flex flex-wrap items-center gap-3">
+            <span class="text-[12.5px] font-bold px-3.5 py-1.5 rounded-full {{ $stClass }}">{{ $stLabel }}</span>
+            <span class="text-[12.5px] text-muted">Réf. {{ $bien->reference }}</span>
+            <div class="flex items-center gap-2.5 ml-auto">
+                <a href="{{ route('admin.biens.edit', $bien) }}" class="px-5 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[14px] font-bold hover:border-teal transition-colors">Modifier</a>
+                @if(Route::has('admin.contrats.create') && ! $bien->contratActif)
+                    <a href="{{ route('admin.contrats.create', ['bien_id' => $bien->id]) }}" class="px-5 py-2.5 rounded-[10px] bg-teal text-paper text-[14px] font-bold hover:bg-teal-deep transition-colors whitespace-nowrap">+ Nouveau contrat</a>
                 @endif
-            </div>
-            @if($bien->titre)
-            <div class="font-body text-sm text-white/40 mb-1">{{ $bien->type_label }}</div>
-            @endif
-            <div class="font-body text-sm text-white/50 mb-3">
-                {{ $bien->adresse }}
-                @if($bien->quartier) · {{ $bien->quartier }} @endif
-                @if($bien->commune) · {{ $bien->commune }} @endif
-                · {{ $bien->ville }}
-            </div>
-            <div class="flex items-center gap-3 flex-wrap">
-                @php
-                    $badgeClass = match($bien->statut) {
-                        'disponible' => 'bg-white/15 border-white/25 text-white',
-                        'loue'       => 'bg-bimo-navy-dk/50 border-white/10 text-white/70',
-                        'en_travaux' => 'bg-white/5 border-white/10 text-white/50',
-                        default      => 'bg-white/5 border-white/10 text-white/30',
-                    };
-                @endphp
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-body font-medium {{ $badgeClass }}">
-                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    {{ $bien->statut_label }}
-                </span>
-                @if($bien->surface_m2)
-                <span class="font-body text-xs text-white/40">{{ $bien->surface_m2 }} m²</span>
-                @endif
-                @if($bien->nombre_pieces)
-                <span class="font-body text-xs text-white/40">{{ $bien->nombre_pieces }} pièces</span>
-                @endif
-            </div>
-        </div>
-        <div class="relative z-10 text-right flex-shrink-0">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-white/50 mb-1">Loyer mensuel</div>
-            <div class="font-display font-extrabold text-3xl text-white leading-none">
-                {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}
-                <span class="font-body font-normal text-base text-white/40">F</span>
-            </div>
-            <div class="font-body text-xs text-white/30 mt-1">Commission {{ $bien->taux_commission ?? 10 }}%</div>
-        </div>
-    </div>
-
-    {{-- KPIs --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="bg-bimo-gold/[8%] rounded-[14px] border border-bimo-gold/25 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-gold/70 mb-1">Loyer mensuel</div>
-            <div class="font-display font-extrabold text-xl text-bimo-gold leading-none">
-                {{ number_format($bien->loyer_mensuel, 0, ',', ' ') }}
-                <span class="font-body font-normal text-sm text-bimo-gold/50">F</span>
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-gold/60 mt-1.5">FCFA / mois</div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Net propriétaire</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') }}
-                <span class="font-body font-normal text-sm text-bimo-text/40">F</span>
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">Après commission TTC</div>
-        </div>
-        <div class="bg-white rounded-[14px] border border-bimo-navy/10 p-4">
-            <div class="font-body font-medium text-[9.5px] uppercase tracking-widest text-bimo-text/50 mb-1">Contrats</div>
-            <div class="font-display font-extrabold text-xl text-bimo-text leading-none">
-                {{ $bien->contrats->count() }}
-            </div>
-            <div class="font-body text-[10.5px] text-bimo-text/40 mt-1.5">
-                {{ $bien->contratActif ? '1 actif' : 'Aucun actif' }}
             </div>
         </div>
     </div>
 
-    {{-- Grid principale --}}
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 items-start">
-
-        {{-- COLONNE GAUCHE --}}
-        <div class="space-y-4">
-
-            {{-- Photos --}}
-            @if($bien->photos->count() > 0)
-            @php $principale = $bien->photos->firstWhere('est_principale', true) ?? $bien->photos->first(); @endphp
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        </div>
-                        <span class="font-display font-bold text-sm text-bimo-text">
-                            Photos <span class="font-body font-normal text-bimo-text/40 text-xs">({{ $bien->photos->count() }})</span>
-                        </span>
-                    </div>
-                    <a href="{{ route('admin.biens.edit', $bien) }}"
-                       class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
-                        Gérer les photos →
-                    </a>
-                </div>
-                <div class="px-5 py-5">
-                    <div class="h-64 md:h-72 bg-bimo-bg2 rounded-[10px] overflow-hidden mb-3">
-                        <img src="{{ asset('storage/'.$principale->chemin) }}"
-                             id="photo-principale" alt="Photo principale"
-                             class="w-full h-full object-cover">
-                    </div>
-                    @if($bien->photos->count() > 1)
-                    <div class="flex gap-2 flex-wrap">
-                        @foreach($bien->photos as $photo)
-                        <div class="w-[72px] h-14 rounded-[8px] overflow-hidden cursor-pointer border-2 transition-all duration-150 flex-shrink-0
-                                    {{ $photo->id === $principale->id ? 'border-bimo-gold' : 'border-transparent hover:border-bimo-gold/50' }}"
-                             onclick="changerPhoto('{{ asset('storage/'.$photo->chemin) }}', this)">
-                            <img src="{{ asset('storage/'.$photo->chemin) }}" alt=""
-                                 class="w-full h-full object-cover">
-                        </div>
-                        @endforeach
-                    </div>
-                    @endif
-                </div>
-            </div>
-            @endif
-
+    <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-5 items-start">
+        <div class="space-y-5">
             {{-- Informations --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/10 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-text/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <div class="f-card">
+                <h3 class="f-card-title mb-4">Informations</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                        <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Propriétaire</div>
+                        <a href="{{ route('admin.users.show', $bien->proprietaire) }}" class="text-[15px] font-semibold text-teal hover:underline">{{ $bien->proprietaire->name ?? '—' }}</a>
                     </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">Informations</span>
-                </div>
-                <div class="px-5 py-5">
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
-                        @php
-                            $infos = [
-                                ['Type',      $bien->type_label],
-                                ['Surface',   $bien->surface_m2 ? $bien->surface_m2.' m²' : '—'],
-                                ['Pièces',    $bien->nombre_pieces ?? '—'],
-                                ['Chambres',  $bien->nombre_chambres ?? '—'],
-                                ['SDB',       $bien->nombre_sdb ?? '—'],
-                                ['Étage',     $bien->etage ?? '—'],
-                                ['Meublé',    $bien->meuble ? 'Oui' : 'Non'],
-                                ['Parking',   $bien->parking ? 'Oui' : 'Non'],
-                                ['Climatisé', $bien->climatise ? 'Oui' : 'Non'],
-                                ['Statut',    $bien->statut_label],
-                                ['Référence', $bien->reference],
-                            ];
-                        @endphp
-                        @foreach($infos as [$lbl, $val])
-                        <div>
-                            <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">{{ $lbl }}</div>
-                            <div class="font-body font-medium text-sm text-bimo-text">{{ $val }}</div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    {{-- Localisation --}}
-                    <div class="pt-4 border-t border-bimo-navy/[5%]">
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-3">Localisation</div>
-                        <div class="grid grid-cols-2 gap-4">
-                            @foreach([['Adresse', $bien->adresse], ['Quartier', $bien->quartier ?? '—'], ['Commune', $bien->commune ?? '—'], ['Ville', $bien->ville]] as [$lbl, $val])
-                            <div>
-                                <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">{{ $lbl }}</div>
-                                <div class="font-body text-sm text-bimo-text">{{ $val }}</div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- Aménités --}}
-                    @if(!empty($bien->amenites))
-                    <div class="pt-4 border-t border-bimo-navy/[5%] mt-4">
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-3">Commodités</div>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($bien->amenites as $item)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full border border-bimo-navy/10 bg-bimo-bg font-body text-xs text-bimo-text/70">
-                                {{ $item }}
-                            </span>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Type</div><div class="text-[15px] font-semibold">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</div></div>
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Adresse</div><div class="text-[15px] font-semibold">{{ $bien->adresse }}</div></div>
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Loyer mensuel</div><div class="text-[15px] font-semibold text-gold">{{ $fmt($bien->loyer_mensuel) }} F</div></div>
+                    @if($bien->surface_m2)<div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Surface</div><div class="text-[15px] font-semibold">{{ rtrim(rtrim($bien->surface_m2, '0'), '.') }} m²</div></div>@endif
+                    <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Ajouté le</div><div class="text-[15px] font-semibold">{{ optional($bien->created_at)->locale('fr')->isoFormat('D MMMM Y') }}</div></div>
                 </div>
             </div>
 
-            {{-- Contrat actif --}}
-            @if($bien->contratActif)
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-[8px] bg-bimo-gold/15 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-bimo-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {{-- Contrat en cours --}}
+            <div class="f-card">
+                <h3 class="f-card-title mb-4">Contrat en cours</h3>
+                @if($bien->contratActif)
+                    @php $c = $bien->contratActif; @endphp
+                    <div class="flex items-center gap-4 p-4 border border-line rounded-xl bg-paper">
+                        <span class="w-[46px] h-[46px] rounded-[11px] bg-teal text-paper flex items-center justify-center font-bold text-[15px] shrink-0">{{ mb_strtoupper(mb_substr($c->locataire->name ?? '?', 0, 2)) }}</span>
+                        <div class="min-w-0">
+                            <div class="font-bold text-[14.5px] truncate">{{ $c->locataire->name ?? 'Locataire' }}</div>
+                            <div class="text-[12.5px] text-muted">Depuis le {{ optional($c->date_debut)->locale('fr')->isoFormat('D MMM Y') }}</div>
                         </div>
-                        <span class="font-display font-bold text-sm text-bimo-text">Contrat actif</span>
-                    </div>
-                    <a href="{{ route('admin.contrats.show', $bien->contratActif) }}"
-                       class="font-body text-xs text-bimo-text/40 hover:text-bimo-gold transition-colors duration-150">
-                        Voir le contrat →
-                    </a>
-                </div>
-                <div class="px-5 py-5 grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Locataire</div>
-                        <div class="font-body font-medium text-sm text-bimo-text">{{ $bien->contratActif->locataire?->name ?? '—' }}</div>
-                        <div class="font-body text-xs text-bimo-text/50">{{ $bien->contratActif->locataire?->telephone ?? '' }}</div>
-                    </div>
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Loyer contractuel</div>
-                        <div class="font-display font-bold text-sm text-bimo-gold">
-                            {{ number_format($bien->contratActif->loyer_contractuel, 0, ',', ' ') }} F
+                        <div class="ml-auto text-right shrink-0">
+                            <strong class="block text-[16px]">{{ $fmt($c->loyer_contractuel) }} F</strong>
+                            <span class="text-[11px] text-muted">par mois</span>
                         </div>
                     </div>
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Période</div>
-                        <div class="font-body text-sm text-bimo-text">{{ $bien->contratActif->date_debut?->format('d/m/Y') }}</div>
-                        <div class="font-body text-xs text-bimo-text/50">
-                            {{ $bien->contratActif->date_fin?->format('d/m/Y') ?? 'Contrat ouvert' }}
-                        </div>
-                    </div>
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Type bail</div>
-                        <div class="font-body text-sm text-bimo-text">
-                            {{ \App\Models\Contrat::TYPES_BAIL[$bien->contratActif->type_bail] ?? $bien->contratActif->type_bail }}
-                        </div>
-                    </div>
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Référence bail</div>
-                        <div class="font-body text-xs text-bimo-text">
-                            {{ $bien->contratActif->reference_bail ?? 'BAIL-'.$bien->contratActif->id }}
-                        </div>
-                    </div>
-                    <div>
-                        <div class="font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40 mb-1">Caution</div>
-                        <div class="font-body text-sm text-bimo-text">{{ number_format($bien->contratActif->caution, 0, ',', ' ') }} FCFA</div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            {{-- Derniers paiements --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center justify-between px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                        </div>
-                        <span class="font-display font-bold text-sm text-bimo-text">Derniers paiements</span>
-                    </div>
-                    @if($bien->contratActif)
-                    <a href="{{ route('admin.paiements.create', ['contrat_id' => $bien->contratActif->id]) }}"
-                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bimo-gold/10 border border-bimo-gold/20 rounded-[7px]
-                              font-body font-medium text-xs text-bimo-gold hover:bg-bimo-gold/20 transition-all duration-150">
-                        + Paiement
-                    </a>
-                    @endif
-                </div>
-
-                @if($paiements->isEmpty())
-                <div class="px-5 py-10 text-center font-body text-sm text-bimo-text/30">
-                    @if($bien->contratActif) Aucun paiement enregistré pour ce contrat.
-                    @else Aucun contrat actif sur ce bien. @endif
-                </div>
                 @else
-
-                {{-- Mobile cards --}}
-                <div class="md:hidden divide-y divide-bimo-navy/[5%]">
-                    @foreach($paiements as $p)
-                    <div class="px-5 py-3.5 flex items-center justify-between gap-3">
-                        <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
-                                {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
-                            </span>
-                            <div class="font-body text-xs text-bimo-text/40 mt-1">
-                                {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="font-display font-bold text-sm text-bimo-gold">{{ number_format($p->montant_encaisse, 0, ',', ' ') }} FCFA</div>
-                            <div class="font-body text-xs text-bimo-text/40 mt-0.5">Net: {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} FCFA</div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-
-                {{-- Desktop table --}}
-                <div class="hidden md:block overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b border-bimo-navy/[5%] bg-bimo-bg">
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Période</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Date</th>
-                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Montant</th>
-                                <th class="px-5 py-3 text-right font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Net proprio</th>
-                                <th class="px-5 py-3 text-left font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">Mode</th>
-                                <th class="px-5 py-3 text-center font-body font-medium text-[10px] uppercase tracking-widest text-bimo-text/40">PDF</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-bimo-navy/[5%]">
-                            @foreach($paiements as $p)
-                            <tr class="hover:bg-bimo-bg transition-colors duration-100">
-                                <td class="px-5 py-3.5">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-display font-semibold bg-bimo-gold/10 border border-bimo-gold/20 text-bimo-gold">
-                                        {{ \Carbon\Carbon::parse($p->periode)->translatedFormat('M Y') }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">
-                                    {{ $p->date_paiement ? \Carbon\Carbon::parse($p->date_paiement)->format('d/m/Y') : '—' }}
-                                </td>
-                                <td class="px-5 py-3.5 text-right font-display font-bold text-sm text-bimo-gold">
-                                    {{ number_format($p->montant_encaisse, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-5 py-3.5 text-right font-body font-semibold text-sm text-bimo-text">
-                                    {{ number_format($p->net_a_verser_proprietaire ?? $p->net_proprietaire ?? 0, 0, ',', ' ') }} F
-                                </td>
-                                <td class="px-5 py-3.5 font-body text-xs text-bimo-text/50">
-                                    {{ \App\Http\Controllers\PaiementController::MODES_PAIEMENT[$p->mode_paiement] ?? $p->mode_paiement }}
-                                </td>
-                                <td class="px-5 py-3.5 text-center">
-                                    <a href="{{ route('admin.paiements.pdf', $p) }}" target="_blank"
-                                       class="w-9 h-9 inline-flex items-center justify-center border border-bimo-navy/10 rounded-[6px]
-                                              text-bimo-text/40 hover:text-bimo-gold hover:border-bimo-gold/30 transition-all duration-150">
-                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="py-6 text-center text-[13.5px] text-muted">Aucun contrat en cours.</div>
                 @endif
             </div>
-
-            {{-- Description --}}
-            @if($bien->description)
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="flex items-center gap-3 px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="w-8 h-8 rounded-[8px] bg-bimo-navy/5 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-4 h-4 text-bimo-text/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    </div>
-                    <span class="font-display font-bold text-sm text-bimo-text">Description</span>
-                </div>
-                <div class="px-5 py-5">
-                    <p class="font-body text-sm text-bimo-text/70 leading-relaxed">{{ $bien->description }}</p>
-                </div>
-            </div>
-            @endif
-
-        </div>{{-- fin colonne gauche --}}
-
-        {{-- COLONNE DROITE --}}
-        <div class="lg:sticky lg:top-6 space-y-4">
-
-            {{-- Propriétaire --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="font-display font-bold text-sm text-bimo-text">Propriétaire</div>
-                </div>
-                <div class="px-5 py-4">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0
-                                    font-display font-bold text-sm" style="background: var(--ac); color: var(--ac-text)">
-                            {{ mb_strtoupper(mb_substr($bien->proprietaire?->name ?? 'P', 0, 2)) }}
-                        </div>
-                        <div>
-                            <div class="font-body font-semibold text-sm text-bimo-text">{{ $bien->proprietaire?->name ?? '—' }}</div>
-                            <div class="font-body text-xs text-bimo-text/50">{{ $bien->proprietaire?->email ?? '' }}</div>
-                        </div>
-                    </div>
-                    @if($bien->proprietaire?->telephone)
-                    <div class="flex items-center justify-between py-2 border-t border-bimo-navy/[5%]">
-                        <span class="font-body text-xs text-bimo-text/40">Téléphone</span>
-                        <span class="font-body text-xs text-bimo-text/70">{{ $bien->proprietaire->telephone }}</span>
-                    </div>
-                    @endif
-                    @if($bien->proprietaire)
-                    <a href="{{ route('admin.users.show', $bien->proprietaire) }}"
-                       class="flex items-center justify-center gap-2 mt-3 px-4 py-2.5
-                              border border-bimo-navy/15 rounded-[9px]
-                              font-body text-xs text-bimo-text/60 hover:text-bimo-text hover:border-bimo-navy/30
-                              transition-all duration-150">
-                        Voir le profil →
-                    </a>
-                    @endif
-                </div>
-            </div>
-
-            {{-- Récapitulatif --}}
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="font-display font-bold text-sm text-bimo-text">Récapitulatif</div>
-                </div>
-                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
-                    @php
-                        $sideRows = [
-                            ['Référence',   $bien->reference, 'font-display font-semibold text-xs text-bimo-text'],
-                            ['Loyer',        number_format($bien->loyer_mensuel, 0, ',', ' ') . ' F', 'text-bimo-gold font-semibold'],
-                            ['Commission',   ($bien->taux_commission ?? 10) . ' %', 'text-bimo-text/70'],
-                            ['Net proprio',  number_format($bien->loyer_mensuel * (1 - ($bien->taux_commission ?? 10) / 100 * 1.18), 0, ',', ' ') . ' F', 'text-bimo-text font-semibold'],
-                            ['Statut',       $bien->statut_label, 'text-bimo-text/70'],
-                            ['Surface',      $bien->surface_m2 ? $bien->surface_m2.' m²' : '—', 'text-bimo-text/70'],
-                            ['Pièces',       $bien->nombre_pieces ?? '—', 'text-bimo-text/70'],
-                            ['Meublé',       $bien->meuble ? 'Oui' : 'Non', 'text-bimo-text/70'],
-                            ['Ajouté le',    $bien->created_at?->format('d/m/Y') ?? '—', 'text-bimo-text/70'],
-                        ];
-                    @endphp
-                    @foreach($sideRows as [$lbl, $val, $valClass])
-                    <div class="flex items-center justify-between py-2.5">
-                        <span class="font-body text-xs text-bimo-text/40">{{ $lbl }}</span>
-                        <span class="font-body text-xs {{ $valClass }}">{{ $val }}</span>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- Historique contrats --}}
-            @if($bien->contrats->count() > 0)
-            <div class="bg-white rounded-[14px] border border-bimo-navy/10 overflow-hidden">
-                <div class="px-5 py-4 border-b border-bimo-navy/[5%] bg-bimo-bg2">
-                    <div class="font-display font-bold text-sm text-bimo-text">Historique contrats</div>
-                </div>
-                <div class="px-5 py-2 divide-y divide-bimo-navy/[5%]">
-                    @foreach($bien->contrats->take(5) as $c)
-                    <div class="py-3">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-body font-medium text-sm text-bimo-text">{{ $c->locataire?->name ?? '—' }}</span>
-                            <span class="font-body text-[10px] font-semibold
-                                         {{ $c->statut === 'actif' ? 'text-bimo-gold' : ($c->statut === 'resilié' ? 'text-bimo-red' : 'text-bimo-text/40') }}">
-                                {{ \App\Models\Contrat::STATUTS[$c->statut] ?? $c->statut }}
-                            </span>
-                        </div>
-                        <div class="font-body text-xs text-bimo-text/40 mb-1">
-                            {{ $c->date_debut?->format('d/m/Y') }} → {{ $c->date_fin?->format('d/m/Y') ?? 'En cours' }}
-                        </div>
-                        <a href="{{ route('admin.contrats.show', $c) }}"
-                           class="font-body text-xs text-bimo-gold hover:text-bimo-text transition-colors duration-150">
-                            Voir →
-                        </a>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
         </div>
 
+        {{-- Documents / photos --}}
+        <div class="f-card">
+            <h3 class="f-card-title mb-1">Documents & photos</h3>
+            <p class="f-card-sub">Titre foncier, photos, état des lieux…</p>
+            @if($bien->photos->isNotEmpty())
+                <div class="grid grid-cols-3 gap-2">
+                    @foreach($bien->photos->take(6) as $photo)
+                        <div class="aspect-square rounded-lg bg-paper-dim border border-line flex items-center justify-center text-[11px] text-muted overflow-hidden">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($photo->chemin) }}" alt="" class="w-full h-full object-cover">
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-6 text-[13px] text-muted border-[1.5px] border-dashed border-line rounded-[10px]">Aucun document ajouté</div>
+            @endif
+        </div>
     </div>
-
 </div>
-
-@push('scripts')
-<script>
-function changerPhoto(url, thumb) {
-    document.getElementById('photo-principale').src = url;
-    document.querySelectorAll('[onclick*="changerPhoto"]').forEach(t => {
-        t.className = t.className.replace('border-bimo-gold', 'border-transparent');
-    });
-    thumb.className = thumb.className.replace('border-transparent', 'border-bimo-gold').replace('hover:border-bimo-gold/50', '');
-}
-</script>
-@endpush
-
 @endsection

@@ -1,4 +1,2 @@
-import axios from 'axios';
-window.axios = axios;
-
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+// Point d'entrée conservé pour évolutions futures.
+// axios retiré : les composants Alpine utilisent fetch() natif (bundle plus léger).

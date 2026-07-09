@@ -1,7 +1,5 @@
-import './bootstrap';
-
 import Alpine from '@alpinejs/csp';
-import registerComponents from './alpine-components';
+import { registerComponents } from './alpine-components';
 
 window.Alpine = Alpine;
 
