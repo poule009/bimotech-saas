@@ -112,7 +112,10 @@
             <div class="bg-white border border-line rounded-xl p-5">
                 <div class="text-[12px] text-muted font-bold mb-2">Revenu ce mois</div>
                 <div class="font-display font-semibold text-[24px] text-green">{{ $fmt($revenuAgence) }} <span class="text-[14px] font-body text-muted">F</span></div>
-                <div class="text-[11.5px] text-muted mt-1">Commissions encaissées</div>
+                <div class="text-[11.5px] text-muted mt-1">Commissions {{ $agenceAssujettieTva ? 'HT' : 'encaissées' }}</div>
+                @if($agenceAssujettieTva && $tvaCollectee > 0)
+                    <div class="text-[11px] text-amber mt-1.5 pt-1.5 border-t border-paper-dim">+ {{ $fmt($tvaCollectee) }} F TVA collectée <span class="text-muted">(à reverser à la DGID)</span></div>
+                @endif
             </div>
             <div class="bg-white border border-line rounded-xl p-5">
                 <div class="text-[12px] text-muted font-bold mb-2">Dépenses ce mois</div>
@@ -263,11 +266,21 @@
             <h3 class="font-display font-semibold text-[19px] mb-2">Contrôle de caisse</h3>
             <p class="text-[13.5px] text-muted mb-7 max-w-[420px] mx-auto">Comparez l'argent des tiers que vous devez détenir au solde réel de votre compte de gestion.</p>
 
-            <div class="flex justify-center gap-10 mb-7">
-                <div>
-                    <div class="text-[11px] uppercase tracking-wide text-muted font-bold mb-1.5">Solde théorique</div>
-                    <div class="font-display font-semibold text-[22px]">{{ $fmt($soldeTheorique) }} F</div>
-                    <div class="text-[11px] text-muted mt-1">Somme des soldes propriétaires</div>
+            {{-- Décomposition transparente du solde théorique --}}
+            <div class="max-w-[380px] mx-auto mb-7 text-left bg-paper rounded-xl border border-line p-4">
+                <div class="flex items-center justify-between py-1.5">
+                    <span class="text-[13px] text-muted">Dû aux propriétaires</span>
+                    <span class="text-[14px] font-bold text-green">{{ $fmt($duProprietaires) }} F</span>
+                </div>
+                @if($avancesAgence > 0)
+                    <div class="flex items-center justify-between py-1.5 border-t border-paper-dim">
+                        <span class="text-[13px] text-muted">Avances de l'agence <span class="text-[11px]">(à récupérer)</span></span>
+                        <span class="text-[14px] font-bold text-gold">− {{ $fmt($avancesAgence) }} F</span>
+                    </div>
+                @endif
+                <div class="flex items-center justify-between py-2 mt-1 border-t-2 border-ink">
+                    <span class="text-[13.5px] font-bold">Solde théorique à détenir</span>
+                    <span class="font-display font-semibold text-[18px]">{{ $fmt($soldeTheorique) }} F</span>
                 </div>
             </div>
 

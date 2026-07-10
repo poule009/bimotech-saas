@@ -93,7 +93,11 @@ class ComptabiliteController extends Controller implements HasMiddleware
             ->orderByDesc('date_charge')
             ->get();
 
-        $revenuAgence   = (float) $resultat['commissions_ttc'];
+        // Revenu = commission HT (la TVA collectée est due à la DGID, pas un revenu).
+        // Pour une agence non assujettie, HT == TTC → aucun changement visible.
+        $revenuAgence   = (float) $resultat['commissions_ht'];
+        $tvaCollectee   = (float) $resultat['tva_commissions'];
+        $agenceAssujettieTva = (bool) (Auth::user()->agency->assujetti_tva ?? false);
         $depensesAgence = (float) ($chargesFixes->sum('montant') + $chargesOccasionnelles->sum('montant'));
         $beneficeNet    = $revenuAgence - $depensesAgence;
 
@@ -106,16 +110,20 @@ class ComptabiliteController extends Controller implements HasMiddleware
             ->pluck('libelle')->unique()->diff($fixesDejaCeMois)->count();
 
         // ── Onglet Vérification : argent des tiers détenu ──
-        $soldeTheorique = (float) $soldes->sum('solde');
+        // Transparence : on distingue ce qui est dû aux propriétaires (soldes
+        // positifs) des avances faites par l'agence (soldes négatifs).
+        $duProprietaires = (float) $soldes->where('solde', '>', 0)->sum('solde');
+        $avancesAgence   = (float) abs($soldes->where('solde', '<', 0)->sum('solde'));
+        $soldeTheorique  = $duProprietaires - $avancesAgence; // net (= somme algébrique)
 
         $categoriesAgence = ChargeAgence::CATEGORIES;
 
         return view('admin.comptabilite.index', compact(
             'annee', 'mois', 'periode', 'q',
             'lignesProprietaires',
-            'resultat', 'revenuAgence', 'depensesAgence', 'beneficeNet',
+            'resultat', 'revenuAgence', 'tvaCollectee', 'agenceAssujettieTva', 'depensesAgence', 'beneficeNet',
             'chargesFixes', 'chargesOccasionnelles', 'modelesReportables',
-            'soldeTheorique',
+            'soldeTheorique', 'duProprietaires', 'avancesAgence',
             'categoriesAgence'
         ));
     }
