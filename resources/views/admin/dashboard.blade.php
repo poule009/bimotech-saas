@@ -74,7 +74,7 @@
         {{-- Revenus --}}
         <div class="bg-white border border-line rounded-xl p-5">
             <div class="flex items-center justify-between mb-3.5">
-                <span class="text-[12px] text-muted font-semibold">Revenus — {{ $periodeLabel }}</span>
+                <span class="text-[12px] text-muted font-semibold">Loyers encaissés — {{ $periodeLabel }}</span>
                 <span class="w-[30px] h-[30px] rounded-lg bg-green/10 text-green flex items-center justify-center">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
                 </span>

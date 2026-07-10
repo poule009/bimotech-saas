@@ -224,6 +224,22 @@ class ContratController extends Controller implements HasMiddleware
             return $contrat;
         });
 
+        // ── Génère tout de suite la quittance du mois courant ───────────────
+        // Pour que la ligne existe immédiatement (Quittances = Dashboard), sans
+        // attendre le prochain rent:generate. On ne génère que si le bail a déjà
+        // commencé ce mois-ci. N'échoue jamais la création du contrat.
+        if ($contrat->date_debut && \Carbon\Carbon::parse($contrat->date_debut)->lte(now()->endOfMonth())) {
+            try {
+                app(\App\Services\QuittanceGenerator::class)
+                    ->genererPourContrat($contrat, now()->startOfMonth(), 'création contrat');
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Quittance non générée à la création du contrat', [
+                    'contrat_id' => $contrat->id,
+                    'error'      => $e->getMessage(),
+                ]);
+            }
+        }
+
         return redirect()
             ->route('admin.contrats.show', $contrat)
             ->with('success', "Contrat {$contrat->reference_bail} créé ✓");

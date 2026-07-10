@@ -17,6 +17,7 @@ class ChargeAgence extends Model
         'libelle',
         'montant',
         'categorie',
+        'recurrente',
         'date_charge',
         'periode',
         'prestataire',
@@ -26,6 +27,7 @@ class ChargeAgence extends Model
 
     protected $casts = [
         'montant'     => 'decimal:2',
+        'recurrente'  => 'boolean',
         'date_charge' => 'date',
     ];
 

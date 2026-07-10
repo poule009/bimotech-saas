@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bien;
 use App\Models\ChargeAgence;
-use App\Models\DepenseGestion;
 use App\Models\Paiement;
-use App\Models\ReversementProprietaire;
 use App\Models\User;
 use App\Services\ComptabiliteService;
 use Illuminate\Http\Request;
@@ -27,8 +26,9 @@ class ComptabiliteController extends Controller implements HasMiddleware
     }
 
     /**
-     * Module Comptabilité — page unique à 3 onglets (Vue d'ensemble / Propriétaires / Agence).
-     * Réutilise ComptabiliteService : aucun calcul fiscal ici.
+     * Module Comptabilité — page unique à 3 onglets :
+     *   Propriétaires (soldes en cours) · Agence (résultat) · Vérification.
+     * Réutilise ComptabiliteService : aucun calcul dupliqué ici.
      */
     public function index(Request $request): View
     {
@@ -36,105 +36,87 @@ class ComptabiliteController extends Controller implements HasMiddleware
         $annee    = (int) $request->get('annee', now()->year);
         $mois     = (int) $request->get('mois', now()->month);
         $periode  = sprintf('%04d-%02d', $annee, $mois);
+        $q        = trim((string) $request->get('q'));
 
-        // ── Vue d'ensemble : trésorerie + résultat du mois ──
-        $tresorerie = $this->comptabiliteService->tresorerie($agencyId, $annee, $mois);
-        $resultat   = $this->comptabiliteService->compteResultat($agencyId, $annee, $mois);
+        // ── Onglet Propriétaires : solde EN COURS (running, pas mensuel) ──
+        $soldes       = $this->comptabiliteService->soldesMandants($agencyId);
+        $soldesByProp = $soldes->keyBy('proprietaire_id');
 
-        // ── Onglet Propriétaires : une ligne par propriétaire actif ce mois ──
-        $proprioActifsIds = Paiement::withoutGlobalScopes()
+        $loyersMois = Paiement::withoutGlobalScopes()
             ->where('agency_id', $agencyId)
             ->where('statut', 'valide')
             ->whereYear('date_paiement', $annee)
             ->whereMonth('date_paiement', $mois)
+            ->whereHas('contrat.bien')
             ->with('contrat.bien:id,proprietaire_id')
             ->get()
-            ->pluck('contrat.bien.proprietaire_id')
+            ->groupBy(fn($p) => $p->contrat?->bien?->proprietaire_id)
+            ->map(fn($g) => (float) $g->sum('montant_encaisse'));
+
+        $nbBiens = Bien::where('agency_id', $agencyId)
+            ->whereNotNull('proprietaire_id')
+            ->selectRaw('proprietaire_id, COUNT(*) as n')
+            ->groupBy('proprietaire_id')
+            ->pluck('n', 'proprietaire_id');
+
+        $proprioIds = $soldesByProp->keys()
+            ->merge($loyersMois->keys())
             ->filter()
             ->unique();
 
-        $proprietaires = User::whereIn('id', $proprioActifsIds)
-            ->where('agency_id', $agencyId)
+        $proprietaires = User::where('agency_id', $agencyId)
+            ->where('role', 'proprietaire')
+            ->whereIn('id', $proprioIds)
+            ->when($q !== '', fn ($query) => $query->where('name', 'like', '%' . $q . '%'))
             ->orderBy('name')
             ->get();
 
-        $lignesProprietaires = $proprietaires->map(function (User $prop) use ($agencyId, $periode) {
-            return [
-                'proprietaire' => $prop,
-                'compte'       => $this->comptabiliteService->compteMandant($agencyId, $prop->id, $periode),
-            ];
-        });
+        $lignesProprietaires = $proprietaires->map(fn(User $u) => [
+            'proprietaire' => $u,
+            'nb_biens'     => (int) ($nbBiens[$u->id] ?? 0),
+            'loyers_mois'  => (float) ($loyersMois[$u->id] ?? 0),
+            'solde'        => (float) ($soldesByProp[$u->id]['solde'] ?? 0),
+        ])->sortByDesc('solde')->values();
 
-        $proprietairesAPayer = $lignesProprietaires->filter(fn($l) => $l['compte']['solde_restant'] > 0);
-        $totalAPayer         = (float) $proprietairesAPayer->sum(fn($l) => $l['compte']['solde_restant']);
+        // ── Onglet Agence : résultat du mois ──
+        $resultat = $this->comptabiliteService->compteResultat($agencyId, $annee, $mois);
 
-        // ── Onglet Agence : dépenses de l'agence du mois ──
-        $chargesAgence = ChargeAgence::where('agency_id', $agencyId)
+        $chargesFixes = ChargeAgence::where('agency_id', $agencyId)
             ->where('periode', $periode)
+            ->where('recurrente', true)
             ->orderByDesc('date_charge')
             ->get();
 
-        $pourcentageGarde = $resultat['revenus_total_ht'] > 0
-            ? (int) round($resultat['resultat_net'] / $resultat['revenus_total_ht'] * 100)
-            : 0;
+        $chargesOccasionnelles = ChargeAgence::where('agency_id', $agencyId)
+            ->where('periode', $periode)
+            ->where('recurrente', false)
+            ->orderByDesc('date_charge')
+            ->get();
 
-        // ── Vue d'ensemble : dernières opérations (loyers reçus + dépenses agence) ──
-        $derniersPaiements = Paiement::withoutGlobalScopes()
-            ->where('agency_id', $agencyId)
-            ->where('statut', 'valide')
-            ->whereYear('date_paiement', $annee)
-            ->whereMonth('date_paiement', $mois)
-            ->with('contrat.bien:id,titre,reference')
-            ->orderByDesc('date_paiement')
-            ->limit(8)
-            ->get()
-            ->map(fn(Paiement $p) => [
-                'date'    => $p->date_paiement,
-                'libelle' => $p->contrat?->bien?->titre ?: ('Bien ' . ($p->contrat?->bien?->reference ?? '')),
-                'type'    => 'Loyer reçu',
-                'montant' => (float) $p->montant_encaisse,
-                'sens'    => 'in',
-            ]);
+        $revenuAgence   = (float) $resultat['commissions_ttc'];
+        $depensesAgence = (float) ($chargesFixes->sum('montant') + $chargesOccasionnelles->sum('montant'));
+        $beneficeNet    = $revenuAgence - $depensesAgence;
 
-        $dernieresOperations = $chargesAgence->map(fn(ChargeAgence $c) => [
-                'date'    => $c->date_charge,
-                'libelle' => $c->libelle,
-                'type'    => 'Dépense agence',
-                'montant' => (float) $c->montant,
-                'sens'    => 'out',
-            ])
-            ->concat($derniersPaiements)
-            ->sortByDesc('date')
-            ->take(8)
-            ->values();
+        // Y a-t-il des charges fixes reportables (modèles absents du mois courant) ?
+        $moisCourant       = now()->format('Y-m');
+        $fixesDejaCeMois   = ChargeAgence::where('agency_id', $agencyId)
+            ->where('periode', $moisCourant)->where('recurrente', true)->pluck('libelle')->all();
+        $modelesReportables = ChargeAgence::where('agency_id', $agencyId)
+            ->where('recurrente', true)->where('periode', '<', $moisCourant)
+            ->pluck('libelle')->unique()->diff($fixesDejaCeMois)->count();
 
-        // ── Formulaire « ajouter une dépense » : paiements imputables à un propriétaire ──
-        $paiementsImputables = Paiement::withoutGlobalScopes()
-            ->where('agency_id', $agencyId)
-            ->where('statut', 'valide')
-            ->whereYear('date_paiement', $annee)
-            ->whereMonth('date_paiement', $mois)
-            ->with(['contrat.bien:id,titre,reference,proprietaire_id', 'contrat.bien.proprietaire:id,name'])
-            ->orderByDesc('date_paiement')
-            ->get()
-            ->map(fn(Paiement $p) => [
-                'id'    => $p->id,
-                'label' => ($p->contrat?->bien?->proprietaire?->name ?? 'Propriétaire')
-                            . ' — ' . ($p->contrat?->bien?->titre ?: ('Bien ' . ($p->contrat?->bien?->reference ?? '')))
-                            . ' (' . optional($p->date_paiement)->format('d/m/Y') . ')',
-            ]);
+        // ── Onglet Vérification : argent des tiers détenu ──
+        $soldeTheorique = (float) $soldes->sum('solde');
 
-        $categoriesAgence  = ChargeAgence::CATEGORIES;
-        $categoriesProprio = DepenseGestion::CATEGORIES;
-        $modesPaiement     = ReversementProprietaire::MODES_PAIEMENT;
+        $categoriesAgence = ChargeAgence::CATEGORIES;
 
         return view('admin.comptabilite.index', compact(
-            'annee', 'mois', 'periode',
-            'tresorerie', 'resultat',
-            'lignesProprietaires', 'proprietairesAPayer', 'totalAPayer',
-            'chargesAgence', 'pourcentageGarde',
-            'dernieresOperations',
-            'paiementsImputables', 'categoriesAgence', 'categoriesProprio', 'modesPaiement'
+            'annee', 'mois', 'periode', 'q',
+            'lignesProprietaires',
+            'resultat', 'revenuAgence', 'depensesAgence', 'beneficeNet',
+            'chargesFixes', 'chargesOccasionnelles', 'modelesReportables',
+            'soldeTheorique',
+            'categoriesAgence'
         ));
     }
 }

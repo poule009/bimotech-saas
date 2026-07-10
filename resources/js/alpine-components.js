@@ -265,6 +265,61 @@ export function registerComponents(Alpine) {
         toggle() { this.open = !this.open; },
     }));
 
+    // Module Comptabilité — onglets principaux (Propriétaires / Agence / Vérification).
+    Alpine.data('comptaTabs', () => ({
+        tab: 'proprietaires',
+        init() { if (this.$el.dataset.tab) { this.tab = this.$el.dataset.tab; } },
+        _cls(name) { return this.tab === name ? 'text-teal border-teal' : 'text-muted border-transparent'; },
+        get isProprietaires() { return this.tab === 'proprietaires'; },
+        get isAgence() { return this.tab === 'agence'; },
+        get isVerification() { return this.tab === 'verification'; },
+        get proprietairesTabClass() { return this._cls('proprietaires'); },
+        get agenceTabClass() { return this._cls('agence'); },
+        get verificationTabClass() { return this._cls('verification'); },
+        showProprietaires() { this.tab = 'proprietaires'; },
+        showAgence() { this.tab = 'agence'; },
+        showVerification() { this.tab = 'verification'; },
+    }));
+
+    // Vérification : compare le solde théorique (argent des tiers) au montant réel saisi.
+    Alpine.data('verification', () => ({
+        theorique: 0,
+        reel: '',
+        init() { this.theorique = parseFloat(this.$el.dataset.theorique || '0') || 0; },
+        get reelNum() {
+            const n = parseFloat(String(this.reel).replace(/\s/g, '').replace(',', '.'));
+            return isNaN(n) ? null : n;
+        },
+        get checked() { return this.reelNum !== null && String(this.reel).trim() !== ''; },
+        get ecart() { return this.reelNum === null ? 0 : (this.reelNum - this.theorique); },
+        get equilibre() { return this.checked && Math.abs(this.ecart) < 1; },
+        get ecartAbs() {
+            const v = Math.abs(this.ecart);
+            return v.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' F';
+        },
+        get manquant() { return this.ecart < 0; },
+        get showResult() { return this.checked; },
+        get showOk() { return this.checked && this.equilibre; },
+        get showEcart() { return this.checked && !this.equilibre; },
+        get ecartLabel() { return this.manquant ? 'Manque sur le compte' : 'Excédent sur le compte'; },
+    }));
+
+    // Formulaire « ajouter une dépense » propriétaire : fourche liée-à-un-bien / directe.
+    Alpine.data('depenseProprioForm', () => ({
+        open: false,
+        type: 'bien',
+        get show() { return this.open; },
+        get isBien() { return this.type === 'bien'; },
+        get isDirect() { return this.type === 'direct'; },
+        get typeValue() { return this.type; },
+        get bienTabClass() { return this.type === 'bien' ? 'bg-teal text-paper' : 'text-muted'; },
+        get directTabClass() { return this.type === 'direct' ? 'bg-teal text-paper' : 'text-muted'; },
+        toggle() { this.open = !this.open; },
+        close() { this.open = false; },
+        setBien() { this.type = 'bien'; },
+        setDirect() { this.type = 'direct'; },
+    }));
+
     // Bascule d'affichage grille / liste (module Biens).
     Alpine.data('viewToggle', () => ({
         mode: 'grid',

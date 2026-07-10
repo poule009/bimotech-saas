@@ -3,9 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Contrat;
-use App\Models\Paiement;
-use App\Services\FiscalService;
-use App\Services\FiscalContext;
+use App\Services\QuittanceGenerator;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -48,70 +46,24 @@ class GenerateMonthlyRent extends Command
         // Traite 100 contrats à la fois, libère la mémoire entre chaque lot.
         // Évite les OOM sur les grosses agences (500+ contrats).
         // Les eager loads couvrent tous les champs nécessaires au FiscalService.
+        $generator = app(QuittanceGenerator::class);
+
         Contrat::where('statut', 'actif')
-            ->with([
-                'bien:id,agency_id,proprietaire_id,taux_commission,meuble,type',
-                'locataire:id,name',
-                'locataire.locataire:user_id,est_entreprise,taux_brs_override',
-            ])
+            ->with(QuittanceGenerator::RELATIONS)
             ->chunk(100, function ($contrats) use (
-                $periode, &$created, &$skipped, &$errors
+                $periode, $generator, &$created, &$skipped, &$errors
             ) {
                 foreach ($contrats as $contrat) {
                     try {
-                        // ── Vérification doublon ──────────────────────────
-                        $existe = Paiement::where('contrat_id', $contrat->id)
-                            ->whereYear('periode', $periode->year)
-                            ->whereMonth('periode', $periode->month)
-                            ->where('statut', '!=', 'annule')
-                            ->exists();
+                        $paiement = $generator->genererPourContrat($contrat, $periode, 'rent:generate');
 
-                        if ($existe) {
+                        if ($paiement === null) {
                             $skipped++;
                             continue;
                         }
 
-                        // ── Calcul fiscal via FiscalService ───────────────
-                        $ctx = FiscalContext::fromContrat($contrat);
-                        $result = FiscalService::calculer($ctx);
-
-                        Paiement::create([
-                            'agency_id'                    => $contrat->agency_id,
-                            'contrat_id'                   => $contrat->id,
-                            'periode'                      => $periode->toDateString(),
-                            // Ventilation loyer
-                            'loyer_ht'                     => $result->loyerHt,
-                            'tva_loyer'                    => $result->tvaLoyer,
-                            'loyer_ttc'                    => $result->loyerTtc,
-                            'loyer_nu'                     => $result->loyerHt,  // alias rétro-compat
-                            'charges_amount'               => $result->chargesAmount,
-                            'tom_amount'                   => $result->tomAmount,
-                            'montant_encaisse'             => $result->montantEncaisse,
-                            // Commission
-                            'mode_paiement'                => 'virement',
-                            'taux_commission_applique'     => $ctx->tauxCommission,
-                            'commission_agence'            => $result->commissionHt,
-                            'tva_commission'               => $result->tvaCommission,
-                            'commission_ttc'               => $result->commissionTtc,
-                            // Nets
-                            'net_proprietaire'             => $result->netProprietaire,
-                            'brs_amount'                   => $result->brsAmount,
-                            'taux_brs_applique'            => $result->tauxBrsApplique,
-                            'net_a_verser_proprietaire'    => $result->netAVerserProprietaire,
-                            // Snapshot fiscal
-                            'regime_fiscal_snapshot'       => json_encode($result->toArray()),
-                            // Divers
-                            'reference_bail'               => $contrat->reference_bail_affichee,
-                            'caution_percue'               => 0,
-                            'est_premier_paiement'         => false,
-                            'date_paiement'                => $periode->toDateString(),
-                            'reference_paiement'           => null,
-                            'statut'                       => 'unpaid',
-                            'notes'                        => 'Généré par rent:generate le ' . now()->format('d/m/Y H:i'),
-                        ]);
-
                         $created++;
-                        $this->line("  ✅ Contrat #{$contrat->id} — {$result->montantEncaisse} FCFA");
+                        $this->line("  ✅ Contrat #{$contrat->id} — {$paiement->montant_encaisse} FCFA");
 
                     } catch (\Throwable $e) {
                         $errors++;

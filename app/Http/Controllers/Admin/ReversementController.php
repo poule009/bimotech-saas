@@ -54,9 +54,10 @@ class ReversementController extends Controller implements HasMiddleware
     {
         ReversementProprietaire::create($request->validated());
 
+        // Retour sur la fiche du propriétaire (solde à jour) plutôt que la liste.
         return redirect()
-            ->route('admin.comptabilite.index')
-            ->with('success', 'Reversement enregistré avec succès.');
+            ->route('admin.reversements.compte-mandant', $request->integer('proprietaire_id'))
+            ->with('success', 'Reversement enregistré ✓ — solde mis à jour.');
     }
 
     public function compteMandant(Request $request, User $proprietaire): View
@@ -66,7 +67,10 @@ class ReversementController extends Controller implements HasMiddleware
         abort_unless($proprietaire->agency_id === $agencyId && $proprietaire->role === 'proprietaire', 404);
 
         $periode = $request->get('periode');
-        $compte  = $this->comptabiliteService->compteMandant($agencyId, $proprietaire->id, $periode);
+        // Solde EN COURS (running) pour le bandeau + le reversement ; le détail des
+        // opérations reste filtrable par période.
+        $compteGlobal = $this->comptabiliteService->compteMandant($agencyId, $proprietaire->id);
+        $compte       = $this->comptabiliteService->compteMandant($agencyId, $proprietaire->id, $periode);
 
         $reversements = ReversementProprietaire::where('proprietaire_id', $proprietaire->id)
             ->orderByDesc('date_reversement')
@@ -81,8 +85,26 @@ class ReversementController extends Controller implements HasMiddleware
             ->orderByDesc('periode')
             ->pluck('periode');
 
+        // Dépenses directes (sans bien) — non portées par un paiement
+        $depensesDirectes = \App\Models\DepenseGestion::where('agency_id', $agencyId)
+            ->whereNull('paiement_id')
+            ->where('proprietaire_id', $proprietaire->id)
+            ->orderByDesc('date_depense')
+            ->get();
+
+        // Biens du propriétaire ayant au moins un loyer encaissé (imputables)
+        $biensImputables = \App\Models\Bien::where('agency_id', $agencyId)
+            ->where('proprietaire_id', $proprietaire->id)
+            ->whereHas('contrats.paiements', fn($q) => $q->where('statut', 'valide'))
+            ->orderBy('titre')
+            ->get(['id', 'titre', 'reference']);
+
+        $categoriesProprio = \App\Models\DepenseGestion::CATEGORIES;
+        $modesPaiement     = ReversementProprietaire::MODES_PAIEMENT;
+
         return view('admin.reversements.compte-mandant', compact(
-            'proprietaire', 'compte', 'reversements', 'periodes', 'periode'
+            'proprietaire', 'compte', 'compteGlobal', 'reversements', 'periodes', 'periode',
+            'depensesDirectes', 'biensImputables', 'categoriesProprio', 'modesPaiement'
         ));
     }
 

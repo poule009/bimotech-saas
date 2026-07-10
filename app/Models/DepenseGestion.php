@@ -38,6 +38,7 @@ class DepenseGestion extends Model
     protected $fillable = [
         'agency_id',
         'paiement_id',
+        'proprietaire_id',
         'libelle',
         'montant',
         'categorie',
@@ -90,10 +91,26 @@ class DepenseGestion extends Model
         return $this->belongsTo(Paiement::class);
     }
 
+    /**
+     * Propriétaire visé quand la dépense est « directe » (sans bien/paiement).
+     */
+    public function proprietaire(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'proprietaire_id');
+    }
+
     // ── Accesseurs ───────────────────────────────────────────────────────────
 
     public function getCategorieLibelleAttribute(): string
     {
         return self::CATEGORIES[$this->categorie] ?? ucfirst($this->categorie);
+    }
+
+    /**
+     * Dépense « directe » = rattachée au propriétaire sans bien ni paiement.
+     */
+    public function getEstDirecteAttribute(): bool
+    {
+        return $this->paiement_id === null && $this->proprietaire_id !== null;
     }
 }

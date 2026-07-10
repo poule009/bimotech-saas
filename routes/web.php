@@ -261,7 +261,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Enregistrement d'une dépense agence (formulaire intégré au module Comptabilité)
         Route::resource('charges-agence', ChargeAgenceController::class)
             ->middleware('check.feature:comptabilite')
-            ->only(['store']);
+            ->only(['store', 'destroy']);
+
+        // Reporter toutes les charges fixes sur le mois courant (un clic, pas de ressaisie)
+        Route::post('charges-agence/reporter', [ChargeAgenceController::class, 'reporter'])
+            ->middleware('check.feature:comptabilite')
+            ->name('charges-agence.reporter');
 
         Route::prefix('reversements')->name('reversements.')->middleware('check.feature:comptabilite')->group(function () {
             Route::get('create',                                  [ReversementController::class, 'create'])->name('create');
@@ -315,9 +320,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'throttle:10,1']);
         Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'throttle:10,1']);
 
-        // Dépenses de gestion (rattachées à un paiement)
-        Route::post('paiements/{paiement}/depenses',                   [DepenseGestionController::class, 'store'])->name('paiements.depenses.store');
-        Route::delete('paiements/{paiement}/depenses/{depense}',       [DepenseGestionController::class, 'destroy'])->name('paiements.depenses.destroy');
+        // Dépenses de gestion (avancées pour le compte d'un propriétaire)
+        Route::post('comptabilite/proprietaires/{proprietaire}/depenses', [DepenseGestionController::class, 'storeForProprietaire'])->name('comptabilite.depenses.store')->middleware('check.feature:comptabilite');
+        Route::delete('comptabilite/depenses/{depense}',                  [DepenseGestionController::class, 'destroyDepense'])->name('comptabilite.depenses.destroy')->middleware('check.feature:comptabilite');
 
         // Export CSV paiements
         Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv')->middleware(['check.feature:export_csv', 'throttle:10,1']);

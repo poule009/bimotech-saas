@@ -136,8 +136,26 @@ class ComptabiliteService
         $loyersEncaisses    = $paiements->sum('montant_encaisse');
         $commissionsDeduites= $paiements->sum('commission_ttc');
         $brsRetenu          = $paiements->sum('brs_amount');
-        $depensesAvancees   = $paiements->sum(fn($p) => $p->depenses->sum('montant'));
-        $netDu              = $paiements->sum('net_final_bailleur');
+        $depensesLieesBien  = $paiements->sum(fn($p) => $p->depenses->sum('montant'));
+        $netDuBase          = $paiements->sum('net_final_bailleur');
+
+        // ── Dépenses « directes » : rattachées au propriétaire sans bien/paiement ──
+        // Non incluses dans net_final_bailleur (aucun paiement) → déduites ici.
+        $depensesDirectesQuery = \App\Models\DepenseGestion::withoutGlobalScopes()
+            ->where('agency_id', $agencyId)
+            ->whereNull('paiement_id')
+            ->where('proprietaire_id', $proprietaireId);
+
+        if ($periode) {
+            [$pAnnee, $pMois] = explode('-', $periode);
+            $depensesDirectesQuery->whereYear('date_depense', $pAnnee)
+                                  ->whereMonth('date_depense', $pMois);
+        }
+
+        $depensesDirectes = (float) $depensesDirectesQuery->sum('montant');
+
+        $depensesAvancees = (float) $depensesLieesBien + $depensesDirectes;
+        $netDu            = (float) $netDuBase - $depensesDirectes;
 
         $reversementsQuery = ReversementProprietaire::withoutGlobalScopes()
             ->where('agency_id', $agencyId)
@@ -224,7 +242,8 @@ class ComptabiliteService
             SELECT
                 b.proprietaire_id,
                 COALESCE(SUM(p.montant_net_bailleur), 0)
-                    - COALESCE(MAX(dep.total_depenses), 0)   AS net_du,
+                    - COALESCE(MAX(dep.total_depenses), 0)
+                    - COALESCE(MAX(depd.total_directes), 0)  AS net_du,
                 COALESCE(MAX(rev.total_reverse), 0)           AS reverse_effectue
             FROM paiements p
             JOIN contrats c ON c.id = p.contrat_id
@@ -239,6 +258,12 @@ class ComptabiliteService
                 GROUP BY b2.proprietaire_id
             ) dep ON dep.proprietaire_id = b.proprietaire_id
             LEFT JOIN (
+                SELECT proprietaire_id, SUM(montant) AS total_directes
+                FROM depenses_gestion
+                WHERE agency_id = ? AND paiement_id IS NULL AND proprietaire_id IS NOT NULL
+                GROUP BY proprietaire_id
+            ) depd ON depd.proprietaire_id = b.proprietaire_id
+            LEFT JOIN (
                 SELECT proprietaire_id, SUM(montant) AS total_reverse
                 FROM reversements_proprietaires
                 WHERE agency_id = ?
@@ -246,7 +271,7 @@ class ComptabiliteService
             ) rev ON rev.proprietaire_id = b.proprietaire_id
             WHERE p.agency_id = ? AND p.statut = 'valide'
             GROUP BY b.proprietaire_id
-        ", [$agencyId, $agencyId, $agencyId]);
+        ", [$agencyId, $agencyId, $agencyId, $agencyId]);
 
         return collect($rows)
             ->map(fn($r) => [

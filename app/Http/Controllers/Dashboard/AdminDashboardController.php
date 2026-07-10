@@ -81,34 +81,37 @@ class AdminDashboardController extends Controller
                 ')
                 ->first();
 
-            $compteurs = DB::selectOne("
-                SELECT
-                    (SELECT COUNT(*) FROM biens    WHERE agency_id = ? AND deleted_at IS NULL)                     AS nb_biens,
-                    (SELECT COUNT(*) FROM biens    WHERE agency_id = ? AND statut = 'loue' AND deleted_at IS NULL) AS nb_biens_loues,
-                    (SELECT COUNT(*) FROM contrats WHERE agency_id = ? AND statut = 'actif')                       AS nb_contrats,
-                    (SELECT COUNT(*) FROM users    WHERE agency_id = ? AND role = 'proprietaire')                  AS nb_proprietaires,
-                    (SELECT COUNT(*) FROM users    WHERE agency_id = ? AND role = 'locataire')                     AS nb_locataires
-            ", array_fill(0, 5, $agencyId));
-
-            $nbBiens     = (int) ($compteurs->nb_biens      ?? 0);
-            $nbBiensLoues = (int) ($compteurs->nb_biens_loues ?? 0);
-
             return [
                 'total_loyers'         => (float) ($statsRaw->total_loyers        ?? 0),
                 'total_commissions'    => (float) ($statsRaw->total_commissions    ?? 0),
                 'total_tva'            => (float) ($statsRaw->total_tva            ?? 0),
                 'total_commission_ttc' => (float) ($statsRaw->total_commission_ttc ?? 0),
                 'total_net_proprio'    => (float) ($statsRaw->total_net_proprio    ?? 0),
-                'nb_biens'             => $nbBiens,
-                'nb_biens_loues'       => $nbBiensLoues,
-                'nb_contrats'          => (int) ($compteurs->nb_contrats           ?? 0),
-                'nb_proprietaires'     => (int) ($compteurs->nb_proprietaires      ?? 0),
-                'nb_locataires'        => (int) ($compteurs->nb_locataires         ?? 0),
-                'taux_occupation'      => $nbBiens > 0
-                    ? round(($nbBiensLoues / $nbBiens) * 100, 1)
-                    : 0,
             ];
         });
+
+        // ── Compteurs EN DIRECT (hors cache) ─────────────────────────────────
+        // Ces nombres changent à chaque contrat créé/résilié. Les garder dans le
+        // cache 30 min provoquait l'incohérence « Biens loués » (KPI caché) vs le
+        // donut d'occupation (calculé en direct). On ne cache que les grosses sommes.
+        $compteurs = DB::selectOne("
+            SELECT
+                (SELECT COUNT(*) FROM biens    WHERE agency_id = ? AND deleted_at IS NULL)                     AS nb_biens,
+                (SELECT COUNT(*) FROM biens    WHERE agency_id = ? AND statut = 'loue' AND deleted_at IS NULL) AS nb_biens_loues,
+                (SELECT COUNT(*) FROM contrats WHERE agency_id = ? AND statut = 'actif')                       AS nb_contrats,
+                (SELECT COUNT(*) FROM users    WHERE agency_id = ? AND role = 'proprietaire')                  AS nb_proprietaires,
+                (SELECT COUNT(*) FROM users    WHERE agency_id = ? AND role = 'locataire')                     AS nb_locataires
+        ", array_fill(0, 5, $agencyId));
+
+        $nbBiens      = (int) ($compteurs->nb_biens       ?? 0);
+        $nbBiensLoues = (int) ($compteurs->nb_biens_loues ?? 0);
+
+        $stats['nb_biens']         = $nbBiens;
+        $stats['nb_biens_loues']   = $nbBiensLoues;
+        $stats['nb_contrats']      = (int) ($compteurs->nb_contrats      ?? 0);
+        $stats['nb_proprietaires'] = (int) ($compteurs->nb_proprietaires ?? 0);
+        $stats['nb_locataires']    = (int) ($compteurs->nb_locataires    ?? 0);
+        $stats['taux_occupation']  = $nbBiens > 0 ? round(($nbBiensLoues / $nbBiens) * 100, 1) : 0;
 
         // ── Stats de la période sélectionnée (cache 10 min) ──────────────
         $periodeKey = "{$agencyId}_{$periode}_{$debut->format('Y-m-d')}";

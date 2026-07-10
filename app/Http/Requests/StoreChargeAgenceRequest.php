@@ -19,6 +19,7 @@ class StoreChargeAgenceRequest extends FormRequest
             'libelle'     => ['required', 'string', 'max:255'],
             'montant'     => ['required', 'numeric', 'min:0'],
             'categorie'   => ['required', 'in:' . implode(',', array_keys(ChargeAgence::CATEGORIES))],
+            'recurrente'  => ['sometimes', 'boolean'],
             'date_charge' => ['required', 'date'],
             'prestataire' => ['nullable', 'string', 'max:255'],
             'notes'       => ['nullable', 'string', 'max:1000'],
