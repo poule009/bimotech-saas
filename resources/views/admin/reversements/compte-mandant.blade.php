@@ -7,6 +7,18 @@
     $init  = mb_strtoupper(mb_substr($proprietaire->name, 0, 2));
     // Dépenses liées à un bien (portées par les paiements de la période)
     $depensesBien = collect($compte['paiements'])->flatMap(fn ($p) => $p->depenses)->sortByDesc('date_depense');
+
+    // Décomposition du bandeau qui tombe TOUJOURS juste sur le solde affiché :
+    //   solde = loyers − commission − taxes(BRS/TOM/TVA) − dépenses − reversements déjà faits
+    $retenuesFiscales = max(0, (float) $compteGlobal['loyers_encaisses']
+        - (float) $compteGlobal['commissions_deduites']
+        - (float) $compteGlobal['depenses_avancees']
+        - (float) $compteGlobal['net_du']);
+    $reversementsFaits = (float) $compteGlobal['reversements_effectues'];
+    $breakdown = $fmt($compteGlobal['loyers_encaisses']) . ' F encaissés − ' . $fmt($compteGlobal['commissions_deduites']) . ' F commission';
+    if ($retenuesFiscales > 0.5)                       $breakdown .= ' − ' . $fmt($retenuesFiscales) . ' F taxes (BRS/TVA)';
+    if ((float) $compteGlobal['depenses_avancees'] > 0.5) $breakdown .= ' − ' . $fmt($compteGlobal['depenses_avancees']) . ' F dépenses';
+    if ($reversementsFaits > 0.5)                      $breakdown .= ' − ' . $fmt($reversementsFaits) . ' F déjà reversés';
 @endphp
 
 @section('title', 'Compte — ' . $proprietaire->name)
@@ -49,7 +61,7 @@
                 <div class="flex-1 min-w-0">
                     <div class="text-[11.5px] uppercase tracking-wide font-bold opacity-85 mb-1">Solde en cours à reverser</div>
                     <div class="font-display font-semibold text-[26px]">{{ $fmt($solde) }} F CFA</div>
-                    <div class="text-[12.5px] opacity-90 mt-1">{{ $fmt($compteGlobal['loyers_encaisses']) }} F encaissés − {{ $fmt($compteGlobal['commissions_deduites']) }} F commission − {{ $fmt($compteGlobal['depenses_avancees']) }} F dépenses</div>
+                    <div class="text-[12.5px] opacity-90 mt-1">{{ $breakdown }}</div>
                 </div>
                 <button type="button" x-on:click="toggle" class="bg-white text-green px-5 py-3 rounded-[10px] text-[13.5px] font-bold hover:opacity-90 transition-opacity shrink-0 whitespace-nowrap">Marquer reversé</button>
             </div>
