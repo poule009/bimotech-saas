@@ -39,6 +39,7 @@ class Locataire extends Model
         'rccm_locataire',       // RCCM si entreprise
         'nom_entreprise',       // Raison sociale si personne morale
         'taux_brs_override',    // Taux BRS personnalisé (null = légal auto)
+        'code_import', 'import_batch_id',
     ];
 
     protected $casts = [

@@ -35,6 +35,7 @@ class Proprietaire extends Model
         'numero_wave', 'numero_om', 'ninea', 'assujetti_tva',
         'est_personne_morale_is',
         'forme_juridique_bailleur',
+        'code_import', 'import_batch_id',
     ];
 
     protected $casts = [

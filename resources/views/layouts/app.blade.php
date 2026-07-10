@@ -23,6 +23,7 @@
         ['label' => 'Biens',           'route' => 'admin.biens.index',       'active' => 'admin.biens.*',        'icon' => '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>'],
         ['label' => 'Locataires',      'route' => 'admin.users.locataires',  'active' => 'admin.users.locataires', 'icon' => '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/>'],
         ['label' => 'Contrats',        'route' => 'admin.contrats.index',    'active' => 'admin.contrats.*',     'icon' => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>'],
+        ['label' => 'Import de données','route' => 'admin.import.index',      'active' => 'admin.import.*',        'icon' => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'],
         ['section' => 'Finances'],
         ['label' => 'Quittances',      'route' => 'admin.paiements.index',   'active' => 'admin.paiements.*',    'icon' => '<path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2-3-2z"/><path d="M8 8h8M8 12h6"/>'],
         ['label' => 'Comptabilité',    'route' => 'admin.comptabilite.index','active' => 'admin.comptabilite.*', 'icon' => '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h4M8 14h2M12 14h4M8 18h8"/>'],

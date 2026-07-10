@@ -407,4 +407,29 @@ export function registerComponents(Alpine) {
             this.show = !this.show;
         },
     }));
+
+    // Module Import — panneau latéral d'aide (ouvrable depuis n'importe quelle étape).
+    Alpine.data('importDrawer', () => ({
+        open: false,
+        openPanel() { this.open = true; },
+        closePanel() { this.open = false; },
+        get overlayClass() { return this.open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'; },
+        get panelClass() { return this.open ? 'translate-x-0' : 'translate-x-full'; },
+    }));
+
+    // Module Import — zone d'upload : au choix d'un fichier, affiche le nom et
+    // soumet immédiatement le formulaire (déclenche l'aperçu côté serveur).
+    Alpine.data('importUpload', () => ({
+        filename: '',
+        submitting: false,
+        get label() { return this.filename || 'Cliquez pour choisir votre fichier rempli'; },
+        get idle() { return ! this.submitting; },
+        pick(event) {
+            const file = event.target.files && event.target.files[0];
+            if (! file) return;
+            this.filename = file.name;
+            this.submitting = true;
+            this.$refs.form.submit();
+        },
+    }));
 }

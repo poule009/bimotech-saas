@@ -83,6 +83,8 @@ class Bien extends Model
         'longitude',
         'amenites',
         'visible_portail',
+        'code_import',
+        'import_batch_id',
     ];
 
     protected $casts = [

@@ -111,6 +111,9 @@ class Contrat extends Model
         // ── Divers ────────────────────────────────────────────────────────
         'observations',
         'clauses_particulieres',
+
+        // ── Import de données ──────────────────────────────────────────────
+        'import_batch_id',
     ];
 
     // ── Casts ─────────────────────────────────────────────────────────────────

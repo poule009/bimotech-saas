@@ -242,15 +242,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('/{user}',                 [\App\Http\Controllers\EquipeController::class, 'destroy'])->name('destroy');
         });
 
-        // Import Excel
+        // Import de données (flux upload → aperçu → confirmation → annulation)
         Route::prefix('import')->name('import.')->middleware('check.feature:import_excel')->group(function () {
-            Route::get('/',                         [ImportController::class, 'index'])->name('index');
-            Route::post('proprietaires',            [ImportController::class, 'proprietaires'])->name('proprietaires');
-            Route::post('locataires',               [ImportController::class, 'locataires'])->name('locataires');
-            Route::post('biens',                    [ImportController::class, 'biens'])->name('biens');
-            Route::get('template/proprietaires',    [ImportController::class, 'templateProprietaires'])->name('template.proprietaires');
-            Route::get('template/locataires',       [ImportController::class, 'templateLocataires'])->name('template.locataires');
-            Route::get('template/biens',            [ImportController::class, 'templateBiens'])->name('template.biens');
+            Route::get('/',                     [ImportController::class, 'index'])->name('index');
+            Route::get('historique',            [ImportController::class, 'historique'])->name('historique');
+            Route::get('modele/{type}',         [ImportController::class, 'template'])->name('template');
+            Route::post('{type}/apercu',        [ImportController::class, 'preview'])->name('preview');
+            Route::delete('{type}/apercu',      [ImportController::class, 'discard'])->name('discard');
+            Route::post('lot/{batch}/confirmer',[ImportController::class, 'commit'])->name('commit');
+            Route::delete('lot/{batch}',        [ImportController::class, 'undo'])->name('undo');
+            Route::get('lot/{batch}/codes',     [ImportController::class, 'codes'])->name('codes');
         });
 
         // ── Module Comptabilité ────────────────────────────────────────────────
