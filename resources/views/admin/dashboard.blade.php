@@ -9,7 +9,7 @@
 @endphp
 
 @section('title', 'Tableau de bord')
-@section('page-title', 'Bonjour, ' . $prenom . ' 👋')
+@section('page-title', 'Bonjour, ' . $prenom)
 @section('page-subtitle', \Illuminate\Support\Str::ucfirst($dateStr))
 
 @section('topbar-actions')
@@ -43,7 +43,7 @@
             <div class="flex-1 min-w-0">
                 <strong class="block text-[14.5px] mb-0.5">
                     @if($isWelcome)
-                        Bienvenue {{ $prenom }}, votre agence est créée 🎉
+                        Bienvenue {{ $prenom }}, votre agence est créée
                     @else
                         Complétez le profil de votre agence
                     @endif
@@ -62,7 +62,7 @@
                 </a>
                 <form method="POST" action="{{ route('admin.onboarding.dismiss') }}">
                     @csrf
-                    <button type="submit" class="text-paper/60 hover:text-paper px-1.5 text-lg leading-none" aria-label="Masquer">✕</button>
+                    <button type="submit" class="text-paper/60 hover:text-paper px-1.5 leading-none" aria-label="Masquer"><x-icon name="x" size="16" /></button>
                 </form>
             </div>
         </div>
@@ -253,7 +253,7 @@
             <div class="bg-white border border-line rounded-xl p-6">
                 <h3 class="font-display font-semibold text-[16px] mb-4">À traiter</h3>
                 @if($impayes_urgents->isEmpty() && $contrats_a_renouveler->isEmpty())
-                    <div class="py-6 text-center text-[13px] text-muted">Rien à traiter pour l'instant 🎉</div>
+                    <div class="py-6 text-center text-[13px] text-muted inline-flex items-center justify-center gap-1.5 w-full"><x-icon name="check-circle" size="15" class="text-green" /> Rien à traiter pour l'instant</div>
                 @else
                     <div class="divide-y divide-paper-dim">
                         @foreach($impayes_urgents as $c)

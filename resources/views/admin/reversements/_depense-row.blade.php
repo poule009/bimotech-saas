@@ -10,7 +10,7 @@
     </div>
     <div class="ml-auto flex items-center gap-2.5 shrink-0">
         @if($d->justificatif_path)
-            <a href="{{ Storage::url($d->justificatif_path) }}" target="_blank" rel="noopener" class="text-[11.5px] font-bold text-teal hover:underline whitespace-nowrap">📎 Justificatif</a>
+            <a href="{{ Storage::url($d->justificatif_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[11.5px] font-bold text-teal hover:underline whitespace-nowrap"><x-icon name="paperclip" size="12" /> Justificatif</a>
         @else
             <span class="text-[11.5px] font-bold text-error whitespace-nowrap">Justif. manquant</span>
         @endif

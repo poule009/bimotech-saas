@@ -50,14 +50,14 @@
             <h2 class="font-display font-semibold text-[22px]">{{ $proprietaire->name }}</h2>
             <div class="text-[13px] text-muted">{{ $compteGlobal['nb_biens'] }} bien{{ $compteGlobal['nb_biens'] > 1 ? 's' : '' }} en gestion</div>
         </div>
-        <a href="{{ route('admin.reversements.releve-pdf', ['proprietaire' => $proprietaire, 'periode' => $periode]) }}" class="ml-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] border-[1.5px] border-teal text-teal bg-white text-[13.5px] font-bold hover:bg-paper transition-colors shrink-0">📄 Relevé PDF</a>
+        <a href="{{ route('admin.reversements.releve-pdf', ['proprietaire' => $proprietaire, 'periode' => $periode]) }}" class="ml-auto inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] border-[1.5px] border-teal text-teal bg-white text-[13.5px] font-bold hover:bg-paper transition-colors shrink-0"><x-icon name="file-text" size="15" /> Relevé PDF</a>
     </div>
 
     {{-- Bandeau solde --}}
     @if($solde > 0.5)
         <div class="bg-green text-white rounded-2xl p-6 md:px-8 mb-5" x-data="collapsible">
             <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div class="w-[52px] h-[52px] rounded-[14px] bg-white/15 flex items-center justify-center text-[24px] shrink-0">💰</div>
+                <div class="w-[52px] h-[52px] rounded-[14px] bg-white/15 flex items-center justify-center shrink-0"><x-icon name="wallet" size="24" /></div>
                 <div class="flex-1 min-w-0">
                     <div class="text-[11.5px] uppercase tracking-wide font-bold opacity-85 mb-1">Solde en cours à reverser</div>
                     <div class="font-display font-semibold text-[26px]">{{ $fmt($solde) }} F CFA</div>
@@ -106,7 +106,7 @@
         </div>
     @else
         <div class="bg-paper-dim text-ink rounded-2xl p-6 md:px-8 mb-5 flex items-center gap-4">
-            <div class="w-[52px] h-[52px] rounded-[14px] bg-white flex items-center justify-center text-[24px] shrink-0">✓</div>
+            <div class="w-[52px] h-[52px] rounded-[14px] bg-white flex items-center justify-center text-green shrink-0"><x-icon name="check" size="24" /></div>
             <div>
                 <div class="font-display font-semibold text-[18px]">Compte à jour</div>
                 <div class="text-[12.5px] text-muted mt-0.5">Aucun montant à reverser pour l'instant.</div>

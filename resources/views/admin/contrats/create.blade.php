@@ -28,8 +28,8 @@
     @endif
 
     @if($fromContrat)
-        <div class="mb-5 rounded-lg bg-teal/10 border border-teal/25 px-4 py-3 text-[13px] text-teal">
-            🔄 Renouvellement — bien, locataire et loyer repris. Ajustez uniquement les nouvelles dates.
+        <div class="mb-5 rounded-lg bg-teal/10 border border-teal/25 px-4 py-3 text-[13px] text-teal flex items-start gap-2">
+            <x-icon name="rotate" size="15" class="mt-0.5 shrink-0" /> <span>Renouvellement — bien, locataire et loyer repris. Ajustez uniquement les nouvelles dates.</span>
         </div>
     @endif
 
@@ -97,8 +97,8 @@
                         <input id="caution" type="number" name="caution" value="{{ old('caution') }}" min="0" step="1" placeholder="700000" class="f-input">
                     </div>
                 </div>
-                <div class="mt-3 rounded-lg bg-gold/15 text-teal-deep px-4 py-3 text-[12.5px] leading-relaxed">
-                    💡 Le loyer vient du prix affiché sur le bien. Modifiez-le ici si un montant différent a été négocié — ça ne changera pas le prix du bien ailleurs.
+                <div class="mt-3 rounded-lg bg-gold/15 text-teal-deep px-4 py-3 text-[12.5px] leading-relaxed flex items-start gap-2">
+                    <x-icon name="lightbulb" size="15" class="mt-0.5 shrink-0" /> <span>Le loyer vient du prix affiché sur le bien. Modifiez-le ici si un montant différent a été négocié — ça ne changera pas le prix du bien ailleurs.</span>
                 </div>
             </div>
 

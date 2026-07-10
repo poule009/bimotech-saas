@@ -51,9 +51,9 @@
     </p>
 
     <h2>7. Conditions d'utilisation</h2>
-    <p class="block bg-gold/20 text-teal-deep font-semibold p-3 rounded-lg text-[13px]">
-        ⚠️ Section à part entière relevant de vos règles commerciales — à rédiger/valider par vous
-        (idéalement avec un juriste). Éléments à préciser :
+    <p class="bg-gold/20 text-teal-deep font-semibold p-3 rounded-lg text-[13px] flex items-start gap-2">
+        <x-icon name="alert-triangle" size="15" class="mt-0.5 shrink-0" /> <span>Section à part entière relevant de vos règles commerciales — à rédiger/valider par vous
+        (idéalement avec un juriste). Éléments à préciser :</span>
     </p>
     <ul>
         <li><strong>Objet</strong> : mise à disposition d'un logiciel de gestion immobilière en ligne.</li>

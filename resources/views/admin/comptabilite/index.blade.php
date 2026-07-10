@@ -290,10 +290,10 @@
 
             {{-- Résultat --}}
             <div x-show="showOk" x-cloak class="mt-6 inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-green/10 text-green font-bold text-[14px]">
-                <span class="text-[18px]">✓</span> Comptes équilibrés
+<x-icon name="check" size="17" /> Comptes équilibrés
             </div>
             <div x-show="showEcart" x-cloak class="mt-6 inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-error/10 text-error font-bold text-[14px]">
-                <span class="text-[18px]">⚠</span> <span x-text="ecartLabel"></span> : <span x-text="ecartAbs"></span>
+<x-icon name="alert-triangle" size="16" /> <span x-text="ecartLabel"></span> : <span x-text="ecartAbs"></span>
             </div>
         </div>
     </div>

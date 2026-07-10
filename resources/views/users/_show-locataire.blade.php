@@ -24,7 +24,7 @@
         <div class="min-w-0 flex-1">
             <h2 class="font-display font-semibold text-[24px] mb-1.5">{{ $user->name }}</h2>
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13.5px] text-muted">
-                @if($user->telephone)<span>📞 {{ $user->telephone }}</span>@endif
+                @if($user->telephone)<span class="inline-flex items-center gap-1.5"><x-icon name="phone" size="13" /> {{ $user->telephone }}</span>@endif
                 @if($entreprise)<span class="text-[12px] font-bold px-3 py-1 rounded-full bg-gold/15 text-gold">Bureau</span>
                 @else<span class="text-[12px] font-bold px-3 py-1 rounded-full bg-green/10 text-green">Particulier</span>@endif
             </div>
@@ -32,10 +32,10 @@
         <a href="{{ route('admin.users.edit', $user) }}" class="px-5 py-3 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[14px] font-bold hover:border-teal transition-colors shrink-0">Modifier</a>
     </div>
 
-    {{-- ★ BANNIÈRE DE PAIEMENT (élément central, statut calculé) ★ --}}
+    {{-- BANNIÈRE DE PAIEMENT (élément central, statut calculé) --}}
     @if($paie['etat'] === 'retard')
         <div class="bg-error text-white rounded-xl p-5 md:px-7 flex flex-col sm:flex-row sm:items-center gap-4 mb-5">
-            <div class="w-[52px] h-[52px] rounded-[14px] bg-white/20 flex items-center justify-center text-[24px] shrink-0">⚠️</div>
+            <div class="w-[52px] h-[52px] rounded-[14px] bg-white/20 flex items-center justify-center shrink-0"><x-icon name="alert-triangle" size="24" /></div>
             <div class="flex-1 min-w-0">
                 <div class="font-display font-semibold text-[16.5px] mb-0.5">En retard de {{ $paie['jours'] }} jour{{ $paie['jours'] > 1 ? 's' : '' }}@if($bienNom) — {{ $bienNom }}@endif</div>
                 <div class="text-[13px] text-white/90">Loyer de {{ $fmt($contratActif->loyer_contractuel) }} F attendu pour {{ $paie['periode']->locale('fr')->isoFormat('MMMM Y') }}.</div>
@@ -46,7 +46,7 @@
         </div>
     @elseif($paie['etat'] === 'ok')
         <div class="bg-green text-white rounded-xl p-5 md:px-7 flex flex-col sm:flex-row sm:items-center gap-4 mb-5">
-            <div class="w-[52px] h-[52px] rounded-[14px] bg-white/20 flex items-center justify-center text-[24px] shrink-0">✓</div>
+            <div class="w-[52px] h-[52px] rounded-[14px] bg-white/20 flex items-center justify-center shrink-0"><x-icon name="check" size="24" /></div>
             <div class="flex-1 min-w-0">
                 <div class="font-display font-semibold text-[16.5px] mb-0.5">À jour @if($bienNom)— {{ $bienNom }}@endif</div>
                 <div class="text-[13px] text-white/90">Loyer de {{ $fmt($contratActif->loyer_contractuel) }} F · {{ $paie['periode']->locale('fr')->isoFormat('MMMM Y') }}.</div>
@@ -122,7 +122,7 @@
                 </div>
             @else
                 <div class="text-center py-10 text-muted">
-                    <span class="text-[28px] block mb-2">🤝</span>
+                    <x-icon name="users" size="30" stroke="1.5" class="block mx-auto mb-2 opacity-70" />
                     <p class="text-[14px]">Aucun garant renseigné pour ce locataire.</p>
                     <p class="text-[12.5px] mt-1">Le garant se renseigne sur le contrat, à la signature.</p>
                 </div>
@@ -133,12 +133,12 @@
     {{-- Documents --}}
     <div x-show="isDocs" x-cloak class="space-y-3">
         <div class="flex items-center gap-3.5 p-4 border border-line rounded-xl bg-white">
-            <span class="text-[19px]">📄</span>
+            <x-icon name="file-text" size="19" class="text-muted" />
             <span class="font-bold flex-1 text-[14.5px]">Pièce d'identité (CNI)</span>
             <span class="text-[12px] font-bold px-2.5 py-1 rounded-full {{ $profil?->cni_verified ? 'bg-green/10 text-green' : 'bg-gold/15 text-gold' }}">{{ $profil?->cni_verified ? 'Vérifiée' : 'À vérifier' }}</span>
         </div>
         <div class="flex items-center gap-3.5 p-4 border border-line rounded-xl bg-white">
-            <span class="text-[19px] {{ $profil?->justif_revenus_fourni ? '' : 'opacity-60' }}">📑</span>
+            <x-icon name="file-text" size="19" class="{{ $profil?->justif_revenus_fourni ? 'text-muted' : 'text-error opacity-70' }}" />
             <span class="font-bold flex-1 text-[14.5px] {{ $profil?->justif_revenus_fourni ? '' : 'text-error' }}">Justificatif de revenus</span>
             <span class="text-[12px] font-bold px-2.5 py-1 rounded-full {{ $profil?->justif_revenus_fourni ? 'bg-green/10 text-green' : 'bg-error/10 text-error' }}">{{ $profil?->justif_revenus_fourni ? 'Fourni' : 'Manquant' }}</span>
         </div>

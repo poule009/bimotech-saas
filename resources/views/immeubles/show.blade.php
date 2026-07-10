@@ -36,7 +36,7 @@
     <div class="bg-white border border-line rounded-2xl overflow-hidden mb-5">
         <div class="h-[150px] bg-teal-deep flex items-end p-6">
             <div class="text-paper">
-                <h2 class="font-display font-semibold text-[24px] mb-1">🏢 {{ $immeuble->nom }}</h2>
+                <h2 class="font-display font-semibold text-[24px] mb-1 flex items-center gap-2"><x-icon name="building" size="22" /> {{ $immeuble->nom }}</h2>
                 <div class="text-[13.5px] text-paper/80">{{ $immeuble->ville }} · Immeuble · {{ $total }} unité{{ $total > 1 ? 's' : '' }}</div>
             </div>
         </div>

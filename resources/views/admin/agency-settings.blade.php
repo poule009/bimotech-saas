@@ -111,7 +111,7 @@
                                 @if($u['path'])
                                     <img src="{{ Storage::url($u['path']) }}" alt="{{ $u['label'] }}" class="max-h-[104px] max-w-full object-contain p-2">
                                 @else
-                                    <span class="text-[22px] text-[#B7AE9C]">⬆</span>
+                                    <x-icon name="upload" size="22" stroke="1.6" class="text-[#B7AE9C]" />
                                 @endif
                                 <input type="file" name="{{ $u['name'] }}" accept="image/png,image/jpeg,image/webp" class="hidden">
                             </label>
@@ -126,8 +126,8 @@
                     @endforeach
                 </div>
 
-                <div class="mt-5 rounded-[10px] bg-paper border border-line px-4 py-3.5 text-[12.5px] text-muted leading-relaxed">
-                    💡 <strong class="text-ink">Aperçu sur les documents :</strong> tant que la signature ou le cachet ne sont pas ajoutés, la génération de PDF (contrats, quittances) affiche un <strong>espace vide à signer à la main</strong> — rien ne bloque votre usage en attendant.
+                <div class="mt-5 rounded-[10px] bg-paper border border-line px-4 py-3.5 text-[12.5px] text-muted leading-relaxed flex items-start gap-2">
+                    <x-icon name="lightbulb" size="15" class="mt-0.5 shrink-0" /> <span><strong class="text-ink">Aperçu sur les documents :</strong> tant que la signature ou le cachet ne sont pas ajoutés, la génération de PDF (contrats, quittances) affiche un <strong>espace vide à signer à la main</strong> — rien ne bloque votre usage en attendant.</span>
                 </div>
             </div>
         </div>

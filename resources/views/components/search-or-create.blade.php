@@ -38,7 +38,7 @@
             <div class="font-bold text-[14px] text-ink truncate" x-text="selectedName"></div>
             <div class="text-[11.5px] text-muted truncate" x-text="selectedSub"></div>
         </div>
-        <button type="button" x-on:click="clear" class="text-muted hover:text-ink text-[16px] px-1" aria-label="Retirer la sélection">✕</button>
+        <button type="button" x-on:click="clear" class="text-muted hover:text-ink px-1" aria-label="Retirer la sélection"><x-icon name="x" size="15" /></button>
     </div>
 
     {{-- États 0-3 : champ + résultats --}}

@@ -31,11 +31,11 @@
                 <h3 class="f-card-title">Type de locataire</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
                     <button type="button" x-on:click="setParticulier" x-bind:class="forkParticulierClass" class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1"><span class="text-[22px]">🧍</span><span class="font-bold text-[15px]">Particulier</span></div>
+                        <div class="flex items-center gap-2.5 mb-1"><x-icon name="user" size="20" /><span class="font-bold text-[15px]">Particulier</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Une personne physique.</div>
                     </button>
                     <button type="button" x-on:click="setEntreprise" x-bind:class="forkEntrepriseClass" class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1"><span class="text-[22px]">🏢</span><span class="font-bold text-[15px]">Bureau / Société</span></div>
+                        <div class="flex items-center gap-2.5 mb-1"><x-icon name="building" size="20" /><span class="font-bold text-[15px]">Bureau / Société</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Entreprise, association…</div>
                     </button>
                 </div>
@@ -115,12 +115,12 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
                     <button type="button" x-on:click="setParticulier" x-bind:class="forkParticulierClass"
                             class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1.5"><span class="text-[22px]">🧍</span><span class="font-bold text-[15px]">Particulier</span></div>
+                        <div class="flex items-center gap-2.5 mb-1.5"><x-icon name="user" size="20" /><span class="font-bold text-[15px]">Particulier</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Une personne, propriétaire en son nom propre.</div>
                     </button>
                     <button type="button" x-on:click="setEntreprise" x-bind:class="forkEntrepriseClass"
                             class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1.5"><span class="text-[22px]">🏢</span><span class="font-bold text-[15px]">Entreprise</span></div>
+                        <div class="flex items-center gap-2.5 mb-1.5"><x-icon name="building" size="20" /><span class="font-bold text-[15px]">Entreprise</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Société, SCI ou groupe propriétaire du bien.</div>
                     </button>
                 </div>

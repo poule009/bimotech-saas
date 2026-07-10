@@ -24,16 +24,16 @@
         };
     };
 
-    // Icône + couleur par type / action
+    // Icône (nom composant) + couleur par type / action
     $iconOf = function ($log) {
-        if ($log->action === 'deleted') return ['bg-error/10 text-error', '🗑'];
+        if ($log->action === 'deleted') return ['bg-error/10 text-error', 'trash'];
         return match (class_basename($log->model_type)) {
-            'Paiement'     => ['bg-gold/15 text-gold', '💰'],
-            'Contrat'      => ['bg-green/10 text-green', '📄'],
-            'Bien'         => ['bg-teal/10 text-teal', '🏠'],
-            'User', 'Locataire', 'Proprietaire' => ['bg-[#EDE6F5] text-[#6B4A9C]', '👤'],
-            'DepenseGestion' => ['bg-gold/15 text-gold', '🧾'],
-            default        => ['bg-paper-dim text-muted', '•'],
+            'Paiement'     => ['bg-gold/15 text-gold', 'dollar'],
+            'Contrat'      => ['bg-green/10 text-green', 'file-text'],
+            'Bien'         => ['bg-teal/10 text-teal', 'home'],
+            'User', 'Locataire', 'Proprietaire' => ['bg-[#EDE6F5] text-[#6B4A9C]', 'user'],
+            'DepenseGestion' => ['bg-gold/15 text-gold', 'receipt'],
+            default        => ['bg-paper-dim text-muted', 'file-text'],
         };
     };
 
@@ -65,15 +65,15 @@
 
             <div class="w-px h-6 bg-line"></div>
 
-            <a href="{{ request()->fullUrlWithQuery(['categorie' => null, 'page' => null]) }}" @class(['text-[12.5px] font-bold rounded-full px-4 py-2 border transition-colors', $chipClass(! $categorie)])>Tout</a>
-            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'paiements', 'page' => null]) }}" @class(['text-[12.5px] font-bold rounded-full px-4 py-2 border transition-colors', $chipClass($categorie === 'paiements')])>💰 Paiements</a>
-            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'contrats', 'page' => null]) }}" @class(['text-[12.5px] font-bold rounded-full px-4 py-2 border transition-colors', $chipClass($categorie === 'contrats')])>📄 Contrats</a>
-            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'biens', 'page' => null]) }}" @class(['text-[12.5px] font-bold rounded-full px-4 py-2 border transition-colors', $chipClass($categorie === 'biens')])>🏠 Biens</a>
-            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'personnes', 'page' => null]) }}" @class(['text-[12.5px] font-bold rounded-full px-4 py-2 border transition-colors', $chipClass($categorie === 'personnes')])>👤 Locataires & propriétaires</a>
+            <a href="{{ request()->fullUrlWithQuery(['categorie' => null, 'page' => null]) }}" @class(['inline-flex items-center gap-1.5 text-[12.5px] font-bold rounded-full px-4 py-2 border transition-colors', $chipClass(! $categorie)])>Tout</a>
+            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'paiements', 'page' => null]) }}" @class(['inline-flex items-center gap-1.5 text-[12.5px] font-bold rounded-full px-3.5 py-2 border transition-colors', $chipClass($categorie === 'paiements')])><x-icon name="dollar" size="14" /> Paiements</a>
+            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'contrats', 'page' => null]) }}" @class(['inline-flex items-center gap-1.5 text-[12.5px] font-bold rounded-full px-3.5 py-2 border transition-colors', $chipClass($categorie === 'contrats')])><x-icon name="file-text" size="14" /> Contrats</a>
+            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'biens', 'page' => null]) }}" @class(['inline-flex items-center gap-1.5 text-[12.5px] font-bold rounded-full px-3.5 py-2 border transition-colors', $chipClass($categorie === 'biens')])><x-icon name="home" size="14" /> Biens</a>
+            <a href="{{ request()->fullUrlWithQuery(['categorie' => 'personnes', 'page' => null]) }}" @class(['inline-flex items-center gap-1.5 text-[12.5px] font-bold rounded-full px-3.5 py-2 border transition-colors', $chipClass($categorie === 'personnes')])><x-icon name="users" size="14" /> Locataires & propriétaires</a>
 
             <div class="w-px h-6 bg-line"></div>
 
-            <a href="{{ request()->fullUrlWithQuery(['sensibles' => $sensibles ? null : 1, 'page' => null]) }}" @class(['text-[12.5px] font-bold rounded-full px-4 py-2 border transition-colors', $sensibles ? 'bg-error text-white border-error' : 'bg-paper text-error border-error/40 hover:border-error'])>⚠️ Sensibles uniquement</a>
+            <a href="{{ request()->fullUrlWithQuery(['sensibles' => $sensibles ? null : 1, 'page' => null]) }}" @class(['inline-flex items-center gap-1.5 text-[12.5px] font-bold rounded-full px-3.5 py-2 border transition-colors', $sensibles ? 'bg-error text-white border-error' : 'bg-paper text-error border-error/40 hover:border-error'])><x-icon name="alert-triangle" size="14" /> Sensibles uniquement</a>
         </div>
     </div>
 
@@ -97,7 +97,7 @@
             'border-error/35 bg-error/[0.03]' => $log->is_sensitive,
             'border-line' => ! $log->is_sensitive,
         ])>
-            <div class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center text-[16px] shrink-0 {{ $iconClass }}">{{ $glyph }}</div>
+            <div class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0 {{ $iconClass }}"><x-icon :name="$glyph" size="18" /></div>
 
             <div class="flex-1 min-w-0">
                 @if($url)
@@ -123,7 +123,7 @@
                 {{-- Méta --}}
                 <div class="flex items-center flex-wrap gap-x-2.5 gap-y-1 mt-2 text-[12px] text-muted">
                     @if($auto)
-                        <span class="font-semibold">⚙️ Système</span>
+                        <span class="inline-flex items-center gap-1.5 font-semibold"><x-icon name="cpu" size="13" /> Système</span>
                     @else
                         <span class="inline-flex items-center gap-1.5 font-semibold">
                             <span class="w-[18px] h-[18px] rounded-[5px] bg-teal text-white text-[8.5px] font-bold flex items-center justify-center">{{ mb_strtoupper(mb_substr($log->user->name ?? '?', 0, 2)) }}</span>
@@ -140,7 +140,7 @@
                     @endif
 
                     @if($log->is_sensitive)
-                        <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-error/10 text-error">⚠️ Sensible</span>
+                        <span class="inline-flex items-center gap-1 text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-error/10 text-error"><x-icon name="alert-triangle" size="11" /> Sensible</span>
                     @endif
                 </div>
             </div>

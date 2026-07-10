@@ -18,8 +18,8 @@
     <input type="hidden" name="type_locataire" x-bind:value="typeValue">
     <input type="hidden" name="est_entreprise" x-bind:value="estEntrepriseValue">
 
-    <div class="mb-5 rounded-lg bg-teal/10 border border-teal/25 px-4 py-3 text-[13px] text-teal leading-relaxed">
-        💡 En général, un locataire se crée directement depuis un contrat. Ce formulaire sert à le <strong>préenregistrer</strong> avant la signature.
+    <div class="mb-5 rounded-lg bg-teal/10 border border-teal/25 px-4 py-3 text-[13px] text-teal leading-relaxed flex items-start gap-2">
+        <x-icon name="lightbulb" size="15" class="mt-0.5 shrink-0" /> <span>En général, un locataire se crée directement depuis un contrat. Ce formulaire sert à le <strong>préenregistrer</strong> avant la signature.</span>
     </div>
 
     @if($errors->any())
@@ -36,11 +36,11 @@
                 <p class="f-card-sub">Particulier ou bureau/société — ajuste les cases fiscales (BRS, NINEA).</p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
                     <button type="button" x-on:click="setParticulier" x-bind:class="forkParticulierClass" class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1"><span class="text-[22px]">🧍</span><span class="font-bold text-[15px]">Particulier</span></div>
+                        <div class="flex items-center gap-2.5 mb-1"><x-icon name="user" size="20" /><span class="font-bold text-[15px]">Particulier</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Une personne physique.</div>
                     </button>
                     <button type="button" x-on:click="setEntreprise" x-bind:class="forkEntrepriseClass" class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1"><span class="text-[22px]">🏢</span><span class="font-bold text-[15px]">Bureau / Société</span></div>
+                        <div class="flex items-center gap-2.5 mb-1"><x-icon name="building" size="20" /><span class="font-bold text-[15px]">Bureau / Société</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Entreprise, association…</div>
                     </button>
                 </div>
@@ -88,7 +88,7 @@
                 <h3 class="f-card-title">Pièce d'identité</h3>
                 <p class="f-card-sub">CNI ou passeport.</p>
                 <div class="border-[1.5px] border-dashed border-line rounded-[11px] p-6 text-center text-[13px] text-muted bg-paper">
-                    <span class="text-[22px] block mb-2">📄</span>Import de fichier
+                    <x-icon name="file-text" size="24" class="block mx-auto mb-2 text-muted" />Import de fichier
                     <span class="block text-[11px] uppercase tracking-wide bg-paper-dim text-muted px-2 py-0.5 rounded font-bold mt-2 inline-block">Bientôt disponible</span>
                 </div>
             </div>
@@ -131,19 +131,19 @@
                 <h3 class="f-card-title">Type de propriétaire</h3>
                 <p class="f-card-sub">On adapte les champs juste après selon votre choix.</p>
 
-                <div class="bg-paper border border-line rounded-[10px] px-4 py-3 text-[13px] text-muted leading-relaxed mb-4">
-                    💡 <strong class="text-ink">Pourquoi cette question ?</strong> Un particulier n'a pas de NINEA et n'est pas taxé comme une entreprise. Ce choix règle les bonnes cases fiscales sur ses quittances.
+                <div class="bg-paper border border-line rounded-[10px] px-4 py-3 text-[13px] text-muted leading-relaxed mb-4 flex items-start gap-2">
+                    <x-icon name="lightbulb" size="15" class="mt-0.5 shrink-0" /> <span><strong class="text-ink">Pourquoi cette question ?</strong> Un particulier n'a pas de NINEA et n'est pas taxé comme une entreprise. Ce choix règle les bonnes cases fiscales sur ses quittances.</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
                     <button type="button" x-on:click="setParticulier" x-bind:class="forkParticulierClass"
                             class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1.5"><span class="text-[22px]">🧍</span><span class="font-bold text-[15px]">Particulier</span></div>
+                        <div class="flex items-center gap-2.5 mb-1.5"><x-icon name="user" size="20" /><span class="font-bold text-[15px]">Particulier</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Une personne, propriétaire en son nom propre.</div>
                     </button>
                     <button type="button" x-on:click="setEntreprise" x-bind:class="forkEntrepriseClass"
                             class="text-left border-2 rounded-xl p-4 transition-all">
-                        <div class="flex items-center gap-2.5 mb-1.5"><span class="text-[22px]">🏢</span><span class="font-bold text-[15px]">Entreprise</span></div>
+                        <div class="flex items-center gap-2.5 mb-1.5"><x-icon name="building" size="20" /><span class="font-bold text-[15px]">Entreprise</span></div>
                         <div class="text-[12.5px] text-muted leading-snug">Société, SCI ou groupe propriétaire du bien.</div>
                     </button>
                 </div>
@@ -254,7 +254,7 @@
                 <h3 class="f-card-title">Pièce d'identité</h3>
                 <p class="f-card-sub">CNI, passeport ou registre de commerce.</p>
                 <div class="border-[1.5px] border-dashed border-line rounded-[11px] p-6 text-center text-[13px] text-muted bg-paper">
-                    <span class="text-[22px] block mb-2">📄</span>
+                    <x-icon name="file-text" size="24" class="block mx-auto mb-2 text-muted" />
                     Import de fichier
                     <span class="block text-[11px] uppercase tracking-wide bg-paper-dim text-muted px-2 py-0.5 rounded font-bold mt-2 inline-block">Bientôt disponible</span>
                 </div>

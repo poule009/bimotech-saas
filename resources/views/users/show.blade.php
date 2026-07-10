@@ -37,8 +37,8 @@
         <div class="min-w-0 flex-1">
             <h2 class="font-display font-semibold text-[25px] mb-1.5">{{ $user->name }}</h2>
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13.5px] text-muted">
-                @if($user->telephone)<span>📞 {{ $user->telephone }}</span>@endif
-                @if($user->email)<span>✉️ {{ $user->email }}</span>@endif
+                @if($user->telephone)<span class="inline-flex items-center gap-1.5"><x-icon name="phone" size="13" /> {{ $user->telephone }}</span>@endif
+                @if($user->email)<span class="inline-flex items-center gap-1.5"><x-icon name="mail" size="13" /> {{ $user->email }}</span>@endif
                 @if($entreprise)
                     <span class="text-[12px] font-bold px-3 py-1 rounded-full bg-gold/15 text-gold">Entreprise</span>
                 @else

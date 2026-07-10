@@ -23,7 +23,7 @@
     @if(config('features.immeubles', true))
         <a href="{{ route('admin.immeubles.create') }}"
            class="hidden sm:inline-flex items-center gap-1.5 bg-white border border-line text-ink px-4 py-2.5 rounded-[11px] text-[13.5px] font-bold hover:border-teal transition-colors">
-            🏢 Immeuble
+            <x-icon name="building" size="15" /> Immeuble
         </a>
     @endif
     <a href="{{ route('admin.biens.create') }}"
@@ -103,7 +103,7 @@
             <a href="{{ route('admin.immeubles.show', $im) }}" class="bg-white border border-line rounded-2xl overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all">
                 <div class="h-[120px] bg-teal-deep relative flex items-center justify-center">
                     <svg class="w-9 h-9 text-paper/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M6 21V4a1 1 0 011-1h10a1 1 0 011 1v17M9 7h1M14 7h1M9 11h1M14 11h1M9 15h1M14 15h1"/></svg>
-                    <span class="absolute top-3 left-3 bg-teal-deep/70 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">🏢 Immeuble · {{ $im->biens_count }} unité{{ $im->biens_count > 1 ? 's' : '' }}</span>
+                    <span class="absolute top-3 left-3 bg-teal-deep/70 text-white text-[11px] font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1"><x-icon name="building" size="11" /> Immeuble · {{ $im->biens_count }} unité{{ $im->biens_count > 1 ? 's' : '' }}</span>
                     <span class="absolute top-3 right-3 bg-gold text-teal-deep text-[11px] font-extrabold px-2.5 py-1 rounded-full">{{ $occLabel }}</span>
                 </div>
                 <div class="p-[16px_18px_18px]">
@@ -157,7 +157,7 @@
                         <tr class="border-b border-paper-dim last:border-0 hover:bg-[#FBF9F3] transition-colors">
                             <td class="px-5 py-4">
                                 <a href="{{ route('admin.immeubles.show', $im) }}" class="flex items-center gap-3 group">
-                                    <span class="w-[42px] h-[42px] rounded-[10px] bg-teal-deep text-paper flex items-center justify-center shrink-0">🏢</span>
+                                    <span class="w-[42px] h-[42px] rounded-[10px] bg-teal-deep text-paper flex items-center justify-center shrink-0"><x-icon name="building" size="20" /></span>
                                     <span class="min-w-0"><span class="block font-bold text-[15px] truncate group-hover:text-teal">{{ $im->nom }}</span><span class="block text-[12.5px] text-muted truncate">{{ $im->ville }}</span></span>
                                 </a>
                             </td>

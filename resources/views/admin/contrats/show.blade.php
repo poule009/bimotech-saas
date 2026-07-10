@@ -55,7 +55,7 @@
                     <a href="{{ route('admin.contrats.edit', $contrat) }}" class="px-4 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[13.5px] font-bold hover:border-teal transition-colors">Modifier</a>
                 @endif
                 @if(Route::has('admin.contrats.bail-formel-pdf'))
-                    <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] border-[1.5px] border-teal text-teal bg-white text-[13.5px] font-bold hover:bg-paper transition-colors">📄 Exporter (PDF)</a>
+                    <a href="{{ route('admin.contrats.bail-formel-pdf', $contrat) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[10px] border-[1.5px] border-teal text-teal bg-white text-[13.5px] font-bold hover:bg-paper transition-colors"><x-icon name="file-text" size="15" /> Exporter (PDF)</a>
                 @endif
             </div>
         </div>

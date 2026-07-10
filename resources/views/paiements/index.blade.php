@@ -74,7 +74,7 @@
     @if($filter !== 'payees')
         @php $rienEnRetard = $totalRetard === 0; @endphp
         @if($rienEnRetard)
-            <div class="bg-white border border-line rounded-2xl py-12 text-center text-muted text-[14px] mb-4">Aucun retard en ce moment. 🎉</div>
+            <div class="bg-white border border-line rounded-2xl py-12 text-center text-muted text-[14px] mb-4 flex items-center justify-center gap-2"><x-icon name="check-circle" size="18" class="text-green" /> Aucun retard en ce moment.</div>
         @endif
         @foreach($buckets as $key => $bucket)
             @continue($bucket['items']->isEmpty())

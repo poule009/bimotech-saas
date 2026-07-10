@@ -52,7 +52,7 @@
                    'text-[13px] font-bold rounded-full px-4 py-2 border flex items-center gap-1.5 transition-colors',
                    'bg-error text-white border-error' => request('retard'),
                    'bg-white text-error border-line hover:border-error' => ! request('retard'),
-               ])>🔴 En retard <span class="opacity-80 text-[11px]">{{ $stats['en_retard'] }}</span></a>
+               ])><span class="w-1.5 h-1.5 rounded-full bg-current"></span> En retard <span class="opacity-80 text-[11px]">{{ $stats['en_retard'] }}</span></a>
         </div>
     </div>
 
