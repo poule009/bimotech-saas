@@ -3,6 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
+use App\Models\Bien;
+use App\Models\Contrat;
+use App\Models\Locataire;
+use App\Models\Paiement;
+use App\Models\Proprietaire;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -12,6 +18,14 @@ use Illuminate\Support\Facades\Auth;
 class ActivityLogController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    /** Catégories de filtre (chips) → types de modèles concernés. */
+    private const CATEGORIES = [
+        'paiements' => [Paiement::class],
+        'contrats'  => [Contrat::class],
+        'biens'     => [Bien::class],
+        'personnes' => [User::class, Locataire::class, Proprietaire::class],
+    ];
 
     public static function middleware(): array
     {
@@ -23,46 +37,43 @@ class ActivityLogController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         $user = Auth::user();
-
         abort_unless($user && in_array($user->role, ['superadmin', 'admin']), 403);
 
-        $query = ActivityLog::latest();
+        // Le journal N'AFFICHE PAS les consultations ('viewed') — réservées au futur
+        // module « Mon équipe ». La table sait les stocker, l'écran les exclut.
+        $query = ActivityLog::where('action', '!=', 'viewed')->latest();
 
         if ($user->role === 'admin') {
             $query->where('agency_id', $user->agency_id);
         }
 
-        // with() sélectif : on ne charge que id + name (pas password, remember_token…)
+        // Recherche (description) — wildcards LIKE échappés
         if ($request->filled('q')) {
-            // Echapper les wildcards LIKE pour que % et _ soient traités littéralement
             $q = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->q);
             $query->where('description', 'like', '%' . $q . '%');
         }
-        if ($request->filled('action')) {
-            $query->where('action', $request->action);
+
+        // Filtre par catégorie d'entité
+        $categorie = $request->get('categorie');
+        if ($categorie && isset(self::CATEGORIES[$categorie])) {
+            $query->whereIn('model_type', self::CATEGORIES[$categorie]);
         }
-        if ($request->filled('model')) {
-            // Filtre exact sur le basename du modèle (ex: 'Paiement' → '%\\Paiement')
-            $m = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->model);
-            $query->where('model_type', 'like', '%\\\\' . $m);
+
+        // Filtre « Sensibles uniquement »
+        if ($request->boolean('sensibles')) {
+            $query->where('is_sensitive', true);
         }
-        if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
-        }
-        // Totaux par action sur l'ensemble des résultats filtrés (pas juste la page)
-        $actionStats = (clone $query)
-            ->reorder()
-            ->selectRaw('action, COUNT(*) as total')
-            ->groupBy('action')
-            ->pluck('total', 'action');
 
         $logs = $query
-            ->with([
-                'user:id,name',
-                'agency:id,name',
-            ])
-            ->paginate(30);
+            ->with(['user:id,name', 'agency:id,name'])
+            ->paginate(30)
+            ->withQueryString();
 
-        return view('activity-logs.index', compact('logs', 'actionStats'));
+        return view('activity-logs.index', [
+            'logs'      => $logs,
+            'categorie' => $categorie,
+            'sensibles' => $request->boolean('sensibles'),
+            'q'         => (string) $request->get('q'),
+        ]);
     }
 }

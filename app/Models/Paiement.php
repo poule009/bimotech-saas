@@ -38,6 +38,15 @@ class Paiement extends Model
         'commission_ttc'     => 'Commission TTC',
     ];
 
+    /**
+     * Journal d'activité — modifier une quittance DÉJÀ payée (valide avant l'update)
+     * est une action sensible. Le passage normal unpaid→valide n'est pas concerné.
+     */
+    public function isSensitiveActivity(string $action, array $fields): bool
+    {
+        return $action === 'updated' && (string) $this->getOriginal('statut') === 'valide';
+    }
+
     protected $fillable = [
         'agency_id',
         'contrat_id',

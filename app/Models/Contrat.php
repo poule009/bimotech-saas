@@ -38,6 +38,17 @@ class Contrat extends Model
         'taux_commission'         => 'Commission',
     ];
 
+    /**
+     * Journal d'activité — modifier le loyer/charges d'un bail ACTIF (déjà signé)
+     * est une action sensible (fort impact financier/légal).
+     */
+    public function isSensitiveActivity(string $action, array $fields): bool
+    {
+        return $action === 'updated'
+            && (string) $this->statut === 'actif'
+            && (bool) array_intersect($fields, ['loyer_contractuel', 'loyer_nu', 'charges_mensuelles']);
+    }
+
     public const TYPES_BAIL = [
         'habitation'  => "Bail d'habitation",
         'commercial'  => 'Bail commercial',
