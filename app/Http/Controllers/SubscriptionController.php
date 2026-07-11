@@ -40,14 +40,31 @@ class SubscriptionController extends Controller
             'etat'         => $subscription?->etatEffectif(),
             'historique'   => $historique,
             'usage'        => $usage,
-            'tarifs'       => Subscription::TARIFS,
+            'plans'        => $this->plansAffichage(),
         ]);
+    }
+
+    /** Grille des plans construite depuis config/plans.php (source unique des limites). */
+    private function plansAffichage(): array
+    {
+        $plans = [];
+        foreach (['starter', 'pro', 'agence'] as $niveau) {
+            $biens  = config("plans.nb_unites_max.{$niveau}");
+            $equipe = config("plans.nb_admins_max.{$niveau}");
+            $plans[$niveau] = [
+                'nom'    => config("plans.labels.{$niveau}", ucfirst($niveau)),
+                'prix'   => Subscription::TARIFS[$niveau]['mensuel'] ?? 0,
+                'biens'  => $biens === null ? 'Biens illimités' : $biens . ' biens',
+                'equipe' => $equipe === null ? 'Comptes illimités' : $equipe . ' compte' . ($equipe > 1 ? 's' : '') . ' équipe',
+            ];
+        }
+        return $plans;
     }
 
     /** Formulaire de déclaration de paiement manuel. */
     public function declarer(Request $request): View
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isOwner');
 
         return view('subscription.declarer', [
             'tarifs'       => Subscription::TARIFS,
@@ -59,7 +76,7 @@ class SubscriptionController extends Controller
     /** Enregistre une déclaration de paiement (statut en_attente + justificatif obligatoire). */
     public function store(Request $request): RedirectResponse
     {
-        $this->authorize('isAdmin');
+        $this->authorize('isOwner');
         $agency = Auth::user()->agency;
 
         $validated = $request->validate([

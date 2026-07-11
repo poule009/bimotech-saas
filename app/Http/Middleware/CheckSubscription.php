@@ -43,6 +43,13 @@ class CheckSubscription
             return $next($request);
         }
 
+        // Seuls les admins d'agence (directeur + collaborateurs) sont soumis à
+        // l'abonnement. Les portails propriétaire/locataire ne sont pas redirigés
+        // vers l'écran de facturation (qui ne les concerne pas).
+        if ($user->role !== 'admin') {
+            return $next($request);
+        }
+
         $subscription = $user->agency->subscription;
 
         if (! $subscription) {

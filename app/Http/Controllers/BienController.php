@@ -177,12 +177,11 @@ class BienController extends Controller
         $agency     = Auth::user()->agency;
         $planNiveau = $agency?->subscription?->plan_niveau ?? 'legacy';
 
-        $limiteUnites = match ($planNiveau) {
-            'starter'       => 15,
-            'pro', 'legacy' => 50,
-            'agence'        => null,
-            default         => 50,
-        };
+        // Source unique : config/plans.php (mêmes valeurs que la grille Abonnement).
+        $limitesConfig = config('plans.nb_unites_max');
+        $limiteUnites  = array_key_exists($planNiveau, $limitesConfig)
+            ? $limitesConfig[$planNiveau]
+            : ($limitesConfig['pro'] ?? 50);
 
         if ($agency && $limiteUnites !== null) {
             $nbUnites = $agency->nbUnitesActives();

@@ -4,12 +4,7 @@
     use App\Models\Subscription;
     $fmt = fn ($n) => number_format((float) $n, 0, ',', ' ');
 
-    // Métadonnées des 3 plans (mensuel) pour la grille.
-    $plans = [
-        'starter' => ['nom' => 'Starter', 'prix' => 19900, 'biens' => '20 biens',        'equipe' => '2 comptes équipe'],
-        'pro'     => ['nom' => 'Pro',     'prix' => 39900, 'biens' => '50 biens',        'equipe' => '5 comptes équipe'],
-        'agence'  => ['nom' => 'Agence',  'prix' => 69900, 'biens' => 'Biens illimités', 'equipe' => 'Comptes illimités'],
-    ];
+    // $plans provient du controller (dérivé de config/plans.php — source unique).
     $niveauActuel = $subscription?->plan_niveau ?? 'starter';
     if ($niveauActuel === 'legacy') $niveauActuel = 'pro';
 
