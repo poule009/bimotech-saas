@@ -141,6 +141,29 @@
                         </select>
                         <p class="text-[11.5px] text-muted mt-1">Débours = refacturé à l'identique (0 % TVA). Forfait = montant fixe (TVA 18 %).</p>
                     </div>
+                    {{-- Garant (facultatif) --}}
+                    <div class="pt-4 border-t border-paper-dim">
+                        <h4 class="text-[13.5px] font-bold text-ink mb-3">Garant <span class="text-muted font-normal">(facultatif)</span></h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="garant_nom" class="f-label">Nom du garant</label>
+                                <input id="garant_nom" type="text" name="garant_nom" value="{{ old('garant_nom') }}" maxlength="150" class="f-input">
+                            </div>
+                            <div>
+                                <label for="garant_telephone" class="f-label">Téléphone du garant</label>
+                                <input id="garant_telephone" type="text" name="garant_telephone" value="{{ old('garant_telephone') }}" maxlength="20" class="f-input">
+                            </div>
+                            <div>
+                                <label for="garant_adresse" class="f-label">Adresse du garant</label>
+                                <input id="garant_adresse" type="text" name="garant_adresse" value="{{ old('garant_adresse') }}" maxlength="255" class="f-input">
+                            </div>
+                            <div>
+                                <label for="garant_cni" class="f-label">CNI du garant</label>
+                                <input id="garant_cni" type="text" name="garant_cni" value="{{ old('garant_cni') }}" maxlength="30" class="f-input">
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label for="clauses_particulieres" class="f-label">Clauses particulières</label>
                         <textarea id="clauses_particulieres" name="clauses_particulieres" rows="3" placeholder="Optionnel…" class="f-textarea">{{ old('clauses_particulieres') }}</textarea>

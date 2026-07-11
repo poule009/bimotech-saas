@@ -36,8 +36,9 @@ class ComptabiliteDashboardTest extends TestCase
         $this->actingAs($admin)
             ->get(route('admin.comptabilite.index'))
             ->assertOk()
-            ->assertSee('Argent de l\'agence', false)
-            ->assertSee('Vue d\'ensemble', false)
-            ->assertSee('Propriétaires', false);
+            ->assertSee('Comptabilité', false)
+            ->assertSee('Propriétaires', false)
+            ->assertSee('Agence', false)
+            ->assertSee('Vérification', false);
     }
 }
