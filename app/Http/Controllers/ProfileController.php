@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
+use App\Support\TeamAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +18,43 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
+        // « Mes accès » = lecture seule des permissions déjà définies dans Mon équipe.
+        // Directeur ou collaborateur « Administrateur » (tous droits) → bannière ;
+        // sinon liste détaillée module par module.
+        $niveaux = $user->role === 'admin' ? TeamAccess::niveauxUtilisateur($user) : [];
+        $preset  = $user->is_owner ? 'directeur' : TeamAccess::detecterPreset($niveaux);
+        $estAdminComplet = $user->is_owner || $preset === 'administrateur';
+
+        $roleLabel = match ($preset) {
+            'directeur'      => 'Directeur',
+            'administrateur' => 'Administrateur',
+            'secretaire'     => 'Secrétaire',
+            'personnalise'   => 'Personnalisé',
+            default          => ucfirst($user->role),
+        };
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user'            => $user,
+            'roleLabel'       => $roleLabel,
+            'estAdminComplet' => $estAdminComplet,
+            'modules'         => TeamAccess::MODULES,
+            'niveaux'         => $estAdminComplet ? [] : $niveaux,
         ]);
+    }
+
+    /** Préférences de notification (in-app uniquement). */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $request->user()->update([
+            'notification_preferences' => [
+                'alerte_retard'   => $request->boolean('alerte_retard'),
+                'rappel_echeance' => $request->boolean('rappel_echeance'),
+            ],
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'notifications-updated');
     }
 
     /**

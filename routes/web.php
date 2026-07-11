@@ -113,7 +113,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/profile',             [ProfileController::class,  'edit'])->name('profile.edit');
     Route::patch('/profile',           [ProfileController::class,  'update'])->name('profile.update');
+    Route::post('/profile/notifications', [ProfileController::class, 'updateNotifications'])->name('profile.notifications');
     Route::delete('/profile',          [ProfileController::class,  'destroy'])->name('profile.destroy');
+    Route::put('/profile/password',    [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
     Route::put('/profile/password/set', [\App\Http\Controllers\Auth\PasswordController::class, 'set'])->name('password.set');
 
     // ── Abonnements ────────────────────────────────────────────────────────

@@ -459,6 +459,28 @@ export function registerComponents(Alpine) {
         },
     }));
 
+    // Module Mon profil — onglets (Identité / Sécurité / Notifications / Mes accès).
+    Alpine.data('profilTabs', () => ({
+        active: 'identite',
+        init() {
+            const h = (window.location.hash || '').replace('#', '');
+            if (['identite', 'securite', 'notifications', 'acces'].includes(h)) this.active = h;
+        },
+        _cls(name) { return this.active === name ? 'text-teal border-teal' : 'text-muted border-transparent hover:text-ink'; },
+        get isIdentite() { return this.active === 'identite'; },
+        get isSecurite() { return this.active === 'securite'; },
+        get isNotifications() { return this.active === 'notifications'; },
+        get isAcces() { return this.active === 'acces'; },
+        get identiteClass() { return this._cls('identite'); },
+        get securiteClass() { return this._cls('securite'); },
+        get notificationsClass() { return this._cls('notifications'); },
+        get accesClass() { return this._cls('acces'); },
+        showIdentite() { this.active = 'identite'; },
+        showSecurite() { this.active = 'securite'; },
+        showNotifications() { this.active = 'notifications'; },
+        showAcces() { this.active = 'acces'; },
+    }));
+
     // Champ fichier simple : affiche le nom du fichier choisi, sans soumettre.
     // Placeholder configurable via data-placeholder.
     Alpine.data('fileField', () => ({

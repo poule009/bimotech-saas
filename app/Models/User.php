@@ -54,6 +54,7 @@ class User extends Authenticatable
         'telephone',
         'adresse',
         'email_verified_at',
+        'notification_preferences',
     ];
 
     // is_owner et role intentionnellement absents de $fillable — assignation directe uniquement
@@ -68,6 +69,7 @@ class User extends Authenticatable
     protected $casts = [
         'is_owner'                 => 'boolean',
         'must_change_password'     => 'boolean',
+        'notification_preferences' => 'array',
         'email_verified_at'        => 'datetime',
         'two_factor_confirmed_at'  => 'datetime',
         'password'                 => 'hashed',
@@ -188,5 +190,19 @@ class User extends Authenticatable
             UserRole::Locataire->value    => $this->locataire,
             default                       => null,
         };
+    }
+
+    // ── Préférences de notification (in-app) ──────────────────────────────
+
+    public const NOTIF_DEFAULTS = [
+        'alerte_retard'   => true,   // alerte à chaque nouveau retard de paiement
+        'rappel_echeance' => false,  // rappel des contrats bientôt échus
+    ];
+
+    /** Valeur d'une préférence de notification (avec défaut si non définie). */
+    public function notifPref(string $key): bool
+    {
+        $prefs = $this->notification_preferences ?? [];
+        return (bool) ($prefs[$key] ?? (self::NOTIF_DEFAULTS[$key] ?? false));
     }
 }
