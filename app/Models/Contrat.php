@@ -62,6 +62,17 @@ class Contrat extends Model
         'expiré'  => 'Expiré',
     ];
 
+    /**
+     * Mode de facturation des charges (quand des charges existent).
+     * Pilote charges_assujetties_tva — voir regles_fiscales, clé 'tva_charges'.
+     *   debours → refacturé à l'identique, sans marge, factures au nom du locataire → TVA 0%
+     *   forfait → forfait mensuel fixe → TVA 18%
+     */
+    public const MODES_FACTURATION_CHARGES = [
+        'debours' => 'Débours — refacturé à l\'identique (exonéré de TVA)',
+        'forfait' => 'Forfait mensuel fixe (TVA 18 %)',
+    ];
+
     // ── Fillable ──────────────────────────────────────────────────────────────
 
     protected $fillable = [
@@ -76,6 +87,7 @@ class Contrat extends Model
         'loyer_contractuel',    // Total = loyer_nu + charges_mensuelles + tom_amount
         'charges_mensuelles',        // Charges récupérables mensuelles
         'charges_assujetties_tva',   // Bool — charges facturées en forfait → TVA 18% obligatoire (DGI SN)
+        'mode_facturation_charges',  // 'debours' (0%) | 'forfait' (18%) — pilote charges_assujetties_tva
         'tom_amount',           // Taxe sur les Ordures Ménagères (FCFA fixe)
 
         // ── Financier ─────────────────────────────────────────────────────

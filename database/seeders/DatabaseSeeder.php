@@ -13,6 +13,12 @@ class DatabaseSeeder extends Seeder
             PermissionsSeeder::class,
         ]);
 
+        // 1 bis. Catalogue des règles fiscales & sources (référentiel documentaire,
+        //        indépendant de toute agence — idempotent par `cle`)
+        $this->call([
+            ReglesFiscalesSeeder::class,
+        ]);
+
         // 2. SuperAdminSeeder EN PREMIER — indépendant de toute agence (agency_id = null)
         //    Utilise updateOrCreate → idempotent même après migrate:fresh
         $this->call([

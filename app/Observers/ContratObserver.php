@@ -56,6 +56,17 @@ class ContratObserver
             }
         }
 
+        // ── charges_assujetties_tva depuis mode_facturation_charges ──────────
+        // Règle NON VÉRIFIÉE (regles_fiscales, clé 'tva_charges') :
+        //   forfait → 18% (charges_assujetties_tva = true)
+        //   debours → 0%  (charges_assujetties_tva = false)
+        // Ne s'active que si le mode est renseigné ET que charges_assujetties_tva
+        // n'a pas été fixé explicitement dans la même opération (priorité à la saisie).
+        if ($contrat->mode_facturation_charges !== null
+            && ! $contrat->isDirty('charges_assujetties_tva')) {
+            $contrat->charges_assujetties_tva = $contrat->mode_facturation_charges === 'forfait';
+        }
+
         // ── Calcul brs_applicable depuis le locataire ────────────────────────
         $doitRecalculerBrs = ! $contrat->exists
             || $contrat->isDirty('locataire_id');

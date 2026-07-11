@@ -104,6 +104,7 @@ class StoreContratRequest extends FormRequest
             'brs_applicable'           => ['nullable', 'boolean'],
             'taux_brs_manuel'          => ['nullable', 'numeric', 'min:0', 'max:20'],
             'charges_assujetties_tva'  => ['nullable', 'boolean'],
+            'mode_facturation_charges' => ['nullable', Rule::in(array_keys(Contrat::MODES_FACTURATION_CHARGES))],
             // ── DGID ──────────────────────────────────────────────────────────
             'date_enregistrement_dgid' => ['nullable', 'date'],
             'numero_quittance_dgid'    => ['nullable', 'string', 'max:60'],

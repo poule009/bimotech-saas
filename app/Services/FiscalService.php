@@ -90,12 +90,17 @@ class FiscalService
      * Point d'entrée unique pour tout enregistrement de paiement.
      * Appelé par : PaiementService, PaiementController.
      *
-     * Règles d'assiette (Art. CGI SN vérifiés) :
-     *   - TVA loyer   → sur (loyer_ht + TOM) — Art. 364 §2a
-     *   - Commission  → % × loyer_ht uniquement (jamais TVA/TOM/charges)
+     * Règles d'assiette (traçabilité complète : table regles_fiscales) :
+     *   - TVA loyer   → sur (loyer_ht + TOM) — clé 'tva_loyer_assiette' [NON VÉRIFIÉ]
+     *   - Commission  → % × loyer_ht uniquement — clé 'tva_commission' [confirmé]
      *   - BRS         → % × loyer_ht brut — Art. 201 §3 ("montant brut hors taxes")
      *   - BRS actif   → si bailleur est personne physique — Art. 201 §2
-     *   - Charges     → hors commission, hors BRS ; TVA si bail commercial/mixte
+     *   - Charges     → hors commission, hors BRS ; TVA si forfait — clé 'tva_charges' [NON VÉRIFIÉ]
+     *
+     * INDÉPENDANCE DU RÉGIME (clé 'tva_independante_du_regime_cgf', confirmé) :
+     *   La TVA s'applique quel que soit le régime du propriétaire. La CGF remplace
+     *   uniquement l'IRPP et la CFPB — jamais la TVA. Ne JAMAIS désactiver le calcul
+     *   TVA ci-dessous au motif qu'un propriétaire est en CGF.
      */
     public static function calculer(FiscalContext $ctx): FiscalResult
     {
@@ -108,29 +113,52 @@ class FiscalService
         $tom      = round($ctx->tomAmount     * $coeff, 2);
 
         // ── 1. TVA loyer ────────────────────────────────────────────────────
-        $assujetti = $ctx->tauxTvaLoyerOverride !== null
+        // Assujettissement (quel taux s'applique) : CONFIRMÉ — voir regles_fiscales
+        // clé 'tva_loyer_assujettissement' (Immoplus Sablux). Seul 18% est codé
+        // (clé 'tva_taux_standard' — Eurocham) ; le taux réduit 10% n'est jamais utilisé.
+        $operationTaxable = $ctx->tauxTvaLoyerOverride !== null
             ? ($ctx->tauxTvaLoyerOverride > 0)
             : self::loyerEstAssujetti($ctx->typeBail, $ctx->estMeuble);
 
-        $tauxTvaLoyer = $ctx->tauxTvaLoyerOverride ?? ($assujetti ? self::TVA_TAUX : 0.0);
+        // F2 : un bailleur NON assujetti à la TVA ne facture pas de TVA sur le loyer,
+        // même si l'opération est taxable par nature (meublé, commercial, mixte).
+        $assujetti    = $operationTaxable && $ctx->proprietaireAssujettiTva;
+        $tauxTvaLoyer = $assujetti
+            ? ($ctx->tauxTvaLoyerOverride ?? self::TVA_TAUX)
+            : 0.0;
 
         $loyerHt  = round($loyerNu, 2);
-        // Art. 364 §2a CGI SN : base TVA = contrepartie + taxes/impôts inclus (dont TOM)
+        // RÈGLE NON VÉRIFIÉE PAR SOURCE OFFICIELLE INDÉPENDANTE
+        // Origine : document interne uniquement (référentiel fiscal Bimotech, 06/05/2026)
+        // À confirmer avec un fiscaliste avant audit ou contrôle fiscal réel
+        // Statut : PLAUSIBLE mais NON CONFIRMÉ
+        // Traçabilité : regles_fiscales, clé 'tva_loyer_assiette'
+        // Assiette = loyer_HT + TOM (charges récupérables et commission agence exclues)
         $tvaLoyer = round(($loyerHt + $tom) * ($tauxTvaLoyer / 100), 2);
         $loyerTtc = round($loyerHt + $tvaLoyer, 2);
 
         // ── 2. Total encaissé ────────────────────────────────────────────────
-        // TVA sur charges : obligatoire si facturées en forfait (DGI SN — prestation de service).
-        // Même taux que le loyer : si bail exonéré (habitation), tauxTvaLoyer = 0 → tvaCharges = 0 automatiquement.
-        $tvaCharges      = $ctx->chargesAssujettiesATva
-            ? round($charges * ($tauxTvaLoyer / 100), 2)
+        // RÈGLE NON VÉRIFIÉE PAR SOURCE OFFICIELLE INDÉPENDANTE
+        // Origine : document interne uniquement (référentiel fiscal Bimotech, 06/05/2026)
+        // À confirmer avec un fiscaliste avant audit ou contrôle fiscal réel
+        // Statut : PLAUSIBLE mais NON CONFIRMÉ
+        // Traçabilité : regles_fiscales, clé 'tva_charges'
+        // Débours purs (refacturés à l'identique, factures au nom du locataire) → 0%.
+        // Forfait mensuel fixe (chargesAssujettiesATva = true) → 18%.
+        // F1 : taux FIXE 18% (et non le taux du loyer) → un forfait est taxé à 18%
+        //      même si le loyer est exonéré, conformément au libellé et au brief.
+        // F2 : gate sur l'assujettissement du bailleur (comme le loyer).
+        $tvaCharges      = ($ctx->chargesAssujettiesATva && $ctx->proprietaireAssujettiTva)
+            ? round($charges * (self::TVA_TAUX / 100), 2)
             : 0.0;
         $chargesTtc      = round($charges + $tvaCharges, 2);
         $montantEncaisse = round($loyerTtc + $chargesTtc + $tom, 2);
 
         // ── 3. Commission agence ────────────────────────────────────────────
+        // F2 : une agence NON assujettie à la TVA ne facture pas de TVA sur sa commission.
+        $tauxTvaCommissionEff = $ctx->agenceAssujettieTva ? $ctx->tauxTvaCommission : 0.0;
         $commissionHt  = round($loyerHt * ($ctx->tauxCommission / 100), 2);
-        $tvaCommission = round($commissionHt * ($ctx->tauxTvaCommission / 100), 2);
+        $tvaCommission = round($commissionHt * ($tauxTvaCommissionEff / 100), 2);
         $commissionTtc = round($commissionHt + $tvaCommission, 2);
 
         // ── 4. Net propriétaire (avant BRS) ─────────────────────────────────
@@ -167,8 +195,9 @@ class FiscalService
 
         // ── 7. Frais de dossier agence (premier paiement uniquement) ────────
         // fraisAgenceHt = 0 pour tous les paiements récurrents → calculs neutres
+        // F2 : TVA sur honoraires uniquement si l'agence est assujettie.
         $fraisAgenceHt           = round($ctx->fraisAgenceHt, 2);
-        $tvaFraisAgence          = round($fraisAgenceHt * (self::TVA_TAUX / 100), 2);
+        $tvaFraisAgence          = round($fraisAgenceHt * (($ctx->agenceAssujettieTva ? self::TVA_TAUX : 0.0) / 100), 2);
         $fraisAgenceTtc          = round($fraisAgenceHt + $tvaFraisAgence, 2);
         $cautionMontant          = round($ctx->cautionMontant, 2);
         $totalEncaissementInitial = round($montantEncaisse + $fraisAgenceTtc + $cautionMontant, 2);
@@ -634,9 +663,14 @@ class FiscalService
     // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * Calcule une décomposition fiscale estimée depuis des montants bruts.
-     * Utilisé pour les previews rapides et le DemoDataSeeder.
-     * N'accède pas à la base de données.
+     * Calcule une décomposition fiscale ESTIMÉE depuis des montants bruts.
+     * Utilisé pour les previews rapides et le DemoDataSeeder. N'accède pas à la DB.
+     *
+     * ⚠️ ESTIMATION UNIQUEMENT (audit TVA — F5) : ne calcule que la TVA sur commission.
+     * Ne calcule NI la TVA sur loyer (assujettissement meublé/commercial), NI la TVA
+     * charges, NI le BRS, NI l'assiette loyer+TOM. Pour tout calcul fiscal réel
+     * (quittances, paiements, déclarations), utiliser calculer(FiscalContext) qui est
+     * la source unique. Ne pas se fier à cette méthode pour un document officiel.
      *
      * @param  float $loyerHorsCharges   Loyer de base HT (FCFA)
      * @param  float $charges            Charges mensuelles (FCFA)

@@ -70,6 +70,7 @@ class Bien extends Model
         'meuble',
         'loyer_mensuel',    // ← prix de référence du bien (snapshot annonce) — NE PAS confondre avec Contrat.loyer_nu
         'charges',
+        'tom_mensuelle',    // TOM (ordures ménagères) facturée mensuellement — défaut Contrat.tom_amount
         'caution',
         'taux_commission',
         'statut',
@@ -90,6 +91,7 @@ class Bien extends Model
     protected $casts = [
         'loyer_mensuel'   => 'decimal:2',
         'charges'         => 'decimal:2',
+        'tom_mensuelle'   => 'decimal:2',
         'caution'         => 'decimal:2',
         'surface_m2'      => 'decimal:2',
         'taux_commission' => 'decimal:2',

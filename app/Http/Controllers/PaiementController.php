@@ -225,6 +225,8 @@ class PaiementController extends Controller implements HasMiddleware
         // Vérifier appartenance du contrat + charger les relations nécessaires au calcul fiscal
         $contrat = Contrat::with([
                 'bien',
+                'bien.proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is',
+                'agency:id,assujetti_tva',
                 'locataire.locataire',
             ])
             ->where('agency_id', $agencyId)
@@ -411,7 +413,12 @@ class PaiementController extends Controller implements HasMiddleware
     {
         $this->authorize('isStaff');
 
-        $contrat->loadMissing(['bien', 'locataire.locataire']);
+        $contrat->loadMissing([
+            'bien',
+            'bien.proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is',
+            'agency:id,assujetti_tva',
+            'locataire.locataire',
+        ]);
 
         $ctx    = FiscalContext::fromContrat($contrat);
         $result = FiscalService::calculer($ctx);

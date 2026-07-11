@@ -97,7 +97,18 @@
             <h3 class="f-card-title mb-4">Versement des loyers</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Mode préféré</div><div class="text-[15px] font-semibold">{{ $modeLabels[$profil?->mode_paiement_prefere] ?? 'Virement bancaire' }}</div></div>
-                <div><div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Régime fiscal</div><div class="text-[15px] font-semibold">{{ $profil?->assujetti_tva ? 'Assujetti à la TVA' : 'Non assujetti à la TVA' }}</div></div>
+                <div>
+                    <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Régime fiscal (TVA)</div>
+                    @if($profil?->assujetti_tva)
+                        <div class="text-[15px] font-semibold text-green">Assujetti à la TVA</div>
+                    @else
+                        <div class="text-[15px] font-semibold">Non assujetti à la TVA</div>
+                        <div class="mt-1 inline-flex items-center gap-1.5 rounded-md bg-gold/15 text-teal-deep px-2 py-1 text-[11.5px] font-semibold">
+                            <x-icon name="alert-triangle" size="13" /> Statut TVA non confirmé — à vérifier
+                        </div>
+                        <p class="text-[11.5px] text-muted mt-1">Tant que ce n'est pas confirmé, aucune TVA n'est facturée sur ses loyers (sécurité : pas de TVA indue). Modifiez la fiche pour confirmer l'assujettissement.</p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

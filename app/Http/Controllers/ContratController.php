@@ -10,6 +10,8 @@ use App\Http\Requests\UpdateContratRequest;
 use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\User;
+use App\Services\FiscalContext;
+use App\Services\FiscalService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -103,7 +105,7 @@ class ContratController extends Controller implements HasMiddleware
 
         $biens = Bien::where('agency_id', $agencyId)
             ->where('statut', 'disponible')
-            ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble'])
+            ->select(['id', 'agency_id', 'proprietaire_id', 'reference', 'type', 'adresse', 'ville', 'loyer_mensuel', 'taux_commission', 'meuble', 'tom_mensuelle'])
             ->with(['proprietaire:id,name'])
             ->orderBy('reference')
             ->get();
@@ -115,7 +117,7 @@ class ContratController extends Controller implements HasMiddleware
             ->get();
 
         $bienPreselectionne = $request->has('bien_id')
-            ? Bien::select(['id', 'reference', 'loyer_mensuel', 'taux_commission', 'meuble', 'type'])->find($request->bien_id)
+            ? Bien::select(['id', 'reference', 'loyer_mensuel', 'taux_commission', 'meuble', 'tom_mensuelle', 'type'])->find($request->bien_id)
             : null;
 
         // Renouvellement : pré-charger les données de l'ancien contrat
@@ -158,7 +160,34 @@ class ContratController extends Controller implements HasMiddleware
         $loyerNu           = (float) $validated['loyer_nu'];
         $chargesMensuelles = (float) ($validated['charges_mensuelles'] ?? 0);
         $tomAmount         = (float) ($validated['tom_amount'] ?? 0);
-        $loyerContractuel  = round($loyerNu + $chargesMensuelles + $tomAmount, 2);
+
+        // ── Mode de facturation des charges → assujettissement TVA charges ──
+        // Le mode n'a de sens que si des charges existent. Défaut prudent : débours (0%).
+        // forfait → charges_assujetties_tva = true (18%) ; debours → false (0%).
+        $modeCharges = $chargesMensuelles > 0
+            ? ($validated['mode_facturation_charges'] ?? 'debours')
+            : null;
+        $chargesAssujetties = $modeCharges === 'forfait';
+
+        // ── Overrides fiscaux du loyer : uniquement si le formulaire les fournit.
+        // Sinon, on NE force RIEN → ContratObserver dérive automatiquement
+        // loyer_assujetti_tva/taux_tva_loyer depuis type_bail + bien.meuble
+        // (règle 'tva_loyer_assujettissement') et brs_applicable depuis le locataire.
+        // Forcer $request->boolean() ici mettrait 0% à tout bail créé via le
+        // formulaire simplifié (le champ étant absent = false ≠ null override).
+        $fiscalOverrides = [];
+        if ($request->has('loyer_assujetti_tva')) {
+            $assujetti = $request->boolean('loyer_assujetti_tva');
+            $fiscalOverrides['loyer_assujetti_tva'] = $assujetti;
+            $fiscalOverrides['taux_tva_loyer']      = $validated['taux_tva_loyer']
+                ?? ($assujetti ? FiscalService::TVA_TAUX : 0.0);
+        }
+        if ($request->has('brs_applicable')) {
+            $fiscalOverrides['brs_applicable'] = $request->boolean('brs_applicable');
+        }
+        if (($validated['taux_brs_manuel'] ?? null) !== null) {
+            $fiscalOverrides['taux_brs_manuel'] = $validated['taux_brs_manuel'];
+        }
 
         $referenceBail = ! empty($validated['reference_bail'])
             ? trim($validated['reference_bail'])
@@ -166,7 +195,7 @@ class ContratController extends Controller implements HasMiddleware
 
         $agencyId = Auth::user()->agency_id;
 
-        $contrat = DB::transaction(function () use ($validated, $loyerNu, $chargesMensuelles, $tomAmount, $loyerContractuel, $referenceBail, $request, $agencyId) {
+        $contrat = DB::transaction(function () use ($validated, $loyerNu, $chargesMensuelles, $tomAmount, $modeCharges, $chargesAssujetties, $fiscalOverrides, $referenceBail, $request, $agencyId) {
             $bien = Bien::withoutGlobalScopes()
                 ->where('agency_id', $agencyId)
                 ->lockForUpdate()
@@ -177,6 +206,12 @@ class ContratController extends Controller implements HasMiddleware
                     'bien_id' => 'Ce bien a déjà un contrat actif.',
                 ]);
             }
+
+            // TOM : si non saisie sur le bail, reprend la TOM de référence du bien.
+            if (! $request->filled('tom_amount') && (float) $bien->tom_mensuelle > 0) {
+                $tomAmount = (float) $bien->tom_mensuelle;
+            }
+            $loyerContractuel = round($loyerNu + $chargesMensuelles + $tomAmount, 2);
 
             $contrat = Contrat::create([
                 'bien_id'             => $validated['bien_id'],
@@ -200,18 +235,16 @@ class ContratController extends Controller implements HasMiddleware
                 'observations'           => $validated['observations'] ?? null,
                 'clauses_particulieres'  => $validated['clauses_particulieres'] ?? null,
                 'reference_bail'      => $referenceBail,
-                // ── Fiscal (l'Observer ContratObserver calcule aussi automatiquement)
-                'loyer_assujetti_tva'      => $request->boolean('loyer_assujetti_tva'),
-                'taux_tva_loyer'           => $validated['taux_tva_loyer'] ?? 0,
-                'brs_applicable'           => $request->boolean('brs_applicable'),
-                'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? null,
-                'charges_assujetties_tva'  => $request->boolean('charges_assujetties_tva'),
+                // mode_facturation_charges pilote charges_assujetties_tva (regles_fiscales 'tva_charges')
+                'mode_facturation_charges' => $modeCharges,
+                'charges_assujetties_tva'  => $chargesAssujetties,
                 // ── DGID
                 'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? null,
                 'numero_quittance_dgid'    => $validated['numero_quittance_dgid'] ?? null,
                 'montant_droit_de_bail'    => $validated['montant_droit_de_bail'] ?? null,
                 'enregistrement_exonere'   => $request->boolean('enregistrement_exonere'),
-            ]);
+                // ── Overrides fiscaux loyer/BRS (vides = laissés à l'Observer)
+            ] + $fiscalOverrides);
 
             if (empty($referenceBail)) {
                 $contrat->update([
@@ -243,6 +276,87 @@ class ContratController extends Controller implements HasMiddleware
         return redirect()
             ->route('admin.contrats.show', $contrat)
             ->with('success', "Contrat {$contrat->reference_bail} créé ✓");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // APERÇU FISCAL (AJAX) — pour le formulaire de création/édition
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Calcule un aperçu fiscal (loyer TTC, TVA, net) AVANT enregistrement.
+     *
+     * Construit un Contrat transient (non sauvegardé) à partir des valeurs du
+     * formulaire, puis réutilise FiscalContext::fromContrat() + FiscalService.
+     * Aucune règle fiscale n'est dupliquée : le moteur reste la source unique.
+     */
+    public function apercuFiscal(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $this->authorize('create', Contrat::class);
+
+        $agencyId = Auth::user()->agency_id;
+
+        // NB : est_personne_morale_is vit sur le profil Proprietaire, pas sur User.
+        // FiscalContext::fromContrat le lit sur $bien->proprietaire (User) → null → BRS
+        // par défaut applicable (personne physique). On charge juste l'id pour rester
+        // cohérent avec le chemin réel (QuittanceGenerator), sans projeter de colonne absente.
+        $bien = Bien::withoutGlobalScopes()
+            ->where('agency_id', $agencyId)
+            ->with([
+                'proprietaire:id',
+                // Profil propriétaire : assujettissement TVA (F2) + personne morale IS (BRS)
+                'proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is',
+            ])
+            ->find($request->input('bien_id'));
+
+        $loyerNu = (float) $request->input('loyer_nu', 0);
+
+        if (! $bien || $loyerNu <= 0) {
+            return response()->json(['ok' => false]);
+        }
+
+        $charges  = (float) $request->input('charges_mensuelles', 0);
+        $tom      = $request->filled('tom_amount')
+            ? (float) $request->input('tom_amount')
+            : (float) $bien->tom_mensuelle;
+        $typeBail = in_array($request->input('type_bail'), ['habitation', 'commercial', 'mixte', 'saisonnier'], true)
+            ? $request->input('type_bail')
+            : 'habitation';
+        $mode     = in_array($request->input('mode_facturation_charges'), array_keys(Contrat::MODES_FACTURATION_CHARGES), true)
+            ? $request->input('mode_facturation_charges')
+            : null;
+
+        // Contrat transient : aucune écriture en base.
+        $contrat = new Contrat();
+        $contrat->type_bail                = $typeBail;
+        $contrat->loyer_nu                 = $loyerNu;
+        $contrat->charges_mensuelles       = $charges;
+        $contrat->tom_amount               = $tom;
+        $contrat->mode_facturation_charges = $mode;
+        // Débours (ou mode absent) → 0% ; forfait → 18%. Cohérent avec le store().
+        $contrat->charges_assujetties_tva  = ($charges > 0 && $mode === 'forfait');
+        $contrat->setRelation('bien', $bien);
+        // Agence courante → pilote la TVA commission/frais (F2) dans l'aperçu.
+        $contrat->setRelation('agency', Auth::user()->agency);
+
+        $result = FiscalService::calculer(FiscalContext::fromContrat($contrat));
+
+        return response()->json([
+            'ok'                => true,
+            'loyer_ht'          => $result->loyerHt,
+            'taux_tva_loyer'    => $result->tauxTvaLoyerApplique,
+            'tva_loyer'         => $result->tvaLoyer,
+            'loyer_ttc'         => $result->loyerTtc,
+            'charges'           => $result->chargesAmount,
+            'tva_charges'       => $result->tvaCharges,
+            'charges_ttc'       => $result->chargesTtc,
+            'tom'               => $result->tomAmount,
+            'montant_encaisse'  => $result->montantEncaisse,
+            'commission_ht'     => $result->commissionHt,
+            'tva_commission'    => $result->tvaCommission,
+            'commission_ttc'    => $result->commissionTtc,
+            'net_a_verser'      => $result->netAVerserProprietaire,
+            'loyer_assujetti'   => $result->loyerAssujetti,
+        ]);
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -428,9 +542,16 @@ class ContratController extends Controller implements HasMiddleware
                 ? $request->boolean('brs_applicable')
                 : $contrat->brs_applicable,
             'taux_brs_manuel'          => $validated['taux_brs_manuel'] ?? $contrat->taux_brs_manuel,
-            'charges_assujetties_tva'  => $request->has('charges_assujetties_tva')
-                ? $request->boolean('charges_assujetties_tva')
-                : $contrat->charges_assujetties_tva,
+            // mode_facturation_charges pilote charges_assujetties_tva (regles_fiscales 'tva_charges').
+            // Débours = 0%, forfait = 18%. Sans charges → mode null, TVA charges désactivée.
+            'mode_facturation_charges' => $request->has('mode_facturation_charges')
+                ? ($chargesMensuelles > 0 ? $request->input('mode_facturation_charges') : null)
+                : $contrat->mode_facturation_charges,
+            'charges_assujetties_tva'  => $request->has('mode_facturation_charges')
+                ? ($chargesMensuelles > 0 && $request->input('mode_facturation_charges') === 'forfait')
+                : ($request->has('charges_assujetties_tva')
+                    ? $request->boolean('charges_assujetties_tva')
+                    : $contrat->charges_assujetties_tva),
             // ── DGID
             'date_enregistrement_dgid' => $validated['date_enregistrement_dgid'] ?? $contrat->date_enregistrement_dgid,
             'numero_quittance_dgid'    => $validated['numero_quittance_dgid']    ?? $contrat->numero_quittance_dgid,

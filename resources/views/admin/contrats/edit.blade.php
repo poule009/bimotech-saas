@@ -13,10 +13,16 @@
 @endsection
 
 @section('content')
-<form method="POST" action="{{ route('admin.contrats.update', $contrat) }}" class="max-w-[1000px]">
+<form method="POST" action="{{ route('admin.contrats.update', $contrat) }}"
+      x-data="contratForm"
+      data-apercu-url="{{ route('admin.contrats.apercu-fiscal') }}"
+      x-on:soc:chosen="onBienChosen"
+      class="max-w-[1000px]">
     @csrf
     @method('PUT')
     <input type="hidden" name="type_bail" value="{{ old('type_bail', $contrat->type_bail) }}">
+    {{-- bien_id non modifiable : sert uniquement à l'aperçu fiscal AJAX --}}
+    <input type="hidden" name="bien_id" value="{{ $contrat->bien_id }}">
 
     @if($errors->any())
         <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error">
@@ -67,7 +73,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="loyer_nu" class="f-label">Loyer mensuel (FCFA)</label>
-                        <input id="loyer_nu" type="number" name="loyer_nu" value="{{ old('loyer_nu', (int) $contrat->loyer_nu) }}" min="1" step="1" class="f-input @error('loyer_nu') f-input-error @enderror">
+                        <input id="loyer_nu" type="number" name="loyer_nu" value="{{ old('loyer_nu', (int) $contrat->loyer_nu) }}" min="1" step="1" x-model="loyer" x-on:input="onInput" class="f-input @error('loyer_nu') f-input-error @enderror">
                         @error('loyer_nu')<p class="field-error">{{ $message }}</p>@enderror
                     </div>
                     <div>
@@ -88,9 +94,25 @@
                         <input id="reference_bail" type="text" name="reference_bail" value="{{ old('reference_bail', $contrat->reference_bail) }}" maxlength="60" class="f-input @error('reference_bail') f-input-error @enderror">
                         @error('reference_bail')<p class="field-error">{{ $message }}</p>@enderror
                     </div>
-                    <div>
-                        <label for="charges_mensuelles" class="f-label">Charges mensuelles (FCFA)</label>
-                        <input id="charges_mensuelles" type="number" name="charges_mensuelles" value="{{ old('charges_mensuelles', (int) $contrat->charges_mensuelles) }}" min="0" step="1" class="f-input max-w-[240px]">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="charges_mensuelles" class="f-label">Charges mensuelles (FCFA)</label>
+                            <input id="charges_mensuelles" type="number" name="charges_mensuelles" value="{{ old('charges_mensuelles', (int) $contrat->charges_mensuelles) }}" min="0" step="1" x-model="charges" x-on:input="onInput" class="f-input">
+                        </div>
+                        <div>
+                            <label for="tom_amount" class="f-label">TOM mensuelle (FCFA)</label>
+                            <input id="tom_amount" type="number" name="tom_amount" value="{{ old('tom_amount', (int) $contrat->tom_amount) }}" min="0" step="1" x-model="tom" x-on:input="onInput" class="f-input">
+                        </div>
+                    </div>
+
+                    <div x-show="showChargesMode" x-cloak>
+                        <label for="mode_facturation_charges" class="f-label">Mode de facturation des charges</label>
+                        <select id="mode_facturation_charges" name="mode_facturation_charges" x-model="mode" x-on:change="onInput" class="f-select max-w-[420px]">
+                            @foreach(\App\Models\Contrat::MODES_FACTURATION_CHARGES as $val => $lbl)
+                                <option value="{{ $val }}" @selected(old('mode_facturation_charges', $contrat->mode_facturation_charges ?? 'debours') === $val)>{{ $lbl }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11.5px] text-muted mt-1">Débours = refacturé à l'identique (0 % TVA). Forfait = montant fixe (TVA 18 %).</p>
                     </div>
                     <div>
                         <label for="clauses_particulieres" class="f-label">Clauses particulières</label>
@@ -100,7 +122,64 @@
             </div>
         </div>
 
-        <div class="lg:sticky lg:top-6">
+        <div class="lg:sticky lg:top-6 space-y-5">
+
+            {{-- Aperçu fiscal (calculé par FiscalService via AJAX) --}}
+            <div class="f-card">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="f-card-title mb-0">Aperçu fiscal</h3>
+                    <span x-show="isLoading" x-cloak class="text-[11px] text-muted">Calcul…</span>
+                </div>
+                <p class="f-card-sub">Estimation — calcul officiel réappliqué à chaque quittance.</p>
+
+                <div x-show="!show" x-cloak class="text-[12.5px] text-muted py-2">
+                    Ajustez le loyer pour voir le détail TVA.
+                </div>
+
+                <div x-show="show" x-cloak class="text-[13px]">
+                    <div class="flex justify-between py-1.5 border-b border-paper-dim">
+                        <span class="text-muted">Loyer HT</span><span class="font-semibold" x-text="loyerHtTxt"></span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-paper-dim">
+                        <span class="text-muted">TVA loyer (<span x-text="tauxTvaLabel"></span>)</span>
+                        <span class="font-semibold" x-text="tvaLoyerTxt"></span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-paper-dim">
+                        <span class="text-muted">Loyer TTC</span><span class="font-semibold" x-text="loyerTtcTxt"></span>
+                    </div>
+                    <template x-if="hasCharges">
+                        <div>
+                            <div class="flex justify-between py-1.5 border-b border-paper-dim">
+                                <span class="text-muted">Charges</span><span class="font-semibold" x-text="chargesTxt"></span>
+                            </div>
+                            <div x-show="hasTvaCharges" class="flex justify-between py-1.5 border-b border-paper-dim">
+                                <span class="text-muted">TVA charges (forfait)</span><span class="font-semibold" x-text="tvaChargesTxt"></span>
+                            </div>
+                        </div>
+                    </template>
+                    <template x-if="hasTom">
+                        <div class="flex justify-between py-1.5 border-b border-paper-dim">
+                            <span class="text-muted">TOM</span><span class="font-semibold" x-text="tomTxt"></span>
+                        </div>
+                    </template>
+                    <div class="flex justify-between py-2 border-b-2 border-ink mt-1">
+                        <span class="font-bold">Total encaissé locataire</span>
+                        <span class="font-bold text-teal" x-text="encaisseTxt"></span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-paper-dim">
+                        <span class="text-muted">Commission agence TTC<br><span class="text-[11px]">(dont TVA <span x-text="tvaCommTxt"></span>)</span></span>
+                        <span class="font-semibold" x-text="commTtcTxt"></span>
+                    </div>
+                    <div class="flex justify-between py-2">
+                        <span class="font-bold">Net à verser au propriétaire</span>
+                        <span class="font-bold text-gold" x-text="netTxt"></span>
+                    </div>
+                    <div x-show="exonere" x-cloak class="mt-2 rounded-md bg-green/10 text-green px-3 py-2 text-[11.5px]">
+                        Loyer exonéré de TVA (habitation non meublée).
+                    </div>
+                </div>
+            </div>
+
             <div class="f-card">
                 <button type="submit" class="btn-primary mb-2.5">Enregistrer</button>
                 <a href="{{ route('admin.contrats.show', $contrat) }}" class="block w-full text-center py-[13px] rounded border-[1.5px] border-line bg-white text-ink text-sm font-semibold hover:border-teal transition-colors">Annuler</a>

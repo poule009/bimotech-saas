@@ -108,6 +108,9 @@ class BienController extends Controller
             'sub'      => 'Propriétaire : ' . ($b->proprietaire->name ?? '—'),
             'initials' => mb_strtoupper(mb_substr($b->reference, 0, 2)),
             'fill'     => (int) $b->loyer_mensuel,
+            // Champs fiscaux exposés au formulaire Contrat (pré-remplissage TOM + aperçu TVA)
+            'tom'      => (float) ($b->tom_mensuelle ?? 0),
+            'meuble'   => (bool) $b->meuble,
         ]));
     }
 
@@ -223,6 +226,7 @@ class BienController extends Controller
         $validated['meuble']          = $request->boolean('meuble');
         $validated['parking']         = $request->boolean('parking');
         $validated['climatise']       = $request->boolean('climatise');
+        $validated['tom_mensuelle']   = (float) ($validated['tom_mensuelle'] ?? 0);
         $validated['taux_commission'] = $validated['taux_commission'] ?? 10;
         $validated['amenites']        = $request->filled('amenites')
             ? array_values(array_filter(array_map('trim', explode(',', $request->amenites))))
@@ -288,6 +292,7 @@ class BienController extends Controller
         $validated['meuble']          = $request->boolean('meuble');
         $validated['parking']         = $request->boolean('parking');
         $validated['climatise']       = $request->boolean('climatise');
+        $validated['tom_mensuelle']   = (float) ($validated['tom_mensuelle'] ?? 0);
         $validated['visible_portail'] = $request->boolean('visible_portail');
         $validated['amenites']        = $request->filled('amenites')
             ? array_values(array_filter(array_map('trim', explode(',', $request->amenites))))

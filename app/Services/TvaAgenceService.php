@@ -23,11 +23,14 @@ class TvaAgenceService
      */
     public function calculerTvaCollectee(int $agencyId, int $mois, int $annee): array
     {
+        // F3 : la TVA est collectée à l'ENCAISSEMENT (régime des prestations de service).
+        // On ne compte donc que les quittances validées (payées), pas les impayées « unpaid ».
+        // Cohérent avec FiscalService::calculerBilanAnnuel (statut = 'valide').
         $paiements = Paiement::with(['contrat.locataire', 'contrat.bien'])
             ->where('agency_id', $agencyId)
             ->whereYear('date_paiement', $annee)
             ->whereMonth('date_paiement', $mois)
-            ->where('statut', '!=', 'annule')
+            ->where('statut', 'valide')
             ->get();
 
         $tvaCommissions       = (float) $paiements->sum('tva_commission');

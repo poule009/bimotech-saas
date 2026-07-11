@@ -125,6 +125,8 @@ export function registerComponents(Alpine) {
                 const el = document.getElementById(this.fillField);
                 if (el) { el.value = item.fill; }
             }
+            // Notifie le formulaire parent (ex. aperçu fiscal du contrat) — sans effet si rien n'écoute.
+            this.$el.dispatchEvent(new CustomEvent('soc:chosen', { bubbles: true, detail: item }));
         },
 
         clear() {
@@ -219,6 +221,140 @@ export function registerComponents(Alpine) {
             d.setMonth(d.getMonth() + parseInt(this.duree, 10));
             return d.toISOString().slice(0, 10);
         },
+    }));
+
+    // Formulaire contrat enrichi : durée (→ date_fin) + APERÇU FISCAL en direct.
+    // L'aperçu appelle un endpoint serveur (data-apercu-url) qui réutilise
+    // FiscalService — aucune règle de TVA n'est dupliquée côté JS.
+    Alpine.data('contratForm', () => ({
+        // — durée —
+        debut: '',
+        duree: '12',
+        // — état formulaire fiscal —
+        loyer: '',
+        charges: '',
+        tom: '',
+        mode: 'debours',
+        meuble: false,
+        // — aperçu —
+        apercuUrl: '',
+        loading: false,
+        ready: false,
+        r: null,
+        _timer: null,
+
+        init() {
+            this.debut = this.$el.dataset.debut || '';
+            if (this.$el.dataset.duree) { this.duree = this.$el.dataset.duree; }
+            this.apercuUrl = this.$el.dataset.apercuUrl || '';
+            // Reprend les valeurs rendues côté serveur (prefill / old()).
+            this.loyer = this._dom('loyer_nu');
+            this.charges = this._dom('charges_mensuelles');
+            this.tom = this._dom('tom_amount');
+            const m = this.$el.querySelector('[name="mode_facturation_charges"]');
+            if (m && m.value) { this.mode = m.value; }
+            this.$nextTick(() => this.scheduleRefresh());
+        },
+
+        _dom(name) {
+            const el = this.$el.querySelector('[name="' + name + '"]');
+            return el ? el.value : '';
+        },
+
+        // — durée —
+        get dateFin() {
+            if (this.duree === 'indeterminee' || ! this.debut) { return ''; }
+            const d = new Date(this.debut);
+            if (isNaN(d.getTime())) { return ''; }
+            d.setMonth(d.getMonth() + parseInt(this.duree, 10));
+            return d.toISOString().slice(0, 10);
+        },
+
+        // — charges / mode —
+        get chargesNum() {
+            const n = parseFloat(String(this.charges).replace(/\s/g, '').replace(',', '.'));
+            return isNaN(n) ? 0 : n;
+        },
+        get showChargesMode() { return this.chargesNum > 0; },
+
+        // — sélection du bien (événement soc:chosen émis par searchOrCreate) —
+        onBienChosen(event) {
+            const item = event.detail || {};
+            if (item.fill != null) { this.loyer = String(item.fill); }
+            if (item.tom != null && (this.tom === '' || Number(this.tom) === 0)) {
+                this.tom = String(item.tom);
+            }
+            if (typeof item.meuble !== 'undefined') { this.meuble = !!item.meuble; }
+            this.scheduleRefresh();
+        },
+
+        onInput() { this.scheduleRefresh(); },
+
+        scheduleRefresh() {
+            clearTimeout(this._timer);
+            this._timer = setTimeout(() => this.refresh(), 350);
+        },
+
+        refresh() {
+            const bienEl = this.$el.querySelector('[name="bien_id"]');
+            const bienId = bienEl ? bienEl.value : '';
+            const loyerNum = parseFloat(String(this.loyer).replace(/\s/g, '').replace(',', '.'));
+            if (! bienId || ! loyerNum || loyerNum <= 0 || ! this.apercuUrl) {
+                this.ready = false; this.r = null; return;
+            }
+            this.loading = true;
+            const typeEl = this.$el.querySelector('[name="type_bail"]');
+            const token = document.querySelector('meta[name="csrf-token"]');
+            fetch(this.apercuUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': token ? token.content : '',
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    bien_id: bienId,
+                    loyer_nu: loyerNum,
+                    charges_mensuelles: this.chargesNum,
+                    tom_amount: this.tom,
+                    mode_facturation_charges: this.showChargesMode ? this.mode : null,
+                    type_bail: typeEl ? typeEl.value : 'habitation',
+                }),
+            })
+                .then((res) => (res.ok ? res.json() : null))
+                .then((data) => {
+                    this.loading = false;
+                    if (data && data.ok) { this.r = data; this.ready = true; }
+                    else { this.r = null; this.ready = false; }
+                })
+                .catch(() => { this.loading = false; this.ready = false; });
+        },
+
+        _fmt(n) {
+            const v = Math.round(Number(n) || 0);
+            return v.toLocaleString('fr-FR').replace(/[ ,]/g, ' ') + ' F';
+        },
+
+        // — getters d'affichage —
+        get show() { return this.ready && !! this.r; },
+        get isLoading() { return this.loading; },
+        get tauxTvaLabel() { return (this.r ? this.r.taux_tva_loyer : 0) + ' %'; },
+        get exonere() { return !! (this.r && ! this.r.loyer_assujetti); },
+        get loyerHtTxt() { return this._fmt(this.r && this.r.loyer_ht); },
+        get tvaLoyerTxt() { return this._fmt(this.r && this.r.tva_loyer); },
+        get loyerTtcTxt() { return this._fmt(this.r && this.r.loyer_ttc); },
+        get chargesTxt() { return this._fmt(this.r && this.r.charges); },
+        get tvaChargesTxt() { return this._fmt(this.r && this.r.tva_charges); },
+        get tomTxt() { return this._fmt(this.r && this.r.tom); },
+        get encaisseTxt() { return this._fmt(this.r && this.r.montant_encaisse); },
+        get commTtcTxt() { return this._fmt(this.r && this.r.commission_ttc); },
+        get tvaCommTxt() { return this._fmt(this.r && this.r.tva_commission); },
+        get netTxt() { return this._fmt(this.r && this.r.net_a_verser); },
+        get hasCharges() { return !! (this.r && Number(this.r.charges) > 0); },
+        get hasTvaCharges() { return !! (this.r && Number(this.r.tva_charges) > 0); },
+        get hasTom() { return !! (this.r && Number(this.r.tom) > 0); },
     }));
 
     // Paramètres agence : onglets (Identité / Fiscalité / Documents) + toggle TVA agence.

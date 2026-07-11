@@ -83,6 +83,14 @@ final class FiscalContext
         public readonly ?float  $tauxEnregistrementDgid = null,
         // Timbre fiscal fixe (2 000 FCFA — CGI SN) ; surchargeable si législation change
         public readonly float   $timbreFiscalDgid       = 2000.0,
+
+        // ── Assujettissement TVA des parties (audit TVA — F2) ────────────────
+        // agenceAssujettieTva      → pilote la TVA sur commission et frais d'agence
+        // proprietaireAssujettiTva → pilote la TVA sur loyer et charges
+        // Défaut true : sans information contraire, l'opération taxable porte la TVA
+        // (règle d'assujettissement par nature, cf. regles_fiscales 'tva_loyer_assujettissement').
+        public readonly bool    $agenceAssujettieTva      = true,
+        public readonly bool    $proprietaireAssujettiTva = true,
     ) {}
 
     /**
@@ -171,8 +179,9 @@ final class FiscalContext
             estMeuble:              (bool)  ($bien?->meuble ?? false),
             // C3 : si profil locataire absent et bail commercial/mixte → entreprise présumée
             // Art. 201 §2 CGI SN : BRS applicable si bailleur = personne physique.
-            // On lit est_personne_morale_is sur le propriétaire ; défaut FALSE = BRS actif.
-            brsApplicable: !(bool) ($bien?->proprietaire?->est_personne_morale_is ?? false),
+            // F4 : est_personne_morale_is vit sur le PROFIL Proprietaire (User->proprietaire),
+            // pas sur le User. Défaut FALSE = personne physique = BRS actif.
+            brsApplicable: !(bool) ($bien?->proprietaire?->proprietaire?->est_personne_morale_is ?? false),
             tauxCommission:         (float) ($bien?->taux_commission ?? FiscalService::COMMISSION_TAUX),
             tauxTvaCommission:      FiscalService::TVA_TAUX,
             tauxTvaLoyerOverride:   $tauxTvaOverride,
@@ -203,6 +212,12 @@ final class FiscalContext
                                         ? (float) $contrat->taux_enregistrement_dgid
                                         : null,
             timbreFiscalDgid:       FiscalService::DGID_TIMBRE_FISCAL,
+
+            // ── Assujettissement TVA des parties (F2) ────────────────────────
+            // Lu sur l'agence et sur le PROFIL propriétaire (User->proprietaire).
+            // Défaut true si la donnée n'est pas chargée (ne jamais masquer une TVA due).
+            agenceAssujettieTva:      (bool) ($contrat->agency?->assujetti_tva ?? true),
+            proprietaireAssujettiTva: (bool) ($bien?->proprietaire?->proprietaire?->assujetti_tva ?? true),
         );
     }
 }

@@ -34,6 +34,7 @@ class UpdateBienRequest extends FormRequest
             'loyer_mensuel'   => ['required', 'numeric', 'min:1000'],
             'taux_commission' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'meuble'          => ['nullable', 'boolean'],
+            'tom_mensuelle'   => ['nullable', 'numeric', 'min:0'],
             'statut'          => ['required', Rule::in(['disponible', 'loue', 'en_travaux'])],
             'description'     => ['nullable', 'string'],
             'visible_portail' => ['nullable', 'boolean'],

@@ -16,6 +16,10 @@ class AgencyFactory extends Factory
             'adresse' => fake()->streetAddress(),
             'ville' => 'Dakar',
             'actif' => true,
+            // Les agences de test représentent une agence enregistrée à la TVA
+            // (cas courant d'un prestataire immobilier). En prod, le flag est
+            // opt-in (false par défaut, cf. migration make_assujetti_tva_opt_in).
+            'assujetti_tva' => true,
         ];
     }
 }

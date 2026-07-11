@@ -214,6 +214,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Contrats — écriture
         Route::post('contrats/locataire-rapide', [ContratController::class, 'storeLocataireRapide'])->name('contrats.locataire-rapide')->middleware(['throttle:20,1', 'agency.can:locataires.creer']);
+        Route::post('contrats/apercu-fiscal',    [ContratController::class, 'apercuFiscal'])->name('contrats.apercu-fiscal')->middleware('agency.can:contrats.creer');
         Route::get('contrats/create',            [ContratController::class, 'create'])->name('contrats.create')->middleware('agency.can:contrats.creer');
         Route::post('contrats',                  [ContratController::class, 'store'])->name('contrats.store')->middleware('agency.can:contrats.creer');
         Route::get('contrats/{contrat}/edit',    [ContratController::class, 'edit'])->name('contrats.edit')->middleware('agency.can:contrats.modifier');

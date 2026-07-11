@@ -18,6 +18,11 @@ class QuittanceGenerator
     /** Relations nécessaires au calcul fiscal. */
     public const RELATIONS = [
         'bien:id,agency_id,proprietaire_id,taux_commission,meuble,type',
+        'bien.proprietaire:id',
+        // Profil propriétaire : assujettissement TVA (F2) + personne morale IS (BRS, F4)
+        'bien.proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is',
+        // Agence : assujettissement TVA (F2) pour la TVA commission/frais
+        'agency:id,assujetti_tva',
         'locataire:id,name',
         'locataire.locataire:user_id,est_entreprise,taux_brs_override',
     ];
@@ -59,6 +64,8 @@ class QuittanceGenerator
             'loyer_ttc'                 => $result->loyerTtc,
             'loyer_nu'                  => $result->loyerHt,
             'charges_amount'            => $result->chargesAmount,
+            'tva_charges'               => $result->tvaCharges,
+            'charges_ttc'               => $result->chargesTtc,
             'tom_amount'                => $result->tomAmount,
             'montant_encaisse'          => $result->montantEncaisse,
             // Commission
@@ -75,8 +82,8 @@ class QuittanceGenerator
             // Colonne canonique lue par la compta (= net + caution si remise ; identique
             // à netAVerser pour un loyer mensuel). Même source que FiscalResult::toPaiementFields.
             'montant_net_bailleur'      => $result->netBailleur,
-            // Snapshot fiscal
-            'regime_fiscal_snapshot'    => json_encode($result->toArray()),
+            // Snapshot fiscal (le cast 'array' du modèle sérialise — ne pas json_encode ici)
+            'regime_fiscal_snapshot'    => $result->toArray(),
             // Divers
             'reference_bail'            => $contrat->reference_bail_affichee,
             'caution_percue'            => 0,

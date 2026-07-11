@@ -108,6 +108,19 @@
                         <label for="taux_commission" class="f-label">Commission agence (%)</label>
                         <input id="taux_commission" type="number" name="taux_commission" value="{{ old('taux_commission', 10) }}" min="0" max="30" step="0.5" class="f-input">
                     </div>
+                    <div>
+                        <label for="tom_mensuelle" class="f-label">TOM mensuelle (FCFA) <span class="text-muted font-normal">(optionnel)</span></label>
+                        <input id="tom_mensuelle" type="number" name="tom_mensuelle" value="{{ old('tom_mensuelle') }}" min="0" step="1" placeholder="0" class="f-input">
+                        <p class="text-[11.5px] text-muted mt-1">Taxe ordures ménagères facturée au locataire. Reprise par défaut sur le bail.</p>
+                    </div>
+                    <div>
+                        <label class="f-label">Logement meublé ?</label>
+                        <label class="flex items-center gap-2.5 px-3.5 py-3 rounded-[9px] border border-line cursor-pointer hover:border-teal transition-colors">
+                            <input type="checkbox" name="meuble" value="1" @checked(old('meuble')) class="w-[16px] h-[16px] accent-teal">
+                            <span class="text-[14px]">Oui, ce bien est loué meublé</span>
+                        </label>
+                        <p class="text-[11.5px] text-muted mt-1">Impact TVA : meublé → 18 % sur le loyer ; non meublé (habitation) → exonéré.</p>
+                    </div>
                 </div>
             </div>
 
@@ -121,10 +134,10 @@
                     <div><label for="nombre_sdb" class="f-label">SDB</label><input id="nombre_sdb" type="number" name="nombre_sdb" value="{{ old('nombre_sdb') }}" min="0" class="f-input"></div>
                 </div>
                 <div class="flex flex-wrap gap-5">
-                    <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="meuble" value="1" @checked(old('meuble')) class="w-[16px] h-[16px] accent-teal"> Meublé</label>
                     <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="parking" value="1" @checked(old('parking')) class="w-[16px] h-[16px] accent-teal"> Parking</label>
                     <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="climatise" value="1" @checked(old('climatise')) class="w-[16px] h-[16px] accent-teal"> Climatisé</label>
                 </div>
+                <p class="text-[11.5px] text-muted mt-2">Le caractère « meublé » (impact TVA) se règle plus haut, dans « Loyer & commission ».</p>
             </div>
 
             {{-- Photos --}}

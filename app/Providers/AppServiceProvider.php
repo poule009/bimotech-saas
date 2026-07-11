@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Contrat;
+use App\Observers\ContratObserver;
 use App\Services\FiscalService;
 use App\Services\PlanFeatureService;
 use App\Services\QuittanceService;
@@ -23,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Auto-calcul des champs fiscaux du contrat (loyer_assujetti_tva, taux_tva_loyer,
+        // brs_applicable, charges_assujetties_tva depuis mode_facturation_charges,
+        // loyer_contractuel). Mécanisme documenté par la migration des champs fiscaux.
+        Contrat::observe(ContratObserver::class);
+
         // @canAccessFeature('feature') ... @endcanAccessFeature
         Blade::if('canAccessFeature', function (string $feature): bool {
             return app(PlanFeatureService::class)->canAccess($feature);

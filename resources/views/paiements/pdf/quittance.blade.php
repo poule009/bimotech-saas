@@ -5,10 +5,26 @@
     $periode = $paiement->periode ? \Carbon\Carbon::parse($paiement->periode) : now();
     $datePaie = $paiement->date_paiement ? \Carbon\Carbon::parse($paiement->date_paiement) : now();
 
-    $charges = (float) ($paiement->charges_amount ?? 0);
-    $tom     = (float) ($paiement->tom_amount ?? 0);
-    $total   = (float) ($paiement->montant_encaisse ?? 0);
-    $loyer   = max(0, $total - $charges - $tom);
+    // Ventilation fiscale (colonnes figées à la génération par FiscalService)
+    $loyerHt    = (float) ($paiement->loyer_ht ?? $paiement->loyer_nu ?? 0);
+    $tvaLoyer   = (float) ($paiement->tva_loyer ?? 0);
+    $loyerTtc   = (float) ($paiement->loyer_ttc ?? ($loyerHt + $tvaLoyer));
+    $charges    = (float) ($paiement->charges_amount ?? 0);
+    $tvaCharges = (float) ($paiement->tva_charges ?? 0);
+    $tom        = (float) ($paiement->tom_amount ?? 0);
+    $total      = (float) ($paiement->montant_encaisse ?? ($loyerTtc + $charges + $tvaCharges + $tom));
+    $commHt     = (float) ($paiement->commission_agence ?? 0);
+    $tvaComm    = (float) ($paiement->tva_commission ?? 0);
+    $commTtc    = (float) ($paiement->commission_ttc ?? ($commHt + $tvaComm));
+    $netProprio = (float) ($paiement->net_a_verser_proprietaire ?? 0);
+
+    // Taux affichés déduits des montants figés (assiette loyer = loyer HT + TOM)
+    $assietteLoyer = $loyerHt + $tom;
+    $tauxLoyer   = $assietteLoyer > 0 ? round($tvaLoyer / $assietteLoyer * 100) : 0;
+    $tauxCharges = $charges > 0 ? round($tvaCharges / $charges * 100) : 0;
+
+    // Détail agence : réservé aux reçus propriétaire / agence (jamais sur le reçu locataire)
+    $showAgence = in_array($destinataire ?? 'agence', ['proprietaire', 'agence'], true);
 
     $modes = [
         'especes' => 'Espèces', 'virement' => 'Virement bancaire', 'cheque' => 'Chèque',
@@ -111,11 +127,27 @@
     <table class="detail-table">
         <tr><td>Bien loué</td><td>{{ $bienNom }}{{ $bienAdresse ? ' — ' . $bienAdresse : '' }}</td></tr>
         <tr><td>Période concernée</td><td>{{ $periode->copy()->startOfMonth()->locale('fr')->isoFormat('D MMMM Y') }} au {{ $periode->copy()->endOfMonth()->locale('fr')->isoFormat('D MMMM Y') }}</td></tr>
-        <tr><td>Loyer</td><td>{{ $fmt($loyer) }} F CFA</td></tr>
-        <tr><td>Charges</td><td>{{ $charges > 0 ? $fmt($charges) . ' F CFA' : 'Incluses' }}</td></tr>
+        <tr><td>Loyer hors taxes</td><td>{{ $fmt($loyerHt) }} F CFA</td></tr>
+        @if($tvaLoyer > 0)<tr><td>TVA sur loyer ({{ $tauxLoyer }} %)</td><td>{{ $fmt($tvaLoyer) }} F CFA</td></tr>@endif
+        <tr><td>Loyer TTC</td><td>{{ $fmt($loyerTtc) }} F CFA</td></tr>
+        @if($charges > 0)
+            <tr><td>Charges</td><td>{{ $fmt($charges) }} F CFA</td></tr>
+            @if($tvaCharges > 0)<tr><td>TVA sur charges ({{ $tauxCharges }} %)</td><td>{{ $fmt($tvaCharges) }} F CFA</td></tr>@endif
+        @else
+            <tr><td>Charges</td><td>Incluses</td></tr>
+        @endif
         @if($tom > 0)<tr><td>TOM (taxe ordures ménagères)</td><td>{{ $fmt($tom) }} F CFA</td></tr>@endif
         <tr class="total"><td>Montant reçu</td><td>{{ $fmt($total) }} F CFA</td></tr>
     </table>
+
+    @if($showAgence && ($commTtc > 0 || $netProprio > 0))
+        <table class="detail-table">
+            <tr><td>Commission agence HT</td><td>{{ $fmt($commHt) }} F CFA</td></tr>
+            @if($tvaComm > 0)<tr><td>TVA sur commission (18 %)</td><td>{{ $fmt($tvaComm) }} F CFA</td></tr>@endif
+            <tr><td>Commission agence TTC</td><td>{{ $fmt($commTtc) }} F CFA</td></tr>
+            <tr class="total"><td>Net reversé au propriétaire</td><td>{{ $fmt($netProprio) }} F CFA</td></tr>
+        </table>
+    @endif
 
     <div class="mode-paiement">Réglé par <strong>{{ $modeLabel }}</strong> le {{ $datePaie->locale('fr')->isoFormat('D MMMM Y') }}.</div>
 
