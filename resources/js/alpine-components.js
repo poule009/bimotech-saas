@@ -459,6 +459,19 @@ export function registerComponents(Alpine) {
         },
     }));
 
+    // Champ fichier simple : affiche le nom du fichier choisi, sans soumettre.
+    // Placeholder configurable via data-placeholder.
+    Alpine.data('fileField', () => ({
+        filename: '',
+        placeholder: 'Choisir un fichier',
+        init() { this.placeholder = this.$el.dataset.placeholder || this.placeholder; },
+        get label() { return this.filename || this.placeholder; },
+        pick(event) {
+            const file = event.target.files && event.target.files[0];
+            this.filename = file ? file.name : '';
+        },
+    }));
+
     // Module Import — zone d'upload : au choix d'un fichier, affiche le nom et
     // soumet immédiatement le formulaire (déclenche l'aperçu côté serveur).
     Alpine.data('importUpload', () => ({

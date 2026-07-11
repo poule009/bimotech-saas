@@ -32,15 +32,92 @@ class SubscriptionController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $tarifs = Subscription::TARIFS;
-        $labels = Subscription::LABELS;
-        $durees = Subscription::DUREES_MOIS;
-        $mode   = config('services.paytech.mode', 'simulation');
+        $usage = $this->usage($agency);
 
-        return view('subscription.index', compact(
-            'agency', 'subscription', 'historique',
-            'tarifs', 'labels', 'durees', 'mode'
-        ));
+        return view('subscription.index', [
+            'agency'       => $agency,
+            'subscription' => $subscription,
+            'etat'         => $subscription?->etatEffectif(),
+            'historique'   => $historique,
+            'usage'        => $usage,
+            'tarifs'       => Subscription::TARIFS,
+        ]);
+    }
+
+    /** Formulaire de déclaration de paiement manuel. */
+    public function declarer(Request $request): View
+    {
+        $this->authorize('isAdmin');
+
+        return view('subscription.declarer', [
+            'tarifs'       => Subscription::TARIFS,
+            'planPreselect'=> $request->query('plan'),
+            'subscription' => Auth::user()->agency->subscription,
+        ]);
+    }
+
+    /** Enregistre une déclaration de paiement (statut en_attente + justificatif obligatoire). */
+    public function store(Request $request): RedirectResponse
+    {
+        $this->authorize('isAdmin');
+        $agency = Auth::user()->agency;
+
+        $validated = $request->validate([
+            'plan_niveau'  => ['required', 'in:starter,pro,agence'],
+            'montant'      => ['required', 'numeric', 'min:1'],
+            'methode'      => ['required', 'in:wave,orange_money,virement'],
+            'reference'    => ['required', 'string', 'max:120'],
+            'justificatif' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ], [
+            'justificatif.required' => 'Le justificatif (reçu) est obligatoire.',
+            'justificatif.mimes'    => 'Le reçu doit être une image (jpg, png) ou un PDF.',
+            'plan_niveau.required'  => 'Choisissez le plan souscrit.',
+            'reference.required'    => 'Indiquez la référence de la transaction.',
+        ]);
+
+        // Un abonnement doit exister (créé à l'inscription) ; sinon on le crée en essai échu.
+        $subscription = $agency->subscription ?? Subscription::create([
+            'agency_id'        => $agency->id,
+            'statut'           => 'essai',
+            'date_debut_essai' => now()->subDays(31),
+            'date_fin_essai'   => now()->subDay(),
+        ]);
+
+        $chemin = $request->file('justificatif')->store('justificatifs_abonnement', 'public');
+
+        SubscriptionPayment::create([
+            'subscription_id' => $subscription->id,
+            'agency_id'       => $agency->id,
+            'plan'            => 'mensuel',                    // cycle (enum mensuel|annuel)
+            'plan_niveau'     => $validated['plan_niveau'],    // tier souscrit (lu à la confirmation)
+            'montant'         => $validated['montant'],
+            'statut'          => SubscriptionPayment::STATUT_EN_ATTENTE,
+            'reference'       => $validated['reference'],
+            'justificatif'    => $chemin,
+            'methode'         => $validated['methode'],
+        ]);
+
+        return redirect()->route('subscription.index')->with('success',
+            "Déclaration envoyée. Votre paiement sera vérifié sous 24h ouvrées — votre accès sera réactivé dès confirmation.");
+    }
+
+    /** Compteurs d'usage vs limites du plan (les 2 seules limites du modèle). */
+    private function usage($agency): array
+    {
+        $niveau  = $agency->subscription?->plan_niveau ?? 'starter';
+        $effectif = config("plans.niveau_effectif.{$niveau}", 'starter');
+        $limiteBiens = config("plans.nb_unites_max.{$effectif}");
+        $limiteEquipe = config("plans.nb_admins_max.{$effectif}");
+
+        $nbBiens  = $agency->nbUnitesActives();
+        $nbEquipe = \App\Models\User::where('agency_id', $agency->id)->where('role', 'admin')->count();
+
+        $pct = fn ($n, $max) => $max ? min(100, (int) round($n / $max * 100)) : 0;
+
+        return [
+            'biens'  => ['n' => $nbBiens,  'max' => $limiteBiens,  'pct' => $pct($nbBiens, $limiteBiens)],
+            'equipe' => ['n' => $nbEquipe, 'max' => $limiteEquipe, 'pct' => $pct($nbEquipe, $limiteEquipe)],
+        ];
     }
 
     public function initierPaiement(Request $request): RedirectResponse

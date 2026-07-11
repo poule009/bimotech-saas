@@ -68,6 +68,66 @@ class Subscription extends Model
         'annuel'  => 12,
     ];
 
+    // Durée de la période de grâce (lecture seule) après la fin d'essai ou d'échéance.
+    public const GRACE_JOURS = 5;
+
+    // ── État effectif du cycle de vie ─────────────────────────────────────
+    // essai → (fin essai) → grâce (5j, lecture seule) → suspendu (bloqué)
+    // actif → (échéance) → grâce (5j, lecture seule) → suspendu (bloqué)
+
+    public const ETAT_ESSAI    = 'essai';
+    public const ETAT_ACTIF    = 'actif';
+    public const ETAT_GRACE    = 'grace';
+    public const ETAT_SUSPENDU = 'suspendu';
+
+    /**
+     * État réel calculé depuis les dates (source de vérité pour l'accès),
+     * indépendant de la colonne `statut` qui peut être en retard.
+     */
+    public function etatEffectif(): string
+    {
+        $now = now();
+
+        // Abonnement payant en cours ou échu
+        if ($this->statut === 'actif' && $this->date_fin_abonnement) {
+            if ($now->lt($this->date_fin_abonnement)) {
+                return self::ETAT_ACTIF;
+            }
+            return $now->lt($this->date_fin_abonnement->copy()->addDays(self::GRACE_JOURS))
+                ? self::ETAT_GRACE
+                : self::ETAT_SUSPENDU;
+        }
+
+        // Essai en cours ou échu
+        if ($this->date_fin_essai) {
+            if ($this->statut === 'essai' && $now->lt($this->date_fin_essai)) {
+                return self::ETAT_ESSAI;
+            }
+            return $now->lt($this->date_fin_essai->copy()->addDays(self::GRACE_JOURS))
+                ? self::ETAT_GRACE
+                : self::ETAT_SUSPENDU;
+        }
+
+        // Aucune date exploitable → suspendu par sécurité
+        return self::ETAT_SUSPENDU;
+    }
+
+    public function accesComplet(): bool { return in_array($this->etatEffectif(), [self::ETAT_ESSAI, self::ETAT_ACTIF], true); }
+    public function enGrace(): bool      { return $this->etatEffectif() === self::ETAT_GRACE; }
+    public function estSuspendu(): bool  { return $this->etatEffectif() === self::ETAT_SUSPENDU; }
+
+    /** Jours restants avant suspension (pendant la grâce). */
+    public function joursRestantsGrace(): int
+    {
+        $base = ($this->statut === 'actif' && $this->date_fin_abonnement)
+            ? $this->date_fin_abonnement
+            : $this->date_fin_essai;
+
+        if (! $base) return 0;
+        $fin = $base->copy()->addDays(self::GRACE_JOURS);
+        return max(0, (int) now()->diffInDays($fin, false));
+    }
+
     // ── Relations ─────────────────────────────────────────────────────────
 
     public function agency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -131,38 +191,53 @@ class Subscription extends Model
 
     // ── Activer un abonnement + enregistrer le paiement ──────────────────
 
+    /**
+     * Active/renouvelle l'abonnement (dates + niveau) SANS créer de ligne de paiement.
+     * Utilisé par la confirmation manuelle (le paiement existe déjà) ET par activer().
+     *
+     * @param  string $cycle       mensuel|annuel
+     * @param  string $planNiveau  starter|pro|agence
+     * @return array{debut:\Carbon\Carbon,fin:\Carbon\Carbon,montant:float}
+     */
+    public function activerAbonnement(string $cycle, string $planNiveau): array
+    {
+        $dureeMois  = self::DUREES_MOIS[$cycle] ?? 1;
+        $niveauPrix = array_key_exists($planNiveau, self::TARIFS) ? $planNiveau : 'pro';
+        $montant    = self::TARIFS[$niveauPrix][$cycle] ?? self::TARIFS[$niveauPrix]['mensuel'];
+        $debut = now();
+        $fin   = $debut->copy()->addMonths($dureeMois);
+
+        $this->update([
+            'statut'                => 'actif',
+            'plan'                  => $cycle,
+            'plan_niveau'           => $planNiveau,
+            'montant_paye'          => $montant,
+            'date_debut_abonnement' => $debut,
+            'date_fin_abonnement'   => $fin,
+            'rappel_7j_envoye'      => false,
+            'rappel_1j_envoye'      => false,
+        ]);
+
+        return ['debut' => $debut, 'fin' => $fin, 'montant' => $montant];
+    }
+
     public function activer(
         string $plan,
         ?string $referencePaydunya = null,
         string $methode = 'manuel',
         string $planNiveau = 'pro'
     ): void {
-        $dureeMois  = self::DUREES_MOIS[$plan];
-        // legacy et tout niveau inconnu → pro pour la tarification
-        $niveauPrix = array_key_exists($planNiveau, self::TARIFS) ? $planNiveau : 'pro';
-        $montant    = self::TARIFS[$niveauPrix][$plan];
-        $debut = now();
-        $fin   = $debut->copy()->addMonths($dureeMois);
-
-        $this->update([
-            'statut'                => 'actif',
-            'plan'                  => $plan,
-            'plan_niveau'           => $planNiveau,
-            'montant_paye'          => $montant,
-            'date_debut_abonnement' => $debut,
-            'date_fin_abonnement'   => $fin,
-            'reference_paytech'     => $referencePaydunya,
-            'rappel_7j_envoye'      => false,
-            'rappel_1j_envoye'      => false,
-        ]);
+        ['debut' => $debut, 'fin' => $fin, 'montant' => $montant] = $this->activerAbonnement($plan, $planNiveau);
+        $this->update(['reference_paytech' => $referencePaydunya]);
 
         // ── Enregistrer le paiement dans l'historique ─────────────────────
         SubscriptionPayment::create([
             'subscription_id' => $this->id,
             'agency_id'       => $this->agency_id,
             'plan'            => $plan,
+            'plan_niveau'     => $planNiveau,
             'montant'         => $montant,
-            'statut'          => 'payé',
+            'statut'          => 'confirme',
             'reference'       => $referencePaydunya,
             'methode'         => $methode,
             'periode_debut'   => $debut,

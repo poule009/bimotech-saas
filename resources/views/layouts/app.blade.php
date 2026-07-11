@@ -27,12 +27,14 @@
         ['section' => 'Finances'],
         ['label' => 'Quittances',      'route' => 'admin.paiements.index',   'active' => 'admin.paiements.*',    'perm' => 'paiements.lire', 'icon' => '<path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2-3-2z"/><path d="M8 8h8M8 12h6"/>'],
         ['label' => 'Comptabilité',    'route' => 'admin.comptabilite.index','active' => 'admin.comptabilite.*', 'perm' => 'comptabilite.lire', 'icon' => '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h4M8 14h2M12 14h4M8 18h8"/>'],
-        ['label' => 'Fiscalité',       'route' => 'admin.fiscal.dashboard',  'active' => 'admin.fiscal.*',       'perm' => 'fiscal.lire', 'icon' => '<path d="M19 5L5 19M6.5 8a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>'],
+        // Fiscalité masquée tant que ses vues ne sont pas reconstruites (accès direct = 500).
+        // ['label' => 'Fiscalité',       'route' => 'admin.fiscal.dashboard',  'active' => 'admin.fiscal.*',       'perm' => 'fiscal.lire', 'icon' => '...'],
         ['section' => 'Vitrine'],
         ['label' => 'Portail public',  'route' => 'portail.home',            'active' => 'portail.*',            'icon' => '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>'],
         ['section' => null],
         ['label' => "Journal d'activité", 'route' => 'admin.activity-logs.index', 'active' => 'admin.activity-logs.*', 'perm' => 'logs.lire', 'icon' => '<path d="M12 8v4l3 2"/><path d="M3.05 11a9 9 0 116.86 8.65"/><path d="M3 3v5h5"/>'],
         ['label' => 'Mon équipe',      'route' => 'admin.equipe.index',      'active' => 'admin.equipe.*',       'gate' => 'voirEquipe', 'icon' => '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>'],
+        ['label' => 'Abonnement',      'route' => 'subscription.index',      'active' => 'subscription.*',       'gate' => 'isOwner', 'icon' => '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'],
         ['label' => 'Paramètres',      'route' => 'admin.agency.settings',   'active' => 'admin.agency.*',       'icon' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>'],
     ];
 @endphp

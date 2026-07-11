@@ -9,6 +9,7 @@ use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\Paiement;
 use App\Models\Subscription;
+use App\Models\SubscriptionPayment;
 use App\Models\User;
 use App\Notifications\AgencyWelcomeNotification;
 use App\Notifications\PasswordResetByAdminNotification;
@@ -543,5 +544,58 @@ class SuperAdminController extends Controller
             Log::error('Erreur création agence', ['error' => $e->getMessage()]);
             return back()->withInput()->withErrors(['general' => 'Une erreur est survenue.']);
         }
+    }
+
+    // ── Validation des déclarations de paiement manuelles ────────────────────
+
+    /** Liste des paiements déclarés en attente de vérification. */
+    public function paiementsAttente(): View
+    {
+        $paiements = SubscriptionPayment::with('agency:id,name,email')
+            ->where('statut', SubscriptionPayment::STATUT_EN_ATTENTE)
+            ->orderBy('created_at')
+            ->get();
+
+        return view('superadmin.paiements-attente', compact('paiements'));
+    }
+
+    /** Confirme un paiement → active/renouvelle l'abonnement de l'agence. */
+    public function confirmerPaiement(SubscriptionPayment $payment): RedirectResponse
+    {
+        abort_unless($payment->statut === SubscriptionPayment::STATUT_EN_ATTENTE, 422, 'Ce paiement a déjà été traité.');
+
+        DB::transaction(function () use ($payment) {
+            $subscription = Subscription::where('id', $payment->subscription_id)->lockForUpdate()->firstOrFail();
+
+            // Le niveau souscrit est dans payment->plan_niveau (starter|pro|agence) ; cycle mensuel.
+            $res = $subscription->activerAbonnement($payment->plan ?: 'mensuel', $payment->plan_niveau ?? 'pro');
+
+            $payment->update([
+                'statut'        => SubscriptionPayment::STATUT_CONFIRME,
+                'periode_debut' => $res['debut'],
+                'periode_fin'   => $res['fin'],
+            ]);
+        });
+
+        return back()->with('success', "Paiement confirmé — l'abonnement de {$payment->agency?->name} est réactivé.");
+    }
+
+    /** Rejette un paiement avec un motif obligatoire (affiché à l'agence). */
+    public function rejeterPaiement(Request $request, SubscriptionPayment $payment): RedirectResponse
+    {
+        abort_unless($payment->statut === SubscriptionPayment::STATUT_EN_ATTENTE, 422, 'Ce paiement a déjà été traité.');
+
+        $validated = $request->validate([
+            'motif_rejet' => ['required', 'string', 'max:255'],
+        ], [
+            'motif_rejet.required' => 'Un motif de rejet est obligatoire (il sera affiché à l\'agence).',
+        ]);
+
+        $payment->update([
+            'statut'      => SubscriptionPayment::STATUT_REJETE,
+            'motif_rejet' => $validated['motif_rejet'],
+        ]);
+
+        return back()->with('success', 'Paiement rejeté — le motif sera affiché à l\'agence.');
     }
 }

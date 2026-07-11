@@ -119,6 +119,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ── Abonnements ────────────────────────────────────────────────────────
     Route::prefix('subscription')->name('subscription.')->group(function () {
         Route::get('/',         [SubscriptionController::class, 'index'])->name('index');
+        // Déclaration de paiement manuelle (Wave/OM/virement + justificatif)
+        Route::get('declarer',  [SubscriptionController::class, 'declarer'])->name('declarer');
+        Route::post('declarer', [SubscriptionController::class, 'store'])->name('store');
         Route::post('initier',  [SubscriptionController::class, 'initierPaiement'])->name('initier');
         Route::post('callback', [SubscriptionController::class, 'callbackPaytech'])
             ->name('callback')
@@ -147,6 +150,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::middleware('require2fa')->group(function () {
             Route::get('dashboard',                     [SuperAdminController::class, 'dashboard'])->name('dashboard');
             Route::get('subscriptions',                 [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
+            // Déclarations de paiement manuelles à valider (back-office BIMO-tech)
+            Route::get('paiements-attente',                     [SuperAdminController::class, 'paiementsAttente'])->name('paiements.attente');
+            Route::post('paiements/{payment}/confirmer',        [SuperAdminController::class, 'confirmerPaiement'])->name('paiements.confirmer');
+            Route::post('paiements/{payment}/rejeter',          [SuperAdminController::class, 'rejeterPaiement'])->name('paiements.rejeter');
             Route::get('activity-logs',                 [ActivityLogController::class, 'index'])->name('activity-logs.index');
             Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
             Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');

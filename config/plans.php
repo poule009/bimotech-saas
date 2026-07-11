@@ -13,21 +13,14 @@ return [
         'legacy'  => 'pro',
     ],
 
-    // Plan minimum requis par feature (clés utilisées dans les routes)
-    'features' => [
-        'immeubles'           => 'pro',
-        'rapports_pdf'        => 'pro',
-        'export_csv'          => 'pro',
-        'releve_bailleur_pdf' => 'pro',
-        'recherche_globale'   => 'pro',
-        'import_excel'        => 'pro',
-        'contrat_formel_pdf'  => 'pro',
-        'comptabilite'        => 'pro',
-        'tresorerie'          => 'agence',
-        'fiscalite'           => 'agence',
-        'bilans_fiscaux'      => 'agence',
-        'logs_activite'       => 'agence',
-    ],
+    // ── Changement de modèle économique (juillet 2026) ───────────────────────
+    // TOUTES les fonctionnalités sont désormais disponibles sur TOUS les plans.
+    // Seuls les compteurs (nb de biens, nb de comptes équipe) varient selon le plan.
+    // Cette map est volontairement vide : PlanFeatureService::canAccess() renvoie
+    // alors `true` pour toute feature, ce qui neutralise les middleware check.feature
+    // sans avoir à les retirer route par route. Ne PAS repeupler cette map — ce serait
+    // reverrouiller des fonctionnalités par plan, contraire au modèle actuel.
+    'features' => [],
 
     // Nombre max de collaborateurs admins par agence (directeur inclus)
     'nb_admins_max' => [

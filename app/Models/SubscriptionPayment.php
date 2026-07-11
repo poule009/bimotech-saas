@@ -14,13 +14,16 @@ class SubscriptionPayment extends Model
         'subscription_id',
         'agency_id',
         'plan',
+        'plan_niveau',
         'montant',
         'statut',
         'reference',
+        'justificatif',
         'methode',
         'periode_debut',
         'periode_fin',
         'notes',
+        'motif_rejet',
     ];
 
     protected $casts = [
@@ -41,12 +44,25 @@ class SubscriptionPayment extends Model
         'simulation'   => 'Simulation (Test)',
     ];
 
+    // Statuts du flux manuel (déclaration → confirmation/rejet côté BIMO-tech).
+    public const STATUT_EN_ATTENTE = 'en_attente';
+    public const STATUT_CONFIRME   = 'confirme';
+    public const STATUT_REJETE     = 'rejete';
+
     public const STATUT_LABELS = [
         'en_attente' => 'En attente',
-        'payé'       => 'Payé',
-        'échoué'     => 'Échoué',
+        'confirme'   => 'Confirmé',
+        'rejete'     => 'Rejeté',
+        // Anciens statuts (flux PayTech dormant) — conservés pour l'historique.
+        'payé'       => 'Confirmé',
+        'échoué'     => 'Rejeté',
         'remboursé'  => 'Remboursé',
     ];
+
+    public function getStatutLabelAttribute(): string
+    {
+        return self::STATUT_LABELS[$this->statut] ?? ucfirst($this->statut);
+    }
 
     // ── Relations ─────────────────────────────────────────────────────────
 
