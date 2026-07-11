@@ -9,11 +9,14 @@ use Illuminate\Support\Facades\Auth;
 trait LogsActivity
 {
     // Ces champs n'apparaissent jamais dans les logs (ni nom, ni valeur).
+    // Plomberie technique : sans intérêt métier pour le journal du directeur.
     protected static array $hiddenFields = [
         'password',
         'remember_token',
         'two_factor_secret',
         'two_factor_recovery_codes',
+        'must_change_password',
+        'email_verified_at',
     ];
 
     public static function bootLogsActivity(): void
@@ -34,6 +37,14 @@ trait LogsActivity
                 : class_basename($model) . ' #' . $model->getKey();
 
             $changedFields = $action === 'updated' ? self::changedFields($model) : [];
+
+            // Ne pas polluer le journal avec une « modification » qui n'a touché que
+            // des champs techniques/masqués (ex. remember_token à la connexion,
+            // must_change_password au premier login) : rien de significatif à montrer.
+            if ($action === 'updated' && empty($changedFields)) {
+                return;
+            }
+
             $properties    = $action === 'updated' ? self::buildProperties($model, $changedFields) : null;
 
             $description = match ($action) {

@@ -175,7 +175,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // IMPORTANT : ce groupe doit être déclaré AVANT le groupe isStaff
     // pour que les routes spécifiques (create, store…) soient enregistrées
     // avant les routes paramétrées ({contrat}, {paiement}…).
-    Route::middleware('isAdmin')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['isAdmin', 'force.password'])->prefix('admin')->name('admin.')->group(function () {
 
         Route::get('dashboard', AdminDashboardController::class)->name('dashboard');
         Route::view('demo/rechercher-creer', 'demo-search-create')->name('demo.search-create'); // démo composant (temporaire)
@@ -191,7 +191,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('agency/cachet',    [AgencySettingsController::class, 'deleteCachet'])->name('agency.cachet.delete');
 
         // Logs
-        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index')->middleware('check.feature:logs_activite');
+        Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index')->middleware(['check.feature:logs_activite', 'agency.can:logs.lire']);
 
         // Paiements — écriture
         Route::get('paiements/dernier-periode/{contrat}', [PaiementController::class, 'dernierePeriode'])->name('paiements.dernier-periode');
@@ -217,8 +217,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Utilisateurs
         Route::prefix('users')->name('users.')->group(function () {
-            Route::get('proprietaires',  [UserController::class, 'proprietaires'])->name('proprietaires');
-            Route::get('locataires',     [UserController::class, 'locataires'])->name('locataires');
+            Route::get('proprietaires',  [UserController::class, 'proprietaires'])->name('proprietaires')->middleware('agency.can:proprietaires.lire');
+            Route::get('locataires',     [UserController::class, 'locataires'])->name('locataires')->middleware('agency.can:locataires.lire');
             // Composant « Rechercher-ou-Créer » — recherche + création rapide (JSON)
             Route::get('proprietaires/search', [UserController::class, 'proprietaireSearch'])->name('proprietaires.search');
             Route::post('proprietaires/quick', [UserController::class, 'proprietaireQuickStore'])->name('proprietaires.quick')->middleware('agency.can:proprietaires.creer');
@@ -226,14 +226,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('locataires/quick',    [UserController::class, 'locataireQuickStore'])->name('locataires.quick')->middleware('agency.can:locataires.creer');
             Route::get('create/{role}',  [UserController::class, 'create'])->name('create')->middleware('agency.can:locataires.creer,proprietaires.creer');
             Route::post('store',         [UserController::class, 'store'])->name('store')->middleware('agency.can:locataires.creer,proprietaires.creer');
-            Route::get('{user}',         [UserController::class, 'show'])->name('show');
+            Route::get('{user}',         [UserController::class, 'show'])->name('show')->middleware('agency.can:proprietaires.lire,locataires.lire');
             Route::get('{user}/edit',    [UserController::class, 'edit'])->name('edit')->middleware('agency.can:locataires.modifier,proprietaires.modifier');
             Route::patch('{user}',       [UserController::class, 'update'])->name('update')->middleware('agency.can:locataires.modifier,proprietaires.modifier');
             Route::delete('{user}',      [UserController::class, 'destroy'])->name('destroy')->middleware('agency.can:locataires.modifier,proprietaires.modifier');
         });
 
-        // Gestion équipe (collaborateurs) — directeur uniquement
-        Route::middleware('can:isOwner')->prefix('equipe')->name('equipe.')->group(function () {
+        // Gestion équipe (collaborateurs) — accès contrôlé par gates dans le controller
+        // (voirEquipe pour la liste, gererEquipe pour les actions).
+        Route::prefix('equipe')->name('equipe.')->group(function () {
             Route::get('/',                          [\App\Http\Controllers\EquipeController::class, 'index'])->name('index');
             Route::get('/invite',                    [\App\Http\Controllers\EquipeController::class, 'create'])->name('create');
             Route::post('/',                         [\App\Http\Controllers\EquipeController::class, 'store'])->name('store');
@@ -241,6 +242,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('/{user}/permissions',       [\App\Http\Controllers\EquipeController::class, 'updatePermissions'])->name('permissions.update');
             Route::delete('/{user}',                 [\App\Http\Controllers\EquipeController::class, 'destroy'])->name('destroy');
         });
+
+        // Changement de mot de passe forcé (1ʳᵉ connexion d'un collaborateur invité).
+        // Exempté du middleware ForcePasswordChange (cf. son whitelist).
+        Route::get('mot-de-passe/changer',  [\App\Http\Controllers\ForcePasswordController::class, 'edit'])->name('password.force');
+        Route::post('mot-de-passe/changer', [\App\Http\Controllers\ForcePasswordController::class, 'update'])->name('password.force.update');
 
         // Import de données (flux upload → aperçu → confirmation → annulation)
         Route::prefix('import')->name('import.')->middleware('check.feature:import_excel')->group(function () {
@@ -255,23 +261,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
 
         // ── Module Comptabilité ────────────────────────────────────────────────
-        Route::prefix('comptabilite')->name('comptabilite.')->middleware('check.feature:comptabilite')->group(function () {
+        // Accès à l'argent des propriétaires : garde le plan (check.feature) ET la
+        // permission utilisateur (agency.can) — un collaborateur « Comptabilité = Aucun »
+        // ne peut pas ouvrir ces écrans (le directeur passe toujours).
+        Route::prefix('comptabilite')->name('comptabilite.')->middleware(['check.feature:comptabilite', 'agency.can:comptabilite.lire'])->group(function () {
             Route::get('/', [ComptabiliteController::class, 'index'])->name('index');
         });
 
         // Enregistrement d'une dépense agence (formulaire intégré au module Comptabilité)
         Route::resource('charges-agence', ChargeAgenceController::class)
-            ->middleware('check.feature:comptabilite')
+            ->middleware(['check.feature:comptabilite', 'agency.can:comptabilite.modifier'])
             ->only(['store', 'destroy']);
 
         // Reporter toutes les charges fixes sur le mois courant (un clic, pas de ressaisie)
         Route::post('charges-agence/reporter', [ChargeAgenceController::class, 'reporter'])
-            ->middleware('check.feature:comptabilite')
+            ->middleware(['check.feature:comptabilite', 'agency.can:comptabilite.modifier'])
             ->name('charges-agence.reporter');
 
-        Route::prefix('reversements')->name('reversements.')->middleware('check.feature:comptabilite')->group(function () {
-            Route::get('create',                                  [ReversementController::class, 'create'])->name('create');
-            Route::post('/',                                      [ReversementController::class, 'store'])->name('store');
+        Route::prefix('reversements')->name('reversements.')->middleware(['check.feature:comptabilite', 'agency.can:comptabilite.lire'])->group(function () {
+            Route::get('create',                                  [ReversementController::class, 'create'])->name('create')->middleware('agency.can:comptabilite.modifier');
+            Route::post('/',                                      [ReversementController::class, 'store'])->name('store')->middleware('agency.can:comptabilite.modifier');
             Route::get('proprietaire/{proprietaire}',             [ReversementController::class, 'compteMandant'])->name('compte-mandant');
             Route::get('proprietaire/{proprietaire}/releve-pdf', [ReversementController::class, 'relevePdf'])->name('releve-pdf');
         });
@@ -279,10 +288,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Module fiscal (désactivé via FEATURE_FISCALITE=false dans .env)
         if (config('features.fiscalite')) {
             // Dashboard + simulation fiscal
-            Route::get('fiscal',            [FiscalDashboardController::class, 'dashboard'])->name('fiscal.dashboard')->middleware('check.feature:fiscalite');
-            Route::get('fiscal/simulation', [FiscalDashboardController::class, 'simuler'])->name('fiscal.simulation')->middleware('check.feature:fiscalite');
+            Route::get('fiscal',            [FiscalDashboardController::class, 'dashboard'])->name('fiscal.dashboard')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire']);
+            Route::get('fiscal/simulation', [FiscalDashboardController::class, 'simuler'])->name('fiscal.simulation')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire']);
 
-            Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->middleware('check.feature:bilans_fiscaux')->group(function () {
+            Route::prefix('bilans-fiscaux')->name('bilans-fiscaux.')->middleware(['check.feature:bilans_fiscaux', 'agency.can:fiscal.lire'])->group(function () {
                 Route::get('/',                               [BilanFiscalController::class, 'index'])->name('index');
                 Route::post('{proprietaire}/calculate',       [BilanFiscalController::class, 'calculate'])->name('calculate');
                 Route::get('{proprietaire}',                  [BilanFiscalController::class, 'show'])->name('show');
@@ -291,39 +300,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('{proprietaire}/attestation-brs',  [BilanFiscalController::class, 'attestationBrs'])->name('attestation-brs');
             });
 
-            Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->middleware('check.feature:fiscalite')->group(function () {
+            Route::prefix('etats-trimestriels')->name('etats-trimestriels.')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire'])->group(function () {
                 Route::get('/',                                [EtatTrimestrielController::class, 'index'])->name('index');
                 Route::get('{annee}/{trimestre}',              [EtatTrimestrielController::class, 'show'])->name('show');
                 Route::get('{annee}/{trimestre}/pdf',          [EtatTrimestrielController::class, 'exportPdf'])->name('pdf');
                 Route::get('{annee}/{trimestre}/csv',          [EtatTrimestrielController::class, 'exportCsv'])->name('csv');
             });
 
-            Route::prefix('tva-agence')->name('tva-agence.')->middleware('check.feature:fiscalite')->group(function () {
+            Route::prefix('tva-agence')->name('tva-agence.')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire'])->group(function () {
                 Route::get('/',                              [TvaAgenceController::class, 'index'])->name('index');
                 Route::get('{annee}/{mois}',                 [TvaAgenceController::class, 'show'])->name('show');
-                Route::put('{annee}/{mois}',                 [TvaAgenceController::class, 'update'])->name('update');
-                Route::post('{annee}/{mois}/valider',        [TvaAgenceController::class, 'valider'])->name('valider');
-                Route::post('{annee}/{mois}/deposee',        [TvaAgenceController::class, 'marquerDeposee'])->name('deposee');
+                Route::put('{annee}/{mois}',                 [TvaAgenceController::class, 'update'])->name('update')->middleware('agency.can:fiscal.modifier');
+                Route::post('{annee}/{mois}/valider',        [TvaAgenceController::class, 'valider'])->name('valider')->middleware('agency.can:fiscal.modifier');
+                Route::post('{annee}/{mois}/deposee',        [TvaAgenceController::class, 'marquerDeposee'])->name('deposee')->middleware('agency.can:fiscal.modifier');
                 Route::get('{annee}/{mois}/pdf',             [TvaAgenceController::class, 'exportPdf'])->name('pdf');
-                Route::post('{annee}/{mois}/recalculer',     [TvaAgenceController::class, 'recalculer'])->name('recalculer');
+                Route::post('{annee}/{mois}/recalculer',     [TvaAgenceController::class, 'recalculer'])->name('recalculer')->middleware('agency.can:fiscal.modifier');
             });
 
-            Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index')->middleware('check.feature:fiscalite');
+            Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire']);
         }
 
         // Rapports
-        Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier')->middleware('check.feature:rapports_pdf');
-        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf')->middleware(['check.feature:rapports_pdf', 'throttle:10,1']);
+        Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier')->middleware(['check.feature:rapports_pdf', 'agency.can:rapports.lire']);
+        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf')->middleware(['check.feature:rapports_pdf', 'agency.can:rapports.lire', 'throttle:10,1']);
 
-        // Portefeuille Bailleurs (Niveau 5)
-        Route::get('bailleurs',                          [BailleurController::class, 'index'])->name('bailleurs.index');
-        Route::get('bailleurs/{userId}',                 [BailleurController::class, 'show'])->name('bailleurs.show');
-        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'throttle:10,1']);
-        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'throttle:10,1']);
+        // Portefeuille Bailleurs (Niveau 5) — relevés financiers des propriétaires
+        Route::get('bailleurs',                          [BailleurController::class, 'index'])->name('bailleurs.index')->middleware('agency.can:comptabilite.lire');
+        Route::get('bailleurs/{userId}',                 [BailleurController::class, 'show'])->name('bailleurs.show')->middleware('agency.can:comptabilite.lire');
+        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'agency.can:comptabilite.lire', 'throttle:10,1']);
+        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'agency.can:comptabilite.lire', 'throttle:10,1']);
 
         // Dépenses de gestion (avancées pour le compte d'un propriétaire)
-        Route::post('comptabilite/proprietaires/{proprietaire}/depenses', [DepenseGestionController::class, 'storeForProprietaire'])->name('comptabilite.depenses.store')->middleware('check.feature:comptabilite');
-        Route::delete('comptabilite/depenses/{depense}',                  [DepenseGestionController::class, 'destroyDepense'])->name('comptabilite.depenses.destroy')->middleware('check.feature:comptabilite');
+        Route::post('comptabilite/proprietaires/{proprietaire}/depenses', [DepenseGestionController::class, 'storeForProprietaire'])->name('comptabilite.depenses.store')->middleware(['check.feature:comptabilite', 'agency.can:comptabilite.modifier']);
+        Route::delete('comptabilite/depenses/{depense}',                  [DepenseGestionController::class, 'destroyDepense'])->name('comptabilite.depenses.destroy')->middleware(['check.feature:comptabilite', 'agency.can:comptabilite.modifier']);
 
         // Export CSV paiements
         Route::get('paiements/export-csv', [PaiementController::class, 'exportCsv'])->name('paiements.export-csv')->middleware(['check.feature:export_csv', 'throttle:10,1']);
@@ -348,7 +357,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('biens/{bien}/photos',                     [BienPhotoController::class, 'store'])->name('biens.photos.store')->middleware('agency.can:biens.modifier');
         Route::delete('biens/{bien}/photos/{photo}',           [BienPhotoController::class, 'destroy'])->name('biens.photos.destroy')->middleware('agency.can:biens.modifier');
         Route::patch('biens/{bien}/photos/{photo}/principale', [BienPhotoController::class, 'setPrincipale'])->name('biens.photos.principale')->middleware('agency.can:biens.modifier');
-        Route::resource('biens', BienController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
+        Route::resource('biens', BienController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])->middleware('agency.can:biens.lire');
 
         // Immeubles — routes statiques avant la resource pour éviter que {immeuble} capture "create"
         Route::get('immeubles/create',         [\App\Http\Controllers\ImmeubleController::class, 'create'])->name('immeubles.create')->middleware(['check.feature:immeubles', 'agency.can:immeubles.creer']);
@@ -357,19 +366,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('immeubles/{immeuble}',     [\App\Http\Controllers\ImmeubleController::class, 'update'])->name('immeubles.update')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
         Route::patch('immeubles/{immeuble}',   [\App\Http\Controllers\ImmeubleController::class, 'update'])->name('immeubles.update.patch')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
         Route::delete('immeubles/{immeuble}',  [\App\Http\Controllers\ImmeubleController::class, 'destroy'])->name('immeubles.destroy')->middleware(['check.feature:immeubles', 'agency.can:immeubles.modifier']);
-        Route::resource('immeubles', ImmeubleController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])->middleware('check.feature:immeubles');
+        Route::resource('immeubles', ImmeubleController::class)->except(['create', 'store', 'edit', 'update', 'destroy'])->middleware(['check.feature:immeubles', 'agency.can:immeubles.lire']);
 
         // Contrats — lecture
-        Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index');
-        Route::get('contrats/{contrat}', [ContratController::class, 'show'])->name('contrats.show');
+        Route::get('contrats',           [ContratController::class, 'index'])->name('contrats.index')->middleware('agency.can:contrats.lire');
+        Route::get('contrats/{contrat}', [ContratController::class, 'show'])->name('contrats.show')->middleware('agency.can:contrats.lire');
 
         // Paiements — lecture + PDF
-        Route::get('paiements',                [PaiementController::class, 'index'])->name('paiements.index');
-        Route::get('paiements/{paiement}',     [PaiementController::class, 'show'])->name('paiements.show');
-        Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf');
+        Route::get('paiements',                [PaiementController::class, 'index'])->name('paiements.index')->middleware('agency.can:paiements.lire');
+        Route::get('paiements/{paiement}',     [PaiementController::class, 'show'])->name('paiements.show')->middleware('agency.can:paiements.lire');
+        Route::get('paiements/{paiement}/pdf', [PaiementController::class, 'downloadPDF'])->name('paiements.pdf')->middleware('agency.can:paiements.lire');
 
         // Impayés — lecture
-        Route::get('impayes', [ImpayeController::class, 'index'])->name('impayes.index');
+        Route::get('impayes', [ImpayeController::class, 'index'])->name('impayes.index')->middleware('agency.can:impayes.lire');
     });
 
     // ── Propriétaire ───────────────────────────────────────────────────────

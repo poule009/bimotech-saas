@@ -67,6 +67,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'is_owner'                 => 'boolean',
+        'must_change_password'     => 'boolean',
         'email_verified_at'        => 'datetime',
         'two_factor_confirmed_at'  => 'datetime',
         'password'                 => 'hashed',

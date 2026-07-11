@@ -50,6 +50,17 @@ class AuthServiceProvider extends ServiceProvider
             return $user->role === 'superadmin' || ($user->role === 'admin' && $user->is_owner);
         });
 
+        // Gestion d'équipe : directeur OU collaborateur ayant la permission equipe.gerer.
+        // Permet à un « Administrateur » (non-directeur) d'inviter/gérer l'équipe.
+        Gate::define('gererEquipe', function ($user) {
+            return $user->isOwner() || $user->hasAgencyPermission('equipe.gerer');
+        });
+
+        // Consultation de l'équipe : ci-dessus OU permission equipe.lire (Consulter).
+        Gate::define('voirEquipe', function ($user) {
+            return $user->isOwner() || $user->hasAgencyPermission('equipe.gerer') || $user->hasAgencyPermission('equipe.lire');
+        });
+
         // ── Gates sémantiques — utilisées dans les vues via @can ─────────────
 
         Gate::define('admin-agence', function ($user) {

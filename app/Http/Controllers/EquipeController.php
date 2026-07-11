@@ -5,41 +5,52 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Notifications\CollaborateurInvitationNotification;
 use App\Support\PasswordPolicy;
-use Database\Seeders\PermissionsSeeder;
+use App\Support\TeamAccess;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class EquipeController extends Controller
 {
     public function index(): View
     {
+        $this->authorize('voirEquipe');
         $agencyId = Auth::user()->agency_id;
 
         $collaborateurs = User::where('agency_id', $agencyId)
             ->where('role', 'admin')
-            ->with('roles')
-            ->select(['id', 'name', 'email', 'telephone', 'is_owner', 'created_at', 'email_verified_at'])
+            ->with('permissions')
             ->orderByDesc('is_owner')
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function (User $u) {
+                // Preset dérivé + statut pour l'affichage (badge + pastille).
+                $u->preset_key    = $u->is_owner ? 'administrateur' : TeamAccess::detecterPreset(TeamAccess::niveauxUtilisateur($u));
+                $u->est_en_attente = ! $u->is_owner && $u->must_change_password;
+                return $u;
+            });
 
         $limiteMax   = $this->limiteAdmins();
         $nbActuels   = $collaborateurs->count();
         $peutAjouter = $limiteMax === null || $nbActuels < $limiteMax;
+        $peutGerer   = Auth::user()->can('gererEquipe');
 
-        return view('equipe.index', compact('collaborateurs', 'limiteMax', 'nbActuels', 'peutAjouter'));
+        return view('equipe.index', compact(
+            'collaborateurs', 'limiteMax', 'nbActuels', 'peutAjouter', 'peutGerer'
+        ));
     }
 
     public function create(): View|RedirectResponse
     {
+        $this->authorize('gererEquipe');
+
         if (! $this->peutAjouterCollaborateur()) {
             return redirect()->route('admin.equipe.index')
-                ->with('error', 'Limite de collaborateurs atteinte pour votre plan. Passez au plan supérieur pour en ajouter davantage.');
+                ->with('error', 'Limite de comptes atteinte pour votre plan. Passez au plan supérieur pour en ajouter davantage.');
         }
 
         return view('equipe.create');
@@ -47,53 +58,71 @@ class EquipeController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('gererEquipe');
+
         if (! $this->peutAjouterCollaborateur()) {
             return redirect()->route('admin.equipe.index')
-                ->with('error', 'Limite de collaborateurs atteinte pour votre plan.');
+                ->with('error', 'Limite de comptes atteinte pour votre plan.');
         }
 
+        $agencyId = Auth::user()->agency_id;
+
         $validated = $request->validate([
-            'name'       => ['required', 'string', 'max:255'],
-            'email'      => ['required', 'email', 'unique:users,email', 'max:255'],
-            'telephone'  => ['nullable', 'string', 'max:20'],
-            'password'   => ['required', 'confirmed', PasswordPolicy::rules()],
-            'preset_role'=> ['nullable', 'string', 'in:' . implode(',', array_keys(PermissionsSeeder::ROLES))],
+            'name'        => ['required', 'string', 'max:255'],
+            'email'       => ['required', 'email', 'max:255', Rule::unique('users', 'email')->whereNull('deleted_at')],
+            'telephone'   => ['nullable', 'string', 'max:20'],
+            'password'    => ['required', PasswordPolicy::rules()],
+            'preset_role' => ['required', 'string', Rule::in(array_keys(TeamAccess::PRESETS))],
         ], [
-            'email.unique'   => 'Cet email est déjà utilisé par un autre compte.',
-            'name.required'  => 'Le nom est obligatoire.',
-            'email.required' => "L'email est obligatoire.",
+            'email.unique'       => 'Cet email est déjà utilisé par un compte actif.',
+            'name.required'      => 'Le nom est obligatoire.',
+            'email.required'     => "L'email est obligatoire.",
+            'password.required'  => 'Le mot de passe temporaire est obligatoire.',
+            'preset_role.required' => 'Choisissez un rôle de départ.',
         ]);
 
-        $user                    = new User();
+        // La validation ci-dessus n'a bloqué que les emails ACTIFs (whereNull deleted_at).
+        // Un email peut encore appartenir à un compte SOFT-DELETED : on ne le réutilise
+        // que s'il s'agit d'un collaborateur (role=admin) révoqué de CETTE agence — sinon
+        // on refuse proprement (évite de convertir un ancien locataire en admin, et évite
+        // la violation de l'index unique global sur users.email → 500).
+        $trashed = User::onlyTrashed()->where('email', $validated['email'])->first();
+
+        if ($trashed) {
+            if ($trashed->agency_id === $agencyId && $trashed->role === 'admin') {
+                $user = $trashed;
+                $user->restore();
+            } else {
+                return back()->withInput()
+                    ->withErrors(['email' => 'Cet email est déjà associé à un compte existant.']);
+            }
+        } else {
+            $user = new User();
+        }
+
         $user->name              = $validated['name'];
         $user->email             = $validated['email'];
         $user->telephone         = $validated['telephone'] ?? null;
         $user->password          = Hash::make($validated['password']);
+        $user->must_change_password = true;
         $user->role              = 'admin';
         $user->is_owner          = false;
-        $user->agency_id         = Auth::user()->agency_id;
+        $user->agency_id         = $agencyId;
         $user->email_verified_at = now();
         $user->save();
 
-        // Appliquer le rôle prédéfini si choisi
-        if (! empty($validated['preset_role'])) {
-            $user->assignRole($validated['preset_role']);
-        } else {
-            // Gestionnaire par défaut
-            $user->assignRole('gestionnaire');
-        }
+        // Applique le preset choisi → permissions fines.
+        $user->syncRoles([]);
+        $user->syncPermissions(TeamAccess::expand(TeamAccess::presetLevels($validated['preset_role'])));
 
         try {
-            if ($user->email) {
-                $user->notify(new CollaborateurInvitationNotification(
-                    agency:    Auth::user()->agency,
-                    invitePar: Auth::user()->name,
-                ));
-            }
+            $user->notify(new CollaborateurInvitationNotification(
+                agency:    Auth::user()->agency,
+                invitePar: Auth::user()->name,
+            ));
         } catch (\Throwable $e) {
             Log::warning('Email invitation collaborateur non envoyé', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
+                'user_id' => $user->id, 'error' => $e->getMessage(),
             ]);
         }
 
@@ -104,84 +133,83 @@ class EquipeController extends Controller
 
     public function editPermissions(User $user): View
     {
-        $authUser = Auth::user();
+        $this->authorize('gererEquipe');
+        $this->assertModifiable($user);
 
-        if ($user->agency_id !== $authUser->agency_id || $user->role !== 'admin' || $user->is_owner) {
-            abort(403);
-        }
+        $levels = TeamAccess::niveauxUtilisateur($user);
 
-        $permissions   = PermissionsSeeder::PERMISSIONS;
-        $userPermNames = $user->getAllPermissions()->pluck('name')->toArray();
-        $userRoleName  = $user->roles->first()?->name;
-        $presetRoles   = PermissionsSeeder::ROLES;
-        $roleLabels    = PermissionsSeeder::ROLE_LABELS;
-        $moduleLabels  = PermissionsSeeder::MODULE_LABELS;
-        $permLabels    = PermissionsSeeder::PERMISSION_LABELS;
-
-        return view('equipe.permissions', compact(
-            'user', 'permissions', 'userPermNames', 'userRoleName',
-            'presetRoles', 'roleLabels', 'moduleLabels', 'permLabels'
-        ));
+        return view('equipe.permissions', [
+            'user'    => $user,
+            'modules' => TeamAccess::MODULES,
+            'levels'  => $levels,
+            'preset'  => TeamAccess::detecterPreset($levels),
+            'presets' => TeamAccess::PRESET_LABELS,
+        ]);
     }
 
     public function updatePermissions(Request $request, User $user): RedirectResponse
     {
-        $authUser = Auth::user();
+        $this->authorize('gererEquipe');
+        $this->assertModifiable($user);
 
-        if ($user->agency_id !== $authUser->agency_id || $user->role !== 'admin' || $user->is_owner) {
-            abort(403);
+        // Un preset explicite (bouton « réappliquer ») prime ; sinon on lit la matrice.
+        $preset = $request->input('preset_role');
+        if ($preset && array_key_exists($preset, TeamAccess::PRESETS)) {
+            $levels = TeamAccess::presetLevels($preset);
+        } else {
+            $levels = TeamAccess::normaliserNiveaux($request->input('niveaux', []));
         }
-
-        // Appliquer un rôle prédéfini si demandé
-        if ($request->filled('preset_role') && array_key_exists($request->preset_role, PermissionsSeeder::ROLES)) {
-            $user->syncRoles([$request->preset_role]);
-            $user->syncPermissions(PermissionsSeeder::ROLES[$request->preset_role]);
-
-            return redirect()
-                ->route('admin.equipe.permissions', $user)
-                ->with('success', 'Profil "' . PermissionsSeeder::ROLE_LABELS[$request->preset_role] . '" appliqué à ' . $user->name . '.');
-        }
-
-        // Sinon mise à jour manuelle des permissions cochées
-        $allPerms   = collect(PermissionsSeeder::PERMISSIONS)->flatten()->toArray();
-        $checked    = $request->input('permissions', []);
-        $toSync     = array_intersect($checked, $allPerms);
 
         $user->syncRoles([]);
-        $user->syncPermissions($toSync);
+        $user->syncPermissions(TeamAccess::expand($levels));
 
         return redirect()
             ->route('admin.equipe.permissions', $user)
-            ->with('success', 'Permissions de ' . $user->name . ' mises à jour.');
+            ->with('success', 'Accès de ' . $user->name . ' mis à jour.');
     }
 
     public function destroy(User $user): RedirectResponse
     {
-        $authUser = Auth::user();
+        $this->authorize('gererEquipe');
 
-        if ($user->agency_id !== $authUser->agency_id || $user->role !== 'admin') {
+        if ($user->agency_id !== Auth::user()->agency_id || $user->role !== 'admin') {
             abort(403);
         }
-
         if ($user->is_owner) {
             return redirect()->route('admin.equipe.index')
-                ->with('error', 'Impossible de supprimer le directeur de l\'agence.');
+                ->with('error', "Impossible de révoquer le directeur de l'agence.");
         }
-
-        if ($user->id === $authUser->id) {
+        if ($user->id === Auth::id()) {
             return redirect()->route('admin.equipe.index')
-                ->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+                ->with('error', 'Vous ne pouvez pas révoquer votre propre accès.');
         }
 
         $nom = $user->name;
+        // Soft-delete : coupe la session à la requête suivante (Laravel re-récupère
+        // l'utilisateur en base à chaque requête, SoftDeletes l'exclut → logout).
         $user->delete();
 
         return redirect()
             ->route('admin.equipe.index')
-            ->with('success', "{$nom} a été retiré de l'équipe.");
+            ->with('success', "L'accès de {$nom} a été révoqué.");
     }
 
-    // ── Helpers privés ────────────────────────────────────────────────────────
+    // ── Gardes ────────────────────────────────────────────────────────────────
+
+    /** Cible modifiable : même agence, collaborateur (admin non-directeur), jamais soi-même. */
+    private function assertModifiable(User $user): void
+    {
+        $auth = Auth::user();
+        abort_if(
+            $user->agency_id !== $auth->agency_id
+            || $user->role !== 'admin'
+            || $user->is_owner
+            || $user->id === $auth->id,   // anti-escalade : on n'édite pas ses propres droits
+            403
+        );
+    }
+
+    // ── Limites de plan ─────────────────────────────────────────────────────────
 
     private function limiteAdmins(): ?int
     {

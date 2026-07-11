@@ -417,6 +417,48 @@ export function registerComponents(Alpine) {
         get panelClass() { return this.open ? 'translate-x-0' : 'translate-x-full'; },
     }));
 
+    // Module Mon équipe — sélecteur de rôle de départ (invitation).
+    Alpine.data('equipeRolePicker', () => ({
+        preset: 'secretaire',
+        init() { this.preset = this.$el.dataset.initial || 'secretaire'; },
+        pick(event) { this.preset = event.currentTarget.dataset.preset; },
+        _cardClass(p) {
+            return this.preset === p
+                ? 'border-teal bg-white shadow-sm'
+                : 'border-line bg-paper hover:border-gold/60';
+        },
+        get adminCardClass() { return this._cardClass('administrateur'); },
+        get secretaireCardClass() { return this._cardClass('secretaire'); },
+        get customCardClass() { return this._cardClass('personnalise'); },
+        get showAdmin() { return this.preset === 'administrateur'; },
+        get showSecretaire() { return this.preset === 'secretaire'; },
+        get showCustom() { return this.preset === 'personnalise'; },
+    }));
+
+    // Module Mon équipe — matrice de permissions (3 niveaux par module).
+    // Impératif (CSP-safe) : l'état initial est rendu côté serveur, Alpine gère les clics.
+    Alpine.data('permMatrix', () => ({
+        setGroup(group, level) {
+            group.querySelectorAll('button.lvl-opt').forEach((b) => {
+                b.classList.remove('on-none', 'on-view', 'on-full');
+                if (b.dataset.level === level) b.classList.add('on-' + level);
+            });
+            const input = group.querySelector('input[type=hidden]');
+            if (input) input.value = level;
+        },
+        pick(event) {
+            const btn = event.currentTarget;
+            const group = btn.closest('[data-group]');
+            this.setGroup(group, btn.dataset.level);
+        },
+        applyPreset(event) {
+            const levels = JSON.parse(event.currentTarget.dataset.levels || '{}');
+            this.$el.querySelectorAll('[data-group]').forEach((group) => {
+                this.setGroup(group, levels[group.dataset.group] || 'none');
+            });
+        },
+    }));
+
     // Module Import — zone d'upload : au choix d'un fichier, affiche le nom et
     // soumet immédiatement le formulaire (déclenche l'aperçu côté serveur).
     Alpine.data('importUpload', () => ({

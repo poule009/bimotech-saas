@@ -21,6 +21,7 @@ class PermissionsSeeder extends Seeder
         'fiscal'         => ['fiscal.lire', 'fiscal.modifier'],
         'comptabilite'   => ['comptabilite.lire', 'comptabilite.modifier'],
         'logs'           => ['logs.lire'],
+        'equipe'         => ['equipe.lire', 'equipe.gerer'],
     ];
 
     // Rôles prédéfinis avec leurs permissions

@@ -112,6 +112,15 @@
                focus:border-teal focus:ring-[3px] focus:ring-teal/[0.10];
     }
     .f-input-error { @apply border-error focus:border-error focus:ring-error/[0.12]; }
+
+    /* ── Module Mon équipe : boutons de niveau d'accès (3 états) ── */
+    .lvl-opt {
+        @apply text-[12.5px] font-bold px-3.5 py-2 rounded-lg border-[1.5px] border-line
+               bg-white text-muted cursor-pointer transition-colors;
+    }
+    .lvl-opt.on-none { @apply bg-error border-error text-white; }
+    .lvl-opt.on-view { @apply bg-amber border-amber text-white; }
+    .lvl-opt.on-full { @apply bg-green border-green text-white; }
 }
 
 [x-cloak] { display: none !important; }

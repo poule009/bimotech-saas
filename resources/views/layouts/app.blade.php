@@ -19,19 +19,20 @@
     $nav = [
         ['section' => null],
         ['label' => 'Tableau de bord', 'route' => 'admin.dashboard',        'active' => 'admin.dashboard',      'icon' => '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'],
-        ['label' => 'Propriétaires',   'route' => 'admin.users.proprietaires','active' => 'admin.users.proprietaires', 'icon' => '<path d="M20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87M12 3a4 4 0 100 8 4 4 0 000-8z"/><circle cx="12" cy="7" r="0.5"/>'],
-        ['label' => 'Biens',           'route' => 'admin.biens.index',       'active' => 'admin.biens.*',        'icon' => '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>'],
-        ['label' => 'Locataires',      'route' => 'admin.users.locataires',  'active' => 'admin.users.locataires', 'icon' => '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/>'],
-        ['label' => 'Contrats',        'route' => 'admin.contrats.index',    'active' => 'admin.contrats.*',     'icon' => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>'],
+        ['label' => 'Propriétaires',   'route' => 'admin.users.proprietaires','active' => 'admin.users.proprietaires', 'perm' => 'proprietaires.lire', 'icon' => '<path d="M20 21v-2a4 4 0 00-3-3.87M4 21v-2a4 4 0 013-3.87M12 3a4 4 0 100 8 4 4 0 000-8z"/><circle cx="12" cy="7" r="0.5"/>'],
+        ['label' => 'Biens',           'route' => 'admin.biens.index',       'active' => 'admin.biens.*',        'perm' => 'biens.lire', 'icon' => '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>'],
+        ['label' => 'Locataires',      'route' => 'admin.users.locataires',  'active' => 'admin.users.locataires', 'perm' => 'locataires.lire', 'icon' => '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/>'],
+        ['label' => 'Contrats',        'route' => 'admin.contrats.index',    'active' => 'admin.contrats.*',     'perm' => 'contrats.lire', 'icon' => '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/>'],
         ['label' => 'Import de données','route' => 'admin.import.index',      'active' => 'admin.import.*',        'icon' => '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'],
         ['section' => 'Finances'],
-        ['label' => 'Quittances',      'route' => 'admin.paiements.index',   'active' => 'admin.paiements.*',    'icon' => '<path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2-3-2z"/><path d="M8 8h8M8 12h6"/>'],
-        ['label' => 'Comptabilité',    'route' => 'admin.comptabilite.index','active' => 'admin.comptabilite.*', 'icon' => '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h4M8 14h2M12 14h4M8 18h8"/>'],
-        ['label' => 'Fiscalité',       'route' => 'admin.fiscal.dashboard',  'active' => 'admin.fiscal.*',       'icon' => '<path d="M19 5L5 19M6.5 8a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>'],
+        ['label' => 'Quittances',      'route' => 'admin.paiements.index',   'active' => 'admin.paiements.*',    'perm' => 'paiements.lire', 'icon' => '<path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2-3-2z"/><path d="M8 8h8M8 12h6"/>'],
+        ['label' => 'Comptabilité',    'route' => 'admin.comptabilite.index','active' => 'admin.comptabilite.*', 'perm' => 'comptabilite.lire', 'icon' => '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h4M8 14h2M12 14h4M8 18h8"/>'],
+        ['label' => 'Fiscalité',       'route' => 'admin.fiscal.dashboard',  'active' => 'admin.fiscal.*',       'perm' => 'fiscal.lire', 'icon' => '<path d="M19 5L5 19M6.5 8a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM17.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>'],
         ['section' => 'Vitrine'],
         ['label' => 'Portail public',  'route' => 'portail.home',            'active' => 'portail.*',            'icon' => '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>'],
         ['section' => null],
-        ['label' => "Journal d'activité", 'route' => 'admin.activity-logs.index', 'active' => 'admin.activity-logs.*', 'icon' => '<path d="M12 8v4l3 2"/><path d="M3.05 11a9 9 0 116.86 8.65"/><path d="M3 3v5h5"/>'],
+        ['label' => "Journal d'activité", 'route' => 'admin.activity-logs.index', 'active' => 'admin.activity-logs.*', 'perm' => 'logs.lire', 'icon' => '<path d="M12 8v4l3 2"/><path d="M3.05 11a9 9 0 116.86 8.65"/><path d="M3 3v5h5"/>'],
+        ['label' => 'Mon équipe',      'route' => 'admin.equipe.index',      'active' => 'admin.equipe.*',       'gate' => 'voirEquipe', 'icon' => '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>'],
         ['label' => 'Paramètres',      'route' => 'admin.agency.settings',   'active' => 'admin.agency.*',       'icon' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>'],
     ];
 @endphp
@@ -60,7 +61,7 @@
                     @else
                         <div class="mt-3"></div>
                     @endif
-                @else
+                @elseif((!isset($item['gate']) || auth()->user()?->can($item['gate'])) && (!isset($item['perm']) || auth()->user()?->hasAgencyPermission($item['perm'])))
                     @php $isActive = request()->routeIs($item['active']); @endphp
                     <a href="{{ route($item['route']) }}"
                        x-on:click="close"
