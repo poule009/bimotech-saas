@@ -38,6 +38,8 @@ class ProfileController extends Controller
         return view('profile.edit', [
             'user'            => $user,
             'roleLabel'       => $roleLabel,
+            'estGoogle'       => (bool) $user->google_id,       // compte Google : pas de mot de passe connu
+            'showAcces'       => $user->role === 'admin',       // « Mes accès » = personnel d'agence uniquement
             'estAdminComplet' => $estAdminComplet,
             'modules'         => TeamAccess::MODULES,
             'niveaux'         => $estAdminComplet ? [] : $niveaux,

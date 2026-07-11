@@ -463,8 +463,13 @@ export function registerComponents(Alpine) {
     Alpine.data('profilTabs', () => ({
         active: 'identite',
         init() {
+            // Onglet initial forcé par le serveur (ex. erreur mot de passe → Sécurité),
+            // sinon ancre d'URL, sinon Identité.
+            const forced = this.$el.dataset.initial;
+            const valid = ['identite', 'securite', 'notifications', 'acces'];
+            if (valid.includes(forced)) { this.active = forced; return; }
             const h = (window.location.hash || '').replace('#', '');
-            if (['identite', 'securite', 'notifications', 'acces'].includes(h)) this.active = h;
+            if (valid.includes(h)) this.active = h;
         },
         _cls(name) { return this.active === name ? 'text-teal border-teal' : 'text-muted border-transparent hover:text-ink'; },
         get isIdentite() { return this.active === 'identite'; },

@@ -15,7 +15,8 @@
 @section('page-title', 'Mon profil')
 
 @section('content')
-<div class="max-w-[760px]" x-data="profilTabs">
+@php $ongletInitial = ($errors->hasBag('updatePassword') || $errors->hasBag('setPassword')) ? 'securite' : null; @endphp
+<div class="max-w-[760px]" x-data="profilTabs" data-initial="{{ $ongletInitial }}">
 
     @if(session('status'))
         @php $msg = ['profile-updated' => 'Profil mis à jour.', 'password-updated' => 'Mot de passe mis à jour.', 'notifications-updated' => 'Préférences enregistrées.'][session('status')] ?? null; @endphp
@@ -41,7 +42,9 @@
         <button type="button" x-on:click="showIdentite"      x-bind:class="identiteClass"      class="px-4 py-3 text-[14px] font-bold border-b-[3px] -mb-0.5 transition-colors">Identité</button>
         <button type="button" x-on:click="showSecurite"      x-bind:class="securiteClass"      class="px-4 py-3 text-[14px] font-bold border-b-[3px] -mb-0.5 transition-colors">Sécurité</button>
         <button type="button" x-on:click="showNotifications" x-bind:class="notificationsClass" class="px-4 py-3 text-[14px] font-bold border-b-[3px] -mb-0.5 transition-colors">Notifications</button>
-        <button type="button" x-on:click="showAcces"         x-bind:class="accesClass"         class="px-4 py-3 text-[14px] font-bold border-b-[3px] -mb-0.5 transition-colors">Mes accès</button>
+        @if($showAcces)
+            <button type="button" x-on:click="showAcces"     x-bind:class="accesClass"         class="px-4 py-3 text-[14px] font-bold border-b-[3px] -mb-0.5 transition-colors">Mes accès</button>
+        @endif
     </div>
 
     {{-- ─────────── IDENTITÉ ─────────── --}}
@@ -79,31 +82,61 @@
     {{-- ─────────── SÉCURITÉ ─────────── --}}
     <div x-show="isSecurite" x-cloak>
         <div class="f-card">
-            <div class="f-card-title">Changer le mot de passe</div>
-            <p class="f-card-sub">Utilisez un mot de passe que vous n'employez pour aucun autre service.</p>
+            @if($estGoogle)
+                {{-- Compte Google : pas de mot de passe connu → on en définit un (la session
+                     authentifiée via Google suffit à prouver l'identité, pas d'ancien requis). --}}
+                <div class="f-card-title">Définir un mot de passe</div>
+                <p class="f-card-sub">Votre compte utilise la connexion Google. Définissez un mot de passe pour aussi pouvoir vous connecter par email.</p>
 
-            <form method="POST" action="{{ route('password.update') }}">
-                @csrf @method('PUT')
-                <div class="mb-[18px]">
-                    <label class="f-label">Mot de passe actuel</label>
-                    <input type="password" name="current_password" autocomplete="current-password" class="f-input @error('current_password', 'updatePassword') f-input-error @enderror">
-                    @error('current_password', 'updatePassword')<p class="mt-1.5 text-[12px] text-error">{{ $message }}</p>@enderror
+                <div class="mb-5 rounded-[10px] bg-teal/8 border border-teal/20 px-4 py-3 text-[12.5px] text-teal-deep flex gap-2">
+                    <x-icon name="info" size="15" class="text-teal shrink-0 mt-0.5" />
+                    <span>Compte lié à Google — aucun mot de passe actuel à saisir.</span>
                 </div>
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="f-label">Nouveau mot de passe</label>
-                        <input type="password" name="password" autocomplete="new-password" placeholder="8 caractères min." class="f-input @error('password', 'updatePassword') f-input-error @enderror">
-                        @error('password', 'updatePassword')<p class="mt-1.5 text-[12px] text-error">{{ $message }}</p>@enderror
+
+                <form method="POST" action="{{ route('password.set') }}">
+                    @csrf @method('PUT')
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="f-label">Nouveau mot de passe</label>
+                            <input type="password" name="password" autocomplete="new-password" placeholder="8 caractères min." class="f-input @error('password', 'setPassword') f-input-error @enderror">
+                            @error('password', 'setPassword')<p class="mt-1.5 text-[12px] text-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="f-label">Confirmer</label>
+                            <input type="password" name="password_confirmation" autocomplete="new-password" class="f-input">
+                        </div>
                     </div>
-                    <div>
-                        <label class="f-label">Confirmer</label>
-                        <input type="password" name="password_confirmation" autocomplete="new-password" class="f-input">
+                    <div class="flex justify-end mt-5">
+                        <button type="submit" class="bg-teal hover:bg-teal-deep text-white px-6 py-3 rounded-[10px] text-[14px] font-bold">Définir le mot de passe</button>
                     </div>
-                </div>
-                <div class="flex justify-end mt-5">
-                    <button type="submit" class="bg-teal hover:bg-teal-deep text-white px-6 py-3 rounded-[10px] text-[14px] font-bold">Mettre à jour le mot de passe</button>
-                </div>
-            </form>
+                </form>
+            @else
+                <div class="f-card-title">Changer le mot de passe</div>
+                <p class="f-card-sub">Utilisez un mot de passe que vous n'employez pour aucun autre service.</p>
+
+                <form method="POST" action="{{ route('password.update') }}">
+                    @csrf @method('PUT')
+                    <div class="mb-[18px]">
+                        <label class="f-label">Mot de passe actuel</label>
+                        <input type="password" name="current_password" autocomplete="current-password" class="f-input @error('current_password', 'updatePassword') f-input-error @enderror">
+                        @error('current_password', 'updatePassword')<p class="mt-1.5 text-[12px] text-error">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="f-label">Nouveau mot de passe</label>
+                            <input type="password" name="password" autocomplete="new-password" placeholder="8 caractères min." class="f-input @error('password', 'updatePassword') f-input-error @enderror">
+                            @error('password', 'updatePassword')<p class="mt-1.5 text-[12px] text-error">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="f-label">Confirmer</label>
+                            <input type="password" name="password_confirmation" autocomplete="new-password" class="f-input">
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-5">
+                        <button type="submit" class="bg-teal hover:bg-teal-deep text-white px-6 py-3 rounded-[10px] text-[14px] font-bold">Mettre à jour le mot de passe</button>
+                    </div>
+                </form>
+            @endif
         </div>
     </div>
 
@@ -141,7 +174,8 @@
         </div>
     </div>
 
-    {{-- ─────────── MES ACCÈS (lecture seule) ─────────── --}}
+    {{-- ─────────── MES ACCÈS (lecture seule, personnel d'agence uniquement) ─────────── --}}
+    @if($showAcces)
     <div x-show="isAcces" x-cloak>
         <div class="f-card">
             <div class="f-card-title">Mes accès</div>
@@ -168,6 +202,7 @@
             @endif
         </div>
     </div>
+    @endif
 
 </div>
 @endsection
