@@ -253,6 +253,13 @@ export function registerComponents(Alpine) {
             this.tom = this._dom('tom_amount');
             const m = this.$el.querySelector('[name="mode_facturation_charges"]');
             if (m && m.value) { this.mode = m.value; }
+            // Réactivité fiable : recalcule l'aperçu dès qu'une donnée fiscale change.
+            // ($watch garantit l'exécution sur le proxy réactif — plus robuste que
+            //  x-on:input seul, dont le `this` différé n'était pas toujours réactif.)
+            this.$watch('loyer',   () => this.scheduleRefresh());
+            this.$watch('charges', () => this.scheduleRefresh());
+            this.$watch('tom',     () => this.scheduleRefresh());
+            this.$watch('mode',    () => this.scheduleRefresh());
             this.$nextTick(() => this.scheduleRefresh());
         },
 
@@ -291,21 +298,25 @@ export function registerComponents(Alpine) {
         onInput() { this.scheduleRefresh(); },
 
         scheduleRefresh() {
-            clearTimeout(this._timer);
-            this._timer = setTimeout(() => this.refresh(), 350);
+            // self = proxy réactif Alpine, conservé à travers le setTimeout
+            const self = this;
+            clearTimeout(self._timer);
+            self._timer = setTimeout(() => self.refresh(), 350);
         },
 
         refresh() {
-            const bienEl = this.$el.querySelector('[name="bien_id"]');
+            // self garantit que les affectations async (fetch.then) restent réactives.
+            const self = this;
+            const bienEl = self.$el.querySelector('[name="bien_id"]');
             const bienId = bienEl ? bienEl.value : '';
-            const loyerNum = parseFloat(String(this.loyer).replace(/\s/g, '').replace(',', '.'));
-            if (! bienId || ! loyerNum || loyerNum <= 0 || ! this.apercuUrl) {
-                this.ready = false; this.r = null; return;
+            const loyerNum = parseFloat(String(self.loyer).replace(/\s/g, '').replace(',', '.'));
+            if (! bienId || ! loyerNum || loyerNum <= 0 || ! self.apercuUrl) {
+                self.ready = false; self.r = null; return;
             }
-            this.loading = true;
-            const typeEl = this.$el.querySelector('[name="type_bail"]');
+            self.loading = true;
+            const typeEl = self.$el.querySelector('[name="type_bail"]');
             const token = document.querySelector('meta[name="csrf-token"]');
-            fetch(this.apercuUrl, {
+            fetch(self.apercuUrl, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -317,19 +328,19 @@ export function registerComponents(Alpine) {
                 body: JSON.stringify({
                     bien_id: bienId,
                     loyer_nu: loyerNum,
-                    charges_mensuelles: this.chargesNum,
-                    tom_amount: this.tom,
-                    mode_facturation_charges: this.showChargesMode ? this.mode : null,
+                    charges_mensuelles: self.chargesNum,
+                    tom_amount: self.tom,
+                    mode_facturation_charges: self.showChargesMode ? self.mode : null,
                     type_bail: typeEl ? typeEl.value : 'habitation',
                 }),
             })
                 .then((res) => (res.ok ? res.json() : null))
                 .then((data) => {
-                    this.loading = false;
-                    if (data && data.ok) { this.r = data; this.ready = true; }
-                    else { this.r = null; this.ready = false; }
+                    self.loading = false;
+                    if (data && data.ok) { self.r = data; self.ready = true; }
+                    else { self.r = null; self.ready = false; }
                 })
-                .catch(() => { this.loading = false; this.ready = false; });
+                .catch(() => { self.loading = false; self.ready = false; });
         },
 
         _fmt(n) {
