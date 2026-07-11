@@ -120,6 +120,7 @@ class GoogleAuthController extends Controller
                 Subscription::create([
                     'agency_id'        => $agency->id,
                     'statut'           => 'essai',
+                    'plan_niveau'      => 'starter',   // plan d'entrée par défaut (20 biens / 2 comptes)
                     'date_debut_essai' => now(),
                     'date_fin_essai'   => now()->addDays(30),
                 ]);
