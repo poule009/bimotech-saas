@@ -160,16 +160,16 @@ final class FiscalContext
         }
 
         // ── Taux BRS ──────────────────────────────────────────────────────
-        $tauxBrsContrat   = null;
-        $tauxBrsLocataire = null;
-
-        if ($contrat->brs_applicable && $contrat->taux_brs_manuel !== null) {
-            $tauxBrsContrat = (float) $contrat->taux_brs_manuel;
-        }
-
-        if ($locProfile?->taux_brs_override !== null) {
-            $tauxBrsLocataire = (float) $locProfile->taux_brs_override;
-        }
+        // B2 : l'APPLICABILITÉ de la BRS dépend du bailleur (personne physique),
+        // pas du champ contrat.brs_applicable (jadis dérivé à tort du locataire).
+        // Le taux manuel du contrat est donc TOUJOURS honoré s'il est renseigné —
+        // ne plus le conditionner à brs_applicable, sinon un taux saisi est ignoré.
+        $tauxBrsContrat   = $contrat->taux_brs_manuel !== null
+            ? (float) $contrat->taux_brs_manuel
+            : null;
+        $tauxBrsLocataire = $locProfile?->taux_brs_override !== null
+            ? (float) $locProfile->taux_brs_override
+            : null;
 
         return new self(
             loyerNu:                (float) ($contrat->loyer_nu ?? 0),
@@ -177,11 +177,16 @@ final class FiscalContext
             tomAmount:              (float) ($contrat->tom_amount ?? 0),
             typeBail:               $contrat->type_bail ?? 'habitation',
             estMeuble:              (bool)  ($bien?->meuble ?? false),
-            // C3 : si profil locataire absent et bail commercial/mixte → entreprise présumée
             // Art. 201 §2 CGI SN : BRS applicable si bailleur = personne physique.
-            // F4 : est_personne_morale_is vit sur le PROFIL Proprietaire (User->proprietaire),
-            // pas sur le User. Défaut FALSE = personne physique = BRS actif.
-            brsApplicable: !(bool) ($bien?->proprietaire?->proprietaire?->est_personne_morale_is ?? false),
+            // F4 : est_personne_morale_is vit sur le PROFIL Proprietaire (User->proprietaire).
+            // B3 : et si le bailleur n'a PAS de dispense explicite (brs_dispense).
+            // Défaut : personne physique, non dispensé → BRS actif.
+            brsApplicable: (function () use ($bien) {
+                $profil = $bien?->proprietaire?->proprietaire;
+                $estPersonneMorale = (bool) ($profil?->est_personne_morale_is ?? false);
+                $dispense          = (bool) ($profil?->brs_dispense ?? false);
+                return ! $estPersonneMorale && ! $dispense;
+            })(),
             tauxCommission:         (float) ($bien?->taux_commission ?? FiscalService::COMMISSION_TAUX),
             tauxTvaCommission:      FiscalService::TVA_TAUX,
             tauxTvaLoyerOverride:   $tauxTvaOverride,

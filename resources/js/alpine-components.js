@@ -518,11 +518,13 @@ export function registerComponents(Alpine) {
     Alpine.data('ownerForm', () => ({
         type: 'particulier',
         tva: false,
+        brsDispense: false,
         init() {
             if (this.$el.dataset.ownerType) {
                 this.type = this.$el.dataset.ownerType;
             }
             this.tva = this.$el.dataset.ownerTva === '1';
+            this.brsDispense = this.$el.dataset.ownerBrsDispense === '1';
         },
         get isEntreprise() { return this.type === 'entreprise'; },
         get isParticulier() { return this.type === 'particulier'; },
@@ -536,9 +538,13 @@ export function registerComponents(Alpine) {
         },
         get tvaSwitchClass() { return this.tva ? 'bg-teal' : 'bg-line'; },
         get tvaKnobClass() { return this.tva ? 'left-[20px]' : 'left-[3px]'; },
+        get brsDispenseValue() { return this.brsDispense ? '1' : '0'; },
+        get brsSwitchClass() { return this.brsDispense ? 'bg-gold' : 'bg-line'; },
+        get brsKnobClass() { return this.brsDispense ? 'left-[20px]' : 'left-[3px]'; },
         setParticulier() { this.type = 'particulier'; },
         setEntreprise() { this.type = 'entreprise'; },
         toggleTva() { this.tva = !this.tva; },
+        toggleBrsDispense() { this.brsDispense = !this.brsDispense; },
     }));
 
     // Affiche / masque un champ mot de passe.

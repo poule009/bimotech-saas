@@ -106,6 +106,7 @@
 <form method="POST" action="{{ route('admin.users.store') }}" x-data="ownerForm"
       data-owner-type="{{ old('est_personne_morale_is') === '1' ? 'entreprise' : 'particulier' }}"
       data-owner-tva="{{ old('assujetti_tva') === '1' ? '1' : '0' }}"
+      data-owner-brs-dispense="{{ old('brs_dispense') === '1' ? '1' : '0' }}"
       class="max-w-[1100px]">
     @csrf
     <input type="hidden" name="role" value="proprietaire">
@@ -238,12 +239,16 @@
                         <span x-bind:class="tvaKnobClass" class="absolute top-[2.5px] w-[19px] h-[19px] rounded-full bg-white shadow transition-all"></span>
                     </button>
                 </div>
-                <div class="flex items-center justify-between gap-5 pt-4 mt-4 border-t border-paper-dim opacity-60">
+                <input type="hidden" name="brs_dispense" x-bind:value="brsDispenseValue">
+                <div class="flex items-center justify-between gap-5 pt-4 mt-4 border-t border-paper-dim">
                     <div>
-                        <div class="text-[14.5px] font-bold flex items-center gap-2">Soumis au BRS <span class="text-[10px] uppercase tracking-wide bg-paper-dim text-muted px-1.5 py-0.5 rounded font-bold">Bientôt</span></div>
-                        <div class="text-[12.5px] text-muted mt-0.5 leading-snug">Retenue à la source — sera géré dans le module fiscalité propriétaire.</div>
+                        <div class="text-[14.5px] font-bold">Dispensé de retenue à la source (BRS)</div>
+                        <div class="text-[12.5px] text-muted mt-0.5 leading-snug">Par défaut, la BRS de 5% est retenue pour un bailleur personne physique (loyer ≥ 150 000 F). N'activez que si ce propriétaire justifie d'une dispense DGID.</div>
                     </div>
-                    <div class="w-[42px] h-6 rounded-full bg-line shrink-0"></div>
+                    <button type="button" x-on:click="toggleBrsDispense" x-bind:class="brsSwitchClass"
+                            class="relative w-[42px] h-6 rounded-full shrink-0 transition-colors" aria-label="Dispensé de BRS">
+                        <span x-bind:class="brsKnobClass" class="absolute top-[2.5px] w-[19px] h-[19px] rounded-full bg-white shadow transition-all"></span>
+                    </button>
                 </div>
             </div>
         </div>

@@ -118,7 +118,9 @@ class FiscalDashboardController extends Controller implements HasMiddleware
             $irppDetail = FiscalService::calculerIRPPDetail($revenus * 0.7);
             $regimes = FiscalService::comparerRegimes($revenus, $irpp);
 
-            $tauxBrs = $estPersonneMorale ? 0 : FiscalService::tauxBrs(false);
+            // Personne physique → taux BRS légal (5%) ; personne morale IS → 0.
+            // (Avant : tauxBrs(false) renvoyait toujours 0 — le simulateur affichait 0.)
+            $tauxBrs = $estPersonneMorale ? 0 : FiscalService::BRS_TAUX_LEGAL;
             $brsAnnuel = $projection['net_proprietaire_annuel'] * ($tauxBrs / 100);
 
             $tvaApplicable = FiscalService::loyerEstAssujetti($typeBail, false);

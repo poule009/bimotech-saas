@@ -304,7 +304,7 @@ class ContratController extends Controller implements HasMiddleware
             ->with([
                 'proprietaire:id',
                 // Profil propriétaire : assujettissement TVA (F2) + personne morale IS (BRS)
-                'proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is',
+                'proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is,brs_dispense',
             ])
             ->find($request->input('bien_id'));
 

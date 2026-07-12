@@ -34,6 +34,7 @@ class Proprietaire extends Model
         'mode_paiement_prefere', 'banque', 'numero_compte',
         'numero_wave', 'numero_om', 'ninea', 'assujetti_tva',
         'est_personne_morale_is',
+        'brs_dispense',           // BRS — dispense explicite de retenue (opt-out, niveau bailleur)
         'forme_juridique_bailleur',
         'code_import', 'import_batch_id',
     ];
@@ -42,6 +43,7 @@ class Proprietaire extends Model
         'date_naissance'          => 'date',
         'assujetti_tva'           => 'boolean',
         'est_personne_morale_is'  => 'boolean',
+        'brs_dispense'            => 'boolean',
         'deleted_at'              => 'datetime',
     ];
 

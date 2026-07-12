@@ -56,9 +56,11 @@ class RegleFiscale extends Model
     /** Libellé lisible du statut, pour l'UI. */
     public function getStatutLabelAttribute(): string
     {
-        return $this->statut === 'confirme'
-            ? 'Confirmé par source externe'
-            : 'À vérifier (non confirmé)';
+        return match ($this->statut) {
+            'confirme'         => 'Confirmé par source externe',
+            'decision_produit' => 'Décision produit interne (pas une exigence légale)',
+            default            => 'À vérifier (non confirmé)',
+        };
     }
 
     /** Vrai si la règle repose sur une source externe indépendante. */

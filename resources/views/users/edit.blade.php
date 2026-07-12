@@ -86,15 +86,18 @@
     $profil = $user->proprietaire;
     $isEnt  = old('est_personne_morale_is') !== null ? old('est_personne_morale_is') === '1' : (bool) $profil?->est_personne_morale_is;
     $isTva  = old('assujetti_tva') !== null ? old('assujetti_tva') === '1' : (bool) $profil?->assujetti_tva;
+    $isBrsDispense = old('brs_dispense') !== null ? old('brs_dispense') === '1' : (bool) $profil?->brs_dispense;
 @endphp
 <form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="ownerForm"
       data-owner-type="{{ $isEnt ? 'entreprise' : 'particulier' }}"
       data-owner-tva="{{ $isTva ? '1' : '0' }}"
+      data-owner-brs-dispense="{{ $isBrsDispense ? '1' : '0' }}"
       class="max-w-[1100px]">
     @csrf
     @method('PATCH')
     <input type="hidden" name="est_personne_morale_is" x-bind:value="moraleValue">
     <input type="hidden" name="assujetti_tva" x-bind:value="tvaValue">
+    <input type="hidden" name="brs_dispense" x-bind:value="brsDispenseValue">
 
     @if($errors->any())
         <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error">
@@ -208,6 +211,16 @@
                     <button type="button" x-on:click="toggleTva" x-bind:class="tvaSwitchClass"
                             class="relative w-[42px] h-6 rounded-full shrink-0 transition-colors" aria-label="Assujetti à la TVA">
                         <span x-bind:class="tvaKnobClass" class="absolute top-[2.5px] w-[19px] h-[19px] rounded-full bg-white shadow transition-all"></span>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between gap-5 pt-4 mt-4 border-t border-paper-dim">
+                    <div>
+                        <div class="text-[14.5px] font-bold">Dispensé de retenue à la source (BRS)</div>
+                        <div class="text-[12.5px] text-muted mt-0.5 leading-snug">Par défaut, la BRS de 5% est retenue pour un bailleur personne physique (loyer ≥ 150 000 F). N'activez que si ce propriétaire justifie d'une dispense DGID.</div>
+                    </div>
+                    <button type="button" x-on:click="toggleBrsDispense" x-bind:class="brsSwitchClass"
+                            class="relative w-[42px] h-6 rounded-full shrink-0 transition-colors" aria-label="Dispensé de BRS">
+                        <span x-bind:class="brsKnobClass" class="absolute top-[2.5px] w-[19px] h-[19px] rounded-full bg-white shadow transition-all"></span>
                     </button>
                 </div>
             </div>

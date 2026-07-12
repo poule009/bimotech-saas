@@ -20,7 +20,7 @@ class QuittanceGenerator
         'bien:id,agency_id,proprietaire_id,taux_commission,meuble,type',
         'bien.proprietaire:id',
         // Profil propriétaire : assujettissement TVA (F2) + personne morale IS (BRS, F4)
-        'bien.proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is',
+        'bien.proprietaire.proprietaire:user_id,assujetti_tva,est_personne_morale_is,brs_dispense',
         // Agence : assujettissement TVA (F2) pour la TVA commission/frais
         'agency:id,assujetti_tva',
         'locataire:id,name',

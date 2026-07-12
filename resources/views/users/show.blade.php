@@ -109,6 +109,19 @@
                         <p class="text-[11.5px] text-muted mt-1">Tant que ce n'est pas confirmé, aucune TVA n'est facturée sur ses loyers (sécurité : pas de TVA indue). Modifiez la fiche pour confirmer l'assujettissement.</p>
                     @endif
                 </div>
+                <div>
+                    <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-1">Retenue à la source (BRS)</div>
+                    @if($profil?->est_personne_morale_is)
+                        <div class="text-[15px] font-semibold">Non applicable</div>
+                        <p class="text-[11.5px] text-muted mt-1">Personne morale (IS) — pas de retenue à la source sur ses loyers.</p>
+                    @elseif($profil?->brs_dispense)
+                        <div class="text-[15px] font-semibold text-gold">Dispensé de BRS</div>
+                        <p class="text-[11.5px] text-muted mt-1">Aucune retenue de 5% n'est prélevée (dispense DGID). Décochez la dispense sur la fiche pour rétablir la retenue.</p>
+                    @else
+                        <div class="text-[15px] font-semibold text-green">Soumis à la BRS (5%)</div>
+                        <p class="text-[11.5px] text-muted mt-1">Bailleur personne physique : 5% retenus sur les loyers ≥ 150 000 F et reversés à la DGID.</p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

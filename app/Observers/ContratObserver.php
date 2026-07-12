@@ -67,17 +67,23 @@ class ContratObserver
             $contrat->charges_assujetties_tva = $contrat->mode_facturation_charges === 'forfait';
         }
 
-        // ── Calcul brs_applicable depuis le locataire ────────────────────────
+        // ── brs_applicable depuis le PROPRIÉTAIRE (bailleur) ─────────────────
+        // B2 (bug corrigé) : la BRS s'applique quand le BAILLEUR est une personne
+        // physique (Art. 201 §2 CGI SN) — JAMAIS selon le statut du locataire.
+        // On dérive donc depuis le profil propriétaire du bien.
         $doitRecalculerBrs = ! $contrat->exists
-            || $contrat->isDirty('locataire_id');
+            || $contrat->isDirty('bien_id');
 
         if ($doitRecalculerBrs && ! $contrat->isDirty('brs_applicable')) {
-            // Charger le locataire si pas en mémoire
-            $locataireUser  = $contrat->locataire
-                              ?? ($contrat->locataire_id ? \App\Models\User::find($contrat->locataire_id) : null);
-            $locataireProfil = $locataireUser?->locataire;
-
-            $contrat->brs_applicable = (bool) ($locataireProfil?->est_entreprise ?? false);
+            $bienBrs = $contrat->bien ?? ($contrat->bien_id
+                ? \App\Models\Bien::withoutGlobalScopes()->find($contrat->bien_id)
+                : null);
+            // Profil propriétaire : User->proprietaire (HasOne). BRS applicable si
+            // personne physique (défaut) ET pas de dispense explicite (B3).
+            $profilProprio = $bienBrs?->proprietaire?->proprietaire;
+            $estMorale = (bool) ($profilProprio?->est_personne_morale_is ?? false);
+            $dispense  = (bool) ($profilProprio?->brs_dispense ?? false);
+            $contrat->brs_applicable = ! $estMorale && ! $dispense;
         }
 
         // ── Auto-calcul loyer_contractuel ────────────────────────────────────

@@ -82,9 +82,11 @@ class EtatTrimestrielTest extends TestCase
         $userMorale = User::factory()->create(['agency_id' => $agency->id]);
         $userMorale->forceFill(['role' => 'proprietaire'])->save();
 
-        // est_personne_morale absent du $fillable de Proprietaire → forceFill requis
-        $profilMorale = Proprietaire::create(['user_id' => $userMorale->id]);
-        $profilMorale->forceFill(['est_personne_morale' => true])->save();
+        // Bailleur personne morale (IS) → exclu de l'état trimestriel (source unique : _is)
+        $profilMorale = Proprietaire::create([
+            'user_id'                => $userMorale->id,
+            'est_personne_morale_is' => true,
+        ]);
 
         $bien = Bien::factory()->create([
             'agency_id'       => $agency->id,
@@ -130,7 +132,6 @@ class EtatTrimestrielTest extends TestCase
         Proprietaire::create([
             'user_id'             => $user->id,
             'ninea'               => null,
-            'est_personne_morale' => false,
         ]);
 
         $bien = Bien::factory()->create([
@@ -175,7 +176,6 @@ class EtatTrimestrielTest extends TestCase
         Proprietaire::create([
             'user_id'             => $user->id,
             'ninea'               => '123456789',
-            'est_personne_morale' => false,
         ]);
 
         $bien = Bien::factory()->create([

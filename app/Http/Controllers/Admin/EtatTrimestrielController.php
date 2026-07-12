@@ -98,13 +98,15 @@ class EtatTrimestrielController extends Controller implements HasMiddleware
             ->where('brs_amount', '>', 0)
             ->whereBetween('periode', [$debut->format('Y-m-d'), $fin->format('Y-m-d')])
             ->whereHas('contrat.bien.proprietaire', function (Builder $q) {
-                // Exclure les bailleurs personnes morales (IS) — Art. 200 §5 CGI SN
+                // Exclure les bailleurs personnes morales (IS) — Art. 200 §5 CGI SN.
+                // B1 : on utilise est_personne_morale_is (source unique), aligné sur le
+                // moteur et l'UI. L'ancien champ est_personne_morale (mort) est supprimé.
                 $q->where(function (Builder $q) {
                     $q->whereDoesntHave('proprietaire')
                       ->orWhereHas('proprietaire', function (Builder $q) {
                           $q->where(function (Builder $q) {
-                              $q->where('est_personne_morale', false)
-                                ->orWhereNull('est_personne_morale');
+                              $q->where('est_personne_morale_is', false)
+                                ->orWhereNull('est_personne_morale_is');
                           });
                       });
                 });

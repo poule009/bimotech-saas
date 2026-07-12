@@ -182,5 +182,96 @@ return [
             'note' => null,
         ],
 
+        // ═══════════════════════════════════════════════════════════════════
+        // BRS — Retenue à la source sur les loyers
+        // ═══════════════════════════════════════════════════════════════════
+
+        // ── Taux & assiette de la BRS ────────────────────────────────────────
+        'brs_taux_assiette' => [
+            'categorie'   => 'brs',
+            'titre'       => 'Taux et assiette de la BRS',
+            'description' => "Bailleur personne physique, loyer mensuel HT ≥ 150 000 F, "
+                . "non dispensé → BRS = loyer_HT × 5%. Bailleur personne morale (IS) → 0 "
+                . "quel que soit le montant. Loyer < 150 000 F → 0 par défaut (dispense "
+                . "légale), sauf override manuel. Assiette = loyer HT BRUT (loyer nu) — "
+                . "jamais le TTC, jamais TOM ni charges (assiette distincte de la TVA).",
+            'statut'  => 'confirme',
+            'sources' => [
+                [
+                    'libelle' => 'Immoplus Sablux — Note sur les obligations fiscales des propriétaires',
+                    'url'     => 'https://immoplussablux.com/article/note_sur_les_obligations_fiscales_des_proprietaires_des_biens_immobiliers',
+                ],
+                [
+                    'libelle' => 'OpenFisca Sénégal — Système socio-fiscal sénégalais (wiki)',
+                    'url'     => 'https://github.com/openfisca/openfisca-senegal/wiki/Système-socio-fiscal-sénégalais',
+                ],
+            ],
+            'note' => 'Deux sources indépendantes concordantes. Assiette BRS ≠ assiette TVA : '
+                . 'deux moteurs, deux assiettes distinctes.',
+        ],
+
+        // ── Qui retient, qui est dispensé ────────────────────────────────────
+        'brs_qui_retient' => [
+            'categorie'   => 'brs',
+            'titre'       => 'Retenue par l\'agence, déduite du versement bailleur',
+            'description' => "L'agence immobilière opère la BRS à la place du locataire — "
+                . "le locataire n'a jamais à s'en occuper quand il passe par une agence. "
+                . "Le montant retenu est DÉDUIT du versement fait au propriétaire, JAMAIS "
+                . "ajouté à la charge du locataire.",
+            'statut'  => 'confirme',
+            'sources' => [
+                [
+                    'libelle' => 'Immoplus Sablux — Note sur les obligations fiscales des propriétaires',
+                    'url'     => 'https://immoplussablux.com/article/note_sur_les_obligations_fiscales_des_proprietaires_des_biens_immobiliers',
+                ],
+            ],
+            'note' => null,
+        ],
+
+        // ── Obligations déclaratives (3 niveaux) ─────────────────────────────
+        'brs_obligations_declaratives' => [
+            'categorie'   => 'brs',
+            'titre'       => 'Obligations déclaratives BRS (mensuel / trimestriel / annuel)',
+            'description' => "Versement mensuel : avant le 15 du mois suivant (total des BRS "
+                . "retenues le mois précédent). État trimestriel : 15 avr (T1), 15 juil (T2), "
+                . "15 oct (T3), 15 jan N+1 (T4) — identité du bénéficiaire (nom, adresse, NINEA), "
+                . "montant versé, période, impôt retenu. État annuel récapitulatif : 31 janvier "
+                . "de l'année suivante (tous les versements à des tiers personnes physiques). "
+                . "Option (≤ 20 000 F/mois de retenues) : déclaration trimestrielle possible au "
+                . "lieu de mensuelle — facilité facultative, le mensuel reste toujours valide.",
+            'statut'  => 'confirme',
+            'sources' => [
+                [
+                    'libelle' => 'Plaquette officielle DGID — e-services',
+                    'url'     => 'https://fr.scribd.com/document/744350860/PLAQUETTE-E-SERVICE-VERSO-1-3',
+                ],
+                [
+                    'libelle' => 'MCE Sénégal — Déclarations fiscales',
+                    'url'     => 'https://mcesenegal.com/espace-createur/aspects-juridiques-fiscaux-et-sociaux/declarations-fiscales/',
+                ],
+            ],
+            'note' => 'Option trimestrielle sous 20 000 F : non implémentée pour l\'instant '
+                . '(facilité optionnelle, pas une obligation).',
+        ],
+
+        // ── Cascade de priorité du taux — DÉCISION PRODUIT ───────────────────
+        'brs_cascade_taux' => [
+            'categorie'   => 'brs',
+            'titre'       => 'Cascade de priorité du taux BRS (décision produit)',
+            'description' => "Priorité du taux appliqué : 1) taux override du contrat "
+                . "(taux_brs_manuel) ; 2) taux override du locataire (taux_brs_override) ; "
+                . "3) taux légal par défaut 5%. Cette cascade sert à gérer des cas particuliers "
+                . "négociés.",
+            'statut'  => 'decision_produit',
+            'sources' => [
+                [
+                    'libelle' => 'Décision produit interne Bimotech — pas une exigence légale DGID',
+                    'url'     => null,
+                ],
+            ],
+            'note' => 'N\'existe dans aucun texte fiscal : logique produit propre à Bimotech, '
+                . 'documentée comme telle (ne pas chercher à la « vérifier »).',
+        ],
+
     ],
 ];

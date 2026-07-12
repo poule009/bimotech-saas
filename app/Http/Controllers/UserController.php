@@ -272,6 +272,7 @@ class UserController extends Controller
             'ninea'                 => ['nullable', 'string', 'max:20'],
             'est_personne_morale_is'=> ['nullable', 'boolean'],
             'assujetti_tva'         => ['nullable', 'boolean'],
+            'brs_dispense'          => ['nullable', 'boolean'],
             // ── Locataire ─────────────────────────────────────────────────
             'type_locataire'   => ['nullable', 'in:particulier,entreprise,association,ambassade,ong'],
             'est_entreprise'   => ['nullable', 'boolean'],
@@ -325,6 +326,7 @@ class UserController extends Controller
                     'ninea'                 => $validated['ninea'] ?? null,
                     'est_personne_morale_is'=> filter_var($request->input('est_personne_morale_is'), FILTER_VALIDATE_BOOLEAN),
                     'assujetti_tva'         => $request->boolean('assujetti_tva'),
+                    'brs_dispense'          => $request->boolean('brs_dispense'),
                 ]);
             } else {
                 Locataire::create([
@@ -535,10 +537,12 @@ class UserController extends Controller
             'ninea'                 => ['nullable', 'string', 'max:20'],
             'assujetti_tva'         => ['nullable', 'boolean'],
             'est_personne_morale_is'=> ['nullable', 'boolean'],
+            'brs_dispense'          => ['nullable', 'boolean'],
         ]);
 
         $profilData['assujetti_tva']          = $request->boolean('assujetti_tva');
         $profilData['est_personne_morale_is'] = $request->boolean('est_personne_morale_is');
+        $profilData['brs_dispense']           = $request->boolean('brs_dispense');
         $user->proprietaire->update($profilData);
     }
 
