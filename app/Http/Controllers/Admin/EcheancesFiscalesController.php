@@ -55,6 +55,7 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
                 'date_limite' => $c->droit_enreg_date_limite,
                 'en_retard'   => $c->droit_enreg_date_limite->isPast(),
                 'total'       => $c->droit_enreg_total,
+                'estimation'  => $c->droit_enreg_statut_calcul === 'estimation',
             ]);
 
         return view('admin.echeances-fiscales.index', compact(

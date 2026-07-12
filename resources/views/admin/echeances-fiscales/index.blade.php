@@ -32,6 +32,11 @@
                             <div class="text-[12.5px] {{ $b['en_retard'] ? 'text-error font-semibold' : 'text-muted' }}">
                                 {{ $b['en_retard'] ? 'En retard — ' : '' }}à enregistrer avant le {{ $b['date_limite']->format('d/m/Y') }} · {{ $fmt($b['total']) }} F
                             </div>
+                            @if($b['estimation'])
+                                <div class="mt-1 inline-flex items-center gap-1 rounded-md bg-gold/15 text-teal-deep px-1.5 py-0.5 text-[10.5px] font-semibold">
+                                    <x-icon name="alert-triangle" size="11" /> Estimation — base à confirmer (bail &gt; 12 mois)
+                                </div>
+                            @endif
                         </div>
                         <a href="{{ route('admin.contrats.show', $b['contrat']) }}" class="shrink-0 text-[12.5px] font-bold text-teal hover:underline">Traiter</a>
                     </div>
