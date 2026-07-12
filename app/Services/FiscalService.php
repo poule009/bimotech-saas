@@ -547,6 +547,51 @@ class FiscalService
     }
 
     /**
+     * Estimation de l'IRPP FONCIER d'un propriétaire PERSONNE PHYSIQUE, année N.
+     *
+     * PÉRIMÈTRE PARTIEL par construction (statut 'perimetre_partiel') : ne porte
+     * QUE sur les loyers gérés dans l'app (mêmes paiements validés que la
+     * Comptabilité / le bilan). L'IRPP réel dépend de TOUS les revenus du
+     * contribuable et de sa situation familiale. Ce n'est PAS un doute sur les
+     * taux (R1 abattement 30% + R2 barème 7 tranches sont raisonnablement fiables,
+     * regles_fiscales IR-01/IR-02) : c'est le périmètre des DONNÉES qui est partiel.
+     *
+     * Assiette = loyers HT encaissés (charges EXCLUES — §3 du brief IRPP) ;
+     * base = loyers × (1 − 30%) ; barème progressif par tranche marginale.
+     * NB : à réserver aux propriétaires Particuliers (est_personne_morale_is=false) —
+     * les personnes morales relèvent de l'IS, pas de l'IRPP.
+     *
+     * @return array{annee:int, revenu_brut_annuel:float, base_apres_abattement:float,
+     *               montant_estime:float, detail:array, statut_calcul:string}
+     */
+    public static function estimerIrppFoncier(int $proprietaireId, int $annee, int $agencyId): array
+    {
+        // Loyers HT encaissés (paiements validés) — MÊME source que le bilan/Compta.
+        // Charges exclues (§3) : on ne somme que loyer_ht (fallback loyer_nu).
+        $rows = Paiement::withoutGlobalScopes()
+            ->join('contrats', 'paiements.contrat_id', '=', 'contrats.id')
+            ->join('biens', 'contrats.bien_id', '=', 'biens.id')
+            ->where('paiements.agency_id', $agencyId)
+            ->where('paiements.statut', 'valide')
+            ->whereYear('paiements.date_paiement', $annee)
+            ->where('biens.proprietaire_id', $proprietaireId)
+            ->select('paiements.loyer_ht', 'paiements.loyer_nu')
+            ->get();
+
+        $revenuBrut = (float) $rows->sum(fn ($p) => (float) ($p->loyer_ht ?? $p->loyer_nu ?? 0));
+        $base       = round($revenuBrut * (1 - self::ABATTEMENT_IRPP), 2);
+
+        return [
+            'annee'                 => $annee,
+            'revenu_brut_annuel'    => round($revenuBrut, 2),
+            'base_apres_abattement' => $base,
+            'montant_estime'        => self::calculerIRPP($base),
+            'detail'                => self::calculerIRPPDetail($base),
+            'statut_calcul'         => 'perimetre_partiel',
+        ];
+    }
+
+    /**
      * Calcule la CGF (Contribution Globale Foncière) — Art. 77-94 CGI SN.
      *
      * Régime forfaitaire : taux UNIQUE de la tranche (pas progressif).

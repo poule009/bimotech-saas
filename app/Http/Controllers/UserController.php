@@ -444,8 +444,17 @@ class UserController extends Controller
                 ])
                 ->get();
 
+            // ── Estimation IRPP foncier — Propriétaires PARTICULIERS uniquement ──
+            // Les personnes morales relèvent de l'IS (pas de l'IRPP). On lit le profil
+            // sans global scope (le propriétaire appartient déjà à l'agence de l'admin).
+            $profilProprio  = \App\Models\Proprietaire::withoutGlobalScopes()
+                ->where('user_id', $user->id)->first();
+            $irppEstimation = ($profilProprio && ! $profilProprio->est_personne_morale_is)
+                ? \App\Services\FiscalService::estimerIrppFoncier($user->id, now()->year, $user->agency_id)
+                : null;
+
             return view('users.show', compact(
-                'user', 'biens', 'stats', 'paiements', 'locatairesActifs'
+                'user', 'biens', 'stats', 'paiements', 'locatairesActifs', 'irppEstimation'
             ));
         }
 

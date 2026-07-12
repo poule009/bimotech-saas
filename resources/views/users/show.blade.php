@@ -124,6 +124,40 @@
                 </div>
             </div>
         </div>
+
+        {{-- Estimation IRPP foncier — Propriétaires Particuliers uniquement --}}
+        @isset($irppEstimation)
+            @php $fmtIrpp = fn($n) => number_format((float) $n, 0, ',', ' '); @endphp
+            <div class="f-card mt-5">
+                <h3 class="f-card-title mb-1">Estimation IRPP {{ $irppEstimation['annee'] }}</h3>
+                <p class="f-card-sub">Impôt sur les revenus fonciers (loyers gérés dans l'app).</p>
+
+                <div class="space-y-2.5 text-[13.5px]">
+                    <div class="flex justify-between"><span class="text-muted">Loyers bruts encaissés {{ $irppEstimation['annee'] }}</span><span class="font-semibold">{{ $fmtIrpp($irppEstimation['revenu_brut_annuel']) }} F</span></div>
+                    <div class="flex justify-between"><span class="text-muted">Après abattement 30%</span><span class="font-semibold">{{ $fmtIrpp($irppEstimation['base_apres_abattement']) }} F</span></div>
+                    <div class="flex justify-between pt-2 border-t border-paper-dim"><span class="font-bold">IRPP estimé</span><span class="font-bold text-teal">{{ $fmtIrpp($irppEstimation['montant_estime']) }} F</span></div>
+                </div>
+
+                @if(collect($irppEstimation['detail'])->where('impot', '>', 0)->isNotEmpty())
+                    <div class="mt-3 pt-3 border-t border-paper-dim">
+                        <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-2">Détail par tranche</div>
+                        <div class="space-y-1 text-[12.5px]">
+                            @foreach($irppEstimation['detail'] as $t)
+                                @if($t['impot'] > 0)
+                                    <div class="flex justify-between text-muted"><span>{{ (int) $t['taux'] }}% sur {{ $fmtIrpp($t['assiette']) }} F</span><span class="font-semibold text-ink">{{ $fmtIrpp($t['impot']) }} F</span></div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Badge de PÉRIMÈTRE (distinct du badge « à confirmer ») — toujours visible --}}
+                <div class="mt-3 rounded-lg bg-teal/10 text-teal-deep px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                    <x-icon name="lightbulb" size="13" class="mt-0.5 shrink-0" />
+                    <span>Cette estimation ne porte que sur les revenus locatifs gérés dans Bimothèque Immo. L'IRPP réel dépend de l'ensemble des revenus du propriétaire et de sa situation familiale, et doit être calculé lors de sa déclaration annuelle.</span>
+                </div>
+            </div>
+        @endisset
     </div>
 
     {{-- Onglet Biens --}}

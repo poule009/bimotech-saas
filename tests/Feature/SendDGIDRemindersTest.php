@@ -17,7 +17,7 @@ use Tests\TestCase;
  *
  * Échéances DGID (Sénégal) :
  *  - BRS  : 31 janvier  (retenue à la source)
- *  - IRPP : 30 avril    (déclaration revenus locatifs)
+ *  - IRPP : 1er mars    (déclaration revenus locatifs — source officielle)
  *  - CFPB : 30 septembre (contribution foncière)
  *
  * Rappels envoyés : J-30 et J-7 avant chaque échéance.
@@ -75,8 +75,8 @@ class SendDGIDRemindersTest extends TestCase
     #[Test]
     public function rappel_envoye_a_j30_avant_irpp(): void
     {
-        // IRPP = 30 avril → rappel J-30 = 31 mars
-        $this->gelerTemps(4, 30, 30);
+        // IRPP = 1er mars → rappel J-30 = 30 janvier
+        $this->gelerTemps(3, 1, 30);
 
         $this->artisan('dgid:reminders')->assertSuccessful();
 
@@ -121,8 +121,8 @@ class SendDGIDRemindersTest extends TestCase
     #[Test]
     public function pas_de_rappel_a_j15_avant_echeance(): void
     {
-        // J-15 avant IRPP — pas un jour de rappel
-        $this->gelerTemps(4, 30, 15);
+        // J-15 avant IRPP (1er mars) — pas un jour de rappel
+        $this->gelerTemps(3, 1, 15);
 
         $this->artisan('dgid:reminders')->assertSuccessful();
 
@@ -146,7 +146,7 @@ class SendDGIDRemindersTest extends TestCase
             'email'     => 'proprio2@agence.sn',
         ]);
 
-        $this->gelerTemps(4, 30, 30);
+        $this->gelerTemps(3, 1, 30);
 
         $this->artisan('dgid:reminders')->assertSuccessful();
 
@@ -171,7 +171,7 @@ class SendDGIDRemindersTest extends TestCase
             'email'     => 'inactif@agence.sn',
         ]);
 
-        $this->gelerTemps(4, 30, 7);
+        $this->gelerTemps(3, 1, 7);
 
         $this->artisan('dgid:reminders')->assertSuccessful();
 

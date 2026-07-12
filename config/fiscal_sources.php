@@ -361,5 +361,61 @@ return [
             'date_verification' => '2026-07-12',
         ],
 
+        // ═══════════════════════════════════════════════════════════════════
+        // IRPP sur revenus fonciers (Propriétaires personnes physiques)
+        // ═══════════════════════════════════════════════════════════════════
+
+        'IR-01' => [
+            'categorie'   => 'irpp',
+            'titre'       => 'Abattement forfaitaire 30% sur les revenus fonciers bruts',
+            'description' => "Un abattement de 30% s'applique sur le loyer annuel brut AVANT "
+                . "le barème progressif. Base imposable = loyers × (1 − 30%).",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [['libelle' => 'Guides fiscaux spécialisés Afrique francophone', 'url' => null]],
+            'note' => 'Sources privées concordantes (pas de texte gouv.sn direct).',
+            'date_verification' => '2026-07-12',
+        ],
+        'IR-02' => [
+            'categorie'   => 'irpp',
+            'titre'       => 'Barème progressif IRPP — 7 tranches (0% à 43%)',
+            'description' => "Barème par tranche marginale : 0–630 000 → 0% ; 630 001–1 500 000 "
+                . "→ 20% ; 1 500 001–4 000 000 → 30% ; 4 000 001–8 000 000 → 35% ; "
+                . "8 000 001–13 500 000 → 37% ; 13 500 001–50 000 000 → 40% ; "
+                . "au-delà de 50 000 000 → 43%. Application marginale, pas en taux unique.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Cabinet fiscal panafricain', 'url' => null],
+                ['libelle' => 'tradingeconomics.com', 'url' => 'https://tradingeconomics.com/senegal/personal-income-tax-rate'],
+            ],
+            'note' => 'Les 40% et 43% coexistent à des paliers différents (ce n\'était pas un conflit : '
+                . 'certaines sources tronquaient à 40%). PDF officiel DGID (IR-FLYERS.pdf) non extractible '
+                . '→ repasser en confirme_officiel si accès au texte CGI brut.',
+            'date_verification' => '2026-07-12',
+        ],
+        'IR-03' => [
+            'categorie'   => 'irpp',
+            'titre'       => 'Réduction pour charges de famille (10%/part)',
+            'description' => "10% par part fiscale supplémentaire dans le système IRPP général. "
+                . "HORS PÉRIMÈTRE : l'app ne gère aucune donnée de situation familiale / "
+                . "quotient familial des propriétaires. Non demandé, non appliqué.",
+            'statut'  => 'hors_perimetre',
+            'sources' => [['libelle' => 'Référentiel général IRPP', 'url' => null]],
+            'note' => 'Aucun champ quotient familial créé. Entrée conservée pour éviter qu\'un futur '
+                . 'brief ne « redécouvre » la règle sans décision explicite.',
+            'date_verification' => '2026-07-12',
+        ],
+        'IR-04' => [
+            'categorie'   => 'irpp',
+            'titre'       => 'Déclaration IRPP avant le 1er mars',
+            'description' => "Déclaration des revenus non soumis à retenue à la source (dont revenus "
+                . "locatifs) avant le 1er mars de chaque année. La source privée évoquant le 30 avril "
+                . "est explicitement ÉCARTÉE (la source officielle prime).",
+            'statut'  => 'confirme_officiel',
+            'sources' => [['libelle' => 'DGID — Déclarer ses revenus (impotsetdomaines.gouv.sn)', 'url' => 'https://www.impotsetdomaines.gouv.sn/']],
+            'note' => 'Le 30 avril (source privée) est écarté au profit du 1er mars (officiel), '
+                . 'comme la CGF au 1er février prime sur le doc interne.',
+            'date_verification' => '2026-07-12',
+        ],
+
     ],
 ];

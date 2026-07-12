@@ -79,7 +79,10 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
             ['mois' => 2, 'jour' => 15, 'label' => 'IS — 1er acompte',         'type' => 'Paiement',    'lien_route' => null,                            'lien_label' => 'Info',            'visible' => $isSociete],
             ['mois' => 4, 'jour' => 30, 'label' => 'CEL-VA (Valeur Ajoutée)',  'type' => 'Déclaration', 'lien_route' => null,                            'lien_label' => 'Info',            'visible' => true],
             ['mois' => 4, 'jour' => 30, 'label' => 'IS — 2ème acompte',        'type' => 'Paiement',    'lien_route' => null,                            'lien_label' => 'Info',            'visible' => $isSociete],
-            ['mois' => 4, 'jour' => 30, 'label' => 'IRPP / CGF',               'type' => 'Déclaration', 'lien_route' => 'admin.bilans-fiscaux.index',     'lien_label' => 'Bilans fisc.',    'visible' => true],
+            // IRPP revenus fonciers : 1er mars (source officielle gouv.sn — écarte le 30 avril
+            // de la source privée). CGF : 1er février (texte officiel). Réf. regles_fiscales IR-04.
+            ['mois' => 3, 'jour' => 1,  'label' => 'IRPP (revenus fonciers)',  'type' => 'Déclaration', 'lien_route' => 'admin.bilans-fiscaux.index',     'lien_label' => 'Bilans fisc.',    'visible' => true],
+            ['mois' => 2, 'jour' => 1,  'label' => 'CGF',                      'type' => 'Déclaration', 'lien_route' => 'admin.bilans-fiscaux.index',     'lien_label' => 'Bilans fisc.',    'visible' => true],
             ['mois' => 6, 'jour' => 15, 'label' => 'IS — solde + IMF',         'type' => 'Paiement',    'lien_route' => null,                            'lien_label' => 'Info',            'visible' => $isSociete],
             ['mois' => 9, 'jour' => 30, 'label' => 'CFPB',                     'type' => 'Émission',    'lien_route' => null,                            'lien_label' => 'Info admin',      'visible' => true],
             ['mois' => 9, 'jour' => 30, 'label' => 'TEOM',                     'type' => 'Émission',    'lien_route' => null,                            'lien_label' => 'Info admin',      'visible' => true],

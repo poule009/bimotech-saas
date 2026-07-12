@@ -37,7 +37,7 @@ class SendDGIDReminders extends Command
         'brs_annuel'   => ['mois' => 1, 'jour' => 31],                                                                                            // proprietaires — CGI art. 200 §5
         'cel_vl'       => ['mois' => 1, 'jour' => 31, 'destinataire' => 'admin'],                                                                 // admins — Art. 320-338 CGI SN
         'is_acompte_1' => ['mois' => 2, 'jour' => 15, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 36-37 CGI SN
-        'irpp'         => ['mois' => 4, 'jour' => 30],                                                                                            // proprietaires
+        'irpp'         => ['mois' => 3, 'jour' => 1],                                                                                             // proprietaires — 1er mars (gouv.sn), regles_fiscales IR-04
         'cel_va'       => ['mois' => 4, 'jour' => 30, 'destinataire' => 'admin'],                                                                 // admins — Art. 320-338 CGI SN
         'is_acompte_2' => ['mois' => 4, 'jour' => 30, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 36-37 CGI SN
         'is_solde'     => ['mois' => 6, 'jour' => 15, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 37 CGI SN (IMF)
