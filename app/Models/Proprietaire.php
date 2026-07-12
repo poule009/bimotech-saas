@@ -31,6 +31,7 @@ class Proprietaire extends Model
     protected $fillable = [
         'user_id', 'cni', 'date_naissance', 'genre', 'nationalite',
         'telephone_secondaire', 'adresse_domicile', 'ville', 'quartier',
+        'piece_identite_path',
         'mode_paiement_prefere', 'banque', 'numero_compte',
         'numero_wave', 'numero_om', 'ninea', 'assujetti_tva',
         'est_personne_morale_is',

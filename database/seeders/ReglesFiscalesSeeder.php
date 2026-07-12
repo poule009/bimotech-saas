@@ -30,7 +30,10 @@ class ReglesFiscalesSeeder extends Seeder
                     'statut'            => $regle['statut'],
                     'sources'           => $regle['sources'] ?? [],
                     'note'              => $regle['note'] ?? null,
-                    'date_verification' => $dateVerification,
+                    // Date de vérif propre à la règle si fournie (ex. DGID 12/07), sinon globale.
+                    'date_verification' => array_key_exists('date_verification', $regle)
+                        ? $regle['date_verification']
+                        : $dateVerification,
                 ]
             );
         }

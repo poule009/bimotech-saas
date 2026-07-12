@@ -220,6 +220,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('contrats/{contrat}/edit',    [ContratController::class, 'edit'])->name('contrats.edit')->middleware('agency.can:contrats.modifier');
         Route::put('contrats/{contrat}',         [ContratController::class, 'update'])->name('contrats.update')->middleware('agency.can:contrats.modifier');
         Route::delete('contrats/{contrat}',      [ContratController::class, 'destroy'])->name('contrats.destroy')->middleware('agency.can:contrats.supprimer');
+        Route::post('contrats/{contrat}/marquer-enregistre', [ContratController::class, 'marquerEnregistre'])->name('contrats.marquer-enregistre')->middleware('agency.can:contrats.modifier');
 
         // Impayés — écriture (relance + export)
         Route::post('impayes/{contrat}/relance', [ImpayeController::class, 'relance'])->name('impayes.relance')->middleware('agency.can:impayes.relance');

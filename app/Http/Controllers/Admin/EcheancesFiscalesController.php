@@ -38,8 +38,27 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
             fn($e) => in_array($e['statut'], ['urgent', 'bientot'])
         ));
 
+        // ── Baux à enregistrer : contrats non enregistrés dont la date limite
+        // approche (≤ 7 j) ou est dépassée (Droits d'enregistrement DGID, §5.2).
+        $bauxAEnregistrer = \App\Models\Contrat::where('agency_id', $authUser->agency_id)
+            ->where('statut', 'actif')
+            ->where('enregistrement_exonere', false)
+            ->where('droit_enreg_effectue', false)
+            ->whereNotNull('droit_enreg_date_limite')
+            ->whereDate('droit_enreg_date_limite', '<=', $today->copy()->addDays(7)->toDateString())
+            ->with(['bien:id,reference', 'locataire:id,name'])
+            ->orderBy('droit_enreg_date_limite')
+            ->get()
+            ->map(fn ($c) => [
+                'contrat'     => $c,
+                'nom'         => $c->locataire->name ?? ($c->bien->reference ?? 'Contrat #' . $c->id),
+                'date_limite' => $c->droit_enreg_date_limite,
+                'en_retard'   => $c->droit_enreg_date_limite->isPast(),
+                'total'       => $c->droit_enreg_total,
+            ]);
+
         return view('admin.echeances-fiscales.index', compact(
-            'echeances', 'echeancesUrgentes', 'today'
+            'echeances', 'echeancesUrgentes', 'today', 'bauxAEnregistrer'
         ));
     }
 

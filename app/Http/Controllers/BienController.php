@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBienRequest;
 use App\Http\Requests\UpdateBienRequest;
+use App\Models\Agency;
 use App\Models\Bien;
 use App\Models\Immeuble;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class BienController extends Controller
@@ -176,37 +178,10 @@ class BienController extends Controller
 
         $agencyId = Auth::user()->agency_id;
 
-        // ── Vérification limite d'unités selon plan_niveau ─────────────────
-        $agency     = Auth::user()->agency;
-        $planNiveau = $agency?->subscription?->plan_niveau ?? 'legacy';
-
-        // Source unique : config/plans.php (mêmes valeurs que la grille Abonnement).
-        $limitesConfig = config('plans.nb_unites_max');
-        $limiteUnites  = array_key_exists($planNiveau, $limitesConfig)
-            ? $limitesConfig[$planNiveau]
-            : ($limitesConfig['pro'] ?? 50);
-
-        if ($agency && $limiteUnites !== null) {
-            $nbUnites = $agency->nbUnitesActives();
-
-            if ($nbUnites >= $limiteUnites) {
-                [$planSuivant, $limiteSuivante] = match ($planNiveau) {
-                    'starter' => ['Pro', '50 unités'],
-                    default   => ['Agence', 'illimité'],
-                };
-
-                return redirect()
-                    ->route('admin.biens.create')
-                    ->with('upgrade_required', [
-                        'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
-                        'nb_unites'       => $nbUnites,
-                        'limite'          => $limiteUnites,
-                        'plan_suivant'    => $planSuivant,
-                        'limite_suivante' => $limiteSuivante,
-                    ])
-                    ->withInput();
-            }
-        }
+        // ── Limite d'unités selon le plan (source unique : Agency::limiteUnites) ──
+        $agency       = Auth::user()->agency;
+        $planNiveau   = $agency?->subscription?->plan_niveau ?? 'legacy';
+        $limiteUnites = $agency?->limiteUnites();
 
         // Vérifier que le propriétaire appartient à l'agence courante
         $proprioValide = \App\Models\User::where('id', $validated['proprietaire_id'])
@@ -232,7 +207,38 @@ class BienController extends Controller
             ? array_values(array_filter(array_map('trim', explode(',', $request->amenites))))
             : null;
 
-        $bien = Bien::create($validated);
+        // Contrôle du quota et insertion ATOMIQUES : un verrou sur la ligne agence
+        // sérialise les créations concurrentes (évite qu'une double soumission
+        // simultanée dépasse la limite du plan — TOCTOU).
+        $nbUnites = 0;
+        $bien = DB::transaction(function () use ($agency, $limiteUnites, $validated, &$nbUnites) {
+            if ($agency && $limiteUnites !== null) {
+                Agency::whereKey($agency->id)->lockForUpdate()->first();
+                $nbUnites = $agency->nbUnitesActives();
+                if ($nbUnites >= $limiteUnites) {
+                    return null; // quota atteint → aucune création
+                }
+            }
+            return Bien::create($validated);
+        });
+
+        if ($bien === null) {
+            [$planSuivant, $limiteSuivante] = match ($planNiveau) {
+                'starter' => ['Pro', '50 unités'],
+                default   => ['Agence', 'illimité'],
+            };
+
+            return redirect()
+                ->route('admin.biens.create')
+                ->with('upgrade_required', [
+                    'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
+                    'nb_unites'       => $nbUnites,
+                    'limite'          => $limiteUnites,
+                    'plan_suivant'    => $planSuivant,
+                    'limite_suivante' => $limiteSuivante,
+                ])
+                ->withInput();
+        }
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photo) {

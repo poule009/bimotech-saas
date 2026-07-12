@@ -11,7 +11,7 @@
 
 @section('content')
 @unless($estProprio)
-<form method="POST" action="{{ route('admin.users.store') }}" x-data="tenantForm"
+<form method="POST" action="{{ route('admin.users.store') }}" x-data="tenantForm" enctype="multipart/form-data"
       data-tenant-type="{{ old('type_locataire', 'particulier') }}" class="max-w-[1000px]">
     @csrf
     <input type="hidden" name="role" value="locataire">
@@ -87,10 +87,15 @@
             <div class="f-card">
                 <h3 class="f-card-title">Pièce d'identité</h3>
                 <p class="f-card-sub">CNI ou passeport.</p>
-                <div class="border-[1.5px] border-dashed border-line rounded-[11px] p-6 text-center text-[13px] text-muted bg-paper">
-                    <x-icon name="file-text" size="24" class="block mx-auto mb-2 text-muted" />Import de fichier
-                    <span class="block text-[11px] uppercase tracking-wide bg-paper-dim text-muted px-2 py-0.5 rounded font-bold mt-2 inline-block">Bientôt disponible</span>
-                </div>
+                <label for="piece_identite" class="block border-[1.5px] border-dashed border-line rounded-[11px] p-6 text-center bg-paper cursor-pointer hover:border-teal transition-colors">
+                    <x-icon name="file-text" size="24" class="block mx-auto mb-2 text-muted" />
+                    <span class="block text-[13px] font-semibold text-teal" x-text="pieceLabel">Choisir un fichier</span>
+                    <span class="block text-[11.5px] text-muted mt-1">JPG, PNG, WEBP ou PDF — 5 Mo max</span>
+                </label>
+                <input id="piece_identite" type="file" name="piece_identite"
+                       accept="image/jpeg,image/png,image/webp,application/pdf"
+                       x-on:change="pickPiece" class="hidden">
+                @error('piece_identite')<p class="field-error mt-2">{{ $message }}</p>@enderror
             </div>
             <div class="f-card">
                 <button type="submit" class="btn-primary mb-2.5">Créer le locataire</button>
@@ -103,7 +108,7 @@
     </div>
 </form>
 @else
-<form method="POST" action="{{ route('admin.users.store') }}" x-data="ownerForm"
+<form method="POST" action="{{ route('admin.users.store') }}" x-data="ownerForm" enctype="multipart/form-data"
       data-owner-type="{{ old('est_personne_morale_is') === '1' ? 'entreprise' : 'particulier' }}"
       data-owner-tva="{{ old('assujetti_tva') === '1' ? '1' : '0' }}"
       data-owner-brs-dispense="{{ old('brs_dispense') === '1' ? '1' : '0' }}"
@@ -258,11 +263,15 @@
             <div class="f-card">
                 <h3 class="f-card-title">Pièce d'identité</h3>
                 <p class="f-card-sub">CNI, passeport ou registre de commerce.</p>
-                <div class="border-[1.5px] border-dashed border-line rounded-[11px] p-6 text-center text-[13px] text-muted bg-paper">
+                <label for="piece_identite" class="block border-[1.5px] border-dashed border-line rounded-[11px] p-6 text-center bg-paper cursor-pointer hover:border-teal transition-colors">
                     <x-icon name="file-text" size="24" class="block mx-auto mb-2 text-muted" />
-                    Import de fichier
-                    <span class="block text-[11px] uppercase tracking-wide bg-paper-dim text-muted px-2 py-0.5 rounded font-bold mt-2 inline-block">Bientôt disponible</span>
-                </div>
+                    <span class="block text-[13px] font-semibold text-teal" x-text="pieceLabel">Choisir un fichier</span>
+                    <span class="block text-[11.5px] text-muted mt-1">JPG, PNG, WEBP ou PDF — 5 Mo max</span>
+                </label>
+                <input id="piece_identite" type="file" name="piece_identite"
+                       accept="image/jpeg,image/png,image/webp,application/pdf"
+                       x-on:change="pickPiece" class="hidden">
+                @error('piece_identite')<p class="field-error mt-2">{{ $message }}</p>@enderror
             </div>
             <div class="f-card">
                 <button type="submit" class="btn-primary mb-2.5">Créer le propriétaire</button>

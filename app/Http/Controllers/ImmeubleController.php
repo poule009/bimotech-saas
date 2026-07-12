@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agency;
 use App\Models\Bien;
 use App\Models\Immeuble;
 use App\Models\User;
@@ -148,42 +149,26 @@ class ImmeubleController extends Controller implements HasMiddleware
             }
         }
 
-        // ── Vérification limite selon plan ──────────────────────────────────
-        if ($nombreDemandeUnites > 0) {
-            $agency     = Auth::user()->agency;
-            $planNiveau = $agency?->subscription?->plan_niveau ?? 'legacy';
+        // ── Limite d'unités selon le plan (source unique : Agency::limiteUnites) ──
+        $agency       = Auth::user()->agency;
+        $planNiveau   = $agency?->subscription?->plan_niveau ?? 'legacy';
+        $limiteUnites = $agency?->limiteUnites();
 
-            $limiteUnites = match ($planNiveau) {
-                'starter'       => 15,
-                'pro', 'legacy' => 50,
-                'agence'        => null,
-                default         => 50,
-            };
-
-            if ($agency && $limiteUnites !== null) {
+        // Contrôle du quota + création ATOMIQUES : un verrou sur la ligne agence
+        // sérialise les créations concurrentes. Si le total dépasse la limite, la
+        // transaction renvoie un sentinel « over » et rien n'est créé (rollback implicite).
+        $resultat = DB::transaction(function () use (
+            $validated, $agencyId, $hasUnites, $mode, $avecRdc, $rdcDifferent,
+            $agency, $limiteUnites, $nombreDemandeUnites
+        ) {
+            if ($nombreDemandeUnites > 0 && $agency && $limiteUnites !== null) {
+                Agency::whereKey($agency->id)->lockForUpdate()->first();
                 $nbActuelles = $agency->nbUnitesActives();
-
                 if ($nbActuelles + $nombreDemandeUnites > $limiteUnites) {
-                    [$planSuivant, $limiteSuivante] = match ($planNiveau) {
-                        'starter' => ['Pro', '50 unités'],
-                        default   => ['Agence', 'illimité'],
-                    };
-
-                    return redirect()
-                        ->back()
-                        ->with('upgrade_required', [
-                            'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
-                            'nb_unites'       => $nbActuelles,
-                            'limite'          => $limiteUnites,
-                            'plan_suivant'    => $planSuivant,
-                            'limite_suivante' => $limiteSuivante,
-                        ])
-                        ->withInput();
+                    return ['over' => true, 'nb_actuelles' => $nbActuelles];
                 }
             }
-        }
 
-        [$immeuble, $nbCreees] = DB::transaction(function () use ($validated, $agencyId, $hasUnites, $mode, $avecRdc, $rdcDifferent) {
             $nombreNiveaux = null;
             if ($hasUnites && $mode === 'etage') {
                 $nombreNiveaux = (int) ($validated['nombre_etages'] ?? 0) + ($avecRdc ? 1 : 0);
@@ -202,7 +187,7 @@ class ImmeubleController extends Controller implements HasMiddleware
             ]);
 
             if (! $hasUnites) {
-                return [$immeuble, 0];
+                return ['immeuble' => $immeuble, 'nb' => 0];
             }
 
             $nom     = $validated['nom'];
@@ -268,8 +253,30 @@ class ImmeubleController extends Controller implements HasMiddleware
                 ]);
             }
 
-            return [$immeuble, count($biens)];
+            return ['immeuble' => $immeuble, 'nb' => count($biens)];
         });
+
+        // Quota dépassé → aucun immeuble créé (rollback), on renvoie l'invitation à upgrader.
+        if (isset($resultat['over'])) {
+            [$planSuivant, $limiteSuivante] = match ($planNiveau) {
+                'starter' => ['Pro', '50 unités'],
+                default   => ['Agence', 'illimité'],
+            };
+
+            return redirect()
+                ->back()
+                ->with('upgrade_required', [
+                    'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
+                    'nb_unites'       => $resultat['nb_actuelles'],
+                    'limite'          => $limiteUnites,
+                    'plan_suivant'    => $planSuivant,
+                    'limite_suivante' => $limiteSuivante,
+                ])
+                ->withInput();
+        }
+
+        $immeuble = $resultat['immeuble'];
+        $nbCreees = $resultat['nb'];
 
         return redirect()
             ->route('admin.immeubles.show', $immeuble)

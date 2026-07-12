@@ -138,13 +138,8 @@ class BienHandler extends AbstractImportHandler
     {
         if (! array_key_exists('bien_limite', $ctx)) {
             $agency = Agency::with('subscription')->find($this->agencyId);
-            $plan   = $agency?->subscription?->plan_niveau ?? 'legacy';
-            $ctx['bien_limite'] = match ($plan) {
-                'starter'       => 15,
-                'pro', 'legacy' => 50,
-                'agence'        => null,
-                default         => 50,
-            };
+            // Source unique : config/plans.php via Agency::limiteUnites().
+            $ctx['bien_limite']    = $agency?->limiteUnites();
             $ctx['bien_actuelles'] = $agency ? $agency->nbUnitesActives() : 0;
         }
         return $ctx['bien_limite'];

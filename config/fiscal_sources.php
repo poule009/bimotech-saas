@@ -273,5 +273,93 @@ return [
                 . 'documentée comme telle (ne pas chercher à la « vérifier »).',
         ],
 
+        // ═══════════════════════════════════════════════════════════════════
+        // DROITS D'ENREGISTREMENT DU BAIL (DGID)
+        // ═══════════════════════════════════════════════════════════════════
+
+        'DE-01' => [
+            'categorie'   => 'droits_enregistrement',
+            'titre'       => 'Taux 2% des droits d\'enregistrement (baux à durée limitée)',
+            'description' => "Baux à durée limitée (habitation ou commercial, aucune distinction) : "
+                . "droits = 2% de l'assiette. Assiette = loyer annuel + charges. "
+                . "Réf. légale : Art. 510 et 472-IV-6 CGI.",
+            'statut'  => 'confirme_officiel',
+            'sources' => [['libelle' => 'DGID — impotsetdomaines.gouv.sn', 'url' => 'https://www.impotsetdomaines.gouv.sn/']],
+            'note' => null,
+            'date_verification' => '2026-07-12',
+        ],
+        'DE-02' => [
+            'categorie'   => 'droits_enregistrement',
+            'titre'       => 'Timbre fiscal 2 000 F par feuille',
+            'description' => "Timbre fixe de 2 000 FCFA par feuille de l'acte. Le nombre de "
+                . "feuilles est saisi par l'utilisateur (défaut 2) — jamais déduit du PDF "
+                . "(une feuille ≠ une page, recto-verso possible).",
+            'statut'  => 'confirme_officiel',
+            'sources' => [['libelle' => 'DGID — impotsetdomaines.gouv.sn', 'url' => 'https://www.impotsetdomaines.gouv.sn/']],
+            'note' => null,
+            'date_verification' => '2026-07-12',
+        ],
+        'DE-03' => [
+            'categorie'   => 'droits_enregistrement',
+            'titre'       => 'Délai d\'enregistrement : 1 mois après signature',
+            'description' => "Le bail doit être enregistré dans le mois suivant la signature. "
+                . "Date limite retenue (interprétation prudente) = date de signature + 1 mois.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Cabinet ADAT — dsbimmo.sn (2022)', 'url' => 'https://dsbimmo.sn/'],
+                ['libelle' => 'keurcity.com', 'url' => 'https://keurcity.com/'],
+            ],
+            'note' => 'Légère nuance de formulation entre les deux sources → retenu signature + 1 mois.',
+            'date_verification' => '2026-07-12',
+        ],
+        'DE-04' => [
+            'categorie'   => 'droits_enregistrement',
+            'titre'       => 'Prorata si bail < 1 an non renouvelable',
+            'description' => "Si la durée du bail est inférieure à un an ET non renouvelable, "
+                . "les droits sont calculés sur la durée réelle du bail (prorata mensuel).",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [['libelle' => 'Cabinet Audifisc — audifiscsn.com', 'url' => 'https://audifiscsn.com/']],
+            'note' => null,
+            'date_verification' => '2026-07-12',
+        ],
+        'DE-05' => [
+            'categorie'   => 'droits_enregistrement',
+            'titre'       => 'Fractionnement triennal des baux > 3 ans (Art. 510)',
+            'description' => "Le droit est fractionné en autant de paiements que de périodes "
+                . "triennales ; seul le droit de la 1re période est dû à l'enregistrement, les "
+                . "suivants au début de chaque nouvelle période triennale.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Audifisc — audifiscsn.com', 'url' => 'https://audifiscsn.com/'],
+                ['libelle' => 'ADAT — dsbimmo.sn', 'url' => 'https://dsbimmo.sn/'],
+            ],
+            'note' => 'Texte brut de l\'Art. 510 non vérifié directement (PDF CGI illisible). '
+                . 'Conséquence : pour un bail > 12 mois, le montant affiché est une ESTIMATION.',
+            'date_verification' => '2026-07-12',
+        ],
+        'DE-06' => [
+            'categorie'   => 'droits_enregistrement',
+            'titre'       => 'Plafond base 12 mois (référentiel interne)',
+            'description' => "Le référentiel interne plafonne la base de calcul à 12 mois de loyer. "
+                . "Aucune source externe ne le confirme (les sources parlent de périodes "
+                . "TRIENNALES, base potentiellement jusqu'à 36 mois). NE PAS présenter le montant "
+                . "d'un bail > 12 mois comme définitif → statut 'estimation'.",
+            'statut'  => 'non_verifie',
+            'sources' => [['libelle' => 'Référentiel interne Bimotech (06/05/2026)', 'url' => null]],
+            'note' => 'NON CONFIRMÉ. Utilisé uniquement comme base d\'ESTIMATION, jamais comme montant définitif.',
+            'date_verification' => null,
+        ],
+        'DE-07' => [
+            'categorie'   => 'droits_enregistrement',
+            'titre'       => 'Taux 5% des baux à durée illimitée (Art. 472-II-8)',
+            'description' => "Les baux à durée illimitée seraient taxés à 5%. HORS PÉRIMÈTRE : "
+                . "les contrats gérés dans l'app sont à durée limitée. Non implémenté, "
+                . "conservé ici pour traçabilité.",
+            'statut'  => 'hors_perimetre',
+            'sources' => [['libelle' => 'Cabinet ADAT — dsbimmo.sn', 'url' => 'https://dsbimmo.sn/']],
+            'note' => 'Non implémenté (durée illimitée hors périmètre v1).',
+            'date_verification' => '2026-07-12',
+        ],
+
     ],
 ];

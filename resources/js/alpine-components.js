@@ -502,13 +502,20 @@ export function registerComponents(Alpine) {
     // Formulaire locataire : fork Particulier / Bureau-Société.
     Alpine.data('tenantForm', () => ({
         type: 'particulier',
-        init() { if (this.$el.dataset.tenantType) this.type = this.$el.dataset.tenantType; },
+        pieceNom: '',
+        pieceDefault: 'Choisir un fichier',
+        init() {
+            if (this.$el.dataset.tenantType) this.type = this.$el.dataset.tenantType;
+            if (this.$el.dataset.pieceDefault) this.pieceDefault = this.$el.dataset.pieceDefault;
+        },
         get isParticulier() { return this.type === 'particulier'; },
         get isEntreprise() { return this.type === 'entreprise'; },
         get typeValue() { return this.type; },
         get estEntrepriseValue() { return this.type === 'entreprise' ? '1' : '0'; },
         get forkParticulierClass() { return this.type === 'particulier' ? 'border-teal bg-white shadow-sm' : 'border-line bg-paper'; },
         get forkEntrepriseClass() { return this.type === 'entreprise' ? 'border-teal bg-white shadow-sm' : 'border-line bg-paper'; },
+        get pieceLabel() { return this.pieceNom || this.pieceDefault; },
+        pickPiece(event) { const f = event.currentTarget.files; this.pieceNom = (f && f.length) ? f[0].name : ''; },
         setParticulier() { this.type = 'particulier'; },
         setEntreprise() { this.type = 'entreprise'; },
     }));
@@ -519,12 +526,15 @@ export function registerComponents(Alpine) {
         type: 'particulier',
         tva: false,
         brsDispense: false,
+        pieceNom: '',
+        pieceDefault: 'Choisir un fichier',
         init() {
             if (this.$el.dataset.ownerType) {
                 this.type = this.$el.dataset.ownerType;
             }
             this.tva = this.$el.dataset.ownerTva === '1';
             this.brsDispense = this.$el.dataset.ownerBrsDispense === '1';
+            if (this.$el.dataset.pieceDefault) this.pieceDefault = this.$el.dataset.pieceDefault;
         },
         get isEntreprise() { return this.type === 'entreprise'; },
         get isParticulier() { return this.type === 'particulier'; },
@@ -541,6 +551,8 @@ export function registerComponents(Alpine) {
         get brsDispenseValue() { return this.brsDispense ? '1' : '0'; },
         get brsSwitchClass() { return this.brsDispense ? 'bg-gold' : 'bg-line'; },
         get brsKnobClass() { return this.brsDispense ? 'left-[20px]' : 'left-[3px]'; },
+        get pieceLabel() { return this.pieceNom || this.pieceDefault; },
+        pickPiece(event) { const f = event.currentTarget.files; this.pieceNom = (f && f.length) ? f[0].name : ''; },
         setParticulier() { this.type = 'particulier'; },
         setEntreprise() { this.type = 'entreprise'; },
         toggleTva() { this.tva = !this.tva; },

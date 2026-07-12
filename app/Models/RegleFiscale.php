@@ -57,9 +57,12 @@ class RegleFiscale extends Model
     public function getStatutLabelAttribute(): string
     {
         return match ($this->statut) {
-            'confirme'         => 'Confirmé par source externe',
-            'decision_produit' => 'Décision produit interne (pas une exigence légale)',
-            default            => 'À vérifier (non confirmé)',
+            'confirme',
+            'confirme_officiel'      => 'Confirmé par source officielle',
+            'confirme_source_privee' => 'Confirmé par source privée (à recouper)',
+            'decision_produit'       => 'Décision produit interne (pas une exigence légale)',
+            'hors_perimetre'         => 'Hors périmètre (non implémenté)',
+            default                  => 'À vérifier (non confirmé)',
         };
     }
 

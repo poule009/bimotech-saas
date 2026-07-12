@@ -92,6 +92,52 @@ class ContratObserver
             $contrat->brs_applicable = ! $estMorale && ! $dispense;
         }
 
+        // ── Droits d'enregistrement DGID (tracker contrat) ───────────────────
+        // Calculé DEPUIS LES CHAMPS DU CONTRAT (pas de dépendance locataire/bailleur
+        // → aucun risque du type B2). Recalcule quand une entrée change.
+        $doitRecalculerDgid = ! $contrat->exists
+            || $contrat->isDirty(['loyer_nu', 'charges_mensuelles', 'date_debut', 'date_fin',
+                'droit_enreg_nombre_feuilles', 'droit_enreg_renouvelable',
+                'taux_enregistrement_dgid', 'enregistrement_exonere']);
+
+        if ($doitRecalculerDgid) {
+            $baseMensuelle = (float) ($contrat->loyer_nu ?? 0) + (float) ($contrat->charges_mensuelles ?? 0);
+            $feuilles      = max(1, (int) ($contrat->droit_enreg_nombre_feuilles ?? 2));
+            $timbre        = FiscalService::DGID_TIMBRE_FISCAL * $feuilles;
+
+            // Durée du bail en mois (date_fin nulle = bail à durée indéterminée → base 12).
+            $dureeMois = ($contrat->date_debut && $contrat->date_fin)
+                ? max(1, (int) $contrat->date_debut->diffInMonths($contrat->date_fin))
+                : 12;
+
+            // Base et statut selon la durée (R4/R5/R6) :
+            //  - > 12 mois  → base 12 mois, ESTIMATION (fractionnement triennal non confirmé)
+            //  - = 12 mois ou ≤ 12 renouvelable → base 12 mois, confirmé (cas standard SN)
+            //  - < 12 mois non renouvelable → prorata sur la durée réelle, confirmé
+            if ($dureeMois > 12) {
+                $baseMois = 12;
+                $statut   = 'estimation';
+            } elseif ($dureeMois === 12 || (bool) ($contrat->droit_enreg_renouvelable ?? true)) {
+                $baseMois = 12;
+                $statut   = 'confirme';
+            } else {
+                $baseMois = $dureeMois;
+                $statut   = 'confirme';
+            }
+
+            $exonere = (bool) ($contrat->enregistrement_exonere ?? false);
+            $taux    = $contrat->taux_enregistrement_dgid !== null
+                ? (float) $contrat->taux_enregistrement_dgid
+                : FiscalService::DGID_TAUX_HABITATION; // 2% — Art. 472 IV.6
+
+            $contrat->droit_enreg_montant       = $exonere ? 0.0 : round($baseMensuelle * $baseMois * ($taux / 100), 2);
+            $contrat->droit_enreg_timbre        = $exonere ? 0.0 : round($timbre, 2);
+            $contrat->droit_enreg_statut_calcul = $statut;
+            $contrat->droit_enreg_date_limite   = $contrat->date_debut
+                ? $contrat->date_debut->copy()->addMonth()->toDateString()
+                : null;
+        }
+
         // ── Auto-calcul loyer_contractuel ────────────────────────────────────
         // loyer_contractuel = loyer_nu + charges + tom (SANS TVA)
         // La TVA est calculée dynamiquement par FiscalService à chaque paiement.

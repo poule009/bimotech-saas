@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -286,12 +287,16 @@ class UserController extends Controller
             'contact_urgence_nom'   => ['nullable', 'string', 'max:100'],
             'contact_urgence_tel'   => ['nullable', 'string', 'max:20'],
             'contact_urgence_lien'  => ['nullable', 'string', 'max:50'],
+            // ── Pièce d'identité (import de fichier) ───────────────────────
+            'piece_identite'        => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
         ], [
             'email.unique'             => 'Cet email est déjà utilisé par un autre compte.',
             'name.required'            => 'Le nom complet est obligatoire.',
             'genre.in'                 => 'Genre invalide.',
             'mode_paiement_prefere.in' => 'Mode de paiement invalide.',
             'type_locataire.in'        => 'Type de locataire invalide.',
+            'piece_identite.mimes'     => 'Formats acceptés pour la pièce : JPG, PNG, WEBP ou PDF.',
+            'piece_identite.max'       => 'La pièce ne doit pas dépasser 5 Mo.',
         ]);
 
         // agency_id forcé côté serveur — jamais depuis le formulaire
@@ -309,6 +314,12 @@ class UserController extends Controller
             $user->email_verified_at = ! empty($validated['email']) ? now() : null;
             $user->save();
 
+            // Pièce d'identité importée — stockée sous pieces_identite/{user_id}
+            // sur le disque « public » (une seule pièce par profil à la création).
+            $piecePath = $request->hasFile('piece_identite')
+                ? $request->file('piece_identite')->store('pieces_identite/' . $user->id, 'public')
+                : null;
+
             if ($validated['role'] === 'proprietaire') {
                 Proprietaire::create([
                     'user_id'               => $user->id,
@@ -318,6 +329,7 @@ class UserController extends Controller
                     'nationalite'           => $validated['nationalite'] ?? 'Sénégalaise',
                     'ville'                 => $validated['ville'] ?? 'Dakar',
                     'quartier'              => $validated['quartier'] ?? null,
+                    'piece_identite_path'   => $piecePath,
                     'mode_paiement_prefere' => $validated['mode_paiement_prefere'] ?? 'virement',
                     'banque'                => $validated['banque'] ?? null,
                     'numero_compte'         => $validated['numero_compte'] ?? null,
@@ -337,6 +349,7 @@ class UserController extends Controller
                     'nationalite'          => $validated['nationalite'] ?? 'Sénégalaise',
                     'ville'                => $validated['ville'] ?? 'Dakar',
                     'quartier'             => $validated['quartier'] ?? null,
+                    'piece_identite_path'  => $piecePath,
                     'type_locataire'       => $validated['type_locataire'] ?? 'particulier',
                     'est_entreprise'       => filter_var($request->input('est_entreprise'), FILTER_VALIDATE_BOOLEAN),
                     'nom_entreprise'       => $validated['nom_entreprise'] ?? null,
@@ -510,13 +523,27 @@ class UserController extends Controller
         'email'     => ['nullable', 'email', 'unique:users,email,' . $user->id],
         'telephone' => ['nullable', 'string', 'max:30'],
         'adresse'   => ['nullable', 'string', 'max:255'],
+        'piece_identite' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
     ], [
-        'email.unique'  => 'Cet email est déjà utilisé par un autre compte.',
-        'name.required' => 'Le nom complet est obligatoire.',
+        'email.unique'         => 'Cet email est déjà utilisé par un autre compte.',
+        'name.required'        => 'Le nom complet est obligatoire.',
+        'piece_identite.mimes' => 'Formats acceptés pour la pièce : JPG, PNG, WEBP ou PDF.',
+        'piece_identite.max'   => 'La pièce ne doit pas dépasser 5 Mo.',
     ]);
 
     DB::transaction(function () use ($user, $validated, $request) {
         $user->update($validated);
+
+    // ── Pièce d'identité — remplacement optionnel ─────────────────────
+    // Un nouvel upload remplace l'ancien fichier (supprimé du disque).
+    $profil       = $user->isProprietaire() ? $user->proprietaire : $user->locataire;
+    $newPiecePath = null;
+    if ($request->hasFile('piece_identite') && $profil) {
+        if ($profil->piece_identite_path) {
+            Storage::disk('public')->delete($profil->piece_identite_path);
+        }
+        $newPiecePath = $request->file('piece_identite')->store('pieces_identite/' . $user->id, 'public');
+    }
 
     // ── Profil PROPRIÉTAIRE ───────────────────────────────────────────
     if ($user->isProprietaire() && $user->proprietaire) {
@@ -543,6 +570,9 @@ class UserController extends Controller
         $profilData['assujetti_tva']          = $request->boolean('assujetti_tva');
         $profilData['est_personne_morale_is'] = $request->boolean('est_personne_morale_is');
         $profilData['brs_dispense']           = $request->boolean('brs_dispense');
+        if ($newPiecePath) {
+            $profilData['piece_identite_path'] = $newPiecePath;
+        }
         $user->proprietaire->update($profilData);
     }
 
@@ -581,6 +611,10 @@ class UserController extends Controller
             $profilData['ninea_locataire']   = null;
             $profilData['rccm_locataire']    = null;
             $profilData['taux_brs_override'] = null;
+        }
+
+        if ($newPiecePath) {
+            $profilData['piece_identite_path'] = $newPiecePath;
         }
 
         $user->locataire->update($profilData);

@@ -12,8 +12,9 @@
 @section('content')
 @unless($estProprio)
 @php $profil = $user->locataire; @endphp
-<form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="tenantForm"
-      data-tenant-type="{{ old('type_locataire', $profil?->est_entreprise ? 'entreprise' : 'particulier') }}" class="max-w-[1000px]">
+<form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="tenantForm" enctype="multipart/form-data"
+      data-tenant-type="{{ old('type_locataire', $profil?->est_entreprise ? 'entreprise' : 'particulier') }}"
+      data-piece-default="{{ $profil?->piece_identite_path ? 'Remplacer le fichier' : 'Choisir un fichier' }}" class="max-w-[1000px]">
     @csrf
     @method('PATCH')
     <input type="hidden" name="type_locataire" x-bind:value="typeValue">
@@ -72,7 +73,27 @@
             </div>
         </div>
 
-        <div class="lg:sticky lg:top-6">
+        <div class="lg:sticky lg:top-6 space-y-5">
+            <div class="f-card">
+                <h3 class="f-card-title">Pièce d'identité</h3>
+                <p class="f-card-sub">CNI ou passeport.</p>
+                @if($profil?->piece_identite_path)
+                    <div class="flex items-center gap-3 mb-3 p-3 border border-line rounded-[10px] bg-paper">
+                        <x-icon name="file-text" size="18" class="text-teal shrink-0" />
+                        <span class="text-[13px] font-semibold flex-1 truncate">{{ basename($profil->piece_identite_path) }}</span>
+                        <a href="{{ Storage::disk('public')->url($profil->piece_identite_path) }}" target="_blank" rel="noopener" class="text-[13px] font-bold text-teal hover:underline shrink-0">Ouvrir</a>
+                    </div>
+                @endif
+                <label for="piece_identite" class="block border-[1.5px] border-dashed border-line rounded-[11px] p-5 text-center bg-paper cursor-pointer hover:border-teal transition-colors">
+                    <x-icon name="file-text" size="22" class="block mx-auto mb-2 text-muted" />
+                    <span class="block text-[13px] font-semibold text-teal" x-text="pieceLabel">{{ $profil?->piece_identite_path ? 'Remplacer le fichier' : 'Choisir un fichier' }}</span>
+                    <span class="block text-[11.5px] text-muted mt-1">JPG, PNG, WEBP ou PDF — 5 Mo max</span>
+                </label>
+                <input id="piece_identite" type="file" name="piece_identite"
+                       accept="image/jpeg,image/png,image/webp,application/pdf"
+                       x-on:change="pickPiece" class="hidden">
+                @error('piece_identite')<p class="field-error mt-2">{{ $message }}</p>@enderror
+            </div>
             <div class="f-card">
                 <button type="submit" class="btn-primary mb-2.5">Enregistrer les modifications</button>
                 <a href="{{ route('admin.users.show', $user) }}" class="block w-full text-center py-[13px] rounded border-[1.5px] border-line bg-white text-ink text-sm font-semibold hover:border-teal transition-colors">Annuler</a>
@@ -88,10 +109,11 @@
     $isTva  = old('assujetti_tva') !== null ? old('assujetti_tva') === '1' : (bool) $profil?->assujetti_tva;
     $isBrsDispense = old('brs_dispense') !== null ? old('brs_dispense') === '1' : (bool) $profil?->brs_dispense;
 @endphp
-<form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="ownerForm"
+<form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="ownerForm" enctype="multipart/form-data"
       data-owner-type="{{ $isEnt ? 'entreprise' : 'particulier' }}"
       data-owner-tva="{{ $isTva ? '1' : '0' }}"
       data-owner-brs-dispense="{{ $isBrsDispense ? '1' : '0' }}"
+      data-piece-default="{{ $profil?->piece_identite_path ? 'Remplacer le fichier' : 'Choisir un fichier' }}"
       class="max-w-[1100px]">
     @csrf
     @method('PATCH')
@@ -227,7 +249,27 @@
         </div>
 
         {{-- Colonne latérale --}}
-        <div class="lg:sticky lg:top-6">
+        <div class="lg:sticky lg:top-6 space-y-5">
+            <div class="f-card">
+                <h3 class="f-card-title">Pièce d'identité</h3>
+                <p class="f-card-sub">CNI, passeport ou registre de commerce.</p>
+                @if($profil?->piece_identite_path)
+                    <div class="flex items-center gap-3 mb-3 p-3 border border-line rounded-[10px] bg-paper">
+                        <x-icon name="file-text" size="18" class="text-teal shrink-0" />
+                        <span class="text-[13px] font-semibold flex-1 truncate">{{ basename($profil->piece_identite_path) }}</span>
+                        <a href="{{ Storage::disk('public')->url($profil->piece_identite_path) }}" target="_blank" rel="noopener" class="text-[13px] font-bold text-teal hover:underline shrink-0">Ouvrir</a>
+                    </div>
+                @endif
+                <label for="piece_identite" class="block border-[1.5px] border-dashed border-line rounded-[11px] p-5 text-center bg-paper cursor-pointer hover:border-teal transition-colors">
+                    <x-icon name="file-text" size="22" class="block mx-auto mb-2 text-muted" />
+                    <span class="block text-[13px] font-semibold text-teal" x-text="pieceLabel">{{ $profil?->piece_identite_path ? 'Remplacer le fichier' : 'Choisir un fichier' }}</span>
+                    <span class="block text-[11.5px] text-muted mt-1">JPG, PNG, WEBP ou PDF — 5 Mo max</span>
+                </label>
+                <input id="piece_identite" type="file" name="piece_identite"
+                       accept="image/jpeg,image/png,image/webp,application/pdf"
+                       x-on:change="pickPiece" class="hidden">
+                @error('piece_identite')<p class="field-error mt-2">{{ $message }}</p>@enderror
+            </div>
             <div class="f-card">
                 <button type="submit" class="btn-primary mb-2.5">Enregistrer les modifications</button>
                 <a href="{{ route('admin.users.show', $user) }}" class="block w-full text-center py-[13px] rounded border-[1.5px] border-line bg-white text-ink text-sm font-semibold hover:border-teal transition-colors">Annuler</a>

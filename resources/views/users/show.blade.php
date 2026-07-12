@@ -153,9 +153,23 @@
 
     {{-- Onglet Documents --}}
     <div x-show="isDocs" x-cloak>
-        <div class="bg-white border border-line rounded-xl py-14 text-center text-muted text-[14px]">
-            Aucun document. Les pièces ajoutées depuis les biens ou contrats de ce propriétaire apparaîtront ici.
-        </div>
+        @if($profil?->piece_identite_path)
+            <div class="f-card flex items-center gap-4">
+                <div class="w-11 h-11 rounded-[10px] bg-teal/10 text-teal flex items-center justify-center shrink-0">
+                    <x-icon name="file-text" size="20" />
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-[14.5px] font-bold">Pièce d'identité</div>
+                    <div class="text-[12.5px] text-muted truncate">{{ basename($profil->piece_identite_path) }}</div>
+                </div>
+                <a href="{{ Storage::disk('public')->url($profil->piece_identite_path) }}" target="_blank" rel="noopener"
+                   class="px-4 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[13.5px] font-bold hover:border-teal transition-colors shrink-0">Ouvrir</a>
+            </div>
+        @else
+            <div class="bg-white border border-line rounded-xl py-14 text-center text-muted text-[14px]">
+                Aucun document. Les pièces ajoutées depuis les biens ou contrats de ce propriétaire apparaîtront ici.
+            </div>
+        @endif
     </div>
 </div>
 @endif

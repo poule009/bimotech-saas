@@ -135,6 +135,10 @@
         <div class="flex items-center gap-3.5 p-4 border border-line rounded-xl bg-white">
             <x-icon name="file-text" size="19" class="text-muted" />
             <span class="font-bold flex-1 text-[14.5px]">Pièce d'identité (CNI)</span>
+            @if($profil?->piece_identite_path)
+                <a href="{{ Storage::disk('public')->url($profil->piece_identite_path) }}" target="_blank" rel="noopener"
+                   class="text-[13px] font-bold text-teal hover:underline">Ouvrir</a>
+            @endif
             <span class="text-[12px] font-bold px-2.5 py-1 rounded-full {{ $profil?->cni_verified ? 'bg-green/10 text-green' : 'bg-gold/15 text-gold' }}">{{ $profil?->cni_verified ? 'Vérifiée' : 'À vérifier' }}</span>
         </div>
         <div class="flex items-center gap-3.5 p-4 border border-line rounded-xl bg-white">

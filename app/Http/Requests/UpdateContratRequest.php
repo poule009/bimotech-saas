@@ -96,6 +96,9 @@ class UpdateContratRequest extends FormRequest
             'numero_quittance_dgid'    => ['nullable', 'string', 'max:60'],
             'montant_droit_de_bail'    => ['nullable', 'numeric', 'min:0'],
             'enregistrement_exonere'   => ['nullable', 'boolean'],
+            'taux_enregistrement_dgid' => ['nullable', 'numeric', 'min:0', 'max:20'],
+            'droit_enreg_nombre_feuilles' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'droit_enreg_renouvelable'    => ['nullable', 'boolean'],
         ];
     }
 

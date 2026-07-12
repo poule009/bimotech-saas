@@ -233,20 +233,21 @@ class BienCrudTest extends TestCase
         $admin1 = $this->adminAvecAgence();
         $admin2 = $this->adminAvecAgence();
 
+        // La référence est le champ affiché en titre de chaque ligne de la liste.
         Bien::factory()->create([
             'agency_id'       => $admin1->agency_id,
             'proprietaire_id' => $this->proprietaire($admin1)->id,
-            'adresse'         => 'Bien agence 1',
+            'reference'       => 'BIEN-AGENCE-1',
         ]);
         Bien::factory()->create([
             'agency_id'       => $admin2->agency_id,
             'proprietaire_id' => $this->proprietaire($admin2)->id,
-            'adresse'         => 'Bien agence 2',
+            'reference'       => 'BIEN-AGENCE-2',
         ]);
 
         $this->actingAs($admin1)
              ->get(route('admin.biens.index'))
-             ->assertSee('Bien agence 1')
-             ->assertDontSee('Bien agence 2');
+             ->assertSee('BIEN-AGENCE-1')
+             ->assertDontSee('BIEN-AGENCE-2');
     }
 }

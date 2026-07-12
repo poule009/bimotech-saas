@@ -112,7 +112,17 @@ class Contrat extends Model
         'numero_quittance_dgid',       // N° quittance DGID après enregistrement
         'montant_droit_de_bail',       // Montant droits enregistrement payé à la DGID
         'enregistrement_exonere',      // Bool — exonéré d'enregistrement
-        'taux_enregistrement_dgid',    // Override taux DGID (null = légal : 1% hab / 2% comm)
+        'taux_enregistrement_dgid',    // Override taux DGID (null = légal : 2%)
+
+        // ── Droits d'enregistrement — tracker contrat (calculé par Observer) ─
+        'droit_enreg_montant',          // Droits = 2% × base × mois (calculé)
+        'droit_enreg_timbre',           // Timbre = 2 000 × nombre_feuilles (calculé)
+        'droit_enreg_nombre_feuilles',  // Nb feuilles de l'acte (défaut 2, modifiable)
+        'droit_enreg_statut_calcul',    // 'confirme' | 'estimation' (>12 mois)
+        'droit_enreg_date_limite',      // Signature (date_debut) + 1 mois (calculé)
+        'droit_enreg_renouvelable',     // Bail ≤12 mois renouvelable ? (défaut true)
+        'droit_enreg_effectue',         // Bail enregistré à la DGID ?
+        'droit_enreg_date_effectue',    // Date de l'enregistrement effectif
 
         // ── Garant ────────────────────────────────────────────────────────
         'garant_nom',
@@ -151,9 +161,22 @@ class Contrat extends Model
         'caution_gardee_par_agence'    => 'boolean',
         'taux_enregistrement_dgid'     => 'decimal:2',
         'montant_droit_de_bail'        => 'decimal:2',
+        'droit_enreg_montant'          => 'decimal:2',
+        'droit_enreg_timbre'           => 'decimal:2',
+        'droit_enreg_nombre_feuilles'  => 'integer',
+        'droit_enreg_date_limite'      => 'date',
+        'droit_enreg_renouvelable'     => 'boolean',
+        'droit_enreg_effectue'         => 'boolean',
+        'droit_enreg_date_effectue'    => 'date',
         // Note : pas de cast Enum — $contrat->statut reste une string en Blade.
         'deleted_at'                   => 'datetime',
     ];
+
+    /** Accès total dû à l'enregistrement (droits + timbre). */
+    public function getDroitEnregTotalAttribute(): float
+    {
+        return round((float) ($this->droit_enreg_montant ?? 0) + (float) ($this->droit_enreg_timbre ?? 0), 2);
+    }
 
     // ── Global Scope + hooks ───────────────────────────────────────────────────
 

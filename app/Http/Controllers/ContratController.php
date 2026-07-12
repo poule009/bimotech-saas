@@ -573,6 +573,37 @@ class ContratController extends Controller implements HasMiddleware
     }
 
     // ─────────────────────────────────────────────────────────────────────
+    // ENREGISTREMENT DU BAIL (DGID) — marquer comme effectué
+    // ─────────────────────────────────────────────────────────────────────
+
+    public function marquerEnregistre(Request $request, Contrat $contrat): RedirectResponse
+    {
+        $this->authorize('update', $contrat);
+
+        $validated = $request->validate([
+            'droit_enreg_date_effectue' => ['nullable', 'date', 'before_or_equal:today'],
+            'numero_quittance_dgid'     => ['nullable', 'string', 'max:60'],
+            'droit_enreg_nombre_feuilles' => ['nullable', 'integer', 'min:1', 'max:50'],
+        ]);
+
+        // Si le nombre de feuilles est ajusté, l'Observer recalcule le timbre au save.
+        if ($request->filled('droit_enreg_nombre_feuilles')) {
+            $contrat->droit_enreg_nombre_feuilles = (int) $validated['droit_enreg_nombre_feuilles'];
+        }
+
+        $contrat->droit_enreg_effectue      = true;
+        $contrat->droit_enreg_date_effectue = $validated['droit_enreg_date_effectue'] ?? now()->toDateString();
+        // Trace DGID (réutilise les champs existants)
+        $contrat->date_enregistrement_dgid  = $contrat->droit_enreg_date_effectue;
+        if ($request->filled('numero_quittance_dgid')) {
+            $contrat->numero_quittance_dgid = $validated['numero_quittance_dgid'];
+        }
+        $contrat->save();
+
+        return back()->with('success', 'Bail marqué comme enregistré à la DGID ✓');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
     // RÉSILIATION
     // ─────────────────────────────────────────────────────────────────────
 

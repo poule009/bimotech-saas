@@ -47,7 +47,7 @@
 
     {{-- ─────────────── SIDEBAR ─────────────── --}}
     <aside x-bind:class="panelClass"
-           class="fixed md:static inset-y-0 left-0 z-40 w-[238px] shrink-0 bg-teal text-paper
+           class="fixed md:sticky md:top-0 md:self-start md:h-screen inset-y-0 left-0 z-40 w-[238px] shrink-0 bg-teal text-paper
                   flex flex-col p-4 pt-6 transition-transform duration-200 md:translate-x-0">
 
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-2 mb-8 font-display font-semibold text-[17px]">

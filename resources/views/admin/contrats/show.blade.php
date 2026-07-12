@@ -145,6 +145,58 @@
                 </div>
             </div>
 
+            {{-- Enregistrement du bail (DGID) --}}
+            @php
+                $fmt = fn($n) => number_format((float) $n, 0, ',', ' ');
+                $deExonere = (bool) $contrat->enregistrement_exonere;
+                $deEstimation = $contrat->droit_enreg_statut_calcul === 'estimation';
+                $deLimite = $contrat->droit_enreg_date_limite;
+                $deEnRetard = $deLimite && ! $contrat->droit_enreg_effectue && $deLimite->isPast();
+            @endphp
+            <div class="f-card">
+                <h3 class="f-card-title mb-1">Enregistrement du bail</h3>
+                <p class="f-card-sub">Droits d'enregistrement dus à la DGID.</p>
+
+                @if($deExonere)
+                    <div class="rounded-lg bg-paper border border-line px-4 py-3 text-[13px] text-muted">Bail exonéré d'enregistrement.</div>
+                @else
+                    <div class="space-y-2.5 text-[13.5px]">
+                        <div class="flex justify-between"><span class="text-muted">Droits (2 %)</span><span class="font-semibold">{{ $fmt($contrat->droit_enreg_montant) }} F</span></div>
+                        <div class="flex justify-between"><span class="text-muted">Timbre ({{ (int) $contrat->droit_enreg_nombre_feuilles }} feuille{{ (int) $contrat->droit_enreg_nombre_feuilles > 1 ? 's' : '' }})</span><span class="font-semibold">{{ $fmt($contrat->droit_enreg_timbre) }} F</span></div>
+                        <div class="flex justify-between pt-2 border-t border-paper-dim"><span class="font-bold">Total à payer</span><span class="font-bold text-teal">{{ $fmt($contrat->droit_enreg_total) }} F</span></div>
+                    </div>
+
+                    @if($deEstimation)
+                        <div class="mt-3 rounded-lg bg-gold/15 text-teal-deep px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                            <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0" />
+                            <span>Base exacte à confirmer (fractionnement triennal, Art. 510 CGI). Le montant réel dû peut couvrir jusqu'à 3 ans de loyer.</span>
+                        </div>
+                    @endif
+
+                    <div class="mt-3 pt-3 border-t border-paper-dim">
+                        @if($contrat->droit_enreg_effectue)
+                            <div class="flex items-center gap-1.5 text-[13px] text-green font-semibold">
+                                <x-icon name="check" size="15" /> Enregistré le {{ optional($contrat->droit_enreg_date_effectue)->format('d/m/Y') }}
+                                @if($contrat->numero_quittance_dgid)<span class="text-muted font-normal">· n° {{ $contrat->numero_quittance_dgid }}</span>@endif
+                            </div>
+                        @else
+                            <div class="text-[12.5px] {{ $deEnRetard ? 'text-error font-semibold' : 'text-muted' }} mb-2">
+                                @if($deLimite)
+                                    {{ $deEnRetard ? 'En retard — à enregistrer avant le' : 'À enregistrer avant le' }} {{ $deLimite->format('d/m/Y') }}
+                                @else
+                                    À enregistrer.
+                                @endif
+                            </div>
+                            <form method="POST" action="{{ route('admin.contrats.marquer-enregistre', $contrat) }}" class="space-y-2">
+                                @csrf
+                                <input type="text" name="numero_quittance_dgid" placeholder="N° quittance DGID (optionnel)" class="f-input text-[13px] py-2">
+                                <button type="submit" class="w-full py-2.5 rounded-[10px] bg-teal text-paper text-[13.5px] font-bold hover:bg-teal-deep transition-colors">Marquer comme enregistré</button>
+                            </form>
+                        @endif
+                    </div>
+                @endif
+            </div>
+
             {{-- Résiliation --}}
             @if($contrat->statut === 'actif')
                 <div class="f-card">

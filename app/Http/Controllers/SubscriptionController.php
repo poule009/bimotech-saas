@@ -92,6 +92,23 @@ class SubscriptionController extends Controller
             'reference.required'    => 'Indiquez la référence de la transaction.',
         ]);
 
+        // ── Pré-vérification quota (parité avec le flux en ligne initierPaiement) ──
+        // On refuse de déclarer un paiement pour un plan qui ne peut pas contenir
+        // le nombre de biens déjà gérés (sinon l'agence se retrouverait sur-quota).
+        $limiteDeclaree = \App\Models\Agency::limiteUnitesPour($validated['plan_niveau']);
+        if ($limiteDeclaree !== null) {
+            $nbUnites = $agency->nbUnitesActives();
+            if ($nbUnites > $limiteDeclaree) {
+                $planSuggere = $validated['plan_niveau'] === 'starter' ? 'Pro (50 unités)' : 'Agence (illimité)';
+
+                return back()->withErrors([
+                    'plan_niveau' => "Impossible de souscrire au plan " . ucfirst($validated['plan_niveau']) . " : "
+                        . "vous gérez {$nbUnites} biens alors que ce plan n'en autorise que {$limiteDeclaree}. "
+                        . "Archivez les biens excédentaires ou choisissez le plan {$planSuggere}.",
+                ])->withInput();
+            }
+        }
+
         // Un abonnement doit exister (créé à l'inscription) ; sinon on le crée en essai échu.
         $subscription = $agency->subscription ?? Subscription::create([
             'agency_id'        => $agency->id,
@@ -121,10 +138,9 @@ class SubscriptionController extends Controller
     /** Compteurs d'usage vs limites du plan (les 2 seules limites du modèle). */
     private function usage($agency): array
     {
-        $niveau  = $agency->subscription?->plan_niveau ?? 'starter';
-        $effectif = config("plans.niveau_effectif.{$niveau}", 'starter');
-        $limiteBiens = config("plans.nb_unites_max.{$effectif}");
-        $limiteEquipe = config("plans.nb_admins_max.{$effectif}");
+        // Source unique : Agency::limiteUnites/limiteAdmins (même fallback que l'enforcement).
+        $limiteBiens  = $agency->limiteUnites();
+        $limiteEquipe = $agency->limiteAdmins();
 
         $nbBiens  = $agency->nbUnitesActives();
         $nbEquipe = \App\Models\User::where('agency_id', $agency->id)->where('role', 'admin')->count();
@@ -156,8 +172,7 @@ class SubscriptionController extends Controller
         $planNiveau = $request->plan_niveau;
 
         // ── Vérification quota avant tout paiement ────────────────────────
-        $limitesParPlan = config('plans.nb_unites_max');
-        $limiteNouveau  = $limitesParPlan[$planNiveau] ?? $limitesParPlan['pro'];
+        $limiteNouveau = \App\Models\Agency::limiteUnitesPour($planNiveau);
 
         if ($limiteNouveau !== null) {
             $nbUnites = $agency->nbUnitesActives();

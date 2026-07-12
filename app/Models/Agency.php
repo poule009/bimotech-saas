@@ -122,6 +122,43 @@ class Agency extends Model
         return $this->nbUnitesActives();
     }
 
+    // ── Limites du plan (source unique : config/plans.php) ─────────────────
+    // Toute vérification de quota DOIT passer par ces helpers — ne jamais
+    // recoder les seuils en dur ailleurs (sinon divergence silencieuse).
+
+    /**
+     * Niveau de plan EFFECTIF pour cette agence.
+     * Résout legacy→pro et traite l'absence d'abonnement comme 'legacy'.
+     */
+    public function planNiveauEffectif(): string
+    {
+        return self::niveauEffectif($this->subscription?->plan_niveau);
+    }
+
+    /** Niveau effectif pour un plan_niveau donné (null/absent = legacy→pro). */
+    public static function niveauEffectif(?string $planNiveau): string
+    {
+        return config('plans.niveau_effectif.' . ($planNiveau ?: 'legacy'), 'pro');
+    }
+
+    /** Limite de biens (unités) du plan courant — null = illimité. */
+    public function limiteUnites(): ?int
+    {
+        return self::limiteUnitesPour($this->subscription?->plan_niveau);
+    }
+
+    /** Limite de biens pour un plan_niveau donné — null = illimité. */
+    public static function limiteUnitesPour(?string $planNiveau): ?int
+    {
+        return config('plans.nb_unites_max.' . self::niveauEffectif($planNiveau));
+    }
+
+    /** Limite de comptes admins du plan courant — null = illimité. */
+    public function limiteAdmins(): ?int
+    {
+        return config('plans.nb_admins_max.' . $this->planNiveauEffectif());
+    }
+
     public function couleurEstSombre(): bool
     {
         $hex = ltrim($this->couleur_primaire ?? '#1a3c5e', '#');

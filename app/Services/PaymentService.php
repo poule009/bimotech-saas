@@ -125,8 +125,7 @@ class PaymentService
                     ->firstOrFail();
 
                 // Avertissement si le nouveau plan est inférieur au nombre de biens actifs
-                $limitesParPlan = config('plans.nb_unites_max');
-                $limiteNouveau  = $limitesParPlan[$planNiveau] ?? $limitesParPlan['pro'];
+                $limiteNouveau = \App\Models\Agency::limiteUnitesPour($planNiveau);
                 if ($limiteNouveau !== null) {
                     $nbActuels = $subscription->agency->nbUnitesActives();
                     if ($nbActuels > $limiteNouveau) {

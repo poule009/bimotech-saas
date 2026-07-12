@@ -213,9 +213,9 @@ class EquipeController extends Controller
 
     private function limiteAdmins(): ?int
     {
-        $planNiveau = Auth::user()->agency?->subscription?->plan_niveau ?? 'starter';
-        $effectif   = config("plans.niveau_effectif.{$planNiveau}", 'starter');
-        return config("plans.nb_admins_max.{$effectif}");
+        // Source unique : config/plans.php via Agency::limiteAdmins()
+        // (même fallback « legacy » que pour les biens — cf. F2 de l'audit palier).
+        return Auth::user()->agency?->limiteAdmins();
     }
 
     private function peutAjouterCollaborateur(): bool

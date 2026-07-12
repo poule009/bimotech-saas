@@ -31,6 +31,7 @@ class Locataire extends Model
         'profession', 'employeur', 'revenu_mensuel',
         'contact_urgence_nom', 'contact_urgence_tel', 'contact_urgence_lien',
         'adresse_precedente', 'ville', 'quartier',
+        'piece_identite_path',
         'cni_verified', 'justif_revenus_fourni',
         // ── Champs fiscaux ────────────────────────────────────────────────
         'est_entreprise',       // BRS applicable si true

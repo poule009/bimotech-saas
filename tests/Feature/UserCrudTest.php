@@ -3,9 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Agency;
+use App\Models\Proprietaire;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -137,6 +140,83 @@ class UserCrudTest extends TestCase
                  'password_confirmation' => 'password123',
              ])
              ->assertSessionHasErrors('email');
+    }
+
+    // ── Tests import de fichier (pièce d'identité) ────────────────────────
+
+    #[Test]
+    public function admin_peut_importer_une_piece_didentite_a_la_creation()
+    {
+        Storage::fake('public');
+        $admin = $this->adminAvecAgence();
+
+        $fichier = UploadedFile::fake()->create('cni.pdf', 200, 'application/pdf');
+
+        $this->actingAs($admin)
+             ->post(route('admin.users.store'), [
+                 'role'           => 'proprietaire',
+                 'name'           => 'Proprio Avec Piece',
+                 'piece_identite' => $fichier,
+             ])
+             ->assertRedirect();
+
+        $proprio = User::where('name', 'Proprio Avec Piece')->firstOrFail();
+        $path    = $proprio->proprietaire->piece_identite_path;
+
+        $this->assertNotNull($path, 'Le chemin de la pièce doit être enregistré.');
+        Storage::disk('public')->assertExists($path);
+    }
+
+    #[Test]
+    public function import_refuse_un_type_de_fichier_non_autorise()
+    {
+        Storage::fake('public');
+        $admin = $this->adminAvecAgence();
+
+        $exe = UploadedFile::fake()->create('virus.exe', 10, 'application/octet-stream');
+
+        $this->actingAs($admin)
+             ->post(route('admin.users.store'), [
+                 'role'           => 'locataire',
+                 'name'           => 'Locataire Fichier Interdit',
+                 'piece_identite' => $exe,
+             ])
+             ->assertSessionHasErrors('piece_identite');
+
+        $this->assertDatabaseMissing('users', ['name' => 'Locataire Fichier Interdit']);
+    }
+
+    #[Test]
+    public function admin_peut_remplacer_la_piece_a_ledition_et_lancien_fichier_est_supprime()
+    {
+        Storage::fake('public');
+        $admin   = $this->adminAvecAgence();
+        $proprio = $this->proprietaire($admin);
+
+        // Pièce initiale déjà présente sur le disque + en base.
+        $ancien = 'pieces_identite/' . $proprio->id . '/ancien.pdf';
+        Storage::disk('public')->put($ancien, 'contenu-initial');
+        Proprietaire::create([
+            'user_id'             => $proprio->id,
+            'piece_identite_path' => $ancien,
+        ]);
+
+        $nouveau = UploadedFile::fake()->image('nouveau.jpg');
+
+        $this->actingAs($admin)
+             ->patch(route('admin.users.update', $proprio), [
+                 'name'           => $proprio->name,
+                 'email'          => $proprio->email,
+                 'piece_identite' => $nouveau,
+             ])
+             ->assertRedirect();
+
+        $proprio->refresh()->load('proprietaire');
+        $path = $proprio->proprietaire->piece_identite_path;
+
+        $this->assertNotSame($ancien, $path, 'Le chemin doit pointer vers le nouveau fichier.');
+        Storage::disk('public')->assertExists($path);
+        Storage::disk('public')->assertMissing($ancien);
     }
 
     // ── Tests édition ────────────────────────────────────────────────────
