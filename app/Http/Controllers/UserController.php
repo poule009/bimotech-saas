@@ -584,8 +584,9 @@ class UserController extends Controller
         }
 
         $user->locataire->update($profilData);
-        // LocataireObserver::updated() se déclenche automatiquement
-        // si est_entreprise a changé → propage BRS aux contrats actifs
+        // NB : le taux_brs_override du locataire est lu en direct par le moteur
+        // (cascade niveau 2) ; l'applicabilité de la BRS dépend du bailleur, pas
+        // du locataire → aucune propagation vers les contrats (correctif B2).
     }
     }); // fin DB::transaction
 

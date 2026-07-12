@@ -145,9 +145,29 @@ final class FiscalContext
         bool     $avecFraisInitiaux   = false,  // true = premier paiement : lit frais_agence + caution
     ): self
     {
-        $bien       = $contrat->bien;
+        // Bien résolu À L'ÉPREUVE DES GLOBAL SCOPES. Sous une session authentifiée,
+        // le scope « agency » du modèle Bien peut renvoyer $contrat->bien = null lors
+        // d'une lecture interne → toutes les données dérivées (meuble, proprietaire,
+        // taux_commission) tomberaient sur les défauts et fausseraient le calcul.
+        // Le contrat est déjà rattaché à l'agence : on récupère son bien sans scope.
+        $bien       = $contrat->bien
+            ?? ($contrat->bien_id
+                ? \App\Models\Bien::withoutGlobalScopes()->find($contrat->bien_id)
+                : null);
         $locUser    = $contrat->locataire;               // User (rôle locataire)
         $locProfile = $locUser?->locataire;              // Profil Locataire (HasOne sur User)
+
+        // Profil propriétaire (physique/morale IS, dispense BRS, assujetti TVA).
+        // Lu À L'ÉPREUVE DES GLOBAL SCOPES : sous une session authentifiée, le scope
+        // « agency » du modèle Proprietaire filtre les lectures internes → profil null
+        // → le gating fiscal (BRS, TVA) retomberait sur les défauts et fausserait le
+        // calcul. Le bien est déjà vérifié côté agence : on lit son profil sans scope.
+        $profilProprio = $bien?->proprietaire?->proprietaire
+            ?? ($bien?->proprietaire_id
+                ? \App\Models\Proprietaire::withoutGlobalScopes()
+                    ->where('user_id', $bien->proprietaire_id)
+                    ->first()
+                : null);
 
         // ── Taux TVA loyer ────────────────────────────────────────────────
         // Si le contrat spécifie explicitement l'assujettissement, on l'honore.
@@ -181,12 +201,8 @@ final class FiscalContext
             // F4 : est_personne_morale_is vit sur le PROFIL Proprietaire (User->proprietaire).
             // B3 : et si le bailleur n'a PAS de dispense explicite (brs_dispense).
             // Défaut : personne physique, non dispensé → BRS actif.
-            brsApplicable: (function () use ($bien) {
-                $profil = $bien?->proprietaire?->proprietaire;
-                $estPersonneMorale = (bool) ($profil?->est_personne_morale_is ?? false);
-                $dispense          = (bool) ($profil?->brs_dispense ?? false);
-                return ! $estPersonneMorale && ! $dispense;
-            })(),
+            brsApplicable: ! (bool) ($profilProprio?->est_personne_morale_is ?? false)
+                           && ! (bool) ($profilProprio?->brs_dispense ?? false),
             tauxCommission:         (float) ($bien?->taux_commission ?? FiscalService::COMMISSION_TAUX),
             tauxTvaCommission:      FiscalService::TVA_TAUX,
             tauxTvaLoyerOverride:   $tauxTvaOverride,
@@ -219,10 +235,10 @@ final class FiscalContext
             timbreFiscalDgid:       FiscalService::DGID_TIMBRE_FISCAL,
 
             // ── Assujettissement TVA des parties (F2) ────────────────────────
-            // Lu sur l'agence et sur le PROFIL propriétaire (User->proprietaire).
+            // Profil propriétaire résolu à l'épreuve des scopes (voir $profilProprio).
             // Défaut true si la donnée n'est pas chargée (ne jamais masquer une TVA due).
             agenceAssujettieTva:      (bool) ($contrat->agency?->assujetti_tva ?? true),
-            proprietaireAssujettiTva: (bool) ($bien?->proprietaire?->proprietaire?->assujetti_tva ?? true),
+            proprietaireAssujettiTva: (bool) ($profilProprio?->assujetti_tva ?? true),
         );
     }
 }

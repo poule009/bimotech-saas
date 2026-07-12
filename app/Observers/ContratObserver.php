@@ -78,9 +78,15 @@ class ContratObserver
             $bienBrs = $contrat->bien ?? ($contrat->bien_id
                 ? \App\Models\Bien::withoutGlobalScopes()->find($contrat->bien_id)
                 : null);
-            // Profil propriétaire : User->proprietaire (HasOne). BRS applicable si
-            // personne physique (défaut) ET pas de dispense explicite (B3).
-            $profilProprio = $bienBrs?->proprietaire?->proprietaire;
+            // Profil propriétaire : User->proprietaire (HasOne), lu SANS global scope
+            // (sinon le scope agency le filtre sous session authentifiée → null).
+            $profilProprio = $bienBrs?->proprietaire?->proprietaire
+                ?? ($bienBrs?->proprietaire_id
+                    ? \App\Models\Proprietaire::withoutGlobalScopes()
+                        ->where('user_id', $bienBrs->proprietaire_id)
+                        ->first()
+                    : null);
+            // BRS applicable si personne physique (défaut) ET pas de dispense (B3).
             $estMorale = (bool) ($profilProprio?->est_personne_morale_is ?? false);
             $dispense  = (bool) ($profilProprio?->brs_dispense ?? false);
             $contrat->brs_applicable = ! $estMorale && ! $dispense;
