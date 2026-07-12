@@ -84,6 +84,11 @@ final class FiscalContext
         // Timbre fiscal fixe (2 000 FCFA — CGI SN) ; surchargeable si législation change
         public readonly float   $timbreFiscalDgid       = 2000.0,
 
+        // Droits/timbre déjà calculés par le tracker contrat (droit_enreg_*).
+        // Si non null, le snapshot 1er paiement les reprend tels quels (source unique).
+        public readonly ?float  $dgidDroitsPrecalcule    = null,
+        public readonly ?float  $dgidTimbrePrecalcule    = null,
+
         // ── Assujettissement TVA des parties (audit TVA — F2) ────────────────
         // agenceAssujettieTva      → pilote la TVA sur commission et frais d'agence
         // proprietaireAssujettiTva → pilote la TVA sur loyer et charges
@@ -233,6 +238,11 @@ final class FiscalContext
                                         ? (float) $contrat->taux_enregistrement_dgid
                                         : null,
             timbreFiscalDgid:       FiscalService::DGID_TIMBRE_FISCAL,
+
+            // Reprise du tracker contrat (calculé par ContratObserver) → snapshot 1er
+            // paiement = montant exact de la fiche. null pour les contrats antérieurs.
+            dgidDroitsPrecalcule:   $contrat->droit_enreg_montant !== null ? (float) $contrat->droit_enreg_montant : null,
+            dgidTimbrePrecalcule:   $contrat->droit_enreg_timbre  !== null ? (float) $contrat->droit_enreg_timbre  : null,
 
             // ── Assujettissement TVA des parties (F2) ────────────────────────
             // Profil propriétaire résolu à l'épreuve des scopes (voir $profilProprio).

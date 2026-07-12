@@ -118,6 +118,26 @@
                         <label for="clauses_particulieres" class="f-label">Clauses particulières</label>
                         <textarea id="clauses_particulieres" name="clauses_particulieres" rows="3" class="f-textarea">{{ old('clauses_particulieres', $contrat->clauses_particulieres) }}</textarea>
                     </div>
+
+                    {{-- Enregistrement du bail (DGID) --}}
+                    <div class="pt-4 border-t border-paper-dim">
+                        <h4 class="text-[13.5px] font-bold text-ink mb-1">Enregistrement du bail (DGID)</h4>
+                        <p class="text-[11.5px] text-muted mb-3">Ajuste le calcul des droits d'enregistrement (2 % du loyer annuel + charges).</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="droit_enreg_nombre_feuilles" class="f-label">Nombre de feuilles de l'acte</label>
+                                <input id="droit_enreg_nombre_feuilles" type="number" name="droit_enreg_nombre_feuilles" value="{{ old('droit_enreg_nombre_feuilles', (int) ($contrat->droit_enreg_nombre_feuilles ?? 2)) }}" min="1" max="50" class="f-input">
+                                <p class="text-[11.5px] text-muted mt-1">Timbre = 2 000 F × nombre de feuilles.</p>
+                            </div>
+                            <div class="flex flex-col justify-center gap-2.5 pt-2">
+                                <input type="hidden" name="droit_enreg_renouvelable" value="0">
+                                <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="droit_enreg_renouvelable" value="1" @checked(old('droit_enreg_renouvelable', $contrat->droit_enreg_renouvelable ?? true)) class="w-[16px] h-[16px] accent-teal"> Bail renouvelable</label>
+                                <input type="hidden" name="enregistrement_exonere" value="0">
+                                <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="enregistrement_exonere" value="1" @checked(old('enregistrement_exonere', $contrat->enregistrement_exonere)) class="w-[16px] h-[16px] accent-teal"> Exonéré d'enregistrement</label>
+                            </div>
+                        </div>
+                        <p class="text-[11.5px] text-muted mt-2">Un bail ≤ 12 mois <strong>non</strong> renouvelable est calculé au prorata de sa durée. Sinon, base 12 mois.</p>
+                    </div>
                 </div>
             </div>
         </div>

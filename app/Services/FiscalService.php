@@ -224,15 +224,26 @@ class FiscalService
         $dgidTotal  = 0.0;
 
         if ($ctx->avecDgid && !$ctx->enregistrementExonere) {
-            $dgidResult = self::calculerDroitsBail(
-                loyerMensuel:       $ctx->loyerMensuelDgid,
-                dureeMois:          $ctx->dureeMoisDgid,
-                tauxPct:            $ctx->tauxEnregistrementDgid ?? self::dgidTauxDefaut(),
-                timbreFiscal:       $ctx->timbreFiscalDgid,
-            );
-            $dgidDroits = $dgidResult['droits_enregistrement'];
-            $dgidTimbre = $dgidResult['timbre_fiscal'];
-            $dgidTotal  = $dgidResult['total_dgid'];
+            // SOURCE UNIQUE : si le contrat porte déjà les droits calculés par
+            // ContratObserver (tracker droit_enreg_*), on les reprend TELS QUELS
+            // → le snapshot du 1er paiement = exactement le montant de la fiche
+            // (même assiette loyer+charges, même timbre × feuilles, même base).
+            if ($ctx->dgidDroitsPrecalcule !== null) {
+                $dgidDroits = round($ctx->dgidDroitsPrecalcule, 2);
+                $dgidTimbre = round($ctx->dgidTimbrePrecalcule ?? 0.0, 2);
+                $dgidTotal  = round($dgidDroits + $dgidTimbre, 2);
+            } else {
+                // Fallback (contrats antérieurs au tracker) : calcul historique.
+                $dgidResult = self::calculerDroitsBail(
+                    loyerMensuel:       $ctx->loyerMensuelDgid,
+                    dureeMois:          $ctx->dureeMoisDgid,
+                    tauxPct:            $ctx->tauxEnregistrementDgid ?? self::dgidTauxDefaut(),
+                    timbreFiscal:       $ctx->timbreFiscalDgid,
+                );
+                $dgidDroits = $dgidResult['droits_enregistrement'];
+                $dgidTimbre = $dgidResult['timbre_fiscal'];
+                $dgidTotal  = $dgidResult['total_dgid'];
+            }
         }
 
         return new FiscalResult(

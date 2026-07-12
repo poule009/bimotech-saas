@@ -559,6 +559,14 @@ class ContratController extends Controller implements HasMiddleware
             'enregistrement_exonere'   => $request->has('enregistrement_exonere')
                 ? $request->boolean('enregistrement_exonere')
                 : $contrat->enregistrement_exonere,
+            // Droits d'enregistrement : entrées du tracker (l'Observer recalcule montant/timbre)
+            'droit_enreg_nombre_feuilles' => $validated['droit_enreg_nombre_feuilles']
+                ?? $contrat->droit_enreg_nombre_feuilles,
+            'droit_enreg_renouvelable'    => $request->has('droit_enreg_renouvelable')
+                ? $request->boolean('droit_enreg_renouvelable')
+                : $contrat->droit_enreg_renouvelable,
+            'taux_enregistrement_dgid'    => $validated['taux_enregistrement_dgid']
+                ?? $contrat->taux_enregistrement_dgid,
         ];
 
         if (! empty($validated['locataire_id'])) {
