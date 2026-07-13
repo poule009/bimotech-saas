@@ -80,7 +80,14 @@
                         <div class="space-y-2.5 text-[13.5px]">
                             <div class="flex justify-between"><span class="text-muted">Valeur locative estimée (loyer × 12)</span><span class="font-semibold">{{ $fmtCfpb($cfpb['valeur_locative']) }} F</span></div>
                             <div class="flex justify-between pt-2 border-t border-paper-dim"><span class="font-bold">CFPB estimée (5 %)</span><span class="font-bold text-teal">{{ $fmtCfpb($cfpb['montant']) }} F</span></div>
-                            <div class="flex justify-between"><span class="font-bold">TEOM estimée ({{ rtrim(rtrim(number_format($cfpb['teom_taux'], 1, ',', ' '), '0'), ',') }} %)</span><span class="font-bold text-teal">{{ $fmtCfpb($cfpb['teom_montant']) }} F</span></div>
+                            <div class="flex justify-between"><span class="font-bold">TEOM — estimation à déclarer ({{ rtrim(rtrim(number_format($cfpb['teom_taux'], 1, ',', ' '), '0'), ',') }} %)</span><span class="font-bold text-teal">{{ $fmtCfpb($cfpb['teom_montant']) }} F</span></div>
+                        </div>
+
+                        {{-- Note : relie la TEOM (obligation annuelle du propriétaire) à la « TOM
+                             refacturée au locataire » (ligne mensuelle du loyer) — même taxe, deux angles. --}}
+                        <div class="mt-3 rounded-lg bg-teal/10 text-teal-deep px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                            <x-icon name="info" size="13" class="mt-0.5 shrink-0" />
+                            <span>Même taxe que la <span class="font-semibold">« TOM refacturée au locataire »</span> visible sur le loyer : celle-ci est le montant mensuel que le propriétaire récupère auprès du locataire, la TEOM ci-dessus est l'estimation annuelle qu'il déclare à l'administration.</span>
                         </div>
 
                         {{-- Badge PERMANENT (estimation structurelle) — jamais levable, style sobre/neutre

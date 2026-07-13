@@ -211,7 +211,7 @@
                     </template>
                     <template x-if="hasTom">
                         <div class="flex justify-between py-1.5 border-b border-paper-dim">
-                            <span class="text-muted">TOM</span><span class="font-semibold" x-text="tomTxt"></span>
+                            <span class="text-muted">TOM refacturée au locataire</span><span class="font-semibold" x-text="tomTxt"></span>
                         </div>
                     </template>
                     <div class="flex justify-between py-2 border-b-2 border-ink mt-1">

@@ -85,7 +85,7 @@ class TeomEstimationTest extends TestCase
         $this->actingAs($this->admin)
             ->get(route('admin.biens.show', $bien))
             ->assertOk()
-            ->assertSee('TEOM estimée')
+            ->assertSee('TEOM — estimation à déclarer')
             ->assertSee('86 400');
     }
 

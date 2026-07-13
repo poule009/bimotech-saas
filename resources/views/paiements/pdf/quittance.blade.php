@@ -136,7 +136,7 @@
         @else
             <tr><td>Charges</td><td>Incluses</td></tr>
         @endif
-        @if($tom > 0)<tr><td>TOM (taxe ordures ménagères)</td><td>{{ $fmt($tom) }} F CFA</td></tr>@endif
+        @if($tom > 0)<tr><td>TOM refacturée au locataire</td><td>{{ $fmt($tom) }} F CFA</td></tr>@endif
         <tr class="total"><td>Montant reçu</td><td>{{ $fmt($total) }} F CFA</td></tr>
     </table>
 
