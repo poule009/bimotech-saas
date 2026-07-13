@@ -694,5 +694,27 @@ return [
             'date_verification' => '2026-07-13',
         ],
 
+        // ═══════════════════════════════════════════════════════════════════
+        // Distinction TOM / TEOM (documentation produit — pas une règle de calcul)
+        // ═══════════════════════════════════════════════════════════════════
+
+        'TOM-TEOM-01' => [
+            'categorie'   => 'teom',
+            'titre'       => 'TOM refacturée vs TEOM à déclarer — deux angles d\'une même taxe',
+            'description' => "TOM et TEOM désignent le même impôt (ordures ménagères) mais modélisent "
+                . "deux choses distinctes dans l'app, à NE PAS additionner : "
+                . "1) TOM (contrats.tom_amount / biens.tom_mensuelle) = montant mensuel que l'agence "
+                . "REFACTURE au locataire dans le loyer (visible quittance + aperçus contrat) ; "
+                . "2) TEOM (biens.teom_montant_estime) = estimation ANNUELLE que le PROPRIÉTAIRE "
+                . "DÉCLARE à la DGID (assiette = valeur locative, comme la CFPB). Aucun calcul ne "
+                . "relie les deux automatiquement ; l'affichage explicite la distinction (fiche bien).",
+            'statut'  => 'decision_produit',
+            'sources' => [
+                ['libelle' => 'Décision produit interne Bimotech (clarification UX)', 'url' => null],
+            ],
+            'note' => 'Documentée pour ne pas se reperdre dans une future session. Aucun changement de calcul.',
+            'date_verification' => '2026-07-13',
+        ],
+
     ],
 ];

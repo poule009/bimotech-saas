@@ -679,4 +679,33 @@ export function registerComponents(Alpine) {
             this.$refs.form.submit();
         },
     }));
+
+    // Module Fiscalité — vue globale : filtrage client-side des échéances par type.
+    // Le type de la chip cliquée est lu sur son data-filter (pas d'argument inline,
+    // contrainte du build @alpinejs/csp). Masque les groupes vides + gère l'état vide.
+    Alpine.data('fiscaliteCalendrier', () => ({
+        filter: 'all',
+        apply(event) {
+            const chip = event.currentTarget;
+            this.filter = chip.dataset.filter;
+
+            this.$root.querySelectorAll('[data-filter]').forEach((c) =>
+                c.classList.toggle('fisc-chip-active', c.dataset.filter === this.filter));
+
+            let anyVisible = false;
+            this.$root.querySelectorAll('[data-group]').forEach((group) => {
+                let groupHasVisible = false;
+                group.querySelectorAll('[data-type]').forEach((row) => {
+                    const match = this.filter === 'all' || row.dataset.type === this.filter;
+                    row.style.display = match ? '' : 'none';
+                    if (match) groupHasVisible = true;
+                });
+                group.style.display = groupHasVisible ? '' : 'none';
+                if (groupHasVisible) anyVisible = true;
+            });
+
+            const noResults = this.$root.querySelector('[data-no-results]');
+            if (noResults) noResults.classList.toggle('hidden', anyVisible);
+        },
+    }));
 }

@@ -90,12 +90,31 @@
                             <span>Même taxe que la <span class="font-semibold">« TOM refacturée au locataire »</span> visible sur le loyer : celle-ci est le montant mensuel que le propriétaire récupère auprès du locataire, la TEOM ci-dessus est l'estimation annuelle qu'il déclare à l'administration.</span>
                         </div>
 
+                        {{-- Ligne TOM refacturée (champ tom_mensuelle) — style distinct (fond paper),
+                             hors du registre fiscal principal pour bien la séparer des obligations. --}}
+                        <div class="mt-3 flex items-center justify-between bg-paper rounded-lg px-4 py-3">
+                            <span class="text-[13px] text-muted">TOM refacturée au locataire <span class="font-semibold text-ink">(dans le loyer)</span></span>
+                            <span class="font-display font-semibold text-[15px] text-ink">{{ $fmtCfpb((int) $bien->tom_mensuelle) }} F / mois</span>
+                        </div>
+
                         {{-- Badge PERMANENT (estimation structurelle) — jamais levable, style sobre/neutre
                              distinct du gold « à confirmer » (bornes CGF, DGID) qui, lui, est temporaire.
                              Vaut pour la CFPB ET la TEOM (même assiette, même limite structurelle). --}}
                         <div class="mt-3 rounded-lg bg-paper-dim border border-line text-ink/70 px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
                             <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0 text-muted" />
                             <span><span class="font-semibold">Estimation structurelle (permanente).</span> CFPB et TEOM utilisent le loyer annuel comme approximation de la valeur locative cadastrale. Les montants réels sont fixés par l'administration fiscale et peuvent différer significativement. Déclaration avant le 31 janvier.</span>
+                        </div>
+
+                        {{-- Navigation croisée (§4.3) --}}
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <a href="{{ route('admin.users.show', $bien->proprietaire) }}" class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-teal bg-paper border border-line rounded-lg px-3 py-1.5 hover:border-teal">
+                                <x-icon name="user" size="13" /> Fiche du propriétaire
+                            </a>
+                            @if($bien->contratActif)
+                                <a href="{{ route('admin.contrats.show', $bien->contratActif) }}" class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-teal bg-paper border border-line rounded-lg px-3 py-1.5 hover:border-teal">
+                                    <x-icon name="file-text" size="13" /> Contrat lié
+                                </a>
+                            @endif
                         </div>
                     @endif
                 </div>

@@ -125,6 +125,18 @@
             </div>
         </div>
 
+        {{-- Bloc Fiscalité — état vide si aucun bien loué ET pas de CGF active (§3.1).
+             Une CGF active est une obligation → on garde le bloc même sans bien loué. --}}
+        @if(empty($aBienLoue) && empty($cgfCouvre))
+            <div class="f-card mt-5 text-center py-12">
+                <div class="w-12 h-12 rounded-full bg-green/10 flex items-center justify-center mx-auto mb-3">
+                    <x-icon name="receipt" size="22" class="text-green" />
+                </div>
+                <h3 class="font-display font-semibold text-[15.5px] text-teal mb-1">Pas encore d'obligation fiscale</h3>
+                <p class="text-[13px] text-muted max-w-[380px] mx-auto leading-relaxed">Ce propriétaire n'a pas encore de bien loué avec un contrat actif. Dès qu'un contrat sera signé, ses déclarations et échéances apparaîtront automatiquement ici.</p>
+            </div>
+        @else
+
         {{-- Estimation IRPP foncier — Propriétaires Particuliers uniquement --}}
         @isset($irppEstimation)
             @php $fmtIrpp = fn($n) => number_format((float) $n, 0, ',', ' '); @endphp
@@ -287,6 +299,7 @@
                 </div>
             </div>
         @endif
+        @endif {{-- fin bloc fiscalité (aBienLoue) --}}
     </div>
 
     {{-- Onglet Biens --}}

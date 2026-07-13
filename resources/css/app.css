@@ -113,6 +113,10 @@
     }
     .f-input-error { @apply border-error focus:border-error focus:ring-error/[0.12]; }
 
+    /* ── Module Fiscalité : chips de filtre de la vue globale ── */
+    .fisc-chip:hover      { @apply border-teal; }
+    .fisc-chip-active     { @apply bg-teal border-teal text-paper; }
+
     /* ── Module Mon équipe : boutons de niveau d'accès (3 états) ── */
     .lvl-opt {
         @apply text-[12.5px] font-bold px-3.5 py-2 rounded-lg border-[1.5px] border-line

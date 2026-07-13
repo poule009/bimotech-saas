@@ -27,8 +27,7 @@
         ['section' => 'Finances'],
         ['label' => 'Quittances',      'route' => 'admin.paiements.index',   'active' => 'admin.paiements.*',    'perm' => 'paiements.lire', 'icon' => '<path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2-3-2z"/><path d="M8 8h8M8 12h6"/>'],
         ['label' => 'Comptabilité',    'route' => 'admin.comptabilite.index','active' => 'admin.comptabilite.*', 'perm' => 'comptabilite.lire', 'icon' => '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h4M8 14h2M12 14h4M8 18h8"/>'],
-        // Fiscalité masquée tant que ses vues ne sont pas reconstruites (accès direct = 500).
-        // ['label' => 'Fiscalité',       'route' => 'admin.fiscal.dashboard',  'active' => 'admin.fiscal.*',       'perm' => 'fiscal.lire', 'icon' => '...'],
+        ['label' => 'Fiscalité',       'route' => 'admin.echeances-fiscales.index', 'active' => 'admin.echeances-fiscales.*', 'perm' => 'fiscal.lire', 'icon' => '<path d="M4 4h16v4H4V4Z"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9 13h6M9 17h6"/>'],
         ['section' => 'Vitrine'],
         ['label' => 'Portail public',  'route' => 'portail.home',            'active' => 'portail.*',            'icon' => '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>'],
         ['section' => null],

@@ -478,9 +478,12 @@ class UserController extends Controller
                 ? null
                 : (int) Bien::where('proprietaire_id', $user->id)->sum('cfpb_montant_estime');
 
+            // §3.1 : pas de bloc fiscal si aucun bien loué (état vide dédié).
+            $aBienLoue = Bien::where('proprietaire_id', $user->id)->where('statut', 'loue')->exists();
+
             return view('users.show', compact(
                 'user', 'biens', 'stats', 'paiements', 'locatairesActifs',
-                'irppEstimation', 'estParticulier', 'cgfInfo', 'cgfCouvre', 'annee', 'cfpbTotal'
+                'irppEstimation', 'estParticulier', 'cgfInfo', 'cgfCouvre', 'annee', 'cfpbTotal', 'aBienLoue'
             ));
         }
 

@@ -20,50 +20,49 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index(): View
+    /**
+     * Vue globale Fiscalité — consomme l'agrégation CalendrierFiscalService (aucun
+     * recalcul ici). Regroupe les échéances par urgence (retard / 7 j / 30 j / plus
+     * tard) et calcule les tuiles de résumé (montants agence exclus car sans montant).
+     */
+    public function index(CalendrierFiscalService $service): View
     {
-        $today          = Carbon::now()->timezone('Africa/Dakar')->startOfDay();
+        $today    = Carbon::now()->timezone('Africa/Dakar')->startOfDay();
         /** @var \App\Models\User $authUser */
-        $authUser       = auth()->user();
-        $agency         = $authUser->agency;
-        $formeJuridique = $agency->forme_juridique ?? 'sarl';
+        $authUser = auth()->user();
 
-        $echeances = self::buildEcheances($formeJuridique, $today);
+        // Toute l'année à venir + les échéances en retard encore dues.
+        $echeances = $service->echeancesAVenir($authUser->agency_id, 365, $today, true);
 
-        // Résolution des noms de route en URLs (séparée de buildEcheances pour les tests unitaires)
-        foreach ($echeances as &$e) {
-            $e['lien'] = $e['lien_route'] ? route($e['lien_route']) : null;
+        $groupes = ['late' => [], 'soon' => [], 'month' => [], 'later' => []];
+        $resume  = ['nb_retard' => 0, 'somme_retard' => 0, 'somme_7j' => 0, 'somme_30j' => 0, 'total_annee' => 0];
+        $j7  = $today->copy()->addDays(7);
+        $j30 = $today->copy()->addDays(30);
+
+        foreach ($echeances as $e) {
+            $montant = (int) ($e['montant'] ?? 0); // lignes agence = null → 0 (exclues des sommes)
+            $resume['total_annee'] += $montant;
+
+            $d = $e['date_limite'] ? Carbon::parse($e['date_limite']) : null;
+            if ($d === null) {
+                $groupes['later'][] = $e;                      // IS agence (date à confirmer)
+            } elseif ($d->lt($today)) {
+                $groupes['late'][] = $e;
+                $resume['nb_retard']++;
+                $resume['somme_retard'] += $montant;
+            } elseif ($d->lte($j7)) {
+                $groupes['soon'][] = $e;
+                $resume['somme_7j']  += $montant;
+                $resume['somme_30j'] += $montant;
+            } elseif ($d->lte($j30)) {
+                $groupes['month'][] = $e;
+                $resume['somme_30j'] += $montant;
+            } else {
+                $groupes['later'][] = $e;
+            }
         }
-        unset($e);
 
-        $echeancesUrgentes = array_values(array_filter(
-            $echeances,
-            fn($e) => in_array($e['statut'], ['urgent', 'bientot'])
-        ));
-
-        // ── Baux à enregistrer : contrats non enregistrés dont la date limite
-        // approche (≤ 7 j) ou est dépassée (Droits d'enregistrement DGID, §5.2).
-        $bauxAEnregistrer = \App\Models\Contrat::where('agency_id', $authUser->agency_id)
-            ->where('statut', 'actif')
-            ->where('enregistrement_exonere', false)
-            ->where('droit_enreg_effectue', false)
-            ->whereNotNull('droit_enreg_date_limite')
-            ->whereDate('droit_enreg_date_limite', '<=', $today->copy()->addDays(7)->toDateString())
-            ->with(['bien:id,reference', 'locataire:id,name'])
-            ->orderBy('droit_enreg_date_limite')
-            ->get()
-            ->map(fn ($c) => [
-                'contrat'     => $c,
-                'nom'         => $c->locataire->name ?? ($c->bien->reference ?? 'Contrat #' . $c->id),
-                'date_limite' => $c->droit_enreg_date_limite,
-                'en_retard'   => $c->droit_enreg_date_limite->isPast(),
-                'total'       => $c->droit_enreg_total,
-                'estimation'  => $c->droit_enreg_statut_calcul === 'estimation',
-            ]);
-
-        return view('admin.echeances-fiscales.index', compact(
-            'echeances', 'echeancesUrgentes', 'today', 'bauxAEnregistrer'
-        ));
+        return view('admin.echeances-fiscales.index', compact('groupes', 'resume', 'today', 'echeances'));
     }
 
     /**

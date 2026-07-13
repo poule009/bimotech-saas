@@ -25,8 +25,14 @@ use Carbon\Carbon;
  */
 class CalendrierFiscalService
 {
-    /** Lectures scope-proof (indépendant du contexte Auth). */
-    public function echeancesAVenir(int $agencyId, int $horizonJours = 30, ?Carbon $reference = null): array
+    /**
+     * Lectures scope-proof (indépendant du contexte Auth).
+     *
+     * @param bool $inclureRetard  true → inclut aussi les échéances DÉPASSÉES (date < ref)
+     *   encore dues (ex. un bail non enregistré en retard). Utile pour la vue globale
+     *   « En retard ». false (défaut) → strictement à venir dans l'horizon.
+     */
+    public function echeancesAVenir(int $agencyId, int $horizonJours = 30, ?Carbon $reference = null, bool $inclureRetard = false): array
     {
         $ref   = ($reference ?? now())->copy()->startOfDay();
         $fin   = $ref->copy()->addDays($horizonJours)->endOfDay();
@@ -154,7 +160,7 @@ class CalendrierFiscalService
             $prop = $contrat->bien?->proprietaire;
             $items[] = $this->item(
                 'droit_enregistrement',
-                'Droits d\'enregistrement — Bien : ' . ($contrat->bien?->titre ?: $contrat->bien?->reference ?: '—'),
+                'Enregistrement du bail — ' . ($contrat->bien?->titre ?: $contrat->bien?->reference ?: 'bien'),
                 $prop,
                 $contrat->droit_enreg_date_limite?->copy()->startOfDay(),
                 (int) round($contrat->droit_enreg_total),
@@ -163,12 +169,13 @@ class CalendrierFiscalService
         }
 
         // ── Filtrage sur l'horizon (échéances entités) ───────────────────────
-        $items = array_values(array_filter($items, function (array $e) use ($ref, $fin) {
+        $items = array_values(array_filter($items, function (array $e) use ($ref, $fin, $inclureRetard) {
             if ($e['date_limite'] === null) {
                 return false; // les entités ont toujours une date
             }
             $d = Carbon::parse($e['date_limite']);
-            return $d->betweenIncluded($ref, $fin);
+            // Borne haute toujours ; borne basse (aujourd'hui) sauf si on veut les retards.
+            return $d->lte($fin) && ($inclureRetard || $d->gte($ref));
         }));
 
         // ── Échéances AGENCE (toujours affichées, une fois par an, sans montant) ──
