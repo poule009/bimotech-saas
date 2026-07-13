@@ -84,7 +84,8 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
             ['mois' => 3, 'jour' => 1,  'label' => 'IRPP (revenus fonciers)',  'type' => 'Déclaration', 'lien_route' => 'admin.bilans-fiscaux.index',     'lien_label' => 'Bilans fisc.',    'visible' => true],
             ['mois' => 2, 'jour' => 1,  'label' => 'CGF',                      'type' => 'Déclaration', 'lien_route' => 'admin.bilans-fiscaux.index',     'lien_label' => 'Bilans fisc.',    'visible' => true],
             ['mois' => 6, 'jour' => 15, 'label' => 'IS — solde + IMF',         'type' => 'Paiement',    'lien_route' => null,                            'lien_label' => 'Info',            'visible' => $isSociete],
-            ['mois' => 9, 'jour' => 30, 'label' => 'CFPB',                     'type' => 'Émission',    'lien_route' => null,                            'lien_label' => 'Info admin',      'visible' => true],
+            // CFPB : déclaration avant le 31 janvier (brief CFPB R5 / regles_fiscales CFPB-05).
+            ['mois' => 1, 'jour' => 31, 'label' => 'CFPB (propriétés bâties)', 'type' => 'Déclaration', 'lien_route' => 'admin.users.proprietaires',      'lien_label' => 'Propriétaires',   'visible' => true],
             ['mois' => 9, 'jour' => 30, 'label' => 'TEOM',                     'type' => 'Émission',    'lien_route' => null,                            'lien_label' => 'Info admin',      'visible' => true],
         ];
 

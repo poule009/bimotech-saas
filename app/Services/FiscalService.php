@@ -40,8 +40,18 @@ class FiscalService
      * ESTIMATION INDICATIVE — L'assiette légale de la CFPB est la valeur locative CADASTRALE
      * fixée par la DGID (Art. 290-291 CGI SN), pas le loyer réel perçu.
      * Ce taux appliqué aux loyers réels est une approximation ; ne pas utiliser pour déclaration officielle.
+     * Taux unique 5% retenu (CFPB-01) : le 7,5% industriel n'est pas codé (hors périmètre).
+     * Aucun abattement (40% ou résidence principale) appliqué : CFPB-02 non vérifié, CFPB-03 en conflit.
      */
     public const CFPB_TAUX            = 0.05;
+
+    /**
+     * Statut PERMANENT de l'estimation CFPB : l'app ne connaît JAMAIS la valeur locative
+     * cadastrale réelle (fixée par la DGID). Contrairement aux badges « à confirmer »
+     * (Droits d'enregistrement, bornes CGF), celui-ci ne pourra jamais être levé — il est
+     * structurel. Voir regles_fiscales CFPB-01.
+     */
+    public const CFPB_STATUT = 'estimation_structurelle';
 
     // ── Droits d'enregistrement DGID (CGI SN art. 464 B + 472 IV.6) ────────
     public const DGID_TAUX_HABITATION = 2.0;    // 2% — Art. 472 IV.6 : TOUS baux à durée limitée
@@ -702,6 +712,30 @@ class FiscalService
         // Mode 'unique' par défaut.
         return [
             ['rang' => 1, 'libelle' => 'Versement unique — fin février', 'date' => $finFevrier, 'montant' => round($montant, 0)],
+        ];
+    }
+
+    /**
+     * Estime la CFPB d'un Bien (Art. 283-294 CGI SN) — ESTIMATION STRUCTURELLE.
+     *
+     * L'assiette légale est la valeur locative CADASTRALE fixée par la DGID, que
+     * l'app ne connaît PAS. On l'approxime par le loyer annuel de référence :
+     *   valeur_locative_estimee = loyer_mensuel × 12
+     *   cfpb_estimee            = valeur_locative_estimee × 5%
+     * Aucun abattement (CFPB-02 non vérifié / CFPB-03 en conflit), taux unique 5%
+     * (CFPB-01, pas de 7,5% industriel). Le montant réel peut différer sensiblement.
+     *
+     * @return array{valeur_locative_estimee:int, montant_estime:int, statut_calcul:string}
+     */
+    public static function estimerCfpbBien(float $loyerMensuel): array
+    {
+        $valeurLocative = (int) round(max(0.0, $loyerMensuel) * 12, 0);
+        $montant        = (int) round($valeurLocative * self::CFPB_TAUX, 0);
+
+        return [
+            'valeur_locative_estimee' => $valeurLocative,
+            'montant_estime'          => $montant,
+            'statut_calcul'           => self::CFPB_STATUT,
         ];
     }
 

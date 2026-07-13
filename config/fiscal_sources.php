@@ -511,5 +511,96 @@ return [
             'date_verification' => '2026-07-12',
         ],
 
+        // ═══════════════════════════════════════════════════════════════════
+        // CFPB — Contribution Foncière des Propriétés Bâties (Art. 283-294)
+        // ═══════════════════════════════════════════════════════════════════
+
+        'CFPB-01' => [
+            'categorie'   => 'cfpb',
+            'titre'       => 'Taux 5% de la valeur locative (taux unique retenu)',
+            'description' => "CFPB = 5% de la valeur locative annuelle. Le taux de 7,5% pour "
+                . "usines/établissements industriels N'EST PAS codé (biens hors périmètre réaliste "
+                . "de l'app ; un projet de réforme unifierait d'ailleurs à 5% pour tous). "
+                . "⚠ L'assiette réelle est la valeur locative CADASTRALE fixée par la DGID, "
+                . "inconnue de l'app → estimation STRUCTURELLE (loyer annuel comme proxy), "
+                . "badge permanent jamais levable.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Sources privées concordantes (fiscalité immobilière SN)', 'url' => null],
+            ],
+            'note' => 'estimation_structurelle : l\'app ne pourra jamais calculer le montant réel dû '
+                . '(valeur locative cadastrale non accessible).',
+            'date_verification' => '2026-07-13',
+        ],
+        'CFPB-02' => [
+            'categorie'   => 'cfpb',
+            'titre'       => 'Abattement 40% sur la valeur locative avant calcul',
+            'description' => "Une seule source mentionne un abattement de 40% « pour charges et "
+                . "entretien » avant application des 5% ; la majorité des sources décrivent un 5% "
+                . "appliqué directement, sans abattement. NON CODÉ en v1 : ne pas appliquer. "
+                . "Conséquence prudente : l'estimation affichée n'est pas sous-estimée.",
+            'statut'  => 'non_verifie',
+            'sources' => [
+                ['libelle' => 'Une source privée isolée (contredite par la majorité)', 'url' => null],
+            ],
+            'note' => 'Aucun abattement 40% appliqué dans le calcul réel.',
+            'date_verification' => '2026-07-13',
+        ],
+        'CFPB-03' => [
+            'categorie'   => 'cfpb',
+            'titre'       => 'Abattement résidence principale (500 000 F ou 1 500 000 F — conflit)',
+            'description' => "Deux sources en conflit sur le montant de l'abattement pour la "
+                . "résidence principale du propriétaire (500 000 F vs 1 500 000 F). HORS PÉRIMÈTRE : "
+                . "ce module concerne les biens MIS EN LOCATION, pas les résidences principales "
+                . "occupées par leur propriétaire. Non codé.",
+            'statut'  => 'conflit_non_tranche',
+            'sources' => [
+                ['libelle' => 'Source A — abattement 500 000 F', 'url' => null],
+                ['libelle' => 'Source B — abattement 1 500 000 F', 'url' => null],
+            ],
+            'note' => 'hors_perimetre + conflit non tranché. Conservé pour traçabilité si l\'app '
+                . 'gère un jour des biens occupés par leur propriétaire.',
+            'date_verification' => '2026-07-13',
+        ],
+        'CFPB-04' => [
+            'categorie'   => 'cfpb',
+            'titre'       => 'Exonération temporaire 5 ans pour constructions neuves (Art. 287)',
+            'description' => "Constructions nouvelles, reconstructions et additions de construction : "
+                . "exonérées jusqu'à la 6e année suivant l'achèvement (Art. 287 CGI). Procédure à "
+                . "engager dans les 4 mois du début des travaux. HORS PÉRIMÈTRE v1 : l'app ne gère "
+                . "pas les dates d'achèvement/travaux des biens.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => '3 sources concordantes citant l\'Art. 287 CGI', 'url' => null],
+            ],
+            'note' => 'hors_perimetre v1 (pas de champ date d\'achèvement). Non appliqué.',
+            'date_verification' => '2026-07-13',
+        ],
+        'CFPB-05' => [
+            'categorie'   => 'cfpb',
+            'titre'       => 'Déclaration avant le 31 janvier',
+            'description' => "La déclaration CFPB est à déposer avant le 31 janvier. Cohérent avec "
+                . "le référentiel interne, déjà validé lors des recherches CGF.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Sources concordantes + référentiel interne', 'url' => null],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-13',
+        ],
+        'CFPB-06' => [
+            'categorie'   => 'cfpb',
+            'titre'       => 'Redevable = propriétaire au 1er janvier, dû même si vacant',
+            'description' => "La CFPB est due par le propriétaire au 1er janvier de l'année "
+                . "d'imposition, y compris si le bien est inoccupé ou occupé gratuitement. "
+                . "Conséquence app : ne pas masquer l'estimation CFPB d'un bien vacant.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Plusieurs sources concordantes', 'url' => null],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-13',
+        ],
+
     ],
 ];

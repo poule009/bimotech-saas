@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Bien;
 use App\Models\Contrat;
+use App\Observers\BienObserver;
 use App\Observers\ContratObserver;
 use App\Services\FiscalService;
 use App\Services\PlanFeatureService;
@@ -28,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
         // brs_applicable, charges_assujetties_tva depuis mode_facturation_charges,
         // loyer_contractuel). Mécanisme documenté par la migration des champs fiscaux.
         Contrat::observe(ContratObserver::class);
+
+        // Auto-calcul de l'estimation CFPB du bien (cfpb_valeur_locative_estimee,
+        // cfpb_montant_estime) à partir de loyer_mensuel — estimation structurelle.
+        Bien::observe(BienObserver::class);
 
         // @canAccessFeature('feature') ... @endcanAccessFeature
         Blade::if('canAccessFeature', function (string $feature): bool {

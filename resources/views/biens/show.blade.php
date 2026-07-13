@@ -64,6 +64,33 @@
                 </div>
             </div>
 
+            {{-- CFPB estimée (Contribution Foncière des Propriétés Bâties) --}}
+            @isset($cfpb)
+                @php $fmtCfpb = fn($n) => number_format((float) $n, 0, ',', ' '); @endphp
+                <div class="f-card">
+                    <h3 class="f-card-title mb-1">CFPB estimée</h3>
+                    <p class="f-card-sub">Contribution Foncière des Propriétés Bâties — {{ $annee }}.</p>
+
+                    @if($cfpbCouvertParCgf)
+                        <div class="rounded-lg bg-teal/10 text-teal-deep px-3 py-2.5 text-[12.5px] leading-snug flex items-start gap-1.5">
+                            <x-icon name="info" size="14" class="mt-0.5 shrink-0" />
+                            <span>Le propriétaire a opté pour la <span class="font-semibold">CGF</span> cette année : la CFPB est couverte par ce régime et n'est pas estimée séparément (voir la fiche du propriétaire).</span>
+                        </div>
+                    @else
+                        <div class="space-y-2.5 text-[13.5px]">
+                            <div class="flex justify-between"><span class="text-muted">Valeur locative estimée (loyer × 12)</span><span class="font-semibold">{{ $fmtCfpb($cfpb['valeur_locative']) }} F</span></div>
+                            <div class="flex justify-between pt-2 border-t border-paper-dim"><span class="font-bold">CFPB estimée (5 %)</span><span class="font-bold text-teal">{{ $fmtCfpb($cfpb['montant']) }} F</span></div>
+                        </div>
+
+                        {{-- Badge PERMANENT (estimation structurelle) — jamais levable, distinct des « à confirmer » --}}
+                        <div class="mt-3 rounded-lg bg-gold/10 text-gold px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                            <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0" />
+                            <span>Cette estimation utilise le loyer annuel comme approximation de la valeur locative cadastrale. Le montant réel de la CFPB est fixé par l'administration fiscale et peut différer significativement de cette estimation.</span>
+                        </div>
+                    @endif
+                </div>
+            @endisset
+
             {{-- Contrat en cours --}}
             <div class="f-card">
                 <h3 class="f-card-title mb-4">Contrat en cours</h3>

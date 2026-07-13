@@ -150,7 +150,23 @@ class BienController extends Controller
                 $raisonsAbsence[] = 'l\'activation portail (actuellement masqué manuellement)';
         }
 
-        return view('biens.show', compact('bien', 'paiements', 'raisonsAbsence'));
+        // ── CFPB estimée (Art. 283-294) — estimation STRUCTURELLE ────────────
+        // Masquée si le propriétaire a opté pour la CGF sur l'année en cours
+        // (exclusion mutuelle — la CGF regroupe déjà la CFPB). On lit le profil
+        // sans global scope (le bien appartient déjà à l'agence courante).
+        $annee            = now()->year;
+        $profilProprio    = \App\Models\Proprietaire::withoutGlobalScopes()
+            ->where('user_id', $bien->proprietaire_id)->first();
+        $cfpbCouvertParCgf = $profilProprio && $profilProprio->cgfCouvre($annee);
+        $cfpb = [
+            'valeur_locative' => (int) $bien->cfpb_valeur_locative_estimee,
+            'montant'         => (int) $bien->cfpb_montant_estime,
+            'statut'          => $bien->cfpb_statut_calcul ?? \App\Services\FiscalService::CFPB_STATUT,
+        ];
+
+        return view('biens.show', compact(
+            'bien', 'paiements', 'raisonsAbsence', 'cfpb', 'cfpbCouvertParCgf', 'annee'
+        ));
     }
 
     public function create(Request $request): View

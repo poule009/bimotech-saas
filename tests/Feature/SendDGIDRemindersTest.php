@@ -18,7 +18,7 @@ use Tests\TestCase;
  * Échéances DGID (Sénégal) :
  *  - BRS  : 31 janvier  (retenue à la source)
  *  - IRPP : 1er mars    (déclaration revenus locatifs — source officielle)
- *  - CFPB : 30 septembre (contribution foncière)
+ *  - CFPB : 31 janvier (déclaration contribution foncière — CFPB-05)
  *
  * Rappels envoyés : J-30 et J-7 avant chaque échéance.
  */
@@ -89,14 +89,16 @@ class SendDGIDRemindersTest extends TestCase
     #[Test]
     public function rappel_envoye_a_j7_avant_cfpb(): void
     {
-        // CFPB = 30 septembre → rappel J-7 = 23 septembre
-        $this->gelerTemps(9, 30, 7);
+        // CFPB = 31 janvier (déclaration — CFPB-05) → rappel J-7 = 24 janvier
+        $this->gelerTemps(1, 31, 7);
 
         $this->artisan('dgid:reminders')->assertSuccessful();
 
+        // La notification CFPB spécifiquement est bien envoyée.
         Notification::assertSentTo(
             $this->proprio,
-            DGIDReminderNotification::class
+            DGIDReminderNotification::class,
+            fn (DGIDReminderNotification $n) => $n->typeEcheance === 'cfpb'
         );
     }
 

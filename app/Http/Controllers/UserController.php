@@ -471,9 +471,16 @@ class UserController extends Controller
                 ? \App\Services\FiscalService::estimerIrppFoncier($user->id, $annee, $user->agency_id)
                 : null;
 
+            // ── CFPB agrégée (§5.2) — somme des estimations par bien ─────────────
+            // S'applique à TOUS les propriétaires (y compris personnes morales).
+            // Masquée uniquement si la CGF couvre l'année (elle regroupe la CFPB).
+            $cfpbTotal = $cgfCouvre
+                ? null
+                : (int) Bien::where('proprietaire_id', $user->id)->sum('cfpb_montant_estime');
+
             return view('users.show', compact(
                 'user', 'biens', 'stats', 'paiements', 'locatairesActifs',
-                'irppEstimation', 'estParticulier', 'cgfInfo', 'cgfCouvre', 'annee'
+                'irppEstimation', 'estParticulier', 'cgfInfo', 'cgfCouvre', 'annee', 'cfpbTotal'
             ));
         }
 

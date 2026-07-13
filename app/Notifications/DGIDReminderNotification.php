@@ -12,8 +12,8 @@ use Illuminate\Notifications\Notification;
  *
  * Échéances fiscales sénégalaises concernées :
  *  - 31 janvier  : État annuel récapitulatif BRS — liste nominative des retenues N (CGI art. 200 §5)
- *  - 30 avril    : Déclaration IRPP revenus locatifs (CGI art. 173 + abattement art. 68 §c)
- *  - 30 septembre: Paiement CFPB (CGI art. 283-294 — assiette = valeur locative cadastrale)
+ *  - 1er mars    : Déclaration IRPP revenus locatifs (CGI art. 173 + abattement art. 68 §c)
+ *  - 31 janvier  : Déclaration CFPB (CGI art. 283-294 — assiette = valeur locative cadastrale)
  */
 class DGIDReminderNotification extends Notification implements ShouldQueue
 {

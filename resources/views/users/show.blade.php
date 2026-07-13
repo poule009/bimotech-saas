@@ -267,6 +267,26 @@
                 @endif
             </div>
         @endif
+
+        {{-- CFPB agrégée sur tous les biens (hors CGF active) — tous propriétaires --}}
+        @if(! is_null($cfpbTotal) && $cfpbTotal > 0)
+            @php $fmtCfpbT = fn($n) => number_format((float) $n, 0, ',', ' '); @endphp
+            <div class="f-card mt-5">
+                <h3 class="f-card-title mb-1">CFPB estimée — total {{ $annee }}</h3>
+                <p class="f-card-sub">Contribution Foncière des Propriétés Bâties, agrégée sur les biens de ce propriétaire.</p>
+
+                <div class="flex justify-between text-[13.5px]">
+                    <span class="font-bold">Total CFPB estimée</span>
+                    <span class="font-bold text-teal">{{ $fmtCfpbT($cfpbTotal) }} F</span>
+                </div>
+
+                {{-- Badge PERMANENT (estimation structurelle) --}}
+                <div class="mt-3 rounded-lg bg-gold/10 text-gold px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                    <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0" />
+                    <span>Estimation basée sur le loyer annuel (proxy de la valeur locative cadastrale). Le montant réel, fixé par l'administration fiscale, peut différer significativement. Déclaration avant le 31 janvier.</span>
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- Onglet Biens --}}

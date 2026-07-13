@@ -92,6 +92,8 @@ class Bien extends Model
         'loyer_mensuel'   => 'decimal:2',
         'charges'         => 'decimal:2',
         'tom_mensuelle'   => 'decimal:2',
+        'cfpb_valeur_locative_estimee' => 'integer',
+        'cfpb_montant_estime'          => 'integer',
         'caution'         => 'decimal:2',
         'surface_m2'      => 'decimal:2',
         'taux_commission' => 'decimal:2',

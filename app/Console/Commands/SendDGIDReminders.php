@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\Log;
  *
  * Échéances fiscales sénégalaises gérées :
  *  - BRS annuel (état récap) : 31 janvier  (CGI art. 200 §5 — état nominatif des retenues N)
- *  - IRPP : 30 avril    (déclaration revenus locatifs)
- *  - CFPB : 30 septembre (contribution foncière)
+ *  - IRPP : 1er mars    (déclaration revenus locatifs — gouv.sn, IR-04)
+ *  - CFPB : 31 janvier  (déclaration contribution foncière — CFPB-05)
  *  - BRS trimestriel : 15 avril, 15 juillet, 15 octobre, 15 janvier N+1 (Art. 200 §5 CGI SN)
  *
  * Rappels annuels envoyés : J-30 et J-7 avant chaque échéance.
@@ -41,7 +41,7 @@ class SendDGIDReminders extends Command
         'cel_va'       => ['mois' => 4, 'jour' => 30, 'destinataire' => 'admin'],                                                                 // admins — Art. 320-338 CGI SN
         'is_acompte_2' => ['mois' => 4, 'jour' => 30, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 36-37 CGI SN
         'is_solde'     => ['mois' => 6, 'jour' => 15, 'rappels' => [15, 7], 'destinataire' => 'admin', 'formes_juridiques' => ['sarl','sa','sas']], // Art. 37 CGI SN (IMF)
-        'cfpb'         => ['mois' => 9, 'jour' => 30],                                                                                            // proprietaires
+        'cfpb'         => ['mois' => 1, 'jour' => 31],                                                                                            // proprietaires — déclaration 31 janvier (CFPB-05)
     ];
 
     // Rappels par défaut (jours avant l'échéance) — surchargeable par entrée
