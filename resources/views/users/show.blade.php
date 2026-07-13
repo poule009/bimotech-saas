@@ -280,10 +280,10 @@
                     <span class="font-bold text-teal">{{ $fmtCfpbT($cfpbTotal) }} F</span>
                 </div>
 
-                {{-- Badge PERMANENT (estimation structurelle) --}}
-                <div class="mt-3 rounded-lg bg-gold/10 text-gold px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
-                    <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0" />
-                    <span>Estimation basée sur le loyer annuel (proxy de la valeur locative cadastrale). Le montant réel, fixé par l'administration fiscale, peut différer significativement. Déclaration avant le 31 janvier.</span>
+                {{-- Badge PERMANENT (estimation structurelle) — style sobre distinct du gold « à confirmer » --}}
+                <div class="mt-3 rounded-lg bg-paper-dim border border-line text-ink/70 px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                    <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0 text-muted" />
+                    <span><span class="font-semibold">Estimation structurelle (permanente).</span> Basée sur le loyer annuel (proxy de la valeur locative cadastrale). Le montant réel, fixé par l'administration fiscale, peut différer significativement. Déclaration avant le 31 janvier.</span>
                 </div>
             </div>
         @endif

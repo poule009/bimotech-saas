@@ -82,10 +82,11 @@
                             <div class="flex justify-between pt-2 border-t border-paper-dim"><span class="font-bold">CFPB estimée (5 %)</span><span class="font-bold text-teal">{{ $fmtCfpb($cfpb['montant']) }} F</span></div>
                         </div>
 
-                        {{-- Badge PERMANENT (estimation structurelle) — jamais levable, distinct des « à confirmer » --}}
-                        <div class="mt-3 rounded-lg bg-gold/10 text-gold px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
-                            <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0" />
-                            <span>Cette estimation utilise le loyer annuel comme approximation de la valeur locative cadastrale. Le montant réel de la CFPB est fixé par l'administration fiscale et peut différer significativement de cette estimation.</span>
+                        {{-- Badge PERMANENT (estimation structurelle) — jamais levable, style sobre/neutre
+                             distinct du gold « à confirmer » (bornes CGF, DGID) qui, lui, est temporaire. --}}
+                        <div class="mt-3 rounded-lg bg-paper-dim border border-line text-ink/70 px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                            <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0 text-muted" />
+                            <span><span class="font-semibold">Estimation structurelle (permanente).</span> Cette estimation utilise le loyer annuel comme approximation de la valeur locative cadastrale. Le montant réel de la CFPB est fixé par l'administration fiscale et peut différer significativement de cette estimation.</span>
                         </div>
                     @endif
                 </div>
