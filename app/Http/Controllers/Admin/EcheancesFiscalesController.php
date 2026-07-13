@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\CalendrierFiscalService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
@@ -61,6 +64,26 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
         return view('admin.echeances-fiscales.index', compact(
             'echeances', 'echeancesUrgentes', 'today', 'bauxAEnregistrer'
         ));
+    }
+
+    /**
+     * Calendrier agrégé des échéances à venir (JSON) — croise Propriétaires / Biens /
+     * Contrats de l'agence + 3 échéances agence. Backend/agrégation : la sortie visuelle
+     * définitive viendra avec le reste du front. Paramètre ?horizon=jours (défaut 30).
+     */
+    public function calendrier(Request $request, CalendrierFiscalService $service): JsonResponse
+    {
+        /** @var \App\Models\User $authUser */
+        $authUser = auth()->user();
+
+        $horizon = (int) $request->query('horizon', 30);
+        $horizon = max(1, min($horizon, 366));
+
+        return response()->json([
+            'horizon_jours' => $horizon,
+            'genere_le'     => Carbon::now()->timezone('Africa/Dakar')->toDateString(),
+            'echeances'     => $service->echeancesAVenir($authUser->agency_id, $horizon),
+        ]);
     }
 
     /**

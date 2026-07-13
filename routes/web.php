@@ -332,6 +332,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             });
 
             Route::get('echeances-fiscales', [EcheancesFiscalesController::class, 'index'])->name('echeances-fiscales.index')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire']);
+            // Calendrier agrégé des échéances à venir (JSON) — croise proprios/biens/contrats.
+            Route::get('echeances-fiscales/calendrier', [EcheancesFiscalesController::class, 'calendrier'])->name('echeances-fiscales.calendrier')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire']);
         }
 
         // Rapports
