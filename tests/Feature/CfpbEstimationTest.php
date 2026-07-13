@@ -78,7 +78,7 @@ class CfpbEstimationTest extends TestCase
             ->assertOk()
             ->assertSee('CFPB estimée')
             ->assertSee('120 000')
-            ->assertSee('peut différer significativement'); // badge estimation_structurelle
+            ->assertSee('peuvent différer significativement'); // badge estimation_structurelle
     }
 
     #[Test]
@@ -91,7 +91,7 @@ class CfpbEstimationTest extends TestCase
             ->get(route('admin.biens.show', $bien))
             ->assertOk()
             ->assertSee('90 000')
-            ->assertSee('peut différer significativement');
+            ->assertSee('peuvent différer significativement');
     }
 
     #[Test]
@@ -108,7 +108,7 @@ class CfpbEstimationTest extends TestCase
             ->get(route('admin.biens.show', $bien))
             ->assertOk()
             ->assertSee('opté pour la')
-            ->assertDontSee('peut différer significativement');
+            ->assertDontSee('peuvent différer significativement');
     }
 
     #[Test]

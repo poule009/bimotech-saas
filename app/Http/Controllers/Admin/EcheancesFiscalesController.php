@@ -86,7 +86,8 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
             ['mois' => 6, 'jour' => 15, 'label' => 'IS — solde + IMF',         'type' => 'Paiement',    'lien_route' => null,                            'lien_label' => 'Info',            'visible' => $isSociete],
             // CFPB : déclaration avant le 31 janvier (brief CFPB R5 / regles_fiscales CFPB-05).
             ['mois' => 1, 'jour' => 31, 'label' => 'CFPB (propriétés bâties)', 'type' => 'Déclaration', 'lien_route' => 'admin.users.proprietaires',      'lien_label' => 'Propriétaires',   'visible' => true],
-            ['mois' => 9, 'jour' => 30, 'label' => 'TEOM',                     'type' => 'Émission',    'lien_route' => null,                            'lien_label' => 'Info admin',      'visible' => true],
+            // TEOM : déclarée dans les mêmes conditions que la CFPB → 31 janvier (brief TEOM R3 / TEOM-03).
+            ['mois' => 1, 'jour' => 31, 'label' => 'TEOM (ordures ménagères)',  'type' => 'Déclaration', 'lien_route' => 'admin.users.proprietaires',      'lien_label' => 'Propriétaires',   'visible' => true],
         ];
 
         $echeances = [];

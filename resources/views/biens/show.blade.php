@@ -68,25 +68,27 @@
             @isset($cfpb)
                 @php $fmtCfpb = fn($n) => number_format((float) $n, 0, ',', ' '); @endphp
                 <div class="f-card">
-                    <h3 class="f-card-title mb-1">CFPB estimée</h3>
-                    <p class="f-card-sub">Contribution Foncière des Propriétés Bâties — {{ $annee }}.</p>
+                    <h3 class="f-card-title mb-1">CFPB &amp; TEOM estimées</h3>
+                    <p class="f-card-sub">Contribution Foncière des Propriétés Bâties &amp; Taxe Ordures Ménagères — {{ $annee }}.</p>
 
                     @if($cfpbCouvertParCgf)
                         <div class="rounded-lg bg-teal/10 text-teal-deep px-3 py-2.5 text-[12.5px] leading-snug flex items-start gap-1.5">
                             <x-icon name="info" size="14" class="mt-0.5 shrink-0" />
-                            <span>Le propriétaire a opté pour la <span class="font-semibold">CGF</span> cette année : la CFPB est couverte par ce régime et n'est pas estimée séparément (voir la fiche du propriétaire).</span>
+                            <span>Le propriétaire a opté pour la <span class="font-semibold">CGF</span> cette année : la CFPB et la TEOM sont couvertes par ce régime et ne sont pas estimées séparément (voir la fiche du propriétaire).</span>
                         </div>
                     @else
                         <div class="space-y-2.5 text-[13.5px]">
                             <div class="flex justify-between"><span class="text-muted">Valeur locative estimée (loyer × 12)</span><span class="font-semibold">{{ $fmtCfpb($cfpb['valeur_locative']) }} F</span></div>
                             <div class="flex justify-between pt-2 border-t border-paper-dim"><span class="font-bold">CFPB estimée (5 %)</span><span class="font-bold text-teal">{{ $fmtCfpb($cfpb['montant']) }} F</span></div>
+                            <div class="flex justify-between"><span class="font-bold">TEOM estimée ({{ rtrim(rtrim(number_format($cfpb['teom_taux'], 1, ',', ' '), '0'), ',') }} %)</span><span class="font-bold text-teal">{{ $fmtCfpb($cfpb['teom_montant']) }} F</span></div>
                         </div>
 
                         {{-- Badge PERMANENT (estimation structurelle) — jamais levable, style sobre/neutre
-                             distinct du gold « à confirmer » (bornes CGF, DGID) qui, lui, est temporaire. --}}
+                             distinct du gold « à confirmer » (bornes CGF, DGID) qui, lui, est temporaire.
+                             Vaut pour la CFPB ET la TEOM (même assiette, même limite structurelle). --}}
                         <div class="mt-3 rounded-lg bg-paper-dim border border-line text-ink/70 px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
                             <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0 text-muted" />
-                            <span><span class="font-semibold">Estimation structurelle (permanente).</span> Cette estimation utilise le loyer annuel comme approximation de la valeur locative cadastrale. Le montant réel de la CFPB est fixé par l'administration fiscale et peut différer significativement de cette estimation.</span>
+                            <span><span class="font-semibold">Estimation structurelle (permanente).</span> CFPB et TEOM utilisent le loyer annuel comme approximation de la valeur locative cadastrale. Les montants réels sont fixés par l'administration fiscale et peuvent différer significativement. Déclaration avant le 31 janvier.</span>
                         </div>
                     @endif
                 </div>

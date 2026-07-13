@@ -53,6 +53,15 @@ class FiscalService
      */
     public const CFPB_STATUT = 'estimation_structurelle';
 
+    /**
+     * TEOM (Taxe d'Enlèvement des Ordures Ménagères) — même assiette que la CFPB
+     * (valeur locative), même badge estimation_structurelle. Taux selon la commune
+     * du bien : 3,6% à Dakar, 3% ailleurs (TEOM-01). Déclaration = mêmes conditions
+     * que la CFPB, 31 janvier (TEOM-03).
+     */
+    public const TEOM_TAUX_DAKAR = 3.6;
+    public const TEOM_TAUX_AUTRE = 3.0;
+
     // ── Droits d'enregistrement DGID (CGI SN art. 464 B + 472 IV.6) ────────
     public const DGID_TAUX_HABITATION = 2.0;    // 2% — Art. 472 IV.6 : TOUS baux à durée limitée
     public const DGID_TAUX_COMMERCIAL = 2.0;    // 2% — identique (pas de distinction hab/commercial)
@@ -736,6 +745,38 @@ class FiscalService
             'valeur_locative_estimee' => $valeurLocative,
             'montant_estime'          => $montant,
             'statut_calcul'           => self::CFPB_STATUT,
+        ];
+    }
+
+    /**
+     * Le bien est-il situé à Dakar ? (détermine le taux TEOM — TEOM-01).
+     * Dérivé de la ville du bien : v1 simple « Dakar / autre commune » plutôt
+     * qu'une liste exhaustive des communes.
+     */
+    public static function bienEstADakar(?string $ville): bool
+    {
+        return $ville !== null && str_contains(mb_strtolower(trim($ville)), 'dakar');
+    }
+
+    /**
+     * Estime la TEOM d'un Bien (Taxe d'Enlèvement des Ordures Ménagères).
+     *
+     * Même assiette que la CFPB (valeur locative estimée — RÉUTILISÉE, pas
+     * recalculée) et même badge estimation_structurelle. Taux selon la commune :
+     * 3,6% à Dakar, 3% ailleurs (TEOM-01/02).
+     *
+     * @param  int  $valeurLocativeEstimee  Reprend cfpb_valeur_locative_estimee du bien.
+     * @return array{taux_applique:float, montant_estime:int, statut_calcul:string}
+     */
+    public static function estimerTeomBien(int $valeurLocativeEstimee, bool $estDakar): array
+    {
+        $taux    = $estDakar ? self::TEOM_TAUX_DAKAR : self::TEOM_TAUX_AUTRE;
+        $montant = (int) round(max(0, $valeurLocativeEstimee) * $taux / 100, 0);
+
+        return [
+            'taux_applique'  => $taux,
+            'montant_estime' => $montant,
+            'statut_calcul'  => self::CFPB_STATUT,
         ];
     }
 

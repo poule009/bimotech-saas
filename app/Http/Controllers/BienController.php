@@ -162,6 +162,9 @@ class BienController extends Controller
             'valeur_locative' => (int) $bien->cfpb_valeur_locative_estimee,
             'montant'         => (int) $bien->cfpb_montant_estime,
             'statut'          => $bien->cfpb_statut_calcul ?? \App\Services\FiscalService::CFPB_STATUT,
+            // TEOM — même assiette, taux communal (affichée à côté de la CFPB).
+            'teom_montant'    => (int) $bien->teom_montant_estime,
+            'teom_taux'       => (float) $bien->teom_taux_applique,
         ];
 
         return view('biens.show', compact(

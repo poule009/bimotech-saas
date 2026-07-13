@@ -602,5 +602,97 @@ return [
             'date_verification' => '2026-07-13',
         ],
 
+        // ═══════════════════════════════════════════════════════════════════
+        // TEOM — Taxe d'Enlèvement des Ordures Ménagères (assiette = CFPB)
+        // ═══════════════════════════════════════════════════════════════════
+
+        'TEOM-01' => [
+            'categorie'   => 'teom',
+            'titre'       => 'Taux 3,6% à Dakar / 3% autres communes',
+            'description' => "TEOM = valeur locative × taux communal : 3,6% pour les biens situés "
+                . "à Dakar, 3% pour les autres communes. Taux dérivé de la ville du bien "
+                . "(v1 simple « Dakar / autre commune »). Même estimation structurelle que la CFPB.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Sources concordantes (recherche module CFPB)', 'url' => null],
+            ],
+            'note' => 'estimation_structurelle (même badge que la CFPB) : l\'assiette réelle est '
+                . 'fixée par l\'administration, l\'app ne fait qu\'estimer à partir du loyer.',
+            'date_verification' => '2026-07-13',
+        ],
+        'TEOM-02' => [
+            'categorie'   => 'teom',
+            'titre'       => 'Assiette identique à la CFPB (valeur locative)',
+            'description' => "La TEOM porte sur la même valeur locative que la CFPB. L'app réutilise "
+                . "directement cfpb_valeur_locative_estimee du bien — aucune seconde estimation.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Sources concordantes', 'url' => null],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-13',
+        ],
+        'TEOM-03' => [
+            'categorie'   => 'teom',
+            'titre'       => 'Déclaration : mêmes conditions que la CFPB (31 janvier)',
+            'description' => "La TEOM est déclarée suivant les mêmes conditions que la CFPB "
+                . "(avant le 31 janvier).",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Source explicite : « déclarée suivant les mêmes conditions que la CFPB »', 'url' => null],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-13',
+        ],
+
+        // ═══════════════════════════════════════════════════════════════════
+        // IS / CEL AGENCE — rappel calendrier UNIQUEMENT, JAMAIS de calcul
+        // (l'app ne calcule que ce dont elle a nativement la donnée source ;
+        //  bénéfices / valeur ajoutée relèvent du comptable de l'agence.)
+        // Affichage réel au module Calendrier ; entrées ci-dessous = traçabilité.
+        // ═══════════════════════════════════════════════════════════════════
+
+        'IS-CAL-01' => [
+            'categorie'   => 'is',
+            'titre'       => 'IS agence — pas de calcul, rappel d\'échéance seul',
+            'description' => "L'Impôt sur les Sociétés porte sur l'agence elle-même (bénéfice) : "
+                . "l'app n'a pas la donnée source (comptabilité générale) → AUCUN montant calculé "
+                . "ni affiché, seulement un rappel d'échéance « voir avec votre comptable ».",
+            'statut'  => 'hors_perimetre_delibere',
+            'sources' => [
+                ['libelle' => 'Décision produit interne Bimotech', 'url' => null],
+            ],
+            'note' => 'Même principe que la CEL : l\'app ne calcule que ce dont elle a la donnée native.',
+            'date_verification' => '2026-07-13',
+        ],
+        'CEL-01' => [
+            'categorie'   => 'cel',
+            'titre'       => 'CEL-VL agence — échéance 31 janvier, pas de calcul',
+            'description' => "Contribution Économique Locale — valeur locative des locaux "
+                . "professionnels de l'agence. Échéance indicative : avant le 31 janvier (cohérent "
+                . "avec les impositions foncières). AUCUN montant calculé ni affiché — la CEL porte "
+                . "sur l'agence, pas sur les biens gérés.",
+            'statut'  => 'hors_perimetre_delibere',
+            'sources' => [
+                ['libelle' => 'ONES', 'url' => null],
+                ['libelle' => 'lejecos.com', 'url' => null],
+            ],
+            'note' => 'Rappel calendrier seul (module Calendrier). Jamais de montant.',
+            'date_verification' => '2026-07-13',
+        ],
+        'CEL-02' => [
+            'categorie'   => 'cel',
+            'titre'       => 'CEL-VA agence — échéance 30 avril, pas de calcul',
+            'description' => "Contribution Économique Locale — valeur ajoutée de l'agence. "
+                . "Échéance indicative : avant le 30 avril (cohérent avec le dépôt des états "
+                . "financiers). AUCUN montant calculé ni affiché.",
+            'statut'  => 'hors_perimetre_delibere',
+            'sources' => [
+                ['libelle' => 'Sources concordantes', 'url' => null],
+            ],
+            'note' => 'Rappel calendrier seul (module Calendrier). Jamais de montant.',
+            'date_verification' => '2026-07-13',
+        ],
+
     ],
 ];

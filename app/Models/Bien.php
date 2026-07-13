@@ -94,6 +94,8 @@ class Bien extends Model
         'tom_mensuelle'   => 'decimal:2',
         'cfpb_valeur_locative_estimee' => 'integer',
         'cfpb_montant_estime'          => 'integer',
+        'teom_taux_applique'           => 'decimal:1',
+        'teom_montant_estime'          => 'integer',
         'caution'         => 'decimal:2',
         'surface_m2'      => 'decimal:2',
         'taux_commission' => 'decimal:2',
