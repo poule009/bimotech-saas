@@ -378,10 +378,14 @@ class FiscalService
 
         $nbBiensGeres = $paiements->pluck('bien_reference')->unique()->count();
 
-        // ── Calcul IRPP (CGI art. 67-68 et 173) ────────────────────────────
-        // Art. 67 : revenus bruts = recettes perçues + charges incombant au proprio mises à la charge du locataire
-        $abattement30      = round($revenusBrutsTotal * self::ABATTEMENT_IRPP, 2);
-        $baseImposable     = round($revenusBrutsTotal - $abattement30, 2);
+        // ── Calcul IRPP (CGI art. 68 et 173) ───────────────────────────────
+        // Assiette IRPP foncier = LOYERS bruts seuls (charges EXCLUES), abattement 30%.
+        // Aligné sur le brief IRPP §3 + regles_fiscales IR-01 et sur
+        // FiscalService::estimerIrppFoncier (encart fiche propriétaire) → un seul
+        // montant IRPP, quel que soit l'écran. (revenus_bruts_total, charges incluses,
+        // reste utilisé pour la CGF et l'affichage des recettes.)
+        $abattement30      = round($revenusBrutsLoyers * self::ABATTEMENT_IRPP, 2);
+        $baseImposable     = round($revenusBrutsLoyers - $abattement30, 2);
         $irppEstime        = self::calculerIRPP($baseImposable);
         $irppDetail        = self::calculerIRPPDetail($baseImposable);
 
