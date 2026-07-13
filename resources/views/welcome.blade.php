@@ -1,6 +1,6 @@
 @extends('layouts.vitrine')
 
-@section('meta_title', 'Bimothèque Immo — Gérez votre agence immobilière, l\'esprit tranquille')
+@section('meta_title', 'Bimmo — Gérez votre agence immobilière, l\'esprit tranquille')
 @section('meta_description', 'Biens, contrats, loyers et conformité fiscale sénégalaise (TVA, BRS, CGF, DGID) dans un seul outil pensé pour le droit sénégalais. 30 jours d\'essai gratuit.')
 
 @php
@@ -92,7 +92,7 @@
         <div class="section-head reveal">
             <div class="eyebrow">La solution</div>
             <h2>Tout ce dont votre agence a besoin, rien de superflu</h2>
-            <p>Bimothèque Immo n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
+            <p>Bimmo n'est pas un annuaire immobilier. C'est un outil de gestion professionnelle pour les agences qui veulent structurer leur activité.</p>
         </div>
 
         <div class="feature-row reveal">
@@ -269,7 +269,7 @@
         <div class="faq-list reveal">
             <div class="faq-item">
                 <button class="faq-q">Est-ce compatible avec mon comptable actuel ?<span class="plus"></span></button>
-                <div class="faq-a"><p>Oui. Bimothèque Immo calcule automatiquement la fiscalité liée à vos loyers et vos biens, mais ne remplace pas la comptabilité générale de votre agence. Votre comptable garde son rôle — l'outil lui simplifie le travail en lui fournissant des données déjà organisées.</p></div>
+                <div class="faq-a"><p>Oui. Bimmo calcule automatiquement la fiscalité liée à vos loyers et vos biens, mais ne remplace pas la comptabilité générale de votre agence. Votre comptable garde son rôle — l'outil lui simplifie le travail en lui fournissant des données déjà organisées.</p></div>
             </div>
             <div class="faq-item">
                 <button class="faq-q">Que se passe-t-il si j'arrête mon abonnement ?<span class="plus"></span></button>

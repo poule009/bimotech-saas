@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {{-- SEO / partage (WhatsApp & réseaux). TODO Malick : valider title/description définitifs. --}}
-    <title>@yield('meta_title', 'Bimothèque Immo — Gérez votre agence immobilière, l\'esprit tranquille')</title>
+    <title>@yield('meta_title', 'Bimmo — Gérez votre agence immobilière, l\'esprit tranquille')</title>
     <meta name="description" content="@yield('meta_description', 'Logiciel de gestion locative pour les agences immobilières sénégalaises : biens, contrats, loyers, quittances et conformité fiscale (TVA, BRS, CGF, DGID) dans un seul outil.')">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Bimothèque Immo">
-    <meta property="og:title" content="@yield('meta_title', 'Bimothèque Immo — Gérez votre agence immobilière, l\'esprit tranquille')">
+    <meta property="og:site_name" content="Bimmo">
+    <meta property="og:title" content="@yield('meta_title', 'Bimmo — Gérez votre agence immobilière, l\'esprit tranquille')">
     <meta property="og:description" content="@yield('meta_description', 'Biens, contrats, loyers et conformité fiscale sénégalaise dans un seul outil.')">
     <meta name="twitter:card" content="summary_large_image">
     {{-- TODO Malick : image de partage og:image (1200×630) une fois le visuel prêt. --}}
@@ -19,6 +19,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {{-- NB : wordmark A (signature/Allura) réservé à la connexion et — à venir — au hero.
+         La vitrine (nav/footer, petits & répétés) utilise le wordmark B (Fraunces, déjà chargé).
+         Recharger la famille Allura ici quand le hero signature sera créé. --}}
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     @vite(['resources/css/vitrine.css', 'resources/js/vitrine.js'])
@@ -36,8 +39,9 @@
 {{-- ─────────────── NAV ─────────────── --}}
 <nav class="nav" id="nav">
     <div class="nav-inner">
+        {{-- Wordmark B (fonctionnel) : brand répété sur chaque page, lisibilité prioritaire. --}}
         <a href="{{ route('home') }}" class="brand">
-            <span class="mark">{!! $mark !!}</span> Bimothèque
+            <span class="mark">{!! $mark !!}</span> <x-wordmark />
         </a>
         <div class="nav-links">
             <a href="{{ route('home') }}#fonctionnalites">Fonctionnalités</a>
@@ -75,7 +79,7 @@
         <div class="footer-grid">
             <div class="footer-brand">
                 <a href="{{ route('home') }}" class="brand" style="color:var(--ink);">
-                    <span class="mark">{!! $mark !!}</span> Bimothèque
+                    <span class="mark">{!! $mark !!}</span> <x-wordmark />
                 </a>
                 <p>La plateforme de gestion immobilière professionnelle pour les agences sénégalaises.</p>
             </div>
@@ -103,7 +107,7 @@
         </div>
         <div class="footer-bottom">
             <span>© {{ date('Y') }} BIMO-tech — Dakar, Sénégal</span>
-            <span>Bimothèque Immo</span>
+            <span>Bimmo</span>
         </div>
     </div>
 </footer>

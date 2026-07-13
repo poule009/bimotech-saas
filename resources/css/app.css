@@ -117,6 +117,40 @@
     .fisc-chip:hover      { @apply border-teal; }
     .fisc-chip-active     { @apply bg-teal border-teal text-paper; }
 
+    /* ── Wordmarks de marque « Bimmo » ───────────────────────────────────────
+       Deux écritures officielles, jamais mélangées (voir brief marque Bimmo) :
+       A. Signature (.wordmark-signature) — script Allura doré. Émotion de marque :
+          connexion / accueil, en-têtes de documents, emails, vitrine. Min ~28px.
+       B. Fonctionnel (.wordmark) — Fraunces light minuscule, double-m marqué d'un
+          trait doré. Usage quotidien : sidebar, header. La couleur est héritée
+          (currentColor) : teal sur fond clair, paper sur fond teal.
+       NB : le trait doré est positionné sur le double-m conformément à la maquette
+            de référence (bimmo-wordmark-contexte.html).                            */
+    .wordmark {
+        font-family: 'Fraunces', serif;
+        font-weight: 300;
+        text-transform: lowercase;
+        letter-spacing: 0.005em;
+        line-height: 1;
+    }
+    .wordmark .wm-mm { position: relative; }
+    .wordmark .wm-mm::after {
+        content: '';
+        position: absolute;
+        left: 0.09em;
+        right: 0.09em;
+        top: -0.26em;
+        height: 2px;
+        background: rgb(var(--gold));
+        border-radius: 2px;
+    }
+    .wordmark-signature {
+        font-family: 'Allura', cursive;
+        font-weight: 400;
+        color: rgb(var(--gold));
+        line-height: 1;
+    }
+
     /* ── Module Mon équipe : boutons de niveau d'accès (3 états) ── */
     .lvl-opt {
         @apply text-[12.5px] font-bold px-3.5 py-2 rounded-lg border-[1.5px] border-line

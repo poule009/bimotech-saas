@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Bimothèque Immo') }} — @yield('title', 'Espace agence')</title>
+    <title>{{ config('app.name', 'Bimmo') }} — @yield('title', 'Espace agence')</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Allura&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -19,10 +19,9 @@
         {{-- ─────────────── Panneau de marque (gauche) ─────────────── --}}
         <aside class="brand-panel hidden md:flex flex-col justify-between text-paper px-12 py-[52px] relative">
 
-            <div class="font-display font-semibold text-[22px] tracking-[0.01em] flex items-center gap-2.5">
-                <span class="w-[30px] h-[30px] rounded-[7px] bg-gold text-teal-deep font-body font-bold text-[15px] flex items-center justify-center">B</span>
-                {{ config('app.name', 'Bimothèque Immo') }}
-            </div>
+            {{-- Wordmark A (signature) : émotion de marque sur l'écran de connexion. --}}
+            <x-wordmark-signature class="text-[46px] leading-none" />
+
 
             <div class="max-w-[340px] mt-[60px]">
                 <div class="text-xs tracking-[0.14em] uppercase text-gold-soft font-semibold mb-3.5">Gestion immobilière · Sénégal</div>

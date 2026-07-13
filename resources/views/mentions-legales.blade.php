@@ -1,13 +1,13 @@
 @extends('layouts.vitrine')
 
-@section('meta_title', 'Mentions légales — Bimothèque Immo')
-@section('meta_description', 'Mentions légales de Bimothèque Immo, édité par BIMO-tech (Dakar, Sénégal).')
+@section('meta_title', 'Mentions légales — Bimmo')
+@section('meta_description', 'Mentions légales de Bimmo, édité par BIMO-tech (Dakar, Sénégal).')
 
 @section('content')
 <div class="wrap">
     <div class="simple-page">
         <h1>Mentions légales</h1>
-        <div class="updated">Bimothèque Immo — BIMO-tech · Dakar, Sénégal</div>
+        <div class="updated">Bimmo — BIMO-tech · Dakar, Sénégal</div>
 
         {{-- TODO Malick : contenu juridique exact à valider avant publication.
              Ne pas inventer de mentions légales génériques. --}}
@@ -28,7 +28,7 @@
         <p>La plateforme est hébergée par <em>[à compléter — hébergeur, adresse]</em>.</p>
 
         <h2>4. Propriété intellectuelle</h2>
-        <p>L'ensemble des contenus de ce site (marque « Bimothèque Immo », textes, éléments graphiques) est protégé. Toute reproduction sans autorisation est interdite.</p>
+        <p>L'ensemble des contenus de ce site (marque « Bimmo », textes, éléments graphiques) est protégé. Toute reproduction sans autorisation est interdite.</p>
     </div>
 </div>
 @endsection

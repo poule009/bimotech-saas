@@ -35,7 +35,7 @@ class EnsureAgencyIsActive
         if (! $agency->actif) {
             Auth::logout();
             return redirect()->route('login')
-                ->withErrors(['email' => 'Votre agence a été désactivée. Contactez bee.']);
+                ->withErrors(['email' => 'Votre agence a été désactivée. Contactez Bimmo.']);
         }
 
         return $next($request);

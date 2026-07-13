@@ -166,7 +166,7 @@
                 {{-- Badge de PÉRIMÈTRE (distinct du badge « à confirmer ») — toujours visible --}}
                 <div class="mt-3 rounded-lg bg-teal/10 text-teal-deep px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
                     <x-icon name="lightbulb" size="13" class="mt-0.5 shrink-0" />
-                    <span>Cette estimation ne porte que sur les revenus locatifs gérés dans Bimothèque Immo. L'IRPP réel dépend de l'ensemble des revenus du propriétaire et de sa situation familiale, et doit être calculé lors de sa déclaration annuelle.</span>
+                    <span>Cette estimation ne porte que sur les revenus locatifs gérés dans Bimmo. L'IRPP réel dépend de l'ensemble des revenus du propriétaire et de sa situation familiale, et doit être calculé lors de sa déclaration annuelle.</span>
                 </div>
             </div>
         @endisset

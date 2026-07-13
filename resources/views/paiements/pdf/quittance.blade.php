@@ -168,7 +168,7 @@
 
     <div class="legal-footer">
         Ce document fait foi de paiement pour la période mentionnée ci-dessus et doit être conservé par le Locataire.
-        Document généré par {{ config('app.name', 'Bimothèque Immo') }} pour le compte de l'agence émettrice.
+        Document généré par {{ config('app.name', 'Bimmo') }} pour le compte de l'agence émettrice.
     </div>
 
 </body>

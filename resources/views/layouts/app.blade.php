@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Bimothèque Immo') }} — @yield('title', 'Espace agence')</title>
+    <title>{{ config('app.name', 'Bimmo') }} — @yield('title', 'Espace agence')</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,9 +49,9 @@
            class="fixed md:sticky md:top-0 md:self-start md:h-screen inset-y-0 left-0 z-40 w-[238px] shrink-0 bg-teal text-paper
                   flex flex-col p-4 pt-6 transition-transform duration-200 md:translate-x-0">
 
-        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-2 mb-8 font-display font-semibold text-[17px]">
-            <span class="w-[26px] h-[26px] rounded-[6px] bg-gold text-teal-deep font-body font-bold text-[13px] flex items-center justify-center shrink-0">B</span>
-            {{ config('app.name', 'Bimothèque Immo') }}
+        {{-- Wordmark B (fonctionnel) : usage quotidien, lisibilité prioritaire. --}}
+        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-2 mb-8 text-paper">
+            <x-wordmark class="text-[30px]" />
         </a>
 
         <nav class="flex-1 overflow-y-auto -mx-1 px-1">

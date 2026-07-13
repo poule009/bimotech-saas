@@ -1,6 +1,6 @@
 @extends('layouts.vitrine')
 
-@section('meta_title', 'Tarifs — Bimothèque Immo')
+@section('meta_title', 'Tarifs — Bimmo')
 @section('meta_description', 'Starter, Pro ou Agence — 30 jours d\'essai gratuit, sans carte bancaire. Les plans se distinguent par les limites d\'usage, pas par les fonctionnalités.')
 
 @php

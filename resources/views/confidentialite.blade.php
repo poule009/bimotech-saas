@@ -1,13 +1,13 @@
 @extends('layouts.vitrine')
 
-@section('meta_title', 'Politique de confidentialité — Bimothèque Immo')
-@section('meta_description', 'Comment Bimothèque Immo traite et protège les données personnelles des agences, propriétaires et locataires.')
+@section('meta_title', 'Politique de confidentialité — Bimmo')
+@section('meta_description', 'Comment Bimmo traite et protège les données personnelles des agences, propriétaires et locataires.')
 
 @section('content')
 <div class="wrap">
     <div class="simple-page">
         <h1>Politique de confidentialité</h1>
-        <div class="updated">Bimothèque Immo — BIMO-tech · Dakar, Sénégal</div>
+        <div class="updated">Bimmo — BIMO-tech · Dakar, Sénégal</div>
 
         {{-- TODO Malick : contenu à valider avant publication — sujet sensible (données
              personnelles réelles de propriétaires et locataires). Ne pas générer de texte
@@ -20,7 +20,7 @@
         </div>
 
         <h2>1. Données que nous traitons</h2>
-        <p>Bimothèque Immo traite des données nécessaires à la gestion locative : identité et coordonnées des agences, propriétaires et locataires, contrats, paiements et documents associés. <em>[détail à compléter]</em></p>
+        <p>Bimmo traite des données nécessaires à la gestion locative : identité et coordonnées des agences, propriétaires et locataires, contrats, paiements et documents associés. <em>[détail à compléter]</em></p>
 
         <h2>2. Finalités</h2>
         <p>Ces données servent exclusivement au fonctionnement du service de gestion (suivi des loyers, quittances, obligations fiscales). <em>[à compléter]</em></p>

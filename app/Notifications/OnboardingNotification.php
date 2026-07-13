@@ -41,7 +41,7 @@ class OnboardingNotification extends Notification implements ShouldQueue
     private function mailJ1(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("Bienvenue sur bee — Par où commencer ?")
+            ->subject("Bienvenue sur Bimmo — Par où commencer ?")
             ->greeting("Bonjour {$notifiable->name},")
             ->line("Votre espace **{$this->agency->name}** est prêt. Voici les 3 premières étapes pour bien démarrer :")
             ->line('---')
@@ -51,7 +51,7 @@ class OnboardingNotification extends Notification implements ShouldQueue
             ->action('Accéder à mon espace', url('/dashboard'))
             ->line('---')
             ->line('Besoin d\'aide ? Répondez directement à cet email ou contactez-nous sur **support@bimotech.sn**.')
-            ->salutation('L\'équipe bee');
+            ->salutation('L\'équipe Bimmo');
     }
 
     // ── J+7 : Activation fonctionnalités ─────────────────────────────────
@@ -59,9 +59,9 @@ class OnboardingNotification extends Notification implements ShouldQueue
     private function mailJ7(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("Une semaine avec bee — avez-vous tout exploré ?")
+            ->subject("Une semaine avec Bimmo — avez-vous tout exploré ?")
             ->greeting("Bonjour {$notifiable->name},")
-            ->line("Cela fait une semaine que vous êtes sur bee. Voici ce que vous pouvez faire si ce n'est pas encore fait :")
+            ->line("Cela fait une semaine que vous êtes sur Bimmo. Voici ce que vous pouvez faire si ce n'est pas encore fait :")
             ->line('---')
             ->line('**Encaissez votre premier loyer** — générez la quittance PDF en un clic.')
             ->line('**Activez les espaces locataires** — vos locataires accèdent à leurs quittances sans vous appeler.')
@@ -70,7 +70,7 @@ class OnboardingNotification extends Notification implements ShouldQueue
             ->action('Voir mon tableau de bord', url('/dashboard'))
             ->line('---')
             ->line('Il vous reste **23 jours d\'essai gratuit**. Profitez-en.')
-            ->salutation('L\'équipe bee');
+            ->salutation('L\'équipe Bimmo');
     }
 
     // ── J+25 : Conversion essai → abonnement ─────────────────────────────
@@ -91,6 +91,6 @@ class OnboardingNotification extends Notification implements ShouldQueue
             ->action('Choisir mon abonnement', url('/subscription'))
             ->line('---')
             ->line('Une question avant de vous abonner ? Répondez à cet email — on vous répond sous 2h.')
-            ->salutation('L\'équipe bee');
+            ->salutation('L\'équipe Bimmo');
     }
 }

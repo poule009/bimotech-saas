@@ -162,7 +162,7 @@
     </table>
 
     <div class="legal-footer">
-        Relevé de gestion établi par {{ config('app.name', 'Bimothèque Immo') }} pour le compte de l'agence émettrice. Document à conserver.
+        Relevé de gestion établi par {{ config('app.name', 'Bimmo') }} pour le compte de l'agence émettrice. Document à conserver.
     </div>
 
 </body>

@@ -204,7 +204,7 @@
 
     <div class="legal-footer">
         Modèle établi sur la base de la loi n° 88-04 du 16 juin 1988 relative aux baux à usage d'habitation et du Code des Obligations Civiles et Commerciales du Sénégal.<br>
-        Ce document est un modèle standard généré par {{ config('app.name', 'Bimothèque Immo') }} — il est recommandé de le faire valider par un professionnel du droit pour toute situation particulière, et de le faire enregistrer auprès du bureau de l'Enregistrement compétent.
+        Ce document est un modèle standard généré par {{ config('app.name', 'Bimmo') }} — il est recommandé de le faire valider par un professionnel du droit pour toute situation particulière, et de le faire enregistrer auprès du bureau de l'Enregistrement compétent.
     </div>
 
 </body>
