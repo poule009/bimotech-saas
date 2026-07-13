@@ -97,8 +97,9 @@ class BilanFiscalController extends Controller implements HasMiddleware
 
         $data = FiscalService::calculerBilanAnnuel($proprietaire->id, $annee, $agencyId);
 
-        $cgfResult     = FiscalService::calculerCGF((float) $data['revenus_bruts_total']);
-        $regimesResult = FiscalService::comparerRegimes((float) $data['revenus_bruts_total'], (float) $data['irpp_estime']);
+        // Assiette CGF = LOYER BRUT seul (charges exclues — CGF-01/§3), aligné IRPP.
+        $cgfResult     = FiscalService::calculerCGF((float) $data['revenus_bruts_loyers']);
+        $regimesResult = FiscalService::comparerRegimes((float) $data['revenus_bruts_loyers'], (float) $data['irpp_estime']);
         $data['cgf_applicable']       = $cgfResult['applicable'];
         $data['cgf_montant']          = $cgfResult['montant'];
         $data['cgf_taux_applique']    = $cgfResult['taux_applique'];
@@ -181,8 +182,10 @@ class BilanFiscalController extends Controller implements HasMiddleware
             ->orderByDesc('annee')
             ->pluck('annee');
 
-        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_total);
-        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_total, (float) $bilan->irpp_estime);
+        // Assiette CGF = LOYER BRUT seul (charges exclues — CGF-01/§3), aligné sur
+        // l'assiette IRPP (loyers seuls) pour une comparaison de régimes cohérente.
+        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_loyers);
+        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_loyers, (float) $bilan->irpp_estime);
 
         return view('admin.bilans-fiscaux.show', compact(
             'proprietaire', 'bilan', 'annee', 'paiements', 'anneesDisponibles', 'cgfData', 'regimes'
@@ -221,8 +224,10 @@ class BilanFiscalController extends Controller implements HasMiddleware
 
         $agency = Auth::user()->agency;
 
-        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_total);
-        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_total, (float) $bilan->irpp_estime);
+        // Assiette CGF = LOYER BRUT seul (charges exclues — CGF-01/§3), aligné sur
+        // l'assiette IRPP (loyers seuls) pour une comparaison de régimes cohérente.
+        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_loyers);
+        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_loyers, (float) $bilan->irpp_estime);
 
         $pdf = Pdf::loadView('admin.bilans-fiscaux.pdf.bilan', compact('bilan', 'proprietaire', 'agency', 'annee', 'cgfData', 'regimes'))
             ->setPaper('a4', 'portrait')
@@ -277,8 +282,10 @@ class BilanFiscalController extends Controller implements HasMiddleware
             ->get();
 
         $agency  = Auth::user()->agency;
-        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_total);
-        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_total, (float) $bilan->irpp_estime);
+        // Assiette CGF = LOYER BRUT seul (charges exclues — CGF-01/§3), aligné sur
+        // l'assiette IRPP (loyers seuls) pour une comparaison de régimes cohérente.
+        $cgfData = FiscalService::calculerCGF((float) $bilan->revenus_bruts_loyers);
+        $regimes = FiscalService::comparerRegimes((float) $bilan->revenus_bruts_loyers, (float) $bilan->irpp_estime);
         $irppDetail = is_array($bilan->irpp_detail)
             ? $bilan->irpp_detail
             : FiscalService::calculerIRPPDetail((float) $bilan->base_imposable);

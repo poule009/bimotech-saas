@@ -169,7 +169,7 @@
                     <div class="flex items-start gap-2">
                         <x-icon name="info" size="15" class="mt-0.5 shrink-0 text-teal" />
                         <p class="text-[12.5px] text-muted leading-snug">
-                            <span class="font-semibold text-ink">IRPP foncier &amp; CFPB {{ $annee }} : couverts par la CGF.</span>
+                            <span class="font-semibold text-ink">IRPP foncier &amp; CFPB {{ $annee }} — Couvert par la CGF.</span>
                             Ce propriétaire a opté pour la Contribution Globale Foncière cette année ; l'IRPP foncier et la CFPB ne sont donc pas calculés séparément (voir l'encart CGF ci-dessous). Les données locatives sous-jacentes restent intactes.
                         </p>
                     </div>
