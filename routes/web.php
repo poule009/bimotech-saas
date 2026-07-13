@@ -237,6 +237,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('locataires/quick',    [UserController::class, 'locataireQuickStore'])->name('locataires.quick')->middleware('agency.can:locataires.creer');
             Route::get('create/{role}',  [UserController::class, 'create'])->name('create')->middleware('agency.can:locataires.creer,proprietaires.creer');
             Route::post('store',         [UserController::class, 'store'])->name('store')->middleware('agency.can:locataires.creer,proprietaires.creer');
+            // Option CGF (régime synthétique — Art. 75) : exercée/révoquée sur la fiche propriétaire.
+            Route::post('{user}/cgf',    [UserController::class, 'cgfOption'])->name('cgf.option')->middleware('agency.can:proprietaires.modifier');
+            Route::delete('{user}/cgf',  [UserController::class, 'cgfDesactiver'])->name('cgf.desactiver')->middleware('agency.can:proprietaires.modifier');
             Route::get('{user}',         [UserController::class, 'show'])->name('show')->middleware('agency.can:proprietaires.lire,locataires.lire');
             Route::get('{user}/edit',    [UserController::class, 'edit'])->name('edit')->middleware('agency.can:locataires.modifier,proprietaires.modifier');
             Route::patch('{user}',       [UserController::class, 'update'])->name('update')->middleware('agency.can:locataires.modifier,proprietaires.modifier');

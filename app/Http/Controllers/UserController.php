@@ -449,12 +449,31 @@ class UserController extends Controller
             // sans global scope (le propriétaire appartient déjà à l'agence de l'admin).
             $profilProprio  = \App\Models\Proprietaire::withoutGlobalScopes()
                 ->where('user_id', $user->id)->first();
-            $irppEstimation = ($profilProprio && ! $profilProprio->est_personne_morale_is)
-                ? \App\Services\FiscalService::estimerIrppFoncier($user->id, now()->year, $user->agency_id)
+            $estParticulier = $profilProprio && ! $profilProprio->est_personne_morale_is;
+            $annee          = now()->year;
+
+            // ── Option CGF (régime synthétique optionnel — Art. 75) ──────────────
+            // Réservée aux Particuliers. Si active pour l'année en cours, elle COUVRE
+            // et masque l'IRPP-foncier + la CFPB (exclusion mutuelle — CGF-02).
+            $cgfInfo    = ($estParticulier && $profilProprio) ? [
+                'active'            => $profilProprio->cgf_active,
+                'annee'             => $profilProprio->cgf_annee,
+                'revenu_prevu'      => $profilProprio->cgf_revenu_brut_prevu,
+                'montant'           => $profilProprio->cgf_montant,
+                'mode_paiement'     => $profilProprio->cgf_mode_paiement,
+                'echeances'         => $profilProprio->cgf_echeances ?? [],
+                'declaration_avant' => sprintf('%04d-02-01', $profilProprio->cgf_annee ?: $annee),
+            ] : null;
+            $cgfCouvre  = $profilProprio && $profilProprio->cgfCouvre($annee);
+
+            // IRPP masqué si la CGF couvre l'année en cours (données sous-jacentes intactes).
+            $irppEstimation = ($estParticulier && ! $cgfCouvre)
+                ? \App\Services\FiscalService::estimerIrppFoncier($user->id, $annee, $user->agency_id)
                 : null;
 
             return view('users.show', compact(
-                'user', 'biens', 'stats', 'paiements', 'locatairesActifs', 'irppEstimation'
+                'user', 'biens', 'stats', 'paiements', 'locatairesActifs',
+                'irppEstimation', 'estParticulier', 'cgfInfo', 'cgfCouvre', 'annee'
             ));
         }
 
@@ -501,6 +520,98 @@ class UserController extends Controller
         }
 
         return view('users.show', compact('user', 'stats'));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // OPTION CGF (régime synthétique optionnel — Art. 75 CGI SN)
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Exerce l'option CGF pour un propriétaire particulier, une année donnée.
+     *
+     * Le revenu brut PRÉVISIONNEL est saisi manuellement (loyers attendus de
+     * l'année à venir — distinct des données Comptabilité réelles). Au-delà de
+     * 30 000 000 F : inéligible, option bloquée (CGF-01). Le montant et
+     * l'échéancier sont calculés puis persistés (CGF-03/CGF-05).
+     */
+    public function cgfOption(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('isAdmin');
+        $this->verifierAppartenance($user);
+
+        abort_unless($user->isProprietaire(), 404);
+
+        $profil = \App\Models\Proprietaire::withoutGlobalScopes()
+            ->where('user_id', $user->id)->first();
+
+        // Réservé aux Particuliers : une personne morale relève de l'IS, pas de la CGF.
+        abort_if(! $profil || $profil->est_personne_morale_is, 403,
+            'La CGF est réservée aux propriétaires particuliers (personnes physiques).');
+
+        $validated = $request->validate([
+            'cgf_annee'             => ['required', 'integer', 'min:2020', 'max:2100'],
+            'cgf_revenu_brut_prevu' => ['required', 'integer', 'min:0'],
+            'cgf_mode_paiement'     => ['required', 'in:unique,trois_versements'],
+        ], [
+            'cgf_revenu_brut_prevu.required' => 'Le loyer brut prévisionnel est obligatoire.',
+            'cgf_mode_paiement.in'           => 'Mode de paiement invalide.',
+        ]);
+
+        $revenu = (int) $validated['cgf_revenu_brut_prevu'];
+
+        // CGF-01 : seuil d'éligibilité 30 000 000 F.
+        if ($revenu > \App\Services\FiscalService::CGF_SEUIL) {
+            return back()->withInput()->with('cgf_error',
+                'Loyer brut prévisionnel supérieur à 30 000 000 F : ce propriétaire n\'est pas '
+                . 'éligible à la CGF. Il relève du régime réel (IRPP + CFPB).');
+        }
+
+        $calcul    = \App\Services\FiscalService::calculerCGF((float) $revenu);
+        $echeances = \App\Services\FiscalService::calculerEcheancierCgf(
+            $calcul['montant'], $validated['cgf_mode_paiement'], (int) $validated['cgf_annee']
+        );
+
+        $profil->update([
+            'cgf_active'            => true,
+            'cgf_annee'             => (int) $validated['cgf_annee'],
+            'cgf_revenu_brut_prevu' => $revenu,
+            'cgf_montant'           => (int) $calcul['montant'],
+            'cgf_mode_paiement'     => $validated['cgf_mode_paiement'],
+            'cgf_echeances'         => $echeances,
+        ]);
+
+        return back()->with('success', sprintf(
+            'Option CGF %d enregistrée : %s F (%s). L\'IRPP foncier et la CFPB de cette année '
+            . 'sont désormais couverts par la CGF.',
+            $validated['cgf_annee'],
+            number_format($calcul['montant'], 0, ',', ' '),
+            $calcul['fraction_label']
+        ));
+    }
+
+    /** Révoque l'option CGF (retour au régime réel IRPP + CFPB). */
+    public function cgfDesactiver(User $user): RedirectResponse
+    {
+        $this->authorize('isAdmin');
+        $this->verifierAppartenance($user);
+
+        abort_unless($user->isProprietaire(), 404);
+
+        $profil = \App\Models\Proprietaire::withoutGlobalScopes()
+            ->where('user_id', $user->id)->first();
+
+        if ($profil) {
+            $profil->update([
+                'cgf_active'            => false,
+                'cgf_annee'             => null,
+                'cgf_revenu_brut_prevu' => null,
+                'cgf_montant'           => null,
+                'cgf_mode_paiement'     => null,
+                'cgf_echeances'         => null,
+            ]);
+        }
+
+        return back()->with('success', 'Option CGF retirée. Le propriétaire est de nouveau au régime réel (IRPP + CFPB).');
     }
 
     // ─────────────────────────────────────────────────────────────────────

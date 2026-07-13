@@ -417,5 +417,99 @@ return [
             'date_verification' => '2026-07-12',
         ],
 
+        // ═══════════════════════════════════════════════════════════════════
+        // CGF — Contribution Globale Foncière (régime optionnel, Art. 75 CGI SN)
+        // ═══════════════════════════════════════════════════════════════════
+
+        'CGF-01' => [
+            'categorie'   => 'cgf',
+            'titre'       => 'Seuil d\'éligibilité : loyer brut annuel ≤ 30 000 000 F',
+            'description' => "Régime ouvert aux personnes physiques (et associés de SCI personnes "
+                . "physiques) dont le loyer brut annuel total (tous immeubles loués confondus) "
+                . "est ≤ 30 000 000 F. Au-delà : régime réel (IRPP + CFPB) obligatoire. "
+                . "Réf. légale : Art. 75 CGI.",
+            'statut'  => 'confirme_officiel',
+            'sources' => [
+                ['libelle' => 'DGID — brochure « La Contribution Globale Foncière, un impôt simplifié et allégé »', 'url' => 'https://www.dgid.sn/'],
+                ['libelle' => 'Décision de l\'administration fiscale citant l\'Art. 75 CGI', 'url' => null],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-12',
+        ],
+        'CGF-02' => [
+            'categorie'   => 'cgf',
+            'titre'       => 'La CGF remplace IRPP foncier + IMF + CFPB (PAS la TVA)',
+            'description' => "Impôt synthétique représentatif de 4 impôts : impôt sur les revenus "
+                . "fonciers (IRPP foncier), impôt du minimum fiscal (IMF), contribution foncière "
+                . "des propriétés bâties (CFPB) et contribution forfaitaire à la charge des "
+                . "employeurs. Conséquence app : un propriétaire en CGF pour une année ne doit "
+                . "PAS avoir en parallèle un calcul IRPP-foncier ni CFPB actifs sur cette même "
+                . "année (exclusion mutuelle d'affichage). NE remplace JAMAIS la TVA "
+                . "(voir clé 'tva_independante_du_regime_cgf').",
+            'statut'  => 'confirme_officiel',
+            'sources' => [
+                ['libelle' => 'DGID — brochure CGF', 'url' => 'https://www.dgid.sn/'],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-12',
+        ],
+        'CGF-03' => [
+            'categorie'   => 'cgf',
+            'titre'       => 'Barème 3 tranches (1/12, 1,5/12, 2/12) + plancher 30 000 F',
+            'description' => "CGF exprimée en fraction de mois de loyer sur le loyer brut annuel : "
+                . "≤ 12 000 000 → 1/12 (1 mois, ≈ 8,33%) ; 12 000 001–18 000 000 → 1,5/12 "
+                . "(1,5 mois, ≈ 12,5%) ; 18 000 001–30 000 000 → 2/12 (2 mois, ≈ 16,67%). "
+                . "Plancher absolu : 30 000 F minimum quel que soit le calcul.",
+            'statut'  => 'confirme_source_privee',
+            'sources' => [
+                ['libelle' => 'Deux sources privées indépendantes concordantes (barème CGF)', 'url' => null],
+            ],
+            'note' => 'Les bornes 12M/18M proviennent de sources privées convergentes, PAS du '
+                . 'texte brut de l\'Art. 75 → badge « bornes à recouper avec texte officiel ».',
+            'date_verification' => '2026-07-12',
+        ],
+        'CGF-04' => [
+            'categorie'   => 'cgf',
+            'titre'       => 'Déclaration avant le 1er février, sur loyers prévisionnels',
+            'description' => "La déclaration porte sur les loyers BRUTS PRÉVISIONNELS de l'année à "
+                . "venir (pas les loyers déjà perçus — logique différente de l'IRPP a posteriori). "
+                . "À déposer avant le 1er février. Corrige le référentiel interne (qui indiquait "
+                . "le 30 avril).",
+            'statut'  => 'confirme_officiel',
+            'sources' => [
+                ['libelle' => 'DGID — brochure CGF', 'url' => 'https://www.dgid.sn/'],
+                ['libelle' => 'Décision administrative citant l\'Art. 75 CGI', 'url' => null],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-12',
+        ],
+        'CGF-05' => [
+            'categorie'   => 'cgf',
+            'titre'       => 'Paiement en 1 fois ou 3 versements égaux (fév/avr/juin)',
+            'description' => "Paiement soit en un seul versement fin février, soit en 3 versements "
+                . "égaux fin février / fin avril / fin juin. Décision produit : le choix du mode "
+                . "est laissé à l'utilisateur (aucun défaut caché imposé).",
+            'statut'  => 'confirme_officiel',
+            'sources' => [
+                ['libelle' => 'DGID — brochure CGF', 'url' => 'https://www.dgid.sn/'],
+                ['libelle' => 'Sources privées concordantes', 'url' => null],
+            ],
+            'note' => null,
+            'date_verification' => '2026-07-12',
+        ],
+        'CGF-06' => [
+            'categorie'   => 'cgf',
+            'titre'       => 'Réduction en cas de vacance locative ou loyers impayés',
+            'description' => "Une décharge/réduction existe légalement sous conditions de délai de "
+                . "signalement, en cas de vacance locative ou de loyers impayés. HORS PÉRIMÈTRE "
+                . "v1 : trop spécifique et rare. Non codé, conservé pour traçabilité.",
+            'statut'  => 'hors_perimetre',
+            'sources' => [
+                ['libelle' => 'Sources privées', 'url' => null],
+            ],
+            'note' => 'Non implémenté (v1).',
+            'date_verification' => '2026-07-12',
+        ],
+
     ],
 ];

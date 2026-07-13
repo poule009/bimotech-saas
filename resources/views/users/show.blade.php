@@ -158,6 +158,115 @@
                 </div>
             </div>
         @endisset
+
+        {{-- CGF — Contribution Globale Foncière (option, Particuliers uniquement) --}}
+        @if(!empty($estParticulier))
+            @php $fmtCgf = fn($n) => number_format((float) $n, 0, ',', ' '); @endphp
+
+            {{-- Exclusion mutuelle : la CGF couvre l'IRPP-foncier + la CFPB de l'année en cours --}}
+            @if(!empty($cgfCouvre))
+                <div class="f-card mt-5 border-l-4 border-teal">
+                    <div class="flex items-start gap-2">
+                        <x-icon name="info" size="15" class="mt-0.5 shrink-0 text-teal" />
+                        <p class="text-[12.5px] text-muted leading-snug">
+                            <span class="font-semibold text-ink">IRPP foncier &amp; CFPB {{ $annee }} : couverts par la CGF.</span>
+                            Ce propriétaire a opté pour la Contribution Globale Foncière cette année ; l'IRPP foncier et la CFPB ne sont donc pas calculés séparément (voir l'encart CGF ci-dessous). Les données locatives sous-jacentes restent intactes.
+                        </p>
+                    </div>
+                </div>
+            @endif
+
+            <div class="f-card mt-5">
+                <h3 class="f-card-title mb-1">Contribution Globale Foncière (CGF)</h3>
+                <p class="f-card-sub">Régime synthétique optionnel (Art. 75). Remplace l'IRPP foncier, l'IMF et la CFPB — pas la TVA.</p>
+
+                @if(session('cgf_error'))
+                    <div class="mb-4 rounded-lg bg-error/10 text-error px-3 py-2.5 text-[12px] leading-snug flex items-start gap-1.5">
+                        <x-icon name="alert-triangle" size="13" class="mt-0.5 shrink-0" />
+                        <span>{{ session('cgf_error') }}</span>
+                    </div>
+                @endif
+
+                @if(!empty($cgfInfo['active']))
+                    {{-- ÉTAT ACTIF : montant + échéancier --}}
+                    <div class="space-y-2.5 text-[13.5px]">
+                        <div class="flex justify-between"><span class="text-muted">Année d'option</span><span class="font-semibold">{{ $cgfInfo['annee'] }}</span></div>
+                        <div class="flex justify-between"><span class="text-muted">Loyer brut prévisionnel</span><span class="font-semibold">{{ $fmtCgf($cgfInfo['revenu_prevu']) }} F</span></div>
+                        <div class="flex justify-between pt-2 border-t border-paper-dim"><span class="font-bold">CGF due</span><span class="font-bold text-teal">{{ $fmtCgf($cgfInfo['montant']) }} F</span></div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-paper-dim">
+                        <div class="text-[11.5px] uppercase tracking-wide text-muted font-bold mb-2">
+                            Échéancier — {{ $cgfInfo['mode_paiement'] === 'trois_versements' ? '3 versements' : 'versement unique' }}
+                        </div>
+                        <div class="space-y-1 text-[12.5px]">
+                            @foreach($cgfInfo['echeances'] as $e)
+                                <div class="flex justify-between text-muted">
+                                    <span>{{ $e['libelle'] }} <span class="text-ink/40">({{ \Illuminate\Support\Carbon::parse($e['date'])->format('d/m/Y') }})</span></span>
+                                    <span class="font-semibold text-ink">{{ $fmtCgf($e['montant']) }} F</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="mt-3 flex justify-between text-[12px] text-muted">
+                        <span>Déclaration à déposer avant le</span>
+                        <span class="font-semibold text-ink">1er février {{ $cgfInfo['annee'] }}</span>
+                    </div>
+
+                    {{-- Badge de fiabilité (discret) : bornes du barème = source privée --}}
+                    <div class="mt-3 rounded-lg bg-gold/10 text-gold px-3 py-2.5 text-[11.5px] leading-snug flex items-start gap-1.5">
+                        <x-icon name="info" size="13" class="mt-0.5 shrink-0" />
+                        <span>Montant calculé selon le barème CGF (1/12 · 1,5/12 · 2/12) — les bornes 12M/18M sont à recouper avec le texte officiel de l'Art. 75.</span>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.users.cgf.desactiver', $user) }}" class="mt-4"
+                          onsubmit="return confirm('Retirer l\'option CGF ? Le propriétaire repassera au régime réel (IRPP + CFPB).');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-[12.5px] font-semibold text-error hover:underline">Retirer l'option CGF</button>
+                    </form>
+                @else
+                    {{-- FORMULAIRE D'OPTION --}}
+                    <form method="POST" action="{{ route('admin.users.cgf.option', $user) }}" class="space-y-4">
+                        @csrf
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[12px] font-semibold text-muted mb-1">Année concernée</label>
+                                <input type="number" name="cgf_annee" value="{{ old('cgf_annee', $annee) }}" min="2020" max="2100"
+                                       class="w-full rounded-lg border border-line px-3 py-2 text-[13.5px]" required>
+                            </div>
+                            <div>
+                                <label class="block text-[12px] font-semibold text-muted mb-1">Loyer brut prévisionnel (F)</label>
+                                <input type="number" name="cgf_revenu_brut_prevu" value="{{ old('cgf_revenu_brut_prevu') }}" min="0" step="1000"
+                                       placeholder="Loyers attendus de l'année"
+                                       class="w-full rounded-lg border border-line px-3 py-2 text-[13.5px]" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[12px] font-semibold text-muted mb-1.5">Mode de paiement</label>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <label class="flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-[13px] cursor-pointer flex-1">
+                                    <input type="radio" name="cgf_mode_paiement" value="unique" {{ old('cgf_mode_paiement', 'unique') === 'unique' ? 'checked' : '' }}>
+                                    <span>1 versement (fin février)</span>
+                                </label>
+                                <label class="flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-[13px] cursor-pointer flex-1">
+                                    <input type="radio" name="cgf_mode_paiement" value="trois_versements" {{ old('cgf_mode_paiement') === 'trois_versements' ? 'checked' : '' }}>
+                                    <span>3 versements (fév · avr · juin)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg bg-paper-dim px-3 py-2.5 text-[11.5px] text-muted leading-snug">
+                            Le loyer <span class="font-semibold text-ink">prévisionnel</span> est saisi manuellement (loyers attendus de l'année à venir) — indépendant des paiements réels. Éligibilité : loyer brut annuel ≤ 30 000 000 F. Déclaration avant le 1er février.
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full sm:w-auto">Opter pour la CGF</button>
+                    </form>
+                @endif
+            </div>
+        @endif
     </div>
 
     {{-- Onglet Biens --}}

@@ -60,16 +60,25 @@ class FiscalService
         ['min' => 50_000_000,  'max' => PHP_INT_MAX,  'taux' => 43],
     ];
 
-    // Seuil et barème CGF — Contribution Globale Foncière (Art. 77-94 CGI SN)
-    // Régime forfaitaire réservé aux personnes physiques avec revenus locatifs ≤ 30 000 000 F
+    // Seuil et barème CGF — Contribution Globale Foncière (Art. 75 CGI SN)
+    // Régime OPTIONNEL synthétique (remplace IRPP foncier + IMF + CFPB, PAS la TVA),
+    // réservé aux personnes physiques avec loyer brut annuel ≤ 30 000 000 F.
+    // Réf. traçabilité : regles_fiscales CGF-01 (seuil), CGF-03 (barème + plancher).
     public const CGF_SEUIL = 30_000_000;
 
-    public const CGF_TRANCHES = [
-        ['min' => 0,          'max' => 2_000_000,  'taux' => 4.0],
-        ['min' => 2_000_001,  'max' => 5_000_000,  'taux' => 6.0],
-        ['min' => 5_000_001,  'max' => 10_000_000, 'taux' => 9.0],
-        ['min' => 10_000_001, 'max' => 20_000_000, 'taux' => 14.0],
-        ['min' => 20_000_001, 'max' => 30_000_000, 'taux' => 20.0],
+    // Plancher absolu : quel que soit le calcul, minimum 30 000 F dus (CGF-03).
+    public const CGF_PLANCHER = 30_000;
+
+    // Barème en fraction de mois de loyer (brief §2 R2 / CGF-03).
+    // 'fraction' = nombre de mois de loyer → montant = revenu × fraction / 12.
+    //   ≤ 12 000 000 F        → 1/12   (1 mois,   ≈ 8,33%)
+    //   12 000 001–18 000 000 → 1,5/12 (1,5 mois, ≈ 12,5%)
+    //   18 000 001–30 000 000 → 2/12   (2 mois,   ≈ 16,67%)
+    // ⚠ Bornes 12M/18M = source privée (confirme_source_privee), pas texte brut Art. 75.
+    public const CGF_BAREME = [
+        ['max' => 12_000_000, 'fraction' => 1.0,  'label' => '1 mois de loyer (1/12)'],
+        ['max' => 18_000_000, 'fraction' => 1.5,  'label' => '1,5 mois de loyer (1,5/12)'],
+        ['max' => 30_000_000, 'fraction' => 2.0,  'label' => '2 mois de loyer (2/12)'],
     ];
 
     // Tranches loi 81-18 (plafonds loyer mensuel en FCFA selon surface m²)
@@ -596,43 +605,103 @@ class FiscalService
     }
 
     /**
-     * Calcule la CGF (Contribution Globale Foncière) — Art. 77-94 CGI SN.
+     * Calcule la CGF (Contribution Globale Foncière) — Art. 75 CGI SN.
      *
-     * Régime forfaitaire : taux UNIQUE de la tranche (pas progressif).
-     * Assiette = revenus bruts annuels (sans abattement).
-     * Non applicable si revenus > 30 000 000 FCFA.
+     * Barème en fraction de mois de loyer (brief §3 / regles_fiscales CGF-03) :
+     *   ≤ 12 000 000 F        → revenu × 1/12
+     *   12 000 001–18 000 000 → revenu × 1,5/12
+     *   18 000 001–30 000 000 → revenu × 2/12
+     * Plancher absolu 30 000 F. Non éligible si revenu > 30 000 000 F.
+     * Assiette = loyer brut annuel (prévisionnel pour l'option, sans abattement).
+     * Montant arrondi au franc près.
      *
-     * @return array{applicable: bool, montant: float, taux_applique: float, tranche_label: string}
+     * `taux_applique` = taux ÉQUIVALENT (fraction/12 × 100) — conservé pour
+     * l'affichage du bilan et la comparaison de régimes ; le calcul réel passe
+     * par la fraction, pas par ce taux.
+     *
+     * @return array{applicable: bool, montant: float, montant_avant_plancher: float,
+     *   fraction: float, taux_applique: float, plancher_applique: bool,
+     *   tranche_label: string, fraction_label: string}
      */
     public static function calculerCGF(float $revenusbrutsAnnuels): array
     {
         if ($revenusbrutsAnnuels > self::CGF_SEUIL) {
             return [
-                'applicable'    => false,
-                'montant'       => 0.0,
-                'taux_applique' => 0.0,
-                'tranche_label' => 'Hors CGF (revenus > 30 000 000 F)',
+                'applicable'             => false,
+                'montant'                => 0.0,
+                'montant_avant_plancher' => 0.0,
+                'fraction'               => 0.0,
+                'taux_applique'          => 0.0,
+                'plancher_applique'      => false,
+                'tranche_label'          => 'Hors CGF (loyer brut > 30 000 000 F)',
+                'fraction_label'         => '—',
             ];
         }
 
-        foreach (self::CGF_TRANCHES as $tranche) {
-            if ($revenusbrutsAnnuels >= $tranche['min'] && $revenusbrutsAnnuels <= $tranche['max']) {
+        $revenu   = max(0.0, $revenusbrutsAnnuels);
+        $prevMax  = 0;
+        foreach (self::CGF_BAREME as $tranche) {
+            if ($revenu <= $tranche['max']) {
+                $montantBrut = round($revenu * $tranche['fraction'] / 12, 0);
+                $montant     = max($montantBrut, (float) self::CGF_PLANCHER);
+
                 return [
-                    'applicable'    => true,
-                    'montant'       => round($revenusbrutsAnnuels * ($tranche['taux'] / 100), 2),
-                    'taux_applique' => $tranche['taux'],
-                    'tranche_label' => number_format($tranche['min'], 0, ',', ' ')
+                    'applicable'             => true,
+                    'montant'                => $montant,
+                    'montant_avant_plancher' => $montantBrut,
+                    'fraction'               => $tranche['fraction'],
+                    'taux_applique'          => round($tranche['fraction'] / 12 * 100, 2),
+                    'plancher_applique'      => $montantBrut < self::CGF_PLANCHER,
+                    'tranche_label'          => number_format($prevMax === 0 ? 0 : $prevMax + 1, 0, ',', ' ')
                         . ' — ' . number_format($tranche['max'], 0, ',', ' ') . ' F',
+                    'fraction_label'         => $tranche['label'],
                 ];
             }
+            $prevMax = $tranche['max'];
         }
 
-        // Sécurité : revenus = 0 (toujours tranche 1)
+        // Inatteignable (revenu ≤ SEUIL == dernier max), gardé par sécurité.
         return [
-            'applicable'    => true,
-            'montant'       => 0.0,
-            'taux_applique' => 4.0,
-            'tranche_label' => '0 — 2 000 000 F',
+            'applicable'             => true,
+            'montant'                => (float) self::CGF_PLANCHER,
+            'montant_avant_plancher' => 0.0,
+            'fraction'               => self::CGF_BAREME[0]['fraction'],
+            'taux_applique'          => round(self::CGF_BAREME[0]['fraction'] / 12 * 100, 2),
+            'plancher_applique'      => true,
+            'tranche_label'          => '0 — 12 000 000 F',
+            'fraction_label'         => self::CGF_BAREME[0]['label'],
+        ];
+    }
+
+    /**
+     * Construit l'échéancier de paiement de la CGF (regles_fiscales CGF-05).
+     *
+     * - mode 'unique'           : 1 versement (montant total) fin février.
+     * - mode 'trois_versements' : 3 versements ÉGAUX fin février / fin avril / fin juin.
+     *   Le reste éventuel de la division est reporté sur le dernier versement pour
+     *   que la somme des échéances égale exactement le montant.
+     *
+     * @return list<array{rang:int, libelle:string, date:string, montant:float}>
+     */
+    public static function calculerEcheancierCgf(float $montant, string $mode, int $annee): array
+    {
+        // Fin février de l'année concernée (gère les années bissextiles).
+        $finFevrier = date('Y-m-d', strtotime("last day of February {$annee}"));
+
+        if ($mode === 'trois_versements') {
+            $part    = round($montant / 3, 0);
+            $dernier = round($montant - 2 * $part, 0); // absorbe l'arrondi
+
+            return [
+                ['rang' => 1, 'libelle' => 'Fin février', 'date' => $finFevrier,         'montant' => $part],
+                ['rang' => 2, 'libelle' => 'Fin avril',   'date' => "{$annee}-04-30",    'montant' => $part],
+                ['rang' => 3, 'libelle' => 'Fin juin',    'date' => "{$annee}-06-30",    'montant' => $dernier],
+            ];
+        }
+
+        // Mode 'unique' par défaut.
+        return [
+            ['rang' => 1, 'libelle' => 'Versement unique — fin février', 'date' => $finFevrier, 'montant' => round($montant, 0)],
         ];
     }
 

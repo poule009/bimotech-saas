@@ -38,6 +38,9 @@ class Proprietaire extends Model
         'brs_dispense',           // BRS — dispense explicite de retenue (opt-out, niveau bailleur)
         'forme_juridique_bailleur',
         'code_import', 'import_batch_id',
+        // CGF — option régime synthétique (Art. 75 CGI SN)
+        'cgf_active', 'cgf_annee', 'cgf_revenu_brut_prevu',
+        'cgf_montant', 'cgf_mode_paiement', 'cgf_echeances',
     ];
 
     protected $casts = [
@@ -45,8 +48,20 @@ class Proprietaire extends Model
         'assujetti_tva'           => 'boolean',
         'est_personne_morale_is'  => 'boolean',
         'brs_dispense'            => 'boolean',
+        'cgf_active'              => 'boolean',
+        'cgf_echeances'           => 'array',
         'deleted_at'              => 'datetime',
     ];
+
+    /**
+     * La CGF est-elle active et couvre-t-elle l'année donnée ?
+     * Sert à l'exclusion mutuelle avec les encarts IRPP-foncier et CFPB (CGF-02) :
+     * si vrai, ces calculs parallèles doivent être MASQUÉS pour cette année.
+     */
+    public function cgfCouvre(int $annee): bool
+    {
+        return $this->cgf_active && (int) $this->cgf_annee === $annee;
+    }
 
     // ── Relations ────────────────────────────────────────────────────────────
 

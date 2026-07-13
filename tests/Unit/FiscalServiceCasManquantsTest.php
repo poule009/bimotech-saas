@@ -392,19 +392,19 @@ class FiscalServiceCasManquantsTest extends TestCase
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // CGF — Contribution Globale Foncière (Art. 77-94 CGI SN)
+    // CGF — Contribution Globale Foncière (Art. 75 CGI SN) — barème brief §3
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]
-    public function cgf_tranche_1_revenus_inferieurs_2m(): void
+    public function cgf_tranche_1_un_douzieme(): void
     {
-        // Tranche 4% : revenus entre 0 et 2 000 000
-        $result = FiscalService::calculerCGF(1_500_000);
+        // ≤ 12 000 000 → 1/12 (brief cas 1 : 10 000 000 → 833 333)
+        $result = FiscalService::calculerCGF(10_000_000);
 
         $this->assertTrue($result['applicable']);
-        $this->assertEquals(4.0,    $result['taux_applique']);
-        $this->assertEqualsWithDelta(60_000.0, $result['montant'], 1.0,
-            '1 500 000 × 4% = 60 000 F');
+        $this->assertEquals(1.0, $result['fraction']);
+        $this->assertEquals(833_333.0, $result['montant']);
+        $this->assertFalse($result['plancher_applique']);
     }
 
     #[Test]
@@ -417,13 +417,26 @@ class FiscalServiceCasManquantsTest extends TestCase
     }
 
     #[Test]
-    public function cgf_tranche_3_revenus_entre_5m_et_10m(): void
+    public function cgf_tranche_2_un_et_demi_douzieme(): void
     {
-        $result = FiscalService::calculerCGF(7_000_000);
+        // 12 000 001–18 000 000 → 1,5/12 (brief cas 2 : 15 000 000 → 1 875 000)
+        $result = FiscalService::calculerCGF(15_000_000);
 
         $this->assertTrue($result['applicable']);
-        $this->assertEquals(9.0, $result['taux_applique'],
-            'Tranche 9% pour revenus entre 5 001 000 et 10 000 000 F');
+        $this->assertEquals(1.5, $result['fraction']);
+        $this->assertEquals(1_875_000.0, $result['montant']);
+    }
+
+    #[Test]
+    public function cgf_plancher_30000_applique(): void
+    {
+        // Brief cas 4 : 300 000 → 25 000 théorique → plancher 30 000
+        $result = FiscalService::calculerCGF(300_000);
+
+        $this->assertTrue($result['applicable']);
+        $this->assertEquals(30_000.0, $result['montant']);
+        $this->assertTrue($result['plancher_applique']);
+        $this->assertEquals(25_000.0, $result['montant_avant_plancher']);
     }
 
     // ════════════════════════════════════════════════════════════════════════
