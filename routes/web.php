@@ -77,6 +77,7 @@ Route::get('/', fn() => view('welcome'))->name('home');
 Route::get('/contact',          fn() => view('contact'))->name('contact');
 Route::get('/demo',             fn() => view('demo'))->name('demo');
 Route::get('/faq',              fn() => view('faq'))->name('faq');
+Route::get('/tarifs',           fn() => view('tarifs'))->name('tarifs');
 Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mentions-legales');
 Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
 Route::get('/pricing',    [\App\Http\Controllers\PricingController::class,  'index'])->name('pricing');
