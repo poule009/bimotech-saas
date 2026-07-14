@@ -22,8 +22,8 @@ class ActivityLogController extends Controller implements HasMiddleware
     /** Catégories de filtre (chips) → types de modèles concernés. */
     private const CATEGORIES = [
         'paiements' => [Paiement::class],
-        'contrats'  => [Contrat::class],
-        'biens'     => [Bien::class],
+        'contrats' => [Contrat::class],
+        'biens' => [Bien::class],
         'personnes' => [User::class, Locataire::class, Proprietaire::class],
     ];
 
@@ -50,13 +50,18 @@ class ActivityLogController extends Controller implements HasMiddleware
         // Recherche (description) — wildcards LIKE échappés
         if ($request->filled('q')) {
             $q = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->q);
-            $query->where('description', 'like', '%' . $q . '%');
+            $query->where('description', 'like', '%'.$q.'%');
         }
 
         // Filtre par catégorie d'entité
         $categorie = $request->get('categorie');
         if ($categorie && isset(self::CATEGORIES[$categorie])) {
             $query->whereIn('model_type', self::CATEGORIES[$categorie]);
+        }
+
+        // Filtre par type d'action (create / update / delete…)
+        if ($request->filled('action')) {
+            $query->where('action', $request->input('action'));
         }
 
         // Filtre « Sensibles uniquement »
@@ -70,10 +75,10 @@ class ActivityLogController extends Controller implements HasMiddleware
             ->withQueryString();
 
         return view('activity-logs.index', [
-            'logs'      => $logs,
+            'logs' => $logs,
             'categorie' => $categorie,
             'sensibles' => $request->boolean('sensibles'),
-            'q'         => (string) $request->get('q'),
+            'q' => (string) $request->get('q'),
         ]);
     }
 }

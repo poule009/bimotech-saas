@@ -74,15 +74,33 @@
     {{-- ─────────────── MAIN ─────────────── --}}
     <div class="flex-1 min-w-0 flex flex-col">
 
-        {{-- Topbar (mobile : bouton menu) --}}
-        <header class="flex items-center justify-between gap-4 px-5 md:px-10 pt-6 md:hidden">
-            <button type="button" x-on:click="toggle"
-                    class="w-9 h-9 rounded-lg border border-line bg-white flex items-center justify-center shrink-0"
-                    aria-label="Ouvrir le menu">
-                <svg class="w-5 h-5 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-            </button>
-            <x-brand class="text-[17px]" />
-        </header>
+        {{-- Topbar. Avec un titre de page (@section('page-title')) : en-tête complet
+             desktop + mobile. Sinon : barre mobile seule (menu + marque) — le
+             dashboard rend son propre titre dans le contenu. --}}
+        @hasSection('page-title')
+            <header class="flex items-center gap-3 px-5 md:px-10 pt-6">
+                <button type="button" x-on:click="toggle"
+                        class="md:hidden w-9 h-9 rounded-lg border border-line bg-white flex items-center justify-center shrink-0"
+                        aria-label="Ouvrir le menu">
+                    <svg class="w-5 h-5 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                </button>
+                <div class="min-w-0">
+                    <h1 class="font-display font-semibold text-[22px] text-ink truncate">@yield('page-title')</h1>
+                    @hasSection('page-subtitle')
+                        <div class="text-[12.5px] text-muted mt-0.5">@yield('page-subtitle')</div>
+                    @endif
+                </div>
+            </header>
+        @else
+            <header class="flex items-center justify-between gap-4 px-5 md:px-10 pt-6 md:hidden">
+                <button type="button" x-on:click="toggle"
+                        class="w-9 h-9 rounded-lg border border-line bg-white flex items-center justify-center shrink-0"
+                        aria-label="Ouvrir le menu">
+                    <svg class="w-5 h-5 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                </button>
+                <x-brand class="text-[17px]" />
+            </header>
+        @endif
 
         <main class="flex-1 px-5 md:px-10 py-6 md:py-8">
             @yield('content')

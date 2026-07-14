@@ -1,4 +1,6 @@
-@extends('layouts.app')
+{{-- Journal partagé : shell Super Admin (cross-agence) pour le superadmin,
+     shell agence pour un admin d'agence. --}}
+@extends(auth()->user()?->isSuperAdmin() ? 'layouts.superadmin' : 'layouts.app')
 
 @php
     use Illuminate\Support\Facades\Route;
