@@ -128,8 +128,8 @@
                     <span class="absolute top-3 left-3 bg-teal-deep/60 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</span>
                 </div>
                 <div class="p-[16px_18px_18px]">
-                    <div class="font-bold text-[15.5px] mb-0.5 truncate">{{ $bien->titre ?: $bien->reference }}</div>
-                    <div class="text-[12.5px] text-muted mb-3 truncate">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }}</div>
+                    <div class="font-bold text-[15.5px] mb-0.5 truncate">{{ $bien->titre_fallback }}</div>
+                    <div class="text-[12.5px] text-muted mb-3 truncate">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }}<span class="text-muted/70"> · Réf. {{ $bien->reference }}</span></div>
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-1.5 text-[12px] text-muted min-w-0">
                             <span class="w-5 h-5 rounded bg-paper-dim text-teal flex items-center justify-center text-[9px] font-bold shrink-0">{{ mb_strtoupper(mb_substr($bien->proprietaire->name ?? '—', 0, 2)) }}</span>
@@ -174,7 +174,7 @@
                                     <span class="w-[42px] h-[42px] rounded-[10px] bg-teal text-paper flex items-center justify-center shrink-0">
                                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
                                     </span>
-                                    <span class="min-w-0"><span class="block font-bold text-[15px] truncate group-hover:text-teal">{{ $bien->titre ?: $bien->reference }}</span><span class="block text-[12.5px] text-muted truncate">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }}</span></span>
+                                    <span class="min-w-0"><span class="block font-bold text-[15px] truncate group-hover:text-teal">{{ $bien->titre_fallback }}</span><span class="block text-[12.5px] text-muted truncate">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }}<span class="text-muted/70"> · Réf. {{ $bien->reference }}</span></span></span>
                                 </a>
                             </td>
                             <td class="px-5 py-4"><span class="text-[12px] font-bold px-3 py-1.5 rounded-full bg-paper-dim text-teal">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</span></td>

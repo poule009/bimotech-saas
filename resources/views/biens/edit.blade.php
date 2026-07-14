@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@php $titre = $bien->titre ?: $bien->reference; @endphp
+@php $titre = $bien->titre_fallback; @endphp
 
 @section('title', 'Modifier ' . $titre)
 @section('page-title', 'Modifier le bien')

@@ -17,7 +17,7 @@
                 : ($contrat->type_bail === 'mixte' ? 'à usage mixte' : "à usage exclusif d'habitation");
 
     $bailleurAdresse  = $bailleur?->adresse ?: trim(($bailleurProfil?->quartier ? $bailleurProfil->quartier . ', ' : '') . ($bailleurProfil?->ville ?? '')) ?: '________';
-    $locataireAdresse = $locataire?->adresse ?: '________';
+    $locataireAdresse = $locataire?->adresse ?: trim(($locataireProfil?->quartier ? $locataireProfil->quartier . ', ' : '') . ($locataireProfil?->ville ?? '')) ?: '________';
     $bienAdresse      = trim(($bien?->quartier ? $bien->quartier . ', ' : '') . ($bien?->adresse ?: '') . ' ' . ($bien?->ville ?? ''));
     $bienNom          = $bien?->titre ?: $bien?->reference;
     $cni              = $locataireProfil?->cni ?: '________';

@@ -50,15 +50,14 @@ section{position:relative;}
    A. Signature (.wordmark-signature, script Allura doré) — connexion et, à venir,
       hero de la landing. Réservé aux grands formats (min ~28px) ; police Allura à
       recharger dans le layout quand le hero sera créé.
-   B. Fonctionnel (.wordmark, Fraunces light, double-m marqué d'un trait doré au-DESSUS) —
+   B. Fonctionnel (.wordmark, Fraunces light, double-m souligné d'un trait doré) —
       brand vitrine (nav + footer, petits & répétés) où la lisibilité prime.
-   Le trait est positionné au-dessus du double-m (accent/macron), conforme à la
-   maquette de référence — décision validée, ne pas passer en soulignement.       */
+   Le trait est positionné SOUS le double-m (soulignement partiel).               */
 .wordmark-signature{ font-family:'Allura',cursive; font-weight:400; color:var(--gold); line-height:1; }
 .wordmark{ font-family:'Fraunces',serif; font-weight:300; text-transform:lowercase; letter-spacing:0.005em; line-height:1; }
 .brand .wordmark{ font-size:23px; }
 .wordmark .wm-mm{ position:relative; }
-.wordmark .wm-mm::after{ content:""; position:absolute; left:0.09em; right:0.09em; top:-0.26em; height:2px; background:var(--gold); border-radius:2px; }
+.wordmark .wm-mm::after{ content:""; position:absolute; left:0.09em; right:0.09em; bottom:-0.2em; height:2px; background:var(--gold); border-radius:2px; }
 
 /* ============ NAV ============ */
 .nav{

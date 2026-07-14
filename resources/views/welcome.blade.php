@@ -5,7 +5,7 @@
 
 @php
     $inscriptionUrl = route('agency.register');
-    $demoUrl        = route('agency.register'); // TODO Malick : WhatsApp démo (voir layout vitrine)
+    $demoUrl        = 'https://wa.me/221781318176?text=' . rawurlencode('Bonjour, je souhaite une démo de Bimmo pour mon agence.'); // Démo → WhatsApp de contact.
 @endphp
 
 @section('content')
@@ -237,20 +237,20 @@
         <div class="pricing-grid">
             <div class="price-card reveal">
                 <div class="price-tier">Starter</div>
-                <div class="price-amount">19 900<span class="u">FCFA / mois</span></div>
+                <div class="price-amount">25 000<span class="u">FCFA / mois</span></div>
                 <p class="price-desc">Jusqu'à 15 unités — Dashboard, biens, contrats, paiements, impayés, quittances PDF.</p>
                 <a href="{{ $inscriptionUrl }}" class="btn btn-ghost-ink">Démarrer gratuitement</a>
             </div>
             <div class="price-card featured reveal">
                 <div class="price-badge">★ Recommandé</div>
                 <div class="price-tier">Pro</div>
-                <div class="price-amount">39 900<span class="u">FCFA / mois</span></div>
+                <div class="price-amount">50 000<span class="u">FCFA / mois</span></div>
                 <p class="price-desc">Jusqu'à 50 unités — tout Starter, plus immeubles, rapports PDF, import Excel, relevés propriétaires.</p>
                 <a href="{{ $inscriptionUrl }}" class="btn btn-gold">Démarrer — 30 jours gratuits</a>
             </div>
             <div class="price-card reveal">
                 <div class="price-tier">Agence</div>
-                <div class="price-amount">69 900<span class="u">FCFA / mois</span></div>
+                <div class="price-amount">90 000<span class="u">FCFA / mois</span></div>
                 <p class="price-desc">Unités illimitées — tout Pro, plus déclarations DGID, bilans fiscaux, logs d'activité, support prioritaire.</p>
                 <a href="{{ $inscriptionUrl }}" class="btn btn-ghost-ink">Démarrer gratuitement</a>
             </div>

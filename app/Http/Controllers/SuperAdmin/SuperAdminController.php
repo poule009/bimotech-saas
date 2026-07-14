@@ -199,9 +199,9 @@ class SuperAdminController extends Controller
                 CASE plan
                     WHEN "mensuel" THEN
                         CASE plan_niveau
-                            WHEN "starter" THEN 19900
-                            WHEN "agence"  THEN 69900
-                            ELSE 39900
+                            WHEN "starter" THEN 25000
+                            WHEN "agence"  THEN 90000
+                            ELSE 50000
                         END
                     WHEN "annuel" THEN
                         CASE plan_niveau

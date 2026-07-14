@@ -124,8 +124,7 @@
        B. Fonctionnel (.wordmark) — Fraunces light minuscule, double-m marqué d'un
           trait doré. Usage quotidien : sidebar, header. La couleur est héritée
           (currentColor) : teal sur fond clair, paper sur fond teal.
-       NB : le trait doré est positionné sur le double-m conformément à la maquette
-            de référence (bimmo-wordmark-contexte.html).                            */
+       NB : le trait doré est positionné SOUS le double-m (soulignement partiel).   */
     .wordmark {
         font-family: 'Fraunces', serif;
         font-weight: 300;
@@ -139,7 +138,8 @@
         position: absolute;
         left: 0.09em;
         right: 0.09em;
-        top: -0.26em;
+        top: auto;
+        bottom: -0.2em;
         height: 2px;
         background: rgb(var(--gold));
         border-radius: 2px;

@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Bimmo') }} — @yield('title', 'Espace agence')</title>
 
+    <x-favicons />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Allura&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,8 +21,10 @@
         {{-- ─────────────── Panneau de marque (gauche) ─────────────── --}}
         <aside class="brand-panel hidden md:flex flex-col justify-between text-paper px-12 py-[52px] relative">
 
-            {{-- Wordmark A (signature) : émotion de marque sur l'écran de connexion. --}}
-            <x-wordmark-signature class="text-[46px] leading-none" />
+            {{-- Verrou de marque « logo + nom » (panneau teal → tone paper). --}}
+            <a href="{{ route('home') }}" class="text-[34px] w-fit">
+                <x-brand tone="paper" />
+            </a>
 
 
             <div class="max-w-[340px] mt-[60px]">

@@ -9,7 +9,7 @@
     ];
     [$stLabel, $stClass] = $statutPill[$bien->statut] ?? [ucfirst($bien->statut), 'bg-paper-dim text-muted'];
     $fmt = fn ($n) => number_format((float) $n, 0, ',', ' ');
-    $titre = $bien->titre ?: $bien->reference;
+    $titre = $bien->titre_fallback;
 @endphp
 
 @section('title', $titre)

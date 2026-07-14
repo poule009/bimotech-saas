@@ -53,9 +53,9 @@ class Subscription extends Model
     // ── Tarifs en FCFA — [niveau][cycle] ─────────────────────────────────
 
     public const TARIFS = [
-        'starter' => ['mensuel' => 19900, 'annuel' => 199000],
-        'pro'     => ['mensuel' => 39900, 'annuel' => 399000],
-        'agence'  => ['mensuel' => 69900, 'annuel' => 699000],
+        'starter' => ['mensuel' => 25000, 'annuel' => 199000],
+        'pro'     => ['mensuel' => 50000, 'annuel' => 399000],
+        'agence'  => ['mensuel' => 90000, 'annuel' => 699000],
     ];
 
     public const LABELS = [

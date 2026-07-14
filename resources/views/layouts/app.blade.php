@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Bimmo') }} — @yield('title', 'Espace agence')</title>
 
+    <x-favicons />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,9 +51,9 @@
            class="fixed md:sticky md:top-0 md:self-start md:h-screen inset-y-0 left-0 z-40 w-[238px] shrink-0 bg-teal text-paper
                   flex flex-col p-4 pt-6 transition-transform duration-200 md:translate-x-0">
 
-        {{-- Wordmark B (fonctionnel) : usage quotidien, lisibilité prioritaire. --}}
-        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-2 mb-8 text-paper">
-            <x-wordmark class="text-[30px]" />
+        {{-- Verrou de marque « logo + nom » (sidebar teal → tone paper). --}}
+        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-2 mb-8 text-[22px]">
+            <x-brand tone="paper" />
         </a>
 
         <nav class="flex-1 overflow-y-auto -mx-1 px-1">
@@ -122,6 +124,8 @@
         </main>
     </div>
 </div>
+
+<x-support-whatsapp />
 
 </body>
 </html>

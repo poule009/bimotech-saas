@@ -3,9 +3,9 @@
 @php
     $fmt = fn ($n) => number_format((float) $n, 0, ',', ' ');
     $niveaux = [
-        'starter' => 'Starter — 19 900 F/mois',
-        'pro'     => 'Pro — 39 900 F/mois',
-        'agence'  => 'Agence — 69 900 F/mois',
+        'starter' => 'Starter — 25 000 F/mois',
+        'pro'     => 'Pro — 50 000 F/mois',
+        'agence'  => 'Agence — 90 000 F/mois',
     ];
     $sel = old('plan_niveau', $planPreselect ?? 'starter');
 @endphp
@@ -51,7 +51,7 @@
             <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                     <label class="f-label">Montant envoyé (FCFA)</label>
-                    <input type="text" inputmode="numeric" name="montant" value="{{ old('montant') }}" placeholder="Ex. 19900" class="f-input @error('montant') f-input-error @enderror">
+                    <input type="text" inputmode="numeric" name="montant" value="{{ old('montant') }}" placeholder="Ex. 25000" class="f-input @error('montant') f-input-error @enderror">
                 </div>
                 <div>
                     <label class="f-label">Méthode</label>
