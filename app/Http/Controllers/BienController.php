@@ -36,7 +36,12 @@ class BienController extends Controller
             $bq = Bien::standalone()
                 ->select(['id', 'agency_id', 'proprietaire_id', 'immeuble_id', 'reference',
                           'titre', 'type', 'adresse', 'quartier', 'ville', 'statut', 'loyer_mensuel'])
-                ->with('proprietaire:id,name');
+                ->with([
+                    'proprietaire:id,name',
+                    // Photo de couverture : la principale d'abord, sinon la première par ordre.
+                    'photos' => fn ($p) => $p->select('id', 'bien_id', 'chemin', 'est_principale', 'ordre')
+                        ->orderByDesc('est_principale')->orderBy('ordre'),
+                ]);
 
             if ($q !== '') {
                 $bq->where(function ($sub) use ($q) {

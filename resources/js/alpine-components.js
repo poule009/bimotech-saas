@@ -664,6 +664,26 @@ export function registerComponents(Alpine) {
         },
     }));
 
+    // Fiche bien — zone d'upload multi-photos : affiche le nombre de fichiers
+    // choisis et n'active le bouton d'envoi qu'une fois au moins un fichier retenu.
+    Alpine.data('photosUpload', () => ({
+        count: 0,
+        get label() {
+            if (this.count === 0) return 'Cliquez ou glissez vos photos ici';
+            return this.count + (this.count > 1 ? ' photos sélectionnées' : ' photo sélectionnée');
+        },
+        get hasFiles() { return this.count > 0; },
+        get submitClass() {
+            return this.count > 0
+                ? 'bg-teal text-paper hover:bg-teal-deep cursor-pointer'
+                : 'bg-paper-dim text-muted cursor-not-allowed';
+        },
+        pick(event) {
+            const files = event.target.files;
+            this.count = files ? files.length : 0;
+        },
+    }));
+
     // Module Import — zone d'upload : au choix d'un fichier, affiche le nom et
     // soumet immédiatement le formulaire (déclenche l'aperçu côté serveur).
     Alpine.data('importUpload', () => ({

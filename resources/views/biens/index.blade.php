@@ -123,9 +123,16 @@
         @foreach($biensSimples as $bien)
             @php [$stLabel, $stClass] = $statutPill[$bien->statut] ?? [ucfirst($bien->statut), 'bg-paper-dim text-muted']; @endphp
             <a href="{{ route('admin.biens.show', $bien) }}" class="bg-white border border-line rounded-2xl overflow-hidden hover:-translate-y-0.5 hover:shadow-md transition-all">
-                <div class="h-[120px] bg-teal relative flex items-center justify-center">
-                    <svg class="w-9 h-9 text-paper/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
-                    <span class="absolute top-3 left-3 bg-teal-deep/60 text-white text-[11px] font-bold px-2.5 py-1 rounded-full">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</span>
+                @php $cover = $bien->photo_couverture; @endphp
+                <div class="h-[150px] relative flex items-center justify-center overflow-hidden {{ $cover ? 'bg-paper-dim' : 'bg-teal' }}">
+                    @if($cover)
+                        <img src="{{ $cover->url }}" alt="{{ $bien->titre_fallback }}" loading="lazy"
+                             class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent"></div>
+                    @else
+                        <svg class="w-9 h-9 text-paper/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
+                    @endif
+                    <span class="absolute top-3 left-3 bg-teal-deep/70 text-white text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</span>
                 </div>
                 <div class="p-[16px_18px_18px]">
                     <div class="font-bold text-[15.5px] mb-0.5 truncate">{{ $bien->titre_fallback }}</div>
@@ -170,10 +177,16 @@
                         @php [$stLabel, $stClass] = $statutPill[$bien->statut] ?? [ucfirst($bien->statut), 'bg-paper-dim text-muted']; @endphp
                         <tr class="border-b border-paper-dim last:border-0 hover:bg-[#FBF9F3] transition-colors">
                             <td class="px-5 py-4">
+                                @php $cover = $bien->photo_couverture; @endphp
                                 <a href="{{ route('admin.biens.show', $bien) }}" class="flex items-center gap-3 group">
-                                    <span class="w-[42px] h-[42px] rounded-[10px] bg-teal text-paper flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
-                                    </span>
+                                    @if($cover)
+                                        <img src="{{ $cover->url }}" alt="" loading="lazy"
+                                             class="w-[42px] h-[42px] rounded-[10px] object-cover shrink-0 border border-line">
+                                    @else
+                                        <span class="w-[42px] h-[42px] rounded-[10px] bg-teal text-paper flex items-center justify-center shrink-0">
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M10 21v-5h4v5"/></svg>
+                                        </span>
+                                    @endif
                                     <span class="min-w-0"><span class="block font-bold text-[15px] truncate group-hover:text-teal">{{ $bien->titre_fallback }}</span><span class="block text-[12.5px] text-muted truncate">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }}<span class="text-muted/70"> · Réf. {{ $bien->reference }}</span></span></span>
                                 </a>
                             </td>

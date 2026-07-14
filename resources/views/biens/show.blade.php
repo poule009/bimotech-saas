@@ -27,11 +27,16 @@
     @endif
 
     {{-- En-tête --}}
+    @php $cover = $bien->photos->firstWhere('est_principale', true) ?? $bien->photos->first(); @endphp
     <div class="bg-white border border-line rounded-2xl overflow-hidden mb-5">
-        <div class="h-[150px] bg-teal flex items-end p-6">
-            <div class="text-paper">
+        <div class="h-[190px] relative flex items-end p-6 {{ $cover ? '' : 'bg-teal' }}">
+            @if($cover)
+                <img src="{{ \Illuminate\Support\Facades\Storage::url($cover->chemin) }}" alt="{{ $titre }}" class="absolute inset-0 w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent"></div>
+            @endif
+            <div class="relative text-paper">
                 <h2 class="font-display font-semibold text-[24px] mb-1">{{ $titre }}</h2>
-                <div class="text-[13.5px] text-paper/80">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }} · {{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</div>
+                <div class="text-[13.5px] text-paper/85">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }} · {{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</div>
             </div>
         </div>
         <div class="px-6 py-4 flex flex-wrap items-center gap-3">
@@ -142,20 +147,79 @@
             </div>
         </div>
 
-        {{-- Documents / photos --}}
+        {{-- Photos --}}
         <div class="f-card">
-            <h3 class="f-card-title mb-1">Documents & photos</h3>
-            <p class="f-card-sub">Titre foncier, photos, état des lieux…</p>
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="f-card-title">Photos</h3>
+                <span class="text-[12px] text-muted">{{ $bien->photos->count() }}/10</span>
+            </div>
+            <p class="f-card-sub">La photo « principale » sert de couverture dans les listes et l'en-tête.</p>
+
+            {{-- Erreurs d'upload --}}
+            @if($errors->has('photos') || collect($errors->keys())->contains(fn ($k) => str_starts_with($k, 'photos.')))
+                <div class="mb-3 rounded-lg bg-error/10 border border-error/25 px-3 py-2 text-[12.5px] text-error space-y-0.5">
+                    @foreach($errors->all() as $message)
+                        <div>{{ $message }}</div>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- Formulaire d'ajout (multi-fichiers) --}}
+            @can('update', $bien)
+                <form method="POST" action="{{ route('admin.biens.photos.store', $bien) }}" enctype="multipart/form-data"
+                      x-data="photosUpload" class="mb-4">
+                    @csrf
+                    <label class="block border-[1.5px] border-dashed border-line rounded-[12px] px-4 py-6 text-center cursor-pointer hover:border-teal hover:bg-paper transition-colors">
+                        <input type="file" name="photos[]" accept="image/jpeg,image/png,image/webp" multiple class="hidden" x-on:change="pick">
+                        <div class="flex flex-col items-center text-muted">
+                            <x-icon name="upload" size="24" class="mb-1.5 text-teal" />
+                            <span class="text-[13.5px] font-semibold text-ink" x-text="label">Cliquez ou glissez vos photos ici</span>
+                            <span class="text-[11.5px] text-muted mt-0.5">JPG, PNG ou WEBP · 3 Mo max · jusqu'à 10 à la fois</span>
+                        </div>
+                    </label>
+                    <button type="submit" x-bind:disabled="! hasFiles" x-bind:class="submitClass"
+                            class="mt-3 w-full px-4 py-2.5 rounded-[10px] text-[13.5px] font-bold transition-colors">
+                        Ajouter les photos
+                    </button>
+                </form>
+            @endcan
+
+            {{-- Galerie --}}
             @if($bien->photos->isNotEmpty())
                 <div class="grid grid-cols-3 gap-2">
-                    @foreach($bien->photos->take(6) as $photo)
-                        <div class="aspect-square rounded-lg bg-paper-dim border border-line flex items-center justify-center text-[11px] text-muted overflow-hidden">
-                            <img src="{{ \Illuminate\Support\Facades\Storage::url($photo->chemin) }}" alt="" class="w-full h-full object-cover">
+                    @foreach($bien->photos as $photo)
+                        <div class="group relative aspect-square rounded-lg bg-paper-dim border border-line overflow-hidden">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::url($photo->chemin) }}" alt="{{ $photo->nom_original }}" loading="lazy" class="w-full h-full object-cover">
+
+                            @if($photo->est_principale)
+                                <span class="absolute top-1.5 left-1.5 bg-gold text-teal-deep text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">Principale</span>
+                            @endif
+
+                            @can('update', $bien)
+                                {{-- Actions au survol --}}
+                                <div class="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                    @unless($photo->est_principale)
+                                        <form method="POST" action="{{ route('admin.biens.photos.principale', [$bien, $photo]) }}">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="w-8 h-8 rounded-full bg-white text-gold flex items-center justify-center hover:scale-110 transition-transform shadow" title="Définir comme principale" aria-label="Définir comme principale">
+                                                <x-icon name="star" size="15" />
+                                            </button>
+                                        </form>
+                                    @endunless
+                                    <form method="POST" action="{{ route('admin.biens.photos.destroy', [$bien, $photo]) }}"
+                                          x-data="confirmForm" x-on:submit="submit" data-confirm="Supprimer cette photo ?">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="w-8 h-8 rounded-full bg-white text-error flex items-center justify-center hover:scale-110 transition-transform shadow" title="Supprimer" aria-label="Supprimer">
+                                            <x-icon name="trash" size="15" />
+                                        </button>
+                                    </form>
+                                </div>
+                            @endcan
                         </div>
                     @endforeach
                 </div>
             @else
-                <div class="text-center py-6 text-[13px] text-muted border-[1.5px] border-dashed border-line rounded-[10px]">Aucun document ajouté</div>
+                <div class="text-center py-6 text-[13px] text-muted border-[1.5px] border-dashed border-line rounded-[10px]">Aucune photo pour l'instant</div>
             @endif
         </div>
     </div>

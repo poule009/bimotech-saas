@@ -232,6 +232,20 @@ class Bien extends Model
         return $enum ? $enum->label() : (self::STATUTS[$this->statut] ?? ucfirst($this->statut ?? ''));
     }
 
+    /**
+     * Photo de couverture pour les listes/cartes : la principale si elle existe,
+     * sinon la première photo chargée. Retourne null si aucune photo (repli visuel).
+     * Nécessite que la relation `photos` ait été eager-loadée en amont.
+     */
+    public function getPhotoCouvertureAttribute(): ?BienPhoto
+    {
+        if (! $this->relationLoaded('photos')) {
+            return null;
+        }
+
+        return $this->photos->firstWhere('est_principale', true) ?? $this->photos->first();
+    }
+
     public function getTitreFallbackAttribute(): string
     {
         if (! empty($this->titre)) {
