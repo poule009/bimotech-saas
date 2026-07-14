@@ -25,6 +25,15 @@ Schedule::command('app:check-subscriptions')
     ->runInBackground()
     ->emailOutputOnFailure(env('MAIL_FROM_ADDRESS'));
 
+// Snapshot quotidien du MRR (00:45). Le mois courant se rafraîchit chaque jour ;
+// les mois passés se figent sur leur dernière valeur (≈ fin de mois) → vraie
+// courbe MRR du dashboard Super Admin.
+Schedule::command('mrr:snapshot')
+    ->dailyAt('00:45')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground();
+
  // Rapport hebdomadaire des paiements pour Super Admin (lundi 07:00)
  Schedule::command('app:weekly-payments-report')
      ->weeklyOn(1, '07:00')

@@ -8,12 +8,14 @@ use App\Models\Agency;
 use App\Models\AgencyFeatureOverride;
 use App\Models\Bien;
 use App\Models\Contrat;
+use App\Models\MrrSnapshot;
 use App\Models\Paiement;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use App\Notifications\AgencyWelcomeNotification;
 use App\Notifications\PasswordResetByAdminNotification;
+use App\Services\MrrService;
 use App\Support\PasswordPolicy;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -57,31 +59,22 @@ class SuperAdminController extends Controller
             ->pluck('last_at', 'agency_id')
             ->map(fn ($d) => Carbon::parse($d));
 
-        // ── MRR (équivalent mensuel) à une date donnée, Legacy exclu ─────────
-        // Un abonnement compte s'il était payant et couvrait la date visée.
-        $mrrAt = function (Carbon $date) use ($agences): int {
-            return $agences->sum(function ($a) use ($date) {
-                $s = $a->subscription;
-                if (! $s || ! in_array($s->plan_niveau, ['starter', 'pro', 'agence'], true)) {
-                    return 0;
-                }
-                if (! $s->date_debut_abonnement || ! $s->date_fin_abonnement) {
-                    return 0;
-                }
-                if ($s->date_debut_abonnement->gt($date) || $s->date_fin_abonnement->lt($date)) {
-                    return 0;
-                }
-                $tarif = Subscription::TARIFS[$s->plan_niveau][$s->plan] ?? null;
-                if ($tarif === null) {
-                    return 0;
-                }
+        // ── MRR : logique centralisée dans App\Services\MrrService ───────────
+        // On PRÉFÈRE les snapshots réels déjà capturés (mrr:snapshot) ; à défaut
+        // on reconstruit depuis les abonnements actuels (approximatif, jamais vide).
+        $mrrService = app(MrrService::class);
 
-                return $s->plan === 'annuel' ? intdiv($tarif, 12) : $tarif;
-            });
-        };
+        // Snapshots des 12 derniers mois, indexés par 'Y-m-d' du 1er du mois.
+        $moisCourbe = collect(range(11, 0))
+            ->map(fn ($i) => $startMonth->copy()->subMonthsNoOverflow($i));
+        $snapshots = MrrSnapshot::whereIn('mois', $moisCourbe->map->toDateString())
+            ->get()
+            ->keyBy(fn ($s) => $s->mois->toDateString());
 
-        $mrr = $mrrAt($now);
-        $mrrPrev = $mrrAt($endLastMonth);
+        $mrr = $mrrService->at($now, $agences);
+        // Croissance vs mois dernier : snapshot réel si disponible, sinon reconstruction.
+        $mrrPrev = $snapshots->get($endLastMonth->copy()->startOfMonth()->toDateString())?->mrr
+            ?? $mrrService->at($endLastMonth, $agences);
         $mrrGrowth = $mrrPrev > 0
             ? round(($mrr - $mrrPrev) / $mrrPrev * 100, 1)
             : ($mrr > 0 ? 100.0 : 0.0);
@@ -204,18 +197,23 @@ class SuperAdminController extends Controller
             }
         }
 
-        // ── Courbe MRR sur 12 mois (équivalent mensuel, fin de mois) ─────────
-        // Ancrage sur le 1ᵉʳ du mois + subMonthsNoOverflow : évite le débordement
-        // de subMonths() les jours 29-31 (ex. 31 mars − 1 mois → 3 mars) qui
-        // fausserait les libellés de mois selon la date de consultation.
+        // ── Courbe MRR sur 12 mois ───────────────────────────────────────────
+        // Mois courant : valeur live. Mois passés : snapshot réel si capturé,
+        // sinon reconstruction (fin de mois). $moisCourbe est déjà anti-débordement
+        // (ancrage 1er du mois + subMonthsNoOverflow).
         $chartLabels = collect();
         $chartMrr = collect();
-        $ancreMois = $now->copy()->startOfMonth();
-        foreach (range(11, 0) as $i) {
-            $mois = $ancreMois->copy()->subMonthsNoOverflow($i);
-            $point = $i === 0 ? $now : $mois->copy()->endOfMonth();
+        foreach ($moisCourbe as $mois) {
             $chartLabels->push($mois->locale('fr')->isoFormat('MMM'));
-            $chartMrr->push($mrrAt($point));
+
+            if ($mois->isSameMonth($now)) {
+                $chartMrr->push($mrr);
+            } else {
+                $chartMrr->push(
+                    $snapshots->get($mois->toDateString())?->mrr
+                        ?? $mrrService->at($mois->copy()->endOfMonth(), $agences)
+                );
+            }
         }
 
         // ── Activité récente : événements niveau PLATEFORME (brief) ──────────
