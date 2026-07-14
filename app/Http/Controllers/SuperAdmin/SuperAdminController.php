@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Agency;
 use App\Models\AgencyFeatureOverride;
 use App\Models\Bien;
@@ -14,6 +15,7 @@ use App\Models\User;
 use App\Notifications\AgencyWelcomeNotification;
 use App\Notifications\PasswordResetByAdminNotification;
 use App\Support\PasswordPolicy;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,107 +29,321 @@ use Illuminate\View\View;
 
 class SuperAdminController extends Controller
 {
-    // ✅ CORRECTION M3 : 11 requêtes → 3 requêtes grâce aux selectRaw groupés
+    /**
+     * Dashboard « santé de la plateforme » — vue actionnable (todo-list du jour).
+     *
+     * Choix arrêtés avec le fondateur :
+     *  - KPI calculés en temps réel (échelle actuelle : quelques dizaines d'agences).
+     *  - MRR = équivalent mensuel des abonnements payants ACTIFS, plans Legacy EXCLUS.
+     *  - « Inactivité » = ancienneté de la dernière action tracée dans activity_logs.
+     *  - Actions des alertes = liens WhatsApp (wa.me) pré-remplis (modèle manuel de l'app).
+     */
     public function dashboard(): View
     {
-        // 1 requête pour les compteurs d'entités
-        $statsEntites = DB::selectOne('
-            SELECT
-                (SELECT COUNT(*) FROM agencies)                          AS nb_agences,
-                (SELECT COUNT(*) FROM agencies WHERE actif = 1)         AS nb_agences_actives,
-                (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL)   AS nb_users,
-                (SELECT COUNT(*) FROM biens WHERE deleted_at IS NULL)   AS nb_biens,
-                (SELECT COUNT(*) FROM contrats WHERE statut = "actif")  AS nb_contrats
-        ');
+        $now = now();
+        $startMonth = $now->copy()->startOfMonth();
+        $endLastMonth = $startMonth->copy()->subSecond();
+        $seuilInactif = 14; // jours sans action → agence inactive
 
-        // 1 requête pour les totaux paiements
-        $statsPaiements = Paiement::withoutGlobalScopes()
-            ->where('statut', 'valide')
-            ->selectRaw('
-                COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
-                COALESCE(SUM(commission_ttc), 0)   AS total_commissions
-            ')
-            ->first();
+        // ── Agences (+ abonnement, compteur d'unités actives, sans N+1) ──────
+        $agences = Agency::with('subscription')
+            ->withCount(['biens as nb_unites' => fn ($q) => $q->where('statut', '!=', 'archive')])
+            ->orderByDesc('created_at')
+            ->get();
 
-        // 1 requête pour les abonnements
-        $statsAbonnements = Subscription::selectRaw('
-            SUM(CASE WHEN statut = "essai"  THEN 1 ELSE 0 END)                        AS nb_essai,
-            SUM(CASE WHEN statut = "actif"  THEN 1 ELSE 0 END)                        AS nb_actifs,
-            SUM(CASE WHEN statut = "expiré" THEN 1 ELSE 0 END)                        AS nb_expires,
-            COALESCE(SUM(CASE WHEN statut = "actif" THEN montant_paye ELSE 0 END), 0) AS revenus
-        ')->first();
+        // Dernière action par agence (durable, source = activity_logs).
+        $derniereActivite = ActivityLog::selectRaw('agency_id, MAX(created_at) AS last_at')
+            ->groupBy('agency_id')
+            ->pluck('last_at', 'agency_id')
+            ->map(fn ($d) => Carbon::parse($d));
+
+        // ── MRR (équivalent mensuel) à une date donnée, Legacy exclu ─────────
+        // Un abonnement compte s'il était payant et couvrait la date visée.
+        $mrrAt = function (Carbon $date) use ($agences): int {
+            return $agences->sum(function ($a) use ($date) {
+                $s = $a->subscription;
+                if (! $s || ! in_array($s->plan_niveau, ['starter', 'pro', 'agence'], true)) {
+                    return 0;
+                }
+                if (! $s->date_debut_abonnement || ! $s->date_fin_abonnement) {
+                    return 0;
+                }
+                if ($s->date_debut_abonnement->gt($date) || $s->date_fin_abonnement->lt($date)) {
+                    return 0;
+                }
+                $tarif = Subscription::TARIFS[$s->plan_niveau][$s->plan] ?? null;
+                if ($tarif === null) {
+                    return 0;
+                }
+
+                return $s->plan === 'annuel' ? intdiv($tarif, 12) : $tarif;
+            });
+        };
+
+        $mrr = $mrrAt($now);
+        $mrrPrev = $mrrAt($endLastMonth);
+        $mrrGrowth = $mrrPrev > 0
+            ? round(($mrr - $mrrPrev) / $mrrPrev * 100, 1)
+            : ($mrr > 0 ? 100.0 : 0.0);
+
+        // ── KPI ──────────────────────────────────────────────────────────────
+        $agencesActives = $agences->where('actif', true)->count();
+        $agencesNouvellesM = $agences->filter(fn ($a) => $a->created_at && $a->created_at->gte($startMonth))->count();
+
+        $enEssai = $agences->filter(fn ($a) => $a->subscription?->estEnEssai())->count();
+        $essaisBientot = $agences->filter(fn ($a) => $a->subscription?->estEnEssai()
+            && $a->subscription->joursRestantsEssai() <= 7);
+
+        $suspendues = $agences->filter(fn ($a) => ! $a->actif || $a->subscription?->estSuspendu())->count();
 
         $stats = [
-            'nb_agences'            => (int)   ($statsEntites->nb_agences            ?? 0),
-            'nb_agences_actives'    => (int)   ($statsEntites->nb_agences_actives    ?? 0),
-            'nb_users'              => (int)   ($statsEntites->nb_users              ?? 0),
-            'nb_biens'              => (int)   ($statsEntites->nb_biens              ?? 0),
-            'nb_contrats'           => (int)   ($statsEntites->nb_contrats           ?? 0),
-            'total_loyers'          => (float) ($statsPaiements->total_loyers        ?? 0),
-            'total_commissions'     => (float) ($statsPaiements->total_commissions   ?? 0),
-            'nb_essai'              => (int)   ($statsAbonnements->nb_essai          ?? 0),
-            'nb_abonnements_actifs' => (int)   ($statsAbonnements->nb_actifs         ?? 0),
-            'nb_expires'            => (int)   ($statsAbonnements->nb_expires        ?? 0),
-            'revenus_abonnements'   => (float) ($statsAbonnements->revenus           ?? 0),
+            'agences_actives' => $agencesActives,
+            'agences_nouvelles' => $agencesNouvellesM,
+            'mrr' => $mrr,
+            'mrr_growth' => $mrrGrowth,
+            'en_essai' => $enEssai,
+            'essais_bientot' => $essaisBientot->count(),
+            'suspendues' => $suspendues,
         ];
 
-        // 1 requête groupée pour tous les totaux paiements → plus de N+1
-        $paiementsTotaux = Paiement::withoutGlobalScopes()
-            ->where('statut', 'valide')
-            ->selectRaw('
-                agency_id,
-                COALESCE(SUM(montant_encaisse), 0) AS total_loyers,
-                COALESCE(SUM(commission_ttc), 0)   AS total_commissions
-            ')
-            ->groupBy('agency_id')
+        // ── Alertes « À traiter aujourd'hui » (par ordre de priorité) ────────
+        $alertes = collect();
+
+        // 1. URGENT — abonnement payant échu (grâce/suspendu = impayé)
+        foreach ($agences as $a) {
+            $s = $a->subscription;
+            if ($s && $s->statut === 'actif' && in_array($s->etatEffectif(), ['grace', 'suspendu'], true)) {
+                $jours = $s->date_fin_abonnement ? (int) $s->date_fin_abonnement->diffInDays($now) : null;
+                $alertes->push([
+                    'severite' => 'urgent',
+                    'icone' => '!',
+                    'titre' => 'Paiement en retard — '.$a->name,
+                    'sous_titre' => $this->planLabel($s)
+                        .($jours !== null ? ' · échéance dépassée depuis '.$jours.' j' : ''),
+                    'action_label' => 'Voir détails',
+                    'action_url' => route('superadmin.agencies.show', $a),
+                    'action_primary' => true,
+                    'externe' => false,
+                ]);
+            }
+        }
+
+        // 2. URGENT — déclarations de paiement à vérifier (back-office manuel)
+        $enAttente = SubscriptionPayment::with('agency:id,name')
+            ->where('statut', SubscriptionPayment::STATUT_EN_ATTENTE)
+            ->get();
+        if ($enAttente->isNotEmpty()) {
+            $alertes->push([
+                'severite' => 'urgent',
+                'icone' => '!',
+                'titre' => $enAttente->count().' déclaration'.($enAttente->count() > 1 ? 's' : '').' de paiement à vérifier',
+                'sous_titre' => $enAttente->take(3)->map(fn ($p) => $p->agency?->name)->filter()->implode(', '),
+                'action_label' => 'Vérifier',
+                'action_url' => route('superadmin.paiements.attente'),
+                'action_primary' => true,
+                'externe' => false,
+            ]);
+        }
+
+        // 3. WARNING — essais qui expirent sous 7 jours (relance WhatsApp)
+        foreach ($essaisBientot as $a) {
+            $jr = $a->subscription->joursRestantsEssai();
+            $alertes->push([
+                'severite' => 'warn',
+                'icone' => '⏳',
+                'titre' => 'Essai expire '.($jr <= 0 ? "aujourd'hui" : 'dans '.$jr.' j').' — '.$a->name,
+                'sous_titre' => 'Relancer avant la fin de la période gratuite',
+                'action_label' => 'Envoyer une relance',
+                'action_url' => $this->waLink($a, 'Bonjour, votre essai gratuit de Bimmo se termine bientôt. Souhaitez-vous activer votre abonnement ?'),
+                'action_primary' => false,
+                'externe' => true,
+            ]);
+        }
+
+        // 4. INFO — agence inactive depuis 14 jours et plus
+        foreach ($agences as $a) {
+            if (! $a->actif) {
+                continue;
+            }
+            $ref = $derniereActivite->get($a->id) ?? $a->created_at;
+            if (! $ref) {
+                continue;
+            }
+            $jours = (int) $ref->diffInDays($now);
+            if ($jours >= $seuilInactif) {
+                $alertes->push([
+                    'severite' => 'info',
+                    'icone' => '☾',
+                    'titre' => 'Agence inactive depuis '.$jours.' jours — '.$a->name,
+                    'sous_titre' => 'Dernière action le '.$ref->locale('fr')->isoFormat('D MMM Y'),
+                    'action_label' => 'Contacter',
+                    'action_url' => $this->waLink($a, "Bonjour, nous avons remarqué que vous n'avez pas utilisé Bimmo récemment. Pouvons-nous vous aider ?"),
+                    'action_primary' => false,
+                    'externe' => true,
+                ]);
+            }
+        }
+
+        // 5. WARNING — limite d'unités bientôt atteinte (>= 90 % du plan)
+        foreach ($agences as $a) {
+            $limite = $a->limiteUnites();
+            if ($limite === null || $limite === 0) {
+                continue;
+            }
+            if ($a->nb_unites / $limite >= 0.9) {
+                $alertes->push([
+                    'severite' => 'warn',
+                    'icone' => '△',
+                    'titre' => "Limite d'unités bientôt atteinte — ".$a->name,
+                    'sous_titre' => $a->nb_unites.'/'.$limite.' biens (plan '.$this->planLabel($a->subscription).')',
+                    'action_label' => 'Suggérer un upgrade',
+                    'action_url' => route('superadmin.agencies.show', $a),
+                    'action_primary' => false,
+                    'externe' => false,
+                ]);
+            }
+        }
+
+        // ── Courbe MRR sur 12 mois (équivalent mensuel, fin de mois) ─────────
+        // Ancrage sur le 1ᵉʳ du mois + subMonthsNoOverflow : évite le débordement
+        // de subMonths() les jours 29-31 (ex. 31 mars − 1 mois → 3 mars) qui
+        // fausserait les libellés de mois selon la date de consultation.
+        $chartLabels = collect();
+        $chartMrr = collect();
+        $ancreMois = $now->copy()->startOfMonth();
+        foreach (range(11, 0) as $i) {
+            $mois = $ancreMois->copy()->subMonthsNoOverflow($i);
+            $point = $i === 0 ? $now : $mois->copy()->endOfMonth();
+            $chartLabels->push($mois->locale('fr')->isoFormat('MMM'));
+            $chartMrr->push($mrrAt($point));
+        }
+
+        // ── Activité récente : événements niveau PLATEFORME (brief) ──────────
+        // Le journal cross-agency contient surtout des événements internes aux
+        // agences (biens, baux, quittances) qui n'ont pas leur place ici. On ne
+        // retient que ce qui concerne la plateforme : cycle de vie des agences,
+        // création de comptes, impersonations.
+        $activites = ActivityLog::with(['user:id,name', 'agency:id,name'])
+            ->where(function ($q) {
+                $q->where('action', 'impersonate')
+                    ->orWhere('model_type', Agency::class)
+                    ->orWhere(fn ($q2) => $q2->where('model_type', User::class)->where('action', 'created'));
+            })
+            ->latest()
+            ->limit(6)
             ->get()
-            ->keyBy('agency_id');
+            ->map(fn ($log) => [
+                'description' => $log->description,
+                'agence' => $log->agency?->name,
+                'temps' => $this->tempsRelatif($log->created_at),
+            ]);
 
-        $agences = Agency::withCount([
-                'users',
-                'biens',
-                'contrats' => fn($q) => $q->where('statut', 'actif'),
-            ])
-            ->with(['users:id,agency_id,role', 'subscription'])
-            ->orderByDesc('created_at')
-            ->get()
-            ->map(function ($agency) use ($paiementsTotaux) {
-                $p = $paiementsTotaux->get($agency->id);
+        // ── Agences à risque (max 5, priorité retard > inactive > essai) ─────
+        $risque = collect();
+        foreach ($agences as $a) {
+            $s = $a->subscription;
+            $enRetard = ! $a->actif
+                || ($s && $s->statut === 'actif' && in_array($s->etatEffectif(), ['grace', 'suspendu'], true));
+            if ($enRetard) {
+                $risque->push([
+                    'agence' => $a,
+                    'plan' => $this->planLabel($s),
+                    'motif' => $a->actif ? 'Paiement en retard' : 'Suspendue',
+                    'type' => 'late',
+                    'prio' => 1,
+                ]);
 
-                $agency->total_loyers      = (float) ($p->total_loyers      ?? 0);
-                $agency->total_commissions = (float) ($p->total_commissions ?? 0);
-                $agency->nb_admins         = $agency->users->where('role', 'admin')->count();
+                continue;
+            }
+            $ref = $derniereActivite->get($a->id) ?? $a->created_at;
+            if ($a->actif && $ref && (int) $ref->diffInDays($now) >= $seuilInactif) {
+                $risque->push(['agence' => $a, 'plan' => $this->planLabel($s), 'motif' => 'Inactive '.(int) $ref->diffInDays($now).'j', 'type' => 'idle', 'prio' => 2]);
 
-                return $agency;
-            });
+                continue;
+            }
+            if ($s?->estEnEssai() && $s->joursRestantsEssai() <= 7) {
+                $jr = $s->joursRestantsEssai();
+                $risque->push(['agence' => $a, 'plan' => 'Essai', 'motif' => 'Essai expire J-'.max(0, $jr), 'type' => 'idle', 'prio' => 3]);
+            }
+        }
+        $risque = $risque->sortBy('prio')->take(5)->values();
 
-        // ── Données graphique 12 derniers mois ───────────────────────────
-        $moisFr       = ['01'=>'Jan','02'=>'Fév','03'=>'Mar','04'=>'Avr','05'=>'Mai','06'=>'Jun',
-                         '07'=>'Jul','08'=>'Aoû','09'=>'Sep','10'=>'Oct','11'=>'Nov','12'=>'Déc'];
-        $derniers12   = collect(range(11, 0))->map(fn($i) => now()->subMonths($i)->format('Y-m'));
+        return view('superadmin.dashboard', [
+            'stats' => $stats,
+            'alertes' => $alertes,
+            'chartLabels' => $chartLabels,
+            'chartMrr' => $chartMrr,
+            'activites' => $activites,
+            'risque' => $risque,
+            'dateStr' => $now->locale('fr')->isoFormat('dddd D MMMM Y'),
+        ]);
+    }
 
-        $rawRevenus = DB::select("
-            SELECT DATE_FORMAT(date_debut_abonnement, '%Y-%m') AS mois,
-                   COALESCE(SUM(montant_paye), 0) AS revenus
-            FROM subscriptions
-            WHERE date_debut_abonnement >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-            GROUP BY mois ORDER BY mois
-        ");
-        $revenusMap = collect($rawRevenus)->pluck('revenus', 'mois');
+    /** Page « à venir » pour les sections Super Admin pas encore construites. */
+    public function aVenir(string $section): View
+    {
+        $titres = [
+            'agences' => 'Agences',
+            'abonnements' => 'Abonnements & facturation',
+            'support' => 'Support / Debug',
+            'regles-fiscales' => 'Règles fiscales',
+            'equipe' => 'Équipe interne',
+            'parametres' => 'Paramètres système',
+        ];
 
-        $rawAgences = DB::select("
-            SELECT DATE_FORMAT(created_at, '%Y-%m') AS mois, COUNT(*) AS nb
-            FROM agencies
-            WHERE created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
-            GROUP BY mois ORDER BY mois
-        ");
-        $agencesMap = collect($rawAgences)->pluck('nb', 'mois');
+        abort_unless(array_key_exists($section, $titres), 404);
 
-        $chartLabels  = $derniers12->map(fn($m) => $moisFr[substr($m,5,2)].' '.substr($m,0,4))->values();
-        $chartRevenus = $derniers12->map(fn($m) => (float)($revenusMap[$m] ?? 0))->values();
-        $chartAgences = $derniers12->map(fn($m) => (int)($agencesMap[$m] ?? 0))->values();
+        return view('superadmin.a-venir', [
+            'section' => $section,
+            'titre' => $titres[$section],
+        ]);
+    }
 
-        return view('superadmin.dashboard', compact('stats', 'agences', 'chartLabels', 'chartRevenus', 'chartAgences'));
+    /** Libellé de plan lisible pour une souscription (« Essai », « Pro », « — »). */
+    private function planLabel(?Subscription $s): string
+    {
+        if (! $s) {
+            return '—';
+        }
+        if ($s->estEnEssai()) {
+            return 'Essai';
+        }
+
+        return $s->plan_niveau
+            ? config('plans.labels.'.$s->plan_niveau, ucfirst($s->plan_niveau))
+            : '—';
+    }
+
+    /** Lien WhatsApp pré-rempli vers le contact d'une agence (null si pas de numéro). */
+    private function waLink(Agency $agency, string $message): string
+    {
+        $digits = preg_replace('/\D/', '', (string) ($agency->whatsapp ?: $agency->telephone));
+        if ($digits === '') {
+            // Pas de numéro connu → fiche agence en repli (le superadmin y trouve le contact).
+            return route('superadmin.agencies.show', $agency);
+        }
+        // Numéro local sénégalais (9 chiffres) → préfixer l'indicatif +221.
+        if (strlen($digits) === 9) {
+            $digits = '221'.$digits;
+        }
+
+        return 'https://wa.me/'.$digits.'?text='.rawurlencode($message);
+    }
+
+    /** Horodatage relatif façon maquette : « 09:14 » / « Hier, 17:40 » / « 12 juil. ». */
+    private function tempsRelatif(?Carbon $date): string
+    {
+        if (! $date) {
+            return '';
+        }
+        if ($date->isToday()) {
+            return $date->format('H:i');
+        }
+        if ($date->isYesterday()) {
+            return 'Hier, '.$date->format('H:i');
+        }
+
+        return $date->locale('fr')->isoFormat('D MMM');
     }
 
     public function toggleActif(Agency $agency): RedirectResponse
@@ -168,15 +384,15 @@ class SuperAdminController extends Controller
             ->first();
 
         $stats = [
-            'nb_users'          => $users->count(),
-            'nb_proprietaires'  => $users->where('role', 'proprietaire')->count(),
-            'nb_locataires'     => $users->where('role', 'locataire')->count(),
-            'nb_biens'          => $biens->count(),
-            'nb_biens_loues'    => $biens->where('statut', 'loue')->count(),
-            'nb_contrats'       => Contrat::withoutGlobalScopes()
-                                    ->where('agency_id', $agency->id)
-                                    ->where('statut', 'actif')->count(),
-            'total_loyers'      => (float) ($p->total_loyers      ?? 0),
+            'nb_users' => $users->count(),
+            'nb_proprietaires' => $users->where('role', 'proprietaire')->count(),
+            'nb_locataires' => $users->where('role', 'locataire')->count(),
+            'nb_biens' => $biens->count(),
+            'nb_biens_loues' => $biens->where('statut', 'loue')->count(),
+            'nb_contrats' => Contrat::withoutGlobalScopes()
+                ->where('agency_id', $agency->id)
+                ->where('statut', 'actif')->count(),
+            'total_loyers' => (float) ($p->total_loyers ?? 0),
             'total_commissions' => (float) ($p->total_commissions ?? 0),
         ];
 
@@ -215,10 +431,10 @@ class SuperAdminController extends Controller
         ')->first();
 
         $stats = [
-            'nb_essai'              => (int)   ($statsRaw->nb_essai              ?? 0),
-            'nb_actifs'             => (int)   ($statsRaw->nb_actifs             ?? 0),
-            'nb_expires'            => (int)   ($statsRaw->nb_expires            ?? 0),
-            'revenus_total'         => (float) ($statsRaw->revenus_total         ?? 0),
+            'nb_essai' => (int) ($statsRaw->nb_essai ?? 0),
+            'nb_actifs' => (int) ($statsRaw->nb_actifs ?? 0),
+            'nb_expires' => (int) ($statsRaw->nb_expires ?? 0),
+            'revenus_total' => (float) ($statsRaw->revenus_total ?? 0),
             'revenus_mensuel_equiv' => (float) ($statsRaw->revenus_mensuel_equiv ?? 0),
         ];
 
@@ -241,7 +457,7 @@ class SuperAdminController extends Controller
     public function activerAbonnement(Request $request, Agency $agency): RedirectResponse
     {
         $request->validate([
-            'plan'        => ['required', 'in:mensuel,annuel'],
+            'plan' => ['required', 'in:mensuel,annuel'],
             'plan_niveau' => ['nullable', 'in:starter,pro,agence'],
         ]);
 
@@ -249,27 +465,27 @@ class SuperAdminController extends Controller
 
         if (! $subscription) {
             $subscription = Subscription::create([
-                'agency_id'        => $agency->id,
-                'statut'           => 'essai',
+                'agency_id' => $agency->id,
+                'statut' => 'essai',
                 'date_debut_essai' => now(),
-                'date_fin_essai'   => now()->addDays(30),
+                'date_fin_essai' => now()->addDays(30),
             ]);
         }
 
-        $planNiveau     = $request->input('plan_niveau', 'pro');
+        $planNiveau = $request->input('plan_niveau', 'pro');
         $limitesParPlan = config('plans.nb_unites_max');
-        $limiteNouveau  = $limitesParPlan[$planNiveau] ?? $limitesParPlan['pro'];
+        $limiteNouveau = $limitesParPlan[$planNiveau] ?? $limitesParPlan['pro'];
 
         $nbUnites = $agency->nbUnitesActives();
         if ($limiteNouveau !== null && $nbUnites > $limiteNouveau) {
             return redirect()
                 ->back()
                 ->with('error', "Impossible : {$agency->name} gère {$nbUnites} biens, "
-                    . "mais le plan {$planNiveau} n'en autorise que {$limiteNouveau}. "
-                    . "Archivez les biens excédentaires d'abord.");
+                    ."mais le plan {$planNiveau} n'en autorise que {$limiteNouveau}. "
+                    ."Archivez les biens excédentaires d'abord.");
         }
 
-        $subscription->activer($request->plan, 'MANUEL-SUPERADMIN-' . now()->format('YmdHis'), 'manuel', $planNiveau);
+        $subscription->activer($request->plan, 'MANUEL-SUPERADMIN-'.now()->format('YmdHis'), 'manuel', $planNiveau);
 
         $niveauLabel = config("plans.labels.{$planNiveau}", ucfirst($planNiveau));
 
@@ -284,20 +500,20 @@ class SuperAdminController extends Controller
 
         if (! $subscription) {
             Subscription::create([
-                'agency_id'        => $agency->id,
-                'statut'           => 'essai',
+                'agency_id' => $agency->id,
+                'statut' => 'essai',
                 'date_debut_essai' => now(),
-                'date_fin_essai'   => now()->addDays(30),
+                'date_fin_essai' => now()->addDays(30),
             ]);
         } else {
             $subscription->update([
-                'statut'                => 'essai',
-                'date_debut_essai'      => now(),
-                'date_fin_essai'        => now()->addDays(30),
-                'plan'                  => null,
-                'montant_paye'          => null,
+                'statut' => 'essai',
+                'date_debut_essai' => now(),
+                'date_fin_essai' => now()->addDays(30),
+                'plan' => null,
+                'montant_paye' => null,
                 'date_debut_abonnement' => null,
-                'date_fin_abonnement'   => null,
+                'date_fin_abonnement' => null,
             ]);
         }
 
@@ -314,11 +530,11 @@ class SuperAdminController extends Controller
     public function updateAgency(Request $request, Agency $agency): RedirectResponse
     {
         $request->validate([
-            'name'      => ['required', 'string', 'min:2', 'max:100'],
-            'email'     => ['required', 'email', 'max:255', Rule::unique('agencies', 'email')->ignore($agency->id)],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('agencies', 'email')->ignore($agency->id)],
             'telephone' => ['nullable', 'string', 'max:20'],
-            'adresse'   => ['nullable', 'string', 'max:255'],
-            'taux_tva'  => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'adresse' => ['nullable', 'string', 'max:255'],
+            'taux_tva' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
         $agency->update($request->only('name', 'email', 'telephone', 'adresse', 'taux_tva'));
@@ -342,12 +558,12 @@ class SuperAdminController extends Controller
 
         $emailEnvoye = false;
         try {
-            $user->notify(new PasswordResetByAdminNotification());
+            $user->notify(new PasswordResetByAdminNotification);
             $emailEnvoye = true;
         } catch (\Throwable $e) {
             Log::warning('Email réinitialisation MDP non envoyé', [
                 'user_id' => $user->id,
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -386,24 +602,24 @@ class SuperAdminController extends Controller
 
         // Audit : tracer le démarrage de l'impersonation.
         // Auth::id() est encore le superadmin réel avant le Auth::login ci-dessous.
-        \App\Models\ActivityLog::create([
-            'user_id'     => Auth::id(),
-            'agency_id'   => $user->agency_id,
-            'action'      => 'impersonate',
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'agency_id' => $user->agency_id,
+            'action' => 'impersonate',
             'description' => "Impersonation démarrée : {$user->name} (#{$user->id}, {$user->role})",
-            'model_type'  => User::class,
-            'model_id'    => $user->id,
-            'ip_address'  => request()?->ip(),
+            'model_type' => User::class,
+            'model_id' => $user->id,
+            'ip_address' => request()?->ip(),
         ]);
 
         session(['impersonating_id' => Auth::id()]);
         Auth::login($user);
 
-        $redirect = match($user->role) {
-            'admin'        => route('admin.dashboard'),
+        $redirect = match ($user->role) {
+            'admin' => route('admin.dashboard'),
             'proprietaire' => route('proprietaire.dashboard'),
-            'locataire'    => route('locataire.dashboard'),
-            default        => route('dashboard'),
+            'locataire' => route('locataire.dashboard'),
+            default => route('dashboard'),
         };
 
         return redirect($redirect);
@@ -427,6 +643,7 @@ class SuperAdminController extends Controller
 
         if (! $superAdmin || ! $superAdmin->isSuperAdmin()) {
             Auth::logout();
+
             return redirect()->route('login');
         }
 
@@ -445,11 +662,11 @@ class SuperAdminController extends Controller
             ->where('feature', $feature)
             ->first();
 
-        $planNiveau     = $agency->subscription?->plan_niveau ?? 'starter';
-        $hierarchy      = config('plans.hierarchy', ['starter', 'pro', 'agence']);
+        $planNiveau = $agency->subscription?->plan_niveau ?? 'starter';
+        $hierarchy = config('plans.hierarchy', ['starter', 'pro', 'agence']);
         $niveauEffectif = config('plans.niveau_effectif')[$planNiveau] ?? 'starter';
-        $niveauRequis   = config('plans.features')[$feature];
-        $enabledByPlan  = array_search($niveauEffectif, $hierarchy) >= array_search($niveauRequis, $hierarchy);
+        $niveauRequis = config('plans.features')[$feature];
+        $enabledByPlan = array_search($niveauEffectif, $hierarchy) >= array_search($niveauRequis, $hierarchy);
 
         if ($override) {
             // Cycler : override → retirer l'override (revenir au plan)
@@ -459,11 +676,11 @@ class SuperAdminController extends Controller
             // Créer l'override inverse du plan actuel
             AgencyFeatureOverride::create([
                 'agency_id' => $agency->id,
-                'feature'   => $feature,
-                'enabled'   => ! $enabledByPlan,
+                'feature' => $feature,
+                'enabled' => ! $enabledByPlan,
             ]);
             $etat = $enabledByPlan ? 'désactivée' : 'activée';
-            $msg  = "Feature « {$feature} » {$etat} pour {$agency->name}.";
+            $msg = "Feature « {$feature} » {$etat} pour {$agency->name}.";
         }
 
         return back()->with('success', $msg);
@@ -489,13 +706,13 @@ class SuperAdminController extends Controller
     public function storeAgency(Request $request): RedirectResponse
     {
         $request->validate([
-            'agency_name'      => ['required', 'string', 'min:2', 'max:100'],
-            'agency_email'     => ['required', 'email', 'max:255', 'unique:agencies,email'],
+            'agency_name' => ['required', 'string', 'min:2', 'max:100'],
+            'agency_email' => ['required', 'email', 'max:255', 'unique:agencies,email'],
             'agency_telephone' => ['nullable', 'string', 'max:20'],
-            'agency_adresse'   => ['nullable', 'string', 'max:255'],
-            'admin_name'       => ['required', 'string', 'min:2', 'max:100'],
-            'admin_email'      => ['required', 'email', 'max:255', 'unique:users,email'],
-            'admin_password'   => ['required', 'confirmed', PasswordPolicy::rules()],
+            'agency_adresse' => ['nullable', 'string', 'max:255'],
+            'admin_name' => ['required', 'string', 'min:2', 'max:100'],
+            'admin_email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'admin_password' => ['required', 'confirmed', PasswordPolicy::rules()],
         ]);
 
         try {
@@ -503,30 +720,30 @@ class SuperAdminController extends Controller
                 // `slug` et `actif` sont intentionnellement absents de Agency::$fillable.
                 // On utilise l'assignation directe de propriétés (pas create()) pour
                 // contourner la protection mass-assignment de façon explicite et documentée.
-                $agency            = new Agency();
-                $agency->name      = $request->agency_name;
-                $agency->email     = $request->agency_email;
+                $agency = new Agency;
+                $agency->name = $request->agency_name;
+                $agency->email = $request->agency_email;
                 $agency->telephone = $request->agency_telephone;
-                $agency->adresse   = $request->agency_adresse;
-                $agency->slug      = Str::slug($request->agency_name) . '-' . Str::random(6);
-                $agency->actif     = true;
+                $agency->adresse = $request->agency_adresse;
+                $agency->slug = Str::slug($request->agency_name).'-'.Str::random(6);
+                $agency->actif = true;
                 $agency->save();
 
-                $admin            = new User();
-                $admin->name      = $request->admin_name;
-                $admin->email     = $request->admin_email;
-                $admin->password  = \Illuminate\Support\Facades\Hash::make($request->admin_password);
-                $admin->role      = 'admin';
-                $admin->is_owner  = true;
+                $admin = new User;
+                $admin->name = $request->admin_name;
+                $admin->email = $request->admin_email;
+                $admin->password = Hash::make($request->admin_password);
+                $admin->role = 'admin';
+                $admin->is_owner = true;
                 $admin->agency_id = $agency->id;
                 $admin->email_verified_at = now();
                 $admin->save();
 
                 Subscription::create([
-                    'agency_id'        => $agency->id,
-                    'statut'           => 'essai',
+                    'agency_id' => $agency->id,
+                    'statut' => 'essai',
                     'date_debut_essai' => now(),
-                    'date_fin_essai'   => now()->addDays(30),
+                    'date_fin_essai' => now()->addDays(30),
                 ]);
 
                 try {
@@ -542,6 +759,7 @@ class SuperAdminController extends Controller
 
         } catch (\Throwable $e) {
             Log::error('Erreur création agence', ['error' => $e->getMessage()]);
+
             return back()->withInput()->withErrors(['general' => 'Une erreur est survenue.']);
         }
     }
@@ -571,9 +789,9 @@ class SuperAdminController extends Controller
             $res = $subscription->activerAbonnement($payment->plan ?: 'mensuel', $payment->plan_niveau ?? 'pro');
 
             $payment->update([
-                'statut'        => SubscriptionPayment::STATUT_CONFIRME,
+                'statut' => SubscriptionPayment::STATUT_CONFIRME,
                 'periode_debut' => $res['debut'],
-                'periode_fin'   => $res['fin'],
+                'periode_fin' => $res['fin'],
             ]);
         });
 
@@ -592,7 +810,7 @@ class SuperAdminController extends Controller
         ]);
 
         $payment->update([
-            'statut'      => SubscriptionPayment::STATUT_REJETE,
+            'statut' => SubscriptionPayment::STATUT_REJETE,
             'motif_rejet' => $validated['motif_rejet'],
         ]);
 

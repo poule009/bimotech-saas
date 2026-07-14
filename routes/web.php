@@ -152,6 +152,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // ── Routes protégées par require2fa ────────────────────────────────
         Route::middleware('require2fa')->group(function () {
             Route::get('dashboard',                     [SuperAdminController::class, 'dashboard'])->name('dashboard');
+            // Placeholder « à venir » pour les sections Super Admin pas encore construites
+            // (Agences, Abonnements, Support, Règles fiscales, Équipe, Paramètres).
+            Route::get('a-venir/{section}',             [SuperAdminController::class, 'aVenir'])->name('a-venir');
             Route::get('subscriptions',                 [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
             // Déclarations de paiement manuelles à valider (back-office BIMO-tech)
             Route::get('paiements-attente',                     [SuperAdminController::class, 'paiementsAttente'])->name('paiements.attente');

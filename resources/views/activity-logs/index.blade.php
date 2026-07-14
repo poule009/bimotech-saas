@@ -13,8 +13,17 @@
         return ['older', $d->locale('fr')->isoFormat('MMMM Y')];
     };
 
-    // Lien vers la fiche de l'entité (jamais pour une suppression : l'entité n'existe plus)
+    // Lien de ligne selon le rôle :
+    //  - Superadmin : on ne quitte JAMAIS l'espace back-office → fiche agence
+    //    (principe produit : le superadmin ne manipule pas la donnée métier
+    //    d'une agence hors impersonation). Vaut aussi pour les suppressions,
+    //    car l'agence, elle, existe toujours.
+    //  - Admin agence : lien direct vers la fiche de l'entité concernée
+    //    (jamais pour une suppression : l'entité n'existe plus).
     $entityUrl = function ($log) {
+        if (auth()->user()?->isSuperAdmin()) {
+            return $log->agency_id ? route('superadmin.agencies.show', $log->agency_id) : null;
+        }
         if ($log->action === 'deleted') return null;
         return match (class_basename($log->model_type)) {
             'Contrat' => Route::has('admin.contrats.show') ? route('admin.contrats.show', $log->model_id) : null,
@@ -133,6 +142,12 @@
                     <span>·</span>
                     <span>{{ \Carbon\Carbon::parse($log->created_at)->locale('fr')->isoFormat($showFullDate ? 'D MMM, HH:mm' : 'HH:mm') }}</span>
 
+                    {{-- Vue cross-agence (superadmin) : rattacher chaque ligne à son agence. --}}
+                    @if(auth()->user()?->isSuperAdmin() && $log->agency)
+                        <span>·</span>
+                        <span class="inline-flex items-center gap-1 font-semibold text-teal"><x-icon name="home" size="12" /> {{ $log->agency->name }}</span>
+                    @endif
+
                     @if($auto)
                         <span class="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-paper-dim text-muted">Automatique</span>
                     @else
@@ -148,7 +163,7 @@
     @empty
         <div class="bg-white border border-line rounded-2xl py-16 text-center">
             <div class="text-[15px] font-semibold mb-1">Aucune activité</div>
-            <div class="text-[13px] text-muted">{{ $q !== '' || $categorie || $sensibles ? 'Aucun événement ne correspond à ces filtres.' : "Les actions sur votre agence apparaîtront ici." }}</div>
+            <div class="text-[13px] text-muted">{{ $q !== '' || $categorie || $sensibles ? 'Aucun événement ne correspond à ces filtres.' : (auth()->user()?->isSuperAdmin() ? 'Les actions des agences apparaîtront ici.' : 'Les actions sur votre agence apparaîtront ici.') }}</div>
         </div>
     @endforelse
 
