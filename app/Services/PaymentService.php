@@ -49,7 +49,8 @@ class PaymentService
         if (! array_key_exists($plan, Subscription::LABELS)) {
             return ['success' => false, 'mode' => $this->mode, 'message' => 'Plan invalide', 'redirect_url' => null];
         }
-        if (! array_key_exists($planNiveau, Subscription::TARIFS)) {
+        // Legacy n'est pas souscriptible (plan figé, non tarifé) → refusé ici.
+        if (! app(\App\Services\PlanService::class)->souscriptibles()->has($planNiveau)) {
             return ['success' => false, 'mode' => $this->mode, 'message' => 'Niveau de plan invalide', 'redirect_url' => null];
         }
 
@@ -269,7 +270,7 @@ class PaymentService
     private function creerFacturePaytech(Agency $agency, string $plan, string $planNiveau = 'pro'): array
     {
         try {
-            $montant    = Subscription::TARIFS[$planNiveau][$plan];
+            $montant    = app(\App\Services\PlanService::class)->prix($planNiveau, $plan);
             $labels     = Subscription::LABELS;
             $refCommand = 'BIMO-' . $agency->id . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
 

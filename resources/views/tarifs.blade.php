@@ -6,11 +6,14 @@
 @php
     $inscriptionUrl = route('agency.register');
 
-    // Limites d'usage réelles — source unique : config/plans.php (logique produit :
-    // gating par USAGE, pas par fonctionnalité — features => [] neutralise check.feature).
-    $unites = config('plans.nb_unites_max');   // ['starter'=>15,'pro'=>50,'agence'=>null,...]
-    $admins = config('plans.nb_admins_max');   // ['starter'=>2,'pro'=>5,'agence'=>null,...]
+    // Tarifs et limites réels — source unique : table `plans` via PlanService,
+    // injectée par le View composer sous $plansGrille (logique produit : gating
+    // par USAGE, pas par fonctionnalité — features => [] neutralise check.feature).
+    $unites = $plansGrille->map->limite_unites;
+    $admins = $plansGrille->map->limite_admins;
+    $prix   = $plansGrille->map->prix_mensuel;
     $ill = fn ($v) => $v === null ? 'Illimité' : (string) $v;
+    $fmtPrix = fn ($n) => number_format((float) $n, 0, ',', ' ');
 
     // Toutes les fonctionnalités sont incluses dans TOUS les plans (décision produit).
     $fonctionnalites = [
@@ -36,20 +39,20 @@
         <div class="pricing-grid reveal">
             <div class="price-card">
                 <div class="price-tier">Starter</div>
-                <div class="price-amount">25 000<span class="u">FCFA / mois</span></div>
+                <div class="price-amount">{{ $fmtPrix($prix['starter'] ?? 0) }}<span class="u">FCFA / mois</span></div>
                 <p class="price-desc">Jusqu'à {{ $ill($unites['starter'] ?? 15) }} unités — Dashboard, biens, contrats, paiements, impayés, quittances PDF.</p>
                 <a href="{{ $inscriptionUrl }}" class="btn btn-ghost-ink">Démarrer gratuitement</a>
             </div>
             <div class="price-card featured">
                 <div class="price-badge">★ Recommandé</div>
                 <div class="price-tier">Pro</div>
-                <div class="price-amount">50 000<span class="u">FCFA / mois</span></div>
+                <div class="price-amount">{{ $fmtPrix($prix['pro'] ?? 0) }}<span class="u">FCFA / mois</span></div>
                 <p class="price-desc">Jusqu'à {{ $ill($unites['pro'] ?? 50) }} unités — tout Starter, plus immeubles, rapports PDF, import Excel, relevés propriétaires.</p>
                 <a href="{{ $inscriptionUrl }}" class="btn btn-gold">Démarrer — 30 jours gratuits</a>
             </div>
             <div class="price-card">
                 <div class="price-tier">Agence</div>
-                <div class="price-amount">90 000<span class="u">FCFA / mois</span></div>
+                <div class="price-amount">{{ $fmtPrix($prix['agence'] ?? 0) }}<span class="u">FCFA / mois</span></div>
                 <p class="price-desc">Unités illimitées — tout Pro, plus déclarations DGID, bilans fiscaux, logs d'activité, support prioritaire.</p>
                 <a href="{{ $inscriptionUrl }}" class="btn btn-ghost-ink">Démarrer gratuitement</a>
             </div>

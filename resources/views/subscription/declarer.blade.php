@@ -2,12 +2,9 @@
 
 @php
     $fmt = fn ($n) => number_format((float) $n, 0, ',', ' ');
-    $niveaux = [
-        'starter' => 'Starter — 25 000 F/mois',
-        'pro'     => 'Pro — 50 000 F/mois',
-        'agence'  => 'Agence — 90 000 F/mois',
-    ];
-    $sel = old('plan_niveau', $planPreselect ?? 'starter');
+    // Libellés construits depuis $plans (table `plans`) : les tarifs étaient
+    // recopiés en dur ici et se désynchronisaient de la grille réelle.
+    $sel = old('plan_niveau', $planPreselect ?? $plans->keys()->first());
 @endphp
 
 @section('title', 'Déclarer un paiement')
@@ -42,8 +39,8 @@
             <div class="mb-[18px]">
                 <label class="f-label">Plan choisi</label>
                 <select name="plan_niveau" class="f-select">
-                    @foreach($niveaux as $k => $label)
-                        <option value="{{ $k }}" @selected($sel === $k)>{{ $label }}</option>
+                    @foreach($plans as $k => $plan)
+                        <option value="{{ $k }}" @selected($sel === $k)>{{ $plan->libelle }} — {{ $fmt($plan->prix_mensuel) }} F/mois</option>
                     @endforeach
                 </select>
             </div>

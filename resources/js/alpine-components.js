@@ -511,6 +511,28 @@ export function registerComponents(Alpine) {
         apply() { this.$root.submit(); },
     }));
 
+    // Formulaire de filtres qui se soumet au changement (facturation Super Admin).
+    // Séparé d'agencyFilters : pas de recherche texte débouncée ici, et le champ
+    // « période personnalisée » ne doit s'afficher que sur le choix « perso ».
+    Alpine.data('billingFilters', (initial = 'mois') => ({
+        periode: initial,
+        apply() { this.$root.submit(); },
+        onPeriode(event) {
+            this.periode = event.target.value;
+            // « perso » attend deux dates : on laisse l'utilisateur les saisir
+            // avant de soumettre, sinon on filtrerait sur des bornes vides.
+            if (this.periode !== 'perso') { this.$root.submit(); }
+        },
+        get isPerso() { return this.periode === 'perso'; },
+    }));
+
+    // Ligne de paiement en attente : déplie le champ « motif de rejet », qui est
+    // obligatoire (il est affiché à l'agence) et ne tient pas dans la ligne.
+    Alpine.data('rejectRow', () => ({
+        open: false,
+        toggle() { this.open = ! this.open; },
+    }));
+
     // Onglets d'une fiche (Informations / Biens / Documents).
     Alpine.data('tabs', (initial = 'info') => ({
         active: initial,

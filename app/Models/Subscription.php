@@ -16,6 +16,7 @@ class Subscription extends Model
         'agency_id',
         'statut',
         'plan_niveau',
+        'plan_niveau_prochain',
         'date_debut_essai',
         'date_fin_essai',
         'plan',
@@ -50,13 +51,11 @@ class Subscription extends Model
     public const PLAN_AGENCE  = 'agence';
     public const PLAN_LEGACY  = 'legacy';
 
-    // ── Tarifs en FCFA — [niveau][cycle] ─────────────────────────────────
-
-    public const TARIFS = [
-        'starter' => ['mensuel' => 25000, 'annuel' => 199000],
-        'pro'     => ['mensuel' => 50000, 'annuel' => 399000],
-        'agence'  => ['mensuel' => 90000, 'annuel' => 699000],
-    ];
+    // ── Tarifs ────────────────────────────────────────────────────────────
+    // Les tarifs vivaient ici (const TARIFS) ; ils sont désormais en base
+    // (table `plans`) et se lisent via App\Services\PlanService, qui est leur
+    // source unique. Ne pas réintroduire de tarif en dur dans ce modèle : le
+    // Super Admin les édite à chaud depuis « Configuration des plans ».
 
     public const LABELS = [
         'mensuel' => 'Mensuel',
@@ -201,9 +200,14 @@ class Subscription extends Model
      */
     public function activerAbonnement(string $cycle, string $planNiveau): array
     {
-        $dureeMois  = self::DUREES_MOIS[$cycle] ?? 1;
-        $niveauPrix = array_key_exists($planNiveau, self::TARIFS) ? $planNiveau : 'pro';
-        $montant    = self::TARIFS[$niveauPrix][$cycle] ?? self::TARIFS[$niveauPrix]['mensuel'];
+        $plans = app(\App\Services\PlanService::class);
+
+        $dureeMois = self::DUREES_MOIS[$cycle] ?? 1;
+        // Un plan inconnu (ou Legacy, non tarifé) retombe sur Pro, comme avant.
+        $plan    = $plans->find($planNiveau);
+        $plan    = ($plan && $plan->souscriptible) ? $plan : $plans->find(self::PLAN_PRO);
+        $montant = $plan->prix($cycle);
+
         $debut = now();
         $fin   = $debut->copy()->addMonths($dureeMois);
 
@@ -211,6 +215,11 @@ class Subscription extends Model
             'statut'                => 'actif',
             'plan'                  => $cycle,
             'plan_niveau'           => $planNiveau,
+            // Un renouvellement consomme le downgrade programmé : il vient d'être
+            // appliqué (ou le plan a changé entre-temps), la consigne est périmée.
+            'plan_niveau_prochain'  => null,
+            // Snapshot du tarif : c'est CE montant qui fait foi pour le cycle, pas
+            // le prix du plan, qui peut changer avant la prochaine échéance.
             'montant_paye'          => $montant,
             'date_debut_abonnement' => $debut,
             'date_fin_abonnement'   => $fin,
@@ -219,6 +228,23 @@ class Subscription extends Model
         ]);
 
         return ['debut' => $debut, 'fin' => $fin, 'montant' => $montant];
+    }
+
+    /**
+     * Équivalent mensuel réellement facturé sur le cycle en cours, depuis le
+     * snapshot `montant_paye`. Source du MRR : ne jamais recalculer depuis le
+     * tarif courant du plan, une hausse de prix remonterait rétroactivement sur
+     * les agences déjà engagées.
+     */
+    public function mrrEquivalent(): int
+    {
+        $montant = (int) round((float) $this->montant_paye);
+
+        if ($montant <= 0) {
+            return 0;
+        }
+
+        return $this->plan === 'annuel' ? intdiv($montant, 12) : $montant;
     }
 
     public function activer(

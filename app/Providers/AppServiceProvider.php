@@ -8,6 +8,7 @@ use App\Observers\BienObserver;
 use App\Observers\ContratObserver;
 use App\Services\FiscalService;
 use App\Services\PlanFeatureService;
+use App\Services\PlanService;
 use App\Services\QuittanceService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
@@ -22,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(FiscalService::class);
         $this->app->singleton(QuittanceService::class);
         $this->app->singleton(PlanFeatureService::class);
+        $this->app->singleton(PlanService::class);
     }
 
     public function boot(): void
@@ -34,6 +36,13 @@ class AppServiceProvider extends ServiceProvider
         // Auto-calcul de l'estimation CFPB du bien (cfpb_valeur_locative_estimee,
         // cfpb_montant_estime) à partir de loyer_mensuel — estimation structurelle.
         Bien::observe(BienObserver::class);
+
+        // Grille tarifaire partagée aux vues publiques. Les prix y étaient écrits
+        // en dur et se désynchronisaient de la grille réelle dès qu'elle bougeait ;
+        // le Super Admin peut désormais les éditer, donc la vitrine doit suivre.
+        View::composer(['welcome', 'tarifs', 'pricing'], function ($view) {
+            $view->with('plansGrille', app(PlanService::class)->souscriptibles());
+        });
 
         // @canAccessFeature('feature') ... @endcanAccessFeature
         Blade::if('canAccessFeature', function (string $feature): bool {

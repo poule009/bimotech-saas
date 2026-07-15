@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Agency;
-use App\Models\Subscription;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -40,13 +39,10 @@ class MrrService
                 return 0;
             }
 
-            $tarif = Subscription::TARIFS[$s->plan_niveau][$s->plan] ?? null;
-
-            if ($tarif === null) {
-                return 0;
-            }
-
-            return $s->plan === 'annuel' ? intdiv($tarif, 12) : $tarif;
+            // Montant réellement facturé sur ce cycle (snapshot), et NON le tarif
+            // courant du plan : le Super Admin peut changer les tarifs à chaud, ce
+            // qui ferait autrement bouger le MRR passé des agences déjà engagées.
+            return $s->mrrEquivalent();
         });
     }
 

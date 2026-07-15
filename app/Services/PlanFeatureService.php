@@ -59,6 +59,6 @@ class PlanFeatureService
     {
         $plan = $this->requiredPlan($feature);
 
-        return config("plans.labels.{$plan}", ucfirst((string) $plan));
+        return app(PlanService::class)->label($plan);
     }
 }

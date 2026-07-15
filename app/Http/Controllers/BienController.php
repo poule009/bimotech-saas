@@ -255,7 +255,7 @@ class BienController extends Controller
             return redirect()
                 ->route('admin.biens.create')
                 ->with('upgrade_required', [
-                    'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
+                    'plan_actuel'     => app(\App\Services\PlanService::class)->label($planNiveau),
                     'nb_unites'       => $nbUnites,
                     'limite'          => $limiteUnites,
                     'plan_suivant'    => $planSuivant,

@@ -1,8 +1,9 @@
 @extends('layouts.app')
 
 @php
-    $labels    = config('plans.labels', []);
-    $planLabel = $requiredPlan ? ($labels[$requiredPlan] ?? ucfirst($requiredPlan)) : 'supérieur';
+    $planLabel = $requiredPlan
+        ? app(\App\Services\PlanService::class)->label($requiredPlan)
+        : 'supérieur';
 @endphp
 
 @section('title', 'Offre supérieure requise')
