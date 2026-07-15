@@ -47,6 +47,11 @@ class ActivityLogController extends Controller implements HasMiddleware
             $query->where('agency_id', $user->agency_id);
         }
 
+        // Super Admin : restreindre le journal à une agence (« Voir le journal » depuis la fiche).
+        if ($user->role === 'superadmin' && $request->filled('agency')) {
+            $query->where('agency_id', (int) $request->input('agency'));
+        }
+
         // Recherche (description) — wildcards LIKE échappés
         if ($request->filled('q')) {
             $q = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $request->q);

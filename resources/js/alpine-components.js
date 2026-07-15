@@ -478,6 +478,39 @@ export function registerComponents(Alpine) {
         setList() { this.mode = 'list'; },
     }));
 
+    // Super Admin — fiche agence : onglets (Infos / Abonnement / Usage / Activité).
+    Alpine.data('agencyTabs', () => ({
+        active: 'infos',
+        init() { if (this.$el.dataset.tab) { this.active = this.$el.dataset.tab; } },
+        _cls(name) { return this.active === name ? 'text-teal border-gold' : 'text-muted border-transparent hover:text-ink'; },
+        get isInfos() { return this.active === 'infos'; },
+        get isAbo() { return this.active === 'abo'; },
+        get isUsage() { return this.active === 'usage'; },
+        get isActivite() { return this.active === 'activite'; },
+        get infosClass() { return this._cls('infos'); },
+        get aboClass() { return this._cls('abo'); },
+        get usageClass() { return this._cls('usage'); },
+        get activiteClass() { return this._cls('activite'); },
+        showInfos() { this.active = 'infos'; },
+        showAbo() { this.active = 'abo'; },
+        showUsage() { this.active = 'usage'; },
+        showActivite() { this.active = 'activite'; },
+    }));
+
+    // Super Admin — liste agences : recherche (≥ 3 car., débounce 300 ms) + filtres.
+    // $root = le <form> porteur ; les <select> soumettent immédiatement.
+    Alpine.data('agencyFilters', () => ({
+        _timer: null,
+        search(event) {
+            const v = (event.target.value || '').trim();
+            clearTimeout(this._timer);
+            // On ne soumet qu'à partir de 3 caractères — ou à vide (pour réinitialiser).
+            if (v.length > 0 && v.length < 3) { return; }
+            this._timer = setTimeout(() => this.$root.submit(), 300);
+        },
+        apply() { this.$root.submit(); },
+    }));
+
     // Onglets d'une fiche (Informations / Biens / Documents).
     Alpine.data('tabs', (initial = 'info') => ({
         active: initial,

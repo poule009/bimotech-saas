@@ -20,6 +20,7 @@ use App\Support\PasswordPolicy;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -297,6 +298,119 @@ class SuperAdminController extends Controller
         ]);
     }
 
+    /**
+     * Liste des agences clientes (recherche + filtres statut/plan, pagination serveur).
+     *
+     * Choix de conception :
+     *  - Le statut affiché est DÉRIVÉ (Subscription::etatEffectif) → source unique de
+     *    vérité, jamais recodée en SQL. On charge donc les agences (quelques dizaines à
+     *    l'échelle actuelle) + relation `subscription`, on calcule le statut en PHP, puis
+     *    on filtre et on pagine manuellement via LengthAwarePaginator. La vue n'affiche
+     *    toujours qu'une page (pagination « serveur » au sens rendu partiel).
+     *  - Recherche : ≥ 3 caractères (débounce 300 ms côté client) sur le nom d'agence.
+     */
+    public function indexAgencies(Request $request): View
+    {
+        $now = now();
+        $q = trim((string) $request->get('q', ''));
+        $statutFiltre = $request->get('statut', 'tous'); // tous|actif|essai|suspendu
+        $planFiltre = $request->get('plan', 'tous');      // tous|starter|pro|agence|legacy
+
+        $agences = Agency::with('subscription')
+            ->withCount(['biens as nb_unites' => fn ($qb) => $qb->where('statut', '!=', 'archive')])
+            ->orderByDesc('created_at')
+            ->get();
+
+        $derniereActivite = ActivityLog::selectRaw('agency_id, MAX(created_at) AS last_at')
+            ->groupBy('agency_id')
+            ->pluck('last_at', 'agency_id')
+            ->map(fn ($d) => Carbon::parse($d));
+
+        $mrrService = app(MrrService::class);
+
+        $rows = $agences->map(function (Agency $a) use ($derniereActivite, $mrrService, $now) {
+            return [
+                'agency' => $a,
+                'statut' => $this->statutAgence($a),
+                'plan' => $this->planLabel($a->subscription),
+                'plan_niveau' => $a->subscription?->plan_niveau ?: 'legacy',
+                'nb_unites' => (int) $a->nb_unites,
+                'limite' => $a->limiteUnites(),
+                'mrr' => $mrrService->at($now, collect([$a])),
+                'inscrite' => $a->created_at,
+                'derniere' => $derniereActivite->get($a->id),
+            ];
+        });
+
+        // ── Compteurs globaux (sous-titre) — avant filtrage ──────────────────
+        $repartition = $rows->countBy(fn ($r) => $r['statut']['bucket']);
+
+        // ── Filtres cumulables ───────────────────────────────────────────────
+        if (mb_strlen($q) >= 3) {
+            $needle = mb_strtolower($q);
+            $rows = $rows->filter(fn ($r) => str_contains(mb_strtolower($r['agency']->name), $needle));
+        }
+        if (in_array($statutFiltre, ['actif', 'essai', 'suspendu'], true)) {
+            $rows = $rows->filter(fn ($r) => $r['statut']['bucket'] === $statutFiltre);
+        }
+        if (in_array($planFiltre, ['starter', 'pro', 'agence', 'legacy'], true)) {
+            $rows = $rows->filter(fn ($r) => $r['plan_niveau'] === $planFiltre);
+        }
+        $rows = $rows->values();
+
+        // ── Pagination manuelle (10 lignes / page) ───────────────────────────
+        $perPage = 10;
+        $page = max(1, (int) $request->get('page', 1));
+        $paginator = new LengthAwarePaginator(
+            $rows->slice(($page - 1) * $perPage, $perPage)->values(),
+            $rows->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('superadmin.agencies-list', [
+            'paginator' => $paginator,
+            'repartition' => $repartition,
+            'total' => $agences->count(),
+            'q' => $q,
+            'statutFiltre' => $statutFiltre,
+            'planFiltre' => $planFiltre,
+        ]);
+    }
+
+    /**
+     * Statut dérivé d'une agence pour l'affichage (badge liste + en-tête fiche).
+     * Le sous-libellé distingue explicitement la cause d'une suspension
+     * (paiement en retard vs désactivation manuelle vs essai échu).
+     *
+     * @return array{bucket:string,label:string,variant:string}
+     *         bucket ∈ actif|essai|suspendu ; variant ∈ green|gold|red
+     */
+    private function statutAgence(Agency $a): array
+    {
+        if (! $a->actif) {
+            return ['bucket' => 'suspendu', 'label' => 'Suspendue', 'variant' => 'red'];
+        }
+
+        $s = $a->subscription;
+        if (! $s) {
+            return ['bucket' => 'actif', 'label' => 'Actif', 'variant' => 'green'];
+        }
+
+        return match ($s->etatEffectif()) {
+            Subscription::ETAT_ESSAI => ['bucket' => 'essai', 'label' => 'Essai — J-'.$s->joursRestantsEssai(), 'variant' => 'gold'],
+            Subscription::ETAT_ACTIF => ['bucket' => 'actif', 'label' => 'Actif', 'variant' => 'green'],
+            Subscription::ETAT_GRACE => $s->statut === 'essai'
+                ? ['bucket' => 'suspendu', 'label' => 'Essai expiré', 'variant' => 'red']
+                : ['bucket' => 'suspendu', 'label' => 'Paiement en retard', 'variant' => 'red'],
+            Subscription::ETAT_SUSPENDU => $s->statut === 'essai'
+                ? ['bucket' => 'suspendu', 'label' => 'Essai échu', 'variant' => 'red']
+                : ['bucket' => 'suspendu', 'label' => 'Suspendu — impayé', 'variant' => 'red'],
+            default => ['bucket' => 'actif', 'label' => 'Actif', 'variant' => 'green'],
+        };
+    }
+
     /** Libellé de plan lisible pour une souscription (« Essai », « Pro », « — »). */
     private function planLabel(?Subscription $s): string
     {
@@ -381,8 +495,11 @@ class SuperAdminController extends Controller
             ')
             ->first();
 
+        $nbAdmins = $users->where('role', 'admin')->count();
+
         $stats = [
             'nb_users' => $users->count(),
+            'nb_admins' => $nbAdmins,
             'nb_proprietaires' => $users->where('role', 'proprietaire')->count(),
             'nb_locataires' => $users->where('role', 'locataire')->count(),
             'nb_biens' => $biens->count(),
@@ -394,11 +511,35 @@ class SuperAdminController extends Controller
             'total_commissions' => (float) ($p->total_commissions ?? 0),
         ];
 
-        $overrides = $agency->featureOverrides()->get()->keyBy('feature');
+        // Limites du plan (source unique config/plans.php) pour les jauges d'usage.
+        $limites = [
+            'unites' => $agency->limiteUnites(),
+            'admins' => $agency->limiteAdmins(),
+        ];
+
+        // Historique des paiements d'abonnement (le plus récent d'abord).
+        $paiements = SubscriptionPayment::withoutGlobalScopes()
+            ->where('agency_id', $agency->id)
+            ->latest('created_at')
+            ->limit(12)
+            ->get();
+
+        // Journal de l'agence (onglet Activité) — hors consultations ('viewed').
+        $activites = ActivityLog::with('user:id,name')
+            ->where('agency_id', $agency->id)
+            ->where('action', '!=', 'viewed')
+            ->latest()
+            ->limit(15)
+            ->get();
+
+        // Compte à impersonner : le directeur (is_owner), sinon un admin.
+        $adminCible = $users->firstWhere('is_owner', true)
+            ?? $users->firstWhere('role', 'admin');
 
         return view('superadmin.agency-detail', compact(
-            'agency', 'users', 'biens', 'stats', 'subscription', 'overrides'
-        ));
+            'agency', 'users', 'biens', 'stats', 'subscription',
+            'limites', 'paiements', 'activites', 'adminCible'
+        ) + ['statut' => $this->statutAgence($agency)]);
     }
 
     // ✅ CORRECTION M4 : paginate(50) au lieu de get() + CASE WHEN au lieu de FIELD()

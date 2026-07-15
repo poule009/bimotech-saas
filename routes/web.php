@@ -161,6 +161,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('paiements/{payment}/confirmer',        [SuperAdminController::class, 'confirmerPaiement'])->name('paiements.confirmer');
             Route::post('paiements/{payment}/rejeter',          [SuperAdminController::class, 'rejeterPaiement'])->name('paiements.rejeter');
             Route::get('activity-logs',                 [ActivityLogController::class, 'index'])->name('activity-logs.index');
+            Route::get('agencies',                      [SuperAdminController::class, 'indexAgencies'])->name('agencies.index');
             Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
             Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
             Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');

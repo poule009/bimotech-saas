@@ -209,7 +209,7 @@
         <section class="bg-white border border-line rounded-xl overflow-hidden">
             <div class="flex items-center justify-between px-5 py-4 border-b border-paper-dim">
                 <div class="font-display font-medium text-[18px] text-ink">Agences à risque</div>
-                <a href="{{ route('superadmin.a-venir', 'agences') }}" class="text-[12.5px] font-semibold text-teal border-b border-gold pb-px">Voir Agences</a>
+                <a href="{{ route('superadmin.agencies.index') }}" class="text-[12.5px] font-semibold text-teal border-b border-gold pb-px">Voir Agences</a>
             </div>
             @if($risque->isEmpty())
                 <div class="px-5 py-8 text-center text-[13px] text-muted">Aucune agence à risque. 🎉</div>
