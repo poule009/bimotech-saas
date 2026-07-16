@@ -141,6 +141,12 @@ class ComptabiliteService
         $depensesLieesBien  = $paiements->sum(fn($p) => $p->depenses->sum('montant'));
         $netDuBase          = $paiements->sum('net_final_bailleur');
 
+        // Caution incluse dans le net bailleur (montant_net_bailleur = net après BRS
+        // + caution si l'agence la remet au propriétaire). On l'expose séparément pour
+        // que le décompte se réconcilie : loyers + caution − commission − BRS − dépenses = net.
+        $cautionIncluse     = (float) $paiements->sum(fn($p) =>
+            (float) ($p->montant_net_bailleur ?? 0) - (float) ($p->net_a_verser_proprietaire ?? 0));
+
         // ── Dépenses « directes » : rattachées au propriétaire sans bien/paiement ──
         // Non incluses dans net_final_bailleur (aucun paiement) → déduites ici.
         $depensesDirectesQuery = \App\Models\DepenseGestion::withoutGlobalScopes()
@@ -182,6 +188,7 @@ class ComptabiliteService
 
         return [
             'loyers_encaisses'       => (float) $loyersEncaisses,
+            'caution_incluse'        => $cautionIncluse,
             'commissions_deduites'   => (float) $commissionsDeduites,
             'brs_retenu'             => (float) $brsRetenu,
             'depenses_avancees'      => (float) $depensesAvancees,

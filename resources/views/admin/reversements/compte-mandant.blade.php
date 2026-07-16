@@ -8,17 +8,11 @@
     // Dépenses liées à un bien (portées par les paiements de la période)
     $depensesBien = collect($compte['paiements'])->flatMap(fn ($p) => $p->depenses)->sortByDesc('date_depense');
 
-    // Décomposition du bandeau qui tombe TOUJOURS juste sur le solde affiché :
-    //   solde = loyers − commission − taxes(BRS/TOM/TVA) − dépenses − reversements déjà faits
-    $retenuesFiscales = max(0, (float) $compteGlobal['loyers_encaisses']
-        - (float) $compteGlobal['commissions_deduites']
-        - (float) $compteGlobal['depenses_avancees']
-        - (float) $compteGlobal['net_du']);
+    // Décomposition du bandeau qui tombe TOUJOURS juste : net total − déjà reversés = solde.
+    //   (le net total intègre déjà loyers + caution − commission − BRS − dépenses)
     $reversementsFaits = (float) $compteGlobal['reversements_effectues'];
-    $breakdown = $fmt($compteGlobal['loyers_encaisses']) . ' F encaissés − ' . $fmt($compteGlobal['commissions_deduites']) . ' F commission';
-    if ($retenuesFiscales > 0.5)                       $breakdown .= ' − ' . $fmt($retenuesFiscales) . ' F taxes (BRS/TVA)';
-    if ((float) $compteGlobal['depenses_avancees'] > 0.5) $breakdown .= ' − ' . $fmt($compteGlobal['depenses_avancees']) . ' F dépenses';
-    if ($reversementsFaits > 0.5)                      $breakdown .= ' − ' . $fmt($reversementsFaits) . ' F déjà reversés';
+    $breakdown = $fmt($compteGlobal['net_du']) . ' F net total dû';
+    if ($reversementsFaits > 0.5) $breakdown .= ' − ' . $fmt($reversementsFaits) . ' F déjà reversés';
 @endphp
 
 @section('title', 'Compte — ' . $proprietaire->name)
@@ -142,6 +136,17 @@
         @empty
             <div class="py-6 text-center text-[13px] text-muted">Aucun loyer encaissé sur la période.</div>
         @endforelse
+
+        @if(($compte['caution_incluse'] ?? 0) > 0.5)
+            <div class="flex items-center gap-3.5 py-3 border-t border-paper-dim">
+                <span class="w-9 h-9 rounded-[9px] bg-green/10 text-green flex items-center justify-center text-[13px] font-bold shrink-0">C</span>
+                <div class="min-w-0">
+                    <div class="font-semibold text-[14px]">Caution reçue</div>
+                    <div class="text-[12px] text-muted">À remettre au propriétaire</div>
+                </div>
+                <div class="ml-auto font-bold text-[14.5px] text-green whitespace-nowrap">+{{ $fmt($compte['caution_incluse']) }} F</div>
+            </div>
+        @endif
     </div>
 
     {{-- Commission agence --}}
@@ -241,9 +246,19 @@
             @endif
 
             <div class="flex items-center justify-between pt-4 mt-3 border-t-2 border-ink">
-                <div class="font-bold text-[14.5px]">Net à reverser{{ $periode ? ' (mois)' : '' }}</div>
-                <div class="font-display font-bold text-[19px] text-gold">{{ $fmt($compte['net_du']) }} F</div>
+                <div class="font-bold text-[14.5px]">Net à reverser{{ $periode ? ' (mois)' : '' }} — total</div>
+                <div class="font-display font-bold text-[19px]">{{ $fmt($compte['net_du']) }} F</div>
             </div>
+            @if(($compte['reversements_effectues'] ?? 0) > 0.5)
+                <div class="flex items-center justify-between pt-2">
+                    <div class="text-[13.5px] text-muted">Déjà reversé</div>
+                    <div class="font-bold text-[14.5px] text-error whitespace-nowrap">−{{ $fmt($compte['reversements_effectues']) }} F</div>
+                </div>
+                <div class="flex items-center justify-between pt-2 mt-1 border-t border-paper-dim">
+                    <div class="font-bold text-[14.5px]">Solde restant à reverser</div>
+                    <div class="font-display font-bold text-[19px] text-gold">{{ $fmt($compte['solde_restant']) }} F</div>
+                </div>
+            @endif
         </div>
     </div>
 
