@@ -48,7 +48,12 @@ class StoreContratRequest extends FormRequest
                         $fail('Ce locataire n\'appartient pas à votre agence.');
                         return;
                     }
-                    if (\App\Models\Contrat::where('locataire_id', $value)->where('statut', 'actif')->exists()) {
+                    // Renouvellement : le contrat source (bientôt clôturé) ne doit pas
+                    // bloquer la création du bail reconduit.
+                    if (\App\Models\Contrat::where('locataire_id', $value)
+                            ->where('statut', 'actif')
+                            ->when($this->renewalSourceId(), fn ($q, $id) => $q->where('id', '!=', $id))
+                            ->exists()) {
                         $fail('Ce locataire a déjà un contrat actif. Un locataire ne peut avoir qu\'un seul contrat actif à la fois.');
                     }
                 },
@@ -113,7 +118,36 @@ class StoreContratRequest extends FormRequest
             'taux_enregistrement_dgid' => ['nullable', 'numeric', 'min:0', 'max:20'],
             'droit_enreg_nombre_feuilles' => ['nullable', 'integer', 'min:1', 'max:50'],
             'droit_enreg_renouvelable'    => ['nullable', 'boolean'],
+            // ── Renouvellement ─────────────────────────────────────────────────
+            // Contrat source reconduit : doit appartenir à l'agence courante.
+            'from_contrat' => [
+                'nullable', 'integer',
+                function ($attr, $value, $fail) use ($agencyId) {
+                    $src = Contrat::withoutGlobalScopes()->find($value);
+                    if (! $src || $src->agency_id !== $agencyId) {
+                        $fail('Le contrat à renouveler est introuvable.');
+                    }
+                },
+            ],
         ];
+    }
+
+    /**
+     * ID du contrat source lors d'un renouvellement, s'il appartient à l'agence.
+     * Sert à exclure ce contrat (bientôt clôturé) des contrôles « déjà actif ».
+     */
+    public function renewalSourceId(): ?int
+    {
+        $id = $this->input('from_contrat');
+        if (! $id) {
+            return null;
+        }
+        $agencyId = Auth::id() ? Auth::user()->agency_id : null;
+
+        return Contrat::withoutGlobalScopes()
+            ->where('id', $id)
+            ->where('agency_id', $agencyId)
+            ->value('id');
     }
 
     public function messages(): array

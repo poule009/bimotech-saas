@@ -22,6 +22,9 @@
       class="max-w-[1000px]">
     @csrf
     <input type="hidden" name="type_bail" value="{{ old('type_bail', 'habitation') }}">
+    @if($fromContrat)
+        <input type="hidden" name="from_contrat" value="{{ $fromContrat->id }}">
+    @endif
 
     @if($errors->any())
         <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error">

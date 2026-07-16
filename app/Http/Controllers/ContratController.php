@@ -194,12 +194,29 @@ class ContratController extends Controller implements HasMiddleware
             : null;
 
         $agencyId = Auth::user()->agency_id;
+        $renewalSourceId = $request->renewalSourceId();
 
-        $contrat = DB::transaction(function () use ($validated, $loyerNu, $chargesMensuelles, $tomAmount, $modeCharges, $chargesAssujetties, $fiscalOverrides, $referenceBail, $request, $agencyId) {
+        $contrat = DB::transaction(function () use ($validated, $loyerNu, $chargesMensuelles, $tomAmount, $modeCharges, $chargesAssujetties, $fiscalOverrides, $referenceBail, $request, $agencyId, $renewalSourceId) {
             $bien = Bien::withoutGlobalScopes()
                 ->where('agency_id', $agencyId)
                 ->lockForUpdate()
                 ->findOrFail($validated['bien_id']);
+
+            // Renouvellement : clôture le contrat source AVANT le contrôle d'unicité,
+            // pour qu'il ne bloque pas le bail reconduit sur le même bien/locataire.
+            if ($renewalSourceId) {
+                $source = Contrat::withoutGlobalScopes()
+                    ->where('agency_id', $agencyId)
+                    ->lockForUpdate()
+                    ->find($renewalSourceId);
+                if ($source && $source->statut === 'actif') {
+                    $source->update([
+                        'statut'   => 'expiré',
+                        'date_fin' => $source->date_fin
+                            ?? \Carbon\Carbon::parse($validated['date_debut'])->subDay()->toDateString(),
+                    ]);
+                }
+            }
 
             if (Contrat::where('bien_id', $bien->id)->where('statut', 'actif')->exists()) {
                 throw ValidationException::withMessages([
