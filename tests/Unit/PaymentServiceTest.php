@@ -48,7 +48,11 @@ class PaymentServiceTest extends TestCase
         return [
             'type_event'   => $typeEvent,
             'ref_command'  => $refCommand,
-            'item_price'   => Subscription::TARIFS[$plan] ?? 5000,
+            // Tarif réel du cycle pour le plan Pro (défaut de initierPaiement).
+            // Lisait Subscription::TARIFS[$plan] : la constante était indexée par
+            // plan, pas par cycle — la clé n'existait jamais et le test retombait
+            // silencieusement sur 5000.
+            'item_price'   => app(\App\Services\PlanService::class)->prix('pro', $plan),
             'custom_field' => base64_encode(json_encode([
                 'agency_id' => $agency->id,
                 'plan'      => $plan,
@@ -115,8 +119,8 @@ class PaymentServiceTest extends TestCase
         $service = new PaymentService();
 
         // $plan = cycle de facturation (mensuel/annuel) ; le tier passe en 3e arg.
-        // Subscription::TARIFS est désormais nesté par tier, donc on itère les cycles
-        // via DUREES_MOIS (source de vérité des cycles valides).
+        // On itère les cycles via DUREES_MOIS (source de vérité des cycles valides) ;
+        // les tarifs, eux, vivent en base et se lisent via PlanService.
         foreach (array_keys(Subscription::DUREES_MOIS) as $plan) {
             $agency = $this->agenceAvecAbonnementEssai();
             $result = $service->initierPaiement($agency, $plan);

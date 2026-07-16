@@ -10,17 +10,24 @@ use App\Models\Bien;
 use App\Models\Contrat;
 use App\Models\MrrSnapshot;
 use App\Models\Paiement;
+use App\Models\Plan;
+use App\Models\PlanPriceHistory;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use App\Notifications\AgencyWelcomeNotification;
 use App\Notifications\PasswordResetByAdminNotification;
+use App\Notifications\PlanChangedNotification;
 use App\Services\MrrService;
+use App\Services\PlanChangeService;
+use App\Services\PlanService;
 use App\Support\PasswordPolicy;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -421,8 +428,9 @@ class SuperAdminController extends Controller
             return 'Essai';
         }
 
+        // libelle (et non libelle_public) : côté back-office, Legacy se nomme Legacy.
         return $s->plan_niveau
-            ? config('plans.labels.'.$s->plan_niveau, ucfirst($s->plan_niveau))
+            ? (app(PlanService::class)->find($s->plan_niveau)?->libelle ?? ucfirst($s->plan_niveau))
             : '—';
     }
 
@@ -458,6 +466,13 @@ class SuperAdminController extends Controller
         return $date->locale('fr')->isoFormat('D MMM');
     }
 
+    /**
+     * Suspend / réactive une agence (bascule `actif`).
+     *
+     * Réactiver rend simplement l'accès : l'abonnement et son plan n'ont pas été
+     * touchés par la suspension, l'agence retrouve donc son plan précédent sans
+     * qu'on ait à le restaurer.
+     */
     public function toggleActif(Agency $agency): RedirectResponse
     {
         // `actif` est intentionnellement absent de Agency::$fillable.
@@ -465,10 +480,22 @@ class SuperAdminController extends Controller
         // la protection mass-assignment de façon explicite.
         $agency->actif = ! $agency->actif;
         $agency->save();
-        $statut = $agency->actif ? 'activée' : 'désactivée';
+        $statut = $agency->actif ? 'réactivée' : 'suspendue';
+
+        // Couper ou rendre l'accès d'une agence est une action à fort impact :
+        // elle doit laisser une trace nominative dans le journal.
+        ActivityLog::create([
+            'agency_id'    => $agency->id,
+            'user_id'      => Auth::id(),
+            'action'       => $agency->actif ? 'agence_reactivee' : 'agence_suspendue',
+            'model_type'   => Agency::class,
+            'model_id'     => $agency->id,
+            'description'  => "Agence {$statut}",
+            'is_sensitive' => true,
+        ]);
 
         return redirect()
-            ->route('superadmin.dashboard')
+            ->route('superadmin.agencies.show', $agency)
             ->with('success', "L'agence {$agency->name} a été {$statut}.");
     }
 
@@ -511,7 +538,7 @@ class SuperAdminController extends Controller
             'total_commissions' => (float) ($p->total_commissions ?? 0),
         ];
 
-        // Limites du plan (source unique config/plans.php) pour les jauges d'usage.
+        // Limites du plan (source unique : table `plans`) pour les jauges d'usage.
         $limites = [
             'unites' => $agency->limiteUnites(),
             'admins' => $agency->limiteAdmins(),
@@ -536,61 +563,235 @@ class SuperAdminController extends Controller
         $adminCible = $users->firstWhere('is_owner', true)
             ?? $users->firstWhere('role', 'admin');
 
+        // ── Changement de plan (onglet Abonnement) ───────────────────────
+        $planService = app(PlanService::class);
+
         return view('superadmin.agency-detail', compact(
             'agency', 'users', 'biens', 'stats', 'subscription',
             'limites', 'paiements', 'activites', 'adminCible'
-        ) + ['statut' => $this->statutAgence($agency)]);
+        ) + [
+            'statut' => $this->statutAgence($agency),
+            // Legacy exclu : plan figé, non sélectionnable (souscriptibles() le filtre).
+            'plansDisponibles' => $planService->souscriptibles(),
+            'peutChangerPlan'  => $subscription
+                ? app(PlanChangeService::class)->peutChanger($subscription)
+                : false,
+            'planProchain' => $subscription?->plan_niveau_prochain
+                ? ($planService->find($subscription->plan_niveau_prochain)?->libelle ?? $subscription->plan_niveau_prochain)
+                : null,
+        ]);
     }
 
     // ✅ CORRECTION M4 : paginate(50) au lieu de get() + CASE WHEN au lieu de FIELD()
-    public function subscriptions(): View
+    /**
+     * Écran « Abonnements & facturation » — la liste des TRANSACTIONS, toutes
+     * agences confondues.
+     *
+     * Cet écran a absorbé deux vues qui se recoupaient : l'ancienne liste
+     * d'abonnements (1 ligne par agence — le même contenu est dans la fiche
+     * agence) et « Paiements en attente ». Le flux de validation manuelle
+     * (Confirmer / Rejeter), seul flux d'encaissement réel aujourd'hui, vit
+     * désormais dans le filtre « En attente » de cette page.
+     */
+    public function facturation(Request $request): View
     {
-        $statsRaw = Subscription::selectRaw('
-            SUM(CASE WHEN statut = "essai"  THEN 1 ELSE 0 END)                        AS nb_essai,
-            SUM(CASE WHEN statut = "actif"  THEN 1 ELSE 0 END)                        AS nb_actifs,
-            SUM(CASE WHEN statut = "expiré" THEN 1 ELSE 0 END)                        AS nb_expires,
-            COALESCE(SUM(CASE WHEN statut = "actif" THEN montant_paye ELSE 0 END), 0) AS revenus_total,
-            COALESCE(SUM(CASE WHEN statut = "actif" THEN
-                CASE plan
-                    WHEN "mensuel" THEN
-                        CASE plan_niveau
-                            WHEN "starter" THEN 25000
-                            WHEN "agence"  THEN 90000
-                            ELSE 50000
-                        END
-                    WHEN "annuel" THEN
-                        CASE plan_niveau
-                            WHEN "starter" THEN FLOOR(199000/12)
-                            WHEN "agence"  THEN FLOOR(699000/12)
-                            ELSE FLOOR(399000/12)
-                        END
-                    ELSE 0
-                END
-            ELSE 0 END), 0) AS revenus_mensuel_equiv
-        ')->first();
+        [$debut, $fin] = $this->periodeFacturation($request);
 
-        $stats = [
-            'nb_essai' => (int) ($statsRaw->nb_essai ?? 0),
-            'nb_actifs' => (int) ($statsRaw->nb_actifs ?? 0),
-            'nb_expires' => (int) ($statsRaw->nb_expires ?? 0),
-            'revenus_total' => (float) ($statsRaw->revenus_total ?? 0),
-            'revenus_mensuel_equiv' => (float) ($statsRaw->revenus_mensuel_equiv ?? 0),
+        $filtres = [
+            'statut'  => $request->query('statut'),
+            'plan'    => $request->query('plan'),
+            'periode' => $request->query('periode', 'mois'),
+            'du'      => $debut->toDateString(),
+            'au'      => $fin->toDateString(),
         ];
 
-        $subscriptions = Subscription::with('agency:id,name,email,actif')
-            ->orderByRaw("
-                CASE statut
-                    WHEN 'essai'  THEN 1
-                    WHEN 'actif'  THEN 2
-                    WHEN 'expiré' THEN 3
-                    WHEN 'annulé' THEN 4
-                    ELSE 5
-                END
-            ")
-            ->orderBy('date_fin_essai')
-            ->paginate(50);
+        $paiements = $this->requeteFacturation($request, $debut, $fin)
+            ->with('agency:id,name,email')
+            ->orderByDesc('created_at')
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('superadmin.subscriptions', compact('subscriptions', 'stats'));
+        return view('superadmin.facturation', [
+            'paiements' => $paiements,
+            'stats'     => $this->statsFacturation($debut, $fin),
+            'filtres'   => $filtres,
+            'plans'     => app(PlanService::class)->all(),
+            'periodeLabel' => $this->periodeLabel($filtres['periode'], $debut, $fin),
+        ]);
+    }
+
+    /**
+     * Fenêtre de dates de l'écran facturation.
+     * Défaut « mois en cours », cohérent avec le KPI « Encaissé ce mois ».
+     */
+    private function periodeFacturation(Request $request): array
+    {
+        $periode = $request->query('periode', 'mois');
+
+        if ($periode === 'perso') {
+            $debut = $this->dateOuNull($request->query('du')) ?? now()->startOfMonth();
+            $fin   = $this->dateOuNull($request->query('au')) ?? now();
+
+            // Bornes inversées par l'utilisateur → on les remet dans l'ordre
+            // plutôt que de renvoyer une liste vide sans explication.
+            if ($debut->gt($fin)) {
+                [$debut, $fin] = [$fin, $debut];
+            }
+
+            return [$debut->startOfDay(), $fin->endOfDay()];
+        }
+
+        return match ($periode) {
+            '30j' => [now()->subDays(30)->startOfDay(), now()->endOfDay()],
+            'tout' => [Carbon::createFromTimestamp(0), now()->endOfDay()],
+            default => [now()->startOfMonth(), now()->endOfMonth()],
+        };
+    }
+
+    private function dateOuNull(?string $valeur): ?Carbon
+    {
+        if (! $valeur) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($valeur);
+        } catch (\Exception) {
+            return null; // saisie libre invalide → on retombe sur le défaut
+        }
+    }
+
+    private function periodeLabel(string $periode, Carbon $debut, Carbon $fin): string
+    {
+        return match ($periode) {
+            '30j'  => '30 derniers jours',
+            'tout' => 'Tout l\'historique',
+            'perso' => $debut->locale('fr')->isoFormat('D MMM Y').' → '.$fin->locale('fr')->isoFormat('D MMM Y'),
+            default => 'Ce mois',
+        };
+    }
+
+    /** Requête de base partagée par la liste et l'export CSV (mêmes filtres). */
+    private function requeteFacturation(Request $request, Carbon $debut, Carbon $fin)
+    {
+        $query = SubscriptionPayment::query()->whereBetween('created_at', [$debut, $fin]);
+
+        if ($statut = $request->query('statut')) {
+            // Passe par les buckets : 'confirme' doit aussi remonter les anciens 'payé'.
+            $query->whereIn('statut', SubscriptionPayment::statutsDuBucket($statut));
+        }
+
+        if ($plan = $request->query('plan')) {
+            $query->where('plan_niveau', $plan);
+        }
+
+        return $query;
+    }
+
+    /** KPI de l'en-tête, calculés sur la période affichée. */
+    private function statsFacturation(Carbon $debut, Carbon $fin): array
+    {
+        $confirmes = SubscriptionPayment::BUCKETS['confirme'];
+        $rejetes   = SubscriptionPayment::BUCKETS['rejete'];
+
+        // Une seule requête agrégée par groupe plutôt qu'un sum() puis un count()
+        // sur le même builder — moins d'aller-retours et pas de réutilisation de
+        // builder déjà exécuté.
+        $surPeriode = fn (array $statuts) => SubscriptionPayment::whereBetween('created_at', [$debut, $fin])
+            ->whereIn('statut', $statuts)
+            ->selectRaw('COALESCE(SUM(montant), 0) AS total, COUNT(*) AS nb, COUNT(DISTINCT agency_id) AS nb_agences')
+            ->first();
+
+        $encaisse = $surPeriode($confirmes);
+        $echecs   = $surPeriode($rejetes);
+
+        // Taux de réussite : toujours sur 30 jours glissants, indépendamment du
+        // filtre de période — c'est un indicateur de santé du canal de paiement,
+        // pas une lecture de la période sélectionnée (libellé du KPI explicite).
+        $fenetre = [now()->subDays(30), now()];
+        $trente = SubscriptionPayment::whereBetween('created_at', $fenetre)
+            ->whereIn('statut', array_merge($confirmes, $rejetes))
+            ->selectRaw('COUNT(*) AS total, SUM(CASE WHEN statut IN (?, ?) THEN 1 ELSE 0 END) AS reussis', $confirmes)
+            ->first();
+
+        $totalTraites = (int) ($trente->total ?? 0);
+
+        return [
+            'encaisse'        => (float) ($encaisse->total ?? 0),
+            'nb_encaisses'    => (int) ($encaisse->nb ?? 0),
+            'montant_echecs'  => (float) ($echecs->total ?? 0),
+            'nb_agences_echec' => (int) ($echecs->nb_agences ?? 0),
+            'nb_attente'      => SubscriptionPayment::duBucket('en_attente')->count(),
+            'mrr'             => app(MrrService::class)->current(),
+            // Pas de paiement traité sur la fenêtre → « — » plutôt qu'un 0 % trompeur.
+            'taux_reussite'   => $totalTraites > 0
+                ? (int) round((int) ($trente->reussis ?? 0) / $totalTraites * 100)
+                : null,
+        ];
+    }
+
+    /** Export CSV de la liste filtrée (mêmes filtres que l'écran). */
+    public function exportFacturation(Request $request): StreamedResponse
+    {
+        [$debut, $fin] = $this->periodeFacturation($request);
+
+        $paiements = $this->requeteFacturation($request, $debut, $fin)
+            ->with('agency:id,name,email')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $plans = app(PlanService::class);
+
+        $colonnes = ['Agence', 'Email', 'Plan', 'Cycle', 'Montant (F)', 'Méthode', 'Date', 'Statut', 'Référence', 'Période début', 'Période fin'];
+
+        return response()->streamDownload(function () use ($paiements, $colonnes, $plans) {
+            $handle = fopen('php://output', 'w');
+            fputs($handle, "\xEF\xBB\xBF"); // BOM UTF-8 pour Excel
+            fputcsv($handle, $colonnes, ';');
+
+            foreach ($paiements as $p) {
+                fputcsv($handle, [
+                    $p->agency?->name ?? 'Agence #'.$p->agency_id,
+                    $p->agency?->email ?? '',
+                    $plans->find($p->plan_niveau)?->libelle ?? $p->plan_niveau,
+                    Subscription::LABELS[$p->plan] ?? $p->plan,
+                    (int) $p->montant,
+                    SubscriptionPayment::METHODE_LABELS[$p->methode] ?? $p->methode,
+                    $p->created_at?->format('d/m/Y'),
+                    $p->statut_label,
+                    $p->reference ?? '',
+                    $p->periode_debut?->format('d/m/Y') ?? '',
+                    $p->periode_fin?->format('d/m/Y') ?? '',
+                ], ';');
+            }
+
+            fclose($handle);
+        }, 'facturation-'.now()->format('Y-m-d').'.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * Reçu PDF d'un paiement encaissé, généré à la volée depuis les données.
+     * Le montant vient du snapshot de la ligne de paiement : il reste exact même
+     * si le tarif du plan a changé depuis.
+     */
+    public function recuPaiement(SubscriptionPayment $payment)
+    {
+        abort_unless($payment->estConfirme(), 404, 'Aucun reçu : ce paiement n\'a pas été encaissé.');
+
+        $payment->load('agency');
+
+        $pdf = Pdf::loadView('superadmin.pdf.recu', [
+            'payment'   => $payment,
+            'planLabel' => app(PlanService::class)->find($payment->plan_niveau)?->libelle ?? $payment->plan_niveau,
+        ])
+            ->setPaper('a4', 'portrait')
+            ->setOption('defaultFont', 'DejaVu Sans')
+            ->setOption('dpi', 96)
+            ->setOption('isRemoteEnabled', false);
+
+        return $pdf->download('recu-'.$payment->id.'-'.$payment->created_at->format('Y-m-d').'.pdf');
     }
 
     public function activerAbonnement(Request $request, Agency $agency): RedirectResponse
@@ -612,8 +813,7 @@ class SuperAdminController extends Controller
         }
 
         $planNiveau = $request->input('plan_niveau', 'pro');
-        $limitesParPlan = config('plans.nb_unites_max');
-        $limiteNouveau = $limitesParPlan[$planNiveau] ?? $limitesParPlan['pro'];
+        $limiteNouveau = app(PlanService::class)->limiteUnites($planNiveau);
 
         $nbUnites = $agency->nbUnitesActives();
         if ($limiteNouveau !== null && $nbUnites > $limiteNouveau) {
@@ -626,11 +826,119 @@ class SuperAdminController extends Controller
 
         $subscription->activer($request->plan, 'MANUEL-SUPERADMIN-'.now()->format('YmdHis'), 'manuel', $planNiveau);
 
-        $niveauLabel = config("plans.labels.{$planNiveau}", ucfirst($planNiveau));
+        $niveauLabel = app(PlanService::class)->find($planNiveau)?->libelle ?? ucfirst($planNiveau);
 
         return redirect()
-            ->route('superadmin.subscriptions')
+            ->route('superadmin.agencies.show', $agency)
             ->with('success', "Abonnement {$request->plan} ({$niveauLabel}) activé pour {$agency->name}.");
+    }
+
+    /**
+     * Change le plan d'une agence depuis sa fiche.
+     * Upgrade → immédiat + prorata ; downgrade → au prochain cycle. Voir
+     * PlanChangeService, qui porte la règle (et le log d'activité).
+     */
+    public function changerPlan(Request $request, Agency $agency): RedirectResponse
+    {
+        $souscriptibles = app(PlanService::class)->souscriptibles()->keys()->all();
+
+        $valide = $request->validate([
+            // Legacy est volontairement absent de la liste : plan figé, non sélectionnable.
+            'plan_niveau' => ['required', Rule::in($souscriptibles)],
+        ], [
+            'plan_niveau.in' => 'Ce plan n\'est pas sélectionnable.',
+        ]);
+
+        $subscription = $agency->subscription;
+
+        if (! $subscription) {
+            return back()->with('error', "{$agency->name} n'a pas d'abonnement — activez-en un d'abord.");
+        }
+
+        $cible = $valide['plan_niveau'];
+        $changer = app(PlanChangeService::class);
+
+        if (! $changer->peutChanger($subscription)) {
+            return back()->with('error', "Le plan de {$agency->name} ne peut pas être changé : il faut un essai en cours ou un abonnement actif, et hors Legacy.");
+        }
+
+        if ($subscription->plan_niveau === $cible) {
+            return back()->with('error', "{$agency->name} est déjà sur ce plan.");
+        }
+
+        // Un downgrade sous la limite du plan cible casserait l'agence à
+        // l'échéance (biens au-delà du quota) : on refuse tant qu'elle n'a pas
+        // archivé, plutôt que de programmer une bombe à retardement.
+        $limiteCible = app(PlanService::class)->limiteUnites($cible);
+        $nbUnites = $agency->nbUnitesActives();
+
+        if ($limiteCible !== null && $nbUnites > $limiteCible) {
+            $labelCible = app(PlanService::class)->find($cible)?->libelle ?? $cible;
+
+            return back()->with('error', "Impossible : {$agency->name} gère {$nbUnites} biens, "
+                ."mais le plan {$labelCible} n'en autorise que {$limiteCible}. "
+                ."Archivez les biens excédentaires d'abord.");
+        }
+
+        $res = $changer->changer($subscription, $cible, Auth::id());
+
+        $this->notifierChangementPlan($agency, $res, $cible);
+
+        $labelCible = app(PlanService::class)->find($cible)?->libelle ?? $cible;
+
+        $message = match ($res['type']) {
+            'essai' => "{$agency->name} est en essai sur le plan {$labelCible} — ses limites sont à jour. "
+                ."Ce tarif sera appliqué à la souscription ; rien n'est facturé maintenant.",
+            'upgrade' => "{$agency->name} est passée en {$labelCible} — effet immédiat."
+                .($res['montant'] > 0
+                    ? ' Prorata de '.number_format($res['montant'], 0, ',', ' ').' F ajouté aux paiements en attente.'
+                    : ' Aucun prorata à facturer.'),
+            default => "Passage en {$labelCible} programmé pour {$agency->name} au "
+                .($res['effet']?->locale('fr')->isoFormat('D MMM Y') ?? 'prochain cycle').' (pas de remboursement au prorata).',
+        };
+
+        return back()->with('success', $message);
+    }
+
+    /** Annule un downgrade programmé qui n'a pas encore pris effet. */
+    public function annulerDowngrade(Agency $agency): RedirectResponse
+    {
+        $subscription = $agency->subscription;
+
+        if (! $subscription?->plan_niveau_prochain) {
+            return back()->with('error', 'Aucun changement de plan programmé pour cette agence.');
+        }
+
+        app(PlanChangeService::class)->annulerDowngrade($subscription, Auth::id());
+
+        return back()->with('success', "Changement de plan annulé — {$agency->name} reste sur son plan actuel.");
+    }
+
+    /** Prévient le directeur de l'agence par email (canal Resend déjà en place). */
+    private function notifierChangementPlan(Agency $agency, array $res, string $cible): void
+    {
+        $directeur = $agency->users()->where('is_owner', true)->first();
+
+        if (! $directeur) {
+            return;
+        }
+
+        // Un envoi qui échoue ne doit pas annuler un changement de plan déjà
+        // acté en base : on trace et on continue.
+        try {
+            $directeur->notify(new PlanChangedNotification(
+                $agency,
+                app(PlanService::class)->label($cible),
+                $res['type'],
+                $res['montant'],
+                $res['effet'],
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Notification changement de plan non envoyée', [
+                'agency_id' => $agency->id,
+                'error'     => $e->getMessage(),
+            ]);
+        }
     }
 
     public function reinitialiserEssai(Agency $agency): RedirectResponse
@@ -650,6 +958,7 @@ class SuperAdminController extends Controller
                 'date_debut_essai' => now(),
                 'date_fin_essai' => now()->addDays(30),
                 'plan' => null,
+                'plan_niveau_prochain' => null, // repartir en essai périme le downgrade programmé
                 'montant_paye' => null,
                 'date_debut_abonnement' => null,
                 'date_fin_abonnement' => null,
@@ -657,7 +966,7 @@ class SuperAdminController extends Controller
         }
 
         return redirect()
-            ->route('superadmin.subscriptions')
+            ->route('superadmin.agencies.show', $agency)
             ->with('success', "Essai de 30 jours réinitialisé pour {$agency->name}.");
     }
 
@@ -906,14 +1215,79 @@ class SuperAdminController extends Controller
     // ── Validation des déclarations de paiement manuelles ────────────────────
 
     /** Liste des paiements déclarés en attente de vérification. */
-    public function paiementsAttente(): View
-    {
-        $paiements = SubscriptionPayment::with('agency:id,name,email')
-            ->where('statut', SubscriptionPayment::STATUT_EN_ATTENTE)
-            ->orderBy('created_at')
-            ->get();
+    // ─────────────────────────────────────────────────────────────────────
+    // CONFIGURATION DES PLANS
+    // ─────────────────────────────────────────────────────────────────────
 
-        return view('superadmin.paiements-attente', compact('paiements'));
+    /** Écran « Configuration des plans » — prix et limites, une carte par plan. */
+    public function configPlans(): View
+    {
+        $plans = app(PlanService::class)->all();
+
+        // Nombre d'agences par plan, pour le lien « Voir les X agences sur ce plan ».
+        $compteurs = Subscription::selectRaw('plan_niveau, COUNT(*) AS total')
+            ->whereNotNull('plan_niveau')
+            ->groupBy('plan_niveau')
+            ->pluck('total', 'plan_niveau');
+
+        return view('superadmin.config-plans', [
+            'plans'     => $plans,
+            'compteurs' => $compteurs,
+            // Piste d'audit : quel tarif était en vigueur, quand, et par qui changé.
+            'historique' => PlanPriceHistory::with(['plan:id,libelle', 'user:id,name'])
+                ->latest()
+                ->limit(8)
+                ->get(),
+        ]);
+    }
+
+    /**
+     * Enregistre un plan (sauvegarde indépendante, une carte à la fois).
+     *
+     * ⚠️ RÈGLE MÉTIER : ne touche QUE les futures souscriptions et les
+     * renouvellements. Les agences déjà engagées gardent leur tarif jusqu'à leur
+     * prochain cycle — garanti par le snapshot `montant_paye`, figé à
+     * l'encaissement et jamais relu depuis le plan.
+     */
+    public function updatePlan(Request $request, Plan $plan): RedirectResponse
+    {
+        abort_if($plan->verrouille, 403, 'Le plan '.$plan->libelle.' est verrouillé.');
+
+        $valide = $request->validate([
+            'prix_mensuel'  => ['required', 'integer', 'min:0', 'max:10000000'],
+            'prix_annuel'   => ['required', 'integer', 'min:0', 'max:100000000'],
+            // Champ vide = illimité (convention de l'app, cohérente avec la colonne nullable).
+            'limite_unites' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'limite_admins' => ['nullable', 'integer', 'min:1', 'max:10000'],
+        ], [], [
+            'prix_mensuel'  => 'prix mensuel',
+            'prix_annuel'   => 'prix annuel',
+            'limite_unites' => 'limite de biens',
+            'limite_admins' => "limite d'utilisateurs",
+        ]);
+
+        $service = app(PlanService::class);
+        $changes = $service->update($plan, $valide, Auth::id());
+
+        if ($changes === 0) {
+            return back()->with('success', "Aucune modification sur le plan {$plan->libelle}.");
+        }
+
+        return back()->with('success', "Plan {$plan->libelle} enregistré — appliqué aux nouvelles souscriptions et aux prochains renouvellements.");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    // PAIEMENTS
+    // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Ancien écran dédié aux paiements à valider — absorbé par la facturation.
+     * Route conservée en redirection : elle est en circulation dans des liens et
+     * d'anciens signets, et la casser ferait perdre l'accès au flux de validation.
+     */
+    public function paiementsAttente(): RedirectResponse
+    {
+        return redirect()->route('superadmin.facturation', ['statut' => 'en_attente', 'periode' => 'tout']);
     }
 
     /** Confirme un paiement → active/renouvelle l'abonnement de l'agence. */

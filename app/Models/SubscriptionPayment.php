@@ -59,6 +59,51 @@ class SubscriptionPayment extends Model
         'remboursé'  => 'Remboursé',
     ];
 
+    /**
+     * Regroupement des statuts pour la facturation Super Admin.
+     *
+     * Les anciens statuts PayTech ('payé'/'échoué') coexistent en base avec les
+     * statuts du flux manuel : filtrer sur la seule valeur courante masquerait
+     * l'historique. Toute requête sur un statut doit passer par ces buckets.
+     */
+    public const BUCKETS = [
+        'confirme'   => ['confirme', 'payé'],
+        'rejete'     => ['rejete', 'échoué'],
+        'en_attente' => ['en_attente'],
+        'rembourse'  => ['remboursé'],
+    ];
+
+    /** Valeurs SQL correspondant à un bucket ([] si bucket inconnu). */
+    public static function statutsDuBucket(string $bucket): array
+    {
+        return self::BUCKETS[$bucket] ?? [];
+    }
+
+    /** Bucket d'appartenance d'une ligne (pour choisir la pastille). */
+    public function bucket(): ?string
+    {
+        foreach (self::BUCKETS as $bucket => $statuts) {
+            if (in_array($this->statut, $statuts, true)) {
+                return $bucket;
+            }
+        }
+
+        return null;
+    }
+
+    public function estConfirme(): bool  { return $this->bucket() === 'confirme'; }
+    public function estEnAttente(): bool { return $this->bucket() === 'en_attente'; }
+
+    public function scopeConfirmes($query)
+    {
+        return $query->whereIn('statut', self::BUCKETS['confirme']);
+    }
+
+    public function scopeDuBucket($query, string $bucket)
+    {
+        return $query->whereIn('statut', self::statutsDuBucket($bucket));
+    }
+
     public function getStatutLabelAttribute(): string
     {
         return self::STATUT_LABELS[$this->statut] ?? ucfirst($this->statut);

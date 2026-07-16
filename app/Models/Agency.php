@@ -147,16 +147,22 @@ class Agency extends Model
         return self::limiteUnitesPour($this->subscription?->plan_niveau);
     }
 
-    /** Limite de biens pour un plan_niveau donné — null = illimité. */
+    /**
+     * Limite de biens pour un plan_niveau donné — null = illimité.
+     *
+     * Lue sur la ligne du plan lui-même (table `plans`), sans passer par
+     * niveau_effectif : Legacy porte ses propres limites, figées. La résolution
+     * legacy→pro ne concerne que l'accès aux fonctionnalités, pas les compteurs.
+     */
     public static function limiteUnitesPour(?string $planNiveau): ?int
     {
-        return config('plans.nb_unites_max.' . self::niveauEffectif($planNiveau));
+        return app(\App\Services\PlanService::class)->limiteUnites($planNiveau);
     }
 
     /** Limite de comptes admins du plan courant — null = illimité. */
     public function limiteAdmins(): ?int
     {
-        return config('plans.nb_admins_max.' . $this->planNiveauEffectif());
+        return app(\App\Services\PlanService::class)->limiteAdmins($this->subscription?->plan_niveau);
     }
 
     public function couleurEstSombre(): bool

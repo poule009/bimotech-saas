@@ -124,7 +124,7 @@
             @endif
         </section>
 
-        {{-- Évolution MRR --}}
+         {{-- Évolution MRR --}}
         <section class="bg-white border border-line rounded-xl overflow-hidden">
             <div class="flex items-center justify-between px-5 py-4 border-b border-paper-dim">
                 <div class="font-display font-medium text-[18px] text-ink">Évolution MRR</div>

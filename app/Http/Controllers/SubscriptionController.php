@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Services\PaymentService;
+use App\Services\PlanService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -44,16 +45,16 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    /** Grille des plans construite depuis config/plans.php (source unique des limites). */
+    /** Grille des plans construite depuis la table `plans` (source unique). */
     private function plansAffichage(): array
     {
         $plans = [];
-        foreach (['starter', 'pro', 'agence'] as $niveau) {
-            $biens  = config("plans.nb_unites_max.{$niveau}");
-            $equipe = config("plans.nb_admins_max.{$niveau}");
+        foreach (app(PlanService::class)->souscriptibles() as $niveau => $plan) {
+            $biens  = $plan->limite_unites;
+            $equipe = $plan->limite_admins;
             $plans[$niveau] = [
-                'nom'    => config("plans.labels.{$niveau}", ucfirst($niveau)),
-                'prix'   => Subscription::TARIFS[$niveau]['mensuel'] ?? 0,
+                'nom'    => $plan->libelle,
+                'prix'   => $plan->prix_mensuel,
                 'biens'  => $biens === null ? 'Biens illimités' : $biens . ' biens',
                 'equipe' => $equipe === null ? 'Comptes illimités' : $equipe . ' compte' . ($equipe > 1 ? 's' : '') . ' équipe',
             ];
@@ -67,7 +68,7 @@ class SubscriptionController extends Controller
         $this->authorize('isOwner');
 
         return view('subscription.declarer', [
-            'tarifs'       => Subscription::TARIFS,
+            'plans'        => app(PlanService::class)->souscriptibles(),
             'planPreselect'=> $request->query('plan'),
             'subscription' => Auth::user()->agency->subscription,
         ]);

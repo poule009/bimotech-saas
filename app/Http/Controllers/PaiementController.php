@@ -60,6 +60,39 @@ class PaiementController extends Controller implements HasMiddleware
         $filter   = in_array($request->input('filter'), ['retard', 'payees'], true) ? $request->input('filter') : null;
         $now      = now();
 
+        // ── Cohérence Quittances = Dashboard ──────────────────────────────
+        // Cette vue ne connaît un retard qu'à travers une ligne Paiement.
+        // Le Dashboard / Locataires / Impayés déduisent, eux, le retard du seul
+        // contrat actif sans paiement validé — sans exiger de ligne. Résultat :
+        // tant que rent:generate (1er du mois) n'est pas passé — ou pour un
+        // contrat importé — le retard était visible partout SAUF ici.
+        // On matérialise donc à la volée la quittance du mois courant pour tout
+        // contrat actif qui n'en a pas encore. Même source unique, idempotente,
+        // qu'à la création d'un contrat (QuittanceGenerator) — n'échoue jamais.
+        $moisCourant = $now->copy()->startOfMonth();
+        $contratsSansLigne = Contrat::where('agency_id', $agencyId)
+            ->where('statut', 'actif')
+            ->whereDate('date_debut', '<=', $now->copy()->endOfMonth()->toDateString())
+            ->whereDoesntHave('paiements', fn ($p) => $p
+                ->where('statut', '!=', 'annule')
+                ->whereYear('periode', $now->year)
+                ->whereMonth('periode', $now->month))
+            ->get();
+
+        if ($contratsSansLigne->isNotEmpty()) {
+            $generator = app(\App\Services\QuittanceGenerator::class);
+            foreach ($contratsSansLigne as $c) {
+                try {
+                    $generator->genererPourContrat($c, $moisCourant, 'vue Quittances');
+                } catch (\Throwable $e) {
+                    Log::warning('Quittance non générée (vue Quittances)', [
+                        'contrat_id' => $c->id,
+                        'error'      => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
         $with = [
             'contrat:id,bien_id,locataire_id',
             'contrat.bien:id,reference,titre,adresse,ville',

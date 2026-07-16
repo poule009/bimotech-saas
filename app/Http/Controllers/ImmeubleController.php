@@ -266,7 +266,7 @@ class ImmeubleController extends Controller implements HasMiddleware
             return redirect()
                 ->back()
                 ->with('upgrade_required', [
-                    'plan_actuel'     => config('plans.labels.' . $planNiveau, 'Pro'),
+                    'plan_actuel'     => app(\App\Services\PlanService::class)->label($planNiveau),
                     'nb_unites'       => $resultat['nb_actuelles'],
                     'limite'          => $limiteUnites,
                     'plan_suivant'    => $planSuivant,

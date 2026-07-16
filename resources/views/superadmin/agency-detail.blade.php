@@ -19,8 +19,9 @@
     ];
 
     // Libellé du plan (niveau) — « Essai » tant que l'abonnement n'est pas payé.
+    // libelle (et non libelle_public) : côté back-office, Legacy se nomme Legacy.
     $planLabel = $subscription && $subscription->plan_niveau
-        ? config('plans.labels.'.$subscription->plan_niveau, ucfirst($subscription->plan_niveau))
+        ? (app(\App\Services\PlanService::class)->find($subscription->plan_niveau)?->libelle ?? ucfirst($subscription->plan_niveau))
         : ($subscription?->estEnEssai() ? 'Essai' : '—');
 
     $cycleLabel = $subscription && $subscription->plan
@@ -183,6 +184,67 @@
                         <span class="font-semibold text-ink text-right">{{ $value }}</span>
                     </div>
                 @endforeach
+            </div>
+
+            {{-- ─── Changement de plan ─── --}}
+            <div class="px-5 pt-4 pb-5 border-t border-paper-dim">
+                {{-- Downgrade déjà programmé : on affiche la consigne en cours plutôt
+                     qu'un second sélecteur, avec de quoi l'annuler. --}}
+                @if($planProchain)
+                    <div class="rounded-lg bg-gold/10 border border-gold/25 px-3.5 py-3 text-[12.5px] text-gold-deep">
+                        <div>
+                            Passage en <strong>{{ $planProchain }}</strong> programmé
+                            @if($subscription?->date_fin_abonnement)
+                                le <strong>{{ $subscription->date_fin_abonnement->locale('fr')->isoFormat('D MMM Y') }}</strong>
+                            @else
+                                au prochain cycle
+                            @endif.
+                        </div>
+                        <form method="POST" action="{{ route('superadmin.agencies.plan.annuler', $agency) }}"
+                              x-data="confirmForm" x-on:submit="submit"
+                              data-confirm="Annuler le changement de plan programmé ?" class="mt-2">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-[12px] font-semibold text-teal border-b border-gold pb-px">Annuler ce changement</button>
+                        </form>
+                    </div>
+                @elseif($peutChangerPlan)
+                    <label class="block text-[11px] font-semibold uppercase tracking-wide text-muted mb-2">Changer de plan</label>
+                    <form method="POST" action="{{ route('superadmin.agencies.plan.changer', $agency) }}"
+                          class="flex items-center gap-2">
+                        @csrf
+                        {{-- Legacy est absent de $plansDisponibles : plan figé, non sélectionnable. --}}
+                        <select name="plan_niveau"
+                                class="flex-1 bg-paper border border-line rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink cursor-pointer">
+                            @foreach($plansDisponibles as $niveau => $p)
+                                <option value="{{ $niveau }}" @selected($subscription?->plan_niveau === $niveau)>
+                                    {{ $p->libelle }} — {{ $fmt($p->prix($subscription?->plan ?: 'mensuel')) }} F
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit"
+                                class="text-[13px] font-semibold px-4 py-2.5 rounded-lg bg-teal text-paper hover:bg-teal-deep transition-colors whitespace-nowrap">
+                            Appliquer
+                        </button>
+                    </form>
+                    <p class="text-[11.5px] text-muted mt-2 leading-relaxed">
+                        @if($subscription?->estEnEssai())
+                            Agence en essai : le changement prend effet immédiatement et <strong>rien n'est facturé</strong>.
+                            Ce tarif sera celui proposé à la fin de l'essai.
+                        @else
+                            Un <strong>upgrade</strong> prend effet immédiatement, avec un prorata sur les jours restants.
+                            Un <strong>downgrade</strong> prend effet au prochain cycle, sans remboursement.
+                        @endif
+                    </p>
+                @else
+                    <p class="text-[12px] text-muted">
+                        @if($subscription?->plan_niveau === \App\Models\Subscription::PLAN_LEGACY)
+                            Plan Legacy — figé, non modifiable depuis cet écran.
+                        @else
+                            Le changement de plan nécessite un essai en cours ou un abonnement actif.
+                        @endif
+                    </p>
+                @endif
             </div>
         </section>
 

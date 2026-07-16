@@ -155,7 +155,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Placeholder « à venir » pour les sections Super Admin pas encore construites
             // (Agences, Abonnements, Support, Règles fiscales, Équipe, Paramètres).
             Route::get('a-venir/{section}',             [SuperAdminController::class, 'aVenir'])->name('a-venir');
-            Route::get('subscriptions',                 [SuperAdminController::class, 'subscriptions'])->name('subscriptions');
+            // ── Abonnements & facturation ──────────────────────────────────
+            // Vue d'ensemble des transactions, toutes agences. A absorbé l'ancienne
+            // liste d'abonnements ET l'écran « paiements en attente » (devenu un filtre).
+            Route::get('facturation',              [SuperAdminController::class, 'facturation'])->name('facturation');
+            Route::get('facturation/export',       [SuperAdminController::class, 'exportFacturation'])->name('facturation.export');
+            Route::get('facturation/plans',        [SuperAdminController::class, 'configPlans'])->name('plans.config');
+            Route::patch('facturation/plans/{plan}', [SuperAdminController::class, 'updatePlan'])->name('plans.update');
+            Route::get('paiements/{payment}/recu',  [SuperAdminController::class, 'recuPaiement'])->name('paiements.recu');
             // Déclarations de paiement manuelles à valider (back-office BIMO-tech)
             Route::get('paiements-attente',                     [SuperAdminController::class, 'paiementsAttente'])->name('paiements.attente');
             Route::post('paiements/{payment}/confirmer',        [SuperAdminController::class, 'confirmerPaiement'])->name('paiements.confirmer');
@@ -168,6 +175,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('agencies/{agency}/edit',        [SuperAdminController::class, 'editAgency'])->name('agencies.edit');
             Route::patch('agencies/{agency}',           [SuperAdminController::class, 'updateAgency'])->name('agencies.update');
             Route::post('agencies/{agency}/abonnement',           [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
+            Route::post('agencies/{agency}/plan',                 [SuperAdminController::class, 'changerPlan'])->name('agencies.plan.changer');
+            Route::delete('agencies/{agency}/plan-programme',     [SuperAdminController::class, 'annulerDowngrade'])->name('agencies.plan.annuler');
             Route::post('agencies/{agency}/essai',                [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
             Route::post('agencies/{agency}/features/{feature}',   [SuperAdminController::class, 'toggleFeature'])->name('agencies.features.toggle');
             Route::delete('agencies/{agency}/features/{feature}', [SuperAdminController::class, 'removeFeatureOverride'])->name('agencies.features.remove');

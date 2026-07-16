@@ -19,7 +19,8 @@ use Tests\TestCase;
  *  - toggleActif : active / désactive une agence
  *  - activerAbonnement : active un plan payant sur une agence
  *  - reinitialiserEssai : remet l'essai à 30 jours
- *  - subscriptions : liste des abonnements
+ *  - facturation : liste des transactions (a absorbé l'ancienne liste d'abonnements
+ *    et l'écran « paiements en attente »)
  */
 class SuperAdminControllerTest extends TestCase
 {
@@ -84,12 +85,21 @@ class SuperAdminControllerTest extends TestCase
     }
 
     #[Test]
-    public function superadmin_voit_la_liste_des_abonnements(): void
+    public function superadmin_voit_la_facturation(): void
     {
         $this->actingAs($this->superAdmin)
-            ->get(route('superadmin.subscriptions'))
+            ->get(route('superadmin.facturation'))
             ->assertOk()
-            ->assertViewIs('superadmin.subscriptions');
+            ->assertViewIs('superadmin.facturation');
+    }
+
+    /** L'ancien écran « paiements en attente » a été absorbé par la facturation. */
+    #[Test]
+    public function paiements_attente_redirige_vers_le_filtre_facturation(): void
+    {
+        $this->actingAs($this->superAdmin)
+            ->get(route('superadmin.paiements.attente'))
+            ->assertRedirect(route('superadmin.facturation', ['statut' => 'en_attente', 'periode' => 'tout']));
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -170,10 +180,17 @@ class SuperAdminControllerTest extends TestCase
 
         $this->actingAs($this->superAdmin)
             ->patch(route('superadmin.agencies.toggle', $agency))
-            ->assertRedirect(route('superadmin.dashboard'))
+            ->assertRedirect(route('superadmin.agencies.show', $agency))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('agencies', ['id' => $agency->id, 'actif' => false]);
+
+        // Couper l'accès d'une agence doit laisser une trace nominative.
+        $this->assertDatabaseHas('activity_logs', [
+            'agency_id' => $agency->id,
+            'user_id'   => $this->superAdmin->id,
+            'action'    => 'agence_suspendue',
+        ]);
     }
 
     #[Test]
@@ -183,10 +200,15 @@ class SuperAdminControllerTest extends TestCase
 
         $this->actingAs($this->superAdmin)
             ->patch(route('superadmin.agencies.toggle', $agency))
-            ->assertRedirect(route('superadmin.dashboard'))
+            ->assertRedirect(route('superadmin.agencies.show', $agency))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('agencies', ['id' => $agency->id, 'actif' => true]);
+
+        $this->assertDatabaseHas('activity_logs', [
+            'agency_id' => $agency->id,
+            'action'    => 'agence_reactivee',
+        ]);
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -202,7 +224,7 @@ class SuperAdminControllerTest extends TestCase
             ->post(route('superadmin.agencies.abonnement.activer', $agency), [
                 'plan' => 'mensuel',
             ])
-            ->assertRedirect(route('superadmin.subscriptions'))
+            ->assertRedirect(route('superadmin.agencies.show', $agency))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('subscriptions', [
@@ -242,7 +264,7 @@ class SuperAdminControllerTest extends TestCase
 
         $this->actingAs($this->superAdmin)
             ->post(route('superadmin.agencies.essai.reinitialiser', $agency))
-            ->assertRedirect(route('superadmin.subscriptions'))
+            ->assertRedirect(route('superadmin.agencies.show', $agency))
             ->assertSessionHas('success');
 
         $this->assertDatabaseHas('subscriptions', [
