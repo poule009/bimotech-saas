@@ -81,7 +81,7 @@ class Paiement extends Model
         'periode',             // Date du mois concerné (format Y-m-01)
         'date_paiement',       // Date effective d'encaissement
         'mode_paiement',       // especes|virement|wave|orange_money|cheque
-        'statut',              // en_attente|valide|annule
+        'statut',              // unpaid|en_attente|valide|annule
         'reference_paiement',  // Référence unique du paiement
         'reference_bail',      // Référence du bail (dénormalisée pour la quittance)
 
@@ -245,7 +245,9 @@ class Paiement extends Model
 
     public function scopeEnAttente($query)
     {
-        return $query->where('statut', 'en_attente');
+        // Loyers générés mais pas encore encaissés : 'unpaid' (généré par
+        // QuittanceGenerator/rent:generate) ET 'en_attente' (legacy).
+        return $query->whereIn('statut', ['unpaid', 'en_attente']);
     }
 
     public function scopeAnnules($query)
@@ -255,7 +257,7 @@ class Paiement extends Model
 
     public function scopeEnRetard($query)
     {
-        return $query->where('statut', 'en_attente')
+        return $query->whereIn('statut', ['unpaid', 'en_attente'])
                      ->where('periode', '<', now()->startOfMonth()->toDateString());
     }
 
@@ -300,6 +302,7 @@ class Paiement extends Model
     {
         return match($this->statut) {
             'valide'     => 'Validé',
+            'unpaid'     => 'À payer',
             'en_attente' => 'En attente',
             'annule'     => 'Annulé',
             default      => ucfirst($this->statut ?? '—'),
@@ -348,6 +351,7 @@ class Paiement extends Model
     ];
 
     public const STATUTS = [
+        'unpaid'     => 'À payer',
         'en_attente' => 'En attente',
         'valide'     => 'Validé',
         'annule'     => 'Annulé',

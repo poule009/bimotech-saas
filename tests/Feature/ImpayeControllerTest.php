@@ -84,24 +84,13 @@ class ImpayeControllerTest extends TestCase
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]
-    public function admin_peut_voir_la_liste_des_impayes(): void
+    public function index_redirige_vers_le_suivi_des_paiements(): void
     {
+        // L'ancien écran impayés (sans vue dédiée) est remplacé par paiements.index,
+        // qui classe correctement un loyer 'unpaid' comme impayé (et non « payé »).
         $this->actingAs($this->admin)
             ->get(route('admin.impayes.index'))
-            ->assertOk()
-            ->assertViewIs('impayes.index');
-    }
-
-    #[Test]
-    public function index_filtre_par_mois_et_annee(): void
-    {
-        $this->actingAs($this->admin)
-            ->get(route('admin.impayes.index', [
-                'mois'  => now()->month,
-                'annee' => now()->year,
-            ]))
-            ->assertOk()
-            ->assertViewHasAll(['impayes', 'payes', 'stats']);
+            ->assertRedirect(route('admin.paiements.index'));
     }
 
     #[Test]

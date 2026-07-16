@@ -79,7 +79,7 @@ final class FiscalResult
 
         // ── Nets consolidés ───────────────────────────────────────────────
         // Calculés une seule fois par FiscalService pour éviter toute logique dans les vues.
-        public readonly float  $netLocataire = 0.0,  // total_encaissement_initial - brs_amount
+        public readonly float  $netLocataire = 0.0,  // = total_encaissement_initial (le BRS ne réduit PAS ce que paie le locataire)
         public readonly float  $netBailleur  = 0.0,  // net_a_verser_proprietaire [+ caution si remise]
 
         // ── Droits d'enregistrement DGID (CGI SN art. 464 B + 472 IV.6) ─

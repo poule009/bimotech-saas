@@ -20,91 +20,16 @@ class ImpayeController extends Controller
     // LISTE DES IMPAYÉS
     // ─────────────────────────────────────────────────────────────────────
 
-    public function index(Request $request)
+    public function index(Request $request): RedirectResponse
     {
         $this->authorize('isStaff');
 
-        $mois    = max(1, min(12,   (int) $request->input('mois',  now()->month)));
-        $annee   = max(2000, min(2100, (int) $request->input('annee', now()->year)));
-        $periode = Carbon::create($annee, $mois, 1)->startOfMonth();
-
-        // Refuser tout mois strictement futur (pas de données possibles)
-        if ($periode->isAfter(now()->endOfMonth())) {
-            $periode = now()->startOfMonth();
-            $mois    = $periode->month;
-            $annee   = $periode->year;
-        }
-
-        /**
-         * PERFORMANCE — select() sur les relations eager loadées :
-         *
-         * Avant : ->with('bien.proprietaire', 'locataire', 'paiements')
-         * chargeait TOUTES les colonnes de chaque table.
-         *
-         * Après : select() sélectif sur chaque relation.
-         * - bien : on affiche référence, adresse, ville → pas besoin de description, surface_m2...
-         * - locataire : on affiche name, email, telephone → pas besoin de password, remember_token...
-         * - paiements : filtré sur le mois + colonnes minimales pour la logique
-         */
-        $contrats = Contrat::where('statut', 'actif')
-            ->select([
-                'id', 'agency_id', 'bien_id', 'locataire_id',
-                'statut', 'loyer_contractuel', 'date_debut',
-            ])
-            ->with([
-                'bien:id,agency_id,reference,adresse,ville,statut',
-                'bien.proprietaire:id,name,telephone',
-                'locataire:id,name,email,telephone',
-                'paiements' => fn($q) => $q
-                    ->select([
-                        'id', 'contrat_id', 'agency_id',
-                        'periode', 'statut', 'montant_encaisse',
-                        'mode_paiement', 'date_paiement', 'reference_paiement',
-                    ])
-                    ->whereYear('periode', $annee)
-                    ->whereMonth('periode', $mois)
-                    ->where('statut', '!=', 'annule'),
-            ])
-            ->get();
-
-        $impayes = collect();
-        $payes   = collect();
-
-        foreach ($contrats as $contrat) {
-            // Paiements déjà filtrés par SQL (année, mois, statut != annule)
-            $paiementMois = $contrat->paiements->first();
-
-            if ($paiementMois) {
-                $payes->push([
-                    'contrat'  => $contrat,
-                    'paiement' => $paiementMois,
-                ]);
-            } else {
-                $joursRetard = $periode->copy()->addDays(5)->diffInDays(now(), false);
-                $impayes->push([
-                    'contrat'      => $contrat,
-                    'paiement'     => null,
-                    'jours_retard' => max(0, (int) $joursRetard),
-                    'montant_du'   => $contrat->loyer_contractuel,
-                ]);
-            }
-        }
-
-        $impayes = $impayes->sortByDesc('jours_retard');
-
-        $stats = [
-            'nb_impayes'        => $impayes->count(),
-            'nb_payes'          => $payes->count(),
-            'montant_du'        => $impayes->sum('montant_du'),
-            'taux_recouvrement' => $contrats->count() > 0
-                ? round(($payes->count() / $contrats->count()) * 100, 1)
-                : 0,
-        ];
-
-        return view('impayes.index', compact(
-            'impayes', 'payes', 'stats',
-            'mois', 'annee', 'periode'
-        ));
+        // L'écran de suivi des retards/impayés vit désormais dans PaiementController
+        // (vue paiements.index, avec buckets de retard et filtre statut correct).
+        // Cet ancien index n'avait plus de vue dédiée : on redirige pour éviter une
+        // page cassée et surtout un double comptage (l'ancienne logique classait un
+        // loyer 'unpaid' comme « payé »). Export Excel conservé ci-dessous.
+        return redirect()->route('admin.paiements.index');
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -131,11 +56,13 @@ class ImpayeController extends Controller
                 'bien:id,agency_id,reference,adresse,ville,statut',
                 'bien.proprietaire:id,name,telephone',
                 'locataire:id,name,email,telephone',
+                // Seul un paiement VALIDÉ atteste que le loyer est payé. Une ligne
+                // générée non encaissée ('unpaid'/'en_attente') reste un impayé.
                 'paiements' => fn($q) => $q
                     ->select(['id', 'contrat_id', 'agency_id', 'periode', 'statut', 'montant_encaisse', 'mode_paiement', 'date_paiement'])
                     ->whereYear('periode', $annee)
                     ->whereMonth('periode', $mois)
-                    ->where('statut', '!=', 'annule'),
+                    ->where('statut', 'valide'),
             ])
             ->get();
 

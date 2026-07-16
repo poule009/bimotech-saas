@@ -112,7 +112,7 @@
             <div class="bg-white border border-line rounded-xl p-5">
                 <div class="text-[12px] text-muted font-bold mb-2">Revenu ce mois</div>
                 <div class="font-display font-semibold text-[24px] text-green">{{ $fmt($revenuAgence) }} <span class="text-[14px] font-body text-muted">F</span></div>
-                <div class="text-[11.5px] text-muted mt-1">Commissions {{ $agenceAssujettieTva ? 'HT' : 'encaissées' }}</div>
+                <div class="text-[11.5px] text-muted mt-1">Commissions + frais d'entrée {{ $agenceAssujettieTva ? 'HT' : 'encaissés' }}</div>
                 @if($agenceAssujettieTva && $tvaCollectee > 0)
                     <div class="text-[11px] text-amber mt-1.5 pt-1.5 border-t border-paper-dim">+ {{ $fmt($tvaCollectee) }} F TVA collectée <span class="text-muted">(à reverser à la DGID)</span></div>
                 @endif

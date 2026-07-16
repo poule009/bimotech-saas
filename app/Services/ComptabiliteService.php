@@ -53,8 +53,11 @@ class ComptabiliteService
 
         $revenusTotal = (float) $revenus->commissions_ht + (float) $revenus->frais_entree_ht;
 
-        // ── Charges fiscales depuis le module fiscal ──────────────────────
-        // TVA nette due = TVA collectée - TVA déductible (ce que l'agence verse à la DGI)
+        // ── TVA nette due (information, PAS une charge d'exploitation) ─────
+        // TVA nette due = TVA collectée - TVA déductible (ce que l'agence verse à la DGI).
+        // La TVA est un flux neutre : elle est déjà exclue des revenus (HT) et ne doit
+        // PAS être re-déduite en charge, sinon le résultat est sous-estimé du montant
+        // de la TVA. On la remonte séparément (tva_nette_due) pour affichage/rappel.
         $tvaQuery = TvaDeclaration::withoutGlobalScopes()
             ->where('agency_id', $agencyId)
             ->where('annee', $annee);
@@ -64,7 +67,6 @@ class ComptabiliteService
         }
 
         $tvaNetteDue     = (float) $tvaQuery->sum('tva_nette_due');
-        $chargesTotal    = $chargesTotal + $tvaNetteDue;
         $resultatNet     = $revenusTotal - $chargesTotal;
 
         // Détail mensuel si vue annuelle
@@ -254,7 +256,7 @@ class ComptabiliteService
                 JOIN paiements p2  ON p2.id = d.paiement_id
                 JOIN contrats c2   ON c2.id = p2.contrat_id
                 JOIN biens b2      ON b2.id = c2.bien_id
-                WHERE d.agency_id = ?
+                WHERE d.agency_id = ? AND p2.statut = 'valide'
                 GROUP BY b2.proprietaire_id
             ) dep ON dep.proprietaire_id = b.proprietaire_id
             LEFT JOIN (

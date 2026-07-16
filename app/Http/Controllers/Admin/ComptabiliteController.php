@@ -93,10 +93,11 @@ class ComptabiliteController extends Controller implements HasMiddleware
             ->orderByDesc('date_charge')
             ->get();
 
-        // Revenu = commission HT (la TVA collectée est due à la DGID, pas un revenu).
+        // Revenu = commissions HT + frais d'entrée HT (source unique : ComptabiliteService).
+        // La TVA collectée est due à la DGID → jamais comptée en revenu.
         // Pour une agence non assujettie, HT == TTC → aucun changement visible.
-        $revenuAgence   = (float) $resultat['commissions_ht'];
-        $tvaCollectee   = (float) $resultat['tva_commissions'];
+        $revenuAgence   = (float) $resultat['revenus_total_ht'];
+        $tvaCollectee   = (float) $resultat['tva_commissions'] + (float) $resultat['tva_frais_entree'];
         $agenceAssujettieTva = (bool) (Auth::user()->agency->assujetti_tva ?? false);
         $depensesAgence = (float) ($chargesFixes->sum('montant') + $chargesOccasionnelles->sum('montant'));
         $beneficeNet    = $revenuAgence - $depensesAgence;
