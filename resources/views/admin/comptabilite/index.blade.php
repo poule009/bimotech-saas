@@ -267,7 +267,7 @@
             <p class="text-[13.5px] text-muted mb-7 max-w-[420px] mx-auto">Comparez l'argent des tiers que vous devez détenir au solde réel de votre compte de gestion.</p>
 
             {{-- Décomposition transparente du solde théorique --}}
-            <div class="max-w-[380px] mx-auto mb-7 text-left bg-paper rounded-xl border border-line p-4">
+            <div class="max-w-[380px] mx-auto mb-3 text-left bg-paper rounded-xl border border-line p-4">
                 <div class="flex items-center justify-between py-1.5">
                     <span class="text-[13px] text-muted">Dû aux propriétaires</span>
                     <span class="text-[14px] font-bold text-green">{{ $fmt($duProprietaires) }} F</span>
@@ -278,11 +278,28 @@
                         <span class="text-[14px] font-bold text-gold">− {{ $fmt($avancesAgence) }} F</span>
                     </div>
                 @endif
+                @if($brsAReverser > 0)
+                    <div class="flex items-center justify-between py-1.5 border-t border-paper-dim">
+                        <span class="text-[13px] text-muted">BRS retenu <span class="text-[11px]">(à reverser à la DGID)</span></span>
+                        <span class="text-[14px] font-bold text-amber">+ {{ $fmt($brsAReverser) }} F</span>
+                    </div>
+                @endif
+                @if($tvaAReverser > 0)
+                    <div class="flex items-center justify-between py-1.5 border-t border-paper-dim">
+                        <span class="text-[13px] text-muted">TVA collectée <span class="text-[11px]">(à reverser à la DGID)</span></span>
+                        <span class="text-[14px] font-bold text-amber">+ {{ $fmt($tvaAReverser) }} F</span>
+                    </div>
+                @endif
                 <div class="flex items-center justify-between py-2 mt-1 border-t-2 border-ink">
                     <span class="text-[13.5px] font-bold">Solde théorique à détenir</span>
                     <span class="font-display font-semibold text-[18px]">{{ $fmt($soldeTheorique) }} F</span>
                 </div>
             </div>
+            @if($brsAReverser > 0 || $tvaAReverser > 0)
+                <p class="text-[11.5px] text-muted mb-6 max-w-[380px] mx-auto text-left">
+                    Le BRS et la TVA sont de l'<strong>argent de tiers</strong> : détenus pour la DGID, ils doivent se trouver sur le compte tant qu'ils ne sont pas reversés (échéance le 15 du mois suivant).
+                </p>
+            @endif
 
             <div class="flex flex-col sm:flex-row gap-2.5 justify-center items-stretch sm:items-center max-w-[420px] mx-auto">
                 <input type="text" inputmode="numeric" x-model="reel" placeholder="Montant réel sur le compte" class="f-input text-center font-bold flex-1">

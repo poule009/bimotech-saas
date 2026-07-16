@@ -286,6 +286,41 @@ class ComptabiliteService
     }
 
     /**
+     * Impôts collectés que l'agence DÉTIENT pour le compte de la DGID.
+     *
+     * Argent de tiers, jamais un revenu ni une charge de l'agence :
+     *   - BRS retenu sur les loyers (reversé au titre du bailleur personne physique)
+     *   - TVA nette due (collectée − déductible) non encore déposée
+     *
+     * Scopés sur le mois : les deux suivent l'échéance MENSUELLE de déclaration
+     * (BRS avant le 15 du mois suivant, TVA idem). Le contrôle de caisse doit les
+     * ajouter au « solde théorique à détenir », sinon le disponible agence est
+     * surévalué de ce montant.
+     *
+     * @return array{brs: float, tva: float, total: float}
+     */
+    public function impotsDetenus(int $agencyId, int $annee, int $mois): array
+    {
+        $brs = (float) Paiement::withoutGlobalScopes()
+            ->where('agency_id', $agencyId)
+            ->where('statut', 'valide')
+            ->whereYear('periode', $annee)
+            ->whereMonth('periode', $mois)
+            ->sum('brs_amount');
+
+        // TVA nette due de la période, uniquement si la déclaration n'est pas déposée
+        // (une fois déposée+payée, l'argent a quitté la caisse → ne plus le compter).
+        $tva = (float) TvaDeclaration::withoutGlobalScopes()
+            ->where('agency_id', $agencyId)
+            ->where('annee', $annee)
+            ->where('mois', $mois)
+            ->where('statut', '!=', 'deposee')
+            ->sum('tva_nette_due');
+
+        return ['brs' => $brs, 'tva' => $tva, 'total' => $brs + $tva];
+    }
+
+    /**
      * Tableau de trésorerie du mois.
      */
     public function tresorerie(int $agencyId, int $annee, int $mois): array

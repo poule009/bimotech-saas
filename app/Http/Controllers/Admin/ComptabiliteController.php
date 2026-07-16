@@ -112,10 +112,17 @@ class ComptabiliteController extends Controller implements HasMiddleware
 
         // ── Onglet Vérification : argent des tiers détenu ──
         // Transparence : on distingue ce qui est dû aux propriétaires (soldes
-        // positifs) des avances faites par l'agence (soldes négatifs).
+        // positifs) des avances faites par l'agence (soldes négatifs), ET les
+        // impôts collectés détenus pour la DGID (BRS + TVA), eux aussi argent de
+        // tiers → sinon le disponible agence est surévalué.
         $duProprietaires = (float) $soldes->where('solde', '>', 0)->sum('solde');
         $avancesAgence   = (float) abs($soldes->where('solde', '<', 0)->sum('solde'));
-        $soldeTheorique  = $duProprietaires - $avancesAgence; // net (= somme algébrique)
+        $impotsDetenus   = $this->comptabiliteService->impotsDetenus($agencyId, $annee, $mois);
+        $brsAReverser    = (float) $impotsDetenus['brs'];
+        $tvaAReverser    = (float) $impotsDetenus['tva'];
+        // Argent qui DOIT se trouver sur le compte de gestion :
+        //   dû propriétaires − avances agence + BRS + TVA à reverser.
+        $soldeTheorique  = $duProprietaires - $avancesAgence + $brsAReverser + $tvaAReverser;
 
         $categoriesAgence = ChargeAgence::CATEGORIES;
 
@@ -125,6 +132,7 @@ class ComptabiliteController extends Controller implements HasMiddleware
             'resultat', 'revenuAgence', 'tvaCollectee', 'agenceAssujettieTva', 'depensesAgence', 'beneficeNet',
             'chargesFixes', 'chargesOccasionnelles', 'modelesReportables',
             'soldeTheorique', 'duProprietaires', 'avancesAgence',
+            'brsAReverser', 'tvaAReverser',
             'categoriesAgence'
         ));
     }
