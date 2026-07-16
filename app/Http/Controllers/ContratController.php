@@ -126,7 +126,7 @@ class ContratController extends Controller implements HasMiddleware
             $fromContrat = Contrat::with(['bien', 'locataire'])
                 ->select(['id', 'bien_id', 'locataire_id', 'type_bail', 'loyer_nu',
                           'charges_mensuelles', 'tom_amount', 'indexation_annuelle',
-                          'taux_commission_snapshot', 'date_fin'])
+                          'date_fin'])
                 ->find($request->from_contrat);
             if ($fromContrat) {
                 $bienPreselectionne = $fromContrat->bien;
