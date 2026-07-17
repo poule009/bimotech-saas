@@ -8,6 +8,7 @@ use App\Models\Agency;
 use App\Models\AgencyFeatureOverride;
 use App\Models\Bien;
 use App\Models\Contrat;
+use App\Models\ImpersonationSession;
 use App\Models\MrrSnapshot;
 use App\Models\Paiement;
 use App\Models\Plan;
@@ -1060,7 +1061,23 @@ class SuperAdminController extends Controller
             'ip_address' => request()?->ip(),
         ]);
 
-        session(['impersonating_id' => Auth::id()]);
+        // Journalise la session pour la supervision (Support / Debug) : sessions
+        // actives, historique, et coupure à distance possible par un autre admin.
+        $impersonation = ImpersonationSession::create([
+            'admin_id'    => Auth::id(),
+            'user_id'     => $user->id,
+            'agency_id'   => $user->agency_id,
+            // Snapshots lisibles même si l'admin ou l'agence est supprimé plus tard.
+            'admin_name'  => Auth::user()?->name,
+            'agency_name' => $user->agency?->name,
+            'started_at'  => now(),
+            'ip_address'  => request()?->ip(),
+        ]);
+
+        session([
+            'impersonating_id'        => Auth::id(),
+            'impersonation_session_id' => $impersonation->id,
+        ]);
         Auth::login($user);
 
         $redirect = match ($user->role) {
@@ -1082,6 +1099,19 @@ class SuperAdminController extends Controller
         }
 
         $superAdminId = Session::pull('impersonating_id');
+        $sessionId    = Session::pull('impersonation_session_id');
+
+        // Clôture normale de la session tracée (sortie volontaire de l'admin).
+        // On ne touche pas une session déjà terminée (ex. coupée à distance).
+        if ($sessionId) {
+            ImpersonationSession::whereKey($sessionId)
+                ->whereNull('ended_at')
+                ->update([
+                    'ended_at'   => now(),
+                    'ended_by'   => $superAdminId,
+                    'end_reason' => 'normal',
+                ]);
+        }
 
         if (! $superAdminId) {
             return redirect()->route('superadmin.dashboard');
@@ -1100,6 +1130,143 @@ class SuperAdminController extends Controller
         return redirect()
             ->route('superadmin.dashboard')
             ->with('success', 'Impersonation terminée. Vous êtes de retour en tant que Super Admin.');
+    }
+
+    /**
+     * Support / Debug — vue centralisée :
+     *  - recherche rapide d'agence (redirige vers la fiche si un seul résultat clair),
+     *  - sessions d'impersonation en cours (coupables à distance),
+     *  - historique paginé de toutes les sessions passées.
+     */
+    public function support(Request $request): View|RedirectResponse
+    {
+        // ── Recherche rapide (niveau agence uniquement, v1) ──────────────────
+        $q = trim((string) $request->query('q', ''));
+        $resultats = collect();
+
+        if ($q !== '') {
+            $terme = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $q);
+            $resultats = Agency::query()
+                ->where(function ($sub) use ($terme) {
+                    $sub->where('name', 'like', "%{$terme}%")
+                        ->orWhere('email', 'like', "%{$terme}%")
+                        ->orWhere('telephone', 'like', "%{$terme}%");
+                })
+                ->orderBy('name')
+                ->limit(10)
+                ->get(['id', 'name', 'email', 'telephone']);
+
+            // Un seul résultat clair → on va droit à la fiche, pas de liste inutile.
+            if ($resultats->count() === 1) {
+                return redirect()->route('superadmin.agencies.show', $resultats->first());
+            }
+        }
+
+        // ── Sessions actives ─────────────────────────────────────────────────
+        $actives = ImpersonationSession::active()
+            ->with(['admin:id,name', 'agency:id,name'])
+            ->orderByDesc('started_at')
+            ->get();
+
+        // ── Historique (sessions terminées), filtrable ───────────────────────
+        [$debut, $fin] = $this->periodeSupport($request);
+
+        $adminId = $request->query('admin');
+        $periode = $request->query('periode', '30j');
+
+        $historique = ImpersonationSession::query()
+            ->whereNotNull('ended_at')
+            ->whereBetween('started_at', [$debut, $fin])
+            ->when($adminId, fn ($query) => $query->where('admin_id', (int) $adminId))
+            ->with(['admin:id,name', 'agency:id,name'])
+            ->orderByDesc('started_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        // Admins ayant déjà lancé au moins une impersonation → alimente le filtre.
+        $adminIds = ImpersonationSession::query()
+            ->whereNotNull('admin_id')
+            ->distinct()
+            ->pluck('admin_id');
+        $admins = User::withoutGlobalScopes()
+            ->whereIn('id', $adminIds)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('superadmin.support', [
+            'actives'    => $actives,
+            'historique' => $historique,
+            'admins'     => $admins,
+            'filtres'    => [
+                'q'       => $q,
+                'admin'   => $adminId ? (int) $adminId : null,
+                'periode' => $periode,
+                'du'      => $debut->toDateString(),
+                'au'      => $fin->toDateString(),
+            ],
+            'resultats' => $resultats,
+        ]);
+    }
+
+    /** Fenêtre de dates de l'historique Support (défaut : 30 derniers jours). */
+    private function periodeSupport(Request $request): array
+    {
+        $periode = $request->query('periode', '30j');
+
+        if ($periode === 'perso') {
+            $debut = $this->dateOuNull($request->query('du')) ?? now()->subDays(30);
+            $fin   = $this->dateOuNull($request->query('au')) ?? now();
+
+            if ($debut->gt($fin)) {
+                [$debut, $fin] = [$fin, $debut];
+            }
+
+            return [$debut->startOfDay(), $fin->endOfDay()];
+        }
+
+        return match ($periode) {
+            '7j'   => [now()->subDays(7)->startOfDay(), now()->endOfDay()],
+            'tout' => [Carbon::createFromTimestamp(0), now()->endOfDay()],
+            default => [now()->subDays(30)->startOfDay(), now()->endOfDay()],
+        };
+    }
+
+    /**
+     * Coupe à distance la session d'impersonation d'un collègue.
+     *
+     * On pose seulement `ended_at` + `end_reason='revoked'` : la déconnexion réelle
+     * est appliquée par EnforceImpersonationRevocation au prochain hit de l'admin
+     * concerné, avec un bandeau immédiat de notification.
+     */
+    public function terminateImpersonation(ImpersonationSession $session): RedirectResponse
+    {
+        // Clôture atomique : `whereNull('ended_at')` évite d'écraser une session
+        // déjà fermée entre-temps (sortie normale, autre coupure concurrente).
+        $ferme = ImpersonationSession::whereKey($session->id)
+            ->whereNull('ended_at')
+            ->update([
+                'ended_at'   => now(),
+                'ended_by'   => Auth::id(),
+                'end_reason' => 'revoked',
+            ]);
+
+        if (! $ferme) {
+            return back()->with('error', 'Cette session est déjà terminée.');
+        }
+
+        $nomAdmin = $session->admin?->name ?? $session->admin_name;
+
+        ActivityLog::create([
+            'user_id'     => Auth::id(),
+            'agency_id'   => $session->agency_id,
+            'action'      => 'impersonate_revoked',
+            'description' => "Session d'impersonation coupée à distance : {$nomAdmin} sur ".($session->agency?->name ?? $session->agency_name),
+            'model_type'  => ImpersonationSession::class,
+            'model_id'    => $session->id,
+            'ip_address'  => request()?->ip(),
+        ]);
+
+        return back()->with('success', "Session terminée. {$nomAdmin} sera déconnecté de l'agence à sa prochaine action.");
     }
 
     public function toggleFeature(Agency $agency, string $feature): RedirectResponse

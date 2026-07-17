@@ -397,6 +397,31 @@ export function registerComponents(Alpine) {
         },
     }));
 
+    // Durée écoulée d'une session d'impersonation active (Support / Debug).
+    // data-started = timestamp Unix (secondes). Se met à jour chaque seconde.
+    Alpine.data('impersonationTimer', () => ({
+        label: '',
+        _timer: null,
+        init() {
+            this.tick();
+            this._timer = setInterval(() => this.tick(), 1000);
+        },
+        destroy() { clearInterval(this._timer); },
+        tick() {
+            const started = parseInt(this.$el.dataset.started || '0', 10);
+            let s = Math.max(0, Math.floor(Date.now() / 1000) - started);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            if (h > 0) {
+                this.label = `${h} h ${String(m).padStart(2, '0')}`;
+            } else if (m > 0) {
+                this.label = `${m} min`;
+            } else {
+                this.label = `${s} s`;
+            }
+        },
+    }));
+
     // Groupe de gravité repliable (module Quittances) — ouvert/fermé selon data-open.
     Alpine.data('severityGroup', () => ({
         open: true,

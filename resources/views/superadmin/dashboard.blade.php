@@ -26,6 +26,14 @@
 @section('content')
 <div class="max-w-[1240px] mx-auto">
 
+    {{-- Notifications flash (dont la coupure d'impersonation à distance). --}}
+    @if(session('warning'))
+        <div class="mb-5 rounded-lg bg-gold/10 border border-gold/25 px-4 py-3 text-[13px] text-gold-deep">{{ session('warning') }}</div>
+    @endif
+    @if(session('success'))
+        <div class="mb-5 rounded-lg bg-green/10 border border-green/25 px-4 py-3 text-[13px] text-green">{{ session('success') }}</div>
+    @endif
+
     {{-- ─────────── En-tête ─────────── --}}
     <div class="flex items-start justify-between gap-4 mb-1">
         <div>

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Bien;
 use App\Models\Contrat;
+use App\Listeners\CloseImpersonationSessionOnLogout;
 use App\Observers\BienObserver;
 use App\Observers\ContratObserver;
 use App\Services\FiscalService;
@@ -13,6 +14,7 @@ use App\Services\QuittanceService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -36,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
         // Auto-calcul de l'estimation CFPB du bien (cfpb_valeur_locative_estimee,
         // cfpb_montant_estime) à partir de loyer_mensuel — estimation structurelle.
         Bien::observe(BienObserver::class);
+
+        // Ferme la session d'impersonation tracée si l'admin se déconnecte
+        // « normalement » (sinon elle resterait éternellement « active »).
+        Event::listen(\Illuminate\Auth\Events\Logout::class, CloseImpersonationSessionOnLogout::class);
 
         // Grille tarifaire partagée aux vues publiques. Les prix y étaient écrits
         // en dur et se désynchronisaient de la grille réelle dès qu'elle bougeait ;

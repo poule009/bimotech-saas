@@ -155,6 +155,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Placeholder « à venir » pour les sections Super Admin pas encore construites
             // (Agences, Abonnements, Support, Règles fiscales, Équipe, Paramètres).
             Route::get('a-venir/{section}',             [SuperAdminController::class, 'aVenir'])->name('a-venir');
+            // ── Support / Debug ────────────────────────────────────────────
+            // Recherche d'agence, sessions d'impersonation en cours + historique.
+            Route::get('support',                       [SuperAdminController::class, 'support'])->name('support');
+            Route::post('support/impersonations/{session}/terminate', [SuperAdminController::class, 'terminateImpersonation'])->name('support.impersonations.terminate');
             // ── Abonnements & facturation ──────────────────────────────────
             // Vue d'ensemble des transactions, toutes agences. A absorbé l'ancienne
             // liste d'abonnements ET l'écran « paiements en attente » (devenu un filtre).

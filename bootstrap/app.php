@@ -31,6 +31,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // CheckSubscription vérifie l'abonnement sur toutes les routes auth
         $middleware->web(append: [
             \App\Http\Middleware\SecureHeaders::class,
+            // Coupe une impersonation révoquée à distance avant tout autre contrôle.
+            \App\Http\Middleware\EnforceImpersonationRevocation::class,
             \App\Http\Middleware\CheckSubscription::class,
         ]);
 

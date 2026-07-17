@@ -58,6 +58,14 @@ Schedule::command('loyers:indexation')
     ->runInBackground()
     ->emailOutputOnFailure(env('MAIL_FROM_ADDRESS'));
 
+// Ferme les sessions d'impersonation abandonnées — toutes les heures (filet de
+// sécurité complémentaire au listener de logout du module Support / Debug).
+Schedule::command('impersonation:close-stale')
+    ->hourly()
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground();
+
 // Emails d'onboarding essai gratuit — J+1, J+7, J+25 — quotidien à 09:30
 Schedule::command('onboarding:emails')
     ->dailyAt('09:30')
