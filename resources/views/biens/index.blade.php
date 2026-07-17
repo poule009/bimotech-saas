@@ -155,7 +155,7 @@
             <table class="w-full">
                 <thead>
                     <tr class="bg-paper-dim border-b border-line text-left text-[12px] uppercase tracking-wide text-muted font-bold">
-                        <th class="px-5 py-4">Bien</th><th class="px-5 py-4">Type</th><th class="px-5 py-4">Propriétaire</th><th class="px-5 py-4 text-right">Statut</th>
+                        <th class="px-5 py-4">Bien</th><th class="px-5 py-4">Type</th><th class="px-5 py-4">Propriétaire</th><th class="px-5 py-4">Statut</th><th class="px-5 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -170,7 +170,10 @@
                             </td>
                             <td class="px-5 py-4"><span class="text-[12px] font-bold px-3 py-1.5 rounded-full bg-paper-dim text-teal">Immeuble · {{ $im->biens_count }} unité{{ $im->biens_count > 1 ? 's' : '' }}</span></td>
                             <td class="px-5 py-4 text-[14px] text-ink/80">{{ $im->proprietaire->name ?? '—' }}</td>
-                            <td class="px-5 py-4 text-right"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $occClass }}">{{ $occLabel }}</span></td>
+                            <td class="px-5 py-4"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $occClass }}">{{ $occLabel }}</span></td>
+                            <td class="px-5 py-4">
+                                <x-row-actions :show="route('admin.immeubles.show', $im)" :edit="route('admin.immeubles.edit', $im)" />
+                            </td>
                         </tr>
                     @endforeach
                     @foreach($biensSimples as $bien)
@@ -192,7 +195,10 @@
                             </td>
                             <td class="px-5 py-4"><span class="text-[12px] font-bold px-3 py-1.5 rounded-full bg-paper-dim text-teal">{{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</span></td>
                             <td class="px-5 py-4 text-[14px] text-ink/80">{{ $bien->proprietaire->name ?? '—' }}</td>
-                            <td class="px-5 py-4 text-right"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $stClass }}">{{ $stLabel }}</span></td>
+                            <td class="px-5 py-4"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $stClass }}">{{ $stLabel }}</span></td>
+                            <td class="px-5 py-4">
+                                <x-row-actions :show="route('admin.biens.show', $bien)" :edit="route('admin.biens.edit', $bien)" />
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

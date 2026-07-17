@@ -113,16 +113,7 @@
                                 <td class="px-5 py-4 text-[14px] text-ink/80">{{ $u->telephone ?? '—' }}</td>
                                 <td class="px-5 py-4 text-[14px] text-ink/80">{{ $item['nb_biens'] }} bien{{ $item['nb_biens'] > 1 ? 's' : '' }}</td>
                                 <td class="px-5 py-4">
-                                    <div class="flex items-center justify-end gap-1">
-                                        <a href="{{ route('admin.users.show', $u) }}" title="Voir la fiche"
-                                           class="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-teal hover:bg-paper-dim transition-colors">
-                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                        </a>
-                                        <a href="{{ route('admin.users.edit', $u) }}" title="Modifier"
-                                           class="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-teal hover:bg-paper-dim transition-colors">
-                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                        </a>
-                                    </div>
+                                    <x-row-actions :show="route('admin.users.show', $u)" :edit="route('admin.users.edit', $u)" />
                                 </td>
                             </tr>
                         @endforeach

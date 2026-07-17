@@ -69,7 +69,7 @@
                 <table class="w-full">
                     <thead>
                         <tr class="bg-paper-dim border-b border-line text-left text-[12px] uppercase tracking-wide text-muted font-bold">
-                            <th class="px-5 py-4">Bien</th><th class="px-5 py-4">Locataire</th><th class="px-5 py-4">Loyer</th><th class="px-5 py-4">Échéance</th><th class="px-5 py-4">Statut</th>
+                            <th class="px-5 py-4">Bien</th><th class="px-5 py-4">Locataire</th><th class="px-5 py-4">Loyer</th><th class="px-5 py-4">Échéance</th><th class="px-5 py-4">Statut</th><th class="px-5 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,6 +88,9 @@
                                 <td class="px-5 py-4 text-[14px] font-semibold">{{ $fmt($contrat->loyer_contractuel) }} F</td>
                                 <td class="px-5 py-4 text-[14px] text-ink/80">{{ $contrat->date_fin ? \Carbon\Carbon::parse($contrat->date_fin)->locale('fr')->isoFormat('D MMM Y') : 'Indéterminée' }}</td>
                                 <td class="px-5 py-4"><span class="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1.5 rounded-full {{ $stClass }}"><span class="w-[7px] h-[7px] rounded-full bg-current"></span> {{ $stLabel }}</span></td>
+                                <td class="px-5 py-4">
+                                    <x-row-actions :show="route('admin.contrats.show', $contrat)" :edit="route('admin.contrats.edit', $contrat)" />
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

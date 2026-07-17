@@ -72,7 +72,7 @@
                 <table class="w-full">
                     <thead>
                         <tr class="bg-paper-dim border-b border-line text-left text-[12px] uppercase tracking-wide text-muted font-bold">
-                            <th class="px-5 py-4">Locataire</th><th class="px-5 py-4">Type</th><th class="px-5 py-4">Bien loué</th><th class="px-5 py-4">Paiement</th><th class="px-5 py-4"></th>
+                            <th class="px-5 py-4">Locataire</th><th class="px-5 py-4">Type</th><th class="px-5 py-4">Bien loué</th><th class="px-5 py-4">Paiement</th><th class="px-5 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,8 +99,8 @@
                                         <span class="text-[12px] font-bold px-3 py-1.5 rounded-full bg-paper-dim text-muted">Sans contrat</span>
                                     @endif
                                 </td>
-                                <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('admin.users.show', $u) }}" class="text-[13px] font-bold text-teal hover:underline">Ouvrir</a>
+                                <td class="px-5 py-4">
+                                    <x-row-actions :show="route('admin.users.show', $u)" :edit="route('admin.users.edit', $u)" />
                                 </td>
                             </tr>
                         @endforeach
