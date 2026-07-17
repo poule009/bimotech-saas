@@ -108,10 +108,70 @@
         </div>
     @endif
 
+    {{-- Relevé en cascade : lecture unique de haut en bas. Calculé sur le CUMUL GLOBAL
+         ($compteGlobal) → loyers + caution − commission − BRS − dépenses = net,
+         puis net − déjà reversé = reste. Se réconcilie toujours. --}}
+    <div class="f-card mb-4">
+        <h3 class="f-card-title mb-0.5">Relevé du compte</h3>
+        <p class="f-card-sub mb-3">De l'argent reçu jusqu'au reste à reverser — total depuis le début.</p>
+
+        <div class="text-[14px]">
+            <div class="flex items-center justify-between py-2.5 border-b border-paper-dim">
+                <span class="text-muted">Loyers encaissés</span>
+                <span class="font-bold text-green whitespace-nowrap">+{{ $fmt($compteGlobal['loyers_encaisses']) }} F</span>
+            </div>
+            @if(($compteGlobal['caution_incluse'] ?? 0) > 0.5)
+            <div class="flex items-center justify-between py-2.5 border-b border-paper-dim">
+                <span class="text-muted">Caution reçue</span>
+                <span class="font-bold text-green whitespace-nowrap">+{{ $fmt($compteGlobal['caution_incluse']) }} F</span>
+            </div>
+            @endif
+            <div class="flex items-center justify-between py-2.5 border-b border-paper-dim">
+                <span class="text-muted">Commission de l'agence</span>
+                <span class="font-bold text-error whitespace-nowrap">−{{ $fmt($compteGlobal['commissions_deduites']) }} F</span>
+            </div>
+            @if(($compteGlobal['brs_retenu'] ?? 0) > 0.5)
+            <div class="flex items-center justify-between py-2.5 border-b border-paper-dim">
+                <span class="text-muted">BRS retenu</span>
+                <span class="font-bold text-error whitespace-nowrap">−{{ $fmt($compteGlobal['brs_retenu']) }} F</span>
+            </div>
+            @endif
+            @if(($compteGlobal['depenses_avancees'] ?? 0) > 0.5)
+            <div class="flex items-center justify-between py-2.5 border-b border-paper-dim">
+                <span class="text-muted">Dépenses avancées</span>
+                <span class="font-bold text-error whitespace-nowrap">−{{ $fmt($compteGlobal['depenses_avancees']) }} F</span>
+            </div>
+            @endif
+
+            {{-- Net --}}
+            <div class="flex items-center justify-between py-3 mt-1 border-t-2 border-ink">
+                <span class="font-bold">Net revenant au propriétaire</span>
+                <span class="font-display font-bold text-[18px] whitespace-nowrap">{{ $fmt($compteGlobal['net_du']) }} F</span>
+            </div>
+            @if(($compteGlobal['reversements_effectues'] ?? 0) > 0.5)
+            <div class="flex items-center justify-between py-2.5 border-b border-paper-dim">
+                <span class="text-muted">Déjà reversé au propriétaire</span>
+                <span class="font-bold text-error whitespace-nowrap">−{{ $fmt($compteGlobal['reversements_effectues']) }} F</span>
+            </div>
+            @endif
+
+            {{-- Reste --}}
+            <div class="flex items-center justify-between py-3 border-t border-ink">
+                <span class="font-bold text-[15px]">
+                    @if($solde > 0.5) Reste à reverser
+                    @elseif($solde < -0.5) Avance de l'agence à récupérer
+                    @else Compte soldé
+                    @endif
+                </span>
+                <span class="font-display font-bold text-[21px] whitespace-nowrap {{ $solde < -0.5 ? 'text-gold' : 'text-green' }}">{{ $fmt(abs($solde)) }} F</span>
+            </div>
+        </div>
+    </div>
+
     {{-- Sélecteur de période --}}
     @if($periodes->isNotEmpty())
         <form method="GET" class="mb-5 flex items-center gap-2.5">
-            <label class="text-[12.5px] text-muted font-semibold" for="periode">Détail du mois :</label>
+            <label class="text-[12.5px] text-muted font-semibold" for="periode">Filtrer le détail par mois :</label>
             <select class="f-select max-w-[220px]" id="periode" name="periode" onchange="this.form.submit()">
                 <option value="">Tout (solde global)</option>
                 @foreach($periodes as $p)
@@ -245,19 +305,13 @@
                 @endforeach
             @endif
 
+            {{-- Sous-total : uniquement en vue mensuelle (le relevé global en haut porte la
+                 réconciliation nette − reversé = reste). En vue « Tout », pas de doublon. --}}
+            @if($periode)
             <div class="flex items-center justify-between pt-4 mt-3 border-t-2 border-ink">
-                <div class="font-bold text-[14.5px]">Net à reverser{{ $periode ? ' (mois)' : '' }} — total</div>
+                <div class="font-bold text-[14.5px]">Net du mois — {{ \Carbon\Carbon::parse($periode . '-01')->locale('fr')->isoFormat('MMMM Y') }}</div>
                 <div class="font-display font-bold text-[19px]">{{ $fmt($compte['net_du']) }} F</div>
             </div>
-            @if(($compte['reversements_effectues'] ?? 0) > 0.5)
-                <div class="flex items-center justify-between pt-2">
-                    <div class="text-[13.5px] text-muted">Déjà reversé</div>
-                    <div class="font-bold text-[14.5px] text-error whitespace-nowrap">−{{ $fmt($compte['reversements_effectues']) }} F</div>
-                </div>
-                <div class="flex items-center justify-between pt-2 mt-1 border-t border-paper-dim">
-                    <div class="font-bold text-[14.5px]">Solde restant à reverser</div>
-                    <div class="font-display font-bold text-[19px] text-gold">{{ $fmt($compte['solde_restant']) }} F</div>
-                </div>
             @endif
         </div>
     </div>
