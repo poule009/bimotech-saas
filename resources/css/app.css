@@ -113,10 +113,6 @@
     }
     .f-input-error { @apply border-error focus:border-error focus:ring-error/[0.12]; }
 
-    /* ── Module Fiscalité : chips de filtre de la vue globale ── */
-    .fisc-chip:hover      { @apply border-teal; }
-    .fisc-chip-active     { @apply bg-teal border-teal text-paper; }
-
     /* ── Wordmarks de marque « Bimmo » ───────────────────────────────────────
        Deux écritures officielles, jamais mélangées (voir brief marque Bimmo) :
        A. Signature (.wordmark-signature) — script Allura doré. Émotion de marque :

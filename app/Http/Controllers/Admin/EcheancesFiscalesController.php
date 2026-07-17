@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bien;
+use App\Models\User;
 use App\Services\CalendrierFiscalService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class EcheancesFiscalesController extends Controller implements HasMiddleware
@@ -21,21 +24,22 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
     }
 
     /**
-     * Vue globale Fiscalité — consomme l'agrégation CalendrierFiscalService (aucun
-     * recalcul ici). Regroupe les échéances par urgence (retard / 7 j / 30 j / plus
-     * tard) et calcule les tuiles de résumé (montants agence exclus car sans montant).
+     * Écran 1 — Liste des propriétaires. Consomme l'agrégation CalendrierFiscalService
+     * (aucun recalcul ici). Les 4 tuiles restent globales ; le reste regroupe les
+     * échéances par propriétaire (statut, montant dû sous 30 j, nb biens/échéances).
      */
     public function index(CalendrierFiscalService $service): View
     {
         $today    = Carbon::now()->timezone('Africa/Dakar')->startOfDay();
         /** @var \App\Models\User $authUser */
         $authUser = auth()->user();
+        $agencyId = (int) $authUser->agency_id;
 
         // Toute l'année à venir + les échéances en retard encore dues.
-        $echeances = $service->echeancesAVenir($authUser->agency_id, 365, $today, true);
+        $echeances = collect($service->echeancesAVenir($agencyId, 365, $today, true));
 
-        $groupes = ['late' => [], 'soon' => [], 'month' => [], 'later' => []];
-        $resume  = ['nb_retard' => 0, 'somme_retard' => 0, 'somme_7j' => 0, 'somme_30j' => 0, 'total_annee' => 0];
+        // ── Tuiles de résumé (GLOBAL, logique inchangée) ────────────────────
+        $resume = ['nb_retard' => 0, 'somme_retard' => 0, 'somme_7j' => 0, 'somme_30j' => 0, 'total_annee' => 0];
         $j7  = $today->copy()->addDays(7);
         $j30 = $today->copy()->addDays(30);
 
@@ -45,24 +49,114 @@ class EcheancesFiscalesController extends Controller implements HasMiddleware
 
             $d = $e['date_limite'] ? Carbon::parse($e['date_limite']) : null;
             if ($d === null) {
-                $groupes['later'][] = $e;                      // IS agence (date à confirmer)
+                continue; // IS agence (date à confirmer) — pas de montant
             } elseif ($d->lt($today)) {
-                $groupes['late'][] = $e;
                 $resume['nb_retard']++;
                 $resume['somme_retard'] += $montant;
             } elseif ($d->lte($j7)) {
-                $groupes['soon'][] = $e;
                 $resume['somme_7j']  += $montant;
                 $resume['somme_30j'] += $montant;
             } elseif ($d->lte($j30)) {
-                $groupes['month'][] = $e;
                 $resume['somme_30j'] += $montant;
-            } else {
-                $groupes['later'][] = $e;
             }
         }
 
-        return view('admin.echeances-fiscales.index', compact('groupes', 'resume', 'today', 'echeances'));
+        // ── Regroupement par propriétaire (les lignes agence n'en ont pas) ──
+        $parProp = $echeances->filter(fn ($e) => $e['proprietaire_id'] !== null)->groupBy('proprietaire_id');
+
+        $users = User::where('agency_id', $agencyId)
+            ->where('role', 'proprietaire')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $nbBiens = Bien::withoutGlobalScopes()
+            ->where('agency_id', $agencyId)
+            ->selectRaw('proprietaire_id, COUNT(*) as c')
+            ->groupBy('proprietaire_id')
+            ->pluck('c', 'proprietaire_id');
+
+        $proprietaires = $users
+            ->map(fn (User $u) => $this->statsProprietaire($u, $parProp->get($u->id, collect()), (int) ($nbBiens[$u->id] ?? 0), $today, $j30))
+            // Un propriétaire apparaît s'il a au moins un bien OU au moins une échéance.
+            ->filter(fn (array $p) => $p['nb_biens'] > 0 || $p['nb_a_venir'] > 0 || $p['nb_retard'] > 0)
+            ->values();
+
+        return view('admin.echeances-fiscales.index', compact('proprietaires', 'resume', 'today'));
+    }
+
+    /**
+     * Écran 2 — Fiche fiscale d'un propriétaire. Toutes ses taxes regroupées, avec
+     * le registre de calcul déplié (base → taux → résultat) fourni par le service.
+     */
+    public function proprietaire(User $proprietaire, CalendrierFiscalService $service): View
+    {
+        /** @var \App\Models\User $authUser */
+        $authUser = auth()->user();
+        $agencyId = (int) $authUser->agency_id;
+
+        abort_if($proprietaire->agency_id !== $agencyId || $proprietaire->role !== 'proprietaire', 404);
+
+        $today     = Carbon::now()->timezone('Africa/Dakar')->startOfDay();
+        $echeances = collect($service->echeancesProprietaire($agencyId, $proprietaire->id, $today));
+        $j30       = $today->copy()->addDays(30);
+
+        $montant30 = (int) $echeances
+            ->filter(fn ($e) => $e['date_limite'] && Carbon::parse($e['date_limite'])->between($today, $j30))
+            ->sum(fn ($e) => (int) ($e['montant'] ?? 0));
+
+        // Points de calcul à confirmer = échéances portant un badge « Estimation ».
+        $nbEstimations = $echeances
+            ->filter(fn ($e) => ! in_array($e['statut_calcul'] ?? null, ['confirme', null], true))
+            ->count();
+
+        $nbBiens = Bien::withoutGlobalScopes()
+            ->where('agency_id', $agencyId)
+            ->where('proprietaire_id', $proprietaire->id)
+            ->count();
+
+        return view('admin.echeances-fiscales.proprietaire', compact(
+            'proprietaire', 'echeances', 'today', 'montant30', 'nbEstimations', 'nbBiens'
+        ));
+    }
+
+    /**
+     * Statistiques d'un propriétaire pour la carte de l'écran 1.
+     *
+     * @param  \Illuminate\Support\Collection<int, array>  $echs  Échéances du propriétaire.
+     */
+    private function statsProprietaire(User $u, Collection $echs, int $nbBiens, Carbon $today, Carbon $j30): array
+    {
+        // Le statut de triage ne reflète que ce qui est réellement DÛ (montant > 0) :
+        // une déclaration structurelle à 0 F (BRS/IRPP sans loyer encaissé) laisse le
+        // propriétaire « À jour ». Les vraies dates de dépôt restent portées par la
+        // fiche (écran 2) et les rappels automatiques.
+        $du     = $echs->filter(fn ($e) => (int) ($e['montant'] ?? 0) > 0);
+        $retard = $du->filter(fn ($e) => $e['date_limite'] && Carbon::parse($e['date_limite'])->lt($today));
+        $aVenir = $du->filter(fn ($e) => $e['date_limite'] && Carbon::parse($e['date_limite'])->gte($today));
+
+        $montant30 = (int) $echs
+            ->filter(fn ($e) => $e['date_limite'] && Carbon::parse($e['date_limite'])->between($today, $j30))
+            ->sum(fn ($e) => (int) ($e['montant'] ?? 0));
+
+        $statut = 'clear';
+        $jours  = null;
+        if ($retard->isNotEmpty()) {
+            $statut = 'late';
+        } elseif ($aVenir->isNotEmpty()) {
+            $statut = 'upcoming';
+            $jours  = (int) $aVenir->map(fn ($e) => (int) $today->diffInDays(Carbon::parse($e['date_limite'])))->min();
+        }
+
+        return [
+            'id'          => $u->id,
+            'name'        => $u->name,
+            'nb_biens'    => $nbBiens,
+            'nb_a_venir'  => $aVenir->count(),
+            'nb_retard'   => $retard->count(),
+            'montant_30j' => $montant30,
+            'statut'      => $statut,
+            'jours'       => $jours,
+        ];
     }
 
     /**

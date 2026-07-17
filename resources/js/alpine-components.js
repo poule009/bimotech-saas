@@ -758,29 +758,27 @@ export function registerComponents(Alpine) {
     // Module Fiscalité — vue globale : filtrage client-side des échéances par type.
     // Le type de la chip cliquée est lu sur son data-filter (pas d'argument inline,
     // contrainte du build @alpinejs/csp). Masque les groupes vides + gère l'état vide.
-    Alpine.data('fiscaliteCalendrier', () => ({
-        filter: 'all',
-        apply(event) {
-            const chip = event.currentTarget;
-            this.filter = chip.dataset.filter;
-
-            this.$root.querySelectorAll('[data-filter]').forEach((c) =>
-                c.classList.toggle('fisc-chip-active', c.dataset.filter === this.filter));
-
+    // Fiscalité — écran 1 : recherche client-side sur les cartes propriétaire.
+    Alpine.data('fiscaliteProprietaires', () => ({
+        q: '',
+        filter() {
+            const term = this.q.trim().toLowerCase();
             let anyVisible = false;
-            this.$root.querySelectorAll('[data-group]').forEach((group) => {
-                let groupHasVisible = false;
-                group.querySelectorAll('[data-type]').forEach((row) => {
-                    const match = this.filter === 'all' || row.dataset.type === this.filter;
-                    row.style.display = match ? '' : 'none';
-                    if (match) groupHasVisible = true;
-                });
-                group.style.display = groupHasVisible ? '' : 'none';
-                if (groupHasVisible) anyVisible = true;
+            this.$root.querySelectorAll('[data-owner]').forEach((card) => {
+                const match = !term || (card.dataset.name || '').includes(term);
+                card.style.display = match ? '' : 'none';
+                if (match) anyVisible = true;
             });
-
-            const noResults = this.$root.querySelector('[data-no-results]');
-            if (noResults) noResults.classList.toggle('hidden', anyVisible);
+            const empty = this.$root.querySelector('[data-empty-search]');
+            if (empty) empty.classList.toggle('hidden', anyVisible);
         },
+    }));
+
+    // Fiscalité — écran 2 : carte de taxe repliable (registre de calcul).
+    Alpine.data('taxCard', () => ({
+        open: false,
+        init() { this.open = this.$el.dataset.open === 'true'; },
+        toggle() { this.open = !this.open; },
+        get chevClass() { return this.open ? 'rotate-180' : ''; },
     }));
 }

@@ -15,10 +15,11 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
- * FiscaliteGlobaleTest — vue globale du module Fiscalité (écran 1).
+ * FiscaliteGlobaleTest — module Fiscalité organisé par propriétaire.
  *
- * Consomme l'agrégation CalendrierFiscalService : groupes d'urgence, tuiles de
- * résumé, filtres, états vides.
+ * Écran 1 (index) : tuiles globales + liste des propriétaires (statut, montant).
+ * Écran 2 (proprietaire) : fiche d'un propriétaire, cartes de taxe + registre de calcul.
+ * Consomme l'agrégation CalendrierFiscalService.
  */
 class FiscaliteGlobaleTest extends TestCase
 {
@@ -63,13 +64,9 @@ class FiscaliteGlobaleTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function vue_globale_affiche_groupes_tuiles_et_lignes(): void
+    private function bailEnRetard(Bien $bien): Contrat
     {
-        $prop = $this->proprio(['assujetti_tva' => true]);
-        $bien = $this->bienLoue($prop);
-
-        // Bail en retard : signé le 1er mai → limite 1er juin < aujourd'hui (13 juil).
+        // Bail signé le 1er mai → limite droits 1er juin < aujourd'hui (13 juil).
         $loc = User::factory()->create(['role' => 'locataire', 'agency_id' => $this->agency->id]);
         Locataire::create(['user_id' => $loc->id, 'type_locataire' => 'particulier']);
         $c = new Contrat([
@@ -78,48 +75,84 @@ class FiscaliteGlobaleTest extends TestCase
         ]);
         $c->agency_id = $this->agency->id;
         $c->save();
+        return $c;
+    }
+
+    #[Test]
+    public function ecran1_liste_les_proprietaires_avec_tuiles_et_statut(): void
+    {
+        $prop = $this->proprio(['assujetti_tva' => true]);
+        $bien = $this->bienLoue($prop);
+        $this->bailEnRetard($bien);
 
         $res = $this->actingAs($this->admin)->get(route('admin.echeances-fiscales.index'));
 
         $res->assertOk()
             ->assertSee('En retard')
             ->assertSee('Dans les 7 jours')
-            ->assertSee('Plus tard cette année')
-            ->assertSee('Enregistrement du bail', false)      // ligne droits en retard
-            ->assertSee('TVA — déclaration mensuelle', false) // ligne à venir
-            ->assertSee('Voir comptable')                     // ligne agence IS, sans montant
-            ->assertSee('fisc-chip')                          // chips de filtre présents
-            ->assertSee('Estimation');                        // badge CFPB+TEOM
+            ->assertSee('Dans les 30 jours')
+            ->assertSee($prop->name)                              // carte propriétaire
+            ->assertSee('à régulariser')                          // tuile retard (montant droits > 0)
+            ->assertSee('fiscaliteProprietaires');                // composant de recherche
     }
 
     #[Test]
-    public function agence_sans_entite_affiche_etat_vide(): void
+    public function ecran1_agence_sans_proprietaire_affiche_etat_vide(): void
     {
-        // Aucun propriétaire / bien / contrat → seules les lignes agence existent → état vide.
         $this->actingAs($this->admin)
             ->get(route('admin.echeances-fiscales.index'))
             ->assertOk()
-            ->assertSee('Rien à signaler')
-            ->assertDontSee('Voir comptable'); // les lignes agence ne sont pas rendues dans l'état vide
+            ->assertSee('Aucun propriétaire à afficher');
     }
 
     #[Test]
-    public function tuile_retard_affiche_le_nombre_en_retard(): void
+    public function ecran1_proprietaire_sans_echeance_apparait_a_jour(): void
     {
+        // Propriétaire physique avec un bien mais sans loyer encaissé : ses échéances
+        // BRS/IRPP existent à 0 F → aucun montant dû → statut « À jour » (le statut de
+        // triage ne compte que ce qui est réellement dû).
         $prop = $this->proprio();
-        $bien = $this->bienLoue($prop);
-        $loc = User::factory()->create(['role' => 'locataire', 'agency_id' => $this->agency->id]);
-        Locataire::create(['user_id' => $loc->id, 'type_locataire' => 'particulier']);
-        $c = new Contrat([
-            'bien_id' => $bien->id, 'locataire_id' => $loc->id, 'date_debut' => '2026-05-01',
-            'loyer_nu' => 200_000, 'charges_mensuelles' => 0, 'type_bail' => 'habitation', 'caution' => 0, 'statut' => 'actif',
+        Bien::create([
+            'agency_id' => $this->agency->id, 'proprietaire_id' => $prop->id,
+            'reference' => Bien::generateReference($this->agency->id),
+            'titre' => 'Villa libre', 'type' => 'appartement', 'adresse' => 'x',
+            'ville' => 'Dakar', 'loyer_mensuel' => 200_000, 'taux_commission' => 10, 'statut' => 'disponible',
         ]);
-        $c->agency_id = $this->agency->id;
-        $c->save();
 
         $this->actingAs($this->admin)
             ->get(route('admin.echeances-fiscales.index'))
             ->assertOk()
-            ->assertSee('à régulariser'); // sous-texte de la tuile retard (montant > 0)
+            ->assertSee($prop->name)
+            ->assertSee('À jour');
+    }
+
+    #[Test]
+    public function ecran2_fiche_affiche_les_cartes_de_taxe_et_le_detail(): void
+    {
+        $prop = $this->proprio(['assujetti_tva' => true]);
+        $bien = $this->bienLoue($prop);
+        $this->bailEnRetard($bien);
+
+        $res = $this->actingAs($this->admin)
+            ->get(route('admin.echeances-fiscales.proprietaire', $prop));
+
+        $res->assertOk()
+            ->assertSee($prop->name)
+            ->assertSee('Enregistrement du bail', false)   // carte droits d'enregistrement
+            ->assertSee('Timbre fiscal', false)            // ligne du registre de calcul
+            ->assertSee('Fiable')                          // badge d'une taxe fiable
+            ->assertSee('taxCard');                        // composant de dépliage
+    }
+
+    #[Test]
+    public function ecran2_refuse_un_proprietaire_d_une_autre_agence(): void
+    {
+        $autre = Agency::factory()->create(['actif' => true]);
+        $prop  = User::factory()->create(['role' => 'proprietaire', 'agency_id' => $autre->id]);
+        Proprietaire::create(['user_id' => $prop->id, 'est_personne_morale_is' => false]);
+
+        $this->actingAs($this->admin)
+            ->get(route('admin.echeances-fiscales.proprietaire', $prop))
+            ->assertNotFound();
     }
 }
