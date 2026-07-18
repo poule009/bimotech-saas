@@ -134,9 +134,15 @@ class SuperAdminController extends Controller
         }
 
         // 2. URGENT — déclarations de paiement à vérifier (back-office manuel)
-        $enAttente = SubscriptionPayment::with('agency:id,name')
-            ->where('statut', SubscriptionPayment::STATUT_EN_ATTENTE)
-            ->get();
+        // Concerne la facturation PLATEFORME (non scopée par périmètre) : on ne
+        // l'affiche qu'aux comptes qui ont accès à la facturation, sinon un
+        // collaborateur restreint verrait un décompte hors de son périmètre et
+        // cliquerait vers un écran qui lui est interdit (403).
+        $enAttente = app(\App\Support\SuperAdminContext::class)->peutVoirSection('facturation')
+            ? SubscriptionPayment::with('agency:id,name')
+                ->where('statut', SubscriptionPayment::STATUT_EN_ATTENTE)
+                ->get()
+            : collect();
         if ($enAttente->isNotEmpty()) {
             $alertes->push([
                 'severite' => 'urgent',
@@ -233,12 +239,18 @@ class SuperAdminController extends Controller
         // agences (biens, baux, quittances) qui n'ont pas leur place ici. On ne
         // retient que ce qui concerne la plateforme : cycle de vie des agences,
         // création de comptes, impersonations.
+        // Asymétrie de visibilité : un collaborateur restreint ne voit que l'activité
+        // de SES agences (le périmètre plafonne déjà $agences). Les événements plateforme
+        // sans agence (gouvernance de l'équipe) et ceux des autres agences sont exclus.
+        $perimId = app(\App\Support\SuperAdminContext::class)->perimetreAdminId();
+
         $activites = ActivityLog::with(['user:id,name', 'agency:id,name'])
             ->where(function ($q) {
                 $q->where('action', 'impersonate')
                     ->orWhere('model_type', Agency::class)
                     ->orWhere(fn ($q2) => $q2->where('model_type', User::class)->where('action', 'created'));
             })
+            ->when($perimId, fn ($q) => $q->whereIn('agency_id', $agences->pluck('id')))
             ->latest()
             ->limit(6)
             ->get()
@@ -517,6 +529,14 @@ class SuperAdminController extends Controller
 
         $subscription = $agency->subscription;
 
+        // « Amenée par » (module Équipe interne) — visible côté Super Admin uniquement.
+        $agency->load('ameneePar:id,name');
+        $peutEditerApporteur = Auth::user()->estSuperAdminPrincipal();
+        // Comptes attribuables : principal + collaborateurs (choix réservé au principal).
+        $apporteurs = $peutEditerApporteur
+            ? User::where('role', 'superadmin')->orderByDesc('sa_est_principal')->orderBy('name')->get(['id', 'name', 'sa_est_principal'])
+            : collect();
+
         $p = Paiement::withoutGlobalScopes()
             ->where('agency_id', $agency->id)
             ->where('statut', 'valide')
@@ -572,7 +592,8 @@ class SuperAdminController extends Controller
 
         return view('superadmin.agency-detail', compact(
             'agency', 'users', 'biens', 'stats', 'subscription',
-            'limites', 'paiements', 'activites', 'adminCible'
+            'limites', 'paiements', 'activites', 'adminCible',
+            'apporteurs', 'peutEditerApporteur'
         ) + [
             'statut' => $this->statutAgence($agency),
             // Legacy exclu : plan figé, non sélectionnable (souscriptibles() le filtre).
@@ -726,7 +747,10 @@ class SuperAdminController extends Controller
             'montant_echecs'  => (float) ($echecs->total ?? 0),
             'nb_agences_echec' => (int) ($echecs->nb_agences ?? 0),
             'nb_attente'      => SubscriptionPayment::duBucket('en_attente')->count(),
-            'mrr'             => app(MrrService::class)->current(),
+            // L'écran Facturation est une vue PLATEFORME (« facturation globale ») :
+            // le MRR doit rester global, jamais réduit au périmètre d'un collaborateur.
+            // On passe donc une collection d'agences hors scope de périmètre.
+            'mrr'             => app(MrrService::class)->current(Agency::sansPerimetre()->with('subscription')->get()),
             // Pas de paiement traité sur la fenêtre → « — » plutôt qu'un 0 % trompeur.
             'taux_reussite'   => $totalTraites > 0
                 ? (int) round((int) ($trente->reussis ?? 0) / $totalTraites * 100)
@@ -974,6 +998,34 @@ class SuperAdminController extends Controller
             ->with('success', "Essai de 30 jours réinitialisé pour {$agency->name}.");
     }
 
+    /**
+     * Met à jour le champ « Amenée par » d'une agence (module Équipe interne).
+     * Réservé à l'admin principal — un collaborateur ne réattribue jamais lui-même.
+     * amenee_par est hors $fillable (privilège plateforme) → assignation directe.
+     */
+    public function updateAmeneePar(Request $request, Agency $agency): RedirectResponse
+    {
+        abort_unless(Auth::user()->estSuperAdminPrincipal(), 403,
+            'Seul l\'administrateur principal peut attribuer une agence.');
+
+        $superAdminIds = User::where('role', 'superadmin')->pluck('id')->all();
+
+        $valide = $request->validate([
+            'amenee_par' => ['nullable', Rule::in(array_map('strval', $superAdminIds))],
+        ], [
+            'amenee_par.in' => 'Ce compte n\'est pas un compte Super Admin valide.',
+        ]);
+
+        $agency->amenee_par = ($valide['amenee_par'] ?? '') === '' ? null : (int) $valide['amenee_par'];
+        $agency->save();
+
+        $nom = $agency->amenee_par ? (User::find($agency->amenee_par)?->name ?? 'un collaborateur') : 'Non attribué';
+
+        return redirect()
+            ->route('superadmin.agencies.show', $agency)
+            ->with('success', "« Amenée par » de {$agency->name} : {$nom}.");
+    }
+
     public function editAgency(Agency $agency): View
     {
         return view('superadmin.edit-agency', compact('agency'));
@@ -1051,6 +1103,16 @@ class SuperAdminController extends Controller
     public function impersonate(User $user): RedirectResponse
     {
         abort_if($user->isSuperAdmin(), 403, "Impossible d'impersonner un super-admin.");
+
+        // Périmètre (module Équipe interne) : un collaborateur restreint ne peut
+        // impersonner que dans ses agences, et seulement si son toggle le permet.
+        $ctx = app(\App\Support\SuperAdminContext::class);
+        if ($ctx->estRestreint()) {
+            abort_unless(Auth::user()->saPermission('impersonation'), 403,
+                "L'impersonation ne fait pas partie de votre périmètre.");
+            abort_unless(in_array($user->agency_id, $ctx->perimetreAgencyIds() ?? [], true), 403,
+                'Cette agence ne fait pas partie de votre périmètre.');
+        }
 
         // Audit : tracer le démarrage de l'impersonation.
         // Auth::id() est encore le superadmin réel avant le Auth::login ci-dessous.
@@ -1165,8 +1227,15 @@ class SuperAdminController extends Controller
             }
         }
 
+        // ── Asymétrie de visibilité (module Équipe interne) ──────────────────
+        // Un collaborateur restreint (ou le principal en « Voir comme ») ne voit QUE
+        // ses propres sessions d'impersonation — jamais celles de l'admin principal
+        // ou d'un autre collaborateur. Périmètre null (principal) = tout.
+        $perimId = app(\App\Support\SuperAdminContext::class)->perimetreAdminId();
+
         // ── Sessions actives ─────────────────────────────────────────────────
         $actives = ImpersonationSession::active()
+            ->when($perimId, fn ($q) => $q->where('admin_id', $perimId))
             ->with(['admin:id,name', 'agency:id,name'])
             ->orderByDesc('started_at')
             ->get();
@@ -1180,6 +1249,7 @@ class SuperAdminController extends Controller
         $historique = ImpersonationSession::query()
             ->whereNotNull('ended_at')
             ->whereBetween('started_at', [$debut, $fin])
+            ->when($perimId, fn ($query) => $query->where('admin_id', $perimId))
             ->when($adminId, fn ($query) => $query->where('admin_id', (int) $adminId))
             ->with(['admin:id,name', 'agency:id,name'])
             ->orderByDesc('started_at')
@@ -1187,8 +1257,10 @@ class SuperAdminController extends Controller
             ->withQueryString();
 
         // Admins ayant déjà lancé au moins une impersonation → alimente le filtre.
+        // Restreint : le collaborateur ne se voit filtrer que sur lui-même.
         $adminIds = ImpersonationSession::query()
             ->whereNotNull('admin_id')
+            ->when($perimId, fn ($q) => $q->where('admin_id', $perimId))
             ->distinct()
             ->pluck('admin_id');
         $admins = User::withoutGlobalScopes()

@@ -29,6 +29,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RapportController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\SuperAdmin\EquipeInterneController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\SuperAdmin\TwoFactorController;
 use App\Http\Controllers\ImportController;
@@ -149,51 +150,98 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('2fa/challenge',  [TwoFactorController::class, 'showChallenge'])->name('2fa.challenge');
         Route::post('2fa/challenge', [TwoFactorController::class, 'verifyChallenge'])->name('2fa.verify')->middleware('throttle:5,10');
 
-        // ── Routes protégées par require2fa ────────────────────────────────
-        Route::middleware('require2fa')->group(function () {
+        // ── Changement de mot de passe forcé (1ʳᵉ connexion d'un collaborateur SA) ──
+        // Hors require2fa ET hors force.password (routes exemptées) pour rester
+        // atteignables tant que le drapeau must_change_password est posé.
+        Route::get('mot-de-passe/forcer',  [\App\Http\Controllers\ForcePasswordController::class, 'edit'])->name('password.force');
+        Route::post('mot-de-passe/forcer', [\App\Http\Controllers\ForcePasswordController::class, 'update'])->name('password.force.update');
+
+        // ── Routes protégées par require2fa + changement de mot de passe forcé ──
+        Route::middleware(['require2fa', 'force.password'])->group(function () {
             Route::get('dashboard',                     [SuperAdminController::class, 'dashboard'])->name('dashboard');
             // Placeholder « à venir » pour les sections Super Admin pas encore construites
             // (Agences, Abonnements, Support, Règles fiscales, Équipe, Paramètres).
             Route::get('a-venir/{section}',             [SuperAdminController::class, 'aVenir'])->name('a-venir');
             // ── Support / Debug ────────────────────────────────────────────
             // Recherche d'agence, sessions d'impersonation en cours + historique.
-            Route::get('support',                       [SuperAdminController::class, 'support'])->name('support');
-            Route::post('support/impersonations/{session}/terminate', [SuperAdminController::class, 'terminateImpersonation'])->name('support.impersonations.terminate');
+            // Gouverné par le toggle « voir ses agences » (contenu déjà filtré par
+            // périmètre : un collaborateur ne voit que ses propres sessions).
+            Route::middleware('sa.section:support')->group(function () {
+                Route::get('support',                       [SuperAdminController::class, 'support'])->name('support');
+                Route::post('support/impersonations/{session}/terminate', [SuperAdminController::class, 'terminateImpersonation'])->name('support.impersonations.terminate');
+            });
             // ── Règles fiscales ────────────────────────────────────────────
             // Admin documentaire du référentiel fiscal : valeur affichée en lecture
             // seule (dérivée du moteur), métadonnées éditables, historique par champ.
-            Route::get('regles-fiscales',               [SuperAdminController::class, 'reglesFiscales'])->name('regles.index');
-            Route::get('regles-fiscales/{regle}',       [SuperAdminController::class, 'showRegleFiscale'])->name('regles.show');
-            Route::patch('regles-fiscales/{regle}',     [SuperAdminController::class, 'updateRegleFiscale'])->name('regles.update');
+            Route::middleware('sa.section:regles')->group(function () {
+                Route::get('regles-fiscales',               [SuperAdminController::class, 'reglesFiscales'])->name('regles.index');
+                Route::get('regles-fiscales/{regle}',       [SuperAdminController::class, 'showRegleFiscale'])->name('regles.show');
+                Route::patch('regles-fiscales/{regle}',     [SuperAdminController::class, 'updateRegleFiscale'])->name('regles.update');
+            });
+
+            // ── Équipe interne ─────────────────────────────────────────────
+            // Comptes ayant accès au Super Admin : admin principal + collaborateurs
+            // restreints (périmètre = leurs agences apportées). Gouvernance réservée
+            // à l'admin principal (sa.section:equipe → false pour un collaborateur).
+            Route::middleware('sa.section:equipe')->prefix('equipe')->name('equipe.')->group(function () {
+                Route::get('/',                                     [EquipeInterneController::class, 'index'])->name('index');
+                Route::get('inviter',                              [EquipeInterneController::class, 'create'])->name('create');
+                Route::post('/',                                   [EquipeInterneController::class, 'store'])->name('store');
+                Route::post('{collaborateur}/permission',          [EquipeInterneController::class, 'togglePermission'])->name('permission');
+                Route::patch('{collaborateur}/taux',               [EquipeInterneController::class, 'updateTaux'])->name('taux');
+                Route::post('{collaborateur}/revoquer',            [EquipeInterneController::class, 'revoquer'])->name('revoquer');
+                Route::post('{collaborateur}/restaurer',           [EquipeInterneController::class, 'restaurer'])->name('restaurer');
+                Route::get('{collaborateur}/reattribuer',          [EquipeInterneController::class, 'editReattribution'])->name('reattribuer.edit');
+                Route::post('{collaborateur}/reattribuer',         [EquipeInterneController::class, 'reattribuer'])->name('reattribuer');
+                Route::post('{collaborateur}/voir-comme',          [EquipeInterneController::class, 'voirComme'])->name('voir-comme');
+                Route::get('{collaborateur}/commissions',          [EquipeInterneController::class, 'historique'])->name('commissions');
+                Route::get('{collaborateur}/commissions/pdf',      [EquipeInterneController::class, 'historiquePdf'])->name('commissions.pdf');
+                Route::get('{collaborateur}/commissions/csv',      [EquipeInterneController::class, 'historiqueCsv'])->name('commissions.csv');
+            });
+            // Sortie du mode « Voir comme » — hors sa.section:equipe : accessible depuis
+            // n'importe quel écran observé (le principal reste principal en session).
+            Route::post('equipe/voir-comme/arreter',           [EquipeInterneController::class, 'arreterVoirComme'])->name('equipe.voir-comme.arreter');
             // ── Abonnements & facturation ──────────────────────────────────
             // Vue d'ensemble des transactions, toutes agences. A absorbé l'ancienne
             // liste d'abonnements ET l'écran « paiements en attente » (devenu un filtre).
-            Route::get('facturation',              [SuperAdminController::class, 'facturation'])->name('facturation');
-            Route::get('facturation/export',       [SuperAdminController::class, 'exportFacturation'])->name('facturation.export');
-            Route::get('facturation/plans',        [SuperAdminController::class, 'configPlans'])->name('plans.config');
-            Route::patch('facturation/plans/{plan}', [SuperAdminController::class, 'updatePlan'])->name('plans.update');
-            Route::get('paiements/{payment}/recu',  [SuperAdminController::class, 'recuPaiement'])->name('paiements.recu');
-            // Déclarations de paiement manuelles à valider (back-office BIMO-tech)
-            Route::get('paiements-attente',                     [SuperAdminController::class, 'paiementsAttente'])->name('paiements.attente');
-            Route::post('paiements/{payment}/confirmer',        [SuperAdminController::class, 'confirmerPaiement'])->name('paiements.confirmer');
-            Route::post('paiements/{payment}/rejeter',          [SuperAdminController::class, 'rejeterPaiement'])->name('paiements.rejeter');
-            Route::get('activity-logs',                 [ActivityLogController::class, 'index'])->name('activity-logs.index');
-            Route::get('agencies',                      [SuperAdminController::class, 'indexAgencies'])->name('agencies.index');
-            Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
-            Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
-            Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
-            Route::get('agencies/{agency}/edit',        [SuperAdminController::class, 'editAgency'])->name('agencies.edit');
-            Route::patch('agencies/{agency}',           [SuperAdminController::class, 'updateAgency'])->name('agencies.update');
-            Route::post('agencies/{agency}/abonnement',           [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
-            Route::post('agencies/{agency}/plan',                 [SuperAdminController::class, 'changerPlan'])->name('agencies.plan.changer');
-            Route::delete('agencies/{agency}/plan-programme',     [SuperAdminController::class, 'annulerDowngrade'])->name('agencies.plan.annuler');
-            Route::post('agencies/{agency}/essai',                [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
-            Route::post('agencies/{agency}/features/{feature}',   [SuperAdminController::class, 'toggleFeature'])->name('agencies.features.toggle');
-            Route::delete('agencies/{agency}/features/{feature}', [SuperAdminController::class, 'removeFeatureOverride'])->name('agencies.features.remove');
-            Route::post('agencies/{agency}/users/{userId}/reset-password', [SuperAdminController::class, 'resetUserPassword'])->name('agencies.users.reset-password');
-            Route::patch('agencies/{agency}/users/{userId}/toggle',        [SuperAdminController::class, 'toggleUser'])->name('agencies.users.toggle');
-            Route::post('impersonate/{user}',           [SuperAdminController::class, 'impersonate'])->name('impersonate');
-            Route::get('agencies/{agency}',             [SuperAdminController::class, 'showAgency'])->name('agencies.show');
+            // « Facturation globale plateforme » : réservée au principal et aux
+            // collaborateurs dont le toggle facturation est activé (accès global,
+            // non scopé — c'est une vue plateforme entière par définition).
+            Route::middleware('sa.section:facturation')->group(function () {
+                Route::get('facturation',              [SuperAdminController::class, 'facturation'])->name('facturation');
+                Route::get('facturation/export',       [SuperAdminController::class, 'exportFacturation'])->name('facturation.export');
+                Route::get('facturation/plans',        [SuperAdminController::class, 'configPlans'])->name('plans.config');
+                Route::patch('facturation/plans/{plan}', [SuperAdminController::class, 'updatePlan'])->name('plans.update');
+                Route::get('paiements/{payment}/recu',  [SuperAdminController::class, 'recuPaiement'])->name('paiements.recu');
+                // Déclarations de paiement manuelles à valider (back-office BIMO-tech)
+                Route::get('paiements-attente',                     [SuperAdminController::class, 'paiementsAttente'])->name('paiements.attente');
+                Route::post('paiements/{payment}/confirmer',        [SuperAdminController::class, 'confirmerPaiement'])->name('paiements.confirmer');
+                Route::post('paiements/{payment}/rejeter',          [SuperAdminController::class, 'rejeterPaiement'])->name('paiements.rejeter');
+            });
+            // ── Agences + journal + impersonation ──────────────────────────
+            // Gouverné par le toggle « voir ses agences attribuées » : le contenu est
+            // déjà scopé au périmètre (route-model binding sur {agency}), la garde de
+            // section bloque en plus l'accès direct par URL si le toggle est désactivé.
+            Route::middleware('sa.section:agences')->group(function () {
+                Route::get('activity-logs',                 [ActivityLogController::class, 'index'])->name('activity-logs.index');
+                Route::get('agencies',                      [SuperAdminController::class, 'indexAgencies'])->name('agencies.index');
+                Route::get('agencies/create',               [SuperAdminController::class, 'createAgency'])->name('agencies.create');
+                Route::post('agencies',                     [SuperAdminController::class, 'storeAgency'])->name('agencies.store');
+                Route::patch('agencies/{agency}/toggle',    [SuperAdminController::class, 'toggleActif'])->name('agencies.toggle');
+                Route::get('agencies/{agency}/edit',        [SuperAdminController::class, 'editAgency'])->name('agencies.edit');
+                Route::patch('agencies/{agency}/amenee-par', [SuperAdminController::class, 'updateAmeneePar'])->name('agencies.amenee-par');
+                Route::patch('agencies/{agency}',           [SuperAdminController::class, 'updateAgency'])->name('agencies.update');
+                Route::post('agencies/{agency}/abonnement',           [SuperAdminController::class, 'activerAbonnement'])->name('agencies.abonnement.activer');
+                Route::post('agencies/{agency}/plan',                 [SuperAdminController::class, 'changerPlan'])->name('agencies.plan.changer');
+                Route::delete('agencies/{agency}/plan-programme',     [SuperAdminController::class, 'annulerDowngrade'])->name('agencies.plan.annuler');
+                Route::post('agencies/{agency}/essai',                [SuperAdminController::class, 'reinitialiserEssai'])->name('agencies.essai.reinitialiser');
+                Route::post('agencies/{agency}/features/{feature}',   [SuperAdminController::class, 'toggleFeature'])->name('agencies.features.toggle');
+                Route::delete('agencies/{agency}/features/{feature}', [SuperAdminController::class, 'removeFeatureOverride'])->name('agencies.features.remove');
+                Route::post('agencies/{agency}/users/{userId}/reset-password', [SuperAdminController::class, 'resetUserPassword'])->name('agencies.users.reset-password');
+                Route::patch('agencies/{agency}/users/{userId}/toggle',        [SuperAdminController::class, 'toggleUser'])->name('agencies.users.toggle');
+                Route::post('impersonate/{user}',           [SuperAdminController::class, 'impersonate'])->name('impersonate');
+                Route::get('agencies/{agency}',             [SuperAdminController::class, 'showAgency'])->name('agencies.show');
+            });
 
             // ── Gestion 2FA (setup, disable, régénération) ─────────────────
             Route::get('2fa/setup',                             [TwoFactorController::class, 'showSetup'])->name('2fa.setup');

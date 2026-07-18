@@ -34,6 +34,15 @@ Schedule::command('mrr:snapshot')
     ->withoutOverlapping()
     ->runInBackground();
 
+// Snapshot quotidien des commissions collaborateurs (00:50, après le MRR). Même
+// logique : le mois courant se rafraîchit, les mois passés se figent → historique
+// en lecture seule du module Équipe interne.
+Schedule::command('commissions:snapshot')
+    ->dailyAt('00:50')
+    ->timezone('Africa/Dakar')
+    ->withoutOverlapping()
+    ->runInBackground();
+
  // Rapport hebdomadaire des paiements pour Super Admin (lundi 07:00)
  Schedule::command('app:weekly-payments-report')
      ->weeklyOn(1, '07:00')

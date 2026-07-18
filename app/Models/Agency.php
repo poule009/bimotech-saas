@@ -10,6 +10,32 @@ class Agency extends Model
 {
     use HasFactory, LogsActivity;
 
+    /**
+     * Scope global « périmètre Super Admin ».
+     *
+     * Un collaborateur super-admin à accès restreint (ou l'admin principal en mode
+     * « Voir comme ») ne voit QUE ses agences apportées : le filtre amenee_par est
+     * appliqué ici, une fois pour toutes, si bien que dashboard, liste, KPI et MRR
+     * (qui itèrent tous sur des collections Agency) sont scopés automatiquement.
+     *
+     * Périmètre null (admin principal, ou tout rôle non super-admin) → aucun filtre.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('sa_perimetre', function (\Illuminate\Database\Eloquent\Builder $builder) {
+            $id = app(\App\Support\SuperAdminContext::class)->perimetreAdminId();
+            if ($id !== null) {
+                $builder->where($builder->getModel()->getTable() . '.amenee_par', $id);
+            }
+        });
+    }
+
+    /** Échappe le scope de périmètre (opérations plateforme : capture, migrations). */
+    public static function sansPerimetre(): \Illuminate\Database\Eloquent\Builder
+    {
+        return static::withoutGlobalScope('sa_perimetre');
+    }
+
     public function getActivityLogTitle(): string
     {
         return 'Agence ' . ($this->name ?? '#' . $this->id);
@@ -98,6 +124,16 @@ class Agency extends Model
     public function featureOverrides(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AgencyFeatureOverride::class);
+    }
+
+    /**
+     * Collaborateur (compte super-admin) qui a apporté l'agence — « Amenée par ».
+     * Nullable = « Non attribué ». Champ interne au back-office, jamais exposé
+     * à l'inscription publique ni à l'agence. Modifié uniquement par le principal.
+     */
+    public function ameneePar(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'amenee_par');
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────

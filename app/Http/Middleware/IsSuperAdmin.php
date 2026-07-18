@@ -15,8 +15,22 @@ class IsSuperAdmin
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== 'superadmin') {
+        $user = Auth::user();
+
+        if ($user->role !== 'superadmin') {
             abort(403, 'Accès réservé au Super Administrateur de la plateforme.');
+        }
+
+        // Accès révoqué par l'admin principal (module Équipe interne) : on coupe la
+        // connexion immédiatement. Les agences apportées restent attribuées (historique
+        // de commission) — la révocation ne touche que la connexion, pas amenee_par.
+        if ($user->saAccesRevoque()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')
+                ->with('warning', 'Votre accès au Super Admin a été révoqué. Contactez l\'administrateur principal.');
         }
 
         return $next($request);

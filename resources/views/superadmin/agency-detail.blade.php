@@ -151,17 +151,50 @@
             </div>
         </section>
 
-        <section class="bg-white border border-line rounded-xl overflow-hidden h-fit">
-            <div class="px-5 py-4 border-b border-paper-dim font-display font-medium text-[16.5px] text-ink">Répartition des comptes</div>
-            <div class="px-5 py-1">
-                @foreach(['Administrateurs' => $stats['nb_admins'], 'Propriétaires' => $stats['nb_proprietaires'], 'Locataires' => $stats['nb_locataires']] as $label => $n)
-                    <div class="flex justify-between gap-4 py-3 text-[13.5px] border-b border-paper-dim last:border-0">
-                        <span class="text-muted">{{ $label }}</span>
-                        <span class="font-semibold text-ink tabular-nums">{{ $fmt($n) }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </section>
+        <div class="flex flex-col gap-5">
+            <section class="bg-white border border-line rounded-xl overflow-hidden h-fit">
+                <div class="px-5 py-4 border-b border-paper-dim font-display font-medium text-[16.5px] text-ink">Répartition des comptes</div>
+                <div class="px-5 py-1">
+                    @foreach(['Administrateurs' => $stats['nb_admins'], 'Propriétaires' => $stats['nb_proprietaires'], 'Locataires' => $stats['nb_locataires']] as $label => $n)
+                        <div class="flex justify-between gap-4 py-3 text-[13.5px] border-b border-paper-dim last:border-0">
+                            <span class="text-muted">{{ $label }}</span>
+                            <span class="font-semibold text-ink tabular-nums">{{ $fmt($n) }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
+            {{-- ─── Attribution commerciale (« Amenée par ») — interne, jamais vu par l'agence ─── --}}
+            <section class="bg-white border border-line rounded-xl overflow-hidden h-fit">
+                <div class="px-5 py-4 border-b border-paper-dim font-display font-medium text-[16.5px] text-ink">Attribution commerciale</div>
+                <div class="px-5 py-4">
+                    @if($peutEditerApporteur)
+                        <form method="POST" action="{{ route('superadmin.agencies.amenee-par', $agency) }}">
+                            @csrf
+                            @method('PATCH')
+                            <label class="block text-[11px] font-semibold uppercase tracking-wide text-muted mb-2">Amenée par</label>
+                            <div class="flex items-center gap-2">
+                                <select name="amenee_par" class="flex-1 bg-paper border border-line rounded-lg px-3 py-2.5 text-[13px] font-medium text-ink cursor-pointer">
+                                    <option value="">Non attribué</option>
+                                    @foreach($apporteurs as $a)
+                                        <option value="{{ $a->id }}" @selected((int) $agency->amenee_par === (int) $a->id)>
+                                            {{ $a->name }}@if($a->sa_est_principal) (principal)@endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" class="text-[13px] font-semibold px-4 py-2.5 rounded-lg bg-teal text-paper hover:bg-teal-deep transition-colors whitespace-nowrap">Enregistrer</button>
+                            </div>
+                            <p class="text-[11.5px] text-muted mt-2 leading-relaxed">Champ interne au back-office — jamais exposé à l'agence ni au formulaire d'inscription. Sert au périmètre et au calcul de commission.</p>
+                        </form>
+                    @else
+                        <div class="flex justify-between gap-4 text-[13.5px]">
+                            <span class="text-muted">Amenée par</span>
+                            <span class="font-semibold text-ink text-right">{{ $agency->ameneePar?->name ?? 'Non attribué' }}</span>
+                        </div>
+                    @endif
+                </div>
+            </section>
+        </div>
     </div>
 
     {{-- ─────────── Onglet 2 · Abonnement & facturation ─────────── --}}

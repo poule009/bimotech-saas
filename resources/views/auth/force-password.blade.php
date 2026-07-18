@@ -8,7 +8,7 @@
         <p class="text-[13.5px] text-muted">Pour votre sécurité, définissez un nouveau mot de passe personnel avant d'accéder à votre espace.</p>
     </div>
 
-    <form method="POST" action="{{ route('admin.password.force.update') }}" novalidate>
+    <form method="POST" action="{{ route($updateRoute ?? 'admin.password.force.update') }}" novalidate>
         @csrf
 
         <div class="mb-[18px]">

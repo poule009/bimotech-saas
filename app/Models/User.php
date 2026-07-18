@@ -75,9 +75,19 @@ class User extends Authenticatable
         'password'                 => 'hashed',
         'two_factor_secret'        => 'encrypted',
         'two_factor_recovery_codes'=> 'encrypted',
+        // ── Équipe interne (comptes super-admin) ──
+        'sa_est_principal'         => 'boolean',
+        'sa_taux_commission'       => 'decimal:2',
+        'sa_permissions'           => 'array',
+        'sa_acces_revoque_at'      => 'datetime',
         // Note : pas de cast Enum ici — $user->role reste une string en Blade.
         // Utiliser UserRole::from($user->role) dans le code PHP si l'enum est nécessaire.
     ];
+
+    // sa_est_principal, sa_taux_commission, sa_permissions et sa_acces_revoque_at
+    // sont intentionnellement ABSENTS de $fillable : ce sont des privilèges plateforme,
+    // assignés uniquement par l'admin principal via EquipeInterneController (assignation
+    // directe), jamais par un formulaire mass-assignable.
 
     // ── Hook de création ──────────────────────────────────────────────────
     // agency_id assigné ici via forceFill() contrôlé, pas via $fillable
@@ -144,6 +154,68 @@ class User extends Authenticatable
     public function isOwner(): bool        { return $this->isAdmin() && (bool) $this->is_owner; }
     public function isProprietaire(): bool { return $this->role === UserRole::Proprietaire->value; }
     public function isLocataire(): bool    { return $this->role === UserRole::Locataire->value; }
+
+    // ── Équipe interne (super-admin principal vs collaborateur restreint) ──
+    //
+    // Un compte super-admin est soit PRINCIPAL (Malick : accès total implicite,
+    // aucun toggle), soit COLLABORATEUR restreint (Israel & futurs : périmètre
+    // limité à ses agences apportées, permissions fines, taux de commission).
+
+    /** Les 4 permissions d'un collaborateur restreint, avec leur défaut (brief). */
+    public const SA_PERMISSIONS = [
+        'voir_agences'    => true,   // voir ses agences attribuées
+        'impersonation'   => true,   // impersonation limitée à ses agences
+        'facturation'     => false,  // facturation globale plateforme
+        'regles_fiscales' => false,  // règles fiscales
+    ];
+
+    /** Admin principal de la plateforme (accès total, non filtré). */
+    public function estSuperAdminPrincipal(): bool
+    {
+        return $this->isSuperAdmin() && (bool) $this->sa_est_principal;
+    }
+
+    /** Collaborateur super-admin à accès restreint (périmètre = ses agences). */
+    public function estCollaborateurSa(): bool
+    {
+        return $this->isSuperAdmin() && ! $this->sa_est_principal;
+    }
+
+    /** Accès super-admin révoqué (connexion coupée, agences conservées). */
+    public function saAccesRevoque(): bool
+    {
+        return $this->sa_acces_revoque_at !== null;
+    }
+
+    /** Valeur effective d'un toggle de permission (défaut du brief si non défini). */
+    public function saPermission(string $cle): bool
+    {
+        // Le principal a tout ; pour un collaborateur on lit sa config, à défaut le défaut.
+        if ($this->estSuperAdminPrincipal()) {
+            return true;
+        }
+        $perms = $this->sa_permissions ?? [];
+
+        return (bool) ($perms[$cle] ?? (self::SA_PERMISSIONS[$cle] ?? false));
+    }
+
+    /** Taux de commission (%) du collaborateur — 0 si non configuré. */
+    public function tauxCommission(): float
+    {
+        return (float) ($this->sa_taux_commission ?? 0);
+    }
+
+    /** Agences apportées par ce collaborateur (périmètre de commission). */
+    public function agencesApportees(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Agency::class, 'amenee_par');
+    }
+
+    /** Collaborateurs super-admin (hors principal), pour l'écran Équipe interne. */
+    public function scopeCollaborateursSa(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->where('role', UserRole::SuperAdmin->value)->where('sa_est_principal', false);
+    }
 
     // ── 2FA helpers ───────────────────────────────────────────────────────
 

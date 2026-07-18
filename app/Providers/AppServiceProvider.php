@@ -26,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(QuittanceService::class);
         $this->app->singleton(PlanFeatureService::class);
         $this->app->singleton(PlanService::class);
+        // Scoped (et non singleton) : le contexte Super Admin met en cache le périmètre
+        // et l'état « Voir comme » sur la durée d'UNE requête, mais est réinitialisé
+        // entre requêtes sous un runtime persistant (Octane) — sinon le périmètre d'un
+        // utilisateur fuiterait vers la requête suivante d'un autre.
+        $this->app->scoped(\App\Support\SuperAdminContext::class);
     }
 
     public function boot(): void

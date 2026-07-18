@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'require2fa'          => \App\Http\Middleware\Require2FA::class,
             'agency.can'          => \App\Http\Middleware\CheckAgencyPermission::class,
             'force.password'      => \App\Http\Middleware\ForcePasswordChange::class,
+            'sa.section'          => \App\Http\Middleware\EnsureSuperAdminSection::class,
         ]);
 
         // ── Middlewares appliqués globalement sur le groupe web ──────────

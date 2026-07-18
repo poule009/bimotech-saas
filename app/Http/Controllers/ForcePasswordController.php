@@ -17,10 +17,19 @@ class ForcePasswordController extends Controller
 {
     public function edit(): View|RedirectResponse
     {
-        if (! Auth::user()->must_change_password) {
-            return redirect()->route('admin.dashboard');
+        $user = Auth::user();
+
+        if (! $user->must_change_password) {
+            return redirect()->route($this->home($user));
         }
-        return view('auth.force-password');
+
+        return view('auth.force-password', [
+            // Le même écran sert les collaborateurs d'agence et les collaborateurs
+            // super-admin : la cible de soumission suit le rôle.
+            'updateRoute' => $user->isSuperAdmin()
+                ? 'superadmin.password.force.update'
+                : 'admin.password.force.update',
+        ]);
     }
 
     public function update(Request $request): RedirectResponse
@@ -37,7 +46,13 @@ class ForcePasswordController extends Controller
         $user->must_change_password = false;
         $user->save();
 
-        return redirect()->route('admin.dashboard')
+        return redirect()->route($this->home($user))
             ->with('success', 'Votre mot de passe a été mis à jour. Bienvenue !');
+    }
+
+    /** Écran d'accueil selon le rôle (super-admin ou admin d'agence). */
+    private function home(\App\Models\User $user): string
+    {
+        return $user->isSuperAdmin() ? 'superadmin.dashboard' : 'admin.dashboard';
     }
 }

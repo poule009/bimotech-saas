@@ -17,6 +17,12 @@ class ForcePasswordChange
     private const EXEMPTES = [
         'admin.password.force',
         'admin.password.force.update',
+        // Équivalents super-admin (collaborateur interne invité) + challenge 2FA :
+        // exemptés pour éviter toute boucle de redirection.
+        'superadmin.password.force',
+        'superadmin.password.force.update',
+        'superadmin.2fa.challenge',
+        'superadmin.2fa.verify',
         'logout',
     ];
 
@@ -25,7 +31,10 @@ class ForcePasswordChange
         $user = Auth::user();
 
         if ($user && $user->must_change_password && ! $request->routeIs(self::EXEMPTES)) {
-            return redirect()->route('admin.password.force');
+            // Redirige vers l'écran de changement forcé propre au rôle.
+            return redirect()->route($user->isSuperAdmin()
+                ? 'superadmin.password.force'
+                : 'admin.password.force');
         }
 
         return $next($request);
