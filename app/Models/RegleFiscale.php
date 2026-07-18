@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * RegleFiscale — Traçabilité d'une règle fiscale et de ses sources.
@@ -34,6 +35,31 @@ class RegleFiscale extends Model
         'date_verification' => 'date',
     ];
 
+    /**
+     * Statuts sélectionnables dans la fiche règle (Super Admin), regroupés.
+     * Conserve la richesse réelle du backend (8 statuts) plutôt que le binaire
+     * confirmé/non-vérifié de la maquette — le moteur et les badges s'appuient
+     * déjà sur ces nuances.
+     */
+    public const STATUTS = [
+        'confirme'                => 'Confirmé (source externe indépendante)',
+        'confirme_officiel'       => 'Confirmé officiel (texte / administration)',
+        'confirme_source_privee'  => 'Confirmé source privée (à recouper)',
+        'non_verifie'             => 'Non vérifié (plausible, à confirmer)',
+        'conflit_non_tranche'     => 'Conflit non tranché entre sources',
+        'decision_produit'        => 'Décision produit interne',
+        'hors_perimetre'          => 'Hors périmètre (non implémenté)',
+        'hors_perimetre_delibere' => 'Hors périmètre délibéré (jamais calculé)',
+    ];
+
+    // ── Relations ─────────────────────────────────────────────────────────────
+
+    /** Historique des modifications (le plus récent d'abord via ->latest()). */
+    public function historiques(): HasMany
+    {
+        return $this->hasMany(RegleFiscaleHistorique::class, 'regle_fiscale_id');
+    }
+
     // ── Scopes ────────────────────────────────────────────────────────────────
 
     public function scopeConfirmees($query)
@@ -57,18 +83,37 @@ class RegleFiscale extends Model
     public function getStatutLabelAttribute(): string
     {
         return match ($this->statut) {
-            'confirme',
-            'confirme_officiel'      => 'Confirmé par source officielle',
-            'confirme_source_privee' => 'Confirmé par source privée (à recouper)',
-            'decision_produit'       => 'Décision produit interne (pas une exigence légale)',
-            'hors_perimetre'         => 'Hors périmètre (non implémenté)',
-            default                  => 'À vérifier (non confirmé)',
+            'confirme'                => 'Confirmé (source externe indépendante)',
+            'confirme_officiel'       => 'Confirmé officiel',
+            'confirme_source_privee'  => 'Confirmé source privée (à recouper)',
+            'conflit_non_tranche'     => 'Conflit non tranché',
+            'decision_produit'        => 'Décision produit interne',
+            'hors_perimetre'          => 'Hors périmètre (non implémenté)',
+            'hors_perimetre_delibere' => 'Hors périmètre délibéré',
+            default                   => 'À vérifier (non confirmé)',
         };
     }
 
-    /** Vrai si la règle repose sur une source externe indépendante. */
+    /**
+     * Variante de couleur du badge de statut (mapping validé) :
+     *   green = confirmé ferme · teal = confirmé source privée ·
+     *   gold = à vérifier / conflit · gray = décision produit / hors périmètre.
+     */
+    public function getStatutVariantAttribute(): string
+    {
+        return match ($this->statut) {
+            'confirme', 'confirme_officiel'                       => 'green',
+            'confirme_source_privee'                             => 'teal',
+            'non_verifie', 'conflit_non_tranche'                 => 'gold',
+            'decision_produit', 'hors_perimetre',
+            'hors_perimetre_delibere'                            => 'gray',
+            default                                              => 'gold',
+        };
+    }
+
+    /** Groupe « confirmé » au sens large (tout statut confirme_*). */
     public function getEstConfirmeeAttribute(): bool
     {
-        return $this->statut === 'confirme';
+        return in_array($this->statut, ['confirme', 'confirme_officiel', 'confirme_source_privee'], true);
     }
 }

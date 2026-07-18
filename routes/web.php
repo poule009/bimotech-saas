@@ -159,6 +159,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Recherche d'agence, sessions d'impersonation en cours + historique.
             Route::get('support',                       [SuperAdminController::class, 'support'])->name('support');
             Route::post('support/impersonations/{session}/terminate', [SuperAdminController::class, 'terminateImpersonation'])->name('support.impersonations.terminate');
+            // ── Règles fiscales ────────────────────────────────────────────
+            // Admin documentaire du référentiel fiscal : valeur affichée en lecture
+            // seule (dérivée du moteur), métadonnées éditables, historique par champ.
+            Route::get('regles-fiscales',               [SuperAdminController::class, 'reglesFiscales'])->name('regles.index');
+            Route::get('regles-fiscales/{regle}',       [SuperAdminController::class, 'showRegleFiscale'])->name('regles.show');
+            Route::patch('regles-fiscales/{regle}',     [SuperAdminController::class, 'updateRegleFiscale'])->name('regles.update');
             // ── Abonnements & facturation ──────────────────────────────────
             // Vue d'ensemble des transactions, toutes agences. A absorbé l'ancienne
             // liste d'abonnements ET l'écran « paiements en attente » (devenu un filtre).

@@ -13,6 +13,8 @@ use App\Models\MrrSnapshot;
 use App\Models\Paiement;
 use App\Models\Plan;
 use App\Models\PlanPriceHistory;
+use App\Models\RegleFiscale;
+use App\Models\RegleFiscaleHistorique;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
@@ -23,6 +25,7 @@ use App\Services\MrrService;
 use App\Services\PlanChangeService;
 use App\Services\PlanService;
 use App\Support\PasswordPolicy;
+use App\Support\RegleFiscaleCatalogue;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -1495,5 +1498,179 @@ class SuperAdminController extends Controller
         ]);
 
         return back()->with('success', 'Paiement rejeté — le motif sera affiché à l\'agence.');
+    }
+
+    // ── Règles fiscales ─────────────────────────────────────────────────────
+
+    /**
+     * Liste des règles fiscales (KPIs + recherche + filtres statut/catégorie).
+     *
+     * Admin DOCUMENTAIRE (v1) : la valeur appliquée par le moteur est affichée
+     * en lecture seule (dérivée des constantes de FiscalService via
+     * RegleFiscaleCatalogue) — seules les métadonnées de traçabilité sont
+     * éditables. Le noyau fiscal (lourdement testé) n'est pas touché.
+     */
+    public function reglesFiscales(Request $request): View
+    {
+        $q             = trim((string) $request->get('q', ''));
+        $statutFiltre  = $request->get('statut', 'tous');   // tous|confirme|non_verifie
+        $groupeFiltre  = $request->get('groupe', 'tous');   // tous|brs|irpp|cgf|cfpb_teom|...
+
+        $toutes = RegleFiscale::orderBy('categorie')->orderBy('cle')->get();
+
+        // KPIs sur l'ensemble (indépendants des filtres).
+        $nbConfirmees = $toutes->where('est_confirmee', true)->count();
+        $nbAVerifier  = $toutes->where('statut', 'non_verifie')->count();
+        $derniereMaj  = RegleFiscaleHistorique::max('created_at')
+            ?? $toutes->max('updated_at');
+
+        // Filtrage en mémoire (quelques dizaines de règles).
+        $regles = $toutes->filter(function (RegleFiscale $r) use ($q, $statutFiltre, $groupeFiltre) {
+            if ($q !== '' && ! \Illuminate\Support\Str::contains(
+                \Illuminate\Support\Str::lower($r->titre . ' ' . $r->description),
+                \Illuminate\Support\Str::lower($q)
+            )) {
+                return false;
+            }
+
+            if ($statutFiltre === 'confirme' && ! $r->est_confirmee) {
+                return false;
+            }
+            if ($statutFiltre === 'non_verifie' && $r->statut !== 'non_verifie') {
+                return false;
+            }
+
+            if ($groupeFiltre !== 'tous' && RegleFiscaleCatalogue::groupe($r->categorie) !== $groupeFiltre) {
+                return false;
+            }
+
+            return true;
+        })->values();
+
+        return view('superadmin.regles-fiscales.index', [
+            'regles'        => $regles,
+            'total'         => $toutes->count(),
+            'nbConfirmees'  => $nbConfirmees,
+            'nbAVerifier'   => $nbAVerifier,
+            'derniereMaj'   => $derniereMaj ? Carbon::parse($derniereMaj) : null,
+            'q'             => $q,
+            'statutFiltre'  => $statutFiltre,
+            'groupeFiltre'  => $groupeFiltre,
+            'groupes'       => RegleFiscaleCatalogue::GROUPES,
+        ]);
+    }
+
+    /** Fiche détail d'une règle fiscale (formulaire + « utilisée dans » + historique). */
+    public function showRegleFiscale(RegleFiscale $regle): View
+    {
+        return view('superadmin.regles-fiscales.show', [
+            'regle'        => $regle,
+            'valeur'       => RegleFiscaleCatalogue::valeur($regle),
+            'bareme'       => RegleFiscaleCatalogue::bareme($regle),
+            'utiliseeDans' => RegleFiscaleCatalogue::utiliseeDans($regle),
+            'statuts'      => RegleFiscale::STATUTS,
+            'historiques'  => $regle->historiques()->with('admin')->latest()->get(),
+        ]);
+    }
+
+    /**
+     * Enregistre les modifications d'une règle (documentaire).
+     *
+     * La VALEUR appliquée n'est pas éditable ici (dérivée du moteur) : on ne
+     * modifie que titre, statut, description, note, date de vérification et
+     * sources. Chaque champ modifié crée une ligne d'historique — jamais
+     * d'écrasement silencieux (brief).
+     */
+    public function updateRegleFiscale(Request $request, RegleFiscale $regle): RedirectResponse
+    {
+        $validated = $request->validate([
+            'titre'             => ['required', 'string', 'max:255'],
+            'statut'            => ['required', 'string', \Illuminate\Validation\Rule::in(array_keys(RegleFiscale::STATUTS))],
+            'description'       => ['required', 'string'],
+            'note'              => ['nullable', 'string'],
+            'date_verification' => ['nullable', 'date'],
+            'sources'                => ['nullable', 'array'],
+            'sources.*.libelle'      => ['nullable', 'string', 'max:255'],
+            'sources.*.url'          => ['nullable', 'string', 'url', 'max:2048'],
+        ], [], [
+            'sources.*.url' => 'lien source',
+        ]);
+
+        // Normalise les sources : on ne garde que les lignes avec un libellé.
+        $sources = collect($validated['sources'] ?? [])
+            ->map(fn ($s) => [
+                'libelle' => trim((string) ($s['libelle'] ?? '')),
+                'url'     => trim((string) ($s['url'] ?? '')) ?: null,
+            ])
+            ->filter(fn ($s) => $s['libelle'] !== '')
+            ->values()
+            ->all();
+
+        $nouvellesValeurs = [
+            'titre'             => $validated['titre'],
+            'statut'            => $validated['statut'],
+            'description'       => $validated['description'],
+            'note'              => $validated['note'] ?? null,
+            'date_verification' => $validated['date_verification'] ?? null,
+            'sources'           => $sources,
+        ];
+
+        // Diff champ par champ pour l'historique (pas d'écrasement silencieux).
+        $auteur  = Auth::user();
+        $changes = [];
+        foreach ($nouvellesValeurs as $champ => $nouvelle) {
+            $ancienne = $regle->{$champ};
+
+            if ($champ === 'sources') {
+                $ancienneStr = $this->sourcesEnTexte($ancienne ?? []);
+                $nouvelleStr = $this->sourcesEnTexte($nouvelle);
+            } elseif ($champ === 'date_verification') {
+                $ancienneStr = optional($ancienne)->format('Y-m-d');
+                $nouvelleStr = $nouvelle ?: null;
+            } else {
+                $ancienneStr = $ancienne;
+                $nouvelleStr = $nouvelle;
+            }
+
+            if ((string) $ancienneStr !== (string) $nouvelleStr) {
+                $changes[] = [
+                    'champ'           => $champ,
+                    'ancienne_valeur' => $ancienneStr,
+                    'nouvelle_valeur' => $nouvelleStr,
+                ];
+            }
+        }
+
+        if (empty($changes)) {
+            return back()->with('info', 'Aucune modification à enregistrer.');
+        }
+
+        DB::transaction(function () use ($regle, $nouvellesValeurs, $changes, $auteur) {
+            $regle->update($nouvellesValeurs);
+
+            foreach ($changes as $c) {
+                RegleFiscaleHistorique::create([
+                    'regle_fiscale_id' => $regle->id,
+                    'admin_id'         => $auteur?->id,
+                    'admin_nom'        => $auteur?->name,
+                    'champ'            => $c['champ'],
+                    'ancienne_valeur'  => $c['ancienne_valeur'],
+                    'nouvelle_valeur'  => $c['nouvelle_valeur'],
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('superadmin.regles.show', $regle)
+            ->with('success', 'Règle mise à jour — la modification s\'applique aux calculs futurs.');
+    }
+
+    /** Résumé lisible d'une liste de sources pour l'historique. */
+    private function sourcesEnTexte(array $sources): string
+    {
+        return collect($sources)
+            ->map(fn ($s) => trim(($s['libelle'] ?? '') . ($s['url'] ? ' (' . $s['url'] . ')' : '')))
+            ->filter()
+            ->implode(' · ');
     }
 }
