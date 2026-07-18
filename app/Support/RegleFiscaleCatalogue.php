@@ -67,16 +67,22 @@ class RegleFiscaleCatalogue
             'tva_taux_reduit_non_applicable'      => '10 % — jamais appliqué',
             'tva_loyer_assiette'                  => 'Loyer HT + TOM',
             'tva_charges'                         => '0 % (débours) / ' . $pct(FiscalService::TVA_TAUX) . ' (forfait)',
+            'tva_declaration_mensuelle'           => 'Avant le 15 du mois',
+            'tva_independante_du_regime_cgf'      => 'TVA due même en CGF',
 
             // ── BRS ──
             'brs_taux_assiette' => $pct(FiscalService::BRS_TAUX_LEGAL)
                 . ' · seuil ' . $fcfa(FiscalService::BRS_SEUIL_MENSUEL) . '/mois',
-            'brs_cascade_taux'  => $pct(FiscalService::BRS_TAUX_LEGAL) . ' (défaut légal)',
+            'brs_cascade_taux'            => $pct(FiscalService::BRS_TAUX_LEGAL) . ' (défaut légal)',
+            'brs_qui_retient'            => 'Retenue par l\'agence',
+            'brs_obligations_declaratives' => 'Mensuel · trimestriel · annuel',
 
             // ── Droits d'enregistrement ──
             'DE-01' => $pct(FiscalService::DGID_TAUX_HABITATION),
             'DE-02' => $fcfa(FiscalService::DGID_TIMBRE_FISCAL) . ' / feuille',
             'DE-03' => 'Signature + 1 mois',
+            'DE-04' => 'Prorata mensuel',
+            'DE-05' => 'Fractionnement triennal',
             'DE-06' => 'Plafond base 12 mois',
             'DE-07' => '5 % — hors périmètre',
 
@@ -88,24 +94,30 @@ class RegleFiscaleCatalogue
 
             // ── CGF ──
             'CGF-01' => '≤ ' . $fcfa(FiscalService::CGF_SEUIL) . '/an',
+            'CGF-02' => 'Remplace IRPP + IMF + CFPB',
             'CGF-03' => '1/12 · 1,5/12 · 2/12 · plancher ' . $fcfa(FiscalService::CGF_PLANCHER),
             'CGF-04' => 'Avant le 1er février',
             'CGF-05' => '1 ou 3 versements',
+            'CGF-06' => 'Décharge (hors périmètre)',
 
             // ── CFPB ──
             'CFPB-01' => $pct(FiscalService::CFPB_TAUX * 100) . ' de la valeur locative',
             'CFPB-02' => '40 % — non appliqué',
+            'CFPB-03' => 'Conflit 500k / 1,5M',
+            'CFPB-04' => 'Exonération 5 ans',
             'CFPB-05', 'TEOM-03' => 'Avant le 31 janvier',
             'CFPB-06' => 'Propriétaire au 1er janvier',
 
             // ── TEOM ──
             'TEOM-01' => $pct(FiscalService::TEOM_TAUX_DAKAR) . ' (Dakar) / '
                 . $pct(FiscalService::TEOM_TAUX_AUTRE) . ' (autres)',
-            'TEOM-02' => '= valeur locative CFPB',
+            'TEOM-02'     => '= valeur locative CFPB',
+            'TOM-TEOM-01' => 'Distinction TOM / TEOM',
 
             // ── Agence (IS / CEL) ──
-            'CEL-01' => 'Rappel — 31 janvier',
-            'CEL-02' => 'Rappel — 30 avril',
+            'IS-CAL-01' => 'Rappel seul (aucun calcul)',
+            'CEL-01'    => 'Rappel — 31 janvier',
+            'CEL-02'    => 'Rappel — 30 avril',
 
             default => null,
         };

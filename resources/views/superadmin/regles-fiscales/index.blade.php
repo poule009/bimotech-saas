@@ -102,9 +102,10 @@
                 <tbody>
                     @foreach($regles as $r)
                         @php
-                            $bord   = $loop->last ? '' : 'border-b border-paper-dim';
-                            $valeur = RegleFiscaleCatalogue::valeur($r);
-                            $source = $r->sources[0]['libelle'] ?? null;
+                            $bord     = $loop->last ? '' : 'border-b border-paper-dim';
+                            $valeur   = RegleFiscaleCatalogue::valeur($r);
+                            $source   = $r->sources[0]['libelle'] ?? null;
+                            $nbAutres = max(0, count($r->sources ?? []) - 1);
                         @endphp
                         <tr class="relative text-[13.8px] hover:bg-paper/60 transition-colors">
                             {{-- Règle --}}
@@ -125,6 +126,9 @@
                             {{-- Source --}}
                             <td class="px-4 py-3.5 {{ $bord }} text-muted">
                                 <span class="text-[12.5px] line-clamp-2 max-w-[240px] inline-block align-middle">{{ $source ?? '—' }}</span>
+                                @if($nbAutres > 0)
+                                    <span class="text-[11px] font-semibold text-teal whitespace-nowrap"> +{{ $nbAutres }}</span>
+                                @endif
                             </td>
                             {{-- Mise à jour --}}
                             <td class="px-4 py-3.5 {{ $bord }} text-muted whitespace-nowrap text-[12.5px]">

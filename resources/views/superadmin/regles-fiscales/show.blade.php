@@ -4,6 +4,13 @@
 
 @php
     use App\Support\RegleFiscaleCatalogue;
+    use App\Models\RegleFiscale;
+
+    // Rend une valeur d'historique lisible : les changements de statut sont
+    // stockés en clé technique (non_verifie…) → on affiche le libellé humain.
+    $histoValeur = fn ($champ, $v) => $champ === 'statut'
+        ? ((RegleFiscale::STATUTS[$v] ?? $v) ?: '∅')
+        : ($v ?: '∅');
 
     $chip = [
         'green' => 'bg-green/10 text-green',
@@ -43,7 +50,8 @@
     <div class="flex items-center justify-between gap-4 bg-white border border-line rounded-2xl px-6 py-5 mb-5 flex-wrap">
         <div class="min-w-0">
             <div class="font-display text-[22px] font-medium text-ink">{{ $regle->titre }}</div>
-            <div class="text-[13px] text-muted mt-0.5">{{ $groupeLabel }} · clé <span class="font-mono">{{ $regle->cle }}</span></div>
+            <div class="text-[13px] text-muted mt-1">{{ Str::limit($regle->description, 90) }}</div>
+            <div class="text-[11.5px] text-muted/70 mt-1">{{ $groupeLabel }} · clé <span class="font-mono">{{ $regle->cle }}</span></div>
         </div>
         <span class="text-[11.5px] font-semibold px-3 py-1 rounded-full inline-flex items-center gap-1.5 {{ $chip[$regle->statut_variant] }}">
             <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ $regle->statut_label }}
@@ -197,8 +205,8 @@
                                 </div>
                                 @if($h->champ !== 'description' && $h->champ !== 'sources')
                                     <div class="text-[12px] text-muted mt-0.5">
-                                        <span class="line-through">{{ Str::limit($h->ancienne_valeur ?: '∅', 40) }}</span>
-                                        &rarr; <span class="text-ink">{{ Str::limit($h->nouvelle_valeur ?: '∅', 40) }}</span>
+                                        <span class="line-through">{{ Str::limit($histoValeur($h->champ, $h->ancienne_valeur), 40) }}</span>
+                                        &rarr; <span class="text-ink">{{ Str::limit($histoValeur($h->champ, $h->nouvelle_valeur), 40) }}</span>
                                     </div>
                                 @endif
                                 <div class="text-[11.5px] text-muted font-mono mt-1">{{ $h->created_at->locale('fr')->isoFormat('D MMM Y · HH:mm') }}</div>
