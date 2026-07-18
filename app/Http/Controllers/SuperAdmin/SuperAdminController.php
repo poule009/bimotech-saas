@@ -530,8 +530,12 @@ class SuperAdminController extends Controller
         $subscription = $agency->subscription;
 
         // « Amenée par » (module Équipe interne) — visible côté Super Admin uniquement.
+        // Édition réservée à l'admin PRINCIPAL, et jamais en mode « Voir comme » : en
+        // observation, on réplique la vue réelle du collaborateur (lecture seule), qui
+        // ne réattribue jamais lui-même une agence.
         $agency->load('ameneePar:id,name');
-        $peutEditerApporteur = Auth::user()->estSuperAdminPrincipal();
+        $peutEditerApporteur = Auth::user()->estSuperAdminPrincipal()
+            && ! app(\App\Support\SuperAdminContext::class)->estRestreint();
         // Comptes attribuables : principal + collaborateurs (choix réservé au principal).
         $apporteurs = $peutEditerApporteur
             ? User::where('role', 'superadmin')->orderByDesc('sa_est_principal')->orderBy('name')->get(['id', 'name', 'sa_est_principal'])
@@ -1005,8 +1009,14 @@ class SuperAdminController extends Controller
      */
     public function updateAmeneePar(Request $request, Agency $agency): RedirectResponse
     {
-        abort_unless(Auth::user()->estSuperAdminPrincipal(), 403,
-            'Seul l\'administrateur principal peut attribuer une agence.');
+        // Principal uniquement, et jamais en mode « Voir comme » (vue d'observation
+        // en lecture seule) : la réattribution est une action de gouvernance.
+        abort_unless(
+            Auth::user()->estSuperAdminPrincipal()
+            && ! app(\App\Support\SuperAdminContext::class)->estRestreint(),
+            403,
+            'Seul l\'administrateur principal peut attribuer une agence.'
+        );
 
         $superAdminIds = User::where('role', 'superadmin')->pluck('id')->all();
 

@@ -164,11 +164,13 @@
                 </div>
             </section>
 
-            {{-- ─── Attribution commerciale (« Amenée par ») — interne, jamais vu par l'agence ─── --}}
-            <section class="bg-white border border-line rounded-xl overflow-hidden h-fit">
-                <div class="px-5 py-4 border-b border-paper-dim font-display font-medium text-[16.5px] text-ink">Attribution commerciale</div>
-                <div class="px-5 py-4">
-                    @if($peutEditerApporteur)
+            {{-- ─── Attribution commerciale (« Amenée par ») ───
+                 Gouvernance réservée à l'admin principal : un collaborateur (et le
+                 principal en « Voir comme ») ne voit PAS cette section du tout. --}}
+            @if($peutEditerApporteur)
+                <section class="bg-white border border-line rounded-xl overflow-hidden h-fit">
+                    <div class="px-5 py-4 border-b border-paper-dim font-display font-medium text-[16.5px] text-ink">Attribution commerciale</div>
+                    <div class="px-5 py-4">
                         <form method="POST" action="{{ route('superadmin.agencies.amenee-par', $agency) }}">
                             @csrf
                             @method('PATCH')
@@ -186,14 +188,9 @@
                             </div>
                             <p class="text-[11.5px] text-muted mt-2 leading-relaxed">Champ interne au back-office — jamais exposé à l'agence ni au formulaire d'inscription. Sert au périmètre et au calcul de commission.</p>
                         </form>
-                    @else
-                        <div class="flex justify-between gap-4 text-[13.5px]">
-                            <span class="text-muted">Amenée par</span>
-                            <span class="font-semibold text-ink text-right">{{ $agency->ameneePar?->name ?? 'Non attribué' }}</span>
-                        </div>
-                    @endif
-                </div>
-            </section>
+                    </div>
+                </section>
+            @endif
         </div>
     </div>
 
