@@ -59,6 +59,11 @@ class SuperAdminController extends Controller
         $endLastMonth = $startMonth->copy()->subSecond();
         $seuilInactif = 14; // jours sans action → agence inactive
 
+        // Contexte de périmètre (module Équipe interne) : null = plateforme complète
+        // (admin principal), sinon on borne toutes les données à un collaborateur.
+        $ctx = app(\App\Support\SuperAdminContext::class);
+        $perimId = $ctx->perimetreAdminId();
+
         // ── Agences (+ abonnement, compteur d'unités actives, sans N+1) ──────
         $agences = Agency::with('subscription')
             ->withCount(['biens as nb_unites' => fn ($q) => $q->where('statut', '!=', 'archive')])
@@ -77,11 +82,16 @@ class SuperAdminController extends Controller
         $mrrService = app(MrrService::class);
 
         // Snapshots des 12 derniers mois, indexés par 'Y-m-d' du 1er du mois.
+        // Les snapshots MrrSnapshot sont PLATEFORME (toutes agences confondues) : en
+        // contexte restreint on les ignore et on reconstruit chaque mois à partir des
+        // agences scopées ($agences), sinon un collaborateur verrait le MRR global.
         $moisCourbe = collect(range(11, 0))
             ->map(fn ($i) => $startMonth->copy()->subMonthsNoOverflow($i));
-        $snapshots = MrrSnapshot::whereIn('mois', $moisCourbe->map->toDateString())
-            ->get()
-            ->keyBy(fn ($s) => $s->mois->toDateString());
+        $snapshots = $perimId
+            ? collect()
+            : MrrSnapshot::whereIn('mois', $moisCourbe->map->toDateString())
+                ->get()
+                ->keyBy(fn ($s) => $s->mois->toDateString());
 
         $mrr = $mrrService->at($now, $agences);
         // Croissance vs mois dernier : snapshot réel si disponible, sinon reconstruction.
@@ -138,7 +148,7 @@ class SuperAdminController extends Controller
         // l'affiche qu'aux comptes qui ont accès à la facturation, sinon un
         // collaborateur restreint verrait un décompte hors de son périmètre et
         // cliquerait vers un écran qui lui est interdit (403).
-        $enAttente = app(\App\Support\SuperAdminContext::class)->peutVoirSection('facturation')
+        $enAttente = $ctx->peutVoirSection('facturation')
             ? SubscriptionPayment::with('agency:id,name')
                 ->where('statut', SubscriptionPayment::STATUT_EN_ATTENTE)
                 ->get()
@@ -242,15 +252,15 @@ class SuperAdminController extends Controller
         // Asymétrie de visibilité : un collaborateur restreint ne voit que l'activité
         // de SES agences (le périmètre plafonne déjà $agences). Les événements plateforme
         // sans agence (gouvernance de l'équipe) et ceux des autres agences sont exclus.
-        $perimId = app(\App\Support\SuperAdminContext::class)->perimetreAdminId();
-
+        // $perimId est résolu en tête de méthode.
         $activites = ActivityLog::with(['user:id,name', 'agency:id,name'])
             ->where(function ($q) {
                 $q->where('action', 'impersonate')
                     ->orWhere('model_type', Agency::class)
                     ->orWhere(fn ($q2) => $q2->where('model_type', User::class)->where('action', 'created'));
             })
-            ->when($perimId, fn ($q) => $q->whereIn('agency_id', $agences->pluck('id')))
+            ->when($perimId, fn ($q) => $q->whereIn('agency_id', $agences->pluck('id'))
+                ->whereNotIn('action', ['impersonate', 'impersonate_revoked']))
             ->latest()
             ->limit(6)
             ->get()
@@ -580,9 +590,15 @@ class SuperAdminController extends Controller
             ->get();
 
         // Journal de l'agence (onglet Activité) — hors consultations ('viewed').
+        // En contexte restreint, on masque aussi les traces d'impersonation (support
+        // de l'admin principal) : asymétrie de visibilité du module Équipe interne.
         $activites = ActivityLog::with('user:id,name')
             ->where('agency_id', $agency->id)
             ->where('action', '!=', 'viewed')
+            ->when(
+                app(\App\Support\SuperAdminContext::class)->estRestreint(),
+                fn ($q) => $q->whereNotIn('action', ['impersonate', 'impersonate_revoked'])
+            )
             ->latest()
             ->limit(15)
             ->get();

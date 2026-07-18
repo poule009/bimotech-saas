@@ -47,6 +47,20 @@ class ActivityLogController extends Controller implements HasMiddleware
             $query->where('agency_id', $user->agency_id);
         }
 
+        // Super Admin à accès restreint (module Équipe interne) : le journal est
+        // borné à ses agences apportées — jamais l'activité des autres agences ni
+        // les actions de l'admin principal (asymétrie de visibilité).
+        if ($user->role === 'superadmin') {
+            $perimAgencyIds = app(\App\Support\SuperAdminContext::class)->perimetreAgencyIds();
+            if ($perimAgencyIds !== null) {
+                // Ses agences uniquement, et sans les traces d'impersonation (support
+                // de l'admin principal) : le collaborateur ne voit que ses propres
+                // sessions, dans l'écran Support / Debug.
+                $query->whereIn('agency_id', $perimAgencyIds)
+                    ->whereNotIn('action', ['impersonate', 'impersonate_revoked']);
+            }
+        }
+
         // Super Admin : restreindre le journal à une agence (« Voir le journal » depuis la fiche).
         if ($user->role === 'superadmin' && $request->filled('agency')) {
             $query->where('agency_id', (int) $request->input('agency'));
