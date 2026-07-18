@@ -115,7 +115,7 @@ class EquipeInterneController extends Controller
             'must_change_password' => true, // le collaborateur définit son mot de passe à la 1ʳᵉ connexion
         ])->save();
 
-        $this->journaliser('equipe_collaborateur_invite', $user,
+        $this->journaliser('equipe_invite', $user,
             "Collaborateur ajouté au Super Admin : {$user->name} (commission {$validated['taux_commission']} %)");
 
         return redirect()
@@ -177,7 +177,7 @@ class EquipeInterneController extends Controller
             $this->context->arreterVoirComme();
         }
 
-        $this->journaliser('equipe_acces_revoque', $collaborateur,
+        $this->journaliser('equipe_revoque', $collaborateur,
             "Accès Super Admin révoqué : {$collaborateur->name} (agences conservées)");
 
         return back()->with('success', "Accès de {$collaborateur->name} révoqué. Ses agences restent attribuées pour l'historique de commission.");
@@ -190,7 +190,7 @@ class EquipeInterneController extends Controller
 
         $collaborateur->forceFill(['sa_acces_revoque_at' => null])->save();
 
-        $this->journaliser('equipe_acces_restaure', $collaborateur,
+        $this->journaliser('equipe_restaure', $collaborateur,
             "Accès Super Admin rétabli : {$collaborateur->name}");
 
         return back()->with('success', "Accès de {$collaborateur->name} rétabli.");
@@ -240,7 +240,7 @@ class EquipeInterneController extends Controller
                 ->update(['amenee_par' => $cible]);
 
             $nom = $cible ? (User::find($cible)?->name ?? 'un autre compte') : 'Non attribué';
-            $this->journaliser('equipe_reattribution', $collaborateur,
+            $this->journaliser('equipe_reattrib', $collaborateur,
                 "Réattribution en masse des {$n} agences de {$collaborateur->name} → {$nom}");
 
             return redirect()->route('superadmin.equipe.index')
@@ -270,7 +270,7 @@ class EquipeInterneController extends Controller
             }
         }
 
-        $this->journaliser('equipe_reattribution', $collaborateur,
+        $this->journaliser('equipe_reattrib', $collaborateur,
             "Réattribution individuelle : {$modifiees} agence(s) de {$collaborateur->name}");
 
         return redirect()->route('superadmin.equipe.index')
