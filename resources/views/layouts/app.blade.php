@@ -31,7 +31,7 @@
         ['label' => 'Comptabilité',    'route' => 'admin.comptabilite.index','active' => 'admin.comptabilite.*', 'perm' => 'comptabilite.lire', 'icon' => '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h4M8 14h2M12 14h4M8 18h8"/>'],
         ['label' => 'Fiscalité',       'route' => 'admin.echeances-fiscales.index', 'active' => 'admin.echeances-fiscales.*', 'perm' => 'fiscal.lire', 'icon' => '<path d="M4 4h16v4H4V4Z"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M9 13h6M9 17h6"/>'],
         ['section' => 'Vitrine'],
-        ['label' => 'Portail public',  'route' => 'portail.home',            'active' => 'portail.*',            'icon' => '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>'],
+        ['label' => 'Ma vitrine',      'url' => $agency?->slug ? route('vitrine.home', $agency->slug) : null, 'active' => 'vitrine.*', 'external' => true, 'icon' => '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/>'],
         ['section' => null],
         ['label' => "Journal d'activité", 'route' => 'admin.activity-logs.index', 'active' => 'admin.activity-logs.*', 'perm' => 'logs.lire', 'icon' => '<path d="M12 8v4l3 2"/><path d="M3.05 11a9 9 0 116.86 8.65"/><path d="M3 3v5h5"/>'],
         ['label' => 'Mon équipe',      'route' => 'admin.equipe.index',      'active' => 'admin.equipe.*',       'gate' => 'voirEquipe', 'icon' => '<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>'],
@@ -64,9 +64,10 @@
                     @else
                         <div class="mt-3"></div>
                     @endif
-                @elseif((!isset($item['gate']) || auth()->user()?->can($item['gate'])) && (!isset($item['perm']) || auth()->user()?->hasAgencyPermission($item['perm'])))
+                @elseif(!(array_key_exists('url', $item) && ! $item['url']) && (!isset($item['gate']) || auth()->user()?->can($item['gate'])) && (!isset($item['perm']) || auth()->user()?->hasAgencyPermission($item['perm'])))
                     @php $isActive = request()->routeIs($item['active']); @endphp
-                    <a href="{{ route($item['route']) }}"
+                    <a href="{{ $item['url'] ?? route($item['route']) }}"
+                       @if($item['external'] ?? false) target="_blank" rel="noopener" @endif
                        x-on:click="close"
                        @class([
                            'flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-[13.5px] mb-0.5 transition-colors',
