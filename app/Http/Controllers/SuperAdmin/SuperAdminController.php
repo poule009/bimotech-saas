@@ -1756,6 +1756,23 @@ class SuperAdminController extends Controller
                     'nouvelle_valeur'  => $c['nouvelle_valeur'],
                 ]);
             }
+
+            // Trace aussi une entrée dans le journal d'activité : la modification d'une
+            // règle fiscale est un événement critique lu par « Paramètres système ».
+            // (L'historique détaillé champ par champ reste dans regle_fiscale_historiques.)
+            $labels  = ['titre' => 'titre', 'statut' => 'statut', 'description' => 'description',
+                        'note' => 'note', 'date_verification' => 'date de vérification', 'sources' => 'sources'];
+            $champs   = array_map(fn ($c) => $labels[$c['champ']] ?? $c['champ'], $changes);
+            ActivityLog::create([
+                'user_id'      => $auteur?->id,
+                'agency_id'    => null,
+                'action'       => 'regle_modifiee',
+                'is_sensitive' => true,
+                'description'  => "Règle fiscale « {$regle->titre} » modifiée (".implode(', ', $champs).')',
+                'model_type'   => RegleFiscale::class,
+                'model_id'     => $regle->id,
+                'ip_address'   => request()?->ip(),
+            ]);
         });
 
         return redirect()

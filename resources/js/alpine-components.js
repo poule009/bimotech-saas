@@ -806,4 +806,72 @@ export function registerComponents(Alpine) {
         toggle() { this.open = !this.open; },
         get chevClass() { return this.open ? 'rotate-180' : ''; },
     }));
+
+    // Super Admin — Paramètres système : sous-navigation (Général / Sécurité / Journal).
+    // Onglet initial rendu côté serveur (data-initial) — ex. « journal » quand on filtre.
+    Alpine.data('parametresTabs', () => ({
+        active: 'general',
+        init() { if (this.$el.dataset.initial) { this.active = this.$el.dataset.initial; } },
+        _cls(name) { return this.active === name ? 'text-teal-deep border-gold' : 'text-muted border-transparent hover:text-ink'; },
+        get isGeneral() { return this.active === 'general'; },
+        get isSecurite() { return this.active === 'securite'; },
+        get isJournal() { return this.active === 'journal'; },
+        get generalClass() { return this._cls('general'); },
+        get securiteClass() { return this._cls('securite'); },
+        get journalClass() { return this._cls('journal'); },
+        showGeneral() { this.active = 'general'; },
+        showSecurite() { this.active = 'securite'; },
+        showJournal() { this.active = 'journal'; },
+    }));
+
+    // Paramètres système — volet Mode maintenance : bascule liée à un champ caché.
+    // « on » = agences bloquées → couleur gold (mise en garde), pas vert.
+    Alpine.data('maintenancePanel', () => ({
+        active: false,
+        init() { this.active = this.$el.dataset.active === '1'; },
+        toggle() { this.active = !this.active; },
+        // Confirme seulement à l'ACTIVATION (blocage plateforme) ; jamais à la levée.
+        onSubmit(event) {
+            if (this.active && ! window.confirm(this.$el.dataset.confirm || 'Confirmer ?')) {
+                event.preventDefault();
+            }
+        },
+        get activeValue() { return this.active ? '1' : '0'; },
+        get switchClass() { return this.active ? 'bg-gold' : 'bg-paper-dim'; },
+        get knobClass() { return this.active ? 'left-[17px]' : 'left-[2px]'; },
+        get statusText() {
+            return this.active
+                ? 'Maintenance en cours — accès aux agences bloqué'
+                : 'Plateforme active — aucune maintenance en cours';
+        },
+        get statusClass() { return this.active ? 'text-gold-deep' : 'text-green'; },
+        get dotClass() { return this.active ? 'bg-gold' : 'bg-green'; },
+    }));
+
+    // Paramètres système — volet Sécurité : 3 bascules liées à des champs cachés.
+    Alpine.data('securitePanel', () => ({
+        deuxFa: true,
+        session: true,
+        mdp: true,
+        init() {
+            this.deuxFa  = this.$el.dataset.deuxFa === '1';
+            this.session = this.$el.dataset.session === '1';
+            this.mdp     = this.$el.dataset.mdp === '1';
+        },
+        toggleDeuxFa() { this.deuxFa = !this.deuxFa; },
+        toggleSession() { this.session = !this.session; },
+        toggleMdp() { this.mdp = !this.mdp; },
+        get deuxFaValue() { return this.deuxFa ? '1' : '0'; },
+        get sessionValue() { return this.session ? '1' : '0'; },
+        get mdpValue() { return this.mdp ? '1' : '0'; },
+        _sw(on) { return on ? 'bg-green' : 'bg-paper-dim'; },
+        _kn(on) { return on ? 'left-[17px]' : 'left-[2px]'; },
+        get deuxFaSwitch() { return this._sw(this.deuxFa); },
+        get deuxFaKnob() { return this._kn(this.deuxFa); },
+        get sessionSwitch() { return this._sw(this.session); },
+        get sessionKnob() { return this._kn(this.session); },
+        get mdpSwitch() { return this._sw(this.mdp); },
+        get mdpKnob() { return this._kn(this.mdp); },
+        get showSessionMinutes() { return this.session; },
+    }));
 }

@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(QuittanceService::class);
         $this->app->singleton(PlanFeatureService::class);
         $this->app->singleton(PlanService::class);
+        // Réglages plateforme : singleton pour partager le cache mémoire (lu par le
+        // middleware de maintenance à chaque requête web).
+        $this->app->singleton(\App\Support\PlatformSettings::class);
         // Scoped (et non singleton) : le contexte Super Admin met en cache le périmètre
         // et l'état « Voir comme » sur la durée d'UNE requête, mais est réinitialisé
         // entre requêtes sous un runtime persistant (Octane) — sinon le périmètre d'un

@@ -32,7 +32,13 @@ class SuperAdminControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->superAdmin = User::factory()->createOne(['role' => 'superadmin']);
+        // Admin PRINCIPAL : ces scénarios couvrent l'accès complet à la plateforme
+        // (facturation, agences, impersonation), gouverné par sa.section depuis le
+        // module « Équipe interne ». Sans ce drapeau, les gardes de section renvoient 403.
+        $this->superAdmin = User::factory()->createOne([
+            'role'             => 'superadmin',
+            'sa_est_principal' => true,
+        ]);
     }
 
     // ────────────────────────────────────────────────────────────────────────

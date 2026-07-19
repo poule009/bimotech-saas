@@ -35,6 +35,8 @@ return Application::configure(basePath: dirname(__DIR__))
             // Coupe une impersonation révoquée à distance avant tout autre contrôle.
             \App\Http\Middleware\EnforceImpersonationRevocation::class,
             \App\Http\Middleware\CheckSubscription::class,
+            // Mode maintenance : bloque les comptes d'agence (Super Admin exempté).
+            \App\Http\Middleware\EnsureNotInMaintenance::class,
         ]);
 
         // ── Exemption CSRF pour les webhooks externes ────────────────────

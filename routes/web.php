@@ -30,6 +30,7 @@ use App\Http\Controllers\RapportController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\EquipeInterneController;
+use App\Http\Controllers\SuperAdmin\ParametresController;
 use App\Http\Controllers\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\SuperAdmin\TwoFactorController;
 use App\Http\Controllers\ImportController;
@@ -201,6 +202,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Sortie du mode « Voir comme » — hors sa.section:equipe : accessible depuis
             // n'importe quel écran observé (le principal reste principal en session).
             Route::post('equipe/voir-comme/arreter',           [EquipeInterneController::class, 'arreterVoirComme'])->name('equipe.voir-comme.arreter');
+            // ── Paramètres système ─────────────────────────────────────────
+            // Configuration globale, sécurité des comptes admin, journal critique.
+            // Gouvernance de la plateforme → réservé à l'admin principal
+            // (sa.section:parametres → false pour un collaborateur).
+            Route::middleware('sa.section:parametres')->prefix('parametres')->name('parametres.')->group(function () {
+                Route::get('/',            [ParametresController::class, 'index'])->name('index');
+                Route::patch('general',     [ParametresController::class, 'updateGeneral'])->name('general');
+                Route::patch('maintenance', [ParametresController::class, 'updateMaintenance'])->name('maintenance');
+                Route::patch('securite',    [ParametresController::class, 'updateSecurite'])->name('securite');
+            });
             // ── Abonnements & facturation ──────────────────────────────────
             // Vue d'ensemble des transactions, toutes agences. A absorbé l'ancienne
             // liste d'abonnements ET l'écran « paiements en attente » (devenu un filtre).
