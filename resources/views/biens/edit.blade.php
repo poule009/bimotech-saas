@@ -121,8 +121,9 @@
                     <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="parking" value="1" @checked(old('parking', $bien->parking)) class="w-[16px] h-[16px] accent-teal"> Parking</label>
                     <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="climatise" value="1" @checked(old('climatise', $bien->climatise)) class="w-[16px] h-[16px] accent-teal"> Climatisé</label>
                     <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="visible_portail" value="1" @checked(old('visible_portail', $bien->visible_portail)) class="w-[16px] h-[16px] accent-teal"> Visible sur le portail</label>
+                    <label class="flex items-center gap-2 text-[14px] cursor-pointer"><input type="checkbox" name="est_en_vedette" value="1" @checked(old('est_en_vedette', $bien->est_en_vedette)) class="w-[16px] h-[16px] accent-gold"> Mettre en vedette sur la vitrine</label>
                 </div>
-                <p class="text-[11.5px] text-muted mt-2">Le caractère « meublé » (impact TVA) se règle plus haut, dans « Loyer & commission ».</p>
+                <p class="text-[11.5px] text-muted mt-2">Le caractère « meublé » (impact TVA) se règle plus haut, dans « Loyer & commission ». Les biens « en vedette » sont mis en avant en haut de votre vitrine publique (2 à 3 maximum).</p>
             </div>
         </div>
 

@@ -225,6 +225,7 @@ class BienController extends Controller
         $validated['meuble']          = $request->boolean('meuble');
         $validated['parking']         = $request->boolean('parking');
         $validated['climatise']       = $request->boolean('climatise');
+        $validated['est_en_vedette']  = $request->boolean('est_en_vedette');
         $validated['tom_mensuelle']   = (float) ($validated['tom_mensuelle'] ?? 0);
         $validated['taux_commission'] = $validated['taux_commission'] ?? 10;
         $validated['amenites']        = $request->filled('amenites')
@@ -322,6 +323,7 @@ class BienController extends Controller
         $validated['meuble']          = $request->boolean('meuble');
         $validated['parking']         = $request->boolean('parking');
         $validated['climatise']       = $request->boolean('climatise');
+        $validated['est_en_vedette']  = $request->boolean('est_en_vedette');
         $validated['tom_mensuelle']   = (float) ($validated['tom_mensuelle'] ?? 0);
         $validated['visible_portail'] = $request->boolean('visible_portail');
         $validated['amenites']        = $request->filled('amenites')

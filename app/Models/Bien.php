@@ -32,6 +32,7 @@ class Bien extends Model
         'quartier'        => 'Quartier',
         'ville'           => 'Ville',
         'visible_portail' => 'Visible sur portail',
+        'est_en_vedette'  => 'En vedette (vitrine)',
         'proprietaire_id' => 'Propriétaire',
         'taux_commission' => 'Commission',
         'caution'         => 'Caution',
@@ -84,6 +85,7 @@ class Bien extends Model
         'longitude',
         'amenites',
         'visible_portail',
+        'est_en_vedette',
         'code_import',
         'import_batch_id',
     ];
@@ -106,6 +108,7 @@ class Bien extends Model
         'latitude'        => 'decimal:7',
         'longitude'       => 'decimal:7',
         'visible_portail' => 'boolean',
+        'est_en_vedette'  => 'boolean',
         'deleted_at'      => 'datetime',
         // Note : pas de cast Enum — $bien->statut reste une string en Blade.
         // Utiliser BienStatut::from($bien->statut) dans le code PHP si l'enum est nécessaire.
@@ -261,6 +264,44 @@ class Bien extends Model
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
+
+    /**
+     * Caractéristiques affichées sur la vitrine, sous forme de paires [valeur, label].
+     * Source unique partagée par la liste (cartes, tronquées) et la fiche détail
+     * (grille complète). Le nombre de pièces n'est montré qu'à défaut de chambres
+     * (évite la redondance chambres/pièces).
+     */
+    public function specsVitrine(): array
+    {
+        $specs = [];
+
+        if ($this->nombre_chambres) {
+            $specs[] = [$this->nombre_chambres, $this->nombre_chambres > 1 ? 'chambres' : 'chambre'];
+        }
+        if ($this->surface_m2) {
+            $specs[] = [(int) $this->surface_m2 . ' m²', 'surface'];
+        }
+        if ($this->nombre_sdb) {
+            $specs[] = [$this->nombre_sdb, $this->nombre_sdb > 1 ? 'salles de bain' : 'salle de bain'];
+        }
+        if ($this->nombre_pieces && ! $this->nombre_chambres) {
+            $specs[] = [$this->nombre_pieces, $this->nombre_pieces > 1 ? 'pièces' : 'pièce'];
+        }
+        if (! is_null($this->etage)) {
+            $specs[] = [$this->etage == 0 ? 'RDC' : $this->etage, $this->etage == 0 ? '' : 'étage'];
+        }
+        if ($this->parking) {
+            $specs[] = ['Oui', 'parking'];
+        }
+        if ($this->climatise) {
+            $specs[] = ['Oui', 'climatisé'];
+        }
+        if ($this->meuble) {
+            $specs[] = ['Oui', 'meublé'];
+        }
+
+        return $specs;
+    }
 
     public static function generateReference(int $agencyId): string
     {

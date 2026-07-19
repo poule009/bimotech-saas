@@ -64,6 +64,36 @@
                     <input id="ninea" type="text" name="ninea" value="{{ old('ninea', $agency->ninea) }}" class="f-input max-w-[280px]">
                 </div>
             </div>
+
+            {{-- ─────────── Vitrine publique ─────────── --}}
+            <div class="f-card">
+                <h3 class="f-card-title">Vitrine publique</h3>
+                <p class="f-card-sub">Votre site vitrine est généré automatiquement à partir de vos biens disponibles. Ces deux réglages personnalisent le haut de page et le contact.</p>
+
+                <div class="mb-[18px]">
+                    <label for="slogan" class="f-label">Phrase d'accroche</label>
+                    <input id="slogan" type="text" name="slogan" maxlength="160" value="{{ old('slogan', $agency->slogan) }}" placeholder="Ex : Villas, appartements et terrains sélectionnés à Dakar." class="f-input @error('slogan') f-input-error @enderror">
+                    <p class="text-[12px] text-muted mt-1">Affichée sous le titre du hero. Laissez vide pour un texte par défaut.</p>
+                    @error('slogan')<p class="field-error">{{ $message }}</p>@enderror
+                </div>
+
+                <div class="mb-[18px]">
+                    <label for="whatsapp" class="f-label">Numéro WhatsApp de la vitrine</label>
+                    <input id="whatsapp" type="text" name="whatsapp" value="{{ old('whatsapp', $agency->whatsapp) }}" placeholder="+221771234567" class="f-input max-w-[280px] @error('whatsapp') f-input-error @enderror">
+                    <p class="text-[12px] text-muted mt-1">Les boutons « Contacter » de la vitrine ouvrent une conversation vers ce numéro. Peut différer du téléphone de gestion.</p>
+                    @error('whatsapp')<p class="field-error">{{ $message }}</p>@enderror
+                </div>
+
+                @if($agency->slug)
+                    <div class="rounded-[10px] bg-paper border border-line px-4 py-3.5 text-[12.5px] text-muted leading-relaxed flex items-start gap-2">
+                        <x-icon name="info" size="15" class="mt-0.5 shrink-0" />
+                        <span>
+                            <strong class="text-ink">Adresse de votre vitrine :</strong>
+                            <a href="{{ route('vitrine.home', $agency->slug) }}" target="_blank" rel="noopener" class="text-teal font-bold break-all">{{ route('vitrine.home', $agency->slug) }}</a>
+                        </span>
+                    </div>
+                @endif
+            </div>
         </div>
 
         {{-- ─────────── Fiscalité ─────────── --}}

@@ -50,6 +50,7 @@ class Agency extends Model
         'logo_path'            => 'Logo',
         'ninea'                => 'NINEA',
         'actif'                => 'Actif',
+        'slogan'               => 'Slogan vitrine',
         'onboarding_completed' => 'Onboarding terminé',
     ];
 
@@ -85,6 +86,7 @@ class Agency extends Model
         'taux_tva',
         'assujetti_tva',
         'whatsapp',
+        'slogan',
     ];
 
     protected $casts = [

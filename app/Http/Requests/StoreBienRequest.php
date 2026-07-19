@@ -37,6 +37,7 @@ class StoreBienRequest extends FormRequest
             'meuble'          => ['nullable', 'boolean'],
             'tom_mensuelle'   => ['nullable', 'numeric', 'min:0'],
             'description'     => ['nullable', 'string'],
+            'est_en_vedette'  => ['nullable', 'boolean'],
         ];
     }
 

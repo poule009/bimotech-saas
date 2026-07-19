@@ -90,7 +90,11 @@ Route::get('/biens/quartier/{quartier}', [\App\Http\Controllers\PortailControlle
      ->name('portail.quartier')
      ->where('quartier', '[^/]+');
 Route::get('/biens/{slug}',   [\App\Http\Controllers\PortailController::class, 'show'])->name('portail.show');
-Route::get('/agences/{slug}', [\App\Http\Controllers\PortailController::class, 'agence'])->name('portail.agence');
+// ── Vitrine publique par agence (BimoPortail v2) ───────────────────────────
+// Un seul système, adapté à l'agence via son {slug}. Remplace l'ancienne page
+// agence du portail central. Détail d'un bien : /agences/{slug}/biens/{bienSlug}.
+Route::get('/agences/{slug}',                  [\App\Http\Controllers\VitrineController::class, 'home'])->name('vitrine.home');
+Route::get('/agences/{slug}/biens/{bienSlug}', [\App\Http\Controllers\VitrineController::class, 'bien'])->name('vitrine.bien');
 Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,60')->name('contact.send');
 Route::post('/demo',    [DemoController::class,    'send'])->middleware('throttle:5,60')->name('demo.send');
 

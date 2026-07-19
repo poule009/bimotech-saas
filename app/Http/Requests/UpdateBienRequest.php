@@ -38,6 +38,7 @@ class UpdateBienRequest extends FormRequest
             'statut'          => ['required', Rule::in(['disponible', 'loue', 'en_travaux'])],
             'description'     => ['nullable', 'string'],
             'visible_portail' => ['nullable', 'boolean'],
+            'est_en_vedette'  => ['nullable', 'boolean'],
         ];
     }
 
