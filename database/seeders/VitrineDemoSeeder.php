@@ -12,27 +12,34 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
- * BeeVitrineSeeder — 10 biens de démonstration pour l'agence BEE.
+ * VitrineDemoSeeder — biens de démonstration pour les vitrines publiques.
  *
- * Objectif : alimenter la vitrine publique (/agences/{slug}) avec des biens
- * réellement publiables — c'est-à-dire remplissant TOUS les critères de
- * Bien::portail() : statut disponible, visible_portail, aucun contrat actif,
- * titre + quartier renseignés, et au moins une photo.
+ * Alimente la vitrine (/agences/{slug}) de chaque agence de démo avec des
+ * biens réellement publiables : ils remplissent TOUS les critères de
+ * Bien::portail() (statut disponible, visible_portail, sans contrat actif,
+ * titre + quartier renseignés, au moins une photo).
  *
- * Idempotent : relancer le seeder met à jour les mêmes biens (clé titre+agence)
- * sans créer de doublons. Les photos sont régénérées à chaque passage.
+ * Idempotent : relancer met à jour les mêmes biens (clé titre + agence) sans
+ * doublon, et régénère les photos. Les visuels sont de vraies photos
+ * d'illustration (Unsplash, licence libre) téléchargées une fois puis mises
+ * en cache dans storage/app/seed-photos ; repli GD si le réseau est absent.
  */
-class BeeVitrineSeeder extends Seeder
+class VitrineDemoSeeder extends Seeder
 {
-    /** Slug de l'agence cible. */
-    private const AGENCY_SLUG = 'bee-ka1sOy';
-
     public function run(): void
     {
-        $agency = Agency::withoutGlobalScopes()->where('slug', self::AGENCY_SLUG)->first();
+        foreach ($this->agences() as $slug => $definitions) {
+            $this->seederAgence($slug, $definitions);
+        }
+    }
+
+    /** Seed une agence à partir de son slug et de ses définitions de biens. */
+    private function seederAgence(string $slug, array $definitions): void
+    {
+        $agency = Agency::withoutGlobalScopes()->where('slug', $slug)->first();
 
         if (! $agency) {
-            $this->command->error('Agence « ' . self::AGENCY_SLUG . ' » introuvable — seeder annulé.');
+            $this->command->warn("Agence « {$slug} » introuvable — ignorée.");
 
             return;
         }
@@ -46,15 +53,15 @@ class BeeVitrineSeeder extends Seeder
             ?? User::withoutGlobalScopes()->where('agency_id', $agency->id)->first();
 
         if (! $proprietaire) {
-            $this->command->error('Aucun utilisateur rattaché à l\'agence — seeder annulé.');
+            $this->command->warn("Aucun utilisateur pour « {$slug} » — ignorée.");
 
             return;
         }
 
-        $this->command->info("Agence : {$agency->name} (ID {$agency->id}) — propriétaire #{$proprietaire->id}");
         $this->command->newLine();
+        $this->command->info("● {$agency->name} (slug {$agency->slug}) — propriétaire #{$proprietaire->id}");
 
-        foreach ($this->definitions() as $def) {
+        foreach ($definitions as $def) {
             $bien = Bien::withoutAgencyScope()->updateOrCreate(
                 [
                     'agency_id' => $agency->id,
@@ -96,19 +103,27 @@ class BeeVitrineSeeder extends Seeder
         }
 
         $publiables = Bien::portail()->where('agency_id', $agency->id)->count();
-
-        $this->command->newLine();
-        $this->command->info("✅ 10 biens créés — {$publiables} biens publiables au total sur la vitrine.");
-        $this->command->line('   🌐 http://localhost:8000/agences/' . $agency->slug);
+        $this->command->line("  → {$publiables} biens publiables — http://localhost:8000/agences/{$agency->slug}");
     }
 
     /**
-     * Les 10 biens : types et quartiers volontairement variés pour alimenter
-     * les sections « Que recherchez-vous ? » et « Quartiers » de la vitrine.
+     * Définitions par agence, indexées par slug.
      *
-     * @return array<int, array<string, mixed>>
+     * Types et quartiers volontairement variés pour alimenter les sections
+     * « Que recherchez-vous ? » et « Quartiers » de la vitrine.
+     *
+     * @return array<string, array<int, array<string, mixed>>>
      */
-    private function definitions(): array
+    private function agences(): array
+    {
+        return [
+            'bee-ka1sOy' => $this->biensBee(),
+            'bimo-tech'  => $this->biensBimoTech(),
+        ];
+    }
+
+    /** @return array<int, array<string, mixed>> */
+    private function biensBee(): array
     {
         return [
             [
@@ -204,16 +219,108 @@ class BeeVitrineSeeder extends Seeder
         ];
     }
 
+    /** @return array<int, array<string, mixed>> */
+    private function biensBimoTech(): array
+    {
+        return [
+            [
+                'titre' => 'Villa contemporaine 6 pièces — Mermoz Pyrotechnie', 'type' => 'villa',
+                'quartier' => 'Mermoz', 'commune' => 'Dakar', 'adresse' => '18 Cité Pyrotechnie',
+                'loyer' => 1500000, 'surface' => 360, 'pieces' => 6, 'chambres' => 5, 'sdb' => 4,
+                'meuble' => true, 'parking' => true, 'climatise' => true, 'vedette' => true,
+                'description' => "Grande villa contemporaine avec piscine à débordement, cinq chambres en suite et vaste séjour cathédrale. Cuisine équipée haut de gamme, buanderie, chambre de personnel et double garage. Jardin paysager clôturé.",
+                'couleur' => [27, 58, 63],
+                'photos' => ['1600585154340-be6161a56a0c', '1416331108676-a22ccb276e35', '1600607687939-ce8a6c25118c'],
+            ],
+            [
+                'titre' => 'Appartement neuf 3 pièces — Yoff', 'type' => 'appartement',
+                'quartier' => 'Yoff', 'commune' => 'Yoff', 'adresse' => '4 Cité Aéroport',
+                'loyer' => 380000, 'surface' => 90, 'pieces' => 3, 'chambres' => 2, 'sdb' => 2,
+                'meuble' => false, 'parking' => true, 'climatise' => true, 'vedette' => true,
+                'description' => "Appartement neuf dans une résidence récente à Yoff, à proximité de l'aéroport et de la corniche. Séjour lumineux, deux chambres, cuisine équipée, balcon. Ascenseur, gardiennage et parking.",
+                'couleur' => [45, 84, 89],
+                'photos' => ['1560448204-e02f11c3d0e2', '1522708323590-d24dbb6b0267', '1545324418-cc1a3fa10c00'],
+            ],
+            [
+                'titre' => 'Studio équipé — Sicap Liberté', 'type' => 'studio',
+                'quartier' => 'Sicap Liberté', 'commune' => 'Grand-Dakar', 'adresse' => '27 Sicap Liberté 3',
+                'loyer' => 155000, 'surface' => 30, 'pieces' => 1, 'chambres' => 1, 'sdb' => 1,
+                'meuble' => true, 'parking' => false, 'climatise' => true, 'vedette' => false,
+                'description' => "Studio meublé et climatisé dans un quartier central et animé. Kitchenette équipée, salle d'eau moderne, connexion internet. Idéal pour un étudiant ou un jeune actif.",
+                'couleur' => [156, 67, 38],
+                'photos' => ['1502672260266-1c1ef2d93688', '1493809842364-78817add7ffb', '1522708323590-d24dbb6b0267'],
+            ],
+            [
+                'titre' => 'Appartement 4 pièces vue mer — Corniche Ouest', 'type' => 'appartement',
+                'quartier' => 'Fann', 'commune' => 'Dakar', 'adresse' => '2 Corniche Ouest',
+                'loyer' => 950000, 'surface' => 160, 'pieces' => 4, 'chambres' => 3, 'sdb' => 3,
+                'meuble' => true, 'parking' => true, 'climatise' => true, 'vedette' => false,
+                'description' => "Bel appartement d'angle avec vue panoramique sur l'océan depuis la corniche. Trois chambres, double séjour, cuisine américaine, deux terrasses. Résidence de standing avec ascenseur et gardiennage.",
+                'couleur' => [31, 71, 76],
+                'photos' => ['1600566753086-00f18fb6b3ea', '1560448204-e02f11c3d0e2', '1502005229762-cf1b2da7c5d6'],
+            ],
+            [
+                'titre' => 'Villa avec jardin 4 pièces — Ouakam Cité Avion', 'type' => 'villa',
+                'quartier' => 'Ouakam', 'commune' => 'Ouakam', 'adresse' => '9 Cité Avion',
+                'loyer' => 700000, 'surface' => 230, 'pieces' => 4, 'chambres' => 3, 'sdb' => 2,
+                'meuble' => false, 'parking' => true, 'climatise' => true, 'vedette' => false,
+                'description' => "Villa familiale sur un terrain arboré à Ouakam. Trois chambres, deux salles de bain, séjour double, cuisine indépendante et grande cour. Quartier calme et résidentiel proche des Mamelles.",
+                'couleur' => [93, 64, 55],
+                'photos' => ['1600047509807-ba8f99d2cdde', '1568605114967-8130f3a36994', '1512917774080-9991f1c4c750'],
+            ],
+            [
+                'titre' => 'Plateau de bureaux — Point-E', 'type' => 'bureau',
+                'quartier' => 'Point-E', 'commune' => 'Dakar', 'adresse' => '14 Rue de Louga',
+                'loyer' => 820000, 'surface' => 160, 'pieces' => 5, 'chambres' => 0, 'sdb' => 2,
+                'meuble' => true, 'parking' => true, 'climatise' => true, 'vedette' => false,
+                'description' => "Plateau de bureaux climatisé au Point-E, quartier d'affaires prisé. Open space, trois bureaux fermés, salle de réunion et coin cuisine. Immeuble sécurisé avec ascenseur et parking.",
+                'couleur' => [45, 84, 89],
+                'photos' => ['1497366216548-37526070297c', '1497366754035-f200968a6e72', '1600607687939-ce8a6c25118c'],
+            ],
+            [
+                'titre' => 'Local commercial d\'angle — Grand Yoff', 'type' => 'commerce',
+                'quartier' => 'Grand Yoff', 'commune' => 'Grand-Dakar', 'adresse' => '55 Avenue Bourguiba',
+                'loyer' => 350000, 'surface' => 80, 'pieces' => 2, 'chambres' => 0, 'sdb' => 1,
+                'meuble' => false, 'parking' => false, 'climatise' => false, 'vedette' => false,
+                'description' => "Local commercial d'angle avec double vitrine sur avenue passante. Grande surface de vente, réserve et sanitaire. Fort passage, idéal pour boutique, restauration ou service.",
+                'couleur' => [176, 122, 42],
+                'photos' => ['1441986300917-64674bd600d8', '1497366216548-37526070297c', '1522708323590-d24dbb6b0267'],
+            ],
+            [
+                'titre' => 'Appartement 2 pièces — Sacré-Cœur 3', 'type' => 'appartement',
+                'quartier' => 'Sacré-Cœur', 'commune' => 'Dakar', 'adresse' => '21 Sacré-Cœur 3 Extension',
+                'loyer' => 300000, 'surface' => 65, 'pieces' => 2, 'chambres' => 1, 'sdb' => 1,
+                'meuble' => false, 'parking' => true, 'climatise' => false, 'vedette' => false,
+                'description' => "Appartement calme en étage dans une petite copropriété de Sacré-Cœur. Séjour, chambre spacieuse, cuisine séparée et balcon. Proche des commerces, écoles et transports.",
+                'couleur' => [22, 48, 47],
+                'photos' => ['1522708323590-d24dbb6b0267', '1560448204-e02f11c3d0e2', '1502672260266-1c1ef2d93688'],
+            ],
+            [
+                'titre' => 'Villa duplex meublée 5 pièces — Almadies', 'type' => 'villa',
+                'quartier' => 'Almadies', 'commune' => 'Ngor', 'adresse' => '6 Route de Ngor',
+                'loyer' => 1350000, 'surface' => 300, 'pieces' => 5, 'chambres' => 4, 'sdb' => 3,
+                'meuble' => true, 'parking' => true, 'climatise' => true, 'vedette' => true,
+                'description' => "Villa duplex meublée aux Almadies, à deux pas de la plage. Piscine, terrasse, quatre chambres climatisées, séjour spacieux et cuisine équipée. Résidence sécurisée avec gardiennage 24h/24.",
+                'couleur' => [138, 100, 32],
+                'photos' => ['1613490493576-7fde63acd811', '1580587771525-78b9dba3b914', '1512917774080-9991f1c4c750'],
+            ],
+            [
+                'titre' => 'Terrain constructible 250 m² — Rufisque', 'type' => 'terrain',
+                'quartier' => 'Rufisque', 'commune' => 'Rufisque', 'adresse' => 'Lot 87, Extension Est',
+                'loyer' => 180000, 'surface' => 250, 'pieces' => 0, 'chambres' => 0, 'sdb' => 0,
+                'meuble' => false, 'parking' => false, 'climatise' => false, 'vedette' => false,
+                'description' => "Terrain constructible clôturé dans une zone en plein développement à Rufisque. Accès carrossable, eau et électricité à proximité. Titre foncier disponible. Parfait pour un projet résidentiel.",
+                'couleur' => [122, 111, 74],
+                'photos' => ['1500076656116-558758c991c1', '1524813686514-a57563d77965'],
+            ],
+        ];
+    }
+
     /**
      * Attache les photos d'un bien.
      *
-     * Les visuels sont de vraies photos d'illustration (Unsplash, licence libre)
-     * téléchargées une seule fois puis mises en cache dans storage/app/seed-photos.
-     * Si le réseau est indisponible, on retombe sur un aplat GD : le bien reste
-     * publiable (photo obligatoire dans Bien::portail()).
-     *
-     * @param  array<int, string>  $refs   identifiants Unsplash, 1re = photo principale
-     * @param  array<int, int>     $rgb    teinte du repli GD
+     * @param  array<int, string>  $refs  identifiants Unsplash, 1re = photo principale
+     * @param  array<int, int>     $rgb   teinte du repli GD
      */
     private function creerPhotos(Bien $bien, array $refs, array $rgb): void
     {
