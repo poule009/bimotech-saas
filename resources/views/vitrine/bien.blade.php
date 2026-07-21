@@ -18,24 +18,21 @@
 <div class="wrap detail-top">
     <a class="back-btn" href="{{ route('vitrine.home', $agence->slug) }}#catalogue">← Retour au catalogue</a>
 
-    {{-- ══════════ GALERIE ══════════ --}}
+    {{-- ══════════ GALERIE : grande photo + bande de miniatures ══════════ --}}
     @if($photos->isNotEmpty())
         <div class="gallery">
             <div class="gallery-main"><img id="gallery-main-img" src="{{ $photos->first()->url }}" alt="{{ $bien->titre_fallback }}"></div>
-            <div class="gallery-side">
-                @php $side = $photos->slice(1, 2)->values(); $reste = max(0, $photos->count() - 3); @endphp
-                @for($i = 0; $i < 2; $i++)
-                    @if(isset($side[$i]))
-                        <button type="button" class="gallery-thumb" data-full="{{ $side[$i]->url }}">
-                            <img src="{{ $side[$i]->url }}" alt="">
-                            @if($i === 1 && $reste > 0)<div class="gallery-more">+{{ $reste }} photo{{ $reste > 1 ? 's' : '' }}</div>@endif
-                        </button>
-                    @else
-                        <div class="gallery-thumb"><img src="{{ $photos->first()->url }}" alt=""></div>
-                    @endif
-                @endfor
-            </div>
+            @if($bien->est_en_vedette)<span class="gallery-flag">Coup de cœur</span>@endif
         </div>
+        @if($photos->count() > 1)
+            <div class="gallery-strip">
+                @foreach($photos as $i => $photo)
+                    <button type="button" class="gallery-thumb {{ $i === 0 ? 'active' : '' }}" data-full="{{ $photo->url }}">
+                        <img src="{{ $photo->url }}" alt="">
+                    </button>
+                @endforeach
+            </div>
+        @endif
     @endif
 
     <div class="detail-grid">
@@ -78,7 +75,7 @@
                 @if($whatsappUrl)
                     <a class="contact-btn whatsapp" href="{{ $whatsappUrl }}" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.07-1.32A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2z"/></svg>
-                        Contacter au sujet de ce bien
+                        Demander une visite
                     </a>
                 @endif
 
@@ -104,21 +101,27 @@
     {{-- ══════════ À VOIR AUSSI ══════════ --}}
     @if($autres->isNotEmpty())
         <section style="padding:80px 0 40px;">
-            <div class="sec-eyebrow">À voir aussi</div>
-            <div class="sec-title">Autres biens de l'agence</div>
+            <div class="sec-head">
+                <div class="sec-eyebrow">À voir aussi</div>
+                <div class="sec-title">Autres biens de l'agence</div>
+            </div>
             <div class="listing-grid">
                 @foreach($autres as $b)
                     <a class="listing-card" href="{{ route('vitrine.bien', [$agence->slug, $b->slug]) }}">
                         <div class="listing-media">
                             @if($b->photo_couverture)<img src="{{ $b->photo_couverture->url }}" alt="{{ $b->titre_fallback }}">@endif
                             <span class="listing-type">{{ $b->type_label }}</span>
+                            <span class="listing-tag-price">{{ number_format((float) $b->loyer_mensuel, 0, ',', ' ') }} FCFA</span>
                         </div>
                         <div class="listing-body">
                             <div class="listing-loc">{{ $b->quartier }}{{ $b->ville ? ', ' . $b->ville : '' }}</div>
                             <div class="listing-title">{{ Str::limit($b->titre_fallback, 42) }}</div>
+                            <div class="listing-specs">
+                                @foreach(array_slice($b->specsVitrine(), 0, 3) as $s)<span>{{ $s[0] }} {{ $s[1] }}</span>@endforeach
+                            </div>
                             <div class="listing-footer">
                                 <div class="listing-price">{{ number_format((float) $b->loyer_mensuel, 0, ',', ' ') }} <span>FCFA / mois</span></div>
-                                <div class="listing-arrow">→</div>
+                                <div class="listing-arrow">Voir le bien →</div>
                             </div>
                         </div>
                     </a>

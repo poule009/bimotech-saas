@@ -52,9 +52,10 @@
             </div>
         </a>
         <div class="nav-links">
-            <a href="{{ $accueilUrl }}#quartiers">Quartiers</a>
             <a href="{{ $accueilUrl }}#biens">Biens en vedette</a>
             <a href="{{ $accueilUrl }}#catalogue">Catalogue</a>
+            <a href="{{ $accueilUrl }}#quartiers">Quartiers</a>
+            <a href="{{ $accueilUrl }}#engagements">L'agence</a>
         </div>
         @if($whatsappUrl)
             <a class="nav-cta" href="{{ $whatsappUrl }}" target="_blank" rel="noopener">
@@ -81,10 +82,18 @@
                 <p class="footer-desc">{{ $agence->slogan ?: 'Villas, appartements et terrains gérés directement par notre équipe.' }}</p>
             </div>
             <div class="footer-col">
-                <div class="footer-col-title">L'agence</div>
+                <div class="footer-col-title">Nos biens</div>
                 <a href="{{ $accueilUrl }}#biens">Biens en vedette</a>
                 <a href="{{ $accueilUrl }}#catalogue">Catalogue complet</a>
                 <a href="{{ $accueilUrl }}#quartiers">Par quartier</a>
+            </div>
+            <div class="footer-col">
+                <div class="footer-col-title">L'agence</div>
+                <a href="{{ $accueilUrl }}#types">Types de biens</a>
+                <a href="{{ $accueilUrl }}#engagements">Nos engagements</a>
+                @if($whatsappUrl)
+                    <a href="{{ $whatsappUrl }}" target="_blank" rel="noopener">Nous écrire sur WhatsApp</a>
+                @endif
             </div>
             <div class="footer-col">
                 <div class="footer-col-title">Contact</div>
