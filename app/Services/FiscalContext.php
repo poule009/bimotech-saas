@@ -141,7 +141,7 @@ final class FiscalContext
      * Priorité taux BRS :
      *   1. taux_brs_manuel sur le contrat
      *   2. taux_brs_override sur le profil locataire
-     *   3. Taux légal 15% (appliqué par FiscalService si les deux sont null)
+     *   3. Taux légal 5% — Art. 201 §3 CGI SN (appliqué par FiscalService si les deux sont null)
      */
     public static function fromContrat(
         Contrat  $contrat,

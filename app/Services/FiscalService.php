@@ -1021,8 +1021,10 @@ class FiscalService
             $t = intdiv($n, 10);
             $u = $n % 10;
             // 70-79 : soixante-dix... | 90-99 : quatre-vingt-dix...
+            // 71 = « soixante-et-onze » (liaison « et ») ; 91 = « quatre-vingt-onze » (sans « et »).
             if ($t === 7 || $t === 9) {
-                return ($t === 7 ? 'soixante-' : 'quatre-vingt-') . $units[10 + $u];
+                $liaison = ($t === 7 && $u === 1) ? '-et-' : '-';
+                return ($t === 7 ? 'soixante' : 'quatre-vingt') . $liaison . $units[10 + $u];
             }
             // 80-89 : quatre-vingts, quatre-vingt-un...
             if ($t === 8) {

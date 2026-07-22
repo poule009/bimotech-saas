@@ -158,4 +158,27 @@ class FiscalServiceTest extends TestCase
             'TVA loyer = 18% × loyer HT pour bail commercial'
         );
     }
+
+    // ── Montant en lettres (BRS du bilan fiscal PDF) ─────────────────────────
+
+    #[Test]
+    public function montant_en_lettres_gere_la_liaison_et_de_soixante_et_onze(): void
+    {
+        // 71 = « soixante-et-onze » (liaison « et » obligatoire).
+        $this->assertSame('Soixante-et-onze francs CFA', FiscalService::montantEnLettresFr(71));
+        // 71 000 : la liaison doit aussi apparaître dans les milliers.
+        $this->assertSame('Soixante-et-onze mille francs CFA', FiscalService::montantEnLettresFr(71000));
+    }
+
+    #[Test]
+    public function montant_en_lettres_cas_limites_des_dizaines_speciales(): void
+    {
+        // 70/79 sans « et », 91 sans « et » (seul 71 porte la liaison).
+        $this->assertSame('Soixante-dix francs CFA',            FiscalService::montantEnLettresFr(70));
+        $this->assertSame('Soixante-dix-neuf francs CFA',       FiscalService::montantEnLettresFr(79));
+        $this->assertSame('Quatre-vingt-onze francs CFA',       FiscalService::montantEnLettresFr(91));
+        $this->assertSame('Quatre-vingt-dix-neuf francs CFA',   FiscalService::montantEnLettresFr(99));
+        // Non-régression sur la liaison « et » des dizaines normales.
+        $this->assertSame('Vingt-et-un francs CFA',             FiscalService::montantEnLettresFr(21));
+    }
 }
