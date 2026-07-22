@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -278,73 +277,43 @@ class SubscriptionController extends Controller
         ], $resultat['success'] ? 200 : 422);
     }
 
-    // ✅ Verrou DB + idempotence pour éviter les doubles activations.
-    // PayTech redirige vers success_url?ref={ref_command} après paiement.
-    // On utilise ref_command (pas un token) pour identifier le paiement.
+    /**
+     * Page de retour PayTech (success_url?ref={ref_command}).
+     *
+     * SÉCURITÉ — cette page n'ACTIVE JAMAIS l'abonnement. La redirection
+     * `success_url` est un retour NAVIGATEUR : le paramètre `ref` est falsifiable
+     * et son affichage ne prouve aucun paiement. La seule source de vérité est
+     * l'IPN signé (callbackPaytech, serveur→serveur), qui a déjà activé
+     * l'abonnement et enregistré le SubscriptionPayment. Ici on se contente
+     * d'AFFICHER l'état : confirmation si l'IPN a payé, sinon « en vérification ».
+     */
     public function succes(Request $request): View|RedirectResponse
     {
-        $ref    = $request->query('ref');
+        $ref    = trim((string) $request->query('ref', ''));
         $agency = Auth::user()->agency;
 
-        // Un utilisateur sans agence ne devrait jamais atteindre cette page,
-        // mais on guard explicitement pour satisfaire l'analyse statique.
         if (! $agency) {
             return redirect()->route('subscription.index');
         }
 
-        if (! $ref) {
-            return redirect()->route('subscription.index')
-                ->with('info', 'Votre paiement est en cours de traitement.');
-        }
+        // L'intention de paiement stockée en session ne doit rien déclencher :
+        // on la purge systématiquement (l'activation ne dépend que de l'IPN).
+        session()->forget(['subscription_plan_pending', 'subscription_plan_niveau_pending', 'subscription_agency_id']);
 
-        try {
-            $planSession       = session('subscription_plan_pending');
-            $planNiveauSession = session('subscription_plan_niveau_pending', 'pro');
+        // Le paiement est-il RÉELLEMENT confirmé (par l'IPN) pour cette agence ?
+        $paiementConfirme = $ref !== '' && SubscriptionPayment::where('agency_id', $agency->id)
+            ->where('reference', $ref)
+            ->whereIn('statut', SubscriptionPayment::statutsDuBucket('confirme'))
+            ->exists();
 
-            if (! $planSession || ! array_key_exists($planSession, Subscription::LABELS)) {
-                // Si la session a expiré, on vérifie via l'IPN déjà traité
-                if (SubscriptionPayment::where('reference', $ref)->where('statut', 'payé')->exists()) {
-                    session()->forget(['subscription_plan_pending', 'subscription_plan_niveau_pending', 'subscription_agency_id']);
-                    return view('subscription.succes', compact('agency'));
-                }
-
-                return redirect()->route('subscription.index')
-                    ->with('info', 'Votre paiement est en cours de vérification. Veuillez patienter.');
-            }
-
-            // Activation avec verrou — impossible de l'activer deux fois en même temps
-            DB::transaction(function () use ($agency, $planSession, $planNiveauSession, $ref) {
-                $subscription = Subscription::where('agency_id', $agency->id)
-                    ->lockForUpdate()
-                    ->first();
-
-                if (! $subscription) {
-                    $subscription = Subscription::create([
-                        'agency_id'        => $agency->id,
-                        'statut'           => 'essai',
-                        'date_debut_essai' => now(),
-                        'date_fin_essai'   => now()->addDays(30),
-                    ]);
-                }
-
-                if (! SubscriptionPayment::where('reference', $ref)->exists()) {
-                    $subscription->activer($planSession, $ref, 'paytech', $planNiveauSession);
-                }
-            });
-
-            session()->forget(['subscription_plan_pending', 'subscription_plan_niveau_pending', 'subscription_agency_id']);
-
+        if ($paiementConfirme) {
             return view('subscription.succes', compact('agency'));
-
-        } catch (\Throwable $e) {
-            Log::error('Erreur retour PayTech succes()', [
-                'ref'       => $ref,
-                'agency_id' => $agency->id,
-                'error'     => $e->getMessage(),
-            ]);
-            return redirect()->route('subscription.index')
-                ->with('info', 'Votre paiement est en cours de vérification.');
         }
+
+        // Pas encore confirmé (délai réseau de l'IPN possible) : on informe,
+        // sans rien activer ni deviner.
+        return redirect()->route('subscription.index')
+            ->with('info', 'Votre paiement est en cours de vérification — votre accès sera mis à jour dès confirmation par notre prestataire.');
     }
 
     public function echec(): View

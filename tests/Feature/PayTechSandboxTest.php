@@ -95,7 +95,7 @@ class PayTechSandboxTest extends TestCase
         $this->assertDatabaseHas('subscription_payments', [
             'agency_id' => $this->agency->id,
             'plan'      => 'mensuel',
-            'statut'    => 'payé',
+            'statut'    => 'confirme',
         ]);
     }
 
@@ -243,7 +243,7 @@ class PayTechSandboxTest extends TestCase
         $this->assertDatabaseHas('subscription_payments', [
             'agency_id' => $this->agency->id,
             'reference' => 'REF-IPN-001',
-            'statut'    => 'payé',
+            'statut'    => 'confirme',
         ]);
     }
 
@@ -321,22 +321,49 @@ class PayTechSandboxTest extends TestCase
     }
 
     #[Test]
-    public function page_succes_avec_ref_et_plan_en_session_active_labonnement(): void
+    public function page_succes_nactive_pas_labonnement_sans_paiement_confirme(): void
     {
-        config(['services.paytech.mode' => 'simulation']);
+        // ANTI-FRAUDE : un admin qui a « intentionné » un paiement (session posée)
+        // puis frappe success_url avec un ref falsifié SANS avoir payé ne doit
+        // JAMAIS obtenir d'activation. Seul l'IPN signé active.
+        config(['services.paytech.mode' => 'test']);
 
         session(['subscription_plan_pending' => 'annuel']);
 
         $this->actingAs($this->admin)
-            ->get(route('subscription.succes', ['ref' => 'BIMO-1-ABCDEF12']))
-            ->assertOk()
-            ->assertViewIs('subscription.succes');
+            ->get(route('subscription.succes', ['ref' => 'BIMO-1-FALSIFIE']))
+            ->assertRedirect(route('subscription.index'));
 
+        // L'abonnement reste en essai — rien n'a été activé.
         $this->assertDatabaseHas('subscriptions', [
             'agency_id' => $this->agency->id,
-            'statut'    => 'actif',
-            'plan'      => 'annuel',
+            'statut'    => 'essai',
         ]);
+        $this->assertDatabaseMissing('subscription_payments', [
+            'agency_id' => $this->agency->id,
+            'reference' => 'BIMO-1-FALSIFIE',
+        ]);
+    }
+
+    #[Test]
+    public function page_succes_affiche_la_confirmation_si_lipn_a_deja_paye(): void
+    {
+        // L'IPN (serveur→serveur) a activé et enregistré le paiement 'confirme'.
+        SubscriptionPayment::create([
+            'subscription_id' => $this->subscription->id,
+            'agency_id'       => $this->agency->id,
+            'plan'            => 'annuel',
+            'plan_niveau'     => 'pro',
+            'montant'         => 50000,
+            'statut'          => 'confirme',
+            'reference'       => 'REF-PAYEE-OK',
+            'methode'         => 'paytech',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->get(route('subscription.succes', ['ref' => 'REF-PAYEE-OK']))
+            ->assertOk()
+            ->assertViewIs('subscription.succes');
     }
 
     #[Test]
