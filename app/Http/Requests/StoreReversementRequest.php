@@ -30,7 +30,29 @@ class StoreReversementRequest extends FormRequest
                     }
                 },
             ],
-            'montant'          => ['required', 'numeric', 'min:1'],
+            'montant'          => [
+                'required', 'numeric', 'min:1',
+                // Garde-fou anti sur-versement : on ne peut pas reverser plus que le
+                // solde réellement dû au propriétaire (évite un solde mandant négatif
+                // silencieux sur une faute de frappe). Même solde que celui affiché à
+                // l'écran (ComptabiliteService::compteMandant).
+                function ($attr, $value, $fail) {
+                    $proprietaireId = $this->input('proprietaire_id');
+                    if (! $proprietaireId) {
+                        return; // l'absence/invalidité est gérée par la règle proprietaire_id
+                    }
+
+                    $agencyId = Auth::user()->agency_id;
+                    $solde = (float) app(\App\Services\ComptabiliteService::class)
+                        ->compteMandant($agencyId, (int) $proprietaireId)['solde_restant'];
+
+                    // Tolérance d'un franc pour absorber les arrondis d'affichage.
+                    if ((float) $value > $solde + 1) {
+                        $fail('Le montant dépasse le solde dû au propriétaire ('
+                            . number_format(max(0, $solde), 0, ',', ' ') . ' FCFA disponible).');
+                    }
+                },
+            ],
             'date_reversement' => ['required', 'date'],
             'mode_paiement'    => ['required', 'in:' . implode(',', array_keys(ReversementProprietaire::MODES_PAIEMENT))],
             'reference'        => ['nullable', 'string', 'max:255'],

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class PaiementController extends Controller implements HasMiddleware
@@ -265,9 +266,14 @@ class PaiementController extends Controller implements HasMiddleware
             ->where('agency_id', $agencyId)
             ->findOrFail($validated['contrat_id']);
 
-        // Vérifier si c'est le premier paiement du contrat
-        // (anti-doublon déjà géré par StorePaiementRequest::rules())
-        $estPremier = Paiement::where('contrat_id', $contrat->id)->count() === 0;
+        // Vérifier si c'est le premier paiement du contrat.
+        // On EXCLUT les annulés (cohérent avec l'anti-doublon de StorePaiementRequest,
+        // qui les ignore aussi) : un 1er paiement annulé puis recréé redevient « premier »
+        // et porte à nouveau frais d'agence + caution + DGID, qui avaient été voidés
+        // avec l'annulation.
+        $estPremier = Paiement::where('contrat_id', $contrat->id)
+            ->where('statut', '!=', 'annule')
+            ->count() === 0;
 
         // ── Prorata temporel (premier paiement en cours de mois) ────────────
         // Si l'entrée n'est pas le 1er du mois, on proratise loyer + charges + TOM.
@@ -299,6 +305,26 @@ class PaiementController extends Controller implements HasMiddleware
         $reference = 'PAY-' . strtoupper(Str::random(8));
 
         $paiement = DB::transaction(function () use ($result, $agencyId, $contrat, $validated, $ctx, $estPremier, $reference) {
+            // ── Verrou anti-doublon concurrent ──────────────────────────────
+            // L'anti-doublon de StorePaiementRequest est applicatif (SELECT exists) :
+            // deux requêtes concurrentes (double-clic) peuvent le franchir avant
+            // qu'aucune n'ait commité. On sérialise sur la ligne du contrat puis on
+            // re-vérifie SOUS verrou → un seul paiement non-annulé par période.
+            Contrat::whereKey($contrat->id)->lockForUpdate()->first();
+
+            $periodeDate = Carbon::parse($validated['periode'])->startOfMonth();
+            $doublon = Paiement::where('contrat_id', $contrat->id)
+                ->whereYear('periode', $periodeDate->year)
+                ->whereMonth('periode', $periodeDate->month)
+                ->where('statut', '!=', 'annule')
+                ->exists();
+
+            if ($doublon) {
+                throw ValidationException::withMessages([
+                    'periode' => "Un paiement existe déjà pour {$periodeDate->translatedFormat('F Y')} sur ce contrat.",
+                ]);
+            }
+
             $p = Paiement::create(array_merge(
                 $result->toPaiementFields(),
                 [

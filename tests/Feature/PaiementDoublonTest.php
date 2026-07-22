@@ -133,4 +133,40 @@ class PaiementDoublonTest extends TestCase
                 ->count()
         );
     }
+
+    /**
+     * #3 — Un 1er paiement annulé puis recréé doit REDEVENIR « premier »
+     * (frais d'agence + caution + DGID re-portés), car ils avaient été voidés
+     * avec l'annulation. est_premier ignore désormais les annulés.
+     */
+    public function test_paiement_recree_apres_annulation_est_premier(): void
+    {
+        $this->actingAs($this->admin);
+
+        // 1er paiement (premier) puis annulé
+        Paiement::factory()->create([
+            'contrat_id'           => $this->contrat->id,
+            'periode'              => Carbon::now()->subMonth()->startOfMonth()->toDateString(),
+            'statut'               => 'annule',
+            'est_premier_paiement' => true,
+        ]);
+
+        // Recréation d'un paiement sur le contrat (mois courant, aucun paiement non-annulé)
+        $this->post(route('admin.paiements.store'), [
+            'contrat_id'    => $this->contrat->id,
+            'periode'       => Carbon::now()->startOfMonth()->format('Y-m-d'),
+            'mode_paiement' => 'virement',
+            'date_paiement' => now()->format('Y-m-d'),
+        ]);
+
+        $nouveau = Paiement::where('contrat_id', $this->contrat->id)
+            ->where('statut', 'valide')
+            ->first();
+
+        $this->assertNotNull($nouveau);
+        $this->assertTrue(
+            (bool) $nouveau->est_premier_paiement,
+            'Le paiement recréé après annulation du 1er doit être marqué « premier ».'
+        );
+    }
 }
