@@ -30,9 +30,19 @@ class BienController extends Controller
             : null;
         $q = trim((string) $request->input('q', ''));
 
+        // Filtre par type de bien (appartement, villa, terrain…). Ne s'applique
+        // qu'aux biens simples : un immeuble est un conteneur, pas un « type ».
+        // Type et chip simples/immeubles sont donc deux axes exclusifs — un type
+        // actif masque les immeubles.
+        $type = array_key_exists($request->input('type'), Bien::TYPES)
+            ? $request->input('type')
+            : null;
+
         // ── Biens simples ──────────────────────────────────────────────────
+        // Affichés sauf si le chip « Immeubles » est actif — mais un type
+        // sélectionné force l'affichage des biens simples (le type l'emporte).
         $biensSimples = collect();
-        if ($filter !== 'immeubles') {
+        if ($filter !== 'immeubles' || $type) {
             $bq = Bien::standalone()
                 ->select(['id', 'agency_id', 'proprietaire_id', 'immeuble_id', 'reference',
                           'titre', 'type', 'adresse', 'quartier', 'ville', 'statut', 'loyer_mensuel'])
@@ -42,6 +52,10 @@ class BienController extends Controller
                     'photos' => fn ($p) => $p->select('id', 'bien_id', 'chemin', 'est_principale', 'ordre')
                         ->orderByDesc('est_principale')->orderBy('ordre'),
                 ]);
+
+            if ($type) {
+                $bq->where('type', $type);
+            }
 
             if ($q !== '') {
                 $bq->where(function ($sub) use ($q) {
@@ -57,8 +71,9 @@ class BienController extends Controller
         }
 
         // ── Immeubles avec occupation ──────────────────────────────────────
+        // Masqués dès qu'un type est actif (un immeuble n'a pas de type).
         $immeubles = collect();
-        if ($filter !== 'simples') {
+        if ($filter !== 'simples' && ! $type) {
             $iq = Immeuble::select(['id', 'agency_id', 'proprietaire_id', 'nom', 'adresse', 'ville', 'nombre_niveaux'])
                 ->with('proprietaire:id,name')
                 ->withCount([
@@ -83,7 +98,7 @@ class BienController extends Controller
         ];
         $counts['total'] = $counts['simples'] + $counts['immeubles'];
 
-        return view('biens.index', compact('biensSimples', 'immeubles', 'filter', 'q', 'counts'));
+        return view('biens.index', compact('biensSimples', 'immeubles', 'filter', 'type', 'q', 'counts'));
     }
 
     /**

@@ -42,13 +42,32 @@
 
     {{-- Barre d'outils --}}
     <div class="flex flex-wrap items-center gap-3 mb-6">
-        <form method="GET" class="flex-1 min-w-[220px] max-w-[340px]">
-            @if($filter)<input type="hidden" name="filter" value="{{ $filter }}">@endif
-            <div class="flex items-center gap-2.5 bg-white border border-line rounded-[11px] px-4 py-2.5">
+        {{-- Recherche + filtre par type (un même form auto-soumis) --}}
+        <form method="GET" x-data="agencyFilters" class="flex items-center gap-2.5 flex-wrap">
+            {{-- Filtre par type et chip simples/immeubles sont exclusifs :
+                 la recherche ne conserve que celui qui est actif. --}}
+            @if($type)
+                <input type="hidden" name="type" value="{{ $type }}">
+            @elseif($filter)
+                <input type="hidden" name="filter" value="{{ $filter }}">
+            @endif
+            <label class="flex items-center gap-2.5 bg-white border border-line rounded-[11px] px-4 py-2.5 flex-1 min-w-[220px] max-w-[300px]">
                 <svg class="w-4 h-4 text-muted shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
                 <input type="text" name="q" value="{{ $q }}" placeholder="Rechercher un bien, une adresse…"
                        class="w-full bg-transparent outline-none text-[14px] text-ink placeholder:text-muted">
-            </div>
+            </label>
+
+            {{-- Sélection du type. Choisir un type efface le chip simples/immeubles
+                 (pas de champ « filter » ici) → les deux axes restent exclusifs. --}}
+            <select name="type" x-on:change="apply" aria-label="Filtrer par type de bien"
+                    class="bg-white border border-line rounded-[11px] px-4 py-2.5 text-[13.5px] font-medium text-ink cursor-pointer">
+                <option value="">Tous les types</option>
+                @foreach(\App\Models\Bien::TYPES as $val => $label)
+                    <option value="{{ $val }}" @selected($type === $val)>{{ $label }}</option>
+                @endforeach
+            </select>
+
+            <noscript><button type="submit" class="text-[13px] font-semibold text-teal px-2">Filtrer</button></noscript>
         </form>
 
         @php
@@ -57,7 +76,9 @@
         @endphp
         <div class="flex items-center gap-2 flex-wrap">
             @foreach($chips as $label => $val)
-                @php $isActive = $filter === $val || (is_null($val) && ! $filter); @endphp
+                {{-- Un type actif = aucun chip actif (axes exclusifs). Cliquer un
+                     chip efface le type (absent de l'URL construite). --}}
+                @php $isActive = ! $type && ($filter === $val || (is_null($val) && ! $filter)); @endphp
                 <a href="{{ route('admin.biens.index', array_filter(['q' => $q, 'filter' => $val])) }}"
                    @class([
                        'text-[13px] font-bold rounded-full px-4 py-2 border flex items-center gap-1.5 transition-colors',
@@ -83,9 +104,11 @@
             <div class="w-12 h-12 bg-paper-dim rounded-xl flex items-center justify-center mx-auto mb-4">
                 <svg class="w-6 h-6 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
             </div>
-            @if($q || $filter)
+            @if($q || $filter || $type)
                 <div class="font-display font-semibold text-[16px] mb-1.5">Aucun résultat</div>
-                <p class="text-[13.5px] text-muted mb-5">Aucun bien ne correspond à votre recherche.</p>
+                <p class="text-[13.5px] text-muted mb-5">
+                    @if($type)Aucun bien de type « {{ \App\Models\Bien::TYPES[$type] }} » ne correspond à votre recherche.@else Aucun bien ne correspond à votre recherche.@endif
+                </p>
                 <a href="{{ route('admin.biens.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-line text-ink/70 font-bold text-[13px] rounded-[10px] hover:border-teal transition-colors">Effacer les filtres</a>
             @else
                 <div class="font-display font-semibold text-[16px] mb-1.5">Aucun bien</div>

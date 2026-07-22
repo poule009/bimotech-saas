@@ -250,4 +250,57 @@ class BienCrudTest extends TestCase
              ->assertSee('BIEN-AGENCE-1')
              ->assertDontSee('BIEN-AGENCE-2');
     }
+
+    #[Test]
+    public function le_filtre_par_type_ne_montre_que_les_biens_du_type_choisi()
+    {
+        $admin   = $this->adminAvecAgence();
+        $proprio = $this->proprietaire($admin);
+
+        Bien::factory()->create([
+            'agency_id'       => $admin->agency_id,
+            'proprietaire_id' => $proprio->id,
+            'type'            => 'terrain',
+            'reference'       => 'REF-TERRAIN',
+        ]);
+        Bien::factory()->create([
+            'agency_id'       => $admin->agency_id,
+            'proprietaire_id' => $proprio->id,
+            'type'            => 'appartement',
+            'reference'       => 'REF-APPART',
+        ]);
+
+        // Filtre type=terrain : seul le terrain apparaît.
+        $this->actingAs($admin)
+             ->get(route('admin.biens.index', ['type' => 'terrain']))
+             ->assertOk()
+             ->assertSee('REF-TERRAIN')
+             ->assertDontSee('REF-APPART');
+
+        // Sans filtre : les deux apparaissent.
+        $this->actingAs($admin)
+             ->get(route('admin.biens.index'))
+             ->assertSee('REF-TERRAIN')
+             ->assertSee('REF-APPART');
+    }
+
+    #[Test]
+    public function un_type_invalide_est_ignore_et_affiche_tout()
+    {
+        $admin   = $this->adminAvecAgence();
+        $proprio = $this->proprietaire($admin);
+
+        Bien::factory()->create([
+            'agency_id'       => $admin->agency_id,
+            'proprietaire_id' => $proprio->id,
+            'type'            => 'villa',
+            'reference'       => 'REF-VILLA',
+        ]);
+
+        // type=nimportequoi n'est pas dans Bien::TYPES → ignoré (pas de filtre).
+        $this->actingAs($admin)
+             ->get(route('admin.biens.index', ['type' => 'nimportequoi']))
+             ->assertOk()
+             ->assertSee('REF-VILLA');
+    }
 }
