@@ -11,9 +11,15 @@ use Tests\TestCase;
 /**
  * CheckSubscriptionsTest — Tests de la commande app:check-subscriptions.
  *
+ * IMPORTANT — la commande marque `statut='expiré'` mais NE touche JAMAIS à
+ * `agency.actif` : la suspension d'accès est calculée par Subscription::etatEffectif()
+ * (dates) et appliquée par le middleware CheckSubscription (grâce = lecture seule,
+ * suspendu = bloqué). `agency.actif=false` est réservé à une désactivation MANUELLE
+ * du SuperAdmin. Le brief exige que les données d'une agence suspendue soient conservées.
+ *
  * Couvre :
- *  - Essai expiré → statut='expiré', agency.actif=false
- *  - Abonnement actif expiré → statut='expiré', agency.actif=false
+ *  - Essai expiré → statut='expiré', agency.actif INCHANGÉ (true)
+ *  - Abonnement actif expiré → statut='expiré', agency.actif INCHANGÉ (true)
  *  - Essai encore valide → ignoré
  *  - Abonnement actif encore valide → ignoré
  *  - Aucune subscription expirée → rien à faire
@@ -27,7 +33,7 @@ class CheckSubscriptionsTest extends TestCase
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]
-    public function essai_expire_est_marque_expire_et_agence_desactivee(): void
+    public function essai_expire_est_marque_expire_sans_desactiver_lagence(): void
     {
         $agency = Agency::factory()->create(['actif' => true]);
 
@@ -35,7 +41,7 @@ class CheckSubscriptionsTest extends TestCase
             'agency_id'         => $agency->id,
             'statut'            => 'essai',
             'date_debut_essai'  => now()->subDays(40),
-            'date_fin_essai'    => now()->subDays(10), // expiré il y a 10 jours
+            'date_fin_essai'    => now()->subDays(10), // expiré il y a 10 jours (hors grâce)
         ]);
 
         $this->artisan('app:check-subscriptions')->assertSuccessful();
@@ -45,9 +51,11 @@ class CheckSubscriptionsTest extends TestCase
             'statut'    => 'expiré',
         ]);
 
+        // L'agence reste ACTIVE : la suspension d'accès est calculée (etatEffectif +
+        // middleware), pas via actif=false. Les données sont conservées.
         $this->assertDatabaseHas('agencies', [
             'id'    => $agency->id,
-            'actif' => false,
+            'actif' => true,
         ]);
     }
 
@@ -56,7 +64,7 @@ class CheckSubscriptionsTest extends TestCase
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]
-    public function abonnement_actif_expire_est_marque_expire_et_agence_desactivee(): void
+    public function abonnement_actif_expire_est_marque_expire_sans_desactiver_lagence(): void
     {
         $agency = Agency::factory()->create(['actif' => true]);
 
@@ -65,7 +73,7 @@ class CheckSubscriptionsTest extends TestCase
             'statut'                => 'actif',
             'plan'                  => 'mensuel',
             'date_debut_abonnement' => now()->subMonths(2),
-            'date_fin_abonnement'   => now()->subDays(5), // expiré il y a 5 jours
+            'date_fin_abonnement'   => now()->subDays(10), // expiré il y a 10 jours (hors grâce)
         ]);
 
         $this->artisan('app:check-subscriptions')->assertSuccessful();
@@ -75,9 +83,10 @@ class CheckSubscriptionsTest extends TestCase
             'statut'    => 'expiré',
         ]);
 
+        // L'agence reste ACTIVE (données conservées ; accès géré par etatEffectif).
         $this->assertDatabaseHas('agencies', [
             'id'    => $agency->id,
-            'actif' => false,
+            'actif' => true,
         ]);
     }
 
@@ -157,7 +166,7 @@ class CheckSubscriptionsTest extends TestCase
     // ════════════════════════════════════════════════════════════════════════
 
     #[Test]
-    public function seules_les_agences_expirees_sont_desactivees(): void
+    public function seules_les_subscriptions_expirees_sont_marquees(): void
     {
         $agenceExpiree = Agency::factory()->create(['actif' => true]);
         $agenceValide  = Agency::factory()->create(['actif' => true]);
@@ -165,7 +174,7 @@ class CheckSubscriptionsTest extends TestCase
         Subscription::factory()->create([
             'agency_id'         => $agenceExpiree->id,
             'statut'            => 'essai',
-            'date_fin_essai'    => now()->subDay(),
+            'date_fin_essai'    => now()->subDays(10), // hors grâce (5j)
         ]);
 
         Subscription::factory()->create([
@@ -176,7 +185,12 @@ class CheckSubscriptionsTest extends TestCase
 
         $this->artisan('app:check-subscriptions')->assertSuccessful();
 
-        $this->assertDatabaseHas('agencies', ['id' => $agenceExpiree->id, 'actif' => false]);
+        // Seule l'expirée passe à 'expiré' ; la valide reste 'essai'.
+        $this->assertDatabaseHas('subscriptions', ['agency_id' => $agenceExpiree->id, 'statut' => 'expiré']);
+        $this->assertDatabaseHas('subscriptions', ['agency_id' => $agenceValide->id,  'statut' => 'essai']);
+
+        // Aucune agence n'est désactivée par la commande (données conservées).
+        $this->assertDatabaseHas('agencies', ['id' => $agenceExpiree->id, 'actif' => true]);
         $this->assertDatabaseHas('agencies', ['id' => $agenceValide->id,  'actif' => true]);
     }
 }
