@@ -43,7 +43,8 @@ class User extends Authenticatable
         'telephone' => 'Téléphone',
         'role'      => 'Rôle',
         'agency_id' => 'Agence',
-        'actif'     => 'Actif',
+        // Note : pas de colonne `actif` sur users — la désactivation est agence-level
+        // (agencies.actif) + soft-delete. Ne pas ré-ajouter de label pour un champ inexistant.
     ];
 
     protected $fillable = [

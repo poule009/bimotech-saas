@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Support\PlatformSettings;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -23,6 +24,11 @@ abstract class TestCase extends BaseTestCase
 
         if (in_array(RefreshDatabase::class, class_uses_recursive(static::class), true)) {
             $this->seed(PermissionsSeeder::class);
+
+            // Le 2FA superadmin est OBLIGATOIRE par défaut en prod (PlatformSettings).
+            // On le neutralise pour la suite afin que les tests superadmin existants
+            // n'aient pas à enrôler le 2FA ; les tests dédiés le réactivent explicitement.
+            app(PlatformSettings::class)->set('securite_2fa_obligatoire', false);
         }
     }
 }

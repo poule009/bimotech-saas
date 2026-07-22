@@ -32,6 +32,21 @@ class GoogleAuthController extends Controller
                 ->withErrors(['google' => 'Connexion Google échouée. Veuillez réessayer.']);
         }
 
+        // Durcissement OAuth : ne jamais lier/créer un compte sur un email que Google
+        // n'a pas lui-même vérifié (sinon usurpation possible via un email non prouvé).
+        // Le claim s'appelle `email_verified` (OIDC) ou `verified_email` (userinfo v2).
+        $raw = (array) ($googleUser->user ?? []);
+        $emailVerifie = filter_var(
+            $raw['email_verified'] ?? $raw['verified_email'] ?? false,
+            FILTER_VALIDATE_BOOLEAN
+        );
+
+        if (! $emailVerifie) {
+            Log::warning('Google OAuth : email non vérifié refusé', ['email' => $googleUser->getEmail()]);
+            return redirect()->route('agency.register')
+                ->withErrors(['google' => "Votre adresse Google n'est pas vérifiée. Utilisez une adresse vérifiée ou l'inscription classique."]);
+        }
+
         // Compte existant avec ce google_id → connexion directe
         $user = User::where('google_id', $googleUser->getId())->first();
 

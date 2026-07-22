@@ -28,12 +28,15 @@ class GoogleAuthControllerTest extends TestCase
     private function mockGoogleUser(
         string $id    = 'google-id-123',
         string $name  = 'Ibrahima Fall',
-        string $email = 'ibrahima@gmail.com'
+        string $email = 'ibrahima@gmail.com',
+        bool   $emailVerifie = true
     ): \Mockery\MockInterface {
         $mock = Mockery::mock(\Laravel\Socialite\Two\User::class);
         $mock->shouldReceive('getId')->andReturn($id);
         $mock->shouldReceive('getName')->andReturn($name);
         $mock->shouldReceive('getEmail')->andReturn($email);
+        // Raw payload Google : porte le claim email_verified lu par le contrôleur.
+        $mock->user = ['email_verified' => $emailVerifie];
 
         return $mock;
     }
@@ -41,10 +44,11 @@ class GoogleAuthControllerTest extends TestCase
     private function fakeSocialiteUser(
         string $id    = 'google-id-123',
         string $name  = 'Ibrahima Fall',
-        string $email = 'ibrahima@gmail.com'
+        string $email = 'ibrahima@gmail.com',
+        bool   $emailVerifie = true
     ): void {
         Socialite::shouldReceive('driver->user')
-            ->andReturn($this->mockGoogleUser($id, $name, $email));
+            ->andReturn($this->mockGoogleUser($id, $name, $email, $emailVerifie));
     }
 
     // ── Redirection vers Google ────────────────────────────────────────────
@@ -172,6 +176,31 @@ class GoogleAuthControllerTest extends TestCase
         $this->get(route('auth.google.callback'))
              ->assertRedirect(route('agency.register'))
              ->assertSessionHasErrors('google');
+    }
+
+    // ── Sécurité : email Google non vérifié ───────────────────────────────
+
+    #[Test]
+    public function callback_refuse_un_email_google_non_verifie(): void
+    {
+        // Un compte existe déjà avec cet email : sans le garde-fou, Google le lierait
+        // et connecterait l'attaquant. Email non vérifié → refus, aucune liaison.
+        $agency = Agency::factory()->create(['actif' => true]);
+        $user = User::factory()->create([
+            'agency_id' => $agency->id,
+            'role'      => 'admin',
+            'google_id' => null,
+            'email'     => 'victime@gmail.com',
+        ]);
+
+        $this->fakeSocialiteUser('attaquant-google-id', 'Attaquant', 'victime@gmail.com', emailVerifie: false);
+
+        $this->get(route('auth.google.callback'))
+             ->assertRedirect(route('agency.register'))
+             ->assertSessionHasErrors('google');
+
+        $this->assertGuest();
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'google_id' => null]);
     }
 
     // ── Formulaire de completion ──────────────────────────────────────────
