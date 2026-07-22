@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAgencyScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Auth;
 
 /**
  * Lot d'import (voir migration create_import_batches_table).
@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Auth;
  */
 class ImportBatch extends Model
 {
+    // Isolation par agence : trait standard (filtre import_batches.agency_id).
+    use HasAgencyScope;
+
     protected $fillable = [
         'agency_id', 'user_id', 'type', 'statut',
         'original_filename', 'rows', 'codes',
@@ -27,21 +30,6 @@ class ImportBatch extends Model
         'committed_at' => 'datetime',
         'annule_at'    => 'datetime',
     ];
-
-    /** Isolation par agence (mêmes règles que le reste de l'app). */
-    protected static function booted(): void
-    {
-        static::addGlobalScope('agency', function ($builder) {
-            if (! Auth::check() || Auth::user()->role === 'superadmin') {
-                return;
-            }
-            if (! Auth::user()->agency_id) {
-                $builder->whereRaw('1 = 0');
-                return;
-            }
-            $builder->where('import_batches.agency_id', Auth::user()->agency_id);
-        });
-    }
 
     public const TYPES = [
         'proprietaires' => 'Propriétaires',

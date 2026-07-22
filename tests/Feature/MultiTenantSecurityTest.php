@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Agency;
+use App\Models\AgencyFeatureOverride;
 use App\Models\Bien;
 use App\Models\Contrat;
+use App\Models\EtatTrimestrielDownload;
 use App\Models\Paiement;
 use App\Models\Subscription;
+use App\Models\TvaDeclaration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
@@ -192,6 +195,81 @@ class MultiTenantSecurityTest extends TestCase
         $this->actingAs($admin1)
              ->get(route('admin.users.show', $proprioEtranger))
              ->assertForbidden();
+    }
+
+    // ── Isolation des modèles fiscaux / plateforme ────────────────────────
+    // Ces modèles portent agency_id mais n'avaient AUCUN scope tenant : une
+    // requête sans where() explicite fuyait entre agences. Scope désormais posé.
+
+    #[Test]
+    public function admin_ne_voit_pas_les_declarations_tva_dune_autre_agence()
+    {
+        [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
+        [$agence2, $admin2] = $this->creerAgenceAvecAdmin();
+
+        // Créées hors session → ni scope ni auto-injection ne s'appliquent
+        TvaDeclaration::create(['agency_id' => $agence1->id, 'mois' => 1, 'annee' => 2026]);
+        TvaDeclaration::create(['agency_id' => $agence2->id, 'mois' => 1, 'annee' => 2026]);
+
+        $this->actingAs($admin1);
+
+        $this->assertSame(1, TvaDeclaration::count());
+        $this->assertSame($agence1->id, TvaDeclaration::sole()->agency_id);
+    }
+
+    #[Test]
+    public function admin_ne_voit_pas_les_telechargements_trimestriels_dune_autre_agence()
+    {
+        [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
+        [$agence2, $admin2] = $this->creerAgenceAvecAdmin();
+
+        EtatTrimestrielDownload::create([
+            'agency_id' => $agence1->id, 'trimestre' => 1, 'annee' => 2026,
+            'downloaded_at' => now(), 'downloaded_by' => $admin1->id,
+        ]);
+        EtatTrimestrielDownload::create([
+            'agency_id' => $agence2->id, 'trimestre' => 1, 'annee' => 2026,
+            'downloaded_at' => now(), 'downloaded_by' => $admin2->id,
+        ]);
+
+        $this->actingAs($admin1);
+
+        $this->assertSame(1, EtatTrimestrielDownload::count());
+        $this->assertSame($agence1->id, EtatTrimestrielDownload::sole()->agency_id);
+    }
+
+    #[Test]
+    public function admin_ne_voit_pas_les_feature_overrides_dune_autre_agence()
+    {
+        [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
+        [$agence2, $admin2] = $this->creerAgenceAvecAdmin();
+
+        AgencyFeatureOverride::create(['agency_id' => $agence1->id, 'feature' => 'fiscalite', 'enabled' => true]);
+        AgencyFeatureOverride::create(['agency_id' => $agence2->id, 'feature' => 'fiscalite', 'enabled' => false]);
+
+        $this->actingAs($admin1);
+
+        $this->assertSame(1, AgencyFeatureOverride::count());
+        $this->assertSame($agence1->id, AgencyFeatureOverride::sole()->agency_id);
+    }
+
+    #[Test]
+    public function admin_ne_voit_pas_les_proprietaires_dune_autre_agence()
+    {
+        [$agence1, $admin1] = $this->creerAgenceAvecAdmin();
+        [$agence2, $admin2] = $this->creerAgenceAvecAdmin();
+
+        $user1 = User::factory()->create(['role' => 'proprietaire', 'agency_id' => $agence1->id]);
+        \App\Models\Proprietaire::create(['user_id' => $user1->id]);
+
+        $user2 = User::factory()->create(['role' => 'proprietaire', 'agency_id' => $agence2->id]);
+        \App\Models\Proprietaire::create(['user_id' => $user2->id]);
+
+        $this->actingAs($admin1);
+
+        // HasAgencyScopeThroughUser : filtre via users.agency_id
+        $this->assertSame(1, \App\Models\Proprietaire::count());
+        $this->assertSame($user1->id, \App\Models\Proprietaire::sole()->user_id);
     }
 
     // ── SuperAdmin bypass ────────────────────────────────────────────────

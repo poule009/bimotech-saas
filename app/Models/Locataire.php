@@ -2,28 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAgencyScopeThroughUser;
 use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
 class Locataire extends Model
 {
-    use LogsActivity, SoftDeletes;
-    protected static function booted(): void
-    {
-        static::addGlobalScope('agency', function ($builder) {
-            if (! Auth::check() || Auth::user()->role === 'superadmin') {
-                return;
-            }
-            if (! Auth::user()->agency_id) {
-                $builder->whereRaw('1 = 0');
-                return;
-            }
-            $agencyId = Auth::user()->agency_id;
-            $builder->whereHas('user', fn($q) => $q->where('agency_id', $agencyId));
-        });
-    }
+    // Isolation par agence via la relation user (users.agency_id).
+    use LogsActivity, SoftDeletes, HasAgencyScopeThroughUser;
 
     protected $fillable = [
         'user_id',

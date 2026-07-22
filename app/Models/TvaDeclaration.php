@@ -2,13 +2,27 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAgencyScope;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class TvaDeclaration extends Model
 {
+    use HasAgencyScope;
+
     protected $table = 'tva_declarations_agence';
+
+    /** Auto-injection de l'agence à la création (défense en profondeur). */
+    protected static function booted(): void
+    {
+        static::creating(function (self $declaration) {
+            if (empty($declaration->agency_id) && Auth::check()) {
+                $declaration->agency_id = Auth::user()->agency_id;
+            }
+        });
+    }
 
     protected $fillable = [
         'agency_id', 'mois', 'annee',
