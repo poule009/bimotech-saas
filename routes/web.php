@@ -17,11 +17,9 @@ use App\Http\Controllers\DepenseGestionController;
 use App\Http\Controllers\BienPhotoController;
 use App\Http\Controllers\ImmeubleController;
 use App\Http\Controllers\ContratController;
-use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Dashboard\AdminDashboardController;
 use App\Http\Controllers\Dashboard\LocataireDashboardController;
 use App\Http\Controllers\Dashboard\ProprietaireDashboardController;
-use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ImpayeController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProfileController;
@@ -73,14 +71,13 @@ Route::get('/health', function () {
 }); // fin groupe withoutMiddleware(StartSession)
 
 // ── Pages publiques ────────────────────────────────────────────────────────
+// contact / demo / faq / pricing (+ handlers de leads contact.send, demo.send)
+// retirés : vues supprimées à la refonte (b8eed96), aucun lien n'y menait —
+// le site public actuel = accueil + tarifs + pages légales + vitrines d'agences.
 Route::get('/', fn() => view('welcome'))->name('home');
-Route::get('/contact',          fn() => view('contact'))->name('contact');
-Route::get('/demo',             fn() => view('demo'))->name('demo');
-Route::get('/faq',              fn() => view('faq'))->name('faq');
 Route::get('/tarifs',           fn() => view('tarifs'))->name('tarifs');
 Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mentions-legales');
 Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
-Route::get('/pricing',    [\App\Http\Controllers\PricingController::class,  'index'])->name('pricing');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class,  'index'])->name('sitemap');
 // Portail central agrégé (BimoPortail v1) retiré : supplanté par les vitrines
 // publiques PAR agence ci-dessous. Ses vues avaient été supprimées à la refonte
@@ -90,8 +87,6 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class,  'in
 // agence du portail central. Détail d'un bien : /agences/{slug}/biens/{bienSlug}.
 Route::get('/agences/{slug}',                  [\App\Http\Controllers\VitrineController::class, 'home'])->name('vitrine.home');
 Route::get('/agences/{slug}/biens/{bienSlug}', [\App\Http\Controllers\VitrineController::class, 'bien'])->name('vitrine.bien');
-Route::post('/contact', [ContactController::class, 'send'])->middleware('throttle:5,60')->name('contact.send');
-Route::post('/demo',    [DemoController::class,    'send'])->middleware('throttle:5,60')->name('demo.send');
 
 // ── Inscription agence (invités) ───────────────────────────────────────────
 Route::middleware('guest')->group(function () {

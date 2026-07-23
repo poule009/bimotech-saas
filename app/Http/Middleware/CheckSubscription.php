@@ -26,9 +26,8 @@ class CheckSubscription
         // Google OAuth
         'auth.google', 'auth.google.callback',
         'agency.register.google.complete', 'agency.register.google.store',
-        // Pages publiques
-        'home', 'landing', 'contact', 'contact.send', 'demo', 'demo.send',
-        'faq', 'mentions-legales', 'confidentialite',
+        // Pages publiques (contact/demo/faq retirés avec le groupe marketing)
+        'home', 'landing', 'tarifs', 'mentions-legales', 'confidentialite',
     ];
 
     public function handle(Request $request, Closure $next): Response
