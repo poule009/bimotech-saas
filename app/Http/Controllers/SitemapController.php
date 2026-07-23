@@ -19,12 +19,12 @@ class SitemapController extends Controller
 {
     public function index(): Response
     {
+        // Uniquement des pages VIVANTES : les vues contact/demo/faq/pricing ont été
+        // supprimées à la refonte (reconstruction à la demande) — ne pas annoncer
+        // à Google des URLs qui répondent 500.
         $urls = [
-            ['loc' => url('/'),         'priority' => '1.0', 'changefreq' => 'weekly'],
-            ['loc' => route('pricing'), 'priority' => '0.8', 'changefreq' => 'monthly'],
-            ['loc' => route('demo'),    'priority' => '0.7', 'changefreq' => 'monthly'],
-            ['loc' => route('faq'),     'priority' => '0.6', 'changefreq' => 'monthly'],
-            ['loc' => route('contact'), 'priority' => '0.6', 'changefreq' => 'monthly'],
+            ['loc' => url('/'),        'priority' => '1.0', 'changefreq' => 'weekly'],
+            ['loc' => route('tarifs'), 'priority' => '0.8', 'changefreq' => 'monthly'],
         ];
 
         try {
