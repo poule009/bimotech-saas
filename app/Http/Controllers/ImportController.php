@@ -116,7 +116,16 @@ class ImportController extends Controller implements HasMiddleware
     {
         $this->authorize('isAdmin');
 
-        $this->manager->commit($batch);
+        try {
+            $this->manager->commit($batch);
+        } catch (\App\Services\Import\ImportConflictException $e) {
+            // Conflit d'occupation détecté au commit (bien/locataire loué entre-temps) :
+            // le lot a été annulé (rollback), on renvoie un message clair.
+            return back()->with('import_error', $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Commit import échoué', ['batch' => $batch->id, 'message' => $e->getMessage()]);
+            return back()->with('import_error', "L'import n'a pas pu être confirmé. Réessayez.");
+        }
 
         return redirect()
             ->route('admin.import.index', ['step' => $batch->type])

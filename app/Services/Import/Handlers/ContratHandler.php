@@ -77,6 +77,12 @@ class ContratHandler extends AbstractImportHandler
             return $this->erreur($line, "Le bien « {$bien['titre']} » est déjà sous contrat actif.", $display);
         }
 
+        // Un locataire ne peut avoir qu'un seul contrat actif (même règle que la
+        // saisie manuelle — StoreContratRequest), base OU déjà vu dans le fichier.
+        if (! empty($loc['occupe']) || isset($ctx['seen_locataires'][$loc['user_id']])) {
+            return $this->erreur($line, "Le locataire « {$loc['name']} » a déjà un contrat actif.", $display);
+        }
+
         if (! $dateDebut) {
             return $this->erreur($line, 'La date de début est manquante ou invalide (format attendu : AAAA-MM-JJ).', $display);
         }
@@ -89,7 +95,8 @@ class ContratHandler extends AbstractImportHandler
             return $this->erreur($line, 'Le loyer doit être un nombre positif.', $display);
         }
 
-        $ctx['seen_biens'][$bien['id']] = true;
+        $ctx['seen_biens'][$bien['id']]        = true;
+        $ctx['seen_locataires'][$loc['user_id']] = true;
 
         return $this->ok($line, $display, [
             'bien_id'      => $bien['id'],
@@ -101,6 +108,29 @@ class ContratHandler extends AbstractImportHandler
 
     public function create(array $data, ImportBatch $batch, CodeSequencer $seq, int &$sequence): array
     {
+        // Anti-TOCTOU : l'aperçu a pu être validé bien avant ce commit. On revérifie,
+        // dans la transaction du commit, que le bien ET le locataire sont toujours
+        // libres. Sinon on lève une ImportConflictException → ImportManager::commit
+        // (transactionnel) annule TOUT le lot plutôt que de créer un doublon de bail.
+        $bienOccupe = DB::table('contrats')
+            ->where('bien_id', $data['bien_id'])
+            ->where('statut', 'actif')
+            ->whereNull('deleted_at')
+            ->exists();
+
+        $locOccupe = DB::table('contrats')
+            ->where('locataire_id', $data['locataire_id'])
+            ->where('statut', 'actif')
+            ->whereNull('deleted_at')
+            ->exists();
+
+        if ($bienOccupe || $locOccupe) {
+            throw new \App\Services\Import\ImportConflictException(
+                'Un bien ou un locataire de cet import a été loué entre-temps. '
+                . 'Réimportez le fichier pour repartir d\'un aperçu à jour.'
+            );
+        }
+
         $contrat = Contrat::create([
             'bien_id'         => $data['bien_id'],
             'locataire_id'    => $data['locataire_id'],
@@ -149,7 +179,7 @@ class ContratHandler extends AbstractImportHandler
         return $ctx['biens'];
     }
 
-    /** Map code_import → ['user_id','name'] des locataires de l'agence. */
+    /** Map code_import → ['user_id','name','occupe'] des locataires de l'agence. */
     private function locataires(array &$ctx): array
     {
         if (! isset($ctx['locataires'])) {
@@ -161,11 +191,20 @@ class ContratHandler extends AbstractImportHandler
                 ->select('locataires.code_import', 'locataires.user_id', 'users.name')
                 ->get();
 
+            // Locataires ayant déjà un contrat actif (un seul autorisé).
+            $occupes = DB::table('contrats')
+                ->where('contrats.agency_id', $this->agencyId)
+                ->where('contrats.statut', 'actif')
+                ->whereNull('contrats.deleted_at')
+                ->pluck('locataire_id')
+                ->flip();
+
             $ctx['locataires'] = [];
             foreach ($rows as $r) {
                 $ctx['locataires'][strtoupper($r->code_import)] = [
                     'user_id' => $r->user_id,
                     'name'    => $r->name,
+                    'occupe'  => isset($occupes[$r->user_id]),
                 ];
             }
         }
