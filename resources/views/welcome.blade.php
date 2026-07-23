@@ -233,6 +233,45 @@
     </div>
 </section>
 
+{{-- ─────────────── VITRINE — site web intelligent par agence ─────────────── --}}
+<section class="onink compliance" id="vitrine">
+    <div class="wrap">
+        <div class="compliance-grid">
+            <div class="compliance-copy reveal">
+                <div class="eyebrow">Inclus avec votre abonnement</div>
+                <h2>Votre agence a désormais son site web — intelligent</h2>
+                <p>Dès l'inscription, Bimmo génère le site vitrine de votre agence. Et il vit tout seul : un bien disponible est publié automatiquement, un bien loué est retiré automatiquement. Zéro webmaster, zéro maintenance — votre site suit votre gestion en temps réel.</p>
+                <div class="compliance-stamp-row">
+                    <div class="mini-stamp"><svg viewBox="0 0 24 24" fill="none"><path d="M8 12.5l2.5 2.5L16 9" stroke="#E8C878" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="txt"><strong>Une adresse à vous</strong>immo.bimotechsn.com/agences/votre-agence — à partager sur WhatsApp, vos cartes de visite, vos réseaux.</div>
+                </div>
+                <div class="hero-ctas">
+                    <a href="https://immo.bimotechsn.com/agences/bimo-tech-yHw9By" target="_blank" rel="noopener" class="btn btn-ghost-onink">Voir un exemple →</a>
+                    <a href="{{ $inscriptionUrl }}" class="btn btn-gold">Créer mon agence →</a>
+                </div>
+            </div>
+            <div class="compliance-list reveal">
+                <div class="compliance-item">
+                    <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3Z" stroke="#E8C878" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" stroke="#E8C878" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+                    <div><h4>Généré à l'inscription</h4><p>Logo, contact WhatsApp, slogan : votre site reprend l'identité de votre agence, sans rien configurer.</p></div>
+                </div>
+                <div class="compliance-item">
+                    <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-2.6-6.3" stroke="#E8C878" stroke-width="1.5" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="#E8C878" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div><h4>Toujours à jour, automatiquement</h4><p>Vous louez un bien dans Bimmo ? Il disparaît du site. Il se libère ? Il revient. Sans aucune action de votre part.</p></div>
+                </div>
+                <div class="compliance-item">
+                    <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="#E8C878" stroke-width="1.5"/><path d="M3 9h18M8 21h8" stroke="#E8C878" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                    <div><h4>Vos biens mis en valeur</h4><p>Photos, quartiers, biens en vedette, filtres par type — et contact WhatsApp direct depuis chaque fiche.</p></div>
+                </div>
+                <div class="compliance-item">
+                    <div class="ico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#E8C878" stroke-width="1.5"/><path d="M20 20l-4-4" stroke="#E8C878" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                    <div><h4>Visible sur Google</h4><p>Chaque vitrine et chaque bien sont référencés automatiquement — vos annonces travaillent pour vous.</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 {{-- ─────────────── TARIFS (aperçu) ─────────────── --}}
 <section class="section" id="tarifs" style="background:var(--paper);">
     <div class="wrap">
