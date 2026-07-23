@@ -267,7 +267,7 @@ class MultiTenantSecurityTest extends TestCase
 
         $this->actingAs($admin1);
 
-        // HasAgencyScopeThroughUser : filtre via users.agency_id
+        // HasAgencyScope : filtre sur proprietaires.agency_id (dénormalisé depuis le user)
         $this->assertSame(1, \App\Models\Proprietaire::count());
         $this->assertSame($user1->id, \App\Models\Proprietaire::sole()->user_id);
     }

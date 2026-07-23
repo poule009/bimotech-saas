@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\HasAgencyScopeThroughUser;
+use App\Models\Concerns\HasAgencyScope;
 use App\Models\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,8 +11,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Proprietaire extends Model
 {
-    // Isolation par agence via la relation user (users.agency_id).
-    use LogsActivity, SoftDeletes, HasAgencyScopeThroughUser;
+    // Isolation par agence : colonne locale agency_id (dénormalisée depuis le user,
+    // migration 2026_07_23) — même mécanisme que tous les autres modèles tenant.
+    use LogsActivity, SoftDeletes, HasAgencyScope;
+
+    /**
+     * agency_id est dérivé du user propriétaire du profil (un user n'appartient
+     * qu'à une seule agence et n'en change jamais). Hors $fillable : posé ici,
+     * jamais par un formulaire.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $profil) {
+            if (empty($profil->agency_id) && $profil->user_id) {
+                $profil->agency_id = User::withoutGlobalScopes()
+                    ->whereKey($profil->user_id)
+                    ->value('agency_id');
+            }
+        });
+    }
 
     protected $fillable = [
         'user_id', 'cni', 'date_naissance', 'genre', 'nationalite',
