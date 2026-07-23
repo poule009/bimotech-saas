@@ -2,32 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agency;
 use App\Models\Bien;
 use Illuminate\Http\Response;
 
+/**
+ * SitemapController — sitemap.xml des pages PUBLIQUES réellement servies :
+ *  - pages marketing (accueil, tarifs, démo, FAQ, contact),
+ *  - vitrines par agence (/agences/{slug}) — BimoPortail v2,
+ *  - fiches biens en vitrine (/agences/{slug}/biens/{bienSlug}).
+ *
+ * Le portail central agrégé (/biens) a été retiré : ses URLs ne sont plus
+ * annoncées (elles renvoyaient 500 depuis la refonte front).
+ */
 class SitemapController extends Controller
 {
     public function index(): Response
     {
-        $urlsStatiques = [
-            ['loc' => route('portail.index'), 'priority' => '1.0', 'changefreq' => 'daily'],
-            ['loc' => url('/'),               'priority' => '0.9', 'changefreq' => 'weekly'],
-            ['loc' => route('pricing'),       'priority' => '0.8', 'changefreq' => 'monthly'],
-            ['loc' => route('demo'),          'priority' => '0.7', 'changefreq' => 'monthly'],
-            ['loc' => route('faq'),           'priority' => '0.6', 'changefreq' => 'monthly'],
-            ['loc' => route('contact'),       'priority' => '0.6', 'changefreq' => 'monthly'],
+        $urls = [
+            ['loc' => url('/'),         'priority' => '1.0', 'changefreq' => 'weekly'],
+            ['loc' => route('pricing'), 'priority' => '0.8', 'changefreq' => 'monthly'],
+            ['loc' => route('demo'),    'priority' => '0.7', 'changefreq' => 'monthly'],
+            ['loc' => route('faq'),     'priority' => '0.6', 'changefreq' => 'monthly'],
+            ['loc' => route('contact'), 'priority' => '0.6', 'changefreq' => 'monthly'],
         ];
 
         try {
+            // Une entrée par vitrine d'agence active.
+            foreach (Agency::where('actif', true)->get(['id', 'slug']) as $agence) {
+                if (! $agence->slug) {
+                    continue;
+                }
+                $urls[] = [
+                    'loc'        => route('vitrine.home', $agence->slug),
+                    'priority'   => '0.8',
+                    'changefreq' => 'daily',
+                ];
+            }
+
+            // Une entrée par bien réellement affichable en vitrine.
             $biens = Bien::portail()
-                ->select(['id', 'slug', 'updated_at'])
+                ->with('agency:id,slug')
+                ->select(['id', 'slug', 'agency_id', 'updated_at'])
                 ->orderByDesc('updated_at')
                 ->get();
+
+            foreach ($biens as $bien) {
+                if (! $bien->slug || ! $bien->agency?->slug) {
+                    continue;
+                }
+                $urls[] = [
+                    'loc'        => route('vitrine.bien', [$bien->agency->slug, $bien->slug]),
+                    'lastmod'    => $bien->updated_at?->toAtomString(),
+                    'priority'   => '0.7',
+                    'changefreq' => 'weekly',
+                ];
+            }
         } catch (\Throwable) {
-            $biens = collect();
+            // Table absente / DB indisponible : on sert au moins les pages statiques.
         }
 
-        $content = view('sitemap', compact('urlsStatiques', 'biens'))->render();
+        $content = view('sitemap', compact('urls'))->render();
 
         return response($content, 200)->header('Content-Type', 'application/xml');
     }

@@ -83,12 +83,9 @@ Route::get('/mentions-legales', fn() => view('mentions-legales'))->name('mention
 Route::get('/confidentialite',  fn() => view('confidentialite'))->name('confidentialite');
 Route::get('/pricing',    [\App\Http\Controllers\PricingController::class,  'index'])->name('pricing');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class,  'index'])->name('sitemap');
-Route::get('/portail',      [\App\Http\Controllers\PortailController::class, 'home'])->name('portail.home');
-Route::get('/biens',        [\App\Http\Controllers\PortailController::class, 'index'])->name('portail.index');
-Route::get('/biens/quartier/{quartier}', [\App\Http\Controllers\PortailController::class, 'quartier'])
-     ->name('portail.quartier')
-     ->where('quartier', '[^/]+');
-Route::get('/biens/{slug}',   [\App\Http\Controllers\PortailController::class, 'show'])->name('portail.show');
+// Portail central agrégé (BimoPortail v1) retiré : supplanté par les vitrines
+// publiques PAR agence ci-dessous. Ses vues avaient été supprimées à la refonte
+// front (b8eed96) → routes /portail et /biens qui répondaient 500.
 // ── Vitrine publique par agence (BimoPortail v2) ───────────────────────────
 // Un seul système, adapté à l'agence via son {slug}. Remplace l'ancienne page
 // agence du portail central. Détail d'un bien : /agences/{slug}/biens/{bienSlug}.
