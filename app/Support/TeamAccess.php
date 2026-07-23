@@ -10,7 +10,7 @@ use App\Models\User;
  * réellement les droits dans l'app (biens.lire, comptabilite.modifier…).
  *
  * Les 7 modules affichés (fidèles à la maquette) replient en coulisse les groupes
- * secondaires (immeubles, impayés, fiscal, rapports, logs) sous leur module parent
+ * secondaires (immeubles, impayés, fiscal, logs) sous leur module parent
  * le plus proche — invisibles pour l'utilisateur.
  */
 class TeamAccess
@@ -51,9 +51,9 @@ class TeamAccess
         'comptabilite' => [
             'label' => 'Comptabilité', 'icon' => 'wallet', 'sensitive' => true,
             'warn'  => "Accès à l'argent des propriétaires — fermé par défaut",
-            'view'  => ['comptabilite.lire', 'fiscal.lire', 'rapports.lire', 'logs.lire'],
+            'view'  => ['comptabilite.lire', 'fiscal.lire', 'logs.lire'],
             'full'  => ['comptabilite.lire', 'comptabilite.modifier', 'fiscal.lire', 'fiscal.modifier',
-                        'rapports.lire', 'logs.lire'],
+                        'logs.lire'],
         ],
         'equipe' => [
             'label' => 'Mon équipe', 'icon' => 'users', 'sensitive' => false,

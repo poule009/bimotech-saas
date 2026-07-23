@@ -75,10 +75,6 @@ class AuthServiceProvider extends ServiceProvider
             return in_array($user->role, ['locataire', 'admin', 'superadmin']);
         });
 
-        Gate::define('voir-rapports-financiers', function ($user) {
-            return in_array($user->role, ['admin', 'superadmin']);
-        });
-
         Gate::define('voir-activity-logs', function ($user) {
             return $user->role === 'superadmin';
         });

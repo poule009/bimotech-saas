@@ -25,7 +25,6 @@ use App\Http\Controllers\DemoController;
 use App\Http\Controllers\ImpayeController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RapportController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SuperAdmin\EquipeInterneController;
@@ -421,9 +420,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('echeances-fiscales/proprietaire/{proprietaire}', [EcheancesFiscalesController::class, 'proprietaire'])->name('echeances-fiscales.proprietaire')->middleware(['check.feature:fiscalite', 'agency.can:fiscal.lire']);
         }
 
-        // Rapports
-        Route::get('rapports/financier',            [RapportController::class, 'financier'])->name('rapports.financier')->middleware(['check.feature:rapports_pdf', 'agency.can:rapports.lire']);
-        Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf')->middleware(['check.feature:rapports_pdf', 'agency.can:rapports.lire', 'throttle:10,1']);
+        // Rapport financier (RapportController) retiré : ses 2 vues avaient été
+        // supprimées à la refonte front (b8eed96) → routes 500, sans lien UI.
 
         // Portefeuille Bailleurs (Niveau 5) — relevés financiers des propriétaires
         // Module « bailleurs » retiré (fiche + PDFs) : fusionné dans la page
