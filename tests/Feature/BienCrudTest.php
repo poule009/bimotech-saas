@@ -7,6 +7,8 @@ use App\Models\Bien;
 use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -149,6 +151,49 @@ class BienCrudTest extends TestCase
         $this->actingAs($admin)
              ->post(route('admin.biens.store'), $payload)
              ->assertSessionHasErrors('proprietaire_id');
+    }
+
+    /**
+     * Sécurité : les photos jointes à la création passent par les MÊMES règles
+     * que l'upload dédié — un SVG (peut contenir du JavaScript → XSS) est rejeté.
+     */
+    #[Test]
+    public function photo_non_image_rejetee_a_la_creation()
+    {
+        Storage::fake('public');
+        $admin   = $this->adminAvecAgence();
+        $payload = $this->payloadBienValide($admin);
+
+        $payload['photos'] = [
+            UploadedFile::fake()->create('malicieux.svg', 10, 'image/svg+xml'),
+        ];
+
+        $this->actingAs($admin)
+             ->post(route('admin.biens.store'), $payload)
+             ->assertSessionHasErrors('photos.0');
+
+        $this->assertDatabaseMissing('biens', ['adresse' => '25 Rue de Thiong']);
+    }
+
+    #[Test]
+    public function photo_image_valide_acceptee_a_la_creation()
+    {
+        Storage::fake('public');
+        $admin   = $this->adminAvecAgence();
+        $payload = $this->payloadBienValide($admin);
+
+        $payload['photos'] = [UploadedFile::fake()->image('salon.jpg', 800, 600)];
+
+        $this->actingAs($admin)
+             ->post(route('admin.biens.store'), $payload)
+             ->assertRedirect();
+
+        $bien = Bien::where('adresse', '25 Rue de Thiong')->first();
+        $this->assertNotNull($bien);
+        $this->assertDatabaseHas('bien_photos', [
+            'bien_id'        => $bien->id,
+            'est_principale' => true,
+        ]);
     }
 
     #[Test]

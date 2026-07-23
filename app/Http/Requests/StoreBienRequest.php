@@ -38,6 +38,11 @@ class StoreBienRequest extends FormRequest
             'tom_mensuelle'   => ['nullable', 'numeric', 'min:0'],
             'description'     => ['nullable', 'string'],
             'est_en_vedette'  => ['nullable', 'boolean'],
+            // ── Photos jointes à la création ─────────────────────────────────
+            // Mêmes règles que l'upload dédié (BienPhotoController) : SVG exclu
+            // (peut contenir du JavaScript → XSS), formats raster uniquement.
+            'photos'          => ['nullable', 'array', 'max:10'],
+            'photos.*'        => ['image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
         ];
     }
 
@@ -51,6 +56,9 @@ class StoreBienRequest extends FormRequest
             'ville.required'           => 'La ville est obligatoire.',
             'loyer_mensuel.required'   => 'Le loyer est obligatoire.',
             'loyer_mensuel.min'        => "Le loyer doit être d'au moins 1 000 FCFA.",
+            'photos.*.image'           => 'Chaque fichier doit être une image.',
+            'photos.*.mimes'           => 'Formats acceptés : JPG, PNG, WEBP.',
+            'photos.*.max'             => 'Chaque image ne doit pas dépasser 3 MB.',
         ];
     }
 }

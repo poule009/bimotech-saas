@@ -282,9 +282,13 @@ class BienController extends Controller
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $index => $photo) {
+                $chemin = $photo->store('biens/' . $bien->id, 'public');
+                // Même compression que l'upload dédié (BienPhotoController).
+                \App\Support\ImageCompressor::comprimer($chemin);
+
                 \App\Models\BienPhoto::create([
                     'bien_id'        => $bien->id,
-                    'chemin'         => $photo->store('biens/' . $bien->id, 'public'),
+                    'chemin'         => $chemin,
                     'nom_original'   => $photo->getClientOriginalName(),
                     'est_principale' => $index === 0,
                     'ordre'          => $index + 1,
