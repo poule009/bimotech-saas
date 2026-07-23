@@ -1415,12 +1415,31 @@ class SuperAdminController extends Controller
 
     public function createAgency(): View
     {
+        $this->assertPrincipal();
+
         return view('superadmin.create-agency');
+    }
+
+    /**
+     * Créer une agence est une action de GOUVERNANCE (comme Équipe interne ou
+     * Paramètres) : réservée à l'admin principal. Un collaborateur restreint gère
+     * ses agences apportées mais n'en crée pas de nouvelles (elles naîtraient
+     * d'ailleurs « Non attribué », hors de son périmètre).
+     */
+    private function assertPrincipal(): void
+    {
+        abort_unless(
+            Auth::user()?->estSuperAdminPrincipal() === true,
+            403,
+            'Seul l\'administrateur principal peut créer une agence.'
+        );
     }
 
     // ✅ CORRECTION H3 : PasswordPolicy::rules() au lieu de Password::min(8)
     public function storeAgency(Request $request): RedirectResponse
     {
+        $this->assertPrincipal();
+
         $request->validate([
             'agency_name' => ['required', 'string', 'min:2', 'max:100'],
             'agency_email' => ['required', 'email', 'max:255', 'unique:agencies,email'],

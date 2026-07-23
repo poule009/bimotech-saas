@@ -143,6 +143,38 @@ class SuperAdminControllerTest extends TestCase
         $this->assertDatabaseHas('subscriptions', ['statut' => 'essai']);
     }
 
+    /**
+     * Créer une agence est une action de gouvernance : un collaborateur restreint
+     * (même avec le toggle « voir agences ») ne doit pas pouvoir en créer.
+     */
+    #[Test]
+    public function collaborateur_restreint_ne_peut_pas_creer_une_agence(): void
+    {
+        $collaborateur = User::factory()->createOne([
+            'role'             => 'superadmin',
+            'sa_est_principal' => false, // accès restreint
+        ]);
+
+        // Le formulaire est refusé…
+        $this->actingAs($collaborateur)
+            ->get(route('superadmin.agencies.create'))
+            ->assertForbidden();
+
+        // …et la soumission aussi (aucune agence créée).
+        $this->actingAs($collaborateur)
+            ->post(route('superadmin.agencies.store'), [
+                'agency_name'                 => 'Agence Interdite',
+                'agency_email'                => 'interdite@agence.sn',
+                'admin_name'                  => 'Admin X',
+                'admin_email'                 => 'adminx@interdite.sn',
+                'admin_password'              => 'Password123!',
+                'admin_password_confirmation' => 'Password123!',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('agencies', ['name' => 'Agence Interdite']);
+    }
+
     #[Test]
     public function creation_agence_email_duplique_retourne_erreur(): void
     {
