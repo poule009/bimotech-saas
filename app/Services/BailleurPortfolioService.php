@@ -12,8 +12,9 @@ use Illuminate\Support\Collection;
 /**
  * BailleurPortfolioService — Agrégation du portefeuille bailleur.
  *
- * Centralise la logique de chargement et d'agrégation des données
- * bailleur, extraite de BailleurController pour respecter le SRP.
+ * Alimente la page Propriétaires fusionnée (UserController::proprietaires)
+ * avec un résumé financier par bailleur. L'ancienne fiche bailleur dédiée
+ * (BailleurController) a été retirée : cette page est la seule consommatrice.
  *
  * Toutes les méthodes garantissent l'isolation multi-tenant via agencyId.
  */
@@ -85,66 +86,6 @@ class BailleurPortfolioService
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // SHOW — Détail financier d'un bailleur pour une période donnée
-    // ─────────────────────────────────────────────────────────────────────
-
-    /**
-     * @return array{
-     *   biens: Collection,
-     *   paiements: Collection,
-     *   dashboard: array,
-     *   anneesDisponibles: Collection,
-     * }
-     */
-    public function getPortfolioDetail(
-        int $userId,
-        int $agencyId,
-        int $annee,
-        ?string $mois = null,
-    ): array {
-        $biens = Bien::where('agency_id', $agencyId)
-            ->where('proprietaire_id', $userId)
-            ->with(['contratActif.locataire'])
-            ->orderBy('reference')
-            ->get();
-
-        if ($biens->isEmpty()) {
-            abort(403, 'Ce propriétaire n\'a aucun bien géré par votre agence.');
-        }
-
-        $bienIds    = $biens->pluck('id');
-        $contratIds = Contrat::whereIn('bien_id', $bienIds)->pluck('id');
-
-        $query = Paiement::where('agency_id', $agencyId)
-            ->whereIn('contrat_id', $contratIds)
-            ->where('statut', 'valide')
-            ->whereYear('periode', $annee)
-            ->with([
-                'depenses',
-                'contrat:id,bien_id,reference_bail,type_bail',
-                'contrat.bien:id,reference,adresse,ville',
-            ])
-            ->orderByDesc('periode');
-
-        if ($mois) {
-            $query->whereMonth('periode', (int) $mois);
-        }
-
-        $paiements = $query->get();
-
-        $dashboard = $this->buildDashboard($biens, $paiements);
-
-        $anneesDisponibles = Paiement::where('agency_id', $agencyId)
-            ->whereIn('contrat_id', $contratIds)
-            ->selectRaw('YEAR(periode) as annee')
-            ->distinct()
-            ->orderByDesc('annee')
-            ->pluck('annee');
-
-        return compact('biens', 'paiements', 'dashboard', 'anneesDisponibles');
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
     // Helpers privés
     // ─────────────────────────────────────────────────────────────────────
 
@@ -180,24 +121,4 @@ class BailleurPortfolioService
         ];
     }
 
-    private function buildDashboard(Collection $biens, Collection $paiements): array
-    {
-        $totalLoyers      = (float) $paiements->sum('montant_encaisse');
-        $totalCommissions = (float) $paiements->sum('commission_ttc');
-        $totalBrs         = (float) $paiements->sum('brs_amount');
-        $totalDgid        = (float) $paiements->sum('dgid_total');
-        $totalDepenses    = (float) $paiements->flatMap->depenses->sum('montant');
-
-        return [
-            'total_loyers'      => $totalLoyers,
-            'total_commissions' => $totalCommissions,
-            'total_brs'         => $totalBrs,
-            'total_dgid'        => $totalDgid,
-            'total_depenses'    => $totalDepenses,
-            'net_final'         => round($totalLoyers - $totalCommissions - $totalBrs - $totalDepenses, 2),
-            'nb_paiements'      => $paiements->count(),
-            'nb_biens'          => $biens->count(),
-            'nb_biens_loues'    => $biens->where('statut', BienStatut::Loue->value)->count(),
-        ];
-    }
 }

@@ -12,7 +12,6 @@ use App\Http\Controllers\Admin\ReversementController;
 use App\Http\Controllers\Admin\TvaAgenceController;
 use App\Http\Controllers\Auth\AgencyRegistrationController;
 use App\Http\Controllers\Auth\GoogleAuthController;
-use App\Http\Controllers\BailleurController;
 use App\Http\Controllers\BienController;
 use App\Http\Controllers\DepenseGestionController;
 use App\Http\Controllers\BienPhotoController;
@@ -430,10 +429,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('rapports/financier/export-pdf', [RapportController::class, 'exportPdf'])->name('rapports.financier.export-pdf')->middleware(['check.feature:rapports_pdf', 'agency.can:rapports.lire', 'throttle:10,1']);
 
         // Portefeuille Bailleurs (Niveau 5) — relevés financiers des propriétaires
-        Route::get('bailleurs',                          [BailleurController::class, 'index'])->name('bailleurs.index')->middleware('agency.can:comptabilite.lire');
-        Route::get('bailleurs/{userId}',                 [BailleurController::class, 'show'])->name('bailleurs.show')->middleware('agency.can:comptabilite.lire');
-        Route::get('bailleurs/{userId}/export-pdf',      [BailleurController::class, 'exportPdf'])->name('bailleurs.export-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'agency.can:comptabilite.lire', 'throttle:10,1']);
-        Route::get('bailleurs/{userId}/releve-pdf',      [BailleurController::class, 'relevePdf'])->name('bailleurs.releve-pdf')->middleware(['check.feature:releve_bailleur_pdf', 'agency.can:comptabilite.lire', 'throttle:10,1']);
+        // Module « bailleurs » retiré (fiche + PDFs) : fusionné dans la page
+        // Propriétaires (admin.users.proprietaires) — plus aucun lien n'y menait.
 
         // Dépenses de gestion (avancées pour le compte d'un propriétaire)
         Route::post('comptabilite/proprietaires/{proprietaire}/depenses', [DepenseGestionController::class, 'storeForProprietaire'])->name('comptabilite.depenses.store')->middleware(['check.feature:comptabilite', 'agency.can:comptabilite.modifier']);
@@ -490,10 +487,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('isProprietaire')->prefix('proprietaire')->name('proprietaire.')->group(function () {
         Route::get('dashboard',                    ProprietaireDashboardController::class)->name('dashboard');
         Route::get('mes-paiements/{paiement}/pdf', [PaiementController::class,  'downloadPDF'])->name('paiements.pdf');
-        Route::get('releve-pdf', function () {
-            return app(\App\Http\Controllers\BailleurController::class)
-                ->relevePdf(\Illuminate\Support\Facades\Auth::id());
-        })->name('releve-pdf');
     });
 
     // ── Locataire ──────────────────────────────────────────────────────────
