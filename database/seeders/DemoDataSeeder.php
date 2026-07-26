@@ -46,7 +46,15 @@ class DemoDataSeeder extends Seeder
 
         $agencyId = $agency->id;
 
+        // ── Adaptation au plan de l'agence ────────────────────────────────
+        // Le quota compte tous les biens sauf archivés (cf. Agency::nbUnitesActives).
+        // On génère donc au plus « limite du plan » biens ; null = illimité → on
+        // s'arrête au jeu de données fourni (30). Les propriétaires, locataires et
+        // contrats suivent proportionnellement.
+        $limiteBiens = $agency->limiteUnites(); // null = illimité (plan Agence)
+
         $this->command->info("🏢 Agence : {$agency->name} (ID: {$agencyId})");
+        $this->command->line('  📦 Limite de biens du plan : ' . ($limiteBiens ?? 'illimité'));
         $this->command->newLine();
 
         // ─────────────────────────────────────────────────────────────────
@@ -141,10 +149,29 @@ class DemoDataSeeder extends Seeder
         ];
 
         // ─────────────────────────────────────────────────────────────────
+        // DIMENSIONNEMENT SELON LE PLAN
+        // ─────────────────────────────────────────────────────────────────
+        // Total de biens = min(limite du plan, jeu de données). On réserve
+        // quelques biens « disponibles » (jusqu'à 3), le reste est loué avec un
+        // contrat + locataire. Les propriétaires suivent (3 biens chacun).
+        $totalBiens = $limiteBiens !== null
+            ? min($limiteBiens, count($biensDonnees))
+            : count($biensDonnees);
+
+        $nbDisponibles   = min(3, max(0, $totalBiens - 1));
+        $nbLoues         = $totalBiens - $nbDisponibles;
+        $nbProprietaires = (int) ceil($totalBiens / 3);
+
+        // On ne garde que ce dont on a besoin dans chaque jeu de données.
+        $biensDonnees      = array_slice($biensDonnees, 0, $totalBiens);
+        $nomsProprietaires = array_slice($nomsProprietaires, 0, $nbProprietaires);
+        $nomsLocataires    = array_slice($nomsLocataires, 0, $nbLoues);
+
+        // ─────────────────────────────────────────────────────────────────
         // CRÉATION DES PROPRIÉTAIRES
         // ─────────────────────────────────────────────────────────────────
 
-        $this->command->info('👤 Création des propriétaires...');
+        $this->command->info("👤 Création des propriétaires ({$nbProprietaires})...");
         $proprietaires = [];
 
         foreach ($nomsProprietaires as $data) {
@@ -230,8 +257,8 @@ class DemoDataSeeder extends Seeder
                 strtoupper(substr(md5($donnee['adresse']), 0, 4))
             );
 
-            // 27 premiers biens loués (pour les 27 contrats), 3 derniers disponibles
-            $statut = $count <= 27 ? 'loue' : 'disponible';
+            // Les $nbLoues premiers biens sont loués (un contrat chacun), le reste disponible.
+            $statut = $count <= $nbLoues ? 'loue' : 'disponible';
 
             $bien = Bien::updateOrCreate(
                 ['reference' => $reference],
@@ -277,7 +304,7 @@ class DemoDataSeeder extends Seeder
         $this->command->newLine();
         $this->command->info('📄 Création des contrats et paiements...');
 
-        for ($i = 0; $i < 27; $i++) {
+        for ($i = 0; $i < $nbLoues; $i++) {
             $bien      = $biens[$i];
             $locataire = $locataires[$i];
 
@@ -382,9 +409,9 @@ class DemoDataSeeder extends Seeder
                 ['Propriétaires', count($proprietaires)],
                 ['Locataires',    count($locataires)],
                 ['Biens',         count($biens)],
-                ['Biens loués',   27],
-                ['Biens disponibles', 3],
-                ['Contrats actifs', 27],
+                ['Biens loués',   $nbLoues],
+                ['Biens disponibles', $nbDisponibles],
+                ['Contrats actifs', $nbLoues],
                 ['Paiements générés', Paiement::where('agency_id', $agencyId)->count()],
             ]
         );
