@@ -330,7 +330,8 @@ class DemoDataSeeder extends Seeder
                     'caution'             => $loyerNu,
                     'statut'              => 'actif',
                     'type_bail'           => in_array($bien->type, ['bureau', 'local_commercial']) ? 'commercial' : 'habitation',
-                    'taux_commission_applique' => $bien->taux_commission,
+                    // NB : le taux de commission n'est PAS stocké sur le contrat
+                    // (il vit sur le bien, et est figé sur chaque paiement).
                     'frais_agence'        => $loyerNu,
                     'nombre_mois_caution' => 1,
                     'reference_bail'      => $referenceBail,
