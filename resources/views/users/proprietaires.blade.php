@@ -113,7 +113,18 @@
                                 <td class="px-5 py-4 text-[14px] text-ink/80">{{ $u->telephone ?? '—' }}</td>
                                 <td class="px-5 py-4 text-[14px] text-ink/80">{{ $item['nb_biens'] }} bien{{ $item['nb_biens'] > 1 ? 's' : '' }}</td>
                                 <td class="px-5 py-4">
-                                    <x-row-actions :show="route('admin.users.show', $u)" :edit="route('admin.users.edit', $u)" />
+                                    @php
+                                        $suppr   = auth()->user()->hasAgencyPermission('proprietaires.modifier');
+                                        $nbActif = $item['nb_biens_actifs'] ?? 0;
+                                        $bloc    = $nbActif > 0
+                                            ? 'Suppression impossible : '.$nbActif.' bien'.($nbActif > 1 ? 's' : '').' encore actif'.($nbActif > 1 ? 's' : '').'. Archivez-'.($nbActif > 1 ? 'les' : 'le').' d\'abord.'
+                                            : null;
+                                    @endphp
+                                    <x-row-actions :show="route('admin.users.show', $u)"
+                                                   :edit="route('admin.users.edit', $u)"
+                                                   :delete="$suppr ? route('admin.users.destroy', $u) : null"
+                                                   :delete-blocked="$bloc"
+                                                   :confirm="'Supprimer la fiche de '.$u->name.' ? Les paiements et reversements restent en comptabilité.'" />
                                 </td>
                             </tr>
                         @endforeach

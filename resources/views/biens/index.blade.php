@@ -195,7 +195,18 @@
                             <td class="px-5 py-4 text-[14px] text-ink/80">{{ $im->proprietaire->name ?? '—' }}</td>
                             <td class="px-5 py-4"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $occClass }}">{{ $occLabel }}</span></td>
                             <td class="px-5 py-4">
-                                <x-row-actions :show="route('admin.immeubles.show', $im)" :edit="route('admin.immeubles.edit', $im)" />
+                                @php
+                                    $archIm = auth()->user()->hasAgencyPermission('immeubles.modifier');
+                                    $blocIm = (int) $im->loues_count > 0
+                                        ? 'Archivage impossible : '.$im->loues_count.' unité'.($im->loues_count > 1 ? 's louées' : ' louée').'. Résiliez ces contrats d\'abord.'
+                                        : null;
+                                @endphp
+                                <x-row-actions :show="route('admin.immeubles.show', $im)"
+                                               :edit="route('admin.immeubles.edit', $im)"
+                                               :delete="$archIm ? route('admin.immeubles.destroy', $im) : null"
+                                               :delete-blocked="$blocIm"
+                                               delete-label="Archiver"
+                                               :confirm="'Archiver cet immeuble et ses '.$im->biens_count.' unité(s) ? L\'historique est conservé.'" />
                             </td>
                         </tr>
                     @endforeach
@@ -220,7 +231,18 @@
                             <td class="px-5 py-4 text-[14px] text-ink/80">{{ $bien->proprietaire->name ?? '—' }}</td>
                             <td class="px-5 py-4"><span class="text-[11px] font-bold px-3 py-1.5 rounded-full {{ $stClass }}">{{ $stLabel }}</span></td>
                             <td class="px-5 py-4">
-                                <x-row-actions :show="route('admin.biens.show', $bien)" :edit="route('admin.biens.edit', $bien)" />
+                                @php
+                                    $arch = auth()->user()->hasAgencyPermission('biens.supprimer');
+                                    $bloc = ($bien->contrats_actifs_count ?? 0) > 0
+                                        ? 'Archivage impossible : contrat en cours. Résiliez-le d\'abord.'
+                                        : null;
+                                @endphp
+                                <x-row-actions :show="route('admin.biens.show', $bien)"
+                                               :edit="route('admin.biens.edit', $bien)"
+                                               :delete="$arch ? route('admin.biens.destroy', $bien) : null"
+                                               :delete-blocked="$bloc"
+                                               delete-label="Archiver"
+                                               :confirm="'Archiver ce bien ? Il sort des listes, l\'historique est conservé.'" />
                             </td>
                         </tr>
                     @endforeach

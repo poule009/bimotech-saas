@@ -13,6 +13,8 @@
     $vacants  = $unites->where('statut', 'disponible')->count();
     $taux     = $total > 0 ? round($loues / $total * 100) : 0;
     $revenus  = $unites->where('statut', 'loue')->sum('loyer_mensuel');
+    // Archivage bloqué tant qu'une unité est sous contrat (même garde que destroy()).
+    $sousContrat = $unites->filter(fn ($u) => $u->contratActif)->count();
 @endphp
 
 @section('title', $immeuble->nom)
@@ -40,12 +42,43 @@
                 <div class="text-[13.5px] text-paper/80">{{ $immeuble->ville }} · Immeuble · {{ $total }} unité{{ $total > 1 ? 's' : '' }}</div>
             </div>
         </div>
+        @php
+            // Archivage : réservé au droit « Biens : Modifier », impossible si une unité est louée.
+            $peutArchiver   = auth()->user()->hasAgencyPermission('immeubles.modifier');
+            $blocageArchive = $sousContrat > 0
+                ? $sousContrat.' unité'.($sousContrat > 1 ? 's ont' : ' a').' un contrat en cours. Résiliez ces contrats avant d\'archiver l\'immeuble.'
+                : null;
+        @endphp
         <div class="px-6 py-4 flex flex-wrap items-center gap-3">
             <span class="text-[12.5px] font-bold px-3.5 py-1.5 rounded-full {{ $loues >= $total && $total > 0 ? 'bg-green/10 text-green' : 'bg-teal/10 text-teal' }}">{{ $loues }}/{{ $total }} loués</span>
             <div class="flex items-center gap-2.5 ml-auto">
                 <a href="{{ route('admin.immeubles.edit', $immeuble) }}" class="px-5 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[14px] font-bold hover:border-teal transition-colors">Modifier</a>
+                @can('admin-agence')
+                    @if($peutArchiver)
+                        @if($blocageArchive)
+                            <button type="button" disabled title="{{ $blocageArchive }}"
+                                    class="px-5 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-muted/50 text-[14px] font-bold cursor-not-allowed">Archiver</button>
+                        @else
+                            <form method="POST" action="{{ route('admin.immeubles.destroy', $immeuble) }}"
+                                  x-data="confirmForm" x-on:submit="submit"
+                                  data-confirm="Archiver cet immeuble et ses {{ $total }} unité(s) ? L'historique est conservé.">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-5 py-2.5 rounded-[10px] border-[1.5px] border-error/40 bg-white text-error text-[14px] font-bold hover:bg-error/5 transition-colors">Archiver</button>
+                            </form>
+                        @endif
+                    @endif
+                @endcan
                 <a href="{{ route('admin.biens.create', ['immeuble_id' => $immeuble->id]) }}" class="px-5 py-2.5 rounded-[10px] bg-teal text-paper text-[14px] font-bold hover:bg-teal-deep transition-colors whitespace-nowrap">+ Ajouter un appartement</a>
             </div>
+            @can('admin-agence')
+                @if($peutArchiver && $blocageArchive)
+                    <div class="w-full text-[12.5px] text-muted flex items-start gap-1.5">
+                        <x-icon name="info" size="13" class="mt-0.5 shrink-0" />
+                        <span>Archivage impossible : {{ $blocageArchive }}</span>
+                    </div>
+                @endif
+            @endcan
         </div>
     </div>
 
@@ -100,5 +133,6 @@
             </div>
         @endif
     </div>
+
 </div>
 @endsection

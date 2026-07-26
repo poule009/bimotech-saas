@@ -25,6 +25,9 @@
     @if(session('success'))
         <div class="mb-5 rounded-lg bg-green/10 border border-green/25 px-4 py-3 text-[13px] text-green">{{ session('success') }}</div>
     @endif
+    @if(session('error'))
+        <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error">{{ session('error') }}</div>
+    @endif
 
     {{-- En-tête --}}
     @php $cover = $bien->photos->firstWhere('est_principale', true) ?? $bien->photos->first(); @endphp
@@ -39,15 +42,46 @@
                 <div class="text-[13.5px] text-paper/85">{{ $bien->quartier ? $bien->quartier.', ' : '' }}{{ $bien->ville }} · {{ \App\Models\Bien::TYPES[$bien->type] ?? ucfirst($bien->type) }}</div>
             </div>
         </div>
+        @php
+            // Archivage : réservé au droit « Biens : Modifier », impossible sous contrat.
+            $peutArchiver   = auth()->user()->hasAgencyPermission('biens.supprimer');
+            $blocageArchive = $bien->contratActif
+                ? 'Un contrat est en cours sur ce bien. Résiliez-le d\'abord depuis la fiche du contrat.'
+                : null;
+        @endphp
         <div class="px-6 py-4 flex flex-wrap items-center gap-3">
             <span class="text-[12.5px] font-bold px-3.5 py-1.5 rounded-full {{ $stClass }}">{{ $stLabel }}</span>
             <span class="text-[12.5px] text-muted">Réf. {{ $bien->reference }}</span>
             <div class="flex items-center gap-2.5 ml-auto">
                 <a href="{{ route('admin.biens.edit', $bien) }}" class="px-5 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[14px] font-bold hover:border-teal transition-colors">Modifier</a>
+                @can('update', $bien)
+                    @if($peutArchiver)
+                        @if($blocageArchive)
+                            <button type="button" disabled title="{{ $blocageArchive }}"
+                                    class="px-5 py-2.5 rounded-[10px] border-[1.5px] border-line bg-white text-muted/50 text-[14px] font-bold cursor-not-allowed">Archiver</button>
+                        @else
+                            <form method="POST" action="{{ route('admin.biens.destroy', $bien) }}"
+                                  x-data="confirmForm" x-on:submit="submit"
+                                  data-confirm="Archiver ce bien ? Il n'apparaîtra plus dans les listes. L'historique (contrats, quittances, reversements) est conservé.">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="px-5 py-2.5 rounded-[10px] border-[1.5px] border-error/40 bg-white text-error text-[14px] font-bold hover:bg-error/5 transition-colors">Archiver</button>
+                            </form>
+                        @endif
+                    @endif
+                @endcan
                 @if(Route::has('admin.contrats.create') && ! $bien->contratActif)
                     <a href="{{ route('admin.contrats.create', ['bien_id' => $bien->id]) }}" class="px-5 py-2.5 rounded-[10px] bg-teal text-paper text-[14px] font-bold hover:bg-teal-deep transition-colors whitespace-nowrap">+ Nouveau contrat</a>
                 @endif
             </div>
+            @can('update', $bien)
+                @if($peutArchiver && $blocageArchive)
+                    <div class="w-full text-[12.5px] text-muted flex items-start gap-1.5">
+                        <x-icon name="info" size="13" class="mt-0.5 shrink-0" />
+                        <span>Archivage impossible : {{ $blocageArchive }}</span>
+                    </div>
+                @endif
+            @endcan
         </div>
     </div>
 
@@ -223,5 +257,6 @@
             @endif
         </div>
     </div>
+
 </div>
 @endsection

@@ -100,7 +100,17 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-4">
-                                    <x-row-actions :show="route('admin.users.show', $u)" :edit="route('admin.users.edit', $u)" />
+                                    @php
+                                        $suppr = auth()->user()->hasAgencyPermission('locataires.modifier');
+                                        $bloc  = ($u->contrats_actifs_count ?? 0) > 0
+                                            ? 'Suppression impossible : contrat en cours. Résiliez-le d\'abord.'
+                                            : null;
+                                    @endphp
+                                    <x-row-actions :show="route('admin.users.show', $u)"
+                                                   :edit="route('admin.users.edit', $u)"
+                                                   :delete="$suppr ? route('admin.users.destroy', $u) : null"
+                                                   :delete-blocked="$bloc"
+                                                   :confirm="'Supprimer la fiche de '.$u->name.' ? Les contrats terminés et quittances restent dans l\'historique.'" />
                                 </td>
                             </tr>
                         @endforeach

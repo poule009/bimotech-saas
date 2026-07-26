@@ -51,7 +51,10 @@ class BienController extends Controller
                     // Photo de couverture : la principale d'abord, sinon la première par ordre.
                     'photos' => fn ($p) => $p->select('id', 'bien_id', 'chemin', 'est_principale', 'ordre')
                         ->orderByDesc('est_principale')->orderBy('ordre'),
-                ]);
+                ])
+                // Une sous-requête (pas de N+1) : sert à désactiver l'action « Archiver »
+                // en liste sur les biens sous contrat, avec la raison en title.
+                ->withCount(['contrats as contrats_actifs_count' => fn ($c) => $c->where('statut', 'actif')]);
 
             if ($type) {
                 $bq->where('type', $type);

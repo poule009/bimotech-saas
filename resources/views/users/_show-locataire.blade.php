@@ -17,6 +17,11 @@
     @if(session('success'))
         <div class="mb-5 rounded-lg bg-green/10 border border-green/25 px-4 py-3 text-[13px] text-green">{{ session('success') }}</div>
     @endif
+    @if($errors->any())
+        <div class="mb-5 rounded-lg bg-error/10 border border-error/25 px-4 py-3 text-[13px] text-error space-y-0.5">
+            @foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach
+        </div>
+    @endif
 
     {{-- En-tête --}}
     <div class="bg-white border border-line rounded-xl p-6 md:p-7 flex flex-col sm:flex-row sm:items-center gap-5 mb-4">
@@ -29,8 +34,43 @@
                 @else<span class="text-[12px] font-bold px-3 py-1 rounded-full bg-green/10 text-green">Particulier</span>@endif
             </div>
         </div>
-        <a href="{{ route('admin.users.edit', $user) }}" class="px-5 py-3 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[14px] font-bold hover:border-teal transition-colors shrink-0">Modifier</a>
+        @php
+            // Suppression : réservée au droit « Locataires : Modifier », impossible
+            // tant qu'un contrat est en cours (même garde que destroy()).
+            $peutSupprimer = auth()->user()->hasAgencyPermission('locataires.modifier');
+            $blocageSuppr  = $contratActif
+                ? 'Ce locataire a un contrat en cours. Résiliez-le d\'abord depuis la fiche du contrat.'
+                : null;
+        @endphp
+        <div class="flex items-center gap-2.5 shrink-0">
+            <a href="{{ route('admin.users.edit', $user) }}" class="px-5 py-3 rounded-[10px] border-[1.5px] border-line bg-white text-ink text-[14px] font-bold hover:border-teal transition-colors">Modifier</a>
+            @can('admin-agence')
+                @if($peutSupprimer)
+                    @if($blocageSuppr)
+                        <button type="button" disabled title="{{ $blocageSuppr }}"
+                                class="px-5 py-3 rounded-[10px] border-[1.5px] border-line bg-white text-muted/50 text-[14px] font-bold cursor-not-allowed">Supprimer</button>
+                    @else
+                        <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
+                              x-data="confirmForm" x-on:submit="submit"
+                              data-confirm="Supprimer la fiche de {{ $user->name }} ? Les contrats terminés, quittances et paiements restent dans l'historique.">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="px-5 py-3 rounded-[10px] border-[1.5px] border-error/40 bg-white text-error text-[14px] font-bold hover:bg-error/5 transition-colors">Supprimer</button>
+                        </form>
+                    @endif
+                @endif
+            @endcan
+        </div>
     </div>
+
+    @can('admin-agence')
+        @if($peutSupprimer && $blocageSuppr)
+            <div class="-mt-2 mb-4 text-[12.5px] text-muted flex items-start gap-1.5">
+                <x-icon name="info" size="13" class="mt-0.5 shrink-0" />
+                <span>Suppression impossible : {{ $blocageSuppr }}</span>
+            </div>
+        @endif
+    @endcan
 
     {{-- BANNIÈRE DE PAIEMENT (élément central, statut calculé) --}}
     @if($paie['etat'] === 'retard')
@@ -147,4 +187,5 @@
             <span class="text-[12px] font-bold px-2.5 py-1 rounded-full {{ $profil?->justif_revenus_fourni ? 'bg-green/10 text-green' : 'bg-error/10 text-error' }}">{{ $profil?->justif_revenus_fourni ? 'Fourni' : 'Manquant' }}</span>
         </div>
     </div>
+
 </div>

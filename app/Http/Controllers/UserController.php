@@ -65,7 +65,11 @@ class UserController extends Controller
         $usersQuery = User::where('role', 'proprietaire')
             ->where('agency_id', $agencyId)
             ->select(['id', 'agency_id', 'name', 'email', 'telephone', 'created_at'])
-            ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere,est_personne_morale_is']);
+            ->with(['proprietaire:user_id,ville,ninea,mode_paiement_prefere,est_personne_morale_is'])
+            // Une sous-requête (pas de N+1) : sert à désactiver l'action « Supprimer »
+            // en liste, avec la même garde que destroy().
+            ->withCount(['biens as biens_actifs_count' => fn ($b) => $b
+                ->whereIn('statut', ['loue', 'disponible', 'en_travaux'])]);
 
         if (($q = trim((string) request('q'))) !== '') {
             $usersQuery->where(function ($sub) use ($q) {
@@ -95,6 +99,7 @@ class UserController extends Controller
             $p = $portfolios->get($user->id);
             return [
                 'user'              => $user,
+                'nb_biens_actifs'   => (int) ($user->biens_actifs_count ?? 0),
                 'nb_biens'          => $p['nb_biens'] ?? 0,
                 'nb_biens_loues'    => $p['nb_biens_loues'] ?? 0,
                 'total_loyers'      => $p['total_loyers'] ?? 0,
@@ -481,9 +486,15 @@ class UserController extends Controller
             // §3.1 : pas de bloc fiscal si aucun bien loué (état vide dédié).
             $aBienLoue = Bien::where('proprietaire_id', $user->id)->where('statut', 'loue')->exists();
 
+            // Suppression : bloquée tant qu'il reste des biens actifs (même garde que destroy()).
+            $nbBiensActifs = Bien::where('proprietaire_id', $user->id)
+                ->whereIn('statut', ['loue', 'disponible', 'en_travaux'])
+                ->count();
+
             return view('users.show', compact(
                 'user', 'biens', 'stats', 'paiements', 'locatairesActifs',
-                'irppEstimation', 'estParticulier', 'cgfInfo', 'cgfCouvre', 'annee', 'cfpbTotal', 'aBienLoue'
+                'irppEstimation', 'estParticulier', 'cgfInfo', 'cgfCouvre', 'annee', 'cfpbTotal', 'aBienLoue',
+                'nbBiensActifs'
             ));
         }
 
@@ -768,6 +779,15 @@ class UserController extends Controller
         $this->authorize('isAdmin');
         $this->verifierAppartenance($user);
 
+        // La route accepte locataires.modifier OU proprietaires.modifier (un seul
+        // point d'entrée pour les deux profils). On resserre ici sur la permission
+        // qui correspond réellement à la fiche visée.
+        abort_unless(
+            Auth::user()->hasAgencyPermission($user->isLocataire() ? 'locataires.modifier' : 'proprietaires.modifier'),
+            403,
+            'Vous n\'avez pas la permission de supprimer cette fiche.'
+        );
+
         if ($user->isLocataire() && $user->contrats()->where('statut', 'actif')->exists()) {
             return back()->withErrors([
                 'general' => 'Impossible de supprimer un locataire avec un contrat actif.',
@@ -780,9 +800,15 @@ class UserController extends Controller
             ]);
         }
 
+        // Le rôle est lu AVANT la suppression : il détermine la liste de retour.
+        // (un back() renverrait sur la fiche qui vient de disparaître → 404)
+        $retour = $user->isLocataire()
+            ? 'admin.users.locataires'
+            : 'admin.users.proprietaires';
+
         $user->delete();
 
-        return back()->with('success', 'Utilisateur supprimé ✓');
+        return redirect()->route($retour)->with('success', 'Fiche supprimée ✓');
     }
 
     // ─────────────────────────────────────────────────────────────────────
