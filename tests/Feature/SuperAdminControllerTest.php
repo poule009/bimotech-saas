@@ -130,6 +130,7 @@ class SuperAdminControllerTest extends TestCase
                 'agency_email'             => 'nouvelle@agence.sn',
                 'agency_telephone'         => '+221 33 800 00 00',
                 'agency_adresse'           => 'Dakar, Sénégal',
+                'agency_pays'              => 'SN',
                 'admin_name'               => 'Admin Nouveau',
                 'admin_email'              => 'admin@nouvelle.sn',
                 'admin_password'           => 'Password123!',
@@ -165,6 +166,7 @@ class SuperAdminControllerTest extends TestCase
             ->post(route('superadmin.agencies.store'), [
                 'agency_name'                 => 'Agence Interdite',
                 'agency_email'                => 'interdite@agence.sn',
+                'agency_pays'                 => 'SN',
                 'admin_name'                  => 'Admin X',
                 'admin_email'                 => 'adminx@interdite.sn',
                 'admin_password'              => 'Password123!',
@@ -184,6 +186,7 @@ class SuperAdminControllerTest extends TestCase
             ->post(route('superadmin.agencies.store'), [
                 'agency_name'              => 'Agence Dupliquée',
                 'agency_email'             => 'existing@agence.sn',  // déjà pris
+                'agency_pays'              => 'SN',
                 'admin_name'               => 'Admin',
                 'admin_email'              => 'newadmin@agence.sn',
                 'admin_password'           => 'Password123!',
@@ -199,6 +202,7 @@ class SuperAdminControllerTest extends TestCase
             ->post(route('superadmin.agencies.store'), [
                 'agency_name'              => 'Agence Test',
                 'agency_email'             => 'test@agence.sn',
+                'agency_pays'              => 'SN',
                 'admin_name'               => 'Admin',
                 'admin_email'              => 'admin@test.sn',
                 'admin_password'           => '123',   // trop court

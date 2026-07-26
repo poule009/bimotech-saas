@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agency;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\Pays;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
@@ -98,10 +100,15 @@ class GoogleAuthController extends Controller
 
         $request->validate([
             'agency_name' => ['required', 'string', 'min:2', 'max:100'],
+            // Même exigence que l'inscription classique : le pays est déclaré, pas
+            // déduit du compte Google. Voir AgencyRegistrationController::store().
+            'pays'        => ['required', 'string', 'size:2', Rule::in(Pays::ouverts())],
             'cgu'         => ['required', 'accepted'],
         ], [
             'agency_name.required' => "Le nom de l'agence est obligatoire.",
             'agency_name.min'      => "Le nom de l'agence doit contenir au moins 2 caractères.",
+            'pays.required'        => "Le pays de l'agence est obligatoire.",
+            'pays.in'              => "Ce pays n'est pas encore disponible. Contactez-nous pour en savoir plus.",
             'cgu.accepted'         => "Vous devez accepter les conditions d'utilisation.",
         ]);
 
@@ -114,11 +121,14 @@ class GoogleAuthController extends Controller
 
         try {
             $admin = DB::transaction(function () use ($request, $googleData) {
-                $agency        = new Agency();
-                $agency->name  = $request->agency_name;
-                $agency->email = $googleData['email'];
-                $agency->slug  = Str::slug($request->agency_name) . '-' . Str::random(6);
-                $agency->actif = true;
+                $agency         = new Agency();
+                $agency->name   = $request->agency_name;
+                $agency->email  = $googleData['email'];
+                $agency->slug   = Str::slug($request->agency_name) . '-' . Str::random(6);
+                // Hors $fillable (commandent le régime fiscal) → assignation directe.
+                $agency->pays   = $request->pays;
+                $agency->devise = Pays::devise($request->pays);
+                $agency->actif  = true;
                 $agency->save();
 
                 $admin                    = new User();

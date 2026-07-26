@@ -28,6 +28,22 @@
             @enderror
         </div>
 
+        {{-- Pays — choix explicite, jamais déduit : il commande le régime fiscal
+             et les mentions légales des documents émis. Pas d'option présélectionnée. --}}
+        <div class="mb-[18px]">
+            <label for="pays" class="auth-field-label">Pays de l'agence</label>
+            <select id="pays" name="pays" required
+                    class="auth-input @error('pays') auth-input-error @enderror">
+                <option value="" disabled @selected(! old('pays'))>Choisissez votre pays</option>
+                @foreach ($paysDisponibles as $code => $nom)
+                    <option value="{{ $code }}" @selected(old('pays') === $code)>{{ $nom }}</option>
+                @endforeach
+            </select>
+            @error('pays')
+                <p class="field-error">{{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- Nom de l'administrateur --}}
         <div class="mb-[18px]">
             <label for="admin_name" class="auth-field-label">Nom de l'administrateur</label>

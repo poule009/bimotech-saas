@@ -32,6 +32,7 @@ class AgencyRegistrationTest extends TestCase
             'admin_email'                 => 'mamadou@agence.sn',
             'admin_password'              => 'Secret@123',
             'admin_password_confirmation' => 'Secret@123',
+            'pays'                        => 'SN',
             'cgu'                         => '1',
         ];
     }
@@ -43,6 +44,21 @@ class AgencyRegistrationTest extends TestCase
     {
         $this->get(route('agency.register'))
              ->assertOk();
+    }
+
+    /**
+     * Le garde-fou doit être visible dans le HTML, pas seulement côté validation :
+     * un pays fermé ne doit même pas apparaître dans la liste déroulante.
+     */
+    #[Test]
+    public function le_formulaire_ne_propose_que_les_pays_ouverts(): void
+    {
+        $response = $this->get(route('agency.register'))->assertOk();
+
+        $response->assertSee('name="pays"', false)
+                 ->assertSee('value="SN"', false)
+                 ->assertDontSee('value="CI"', false)
+                 ->assertDontSee('value="ML"', false);
     }
 
     #[Test]
@@ -158,6 +174,52 @@ class AgencyRegistrationTest extends TestCase
             now()->addDays(30)->toDateString(),
             $sub->date_fin_essai->toDateString()
         );
+    }
+
+    // ── Pays déclaré (internationalisation — étape 1) ─────────────────────
+
+    /**
+     * Le pays est une donnée DÉCLARATIVE : il est enregistré tel qu'il a été
+     * choisi, et il pré-remplit la devise depuis config/pays.php.
+     */
+    #[Test]
+    public function le_pays_choisi_et_sa_devise_sont_enregistres(): void
+    {
+        $this->post(route('agency.register.store'), $this->payloadValide());
+
+        $this->assertDatabaseHas('agencies', [
+            'name'   => 'Agence Alpha Dakar',
+            'pays'   => 'SN',
+            'devise' => 'XOF',
+        ]);
+    }
+
+    #[Test]
+    public function pays_manquant_est_rejete(): void
+    {
+        $payload = $this->payloadValide();
+        unset($payload['pays']);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('pays');
+
+        $this->assertDatabaseMissing('agencies', ['name' => 'Agence Alpha Dakar']);
+    }
+
+    /**
+     * GARDE-FOU : un pays qui existe au catalogue mais n'est pas encore OUVERT
+     * (config/pays.ouverts) doit être refusé. C'est ce qui empêche la création
+     * d'une agence dont les documents fiscaux et la devise ne sont pas maîtrisés.
+     */
+    #[Test]
+    public function pays_hors_liste_ouverte_est_rejete(): void
+    {
+        $payload = array_merge($this->payloadValide(), ['pays' => 'CI']);
+
+        $this->post(route('agency.register.store'), $payload)
+             ->assertSessionHasErrors('pays');
+
+        $this->assertDatabaseMissing('agencies', ['pays' => 'CI']);
     }
 
     // ── Validation des champs ─────────────────────────────────────────────

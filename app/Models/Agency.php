@@ -57,7 +57,7 @@ class Agency extends Model
     /**
      * SÉCURITÉ — Mass Assignment :
      *
-     * `actif` et `slug` sont INTENTIONNELLEMENT absents de $fillable.
+     * `actif`, `slug`, `pays` et `devise` sont INTENTIONNELLEMENT absents de $fillable.
      *
      * - `actif`  : seul le SuperAdmin peut activer/désactiver une agence.
      *              Si un admin pouvait le modifier via un formulaire, il pourrait
@@ -66,7 +66,13 @@ class Agency extends Model
      * - `slug`   : identifiant unique d'URL généré à la création. Le modifier
      *              pourrait casser des liens existants ou créer des conflits.
      *
-     * Ces deux colonnes sont modifiées uniquement via assignation directe
+     * - `pays`   : commande le régime fiscal et le contenu des documents légaux.
+     *   `devise`  Le modifier après coup réinterprète TOUT l'historique de l'agence
+     *             (quittances, bilans, déclarations déjà émis) sous un autre droit
+     *             et une autre monnaie. Réservé au SuperAdmin, jamais exposé dans
+     *             les paramètres d'agence.
+     *
+     * Ces quatre colonnes sont modifiées uniquement via assignation directe
      * dans SuperAdminController ou dans les migrations de données.
      */
     protected $fillable = [

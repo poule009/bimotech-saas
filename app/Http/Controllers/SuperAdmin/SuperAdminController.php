@@ -1417,7 +1417,9 @@ class SuperAdminController extends Controller
     {
         $this->assertPrincipal();
 
-        return view('superadmin.create-agency');
+        return view('superadmin.create-agency', [
+            'paysDisponibles' => \App\Support\Pays::optionsInscription(),
+        ]);
     }
 
     /**
@@ -1445,22 +1447,32 @@ class SuperAdminController extends Controller
             'agency_email' => ['required', 'email', 'max:255', 'unique:agencies,email'],
             'agency_telephone' => ['nullable', 'string', 'max:20'],
             'agency_adresse' => ['nullable', 'string', 'max:255'],
+            // Même verrou que l'inscription publique : le SuperAdmin non plus ne peut
+            // pas créer une agence dans un pays dont le parcours n'est pas livré.
+            // Ouvrir un pays se fait dans config/pays.php, pas au cas par cas ici.
+            'agency_pays' => ['required', 'string', 'size:2', \Illuminate\Validation\Rule::in(\App\Support\Pays::ouverts())],
             'admin_name' => ['required', 'string', 'min:2', 'max:100'],
             'admin_email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'admin_password' => ['required', 'confirmed', PasswordPolicy::rules()],
+        ], [
+            'agency_pays.required' => "Le pays de l'agence est obligatoire.",
+            'agency_pays.in'       => "Ce pays n'est pas encore ouvert (voir config/pays.php).",
         ]);
 
         try {
             DB::transaction(function () use ($request) {
-                // `slug` et `actif` sont intentionnellement absents de Agency::$fillable.
-                // On utilise l'assignation directe de propriétés (pas create()) pour
-                // contourner la protection mass-assignment de façon explicite et documentée.
+                // `slug`, `actif`, `pays` et `devise` sont intentionnellement absents
+                // de Agency::$fillable. On utilise l'assignation directe de propriétés
+                // (pas create()) pour contourner la protection mass-assignment de
+                // façon explicite et documentée.
                 $agency = new Agency;
                 $agency->name = $request->agency_name;
                 $agency->email = $request->agency_email;
                 $agency->telephone = $request->agency_telephone;
                 $agency->adresse = $request->agency_adresse;
                 $agency->slug = Str::slug($request->agency_name).'-'.Str::random(6);
+                $agency->pays = $request->agency_pays;
+                $agency->devise = \App\Support\Pays::devise($request->agency_pays);
                 $agency->actif = true;
                 $agency->save();
 

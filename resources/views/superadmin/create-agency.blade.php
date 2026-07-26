@@ -48,6 +48,19 @@
                     <input type="text" name="agency_adresse" value="{{ old('agency_adresse') }}" placeholder="Dakar, Almadies" class="f-input @error('agency_adresse') f-input-error @enderror">
                     @error('agency_adresse')<p class="mt-1.5 text-[12px] text-error">{{ $message }}</p>@enderror
                 </div>
+                {{-- Pays : détermine le régime fiscal et les mentions des documents.
+                     Non modifiable ensuite depuis les paramètres d'agence. --}}
+                <div>
+                    <label class="f-label">Pays</label>
+                    <select name="agency_pays" class="f-input @error('agency_pays') f-input-error @enderror">
+                        <option value="" disabled @selected(! old('agency_pays'))>Choisir le pays</option>
+                        @foreach ($paysDisponibles as $code => $nom)
+                            <option value="{{ $code }}" @selected(old('agency_pays') === $code)>{{ $nom }}</option>
+                        @endforeach
+                    </select>
+                    @error('agency_pays')<p class="mt-1.5 text-[12px] text-error">{{ $message }}</p>@enderror
+                    <p class="mt-1.5 text-[12px] text-muted">Fixe le régime fiscal. Non modifiable par l'agence.</p>
+                </div>
             </div>
         </div>
 

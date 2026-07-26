@@ -5,6 +5,7 @@ namespace Tests\Browser;
 use App\Models\Agency;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\Pays;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Dusk\Browser;
@@ -49,10 +50,14 @@ class LoginTest extends DuskTestCase
     private function createTestAdmin(): User
     {
         $agency = new Agency();
-        $agency->name  = 'Agence Dusk Test';
-        $agency->email = 'agence@dusk.test';
-        $agency->slug  = 'agence-dusk-' . Str::random(6);
-        $agency->actif = true;
+        $agency->name   = 'Agence Dusk Test';
+        $agency->email  = 'agence@dusk.test';
+        $agency->slug   = 'agence-dusk-' . Str::random(6);
+        // `pays` est NOT NULL sans default (cf. migration add_pays_and_devise_to_agencies) :
+        // l'omettre ferait échouer l'insert. Hors $fillable → assignation directe.
+        $agency->pays   = Pays::DEFAUT;
+        $agency->devise = Pays::devise(Pays::DEFAUT);
+        $agency->actif  = true;
         $agency->save();
 
         Subscription::create([

@@ -8,6 +8,7 @@ use App\Models\Contrat;
 use App\Models\Paiement;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\Pays;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -16,7 +17,10 @@ class AgencySeeder extends Seeder
     public function run(): void
     {
         // ── 1. Créer l'agence BIMO-Tech ───────────────────────────────────
-        $agency = Agency::updateOrCreate(
+        // `unguarded` : `pays`, `devise` et `actif` sont hors $fillable (ils
+        // commandent le régime fiscal), or updateOrCreate() passe par fill() et
+        // les écarterait silencieusement — ce qui violerait le NOT NULL de `pays`.
+        $agency = Agency::unguarded(fn () => Agency::updateOrCreate(
             ['slug' => 'bimo-tech'],
             [
                 'name'             => 'BIMO-Tech',
@@ -25,9 +29,11 @@ class AgencySeeder extends Seeder
                 'adresse'          => 'Plateau, Dakar',
                 'couleur_primaire' => '#1a3c5e',
                 'taux_tva'         => 18.00,
+                'pays'             => Pays::DEFAUT,
+                'devise'           => Pays::devise(Pays::DEFAUT),
                 'actif'            => true,
             ]
-        );
+        ));
 
         $this->command->info("✓ Agence créée : {$agency->name} (ID: {$agency->id})");
 

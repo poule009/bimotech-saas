@@ -251,6 +251,7 @@ class GoogleAuthControllerTest extends TestCase
             ],
         ])->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ])->assertRedirect();
 
@@ -272,6 +273,7 @@ class GoogleAuthControllerTest extends TestCase
             ],
         ])->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ]);
 
@@ -295,6 +297,7 @@ class GoogleAuthControllerTest extends TestCase
             ],
         ])->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ]);
 
@@ -320,6 +323,7 @@ class GoogleAuthControllerTest extends TestCase
             ],
         ])->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ]);
 
@@ -338,6 +342,7 @@ class GoogleAuthControllerTest extends TestCase
             ],
         ])->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ]);
 
@@ -355,6 +360,7 @@ class GoogleAuthControllerTest extends TestCase
             ],
         ])->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ]);
 
@@ -417,6 +423,7 @@ class GoogleAuthControllerTest extends TestCase
     {
         $this->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ])->assertRedirect(route('agency.register'));
 
@@ -438,6 +445,7 @@ class GoogleAuthControllerTest extends TestCase
             ],
         ])->post(route('agency.register.google.store'), [
             'agency_name' => 'Agence Beta Sénégal',
+            'pays'        => 'SN',
             'cgu'         => '1',
         ])->assertRedirect(route('login'))
           ->assertSessionHasErrors('email');

@@ -10,6 +10,7 @@ use App\Models\Paiement;
 use App\Models\Proprietaire;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\Pays;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -28,23 +29,29 @@ class CommandCoverageSeeder extends Seeder
                 })
                 ->delete();
 
-            $agencyExpired = Agency::firstOrCreate(
+            // `unguarded` : `pays`/`devise`/`actif` sont hors $fillable et
+            // firstOrCreate() les écarterait silencieusement (NOT NULL sur `pays`).
+            $agencyExpired = Agency::unguarded(fn () => Agency::firstOrCreate(
                 ['slug' => 'test-coverage-agency-expired'],
                 [
                     'name' => 'TEST_COVERAGE_AGENCY_EXPIRED',
                     'email' => 'agency_expired_coverage@test.local',
+                    'pays' => Pays::DEFAUT,
+                    'devise' => Pays::devise(Pays::DEFAUT),
                     'actif' => true,
                 ]
-            );
+            ));
 
-            $agencyValid = Agency::firstOrCreate(
+            $agencyValid = Agency::unguarded(fn () => Agency::firstOrCreate(
                 ['slug' => 'test-coverage-agency-valid'],
                 [
                     'name' => 'TEST_COVERAGE_AGENCY_VALID',
                     'email' => 'agency_valid_coverage@test.local',
+                    'pays' => Pays::DEFAUT,
+                    'devise' => Pays::devise(Pays::DEFAUT),
                     'actif' => true,
                 ]
-            );
+            ));
 
             $ownerExpired = User::firstOrCreate(
                 ['email' => 'owner_expired_coverage@test.local'],

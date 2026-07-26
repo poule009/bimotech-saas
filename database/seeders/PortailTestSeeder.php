@@ -7,6 +7,7 @@ use App\Models\BienPhoto;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Models\Bien;
+use App\Support\Pays;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +18,9 @@ class PortailTestSeeder extends Seeder
     public function run(): void
     {
         // ── 1. Agence ──────────────────────────────────────────────────────
-        $agency = Agency::updateOrCreate(
+        // `unguarded` : `pays`/`devise`/`actif` sont hors $fillable et updateOrCreate()
+        // les écarterait silencieusement (violation du NOT NULL de `pays`).
+        $agency = Agency::unguarded(fn () => Agency::updateOrCreate(
             ['slug' => 'bimo-tech'],
             [
                 'name'             => 'BIMO-Tech Immo',
@@ -27,9 +30,11 @@ class PortailTestSeeder extends Seeder
                 'adresse'          => 'Plateau, Dakar',
                 'couleur_primaire' => '#1a3c5e',
                 'taux_tva'         => 18.00,
+                'pays'             => Pays::DEFAUT,
+                'devise'           => Pays::devise(Pays::DEFAUT),
                 'actif'            => true,
             ]
-        );
+        ));
 
         Subscription::updateOrCreate(
             ['agency_id' => $agency->id],
