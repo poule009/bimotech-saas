@@ -15,18 +15,32 @@ use Illuminate\Support\Facades\Hash;
 
 class DemoDataSeeder extends Seeder
 {
+    /**
+     * Agence cible. Si null, on retombe sur le slug « bimo-tech » (dev historique).
+     * La commande demo:seed la renseigne pour peupler n'importe quelle agence.
+     */
+    public static ?int $targetAgencyId = null;
+
+    /**
+     * Autorise l'exécution en production. Faux par défaut : seule la commande
+     * demo:seed --force peut le passer à vrai, jamais un `db:seed` accidentel.
+     */
+    public static bool $allowProduction = false;
+
     public function run(): void
     {
-        if (app()->environment('production')) {
-            $this->command->error('🚫 DemoDataSeeder ne doit jamais être exécuté en production (comptes de démo avec mot de passe connu).');
+        if (app()->environment('production') && ! static::$allowProduction) {
+            $this->command->error('🚫 DemoDataSeeder bloqué en production. Utilisez « php artisan demo:seed --force » pour confirmer.');
             return;
         }
 
-        // ── Récupère l'agence existante ───────────────────────────────────
-        $agency = Agency::where('slug', 'bimo-tech')->first();
+        // ── Récupère l'agence cible (hors périmètre Super Admin) ──────────
+        $agency = static::$targetAgencyId
+            ? Agency::sansPerimetre()->find(static::$targetAgencyId)
+            : Agency::where('slug', 'bimo-tech')->first();
 
         if (! $agency) {
-            $this->command->error('Agence "bimo-tech" introuvable. Lancez d\'abord AgencySeeder.');
+            $this->command->error('Agence cible introuvable.');
             return;
         }
 
