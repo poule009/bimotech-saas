@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use App\Support\PlatformSettings;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,7 +27,8 @@ class CreateSuperAdmin extends Command
                             {--email= : Email du compte (défaut : SUPER_ADMIN_EMAIL)}
                             {--password= : Mot de passe en clair (défaut : SUPER_ADMIN_PASSWORD, sinon saisie masquée)}
                             {--name= : Nom affiché du compte}
-                            {--force : Ne pas demander confirmation lors de la promotion d\'un compte existant}';
+                            {--force : Ne pas demander confirmation lors de la promotion d\'un compte existant}
+                            {--sans-2fa : Desactive l\'obligation de 2FA sur toute la plateforme (reglage global, reactivable dans Parametres systeme)}';
 
     protected $description = 'Crée ou met à niveau le compte super-admin principal (BIMO-Tech)';
 
@@ -86,6 +88,15 @@ class CreateSuperAdmin extends Command
         }
 
         $user->save();
+
+        // Dépannage : sans terminal interactif, l'enrôlement 2FA à la première
+        // connexion peut être un mur. On permet de lever l'obligation ici — c'est
+        // le même réglage que le toggle « Paramètres système », donc réversible.
+        if ($this->option('sans-2fa')) {
+            app(PlatformSettings::class)->set('securite_2fa_obligatoire', false);
+            $this->warn('⚠️  2FA rendue facultative sur toute la plateforme.');
+            $this->line('   À réactiver dans Super Admin → Paramètres système dès que possible.');
+        }
 
         $this->info(($existant ? '✅ Super Admin mis à niveau : ' : '✅ Super Admin créé : ') . $user->email);
         $this->line("   rôle : {$user->role} · principal : " . ($user->sa_est_principal ? 'oui' : 'non'));
