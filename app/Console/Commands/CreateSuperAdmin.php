@@ -25,7 +25,8 @@ class CreateSuperAdmin extends Command
     protected $signature = 'superadmin:create
                             {--email= : Email du compte (défaut : SUPER_ADMIN_EMAIL)}
                             {--password= : Mot de passe en clair (défaut : SUPER_ADMIN_PASSWORD, sinon saisie masquée)}
-                            {--name= : Nom affiché du compte}';
+                            {--name= : Nom affiché du compte}
+                            {--force : Ne pas demander confirmation lors de la promotion d\'un compte existant}';
 
     protected $description = 'Crée ou met à niveau le compte super-admin principal (BIMO-Tech)';
 
@@ -54,6 +55,19 @@ class CreateSuperAdmin extends Command
             }
 
             return self::FAILURE;
+        }
+
+        // Garde-fou : ne jamais promouvoir en silence un compte métier existant
+        // (locataire, propriétaire, admin d'agence) vers un accès plateforme total.
+        if ($existant && ! $existant->isSuperAdmin()) {
+            $this->warn("⚠️  Un compte existe déjà pour {$email} — rôle actuel : {$existant->role}"
+                . ($existant->agency_id ? " (agence #{$existant->agency_id})" : ''));
+
+            if (! $this->option('force') && ! $this->confirm('Le promouvoir en super-admin principal ?', false)) {
+                $this->info('Annulé — aucun changement.');
+
+                return self::FAILURE;
+            }
         }
 
         $user = $existant ?? new User();
