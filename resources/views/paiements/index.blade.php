@@ -31,7 +31,7 @@
     @endif
 
     {{-- KPIs --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white border border-line rounded-xl p-5">
             <div class="text-[12px] text-muted font-bold mb-2.5">Attendu ce mois</div>
             <div class="font-display font-semibold text-[24px]">{{ $fmt($kpis['attendu']) }} <span class="text-[14px] text-muted font-body">F</span></div>
@@ -41,6 +41,13 @@
             <div class="text-[12px] text-muted font-bold mb-2.5">Encaissé</div>
             <div class="font-display font-semibold text-[24px] text-green">{{ $fmt($kpis['encaisse']) }} <span class="text-[14px] text-muted font-body">F</span></div>
             <div class="text-[11.5px] text-muted mt-1">{{ $kpis['nb_payes'] }} quittance{{ $kpis['nb_payes'] > 1 ? 's' : '' }} payée{{ $kpis['nb_payes'] > 1 ? 's' : '' }}</div>
+        </div>
+        {{-- Émises, non réglées, encore dans la tolérance : le travail courant du
+             début de mois. Cette carte manquait — d'où une page vide du 1er au 6. --}}
+        <div class="bg-white border border-line rounded-xl p-5">
+            <div class="text-[12px] text-muted font-bold mb-2.5">À encaisser</div>
+            <div class="font-display font-semibold text-[24px] text-gold">{{ $fmt($kpis['a_encaisser']) }} <span class="text-[14px] text-muted font-body">F</span></div>
+            <div class="text-[11.5px] text-muted mt-1">{{ $kpis['nb_encaisser'] }} quittance{{ $kpis['nb_encaisser'] > 1 ? 's' : '' }} en attente</div>
         </div>
         <div class="bg-white border border-line rounded-xl p-5">
             <div class="text-[12px] text-muted font-bold mb-2.5">En retard</div>
@@ -65,15 +72,56 @@
         </form>
         <div class="flex items-center gap-2 flex-wrap">
             <a href="{{ route('admin.paiements.index', array_filter(['q' => $q])) }}" @class(['text-[13px] font-bold rounded-full px-4 py-2 border transition-colors','bg-teal text-paper border-teal'=>!$filter,'bg-white text-muted border-line hover:border-teal'=>$filter])>Tous</a>
+            <a href="{{ route('admin.paiements.index', array_filter(['q' => $q, 'filter' => 'encaisser'])) }}" @class(['text-[13px] font-bold rounded-full px-4 py-2 border flex items-center gap-1.5 transition-colors','bg-teal text-paper border-teal'=>$filter==='encaisser','bg-white text-muted border-line hover:border-teal'=>$filter!=='encaisser'])>À encaisser <span class="opacity-70 text-[11px]">{{ $aEncaisser->count() }}</span></a>
             <a href="{{ route('admin.paiements.index', array_filter(['q' => $q, 'filter' => 'retard'])) }}" @class(['text-[13px] font-bold rounded-full px-4 py-2 border flex items-center gap-1.5 transition-colors','bg-teal text-paper border-teal'=>$filter==='retard','bg-white text-muted border-line hover:border-teal'=>$filter!=='retard'])>En retard <span class="opacity-70 text-[11px]">{{ $totalRetard }}</span></a>
             <a href="{{ route('admin.paiements.index', array_filter(['q' => $q, 'filter' => 'payees'])) }}" @class(['text-[13px] font-bold rounded-full px-4 py-2 border flex items-center gap-1.5 transition-colors','bg-teal text-paper border-teal'=>$filter==='payees','bg-white text-muted border-line hover:border-teal'=>$filter!=='payees'])>Payées <span class="opacity-70 text-[11px]">{{ $payes->count() }}</span></a>
         </div>
     </div>
 
+    {{-- À encaisser — quittances émises, non réglées, encore dans la tolérance.
+         Sans ce groupe, la page était vide du 1er au 6 de chaque mois : aucune
+         ligne n'était en retard, donc aucun bouton « Marquer payé » disponible. --}}
+    @if(in_array($filter, [null, 'encaisser'], true) && $aEncaisser->isNotEmpty())
+        <div class="mb-5" x-data="severityGroup" data-open="true">
+            <div class="flex items-center gap-3 py-3 cursor-pointer" x-on:click="toggle">
+                <span class="w-3 h-3 rounded-full shrink-0 bg-gold"></span>
+                <span class="font-display font-semibold text-[16px]">À encaisser</span>
+                <span class="text-[12.5px] text-muted font-semibold">{{ $aEncaisser->count() }} quittance{{ $aEncaisser->count() > 1 ? 's' : '' }}</span>
+                <span class="text-[12px] text-muted">· dans le délai de {{ $kpis['jours_grace'] }} jours</span>
+                <svg x-bind:class="chevClass" class="ml-auto w-4 h-4 text-muted transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div x-show="open" class="space-y-2.5">
+                @foreach($aEncaisser as $p)
+                    @php $loc = $p->contrat?->locataire; $bien = $p->contrat?->bien; $waLink = $wa($loc?->telephone); @endphp
+                    <div class="flex flex-wrap items-center gap-4 p-4 bg-white rounded-xl border-l-4 border-gold border-y border-r border-line">
+                        <span class="w-[42px] h-[42px] rounded-[11px] bg-teal text-paper flex items-center justify-center text-[13px] font-bold shrink-0">{{ mb_strtoupper(mb_substr($loc?->name ?? '?', 0, 2)) }}</span>
+                        <div class="flex-1 min-w-[140px]">
+                            <div class="font-bold text-[14.5px] truncate">{{ $loc?->name ?? 'Locataire' }}</div>
+                            <div class="text-[12.5px] text-muted truncate">{{ $bien?->titre ?: $bien?->reference }}</div>
+                        </div>
+                        <div class="text-[13px] text-muted w-[90px]">{{ \Carbon\Carbon::parse($p->periode)->locale('fr')->isoFormat('MMM Y') }}</div>
+                        <div class="font-bold text-[14.5px] w-[100px]">{{ $fmt($p->montant_encaisse) }} F</div>
+                        <span class="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1.5 rounded-full bg-gold/15 text-gold whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-full bg-current"></span> En attente</span>
+                        <div class="ml-auto flex items-center gap-2 shrink-0">
+                            <form method="POST" action="{{ route('admin.paiements.marquer-paye', $p) }}">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="text-[12.5px] font-bold px-3.5 py-2 rounded-lg bg-teal text-paper hover:bg-teal-deep transition-colors whitespace-nowrap">Marquer payé</button>
+                            </form>
+                            @if($waLink)
+                                <a href="{{ $waLink }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-[12.5px] font-bold px-3.5 py-2 rounded-lg bg-paper-dim text-muted hover:text-ink transition-colors"><x-icon-whatsapp /> Rappeler</a>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     {{-- Groupes de retard --}}
-    @if($filter !== 'payees')
-        @php $rienEnRetard = $totalRetard === 0; @endphp
-        @if($rienEnRetard)
+    @if(in_array($filter, [null, 'retard'], true))
+        {{-- « Aucun retard » ne s'affiche que sur le filtre dédié : sur « Tous »,
+             ce message masquait les quittances à encaisser sous une coche verte. --}}
+        @if($totalRetard === 0 && $filter === 'retard')
             <div class="bg-white border border-line rounded-2xl py-12 text-center text-muted text-[14px] mb-4 flex items-center justify-center gap-2"><x-icon name="check-circle" size="18" class="text-green" /> Aucun retard en ce moment.</div>
         @endif
         @foreach($buckets as $key => $bucket)
@@ -114,7 +162,7 @@
     @endif
 
     {{-- Groupe payées --}}
-    @if($filter !== 'retard' && $payes->isNotEmpty())
+    @if(in_array($filter, [null, 'payees'], true) && $payes->isNotEmpty())
         <div class="mb-5" x-data="severityGroup" data-open="{{ $filter === 'payees' ? 'true' : 'false' }}">
             <div class="flex items-center gap-3 py-3 cursor-pointer" x-on:click="toggle">
                 <span class="w-3 h-3 rounded-full shrink-0 bg-green"></span>
@@ -145,6 +193,30 @@
                     </div>
                 @endforeach
             </div>
+        </div>
+    @endif
+
+    {{-- Vide réel : rien dans la sélection courante. Message honnête plutôt
+         qu'une coche verte qui laisserait croire que tout est encaissé. --}}
+    @php
+        $rienAAfficher = match ($filter) {
+            'encaisser' => $aEncaisser->isEmpty(),
+            'payees'    => $payes->isEmpty(),
+            'retard'    => false, // déjà traité par son propre message
+            default     => $aEncaisser->isEmpty() && $totalRetard === 0 && $payes->isEmpty(),
+        };
+    @endphp
+    @if($rienAAfficher)
+        <div class="bg-white border border-line rounded-2xl py-12 text-center text-muted text-[14px] mb-4">
+            @if($q !== '')
+                Aucune quittance ne correspond à « {{ $q }} ».
+            @elseif($filter === 'payees')
+                Aucune quittance payée ce mois pour l'instant.
+            @elseif($filter === 'encaisser')
+                Rien à encaisser — tout est réglé ou déjà en retard.
+            @else
+                Aucune quittance ce mois. Vérifiez que vos contrats sont actifs.
+            @endif
         </div>
     @endif
 

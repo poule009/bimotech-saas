@@ -58,7 +58,7 @@ class PaiementController extends Controller implements HasMiddleware
 
         $agencyId = Auth::user()->agency_id;
         $q        = trim((string) $request->input('q'));
-        $filter   = in_array($request->input('filter'), ['retard', 'payees'], true) ? $request->input('filter') : null;
+        $filter   = in_array($request->input('filter'), ['retard', 'payees', 'encaisser'], true) ? $request->input('filter') : null;
         $now      = now();
 
         // ── Cohérence Quittances = Dashboard ──────────────────────────────
@@ -130,11 +130,19 @@ class PaiementController extends Controller implements HasMiddleware
         $enRetardMontant  = 0.0;
         $locatairesRetard = collect();
         $critiques        = 0;
+        $aEncaisser       = collect();
+        $aEncaisserMontant = 0.0;
 
         foreach ($impayes as $p) {
-            $jours = (int) \Carbon\Carbon::parse($p->periode)->addDays(5)->diffInDays($now, false);
+            // Règle unique (Paiement::JOURS_GRACE) — plus de « 5 » recopié ici.
+            $jours = Paiement::joursRetardPour($p->periode, $now);
             if ($jours <= 0) {
-                continue; // encore dans le délai de grâce
+                // Encore dans la tolérance. Une quittance émise et non réglée
+                // doit rester VISIBLE et encaissable : c'est le travail courant
+                // du début de mois. Elle bascule en retard toute seule ensuite.
+                $aEncaisser->push($p);
+                $aEncaisserMontant += (float) $p->montant_encaisse;
+                continue;
             }
             $p->jours_retard = $jours;
             $enRetardMontant += (float) $p->montant_encaisse;
@@ -160,16 +168,19 @@ class PaiementController extends Controller implements HasMiddleware
             ->get(['statut', 'montant_encaisse']);
 
         $kpis = [
-            'attendu'   => (float) $moisRows->sum('montant_encaisse'),
-            'encaisse'  => (float) $moisRows->where('statut', 'valide')->sum('montant_encaisse'),
-            'nb_payes'  => $moisRows->where('statut', 'valide')->count(),
-            'nb_actifs' => Contrat::where('agency_id', $agencyId)->where('statut', 'actif')->count(),
-            'en_retard' => $enRetardMontant,
-            'nb_retard' => $locatairesRetard->filter()->unique()->count(),
-            'critiques' => $critiques,
+            'attendu'      => (float) $moisRows->sum('montant_encaisse'),
+            'encaisse'     => (float) $moisRows->where('statut', 'valide')->sum('montant_encaisse'),
+            'nb_payes'     => $moisRows->where('statut', 'valide')->count(),
+            'nb_actifs'    => Contrat::where('agency_id', $agencyId)->where('statut', 'actif')->count(),
+            'a_encaisser'  => $aEncaisserMontant,
+            'nb_encaisser' => $aEncaisser->count(),
+            'en_retard'    => $enRetardMontant,
+            'nb_retard'    => $locatairesRetard->filter()->unique()->count(),
+            'critiques'    => $critiques,
+            'jours_grace'  => Paiement::JOURS_GRACE,
         ];
 
-        return view('paiements.index', compact('buckets', 'payes', 'kpis', 'q', 'filter'));
+        return view('paiements.index', compact('buckets', 'aEncaisser', 'payes', 'kpis', 'q', 'filter'));
     }
 
     /**

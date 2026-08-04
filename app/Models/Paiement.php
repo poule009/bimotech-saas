@@ -339,6 +339,56 @@ class Paiement extends Model
         ];
     }
 
+    // ── Retard : règle unique de la plateforme ────────────────────────────────
+
+    /**
+     * Tolérance de paiement, en jours après le début de la période.
+     *
+     * Un loyer d'août (période = 1er août) n'est en retard qu'à partir du
+     * 7 août. Objectif métier : un locataire qui règle le 3 n'est pas un
+     * mauvais payeur — sans cette tolérance, l'application afficherait des
+     * alertes et proposerait de relancer tout le monde dès le 1er au matin.
+     *
+     * ⚠️  Cette constante est la SEULE définition du retard. Le Dashboard, les
+     *     Quittances, la fiche locataire et les Impayés la lisent tous ici.
+     *     Ne jamais recopier « 5 » ailleurs : c'est cette duplication qui avait
+     *     fait diverger le Dashboard (12 en retard) et les Quittances (0).
+     *
+     * Destinée à devenir un réglage par agence — d'où le passage systématique
+     * par les helpers ci-dessous plutôt que par la constante en direct.
+     */
+    public const JOURS_GRACE = 5;
+
+    /**
+     * Jours de retard d'une période donnée. Négatif ou nul = encore dans la
+     * tolérance. C'est la primitive dont dépendent tous les écrans.
+     */
+    public static function joursRetardPour($periode, ?\Carbon\Carbon $ref = null): int
+    {
+        return (int) \Carbon\Carbon::parse($periode)
+            ->addDays(self::JOURS_GRACE)
+            ->diffInDays($ref ?: now(), false);
+    }
+
+    /** Une période est-elle échue, tolérance comprise ? */
+    public static function periodeEstEnRetard($periode, ?\Carbon\Carbon $ref = null): bool
+    {
+        return self::joursRetardPour($periode, $ref) > 0;
+    }
+
+    /** Jours de retard de cette quittance (0 tant qu'elle est dans la tolérance). */
+    public function joursRetard(?\Carbon\Carbon $ref = null): int
+    {
+        return max(0, self::joursRetardPour($this->periode, $ref));
+    }
+
+    /** Quittance émise, non réglée, et dont la tolérance est dépassée. */
+    public function estEnRetard(?\Carbon\Carbon $ref = null): bool
+    {
+        return ! in_array($this->statut, ['valide', 'annule'], true)
+            && self::periodeEstEnRetard($this->periode, $ref);
+    }
+
     // ── Constantes ────────────────────────────────────────────────────────────
 
     public const MODES_PAIEMENT = [

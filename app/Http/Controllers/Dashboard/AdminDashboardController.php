@@ -148,7 +148,15 @@ class AdminDashboardController extends Controller
             ->pluck('contrat_id')
             ->toArray();
 
-        $nb_impayes_mois = max(0, $nbContratsActifs - count(array_unique($payes)));
+        // ── Retard : même règle que les Quittances (Paiement::JOURS_GRACE) ──
+        // Ce compteur soustrayait les payés des contrats actifs, sans notion de
+        // date : le 1er du mois à minuit il affichait donc TOUS les contrats en
+        // « retard », d'où le 12 ici contre 0 sur les Quittances. Tant que la
+        // période est dans la tolérance, il n'y a pas de retard — seulement des
+        // loyers à encaisser.
+        $periodeEchue    = Paiement::periodeEstEnRetard($debut);
+        $nb_a_encaisser  = max(0, $nbContratsActifs - count(array_unique($payes)));
+        $nb_impayes_mois = $periodeEchue ? $nb_a_encaisser : 0;
 
         $periodeMultiplier = match($periode) {
             'trimestre' => 3,
@@ -159,13 +167,18 @@ class AdminDashboardController extends Controller
             ->where('statut', 'actif')
             ->sum('loyer_contractuel') * $periodeMultiplier;
 
-        $impayes_urgents = Contrat::where('agency_id', $agencyId)
-            ->where('statut', 'actif')
-            ->whereNotIn('id', $payes)
-            ->with(['bien:id,reference,adresse,ville', 'locataire:id,name,telephone'])
-            ->select(['id', 'bien_id', 'locataire_id', 'loyer_contractuel', 'date_debut'])
-            ->limit(5)
-            ->get();
+        // « À traiter » déclenche des relances vers les locataires. Pendant la
+        // tolérance, personne n'est en faute : relancer le 1er au matin des gens
+        // qui paieront le 3 abîme la relation client. Liste vide jusqu'à échéance.
+        $impayes_urgents = $periodeEchue
+            ? Contrat::where('agency_id', $agencyId)
+                ->where('statut', 'actif')
+                ->whereNotIn('id', $payes)
+                ->with(['bien:id,reference,adresse,ville', 'locataire:id,name,telephone'])
+                ->select(['id', 'bien_id', 'locataire_id', 'loyer_contractuel', 'date_debut'])
+                ->limit(5)
+                ->get()
+            : collect();
 
         // ── Contrats à renouveler dans 30 jours ──────────────────────────
         $contrats_a_renouveler = Contrat::where('agency_id', $agencyId)
@@ -345,6 +358,8 @@ class AdminDashboardController extends Controller
             'stats',
             'statsMois',
             'nb_impayes_mois',
+            'nb_a_encaisser',
+            'periodeEchue',
             'montant_du_mois',
             'impayes_urgents',
             'contrats_a_renouveler',

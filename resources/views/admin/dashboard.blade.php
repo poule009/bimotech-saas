@@ -111,7 +111,11 @@
             </div>
             <div class="font-display font-semibold text-[25px] leading-none mb-1.5">{{ $nb_impayes_mois }}</div>
             <div class="text-[12px] font-semibold {{ ($delta['impayes'] ?? 0) > 0 ? 'text-error' : 'text-muted' }}">
-                @if(!is_null($delta['impayes']) && $delta['impayes'] != 0)
+                @if(! $periodeEchue && $nb_a_encaisser > 0)
+                    {{-- Tolérance en cours : pas de retard, mais l'encaissement
+                         reste à faire. On l'annonce plutôt que d'afficher un 0 muet. --}}
+                    {{ $nb_a_encaisser }} à encaisser
+                @elseif(!is_null($delta['impayes']) && $delta['impayes'] != 0)
                     {{ $delta['impayes'] > 0 ? '↑ +'.$delta['impayes'] : '↓ '.$delta['impayes'] }} vs mois dernier
                 @else
                     Contrats actifs non soldés

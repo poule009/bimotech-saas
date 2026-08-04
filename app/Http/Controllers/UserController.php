@@ -194,9 +194,8 @@ class UserController extends Controller
         $locataires = $query->orderBy('name')->paginate(15)->withQueryString();
 
         // ── Statut de paiement CALCULÉ (jamais stocké) ────────────────────
-        // Même logique qu'ImpayeController : 5 jours de grâce après le début de période.
-        $grace       = $periode->copy()->addDays(5);
-        $joursRetard = (int) $grace->diffInDays(now(), false);
+        // Règle unique de la plateforme : Paiement::JOURS_GRACE.
+        $joursRetard = Paiement::joursRetardPour($periode);
         $contratIds  = $locataires->getCollection()->flatMap(fn ($u) => $u->contrats->pluck('id'))->unique()->values();
         $paidIds     = $contratIds->isEmpty() ? collect() : Paiement::whereIn('contrat_id', $contratIds)
             ->where('statut', 'valide')
@@ -520,7 +519,7 @@ class UserController extends Controller
                     ->whereMonth('periode', $periode->month)
                     ->exists();
 
-                $joursRetard = (int) $periode->copy()->addDays(5)->diffInDays(now(), false);
+                $joursRetard = Paiement::joursRetardPour($periode);
 
                 $paie = ($paye || $joursRetard <= 0)
                     ? ['etat' => 'ok', 'jours' => 0, 'periode' => $periode]

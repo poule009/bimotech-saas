@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ImpayesExport;
 use App\Models\Contrat;
+use App\Models\Paiement;
 use App\Notifications\RelanceImpayeNotification;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -74,7 +75,7 @@ class ImpayeController extends Controller
             if ($paiementMois) {
                 $payes->push(['contrat' => $contrat, 'paiement' => $paiementMois]);
             } else {
-                $joursRetard = $periode->copy()->addDays(5)->diffInDays(now(), false);
+                $joursRetard = Paiement::joursRetardPour($periode);
                 $impayes->push([
                     'contrat'      => $contrat,
                     'paiement'     => null,
